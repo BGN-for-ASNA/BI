@@ -42,4 +42,11 @@ Work in progress
 If a GPU is detected, the model computation can be run on it.
 
 ## 3.  Offer a graphical user interface.
+### Import data
+![image](https://github.com/BGN-for-ASNA/BI/assets/22368172/c9c9f88e-42c7-4b88-96d0-a8d51d6a6a6b)
+
+### Declared model
 ![image](https://github.com/BGN-for-ASNA/BI/assets/22368172/5ce6dd41-1188-4cfe-83f1-481ce0992787)
+
+### Run model
+Work in progress
