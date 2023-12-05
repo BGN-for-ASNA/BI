@@ -9,7 +9,7 @@ The following linear regression model (rethinking 4.Geocentric Models):
 height∼Normal(μ,σ)
 ```
 ```math
-μ=α+β(weight)
+μ=α+β*weight
 ```
 ```math 
 α∼Normal(178,20)
