@@ -34,6 +34,7 @@ model = dict(main = 'height~Normal(m,sigma)',
             prior1 = 'alpha~Normal(178, 20)',
             prior2 = 'beta ~ Normal(0,10)',
             prior3 = 'sigma ~ Uniform(0,50)')
+
 # Run Hamiltonian MonteCarlo
 Work in progress
 ```            
