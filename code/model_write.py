@@ -282,7 +282,6 @@ def build_model(model,
         path = 'mydf'
           
     full_model = get_var(model)
-    print(full_model)
     issues = get_undeclared_params(full_model, df = df)
 
     if df.empty :
@@ -305,49 +304,3 @@ def build_model(model,
     importlib.reload(mymodel)
     from mymodel import m
     return m
-
-#def write_fit(args, output_file = 'mymodel.py'):
-#    file1 = open(output_file, 'w')
-#    file1.write("\n")
-#    file1.write
-
-## test No data frame -----------------------------------------------------
-#model = dict(main = 'y~Normal(m,s)',
-#            likelihood = 'm = alpha + beta',
-#            prior1 = 's~Exponential(1)',
-#            prior2 = 'alpha ~ Normal(0,1)',
-#            prior3 = 'beta ~ Normal(0,1)',
-#            
-#            main1 = 'z~Normal(m2,s2)',
-#            likelihood2 = 'm2 = alpha2 + beta2',
-#            prior4 = 's2~Exponential(1)',
-#            prior5 = 'alpha2 ~ Normal(0,1)',
-#            prior6 = 'beta2 ~ Normal(0,1)')    
-#
-#model = build_model(model, float = 16)        
-#model
-
-### test with data frame in path-----------------------------------------------------
-#model = dict(main = 'weight~Normal(m,s)',
-#            likelihood = 'm = alpha + beta * height',
-#            prior1 = 's~Exponential(1)',
-#            prior2 = 'alpha ~ Normal(0,1)',
-#            prior3 = 'beta ~ Normal(0,1)')    
-#
-#model2 = build_model(model, 
-#            path = "../data/Howell1.csv", sep = ';')
-#model2
-
-### test with data frame in function-----------------------------------------------------
-#d = pd.read_csv('C:/Users/sebastian_sosa/OneDrive/Travail/Max Planck/Projects/python/rethinking-master/data/Howell1.csv', sep=';')
-#d = d[d.age > 18]
-#d.weight = d.weight - d.weight.mean()
-#
-#model = dict(main = 'height ~ Normal(m,s)',
-#            likelihood = 'm = alpha + beta * weight',
-#            prior1 = 's~Exponential(1)',
-#            prior2 = 'alpha ~ Normal(0,1)',
-#            prior3 = 'beta ~ Normal(0,1)')    
-#
-#build_model(model, path = None, df = d)
-# %%
