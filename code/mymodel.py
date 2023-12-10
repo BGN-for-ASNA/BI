@@ -1,12 +1,10 @@
+import tensorflow as tf
 import tensorflow_probability as tfp
 tfd = tfp.distributions
+from model_fit import *
+from model_diagnostic import *
 m = tfd.JointDistributionNamed(dict(
-	s = tfd.Sample(tfd.Exponential(1)),
-	alpha = tfd.Sample(tfd.Normal(0,1)),
-	beta = tfd.Sample(tfd.Normal(0,1)),
-	s2 = tfd.Sample(tfd.Exponential(1)),
-	alpha2 = tfd.Sample(tfd.Normal(0,1)),
-	beta2 = tfd.Sample(tfd.Normal(0,1)),
-	y = lambda s,alpha,beta,s2,alpha2,beta2: tfd.Independent(tfd.Normal( alpha + beta,s)),
-	z = lambda s,alpha,beta,s2,alpha2,beta2: tfd.Independent(tfd.Normal( alpha2 + beta2,s2)),
+	mu = tfd.Sample(tfd.Normal(178.0, 0.1), sample_shape=1),
+	sigma = tfd.Sample(tfd.Uniform(0.0, 50.0), sample_shape=1),
+	height = lambda mu,sigma: tfd.Independent(tfd.Normal(mu, sigma), reinterpreted_batch_ndims=1),
 ))
