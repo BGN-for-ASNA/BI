@@ -85,12 +85,11 @@ def model_to_az(sample_stats, results, params):
             transposed_shape = [1, 0, 2, 3]
         transposed_results.append(tf.transpose(r, transposed_shape))
     posterior = dict(zip(params, transposed_results))
-    print(posterior)
-    az_trace = _trace_to_arviz(trace=posterior, sample_stats=sampler_stats)
+
+    az_trace = _trace_to_arviz(trace=posterior, sample_stats = sampler_stats)
     return az_trace
 
 def run_model(model, 
-              params,
               observed_data,
               parallel_iterations = 1,
               num_results = 2000, 
@@ -114,11 +113,41 @@ def run_model(model,
                                       num_adaptation_steps = num_adaptation_steps,
                                       num_chains = num_chains)   
     
-    az_trace = model_to_az(sample_stats, posterior, params)       
-    p={}
-    for a in range(len(params)):
-        p[params[a]] = posterior[a]
-    return p, az_trace, sample_stats
+    p = dict(zip(model._flat_resolve_names(), posterior))
+    az_trace = model_to_az(sample_stats, posterior, list(p.keys()))       
+
+    
+    return dict(p), az_trace, sample_stats
+
+def fit_model(model, 
+              observed_data,
+              parallel_iterations = 1,
+              num_results = 2000, 
+              num_burnin_steps=500,
+              step_size = 0.065,
+              num_leapfrog_steps = 5,
+              num_adaptation_steps = 400,
+              num_chains = 4,
+              float = 32,
+              inDF = True):
+    write_HMC(model, 
+              observed_data,
+              parallel_iterations = parallel_iterations,
+              num_results = num_results, 
+              num_burnin_steps = num_burnin_steps,
+              step_size = step_size,
+              num_leapfrog_steps = num_leapfrog_steps,
+              num_adaptation_steps = num_adaptation_steps,
+              num_chains = num_chains,
+              float = float,
+              inDF = inDF
+             )
+    
+    import importlib
+    import mymodel
+    importlib.reload(mymodel)
+    from mymodel import posterior, trace, sample_stats
+    return posterior, trace, sample_stats
 
 #%%
 #from model_write import *
