@@ -6,8 +6,6 @@ import re
 import sys
 import numpy as np
 
-
-
 ## Distribution functions -----------------------------------------------------
 def get_distribution_classes():
     # Get all names defined in the distributions module
@@ -75,11 +73,14 @@ def get_var(model):
 def get_undeclared_params(model, df):
     Vars = []
     params = []
+    mainOutput = []
     for key in model.keys():
         if 'main' in key:
             if df.empty: 
+                mainOutput.append(model[key]['var'][0])
                 tmp = model[key]['var'][2:]
             else:
+                mainOutput.append(model[key]['var'][0])
                 tmp = model[key]['var']
         else:
             tmp = model[key]['var']
@@ -92,8 +93,11 @@ def get_undeclared_params(model, df):
                     Vars.append(tmp[0].replace(' ', ''))
                                     
     params = [item.replace(' ', '') for sublist in params for item in sublist]
+    if any(ele in params for ele in mainOutput):
+        print('model with main in other likelihood')
     undeclared_params = list(set(Vars) ^ set(params))
     undeclared_params2 = []
+    
     for a in range(len(undeclared_params)):
         try:
             x = float(undeclared_params[a])
@@ -118,8 +122,6 @@ def get_likelihood(model, main_name):
                 index = model[main_name]['var'][2].index(name)
                 y, x = re.split(r'[~]',model[key]['input'])
                 x = x.replace(" ", "")
-                print(type(x) == str)
-                print(x)
                 
                 if x.find('(') != -1:
                     x = 'tfd.Sample(tfd.' + x + ', sample_shape=1)'
@@ -135,6 +137,8 @@ def write_header(output_file, float):
     with open(output_file,'w') as file:
         pass
     with open(output_file,'w') as file:
+        file.write("# Import dependencies ----------------------------")    
+        file.write('\n')
         file.write("import tensorflow as tf")    
         file.write('\n')
         file.write("import tensorflow_probability as tfp")    
@@ -145,7 +149,9 @@ def write_header(output_file, float):
         file.write('\n')
         file.write("from model_diagnostic import *")    
         file.write('\n')
-        
+        file.write('\n')
+        file.write("# Model ----------------------------")    
+        file.write('\n')
         file.write("m = tfd.JointDistributionNamed(dict(")
         file.write('\n')
 
@@ -153,6 +159,8 @@ def write_header_with_dataFrame(output_file, DFpath, data, float, sep):
     with open(output_file,'w') as file:
         pass
     with open(output_file,'w') as file:
+        file.write("# Import dependencies ----------------------------")    
+        file.write('\n')
         file.write("import tensorflow as tf")    
         file.write('\n')
         file.write("import tensorflow_probability as tfp")    
@@ -165,17 +173,21 @@ def write_header_with_dataFrame(output_file, DFpath, data, float, sep):
         file.write('\n')
         file.write("from model_diagnostic import *")    
         file.write('\n')
-        
+        file.write('\n')
+        file.write("# Import data (with modification if maded) ----------------------------")    
+        file.write('\n')
         file.write("d = pd.read_csv('" + DFpath +"', sep = '" + sep + "')")    
         file.write('\n')
-        
+   
     for a in range(len(data)):
         with open(output_file,'a') as file:
             #file.write(data[a] + "= tf.convert_to_tensor(d." + data[a] + ", dtype = tf.float" + str(float) + ")")  
             file.write(data[a] + "= d." + data[a] )  
             file.write('\n')
-        
-    with open(output_file,'a') as file:   
+       
+    with open(output_file,'a') as file: 
+        file.write("# Model ----------------------------")    
+        file.write('\n')          
         file.write("m = tfd.JointDistributionNamed(dict(")
         file.write('\n')
 
@@ -197,29 +209,53 @@ def write_priors(model, output_file, float):
                 file.write('\n')
     return p           
 
-def write_main(model, output_file, p, float):    
+def write_main(model, output_file, p, float):   
+    mainsOutput = [] 
     for key in model.keys():
-        tmp = model[key]
         input = model[key]['input']
         var = model[key]['var']
-        if 'main' in key.lower():
-            with open(output_file,'a') as file:
-                file.write('\t')                
-                
-                file.write(str(var[0]) + " = lambda " + 
-                            str(','.join(p)) + ":" +
-                            " tfd.Independent(tfd."+ var[1] + "(")
-                
-                if 'likelihood' in model.keys():
-                    formula = get_likelihood(model, key)
+        if 'main' in key.lower():   
+            mainsOutput.append(var[0])
+            
+    lParam = [] 
+    for key in model.keys():
+        input = model[key]['input']
+        var = model[key]['var']
+        if 'likelihood' in key.lower():   
+            lParam.append(var[1]) 
+    lParam = [item.replace(' ', '') for sublist in lParam for item in sublist]
+
+    for key in model.keys():
+        input = model[key]['input']
+        var = model[key]['var']
+        if 'main' in key.lower():           
+            with open(output_file,'a') as file:  
+                file.write('\n')                                           
+                if 'likelihood' in model.keys():  
+                    formula = get_likelihood(model, key)      
                     if formula is not None:
+                        file.write('\t') 
+                        params = re.split(r'[+***-]',formula[0])
+                        params_in_prior =[x for x in params if x in p]
+                        params_in_main =[x for x in params if x in mainsOutput]
+                        params = params_in_prior + params_in_main + [var[2][1]]                     
                         var[2][formula[1]] = formula[0]
+                        file.write(str(var[0]) + " = lambda " + 
+                                    str(','.join(params)) + ":" +
+                                    " tfd.Independent(tfd."+ var[1] + "(") 
                         #file.write(str(', '.join([f'tf.cast([{item}], dtype=tf.float{float})' for item in var[2]]))+ "), reinterpreted_batch_ndims=1),")
                         file.write(str(', '.join([f'{item}' for item in var[2]]))+ "), reinterpreted_batch_ndims=1),")
                     else:
+                        file.write(str(var[0]) + " = lambda " + 
+                            str(','.join(p)) + ":" +
+                            " tfd.Independent(tfd."+ var[1] + "(")
                         #file.write(str(', '.join([f'tf.cast([{item}], dtype=tf.float{float})' for item in var[2]]))+ "), reinterpreted_batch_ndims=1),")
                         file.write(str(', '.join([f'{item}' for item in var[2]]))+ "), reinterpreted_batch_ndims=1),")
+                
                 else: # No fromula in likelihood
+                    file.write(str(var[0]) + " = lambda " + 
+                            str(','.join(p)) + ":" +
+                            " tfd.Independent(tfd."+ var[1] + "(")
                     y, x = re.split(r'[~]',model['main']['input'])
                     x = x.replace(' ', '')
                     dist, args = x.split('(')
@@ -243,35 +279,48 @@ def write_model(model, sep = ';',  path = 'mymodel.py', withDF = False, DFpath =
     p = write_priors(model, path, float)
     write_main(model, path, p, float)
 
+def write_HMC(model, 
+              observed_data,
+              parallel_iterations = 1,
+              num_results = 2000, 
+              num_burnin_steps=500,
+              step_size = 0.065,
+              num_leapfrog_steps = 5,
+              num_adaptation_steps = 400,
+              num_chains = 4,
+              float = 32,
+              inDF = True
+             ):
+    saved_args = locals()
+    output_file = 'mymodel.py'
+    with open(output_file,'a') as file:
+        file.write('\n')
+        file.write('\n')
+        file.write('# Run HMC ----------------------------')
+        file.write('\n')
+        file.write("posterior, trace, sample_stats =  run_model(model = m,")
+        file.write('\n')   
+             
+        for key in saved_args.keys():
+            if key != "observed_data" and key != "inDF" and key != 'model' and key != 'float':
+                file.write(key + '=' + str(saved_args[key]) + ',')
+                file.write('\n')
+        
+        file.write("observed_data = dict(")        
+        if saved_args['inDF']:
+            for key in saved_args['observed_data'].keys():      
+                file.write(key + ' = d.' + saved_args['observed_data'][key] + ".astype('float" + str(float) + "').values,")
+        else:
+             for key in saved_args['observed_data'].keys():
+                file.write(key + ' = ' + observed_data[key])    
+        file.write("))")
+        
 ## Mains -----------------------------------------------------
 def build_model(model,
                 path = None,
                 df = None,
                 float = 16,
                 sep = ';'): 
-    """
-    Args:
-        model (str): The name of the model to be built.
-        path (str, optional): The path to the input data file. 
-        If None, an empty DataFrame with column 'A' is created. Defaults to None.
-        df (pandas.DataFrame, optional): A pandas DataFrame that contains the input data. 
-        If None, the function reads the input data from the file specified by path. Defaults to None.
-
-    Returns:
-        Tensorflow probability model.
-
-    Summary:
-    This function takes three arguments: model, path, and df. It first checks if df is None. 
-    If it is, it checks if path is None. If path is None, it creates an empty DataFrame with column 'A'. 
-    If path is not None, it reads the input data from the file specified by path using the pd.read_csv() 
-    function with any additional keyword arguments specified in kwargs. The function then gets the full model 
-    specification using the get_var() function and checks for any undeclared parameters using the get_undeclared_params() 
-    function. If there are no undeclared parameters, it writes the model specification to a file using the write_model() 
-    function with the withDF parameter set to True, the DFpath parameter set to path, and the data parameter set to the 
-    list of declared parameters in the input data. 
-    If there are undeclared parameters, it prints a message indicating which parameters are missing and returns None.
-    Finally, the function reloads the mymodel module and returns the built model.
-    """
     if df is None :
         if  path is None:
             df = pd.DataFrame({'A' : []})
