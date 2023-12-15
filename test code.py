@@ -1,10 +1,10 @@
 #%%
-from model_diagnostic import *
-from model_fit import *
-from model_write import *
+from code.model_diagnostic import *
+from code.model_fit import *
+from code.model_write import *
 import pandas as pd
 
-d = pd.read_csv('C:/Users/sebastian_sosa/OneDrive/Travail/Max Planck/Projects/python/rethinking-master/data/Howell1.csv', sep=';')
+d = pd.read_csv('./data/Howell1.csv', sep=';')
 d = d[d.age > 18]
 d.weight = d.weight - d.weight.mean()
 weight = d.weight
@@ -57,19 +57,19 @@ model = dict(main = 'height~Normal(m,s)',
             prior3 = 'beta ~ Normal(0,1)')    
 
 model2 = build_model(model, 
-            path = "../data/Howell1.csv", sep = ';')
+            path = "./data/Howell1.csv", sep = ';')
 
 model2.sample()
 
 # As dataframe is setup with path we do not concider variable modifications
-d = pd.read_csv('C:/Users/sebastian_sosa/OneDrive/Travail/Max Planck/Projects/python/rethinking-master/data/Howell1.csv', sep=';')
+d = pd.read_csv('./data/Howell1.csv', sep=';')
 posterior, trace, sample_stats =  fit_model(model2, 
                                             observed_data = dict(height = 'height'),
                                             num_chains = 4)
 
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 #%% Test with data frame in likelihood-----------------------------------------------------
-d = pd.read_csv('C:/Users/sebastian_sosa/OneDrive/Travail/Max Planck/Projects/python/rethinking-master/data/Howell1.csv', sep=';')
+d = pd.read_csv('./data/Howell1.csv', sep=';')
 d = d[d.age > 18]
 d.weight = d.weight - d.weight.mean()
 weight = d.weight
