@@ -19,20 +19,26 @@ def main(page: ft.page):
     
     up = upload(page)
     up.visible = False   
+    
+    run = Run(page)
+    up.visible = False 
     # Control pages visibility --------------------------------------
     def toUpload(e):
         app.visible = False
         up.visible = True
+        False
         page.update()
         
     def toModel(e):
         up.visible = False
         app.visible = True
+        run.visible = False
         page.update()
         
     def toRun(e):
         app.visible = False
         up.visible = False
+        run.visible = True
         page.update()
         
     bt1 = ft.FilledButton("Upload data", on_click= toUpload, data=app)
