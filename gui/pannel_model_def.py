@@ -102,3 +102,4 @@ class TasksApp(ft.UserControl):
  
         self.update()
      
+# %%
