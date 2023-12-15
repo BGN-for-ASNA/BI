@@ -259,7 +259,6 @@ def write_main(model, output_file, p, float):
     for key in model.keys():
         input = model[key]['input']
         var = model[key]['var']
-        print(var)
         if 'main' in key.lower():           
             with open(output_file,'a') as file:  
                 file.write('\n')    
@@ -372,7 +371,7 @@ def build_model(model,
 
     if df.empty :
         if len(issues) == 0:
-            print('Non missing variables')
+            print('No variables missing')
             write_model(full_model, float = float, sep = sep)
         else:
             print("Arguments are missing: " + ''.join(issues))

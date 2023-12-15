@@ -136,8 +136,7 @@ class TasksApp(ft.UserControl):
     #The task from the View when pressing Delete
     def taskDelete(self,task):
         self.tasks.controls.remove(task)
-        self.update()
-        
+        self.update()    
     
 class Task(ft.UserControl): 
     #Call super since we are passing extra parameters to the
