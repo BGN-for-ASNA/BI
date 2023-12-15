@@ -144,9 +144,9 @@ def fit_model(model,
              )
     
     import importlib
-    import mymodel
+    from output import mymodel
     importlib.reload(mymodel)
-    from mymodel import posterior, trace, sample_stats
+    from output.mymodel import posterior, trace, sample_stats
     return posterior, trace, sample_stats
 
 #%%
