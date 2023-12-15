@@ -104,7 +104,6 @@ posterior, trace, sample_stats =  fit_model(model,
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 
 #%% Test with multiple likelihood-----------------------------------------------------
-
 model = dict(main = 'z ~ Poisson(alpha)',
             likelihood = 'alpha ~ a + beta * weight',
             prior1 = 'a ~ Normal(178,20)',
@@ -112,11 +111,26 @@ model = dict(main = 'z ~ Poisson(alpha)',
             
             main2 = 'y ~ Normal(mu, sigma)',
             likelihood2 = 'mu ~ alpha2 + beta * age',
+
             prior4 = 'sigma ~ Normal(0.0, 1.0)',
             prior5 = 'alpha2 ~ Normal(0,1)'
             )    
 
 model = build_model(model, path = None, df = d, sep = ',', float=32)
+model
+#! PB
+#%%
+key = 'main'
+model = {'main': {'input': 'z ~ Poisson(alpha)', 'var': ['z', 'Poisson', ['alpha']]}, 'likelihood': {'input': 'alpha ~ a + beta * weight', 'var': ['alpha', ['a', 'beta', 'weight']]}, 'prior1': {'input': 'a ~ Normal(178,20)', 'var': ['a', 'Normal', ['178', '20']]}, 'prior2': {'input': 'beta ~ Normal(0,1)', 'var': ['beta', 'Normal', ['0', '1']]}, 'main2': {'input': 'y ~ Normal(mu, sigma)', 'var': ['y', 'Normal', ['mu', 'sigma']]}, 'likelihood2': {'input': 'mu ~ alpha2 + beta * age', 'var': ['mu', ['alpha2', 'beta', 'age']]}, 'prior4': {'input': 'sigma ~ Normal(0.0, 1.0)', 'var': ['sigma', 'Normal', ['0.0', '1.0']]}, 'prior5': {'input': 'alpha2 ~ Normal(0,1)', 'var': ['alpha2', 'Normal', ['0', '1']]}}
+formula = get_likelihood(model, 'main')  
+var = model[key]['var']
+p = ['a', 'beta', 'sigma', 'alpha2']
+formula
+params = re.split(r'[+***-]',formula[0])
+params_in_prior =[x for x in params if x in p]
+
+
+#%% 
 model.sample()
 
 posterior, trace, sample_stats =  fit_model(model, 
@@ -161,25 +175,7 @@ posterior, trace, sample_stats =  fit_model(model,
 
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 
-#%%
-model = dict(main = 'y ~ Normal(mu, exposureM)',
-            likelihood = 'mu ~ a + b * att',
-            prior1 = 'a ~ Normal(0,1)',
-            prior2 = 'b ~ Normal(0,1)',
-            
-            main2 = 'exposureM ~ Normal(mu2, sigma2)',
-            likelihood2 = 'mu2 ~ a2 + b2 * att + b3 * exposure',
-            prior4 = 'a2 ~ Normal(0,1)',
-            prior5 = 'b2 ~ Normal(0,1)',
-            prior6 = 'b3 ~ Normal(0,1)',
-            prior7 = 'sigma2~Normal(0,1)'
-            )
-#%%
-model = build_model(model, path = None, df = df, sep = ',', float=32)
-posterior, trace, sample_stats =  run_model(model, 
-                                            observed_data = dict(y = 'y'),
-                                            num_chains = 4)                                            
-az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
+
 
 
 

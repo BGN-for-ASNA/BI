@@ -6,11 +6,17 @@ tfd = tfp.distributions
 from model_fit import *
 from model_diagnostic import *
 
+# GPU configuration ----------------------------
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+if len(physical_devices) > 0:
+	tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
 # Import data (with modification if maded) ----------------------------
 d = pd.read_csv('mydf', sep = ',')
-exposure= d.exposure
 y= d.y
+exposure= d.exposure
 att= d.att
+
 # Model ----------------------------
 m = tfd.JointDistributionNamed(dict(
 	a = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
