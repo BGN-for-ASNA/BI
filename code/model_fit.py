@@ -1,6 +1,6 @@
 # %%
 import tensorflow_probability as tfp
-from model_write import *
+from code.model_write import *
 import tensorflow as tf
 import functools
 import arviz as az
