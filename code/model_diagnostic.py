@@ -2,8 +2,8 @@
 #%%
 import arviz as az
 import seaborn as sns
-from model_write import *
-from model_fit import *
+from code.model_write import *
+from code.model_fit import *
 
 def model_output_to_df(sample):
     l = {}
