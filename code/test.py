@@ -58,6 +58,7 @@ model = dict(main = 'height~Normal(m,s)',
 
 model2 = build_model(model, 
             path = "../data/Howell1.csv", sep = ';')
+
 model2.sample()
 
 # As dataframe is setup with path we do not concider variable modifications
@@ -95,6 +96,7 @@ model = dict(main = 'height ~ Normal(mu,sigma)',
             prior1 = 'mu ~ Normal(178.0, 0.1)',            
             prior2 = 'sigma ~ Uniform(0.0, 50.0)')    
 
+
 model = build_model(model, path = None, df = d, sep = ',', float=32)
 
 posterior, trace, sample_stats =  fit_model(model, 
@@ -111,26 +113,12 @@ model = dict(main = 'z ~ Poisson(alpha)',
             
             main2 = 'y ~ Normal(mu, sigma)',
             likelihood2 = 'mu ~ alpha2 + beta * age',
-
             prior4 = 'sigma ~ Normal(0.0, 1.0)',
             prior5 = 'alpha2 ~ Normal(0,1)'
             )    
 
 model = build_model(model, path = None, df = d, sep = ',', float=32)
-model
-#! PB
-#%%
-key = 'main'
-model = {'main': {'input': 'z ~ Poisson(alpha)', 'var': ['z', 'Poisson', ['alpha']]}, 'likelihood': {'input': 'alpha ~ a + beta * weight', 'var': ['alpha', ['a', 'beta', 'weight']]}, 'prior1': {'input': 'a ~ Normal(178,20)', 'var': ['a', 'Normal', ['178', '20']]}, 'prior2': {'input': 'beta ~ Normal(0,1)', 'var': ['beta', 'Normal', ['0', '1']]}, 'main2': {'input': 'y ~ Normal(mu, sigma)', 'var': ['y', 'Normal', ['mu', 'sigma']]}, 'likelihood2': {'input': 'mu ~ alpha2 + beta * age', 'var': ['mu', ['alpha2', 'beta', 'age']]}, 'prior4': {'input': 'sigma ~ Normal(0.0, 1.0)', 'var': ['sigma', 'Normal', ['0.0', '1.0']]}, 'prior5': {'input': 'alpha2 ~ Normal(0,1)', 'var': ['alpha2', 'Normal', ['0', '1']]}}
-formula = get_likelihood(model, 'main')  
-var = model[key]['var']
-p = ['a', 'beta', 'sigma', 'alpha2']
-formula
-params = re.split(r'[+***-]',formula[0])
-params_in_prior =[x for x in params if x in p]
 
-
-#%% 
 model.sample()
 
 posterior, trace, sample_stats =  fit_model(model, 
@@ -138,7 +126,7 @@ posterior, trace, sample_stats =  fit_model(model,
                                             num_chains = 4)
 
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-# PB!!!!!!!!!!!!!
+
 #%% Test error modeling-----------------------------------------------------
 # Initialize a single 2-variate Gaussian.
 mvn = tfd.MultivariateNormalTriL(

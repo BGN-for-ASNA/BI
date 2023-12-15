@@ -13,8 +13,8 @@ if len(physical_devices) > 0:
 
 # Import data (with modification if maded) ----------------------------
 d = pd.read_csv('mydf', sep = ',')
-y= d.y
 exposure= d.exposure
+y= d.y
 att= d.att
 
 # Model ----------------------------

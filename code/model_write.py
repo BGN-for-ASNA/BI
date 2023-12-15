@@ -71,8 +71,12 @@ def get_var(model):
     return full_model   
 
 def get_undeclared_params(model, df):
+    #print(model)
+    # Name of variables
     Vars = []
+    # Name of variables + values
     params = []
+    # main ouput name
     mainOutput = []
     for key in model.keys():
         if 'main' in key:
@@ -91,8 +95,9 @@ def get_undeclared_params(model, df):
             else:
                 if a == 0:
                     Vars.append(tmp[0].replace(' ', ''))
-                                    
+    
     params = [item.replace(' ', '') for sublist in params for item in sublist]
+    #print(params)
     if any(ele in params for ele in mainOutput):
         print('model with main in other likelihood')
     undeclared_params = list(set(Vars) ^ set(params))
@@ -110,6 +115,8 @@ def get_undeclared_params(model, df):
     else:
         test = pd.Index(undeclared_params2).difference(df.columns).tolist()
         test2 =  list(set(undeclared_params2) & set(df.columns))
+        test =  list(set(test).difference(mainOutput))
+
         return {'undeclared_params': test, 'params_in_data' : test2}  
         
 ## Write model functions-----------------------------------------------------
@@ -198,7 +205,7 @@ def write_header_with_dataFrame(output_file, DFpath, data, float, sep):
         file.write('\n')
         file.write("d = pd.read_csv('" + DFpath +"', sep = '" + sep + "')")    
         file.write('\n')
-   
+
     for a in range(len(data)):
         with open(output_file,'a') as file:
             #file.write(data[a] + "= tf.convert_to_tensor(d." + data[a] + ", dtype = tf.float" + str(float) + ")")  
@@ -231,13 +238,15 @@ def write_priors(model, output_file, float):
     return p           
 
 def write_main(model, output_file, p, float):   
+    # Get ouput of main(s)
     mainsOutput = [] 
     for key in model.keys():
         input = model[key]['input']
         var = model[key]['var']
         if 'main' in key.lower():   
             mainsOutput.append(var[0])
-            
+    
+    # Get all params     
     lParam = [] 
     for key in model.keys():
         input = model[key]['input']
@@ -246,20 +255,27 @@ def write_main(model, output_file, p, float):
             lParam.append(var[1]) 
     lParam = [item.replace(' ', '') for sublist in lParam for item in sublist]
 
+    # Fint all main(s)
     for key in model.keys():
         input = model[key]['input']
         var = model[key]['var']
+        print(var)
         if 'main' in key.lower():           
             with open(output_file,'a') as file:  
-                file.write('\n')                                           
-                if 'likelihood' in model.keys():  
-                    formula = get_likelihood(model, key)      
+                file.write('\n')    
+                # Find next likelihood                                       
+                if 'likelihood' in model.keys():                      
+                    formula = get_likelihood(model, key)   
+
                     if formula is not None:
                         file.write('\t') 
                         params = re.split(r'[+***-]',formula[0])
                         params_in_prior =[x for x in params if x in p]
                         params_in_main =[x for x in params if x in mainsOutput]
-                        params = params_in_prior + params_in_main + [var[2][1]]                     
+                        if len(var[2]) > 1:
+                            params = params_in_prior + params_in_main + [var[2][1]]   
+                        else:
+                            params = params_in_prior + params_in_main                 
                         var[2][formula[1]] = formula[0]
                         file.write(str(var[0]) + " = lambda " + 
                                     str(','.join(params)) + ":" +
