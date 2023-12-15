@@ -306,7 +306,7 @@ def write_main(model, output_file, p, float):
     with open(output_file,'a') as file:
         file.write('))')
 
-def write_model(model, sep = ';',  path = 'mymodel.py', withDF = False, DFpath = None, data  = None, float = 16):
+def write_model(model, sep = ';',  path = 'output/mymodel.py', withDF = False, DFpath = None, data  = None, float = 16):
     if withDF == False:
         write_header(path, float)
     else:
@@ -328,7 +328,7 @@ def write_HMC(model,
               inDF = True
              ):
     saved_args = locals()
-    output_file = 'mymodel.py'
+    output_file = 'output/mymodel.py'
     with open(output_file,'a') as file:
         file.write('\n')
         file.write('\n')
@@ -363,8 +363,8 @@ def build_model(model,
         else:        
             df = pd.read_csv(path, sep = sep)
     else:
-        df.to_csv('mydf', index=False)
-        path = 'mydf'
+        df.to_csv('output/mydf.csv', index=False)
+        path = 'output/mydf.csv'
           
     full_model = get_var(model)
     issues = get_undeclared_params(full_model, df = df)
@@ -385,7 +385,7 @@ def build_model(model,
            print("Arguments are missing: " + ''.join(data['undeclared_params'])) 
            return None        
     import importlib
-    import mymodel
+    from output import mymodel
     importlib.reload(mymodel)
-    from mymodel import m
+    from output.mymodel import m
     return m
