@@ -2,6 +2,8 @@
 import flet as ft
 import pandas as pd
 from gui.utils import *
+from code import data_manip
+
 #from bayesian.distribution import *
 # Upload page ----------------------------------
 class upload(ft.UserControl):
@@ -21,6 +23,7 @@ class upload(ft.UserControl):
         # Handling data-------------------------------------------------------------------------------------------------- 
         self.sep = ft.TextField(label="separator", multiline=False, value = ";")  
         self.scaleData = ft.Checkbox(label="Center data", on_change=self.checkbox_changed)
+        self.ohe = ft.Checkbox(label="Convert categorical variables", on_change=self.checkbox_ohe)
         self.removeData = ft.Checkbox(label="Remove NA", on_change=self.checkbox_changed)
         self.inputData = ft.Checkbox(label="Infers NA", on_change=self.checkbox_changed)
         result = ft.ResponsiveRow([
@@ -33,10 +36,17 @@ class upload(ft.UserControl):
                     )),
                 self.selected_files,                
             ]), ft.Row([self.output])]), 
-            ft.Column(col={"sm": 11, "md": 11, "xl": 3}, controls=[self.sep, self.scaleData, self.removeData, self.inputData])
+            ft.Column(col={"sm": 11, "md": 11, "xl": 3}, controls=[self.sep, self.scaleData, self.ohe, self.removeData, self.inputData])
         ])
         return result
     
+    def checkbox_ohe(self, e):
+        value = f"Checkbox value changed to {self.ohe.value}" 
+        if value:
+            self.page.df = data_manip.OHE(self.page.df)
+            print(self.page.df)
+        self.update()
+        
     def checkbox_changed(self, e):
         value = f"Checkbox value changed to {self.scaleData.value}" 
         print(value)
@@ -50,9 +60,10 @@ class upload(ft.UserControl):
         
         if  self.selected_files.value != "Cancelled!":
             self.page.df = pd.read_csv(str(self.selected_files.value), sep = self.sep.value) 
-            self.output.controls.append( ft.DataTable(
+            self.output.controls = [ft.DataTable(
                 columns=headers(self.page.df.iloc[:10]),
-                rows=rows(self.page.df.iloc[:10])))            
+                rows=rows(self.page.df.iloc[:10]))]  
+            print(print(self.page.df))         
             self.update()
         else:
             self.selected_files.update()
