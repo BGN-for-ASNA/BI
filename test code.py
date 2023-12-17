@@ -146,9 +146,106 @@ posterior, trace, sample_stats =  fit_model(model,
 
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 
+#%% Categorical models
+from code.model_diagnostic import *
+from code.model_fit import *
+from code.model_write import *
+import pandas as pd
+import random
+from pandas.api.types import is_string_dtype
 
 
+d = pd.read_csv('./data/Howell1.csv', sep=';')
+d = d[d.age > 18]
+d.weight = d.weight - d.weight.mean()
+weight = d.weight
+d.age = d.age - d.age.mean()
+age = d.age
 
+d.insert(2, 'cat', d.male.apply(lambda x: random.choice(['old', 'adult', 'juveniles']) ) )
+
+# If category in model then generate OHE and modify data and formula
+d2 = OHE(d)
+d2
+cat_juveniles = d2.cat_juveniles
+cat_old = d2.cat_old
+cat_adult = d2.cat_adult
+cat = d.cat
+
+
+formula = dict(main = 'height ~ Normal(mu,sigma)',
+            likelihood = 'mu ~ alpha + beta * cat',
+            prior1 = 'sigma~Uniform(0,50)',
+            prior2 = 'alpha ~ Normal(178,20)',
+            prior3 = 'beta ~ Normal(0,1)')    
+
+model = build_model(formula, df = d, sep = ',', float=32)
+
+#%%
+full_model = {'main': {'input': 'height ~ Normal(mu,sigma)', 'var': ['height', 'Normal', ['mu', 'sigma']]}, 'likelihood': {'input': 'mu ~ alpha + beta * cat', 'var': ['mu', ['alpha', 'beta', 'cat']]}, 'prior1': {'input': 'sigma~Uniform(0,50)', 'var': ['sigma', 'Uniform', ['0', '50']]}, 'prior2': {'input': 'alpha ~ Normal(178,20)', 'var': ['alpha', 'Normal', ['178', '20']]}, 'prior3': {'input': 'beta ~ Normal(0,1)', 'var': ['beta', 'Normal', ['0', '1']]}}
+
+issues = get_undeclared_params(full_model, df = d)
+# change df
+newdf = d
+if len(issues['params_in_data']):
+    print(issues['params_in_data'])
+    colCat = list(d.select_dtypes(['object']).columns)
+    var_in_df = issues['params_in_data']
+    for var in var_in_df:
+        if is_string_dtype(d[var]):
+            newdf = pd.get_dummies(newdf, columns=[var], dtype=int)
+
+# Change model likelihood
+new_param = list(newdf.columns.difference(d.columns))
+old_param = list(d.columns.difference(newdf.columns))
+new_param_with_coef = []
+for a in range(len(new_param)):
+    if a != 0 :
+        new_param_with_coef.append('Bcat' + str(a) + ' * ' + new_param[a] + ' + ')
+    else:
+        new_param_with_coef.append(new_param[a] + ' + ')
+for var in old_param:
+    for key in full_model.keys():
+        if 'likelihood' in key:
+            input = full_model[key]['input']
+            variables = full_model[key]['var']
+            if var in input:
+                print('Categorical variable in likelihood')
+                full_model[key]['input'] = input.replace(var, ''.join(new_param_with_coef))
+                full_model[key]['var'][1].remove(var)
+                full_model[key]['var'][1] = full_model[key]['var'][1] + new_param
+
+# Add new priors, but how to identify the prior linked to original cat?
+
+print(full_model)               
+        
+## Find where old_param is
+#%%
+m = tfd.JointDistributionNamed(dict(
+	sigma = tfd.Sample(tfd.Uniform(0, 50), sample_shape=1),
+	alpha = tfd.Sample(tfd.Normal(178, 20), sample_shape=1),
+	beta = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
+
+	height = lambda alpha,beta, sigma: tfd.Independent(
+        tfd.Normal(alpha+beta*cat, sigma), 
+        reinterpreted_batch_ndims=1
+    ),
+))
+
+#%%
+m = tfd.JointDistributionNamed(dict(
+	sigma = tfd.Sample(tfd.Uniform(0, 50), sample_shape=1),
+	alpha = tfd.Sample(tfd.Normal(178, 20), sample_shape=1),
+	beta = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
+    beta2 = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
+    beta3 = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
+
+	height = lambda alpha,beta, beta2, beta3, sigma: tfd.Independent(
+        tfd.Normal(alpha+beta*cat_adult + beta2*cat_juveniles +	beta3*cat_old, sigma), 
+        reinterpreted_batch_ndims=1
+    ),
+))
+m.sample()
 
 #%% Model diag -----------------------------------------------------
 plot_prior_dist(model)
