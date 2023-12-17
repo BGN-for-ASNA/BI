@@ -254,7 +254,7 @@ def write_main(model, output_file, p, float):
         if 'likelihood' in key.lower():   
             lParam.append(var[1]) 
     lParam = [item.replace(' ', '') for sublist in lParam for item in sublist]
-
+    
     # Fint all main(s)
     for key in model.keys():
         input = model[key]['input']
@@ -315,6 +315,49 @@ def write_model(model, sep = ';',  path = 'output/mymodel.py', withDF = False, D
     p = write_priors(model, path, float)
     write_main(model, path, p, float)
 
+## Mains -----------------------------------------------------
+def build_model(model,
+                path = None,
+                df = None,
+                float = 16,
+                sep = ';'): 
+    if df is None :
+        if  path is None:
+            df = pd.DataFrame({'A' : []})
+        else:        
+            df = pd.read_csv(path, sep = sep)
+    else:
+        df.to_csv('output/mydf.csv', index=False)
+        path = 'output/mydf.csv'
+        
+    full_model = get_var(model)
+    issues = get_undeclared_params(full_model, df = df)
+    print(full_model)
+    print(issues)
+
+    if df.empty :
+        if len(issues) == 0:
+            print('No variables missing')
+            write_model(full_model, float = float, sep = sep)
+        else:
+            print("Arguments are missing: " + ''.join(issues))
+            return None
+    else:
+        data = get_undeclared_params(full_model, df = df)
+        if len(data['undeclared_params']) == 0:
+            data = data['params_in_data']
+            write_model(full_model, withDF = True, DFpath = path, data  = data, float = float, sep = sep)
+        else:
+           print("Arguments are missing: " + ''.join(data['undeclared_params'])) 
+           return None   
+
+    import importlib
+    from output import mymodel
+    importlib.reload(mymodel)
+    from output.mymodel import m
+    return m
+
+# Run HMC---------------------------------
 def write_HMC(model, 
               observed_data,
               parallel_iterations = 1,
@@ -350,42 +393,3 @@ def write_HMC(model,
              for key in saved_args['observed_data'].keys():
                 file.write(key + ' = ' + observed_data[key])    
         file.write("))")
-        
-## Mains -----------------------------------------------------
-def build_model(model,
-                path = None,
-                df = None,
-                float = 16,
-                sep = ';'): 
-    if df is None :
-        if  path is None:
-            df = pd.DataFrame({'A' : []})
-        else:        
-            df = pd.read_csv(path, sep = sep)
-    else:
-        df.to_csv('output/mydf.csv', index=False)
-        path = 'output/mydf.csv'
-          
-    full_model = get_var(model)
-    issues = get_undeclared_params(full_model, df = df)
-
-    if df.empty :
-        if len(issues) == 0:
-            print('No variables missing')
-            write_model(full_model, float = float, sep = sep)
-        else:
-            print("Arguments are missing: " + ''.join(issues))
-            return None
-    else:
-        data = get_undeclared_params(full_model, df = df)
-        if len(data['undeclared_params']) == 0:
-            data = data['params_in_data']
-            write_model(full_model, withDF = True, DFpath = path, data  = data, float = float, sep = sep)
-        else:
-           print("Arguments are missing: " + ''.join(data['undeclared_params'])) 
-           return None        
-    import importlib
-    from output import mymodel
-    importlib.reload(mymodel)
-    from output.mymodel import m
-    return m
