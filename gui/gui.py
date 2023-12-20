@@ -13,12 +13,13 @@ def main(page: ft.page):
     page.scroll = ft.ScrollMode.ADAPTIVE
     page.bgcolor ="system"
     page.df = pd.DataFrame({'A' : []})    
+    page.dfCol = None
     # Pages --------------------------------------
     app = TasksApp(page)
     app.visible = False   
     
     up = upload(page)
-    up.visible = False   
+    up.visible = True   
     
     run = Run(page)
     up.visible = False 
@@ -26,7 +27,7 @@ def main(page: ft.page):
     def toUpload(e):
         app.visible = False
         up.visible = True
-        False
+        run.visible = True
         page.update()
         
     def toModel(e):
@@ -48,6 +49,6 @@ def main(page: ft.page):
     page.add(ft.ResponsiveRow([ft.Row([bt1,bt2,bt3])]))
     page.add(app)
     page.add(up)
-#ft.app(target=main)
 
 # %%
+
