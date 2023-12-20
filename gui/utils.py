@@ -30,6 +30,18 @@ def rows(df : pd.DataFrame) -> list:
         rows.append(ft.DataRow(cells = [ft.DataCell(ft.Text(row[header])) for header in df.columns]))
     return rows  
 
+def textInput_to_list(value):
+    result = []
+    current_word = ""
+    for char in value:
+        if char != ',':
+            current_word  += char
+        else:
+            if current_word:
+                result.append(current_word)
+            current_word = ""
+    result.append(current_word)   
+    return result
 def undeclared_params(model, df):
     Vars = []
     params = []
