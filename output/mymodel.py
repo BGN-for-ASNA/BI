@@ -13,14 +13,14 @@ if len(physical_devices) > 0:
 
 # Import data (with modification if maded) ----------------------------
 d = pd.read_csv('output/mydf.csv', sep = ',')
-cat= d.cat
+weight= d.weight
 height= d.height
 
 # Model ----------------------------
 m = tfd.JointDistributionNamed(dict(
-	sigma = tfd.Sample(tfd.Uniform(0, 50), sample_shape=1),
-	alpha = tfd.Sample(tfd.Normal(178, 20), sample_shape=1),
+	sigma = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
+	alpha = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
 	beta = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
 
-	height = lambda alpha,beta,sigma: tfd.Independent(tfd.Normal(alpha+beta*cat, sigma), reinterpreted_batch_ndims=1),
+	height = lambda alpha,beta,sigma: tfd.Independent(tfd.Normal(alpha+beta*weight, sigma), reinterpreted_batch_ndims=1),
 ))
