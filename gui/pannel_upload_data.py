@@ -21,15 +21,13 @@ class upload(ft.UserControl):
                    on_click=lambda _: self.pick_files_dialog.pick_files(
                        allow_multiple=False
                    ))
-        #self.table =  ft.Column(controls=[], width=self.page.window_height*0.80,scroll=True)   
-        #self.tablerow =  ft.Row([self.table],scroll=True,expand=1,vertical_alignment=ft.CrossAxisAlignment.START) 
         self.output = ft.Column(controls=[], width=self.page.window_height*0.80,scroll=True)        
         self.pick_files_dialog = ft.FilePicker(on_result=self.pick_files_result)
         self.selected_files = ft.Text()
         self.page.overlay.append(self.pick_files_dialog)   
         
         self.tableMRD =  ft.Markdown(
-                            value = "test",
+                            value = "",
                             selectable=True,
                             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
                             on_tap_link=lambda e: page.launch_url(e.data),
@@ -94,7 +92,7 @@ class upload(ft.UserControl):
     
     def checkbox_inputData(self,e):
         self.update()  
-    # Pick files dialog
+
     def pick_files_result(self, e):
         self.selected_files.value = (
             ", ".join(map(lambda f: f.path, e.files)) if e.files else "Cancelled!"
