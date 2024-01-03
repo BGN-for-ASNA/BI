@@ -166,13 +166,9 @@ az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 d = pd.read_csv('./data/milk.csv', sep=';')
 d = OHE(d, ['clade'])
 d.columns
-d.rename(columns={'kcal.per.g':'kcal'}, inplace=True)
-d.rename(columns={'clade_New World Monkey':'NWM'}, inplace=True)
-d.rename(columns={'clade_Old World Monkey':'OWM'}, inplace=True)
-d.rename(columns={'clade_Strepsirrhine':'S'}, inplace=True)
 
 formula = dict(main = 'y ~ Normal(mu,sigma)',
-            likelihood = 'mu ~ alpha + B1*NWM + B2*OWM + B3*S',
+            likelihood = 'mu ~ alpha + B1*clade_New_World_Monkey + B2*clade_Old_World_Monkey + B3*clade_Strepsirrhine',
             prior1 = 'sigma~Uniform(0,10)',
             prior2 = 'alpha ~ Normal(0.6,10)',
             prior3 = 'B1 ~ Normal(0,1)',
@@ -181,7 +177,7 @@ formula = dict(main = 'y ~ Normal(mu,sigma)',
 
 model = build_model(formula, df = d, sep = ',', float=32)
 posterior, trace, sample_stats =  fit_model(model, 
-                                            observed_data = dict(y = 'kcal'),
+                                            observed_data = dict(y = 'kcal_per_g'),
                                             num_chains = 4)
 
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)

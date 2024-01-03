@@ -6,11 +6,8 @@ def OHE(d, cols = 'all'):
         OHE = pd.get_dummies(d, columns=colCat, dtype=int)
     else:
         OHE = pd.get_dummies(d, columns=cols, dtype=int)
+    
+    OHE.columns = OHE.columns.str.replace('.', '_')
+    OHE.columns = OHE.columns.str.replace(' ', '_')
     return OHE
     
-# %%
-import tensorflow
-import tensorflow_probability
-
-
-# %%
