@@ -2,6 +2,7 @@
 from code.model_diagnostic import *
 from code.model_fit import *
 from code.model_write import *
+from code.data_manip import *
 import pandas as pd
 
 d = pd.read_csv('./data/Howell1.csv', sep=';')
@@ -146,106 +147,100 @@ posterior, trace, sample_stats =  fit_model(model,
 
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 
-#%% Categorical models
-from code.model_diagnostic import *
-from code.model_fit import *
-from code.model_write import *
-import pandas as pd
-import random
-from pandas.api.types import is_string_dtype
-
-
+#%% Categorical models with OHE code 5.45
 d = pd.read_csv('./data/Howell1.csv', sep=';')
-d = d[d.age > 18]
-d.weight = d.weight - d.weight.mean()
-weight = d.weight
-d.age = d.age - d.age.mean()
-age = d.age
-
-d.insert(2, 'cat', d.male.apply(lambda x: random.choice(['old', 'adult', 'juveniles']) ) )
-
-# If category in model then generate OHE and modify data and formula
-d2 = OHE(d)
-d2
-cat_juveniles = d2.cat_juveniles
-cat_old = d2.cat_old
-cat_adult = d2.cat_adult
-cat = d.cat
-
-
-formula = dict(main = 'height ~ Normal(mu,sigma)',
-            likelihood = 'mu ~ alpha + beta * cat',
+formula = dict(main = 'y ~ Normal(mu,sigma)',
+            likelihood = 'mu ~ alpha + beta * male',
             prior1 = 'sigma~Uniform(0,50)',
-            prior2 = 'alpha ~ Normal(178,20)',
-            prior3 = 'beta ~ Normal(0,1)')    
+            prior2 = 'alpha ~ Normal(178,100)',
+            prior3 = 'beta ~ Normal(0,10)')     
 
 model = build_model(formula, df = d, sep = ',', float=32)
+posterior, trace, sample_stats =  fit_model(model, 
+                                            observed_data = dict(y = 'height'),
+                                            num_chains = 4)
 
-#%%
-full_model = {'main': {'input': 'height ~ Normal(mu,sigma)', 'var': ['height', 'Normal', ['mu', 'sigma']]}, 'likelihood': {'input': 'mu ~ alpha + beta * cat', 'var': ['mu', ['alpha', 'beta', 'cat']]}, 'prior1': {'input': 'sigma~Uniform(0,50)', 'var': ['sigma', 'Uniform', ['0', '50']]}, 'prior2': {'input': 'alpha ~ Normal(178,20)', 'var': ['alpha', 'Normal', ['178', '20']]}, 'prior3': {'input': 'beta ~ Normal(0,1)', 'var': ['beta', 'Normal', ['0', '1']]}}
+az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 
-issues = get_undeclared_params(full_model, df = d)
-# change df
-newdf = d
-if len(issues['params_in_data']):
-    print(issues['params_in_data'])
-    colCat = list(d.select_dtypes(['object']).columns)
-    var_in_df = issues['params_in_data']
-    for var in var_in_df:
-        if is_string_dtype(d[var]):
-            newdf = pd.get_dummies(newdf, columns=[var], dtype=int)
+#%% Categorical models with OHE multiple categories code 5.52
+d = pd.read_csv('./data/milk.csv', sep=';')
+d = OHE(d, ['clade'])
+d.columns
+d.rename(columns={'kcal.per.g':'kcal'}, inplace=True)
+d.rename(columns={'clade_New World Monkey':'NWM'}, inplace=True)
+d.rename(columns={'clade_Old World Monkey':'OWM'}, inplace=True)
+d.rename(columns={'clade_Strepsirrhine':'S'}, inplace=True)
 
-# Change model likelihood
-new_param = list(newdf.columns.difference(d.columns))
-old_param = list(d.columns.difference(newdf.columns))
-new_param_with_coef = []
-for a in range(len(new_param)):
-    if a != 0 :
-        new_param_with_coef.append('Bcat' + str(a) + ' * ' + new_param[a] + ' + ')
-    else:
-        new_param_with_coef.append(new_param[a] + ' + ')
-for var in old_param:
-    for key in full_model.keys():
-        if 'likelihood' in key:
-            input = full_model[key]['input']
-            variables = full_model[key]['var']
-            if var in input:
-                print('Categorical variable in likelihood')
-                full_model[key]['input'] = input.replace(var, ''.join(new_param_with_coef))
-                full_model[key]['var'][1].remove(var)
-                full_model[key]['var'][1] = full_model[key]['var'][1] + new_param
+formula = dict(main = 'y ~ Normal(mu,sigma)',
+            likelihood = 'mu ~ alpha + B1*NWM + B2*OWM + B3*S',
+            prior1 = 'sigma~Uniform(0,10)',
+            prior2 = 'alpha ~ Normal(0.6,10)',
+            prior3 = 'B1 ~ Normal(0,1)',
+            prior4 = 'B2 ~ Normal(0,1)',
+            prior5 = 'B3 ~ Normal(0,1)',)     
 
-# Add new priors, but how to identify the prior linked to original cat?
+model = build_model(formula, df = d, sep = ',', float=32)
+posterior, trace, sample_stats =  fit_model(model, 
+                                            observed_data = dict(y = 'kcal'),
+                                            num_chains = 4)
 
-print(full_model)               
-        
-## Find where old_param is
-#%%
+az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
+
+
+#%% Categorical models with index and multiple categories code 5.45
+d = pd.read_csv('./data/milk.csv', sep=';')
+d.rename(columns={'kcal.per.g':'kcal'}, inplace=True)
+d['cladeID'] = d.clade.astype("category").cat.codes
+d.cladeID = d.cladeID.astype(np.int64)
+CLADE_ID_LEN = len(set(d.cladeID.values))
+
 m = tfd.JointDistributionNamed(dict(
-	sigma = tfd.Sample(tfd.Uniform(0, 50), sample_shape=1),
-	alpha = tfd.Sample(tfd.Normal(178, 20), sample_shape=1),
-	beta = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
-
-	height = lambda alpha,beta, sigma: tfd.Independent(
-        tfd.Normal(alpha+beta*cat, sigma), 
-        reinterpreted_batch_ndims=1
-    ),
+    sigma = tfd.Sample(tfd.Uniform(0, 50), sample_shape=1),
+    alpha = tfd.Sample(tfd.Normal(178, 20), sample_shape=4),
+    alpha_cladeID = lambda alpha: tfd.Deterministic(tf.transpose(tf.gather(tf.transpose(alpha), tf.cast(d.cladeID , dtype=tf.int64)))),
+    y = lambda alpha_cladeID, sigma: tfd.Independent(tfd.Normal(alpha_cladeID, sigma), 
+                                                  reinterpreted_batch_ndims=1),
 ))
+observed_data = dict(y = d.kcal.astype('float32').values,)
+model = m
+def target_log_prob_fn(model, observed_data,*args):
+    param_dict = {name: value for name, value in zip(model._flat_resolve_names(), args)}
+    param_dict= {**param_dict, **observed_data}
+    print(args)
+    return model.log_prob(param_dict)
+
+unnormalized_posterior_log_prob = functools.partial(target_log_prob_fn, model, observed_data)
+# Assuming that 'model' is defined elsewhere
+initial_state = list(model.sample(4).values())[:-1]
+bijectors = [tfp.bijectors.Identity() for _ in initial_state]
+results, sample_stats =  tfp.mcmc.sample_chain(
+num_results=2000,
+num_burnin_steps=200,
+current_state=initial_state,
+kernel=tfp.mcmc.SimpleStepSizeAdaptation(
+    tfp.mcmc.TransformedTransitionKernel(
+        inner_kernel=tfp.mcmc.HamiltonianMonteCarlo(
+            target_log_prob_fn=unnormalized_posterior_log_prob,
+            step_size= 0.065,
+            num_leapfrog_steps= (5)),
+        bijector=bijectors),
+     num_adaptation_steps= 400),
+trace_fn=lambda _, pkr: pkr.inner_results.inner_results.log_accept_ratio,
+parallel_iterations = 1)  
+
 
 #%%
-m = tfd.JointDistributionNamed(dict(
-	sigma = tfd.Sample(tfd.Uniform(0, 50), sample_shape=1),
-	alpha = tfd.Sample(tfd.Normal(178, 20), sample_shape=1),
-	beta = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
-    beta2 = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
-    beta3 = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
-
-	height = lambda alpha,beta, beta2, beta3, sigma: tfd.Independent(
-        tfd.Normal(alpha+beta*cat_adult + beta2*cat_juveniles +	beta3*cat_old, sigma), 
-        reinterpreted_batch_ndims=1
-    ),
-))
-m.sample()
+posterior, trace, sample_stats =  run_model(model = m,
+parallel_iterations=1,
+num_results=2000,
+num_burnin_steps=500,
+step_size=0.065,
+num_leapfrog_steps=5,
+num_adaptation_steps=400,
+num_chains=4,
+observed_data = dict(y = d.kcal.astype('float32').values,))
+#%%
+az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 
 #%% Model diag -----------------------------------------------------
 plot_prior_dist(model)
