@@ -185,47 +185,19 @@ az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 
 #%% Categorical models with index and multiple categories code 5.45
 d = pd.read_csv('./data/milk.csv', sep=';')
-d.rename(columns={'kcal.per.g':'kcal'}, inplace=True)
-d['cladeID'] = d.clade.astype("category").cat.codes
-d.cladeID = d.cladeID.astype(np.int64)
-CLADE_ID_LEN = len(set(d.cladeID.values))
+d = index(d,["clade"])
+d["kcal_per_g"] = d["kcal_per_g"].pipe(lambda x: (x - x.mean()) / x.std())
+CLADE_ID_LEN = len(set(d.index_clade.values))
 
 m = tfd.JointDistributionNamed(dict(
-    sigma = tfd.Sample(tfd.Uniform(0, 50), sample_shape=1),
-    alpha = tfd.Sample(tfd.Normal(178, 20), sample_shape=4),
-    alpha_cladeID = lambda alpha: tfd.Deterministic(tf.transpose(tf.gather(tf.transpose(alpha), tf.cast(d.cladeID , dtype=tf.int64)))),
-    y = lambda alpha_cladeID, sigma: tfd.Independent(tfd.Normal(alpha_cladeID, sigma), 
-                                                  reinterpreted_batch_ndims=1),
+    sigma = tfd.Sample(tfd.Exponential(1), sample_shape=1),
+    alpha = tfd.Sample(tfd.Normal(0, 0.5), sample_shape=4),
+    y = lambda alpha, sigma: tfd.Independent(tfd.Normal(
+        loc=tf.transpose(tf.gather(tf.transpose(alpha), tf.cast(d.index_clade , dtype= tf.int32))),
+        scale=sigma
+    ), reinterpreted_batch_ndims=1),
 ))
-observed_data = dict(y = d.kcal.astype('float32').values,)
-model = m
-def target_log_prob_fn(model, observed_data,*args):
-    param_dict = {name: value for name, value in zip(model._flat_resolve_names(), args)}
-    param_dict= {**param_dict, **observed_data}
-    print(args)
-    return model.log_prob(param_dict)
 
-unnormalized_posterior_log_prob = functools.partial(target_log_prob_fn, model, observed_data)
-# Assuming that 'model' is defined elsewhere
-initial_state = list(model.sample(4).values())[:-1]
-bijectors = [tfp.bijectors.Identity() for _ in initial_state]
-results, sample_stats =  tfp.mcmc.sample_chain(
-num_results=2000,
-num_burnin_steps=200,
-current_state=initial_state,
-kernel=tfp.mcmc.SimpleStepSizeAdaptation(
-    tfp.mcmc.TransformedTransitionKernel(
-        inner_kernel=tfp.mcmc.HamiltonianMonteCarlo(
-            target_log_prob_fn=unnormalized_posterior_log_prob,
-            step_size= 0.065,
-            num_leapfrog_steps= (5)),
-        bijector=bijectors),
-     num_adaptation_steps= 400),
-trace_fn=lambda _, pkr: pkr.inner_results.inner_results.log_accept_ratio,
-parallel_iterations = 1)  
-
-
-#%%
 posterior, trace, sample_stats =  run_model(model = m,
 parallel_iterations=1,
 num_results=2000,
@@ -234,7 +206,21 @@ step_size=0.065,
 num_leapfrog_steps=5,
 num_adaptation_steps=400,
 num_chains=4,
-observed_data = dict(y = d.kcal.astype('float32').values,))
+observed_data = dict(y = d.kcal_per_g.astype('float32').values,))
+
+#%%
+ape_alpha, nwm_alpha, owm_alpha, strep_alpha = tf.split(
+    posterior["alpha"][0], 4, axis=1
+)
+
+updated_posterior = {
+    "ape_alpha": ape_alpha.numpy(),
+    "nwm_alpha": nwm_alpha.numpy(),
+    "owm_alpha": owm_alpha.numpy(),
+    "strep_alpha": strep_alpha.numpy(),
+    "sigma": posterior["sigma"][0],
+}
+
 #%%
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 
