@@ -13,8 +13,8 @@ if len(physical_devices) > 0:
 
 # Import data (with modification if maded) ----------------------------
 d = pd.read_csv('output/mydf.csv', sep = ',')
-clade_New_World_Monkey= d.clade_New_World_Monkey
 clade_Old_World_Monkey= d.clade_Old_World_Monkey
+clade_New_World_Monkey= d.clade_New_World_Monkey
 clade_Strepsirrhine= d.clade_Strepsirrhine
 
 # Model ----------------------------
