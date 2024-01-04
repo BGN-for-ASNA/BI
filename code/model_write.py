@@ -27,6 +27,38 @@ def exportTFD(tf_classes):
         
 exportTFD(tf_classes)
 
+## Model type functions -----------------------------------------------------
+def check_index(formula):
+    if "[" in formula["likelihood"]:
+        return "model_index"
+    else:
+        return "model"      
+
+def model_index(model):
+    if  model["likelihood"]['input'].find("[") != -1:
+        model_type = "model_index"
+        y, x = re.split(r'[~]',model['likelihood']['input'])
+        x = re.split(r'[+****-]', x)
+        index_info = {}
+        for a in range(len(x)):
+            tmp = x[a]
+            index_info_sub = {}
+            if tmp.find("[") != -1:
+                index_info_sub["input"] = tmp
+
+                indices_param = re.split(r'[+*[*-]', tmp)
+                indices_param[0] = indices_param[0].replace(" ","")
+                indices_param[1] = indices_param[1].replace("]","")
+                index_info_sub["params"] = indices_param
+
+                index_info_sub["shape"] =  len(set(d[indices_param[1]].values))
+
+                index_info[indices_param[0]] = index_info_sub
+
+        return index_info
+    else:
+        return None
+
 ## Formula functions -----------------------------------------------------
 def get_formula(formula = "y~Normal(0,1)", type = 'likelihood'):
     y, x = re.split(r'[~]',formula)
@@ -34,10 +66,11 @@ def get_formula(formula = "y~Normal(0,1)", type = 'likelihood'):
     x = x.replace(" ", "")
     if 'likelihood' in type: 
         if x.find('(') == -1: # If parenthesis then we concider the presence of a distribution
-            args = re.split(r'[+*()*,]',x)
+            args = re.split(r'[+*()*[*,]',x)            
             new = []
             for i in range(len(args)):
                 if args[i] != '':
+                    args[i] = args[i].replace("]", "")
                     new.append(args[i])
             return [y, new]     
         else:
@@ -54,6 +87,7 @@ def get_formula(formula = "y~Normal(0,1)", type = 'likelihood'):
             
     else:
         dist, args = x.split('(')
+        print(args)
         dist = dist.replace(" ", "")
         args = args.replace("(", "")
         args = args.replace(")", "")
@@ -95,9 +129,10 @@ def get_undeclared_params(model, df):
             else:
                 if a == 0:
                     Vars.append(tmp[0].replace(' ', ''))
-    
-    params = [item.replace(' ', '') for sublist in params for item in sublist]
-    #print(params)
+
+    params = [element for sublist in params for element in sublist]
+    #params = [item.replace(' ', '') for sublist in params for item in sublist]
+    print(params)
     if any(ele in params for ele in mainOutput):
         print('model with main in other likelihood')
     undeclared_params = list(set(Vars) ^ set(params))
@@ -118,28 +153,9 @@ def get_undeclared_params(model, df):
         test =  list(set(test).difference(mainOutput))
 
         return {'undeclared_params': test, 'params_in_data' : test2}  
-        
+
 ## Write model functions-----------------------------------------------------
-def get_likelihood(model, main_name):
-    result = []
-    for key in model.keys():
-        if 'likelihood' in key:
-            name = model[key]['var'][0]
-            if name in model[main_name]['var'][2]:
-                index = model[main_name]['var'][2].index(name)
-                y, x = re.split(r'[~]',model[key]['input'])
-                x = x.replace(" ", "")
-                
-                if x.find('(') != -1:
-                    x = 'tfd.Sample(tfd.' + x + ', sample_shape=1)'
-                    
-                result.append(x)
-                result.append(index)
-    if len(result) >= 1:
-        return result
-    else:
-        return None
-    
+
 def write_header(output_file, float):
     with open(output_file,'w') as file:
         pass
@@ -219,7 +235,7 @@ def write_header_with_dataFrame(output_file, DFpath, data, float, sep):
         file.write("m = tfd.JointDistributionNamed(dict(")
         file.write('\n')
 
-def write_priors(model, output_file, float):    
+def write_priors(model, output_file, float): 
     p = [] # Store model parameters name
     for key in model.keys():
         tmp = model[key]
@@ -227,18 +243,25 @@ def write_priors(model, output_file, float):
         var = model[key]['var']        
         if 'prior' in key.lower():
             p.append(var[0])
+            index_info = model_index(model)
+            #if var[0] in index_info.keys():
+            #    shape = index_info[var[0]]["shape"]
+            #else:
+            #    shape = 1
+            shape = 1
             with open(output_file,'a') as file:
                 file.write('\t')
                 file.write(str(var[0]) + 
                            " = tfd.Sample(tfd." + var[1] + "(" + 
                             #str(', '.join([f'tf.cast([{item}], dtype=tf.float{float})' for item in var[2]])) + "), sample_shape=1),")
-                            str(', '.join([f'{item}' for item in var[2]])) + "), sample_shape=1),")
+                            str(', '.join([f'{item}' for item in var[2]])) + "), sample_shape= "+ str(shape)+ "),")
 
                 file.write('\n')
     return p           
 
 def write_main(model, output_file, p, float):   
     # Get ouput of main(s)
+    model_type = check_index(model)
     mainsOutput = [] 
     for key in model.keys():
         input = model[key]['input']
@@ -329,11 +352,11 @@ def build_model(model,
     else:
         df.to_csv('output/mydf.csv', index=False)
         path = 'output/mydf.csv'
-        
+           
     full_model = get_var(model)
     issues = get_undeclared_params(full_model, df = df)
-    print(full_model)
-    print(issues)
+    #print(full_model)
+    #print(issues)
 
     if df.empty :
         if len(issues) == 0:
@@ -343,7 +366,7 @@ def build_model(model,
             print("Arguments are missing: " + ''.join(issues))
             return None
     else:
-        data = get_undeclared_params(full_model, df = df)
+        data = issues
         if len(data['undeclared_params']) == 0:
             data = data['params_in_data']
             write_model(full_model, withDF = True, DFpath = path, data  = data, float = float, sep = sep)
