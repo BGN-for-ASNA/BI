@@ -155,7 +155,26 @@ def get_undeclared_params(model, df):
         return {'undeclared_params': test, 'params_in_data' : test2}  
 
 ## Write model functions-----------------------------------------------------
-
+def get_likelihood(model, main_name):
+    result = []
+    for key in model.keys():
+        if 'likelihood' in key:
+            name = model[key]['var'][0]
+            if name in model[main_name]['var'][2]:
+                index = model[main_name]['var'][2].index(name)
+                y, x = re.split(r'[~]',model[key]['input'])
+                x = x.replace(" ", "")
+                
+                if x.find('(') != -1:
+                    x = 'tfd.Sample(tfd.' + x + ', sample_shape=1)'
+                    
+                result.append(x)
+                result.append(index)
+    if len(result) >= 1:
+        return result
+    else:
+        return None
+    
 def write_header(output_file, float):
     with open(output_file,'w') as file:
         pass
