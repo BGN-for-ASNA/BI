@@ -19,6 +19,7 @@ model = dict(main = 'y~Normal(m,s)',
             prior2 = 'alpha ~ Normal(0,1)',
             prior3 = 'beta ~ Normal(0,1)')    
 
+
 model = build_model(model, float = 16)        
 
 
@@ -399,25 +400,53 @@ class model:
         formula = self.f  
         indices = []
         var = []   
+        if "likelihood" in f.keys():
+            model.type["with_likelihood"] = True
+        else:
+            model.type["with_likelihood"] = False
+
         for key in formula.keys():
             if "likelihood" in key:
                 if "[" in formula[key]:                    
-                    model.type["type"] = "model_index"
+                    model.type["with_indices"] = True
                     params = self.get_formula( formula = formula[key], type = 'likelihood') 
                     position = self.find_index_position(formula[key])  
                     id = [params[1][i] for i in position]
-                    print(id)
                     id_var = [params[1][i+1] for i in position]
                     model.type[key] = {"params": id} 
                     indices = indices + id
                     var = var + id_var
                 else:
-                    model.type["type"] =  "simple model"
+                    model.type["with_indices"] = False
+            else:
+                model.type["with_indices"] = False
         self.model_type = model.type
         # An index variable have a parameter and a variable associated (e.g. alpha[species])
         self.indices = indices
         self.indices_var = var
         return model.type
+
+    def get_var(self):
+        formula = self.f
+        full_model = {}
+        for  key in formula.keys():
+             full_model[key] = dict(
+                 input = formula[key],
+                 var = self.get_formula(formula=formula[key], type=key)
+                 )
+        self.full_model = full_model
+        return full_model     
+    
+    def get_priors_names(self):
+        model = self.full_model
+        priors = [] 
+        for key in model.keys():
+            input = model[key]['input']
+            var = model[key]['var']      
+            if 'prior' in key.lower():
+                priors.append(var[0])
+        self.priors = priors
+        return priors
            
     def get_formula(self, formula = "y~Normal(0,1)", type = 'likelihood'):        
         y, x = re.split(r'[~]',formula)
@@ -450,19 +479,7 @@ class model:
             args = args.replace("(", "")
             args = args.replace(")", "")
             args = args.split(",")
-            return [y, dist, args]
-    
-    def get_var(self):
-        formula = self.f
-        full_model = {}
-
-        for  key in formula.keys():
-             full_model[key] = dict(
-                 input = formula[key],
-                 var = self.get_formula(formula=formula[key], type=key)
-                 )
-        self.full_model = full_model
-        return full_model         
+            return [y, dist, args]   
 
     def get_undeclared_params(self):
         model = self.full_model
@@ -518,7 +535,7 @@ class model:
         model = self.full_model
         result = []
         for key in model.keys():
-            if 'likelihood' in key:
+            if 'likelihood' in key.lower():
                 name = model[key]['var'][0]
                 if name in model[main_name]['var'][2]:
                     index = model[main_name]['var'][2].index(name)
@@ -527,13 +544,14 @@ class model:
 
                     if x.find('(') != -1:
                         x = 'tfd.Sample(tfd.' + x + ', sample_shape=1)'
-
                     result.append(x)
                     result.append(index)
+
         if len(result) >= 1:
             self.likelihood = result
             return result
         else:
+            print(None)
             self.likelihood = None
             return None
     
@@ -542,8 +560,79 @@ class model:
         self.model_type()
         self.get_var()
         self.get_undeclared_params()
+        self.get_priors_names()
+        self.get_mains_info()
         self.get_likelihood(main_name = "main") #!make it adptative
         return self.undeclared_params
+    
+    def get_mains_info(self):
+        tmp = self.full_model
+        mains_infos = {}
+        for key in tmp.keys():
+            if 'main' in key.lower():
+                main_name = key
+                main_input = tmp[key]['input']
+                infos = tmp[key]['var']
+                main_output = infos[0]
+                main_distribution = infos[1]
+                main_params = infos[2]
+
+                # Params
+                ## Priors (get params in self.priors)
+                main_priors = []
+                for a in range(len(main_params)):
+                    if main_params[a] in p:
+                        main_priors.append(self.priors[self.priors.index(str(main_params[a]))])
+
+                # likelihood
+                if self.model_type['with_likelihood']:
+                    main_with_likelihood = True
+                    main_likelihood_name = infos[2][0]
+                    main_likelihood_formula = self.get_likelihood(main_name = key)[0]
+                    main_likelihood_input = main_likelihood_name + "~" + main_likelihood_formula
+                    main_likelihood_params = self.get_formula(formula=main_likelihood_input, 
+                                                              type = 'likelihood')[1]
+                    # Index in formula
+                    if "[" in main_likelihood_formula:                    
+                        with_indices = True
+                        position = self.find_index_position(main_likelihood_input)  
+                        id = [main_likelihood_params[i] for i in position]
+                        id_var = [main_likelihood_params[i+1] for i in position]
+    
+                    else:
+                        with_indices =  False
+                        id = None
+                        id_var = None
+                        position = None
+                else:
+                    with_indices =  False
+                    id = None
+                    id_var = None
+                    position = None
+                    main_with_likelihood = None
+                    main_likelihood_name = None
+                    main_likelihood_formula = None
+                    main_likelihood_input = None
+                    main_likelihood_params = None
+
+                mains_infos[main_name] = {'ouput': main_output, 
+                                          'input': main_input,
+                                          'distribution': main_distribution, 
+                                          'params' : main_params,
+                                          'priors' : main_priors,
+                                          'with_likelihood': main_with_likelihood,
+                                          'with_indices' : with_indices,
+                                          'likelihood_names' : main_likelihood_name,
+                                          'likelihood_input' : main_likelihood_input,
+                                          'likelihood_formula': main_likelihood_formula,
+                                          'likelihood_params': main_likelihood_params,                                          
+                                          'indices_prior' : id,
+                                          'indices_position': position,
+                                          'indices_var': id_var,
+                                          }
+
+        self.mains_infos = mains_infos
+        return mains_infos
     
     # write model----------------------------
     def write_header(self):
@@ -613,7 +702,9 @@ class model:
                 file.write('\n')
                 file.write("d = pd.read_csv('" + self.df_path +"')")    
                 file.write('\n')
-
+                file.write('\n')
+                file.write("# Set up parameters ----------------------------")    
+                file.write('\n')
             for a in range(len(data)):
                 with open(output_file,'a') as file:
                     file.write(data[a] + "= d." + data[a] )                      
@@ -638,7 +729,8 @@ class model:
             var = model[key]['var']      
             if 'prior' in key.lower():
                 p.append(var[0])
-                if self.model_type["type"] == 'model_index':
+                # Get indices shape
+                if self.model_type["with_indices"]:
                     if var[0] in self.indices:
                         idI = self.indices.index(var[0])
                         shape = "len_" + self.indices_var[idI]
@@ -657,61 +749,152 @@ class model:
         self.priors = p
         return p           
 
-m = model()
-m.import_csv(path = './data/milk.csv', sep = ';')
-m.index(cols = "clade")
-formula = dict(main = 'y ~ Normal(mu,sigma)',
+    def main_text(self):
+        for key in self.mains_infos:
+            text = ""
+            text = text + self.mains_infos[key]['ouput'] + " = lambda "
+            text = text + "".join(self.mains_infos[key]['priors']) + ", "
+
+            # Lambda params
+            if self.mains_infos[key]['indices_prior'] != None:
+                text = text + ''.join(self.mains_infos[key]['indices_prior'])
+
+            # likelihood distribution
+            text = text + ": tfd.Independent(tfd." + self.mains_infos[key]['distribution'] + "(" 
+
+            # likelihood formula
+            if self.mains_infos[key]['with_indices']:
+                likelihood_formula = self.mains_infos[key]['likelihood_formula']
+                likelihood_params = self.mains_infos[key]['likelihood_params']
+                indices_prior = self.mains_infos[key]['indices_prior']
+                indices_var = self.mains_infos[key]['indices_var']
+                new_formula = likelihood_formula
+                for a in range(len(indices_prior)):
+                    item = indices_prior[a]
+                    print(item)            
+                    char_param_index = "tf.transpose(tf.gather(tf.transpose(" + item + "), tf.cast("
+                    new_formula = new_formula.replace(item, char_param_index)
+
+                    char_var_index =  indices_var[a] + ", dtype= tf.int32)))"
+                    new_formula = new_formula.replace("[" + indices_var[a] + "]", char_var_index)
+                    print(new_formula)
+                    text = text + new_formula
+
+                    #text = text + indices_var[a] + ", dtype= tf.int32)))"
+            else:
+                text = text + self.mains_infos[key]['likelihood_formula']
+
+                #text = text + "tf.transpose(tf.gather(tf.transpose(alpha), tf.cast(d.index_clade , dtype= tf.int32)))"
+        
+        text = text + "))"
+        self.main_text = text
+        return text
+    
+    def write_main2(self):
+        output_file = self.model_path
+        text = self.main_text()
+
+        with open(output_file,'a') as file: 
+            file.write(text) 
+    
+    def write_main(self):   
+        model = self.full_model
+        output_file = self.model_path
+        p = self.priors
+
+        # Get ouput of main(s)
+        mainsOutput = [] 
+        for key in model.keys():
+            input = model[key]['input']
+            var = model[key]['var']
+            if 'main' in key.lower():   
+                mainsOutput.append(var[0])
+        #print(mainsOutput)
+
+        # Fint all main(s)
+        for key in model.keys():
+            input = model[key]['input']
+            var = model[key]['var']
+            #print(var)
+            if 'main' in key.lower():           
+                with open(output_file,'a') as file:  
+                    # Find next likelihood                                       
+                    if 'likelihood' in model.keys():                      
+                        formula = self.get_likelihood()   
+                        #print(formula)
+                        if formula is not None:
+                            file.write('\t') 
+                            # Find parameters corresponding to the main 
+                            ## param = values, var[1] = distribution, var[2] = names
+                            ## formula[0] = likelihood parameters name
+                            #print(formula[0])
+                            params = re.split(r'[+***-]',formula[0])
+                            
+                            params_in_prior =[x for x in params if x in p]
+                            params_in_main =[x for x in params if x in mainsOutput]
+                            #print(params_in_prior)  
+                            #print(params_in_main)  
+                            if len(var[2]) > 1:
+                                params = params_in_prior + params_in_main + [var[2][1]]   
+                            else:
+                                params = params_in_prior + params_in_main 
+
+                            # get potential prior 
+                            #print(params)            
+                            var[2][formula[1]] = formula[0]
+                            file.write(str(var[0]) + " = lambda " + 
+                                        str(','.join(params)) + ":" +
+                                        " tfd.Independent(tfd."+ var[1] + "(") 
+                            #file.write(str(', '.join([f'tf.cast([{item}], dtype=tf.float{float})' for item in var[2]]))+ "), reinterpreted_batch_ndims=1),")
+                            file.write(str(', '.join([f'{item}' for item in var[2]]))+ "), reinterpreted_batch_ndims=1),")
+                        else:
+                            file.write(str(var[0]) + " = lambda " + 
+                                str(','.join(p)) + ":" +
+                                " tfd.Independent(tfd."+ var[1] + "(")
+                            #file.write(str(', '.join([f'tf.cast([{item}], dtype=tf.float{float})' for item in var[2]]))+ "), reinterpreted_batch_ndims=1),")
+                            file.write(str(', '.join([f'{item}' for item in var[2]]))+ "), reinterpreted_batch_ndims=1),")
+
+                    else: # No fromula in likelihood
+                        file.write(str(var[0]) + " = lambda " + 
+                                str(','.join(p)) + ":" +
+                                " tfd.Independent(tfd."+ var[1] + "(")
+                        y, x = re.split(r'[~]',model['main']['input'])
+                        x = x.replace(' ', '')
+                        dist, args = x.split('(')
+                        dist = dist.replace(" ", "")
+                        args = args.replace("(", "")
+                        args = args.replace(")", "")
+                        args = args.split(",")
+                        file.write(str(', '.join([f'{item}' for item in args]))+ "), reinterpreted_batch_ndims=1),")
+
+                    file.write('\n')
+
+        with open(output_file,'a') as file:
+            file.write('))')
+
+self = model()
+self.import_csv(path = './data/milk.csv', sep = ';')
+self.index(cols = "clade")
+f = dict(main = 'y ~ Normal(mu,sigma)',
             likelihood = 'mu ~ alpha[index_clade]',
             prior1 = 'sigma~Exponential(1)',
             prior2 = 'alpha ~ Normal(0,0.5)')  
-m.formula(formula)
-m.write_header()
-m.write_priors()
+#f = dict(main = 'y ~ Normal(mu,sigma)',
+#            prior1 = 'sigma~Exponential(1)',
+#            prior2 = 'mu ~ Normal(0,0.5)')  
 
 
-
-
-
-
+self.formula(f)
+self.get_mains_info()
 
 
 #%%
-def model_info(model, df = None):    
-    model = {}
-    model["type"] =  check_index(formula)
-    model["full"] =  get_var(formula)
-    model["original8data"] = 
+self.write_header()
+self.write_priors()
 
 
-def model_index(model):
-    if  model["likelihood"]['input'].find("[") != -1:
-        model_type = "model_index"
-        y, x = re.split(r'[~]',model['likelihood']['input'])
-        x = re.split(r'[+****-]', x)
-        index_info = {}
-        for a in range(len(x)):
-            tmp = x[a]
-            index_info_sub = {}
-            if tmp.find("[") != -1:
-                index_info_sub["input"] = tmp
+self.write_main2()
 
-                indices_param = re.split(r'[+*[*-]', tmp)
-                indices_param[0] = indices_param[0].replace(" ","")
-                indices_param[1] = indices_param[1].replace("]","")
-                index_info_sub["params"] = indices_param
+#%%
 
-                index_info_sub["shape"] =  len(set(d[indices_param[1]].values))
 
-                index_info[indices_param[0]] = index_info_sub
-
-        return index_info
-    else:
-        return None
-
-index_info = model_index(model)
-index_info
-
-if var[0] in index_info.keys():
-    shape = index_info[var[0]]["shape"]
-else:
-    shape = 1
