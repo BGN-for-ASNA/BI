@@ -22,4 +22,4 @@ len_index_clade= len(set(d.index_clade.values))
 m = tfd.JointDistributionNamed(dict(
 	sigma = tfd.Sample(tfd.Exponential(1), sample_shape= 1),
 	alpha = tfd.Sample(tfd.Normal(0, 0.5), sample_shape= 1),
-y = lambda sigma, alpha: tfd.Independent(tfd.Normal(tf.transpose(tf.gather(tf.transpose(alpha), tf.cast(index_clade, dtype= tf.int32)))))
+y = lambda sigma, alpha: tfd.Independent(tfd.Normal(tf.transpose(tf.gather(tf.transpose(alpha), tf.cast(index_clade, dtype= tf.int32)))))))
