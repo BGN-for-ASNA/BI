@@ -12,7 +12,7 @@ m.df.weight = m.df.weight - m.df.weight.mean()
 m.formula(f = formula)
 m.mains_infos
 m.build_model()
-
+m.sample()
 
 #%% Test No data frame multiple likelihood-----------------------------------------------------
 from  main import *

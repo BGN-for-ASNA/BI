@@ -35,6 +35,15 @@ class model(data, define, write):
         importlib.reload(mymodel)
         from output.mymodel import m
         self.tfp = m
-        
         print("Model builded")
+        
+    def sample(self, *args, **kwargs):
+        #sample = self.tfp.sample(*args, **kwargs)
+        #print(sample)
+        #result = {}
+        #for key in sample.keys():
+        #    result[key] = sample[key].numpy().reshape(sample[key].shape[1],sample[key].shape[0])[0]
+        self.samples = self.tfp.sample(*args, **kwargs)
+        return self.samples
+        
 
