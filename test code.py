@@ -1,4 +1,54 @@
-#%%
+#%% Test No data frame single likelihood -----------------------------------------------------
+from  main import *
+formula = dict(main = 'y~Normal(m,s)',
+            likelihood = 'm ~  alpha + beta',
+            prior1 = 's~Exponential(1)',
+            prior2 = 'alpha ~ Normal(0,1)',
+            prior3 = 'beta ~ Normal(0,1)')    
+m = model()
+m.import_csv('./data/Howell1.csv', sep = ';')
+m.df = m.df[m.df.age > 18]
+m.df.weight = m.df.weight - m.df.weight.mean()
+m.formula(f = formula)
+m.mains_infos
+m.build_model()
+
+
+#%% Test No data frame multiple likelihood-----------------------------------------------------
+from  main import *
+formula = dict(main = 'y~Normal(m,s)',
+            likelihood = 'm ~  alpha + beta',
+            prior1 = 's~Exponential(1)',
+            prior2 = 'alpha ~ Normal(0,1)',
+            prior3 = 'beta ~ Normal(0,1)',
+            
+            main1 = 'z~Normal(m2,s2)',
+            likelihood2 = 'm2 ~ alpha2 + beta2',
+            prior4 = 's2~Exponential(1)',
+            prior5 = 'alpha2 ~ Normal(0,1)',
+            prior6 = 'beta2 ~ Normal(0,1)') 
+m = model()
+m.import_csv('./data/Howell1.csv', sep = ';')
+m.df = m.df[m.df.age > 18]
+m.df.weight = m.df.weight - m.df.weight.mean()
+m.formula(f = formula)
+m.mains_infos
+m.build_model()
+
+# %% Indices -------------------------------------
+from  main import *
+my_formula = dict(main = 'y ~ Normal(mu,sigma)',
+            likelihood = 'mu ~ alpha[index_clade]',
+            prior1 = 'sigma~Exponential(1)',
+            prior2 = 'alpha ~ Normal(0,0.5)')  
+self = model()
+self.import_csv('./data/milk.csv', sep = ';')
+self.index(cols = "clade")
+self.formula(f = my_formula)
+self.mains_infos
+
+
+#%% Old code-------------------
 from code.model_diagnostic import *
 from code.model_fit import *
 from code.model_write import *
@@ -11,46 +61,6 @@ d.weight = d.weight - d.weight.mean()
 weight = d.weight
 d.age = d.age - d.age.mean()
 age = d.age
-
-#%% Test No data frame single likelihood -----------------------------------------------------
-model = dict(main = 'y~Normal(m,s)',
-            likelihood = 'm ~  alpha + beta',
-            prior1 = 's~Exponential(1)',
-            prior2 = 'alpha ~ Normal(0,1)',
-            prior3 = 'beta ~ Normal(0,1)')    
-
-
-model = build_model(model, float = 16)        
-
-
-posterior, trace, sample_stats =  run_model(model, 
-                                            observed_data = dict(y =  d.weight.astype('float32').values),
-                                            num_chains = 4)
-
-az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-
-#%% Test No data frame multiple likelihood-----------------------------------------------------
-model = dict(main = 'y~Normal(m,s)',
-            likelihood = 'm ~  alpha + beta',
-            prior1 = 's~Exponential(1)',
-            prior2 = 'alpha ~ Normal(0,1)',
-            prior3 = 'beta ~ Normal(0,1)',
-            
-            main1 = 'z~Normal(m2,s2)',
-            likelihood2 = 'm2 ~ alpha2 + beta2',
-            prior4 = 's2~Exponential(1)',
-            prior5 = 'alpha2 ~ Normal(0,1)',
-            prior6 = 'beta2 ~ Normal(0,1)')    
-
-model = build_model(model, float = 16)        
-
-
-posterior, trace, sample_stats =  run_model(model, 
-                                            observed_data = dict(y = d.weight.astype('float32').values),
-                                            num_chains = 4)
-
-az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-
 
 #%% Test with data frame in likelihood-----------------------------------------------------
 d = pd.read_csv('./data/Howell1.csv', sep=';')
@@ -228,20 +238,4 @@ updated_posterior = {
     "sigma": posterior["sigma"][0],
 }
 
-
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-
-
-
-# %%
-from  main import *
-my_formula = dict(main = 'y ~ Normal(mu,sigma)',
-            likelihood = 'mu ~ alpha[index_clade]',
-            prior1 = 'sigma~Exponential(1)',
-            prior2 = 'alpha ~ Normal(0,0.5)')  
-self = model()
-self.import_csv('./data/milk.csv', sep = ';')
-self.index(cols = "clade")
-self.formula(f = my_formula)
-
-self.build_model()

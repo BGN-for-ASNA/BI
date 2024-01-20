@@ -15,11 +15,15 @@ if len(physical_devices) > 0:
 d = pd.read_csv('output/mydf.csv')
 
 # Set up parameters ----------------------------
-index_clade= d.index_clade
-len_index_clade= len(set(d.index_clade.values))
 
 # Model ----------------------------
 m = tfd.JointDistributionNamed(dict(
-	sigma = tfd.Sample(tfd.Exponential(1), sample_shape= 1),
-	alpha = tfd.Sample(tfd.Normal(0, 0.5), sample_shape= 1),
-y = lambda sigma, alpha: tfd.Independent(tfd.Normal(tf.transpose(tf.gather(tf.transpose(alpha), tf.cast(index_clade, dtype= tf.int32)))))))
+	s = tfd.Sample(tfd.Exponential(1), sample_shape= 1),
+	alpha = tfd.Sample(tfd.Normal(0, 1), sample_shape= 1),
+	beta = tfd.Sample(tfd.Normal(0, 1), sample_shape= 1),
+	s2 = tfd.Sample(tfd.Exponential(1), sample_shape= 1),
+	alpha2 = tfd.Sample(tfd.Normal(0, 1), sample_shape= 1),
+	beta2 = tfd.Sample(tfd.Normal(0, 1), sample_shape= 1),
+y = lambda s, alpha, beta: tfd.Independent(tfd.Normal(alpha+beta,s), reinterpreted_batch_ndims=1),
+z = lambda s2, alpha2, beta2: tfd.Independent(tfd.Normal(alpha2+beta2,s2), reinterpreted_batch_ndims=1),
+))
