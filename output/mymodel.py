@@ -21,9 +21,5 @@ m = tfd.JointDistributionNamed(dict(
 	s = tfd.Sample(tfd.Exponential(1), sample_shape= 1),
 	alpha = tfd.Sample(tfd.Normal(0, 1), sample_shape= 1),
 	beta = tfd.Sample(tfd.Normal(0, 1), sample_shape= 1),
-	s2 = tfd.Sample(tfd.Exponential(1), sample_shape= 1),
-	alpha2 = tfd.Sample(tfd.Normal(0, 1), sample_shape= 1),
-	beta2 = tfd.Sample(tfd.Normal(0, 1), sample_shape= 1),
 y = lambda s, alpha, beta: tfd.Independent(tfd.Normal(alpha+beta,s), reinterpreted_batch_ndims=1),
-z = lambda s2, alpha2, beta2: tfd.Independent(tfd.Normal(alpha2+beta2,s2), reinterpreted_batch_ndims=1),
 ))
