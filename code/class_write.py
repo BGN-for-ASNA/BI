@@ -1,4 +1,5 @@
 from tensorflow_probability import distributions as tfd
+import tensorflow as tf
 import matplotlib.pyplot as plt
 import pandas as pd
 import re
@@ -259,6 +260,28 @@ class define():
         return mains_infos
 
 class write():
+    
+    def create_distribution(self, distribution_name, *args, **kwargs):
+        distribution_class = getattr(tfd, distribution_name, None)
+
+        if distribution_class is None or not callable(distribution_class):
+            raise ValueError(f"Invalid distribution name: {distribution_name}")
+
+        distribution_instance = distribution_class(*args, **kwargs)
+        return distribution_instance
+    
+    def convert_to_numeric(self, lst):
+        numeric_list = []
+        for item in lst:
+            try:
+                numeric_list.append(int(item))  # Convert to integer
+            except ValueError:
+                try:
+                    numeric_list.append(float(item))  # Convert to float
+                except ValueError:
+                    numeric_list.append(item)  # Keep as is if not numeric
+        return numeric_list
+
     def write_header(self):
         output_file = self.model_path
         self.undeclared_params['undeclared_params']
@@ -374,8 +397,8 @@ class write():
         self.priors = p
         return p           
 
-    def main_text(self):
-        result = []
+    def write_main_text(self):
+        result = {}
         for key in self.mains_infos.keys():
             text = ""
             text = text + self.mains_infos[key]['ouput'] + " = lambda "
@@ -412,7 +435,7 @@ class write():
                 text = text + self.mains_infos[key]['likelihood_formula'] + ','
                 text = text + ','.join(self.mains_infos[key]["params"][1:]) + ")"
             text = text + ", reinterpreted_batch_ndims=1)"
-            result.append(text)
+            result[self.mains_infos[key]['ouput']] = text
         
         
         self.main_text = result
@@ -426,6 +449,7 @@ class write():
                 file.write(",")
                 file.write("\n")
             file.write("))")
+    
     def write_main(self):   
         model = self.full_model
         output_file = self.model_path
@@ -500,3 +524,45 @@ class write():
 
         with open(output_file,'a') as file:
             file.write('))')
+
+    def create_function_from_string(self, func_str, name):
+        # Define required imports and namespace for exec
+        imports = {'tfd': tfd, 'tf': tf}
+        namespace = {}
+
+        # Execute the string as Python code within the specified namespace
+        exec(func_str, imports, namespace)
+
+        # Extract the function from the namespace
+        return namespace[name]
+    
+    def tensor_prior(self):
+        self.tensor = {}
+        # prior -------------------------------
+        model = self.full_model
+        output_file = self.model_path
+        p = [] 
+        for key in model.keys():
+            input = model[key]['input']
+            var = model[key]['var']      
+            if 'prior' in key.lower():
+                p.append(var[0])
+                # Get indices shape
+                if self.model_type["with_indices"]:
+                    if var[0] in self.indices:
+                        idI = self.indices.index(var[0])
+                        shape = "len_" + self.indices_var[idI]
+                    else:
+                        shape = 1
+                else:
+                    shape = 1
+
+                with open(output_file,'a') as file:
+                    self.tensor[model[key]['var'][0]] = tfd.Sample(
+                        self.create_distribution(model[key]['var'][1],
+                        *self.convert_to_numeric(model[key]['var'][2])), sample_shape = shape)
+        self.priors = p
+   
+    def tensor_main(self):
+        for key in self.main_text.keys():
+            self.tensor[key] = self.create_function_from_string(self.main_text[key], key)
