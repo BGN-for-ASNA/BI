@@ -10,9 +10,9 @@ m.import_csv('./data/Howell1.csv', sep = ';')
 m.df = m.df[m.df.age > 18]
 m.df.weight = m.df.weight - m.df.weight.mean()
 m.formula(f = formula)
-m.mains_infos
 m.build_model()
 m.sample()
+m.sample(10)
 
 #%% Test No data frame multiple likelihood-----------------------------------------------------
 from  main import *
@@ -34,6 +34,8 @@ m.df.weight = m.df.weight - m.df.weight.mean()
 m.formula(f = formula)
 m.mains_infos
 m.build_model()
+m.tensor
+
 
 # %% Indices -------------------------------------
 from  main import *
