@@ -5,14 +5,9 @@ formula = dict(main = 'y~Normal(m,s)',
             prior1 = 's~Exponential(1)',
             prior2 = 'alpha ~ Normal(0,1)',
             prior3 = 'beta ~ Normal(0,1)')    
-m = model()
-m.import_csv('./data/Howell1.csv', sep = ';')
-m.df = m.df[m.df.age > 18]
-m.df.weight = m.df.weight - m.df.weight.mean()
-m.formula(f = formula)
-m.build_model()
-m.sample()
+m = model(formula= formula)
 m.sample(10)
+m.tensor
 
 #%% Test No data frame multiple likelihood-----------------------------------------------------
 from  main import *
@@ -27,15 +22,23 @@ formula = dict(main = 'y~Normal(m,s)',
             prior4 = 's2~Exponential(1)',
             prior5 = 'alpha2 ~ Normal(0,1)',
             prior6 = 'beta2 ~ Normal(0,1)') 
-m = model()
-m.import_csv('./data/Howell1.csv', sep = ';')
-m.df = m.df[m.df.age > 18]
-m.df.weight = m.df.weight - m.df.weight.mean()
-m.formula(f = formula)
-m.mains_infos
-m.build_model()
+m = model(formula= formula)
+m.sample(10)
 m.tensor
 
+#%% Test with data frame in likelihood-----------------------------------------------------
+from  main import *
+d = pd.read_csv('./data/Howell1.csv', sep=';')
+d = d[d.age > 18]
+d.weight = d.weight - d.weight.mean()
+d.age = d.age - d.age.mean()
+formula = dict(main = 'height ~ Normal(mu,sigma)',
+            likelihood = 'mu ~ alpha + beta * weight',
+            prior1 = 'sigma~Uniform(0,50)',
+            prior2 = 'alpha ~ Normal(178,20)',
+            prior3 = 'beta ~ Normal(0,1)')    
+
+model = model(formula, df = d, sep = ',', float=32)
 
 # %% Indices -------------------------------------
 from  main import *
@@ -47,24 +50,29 @@ self = model()
 self.import_csv('./data/milk.csv', sep = ';')
 self.index(cols = "clade")
 self.formula(f = my_formula)
-self.mains_infos
+self.build_model()
+#%%
+new_tensor = tfd.JointDistributionNamed(self.tensor)
+new_tensor
 
+#%%
+# `self.tensor_prior()` is a method that calculates the prior distributions for each parameter in the
+# model. It takes the formula dictionary and converts the prior expressions into TensorFlow
+# probability distributions. The resulting distributions are stored in the `self.tensor` dictionary.
+self.tensor_prior()
+self.write_main_text()
+key = "y"
+self.tensor[key] = eval(f"{self.main_text[key]}")
+test = tfd.JointDistributionNamed(self.tensor)
+test.sample()
+self.tensor = test
+#%%
+self['y'] = eval(self.main_text['y'])
+test = tfd.JointDistributionNamed(self.tensor)
+test.sample()
 
 #%% Old code-------------------
-from code.model_diagnostic import *
-from code.model_fit import *
-from code.model_write import *
-from code.data_manip import *
-import pandas as pd
-
-d = pd.read_csv('./data/Howell1.csv', sep=';')
-d = d[d.age > 18]
-d.weight = d.weight - d.weight.mean()
-weight = d.weight
-d.age = d.age - d.age.mean()
-age = d.age
-
-#%% Test with data frame in likelihood-----------------------------------------------------
+## Test with data frame in likelihood-----------------------------------------------------
 d = pd.read_csv('./data/Howell1.csv', sep=';')
 d = d[d.age > 18]
 d.weight = d.weight - d.weight.mean()
@@ -211,10 +219,13 @@ m = tfd.JointDistributionNamed(dict(
     sigma = tfd.Sample(tfd.Exponential(1), sample_shape=1),
     alpha = tfd.Sample(tfd.Normal(0, 0.5), sample_shape=4),
     y = lambda alpha, sigma: tfd.Independent(tfd.Normal(
-        loc=tf.transpose(tf.gather(tf.transpose(alpha), tf.cast(d.index_clade , dtype= tf.int32))),
+        loc=tf.transpose(tf.gather(tf.transpose(alpha), 
+                                   tf.cast(d.index_clade , dtype= tf.int32))),
         scale=sigma
     ), reinterpreted_batch_ndims=1),
 ))
+
+
 #%%
 posterior, trace, sample_stats =  run_model(model = m,
 parallel_iterations=1,
