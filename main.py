@@ -4,7 +4,7 @@ from code.class_write import*
 from code.data_manip import data
 import pandas as pd
 import numpy as np  
-
+import tensorflow as tf
 ## Distribution functions -----------------------------------------------------
 def get_distribution_classes():
     # Get all names defined in the distributions module
@@ -25,15 +25,44 @@ def exportTFD(tf_classes):
 
 exportTFD(tf_classes)
 
+def joineDis(tensor, text, df):
+    df = df
+    print(text)
+    for key in text.keys():
+        tensor[key] =  eval(f"{text[key]}")
+    tensor = tfd.JointDistributionNamed(tensor)
+    return tensor
+
 class model(data, define, write):
-    def __init__(self, formula = None, float = 16):      
+    def __init__(self, 
+                 formula = None, 
+                 df = None,
+                 float = 16,
+                 **kwargs):      
         self.f = formula
-        self.df = pd.DataFrame({'A' : []})
+        if df is None:
+         self.df = pd.DataFrame({'A' : []})
+        else:
+            if isinstance(df, pd.DataFrame):
+                self.df = df
+            elif isinstance(df, str):
+                self.df = self.import_csv(df, **kwargs)
+            
         self.model_path = 'output/mymodel.py'
         self.df_path = 'output/mydf.csv'
         self.data_modification = {}
         self.float = float
-    
+        
+        # GPU configuration ----------------------------
+        physical_devices = tf.config.experimental.list_physical_devices('GPU')
+        if len(physical_devices) > 0:
+        	tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        
+        # If user setup directly a formula
+        if formula is not None:
+            self.formula(self.f)
+            self.build_model()
+        
     def build_model(self):
         self.get_var()
         self.get_priors_names()
@@ -41,28 +70,18 @@ class model(data, define, write):
         
         self.output_path = 'output/mydf.csv'
         self.df.to_csv(self.output_path, index=False)
-        
-        #self.write_header()
-        #self.write_priors()
+
         self.tensor_prior()
         self.write_main_text()
-        self.tensor_main()
-        self.tensor =  tfd.JointDistributionNamed(self.tensor)
-        #self.write_main2()       
-        
-        #import importlib
-        #from output import mymodel
-        #importlib.reload(mymodel)
-        #from output.mymodel import m
-        #self.tfp = m
-        print("Model builded")
+        for key in self.main_text.keys():
+            self.tensor[key] = self.create_function_from_string(func_str = self.main_text[key], name = key)
+        self.tensor = tfd.JointDistributionNamed(self.tensor)
+        #new_tensor = joineDis(self.tensor, self.main_text, self.df)
+        #self.tensor = new_tensor
+        #print("Model builded")
+        #return new_tensor
         
     def sample(self, *args, **kwargs):
-        #sample = self.tfp.sample(*args, **kwargs)
-        #print(sample)
-        #result = {}
-        #for key in sample.keys():
-        #    result[key] = sample[key].numpy().reshape(sample[key].shape[1],sample[key].shape[0])[0]
         self.samples = self.tensor.sample(*args, **kwargs)
         return self.samples
         
