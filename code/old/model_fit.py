@@ -1,6 +1,6 @@
 # %%
 import tensorflow_probability as tfp
-from code.model_write import *
+from model_write import *
 import tensorflow as tf
 import functools
 import arviz as az
@@ -153,23 +153,44 @@ def fit_model(model,
 #%%
 #from model_write import *
 #import arviz as az
-#d = pd.read_csv('C:/Users/sebastian_sosa/OneDrive/Travail/Max Planck/Projects/python/rethinking-master/data/Howell1.csv', sep=';')
+#d = pd.read_csv('/home/sosa/BI/data/Howell1.csv', sep=';')
 #
 #d = d[d.age > 18]
 #d.weight = d.weight - d.weight.mean()
+#weight = d.weight
 #
-#model = dict(main = 'height ~ Normal(m,sigma)',
-#            likelihood = 'm = alpha + beta * weight',
-#            prior1 = 'sigma~Uniform(0, 50)',
-#            prior2 = 'alpha ~ Normal(178,20)',
-#            prior3 = 'beta ~ Normal(0,1)')    
+#model = tfd.JointDistributionNamed(dict(
+#	sigma = tfd.Sample(tfd.Uniform(0, 50), sample_shape=1),
+#	alpha = tfd.Sample(tfd.Normal(178, 20), sample_shape=1),
+#	beta = tfd.Sample(tfd.Normal(0, 1), sample_shape=1),
+#	height = lambda alpha,beta,sigma: tfd.Independent(tfd.Normal(alpha+beta*weight, sigma), reinterpreted_batch_ndims=1),
+#))
 #
-#model = build_model(model, path = None, df = d, sep = ',', float=64)
-#
+##%%
 #posterior, trace, sample_stats =  run_model(model, 
 #                                            observed_data = dict(height =d.height.astype('float32').values),
-#                                            params = ['sigma', 'alpha', 'beta'],
 #                                            num_chains = 1)
 #import arviz as az
 #az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-# %%
+## %%
+#num_chains = 1
+#observed_data = dict(height =d.height.astype('float32').values)
+#unnormalized_posterior_log_prob = functools.partial(target_log_prob_fn, model, observed_data)
+## Assuming that 'model' is defined elsewhere
+#initial_state = list(model.sample(num_chains).values())[:-1]
+#bijectors = [tfp.bijectors.Identity() for _ in initial_state]
+#results, sample_stats =  tfp.mcmc.sample_chain(
+#num_results=1,
+#num_burnin_steps=1,
+#current_state=initial_state,
+#kernel=tfp.mcmc.SimpleStepSizeAdaptation(
+#    tfp.mcmc.TransformedTransitionKernel(
+#        inner_kernel=tfp.mcmc.HamiltonianMonteCarlo(
+#            target_log_prob_fn=unnormalized_posterior_log_prob,
+#            step_size= 0.065,
+#            num_leapfrog_steps= 5),
+#        bijector=bijectors),
+#     num_adaptation_steps= 1),
+#trace_fn=lambda _, pkr: pkr.inner_results.inner_results.log_accept_ratio,
+#parallel_iterations = 1)  
+    
