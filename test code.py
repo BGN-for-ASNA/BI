@@ -26,8 +26,8 @@ formula = dict(main = 'y~Normal(m,s)',
             prior4 = 's2~Exponential(1)',
             prior5 = 'alpha2 ~ Normal(0,1)',
             prior6 = 'beta2 ~ Normal(0,1)') 
-m = model(formula= formula)
-m.sample(10)
+self = model(formula= formula)
+self.sample(10)
 print('tensor DICT:')
 print(self.tensor_dict)
 print('tensor likelihoods:')
@@ -35,6 +35,7 @@ print(self.main_text)
 
 #%% Test with data frame in likelihood-----------------------------------------------------
 from  main import *
+## Model m4.3
 d = pd.read_csv('./data/Howell1.csv', sep=';')
 d = d[d.age > 18]
 d.weight = d.weight - d.weight.mean()
@@ -52,61 +53,60 @@ print('tensor likelihoods:')
 print(self.main_text)
 self.fit(observed_data = dict(height =d.height.astype('float32').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
-self.diag_forest()
+self.summary()
 
-#%%
-sample_stats_name = ['log_likelihood','tree_size','mean_tree_accept']
+# expected 
+#           Mean    StdDev  5.5%    94.5%   a   b   sigma
+#   a       154.60  0.27    154.17  155.03  1   0   0
+#   b       0.91    0.04    0.84    0.97    0   1   0
+#   sigma   5.07    0.19    4.77    5.38    0   0   1
 
-def tfp_trace_to_arviz(
-    tfp_trace,
-    var_names=None, 
-    sample_stats_name=sample_stats_name):
-    
-    samps, trace = tfp_trace
-    if var_names is None:
-        var_names = ["var " + str(x) for x in range(len(samps))]
-        
-    sample_stats = {k:v.numpy().T for k, v in zip(sample_stats_name, trace)}
-    posterior = {name : tf.transpose(samp, [1, 0, 2]).numpy() for name, samp in zip(var_names, samps)}
-    return az.from_dict(posterior=posterior, sample_stats=sample_stats)
-
-
-#%%
-tfp_trace_to_arviz(res,['a','b','C'])
-#%%
-sample_stats_name = ['log_likelihood','tree_size','diverging','energy','mean_tree_accept']
-
-def tfp_trace_to_arviz(
-    tfp_trace,
-    var_names=None, 
-    sample_stats_name=sample_stats_name):
-    
-    samps, trace = tfp_trace
-    if var_names is None:
-        var_names = ["var " + str(x) for x in range(len(samps))]
-        
-    sample_stats = {k:v.numpy().T for k, v in zip(sample_stats_name, trace)}
-    posterior = {name : tf.transpose(samp, [1, 0, 2]).numpy() for name, samp in zip(var_names, samps)}
-    return az.from_dict(posterior=posterior, sample_stats=sample_stats)
+# got:
+#           mean	    sd	    hdi_5.5%	hdi_94.5%
+#sigma[0]	5.14	    0.20	4.81	        5.43
+#beta[0]	0.91	    0.04	0.84	        0.97
+#alpha[0]	154.65	    0.28	154.22	        155.12
+# Sigma and alph are inverted!!!!!!!!!!!!!!!!!!
 
 # %% Indices -------------------------------------
+## Model m5.9 
 from  main import *
-my_formula = dict(main = 'kcal_per_g ~ Normal(mu,sigma)',
-            likelihood = 'mu ~ alpha[index_clade]',
-            prior1 = 'sigma~Exponential(1)',
-            prior2 = 'alpha ~ Normal(0,0.5)')  
 self = model()
 self.import_csv('./data/milk.csv', sep = ';')
+self.df["K"] = self.df["kcal.per.g"].pipe(lambda x: (x - x.mean()) / x.std())
 self.index(cols = "clade")
+
+my_formula = dict(main = 'K ~ Normal(mu,sigma)',
+            likelihood = 'mu ~ alpha[index_clade]',
+            prior1 = 'alpha~ Normal(0,0.5)',
+            prior2 = 'sigma ~ Exponential(1)')  
 self.formula(f = my_formula)
 self.build_model()
-self.sample(10)
-print('tensor DICT:')
-print(self.tensor_dict)
-print('tensor likelihoods:')
-print(self.main_text)
-self.fit(observed_data = dict(kcal_per_g =self.df.kcal_per_g.astype('float32').values),
+self.fit(observed_data = dict(K =self.df.K.astype('float32').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+self.summary()
+
+
+# Expected:
+#                mean	sd	    hdi_5.5%	hdi_94.5%
+# ape_alpha	    -0.48	0.27	-0.93	    -0.08
+# nwm_alpha	    0.37	0.22	0.03	    0.73
+# owm_alpha	    0.65	0.30	0.26	    1.18
+# strep_alpha	-0.55	0.29	-1.07	    -0.19
+# sigma	        0.83	0.13	0.67	    1.06
+
+# got:
+#               mean	sd	    hdi_5.5%	hdi_94.5%
+#sigma[0]	    0.80	0.12	0.61	    0.97
+#alpha[0]ape	-0.47	0.24	-0.85	    -0.10
+#alpha[1]nwm	0.35	0.24	0.00	    0.76
+#alpha[2]owm	0.64	0.28	0.17	    1.07
+#alpha[3]strep	-0.54	0.29	-1.00	    -0.07
+
+
+#%%
+# m8.1
+
 
 #%% Test with multiple likelihood-----------------------------------------------------
 from  main import *
