@@ -29,11 +29,13 @@ class data():
         return OHE
 
     def index(self, cols = 'all'):
+        self.index_map = {}
         if cols == 'all':
             colCat = list(self.df.select_dtypes(['object']).columns)    
-            for a in range(len(colCat)):
+            for a in range(len(colCat)):                
                 self.df["index_"+ colCat[a]] =  self.df.loc[:,colCat[a]].astype("category").cat.codes
                 self.df["index_"+ colCat[a]] = self.df["index_"+ colCat[a]].astype(np.int64)
+                self.index_map[colCat[a]] = dict(enumerate(self.df[colCat[a]].astype("category").cat.categories ) )
         else:
             if isinstance(cols, list) == False:
                 cols = [cols]
@@ -41,9 +43,12 @@ class data():
                 self.df["index_"+ cols[a]] =  self.df.loc[:,cols[a]].astype("category").cat.codes
                 self.df["index_"+ cols[a]] = self.df["index_"+ cols[a]].astype(np.int64)
 
+                self.index_map[cols[a]] = dict(enumerate(self.df[cols[a]].astype("category").cat.categories ) )
+
         self.df.columns = self.df.columns.str.replace('.', '_')
         self.df.columns = self.df.columns.str.replace(' ', '_')
 
         self.data_modification['index'] = cols
+        
         return self.df
 
