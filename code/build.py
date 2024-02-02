@@ -3,14 +3,13 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import pandas as pd
 import re
-import sys
 import numpy as np
 
 class define():
     def __init__(self, formula = None):
-        self.f = formula
-    
+        self.f = formula        
     # Model definition----------------------------
+    
     def find_index_position(self, text):
         pattern = r'\b(?:[^+\-*\/\(\)~]+|\([^)]+\]|[^[\]]+\])+'
         result = re.findall(pattern, text)
@@ -22,9 +21,13 @@ class define():
     
     def get_model_type(self):
         type = {} 
+        type["with_likelihood"] = False
+        type["with_indices"]  = False
+
         formula = self.f  
         indices = []
         var = []   
+        
         if "likelihood" in self.f.keys():
            type["with_likelihood"] = True
         else:
@@ -155,7 +158,8 @@ class define():
             self.undeclared_params = {'undeclared_params': test, 'params_in_data' : test2}  
             return {'undeclared_params': test, 'params_in_data' : test2}  
 
-    def get_likelihood(self, main_name = "main"):
+    def get_likelihood(self, main_name = "main"): 
+        self.likelihood = {}       
         model = self.full_model
         result = []
         for key in model.keys():
@@ -172,10 +176,9 @@ class define():
                     result.append(index)
 
         if len(result) >= 1:
-            self.likelihood = result
+            self.likelihood[main_name] = result
             return result
         else:
-            print(None)
             self.likelihood = None
             return None
     
@@ -186,7 +189,12 @@ class define():
         self.get_undeclared_params()
         self.get_priors_names()
         self.get_mains_info()
-        self.get_likelihood(main_name = "main") #!make it adptative
+        self.likelihood = {}
+        for key in self.mains_infos.keys():
+            if 'main' in key:
+                 self.get_likelihood(main_name = key)
+
+       
         return self.undeclared_params
     
     def get_mains_info(self):
@@ -229,6 +237,12 @@ class define():
                         id = None
                         id_var = None
                         position = None
+                    if  len(self.undeclared_params) > 1:
+                        main_likelihood_params_in_df = [x for x in main_likelihood_params if x in self.undeclared_params['params_in_data']]     
+                        main_likelihood_params = [x for x in main_likelihood_params if x not in self.undeclared_params['params_in_data']]
+                    else:
+                        main_likelihood_params_in_df = None
+
                 else:
                     with_indices =  False
                     id = None
@@ -239,10 +253,8 @@ class define():
                     main_likelihood_formula = None
                     main_likelihood_input = None
                     main_likelihood_params = None
-                    
-                main_likelihood_params_in_df = [x for x in main_likelihood_params if x in self.undeclared_params['params_in_data']]     
-                print(main_likelihood_params_in_df)
-                main_likelihood_params = [x for x in main_likelihood_params if x not in self.undeclared_params['params_in_data']]
+                    main_likelihood_params_in_df = None
+
 
             mains_infos[main_name] = {'ouput': main_output, 
                                       'input': main_input,
@@ -279,10 +291,15 @@ class write():
         numeric_list = []
         for item in lst:
             try:
-                numeric_list.append(int(item))  # Convert to integer
+                myFloat = float(item)
+                myFloat = tf.cast(myFloat, self.float)
+                numeric_list.append(myFloat)
             except ValueError:
                 try:
-                    numeric_list.append(float(item))  # Convert to float
+                    myInt = int(item)
+                    myInt = tf.cast(myInt, self.int)
+                    numeric_list.append(myInt)
+
                 except ValueError:
                     numeric_list.append(item)  # Keep as is if not numeric
         return numeric_list
@@ -294,8 +311,11 @@ class write():
             #text = text + self.mains_infos[key]['ouput'] + " = lambda "
             text = text +  "lambda "
 
-            text = text + "".join(self.mains_infos[key]['priors']) + ", "
-            text = text + ", ".join(self.mains_infos[key]["likelihood_params"])
+            if len(self.mains_infos[key]['priors']) > 0:
+                text = text + ",".join(self.mains_infos[key]['priors']) + ", "
+
+            if self.mains_infos[key]["likelihood_params"] is not None:
+                text = text + ", ".join(self.mains_infos[key]["likelihood_params"])
 
             # likelihood distribution
             text = text + ": tfd.Independent(tfd." + self.mains_infos[key]['distribution'] + "(" 
@@ -321,8 +341,18 @@ class write():
 
                 text = text + ',' + ','.join(self.mains_infos[key]["params"][1:]) + ")"
             else:
-                text = text + self.mains_infos[key]['likelihood_formula'] + ','
-                text = text + ','.join(self.mains_infos[key]["params"][1:]) + ")"
+                if self.mains_infos[key]['with_likelihood'] is not None:
+                    if self.mains_infos[key]['likelihood_params_in_df'] is not None:
+                         for a in range(len(self.mains_infos[key]['likelihood_params_in_df'])):
+                              self.mains_infos[key]['likelihood_formula'] = self.mains_infos[key]['likelihood_formula'].replace(self.mains_infos[key]['likelihood_params_in_df'][a], 'df.' + self.mains_infos[key]['likelihood_params_in_df'][a])
+                         text = text + self.mains_infos[key]['likelihood_formula'] + ','
+                         text = text + ','.join(self.mains_infos[key]["params"][1:]) + ")"
+                    else:
+                        text = text + self.mains_infos[key]['likelihood_formula'] + ','
+                        text = text + ','.join(self.mains_infos[key]["params"][1:]) + ")"
+                else:
+                     text = text + ','.join(self.mains_infos[key]['params']) + ")"
+
             text = text + ", reinterpreted_batch_ndims=1)"
             result[self.mains_infos[key]['ouput']] = text
         
@@ -334,7 +364,7 @@ class write():
         imports = {'tfd': tfd, 'tf': tf, 'df': self.df}
         namespace = {}
         # Execute the string as Python code within the specified namespace
-        exec('y = ' + func_str, imports, namespace)
+        exec( name + ' = ' + func_str, imports, namespace)
 
         # Extract the function from the namespace
         return namespace[name]
@@ -360,10 +390,10 @@ class write():
                 else:
                     shape = 1
 
-                with open(output_file,'a') as file:
-                    self.tensor[model[key]['var'][0]] = tfd.Sample(
-                        self.create_distribution(model[key]['var'][1],
-                        *self.convert_to_numeric(model[key]['var'][2])), sample_shape = shape)
+                self.tensor[model[key]['var'][0]] = tfd.Sample(
+                    self.create_distribution(model[key]['var'][1],
+                    *self.convert_to_numeric(model[key]['var'][2])), sample_shape = shape)
+            
         self.priors = p
    
     def tensor_main(self):
