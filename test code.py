@@ -38,6 +38,7 @@ from  main import *
 ## Model m4.3
 d = pd.read_csv('./data/Howell1.csv', sep=';')
 d = d[d.age > 18]
+#self.df["weight.per.g"].pipe(lambda x: (x - x.mean()) / x.std())
 d.weight = d.weight - d.weight.mean()
 d.age = d.age - d.age.mean()
 formula = dict(main1 = 'height ~ Normal(mu,sigma)',
@@ -105,8 +106,152 @@ self.summary()
 
 
 #%%
+from  main import*
 # m8.1
+m = model()
+d = pd.read_csv('./data/rugged.csv', sep = ';')
+# make log version of outcome
+d['log_gdp'] = np.log(d.rgdppc_2000)
+# extract countries with GDP data
 
+# rescale variables
+d['log_gdp_std'] = d["log_gdp"].pipe(lambda x: (x / x.mean()) )
+d['rugged_std'] = d["rugged"].pipe(lambda x: (x / x.max()) )
+d['rugged_std'] - 0.215
+d = d.loc[:,['rugged_std','log_gdp_std', 'cont_africa','log_gdp']]
+d = d.dropna()
+formula = dict(
+    main = 'log_gdp_std ~ Normal( mu , sigma ) ',
+    likelihood = 'mu ~ a + b* rugged_std ',
+    prior1 = 'a ~ Normal( 1 , 0.1  )' ,
+    prior2 = 'b ~ Normal( 0 , 0.3 )' ,
+    prior3 = 'sigma ~ Exponential( 1 )'
+)
+m8_1 = model(formula, d)
+
+m8_1.fit(observed_data = dict(log_gdp_std =d.log_gdp_std.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+print(m8_1.summary())
+
+
+
+#Expected:
+#       mean    sd      5.5%    94.5%
+#a      1.00    0.01    0.98    1.0
+#b      0.00    0.05    -0.09   0.09
+#sigma  0.14    0.01    0.12    0.15
+
+# Got:
+#          mean    sd       hdi_5.5%    hdi_94.5%
+#sigma[0]  0.14     0.01      0.13       0.15
+#b[0]      0.01     0.07     -0.10       0.12
+#a[0]      1.00     0.02      0.97       1.02
+
+#%% Model comparaison -------------------------
+# make log version of outcome
+d = pd.read_csv('./data/rugged.csv', sep = ';')
+d["log_gdp"] = d["rgdppc_2000"].pipe(np.log)
+
+# extract countries with GDP data
+dd = d[d["rgdppc_2000"].notnull()].copy()
+
+# rescale variables
+dd["log_gdp_std"] = dd.log_gdp / dd.log_gdp.mean()
+dd["rugged_std"] = dd.rugged / dd.rugged.max()
+
+dd["cid"] = np.where(dd.cont_africa.values == 1, 0, 1)
+dd["cid"]
+
+formula = dict(
+    main = 'log_gdp_std ~ Normal( mu , sigma ) ',
+    likelihood = 'mu ~ a[cid] + b*rugged_std',
+    prior1 = 'a ~ Normal( 1 , 0.1  )' ,
+    prior2 = 'b ~ Normal( 0 , 0.3 )' ,
+    prior3 = 'sigma ~ Exponential( 1 )'
+)
+
+m8_2= model(formula, dd)
+m8_2.fit(observed_data = dict(log_gdp_std =dd.log_gdp_std.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+m8_2.summary()
+
+#Expected:
+#       mean    sd      5.5%    94.5%
+#a[1]   0.88    0.02    0.85    0.91
+#a[2]   1.05    0.01    1.03    1.07
+#b      -0.05   0.05    -0.12   0.03
+#sigma  0.11    0.01    0.10    0.1
+
+# Got:
+#           mean	sd	    hdi_5.5%	hdi_94.5%
+#sigma[0]	0.11	0.01	0.10	    0.12
+#b[0]	    -0.05	0.05	-0.12	    0.03
+#a[0]	    0.89	0.02	0.86	    0.92
+#a[1]	    1.06	0.01	1.04	    1.08
+
+self.diag_compare({'m8.1': m8_1.trace, 'm8.2': m8_2.trace})
+
+
+#       rank	elpd_loo	p_loo	    elpd_diff	weight	se	    dse	    warning	    scale
+#m8.2	0	    128.021790	3.008224	0.000000	1.0	    0.0	    0.0	    True	    log
+#m8.1	1	    95.414886	2.317650	32.606903	0.0	    0.0	    0.0	    True	    log
+
+#%% Issue Don't work!!!!!!!!!!!
+formula = dict(
+    main = 'log_gdp_std ~ Normal( mu , sigma ) ',
+    likelihood = 'mu ~ a[cid] + b[cid]*rugged_std',
+    prior1 = 'a ~ Normal( 1 , 0.1  )' ,
+    prior2 = 'b ~ Normal( 0 , 0.3 )' ,
+    prior3 = 'sigma ~ Exponential( 1 )'
+)
+
+m9_1= model(formula, dd)
+m9_1.fit(observed_data = dict(log_gdp_std =dd.log_gdp_std.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+m9_1.summary()
+
+#%%  8.3 Continuous interactions------------------------------
+d = pd.read_csv('./data/tulips.csv', sep = ';')
+d["blooms_std"] = d.blooms / d.blooms.max()
+d["water_cent"] = d.water - d.water.mean()
+d["shade_cent"] = d.shade - d.shade.mean()
+
+formula = dict(
+            main = 'blooms_std ~ Normal( mu , sigma ) ',
+            likelihood ='mu ~ a + bw*water_cent + bs*shade_cent' ,
+            prior1 = 'a ~ Normal( 0.5 , 0.25 ) ',
+            prior2 = 'bw ~ Normal( 0 , 0.25 ) ',
+            prior3 = 'bs ~ Normal( 0 , 0.25 ) ',
+            prior4 = 'sigma ~ Exponential( 1 )',
+            )
+m8_4 = model(formula, d)
+m8_4.fit(observed_data = dict(blooms_std =d.blooms_std.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+m8_4.summary()
+#Expected:
+#       mean   sd       5.5%    94.5%
+#a      0.36    0.03     0.31    0.41
+#bw     0.21    0.04     0.15    0.26
+#bs    -0.11    0.04    -0.17   -0.05
+#sigma  0.16    0.02     0.12    0.19
+
+# Got:
+#	        mean	sd	    hdi_5.5%	hdi_94.5%
+#sigma[0]	0.18	0.03	0.13	    0.21
+#bw[0]	    0.20	0.04	0.14	    0.27
+#bs[0]	    -0.11	0.04	-0.18	    -0.04
+#a[0]	    0.36	0.03	0.31	    0.41
+
+#%%
+d = pd.read_csv('./data/chimpanzees.csv', sep = ';')
+d['treatment']  = 1 + d.prosoc_left + 2*d.condition
+formula = dict(
+    main = 'pulled_left ~ Binomial( 1 , p )' ,
+    likelihood = 'p ~ a[actor] ' ,
+    prior1 = 'a ~ Normal( 0 , 1.5 )',
+    prior2 = 'b ~ Normal( 0 , 0.5 )'
+)
+m11_4 = model(formula, d)
 
 #%% Test with multiple likelihood-----------------------------------------------------
 from  main import *
