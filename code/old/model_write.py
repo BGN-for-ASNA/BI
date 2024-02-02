@@ -5,7 +5,7 @@ import pandas as pd
 import re
 import sys
 import numpy as np
-from code.data_manip import *
+
 
 ## Distribution functions -----------------------------------------------------
 def get_distribution_classes():
@@ -349,7 +349,7 @@ def write_main(model, output_file, p, float):
     with open(output_file,'a') as file:
         file.write('))')
 
-def write_model(model, sep = ';',  path = 'output/mymodel.py', withDF = False, DFpath = None, data  = None, float = 16):
+def write_model(model, sep = ';',  path = 'mymodel.py', withDF = False, DFpath = None, data  = None, float = 16):
     if withDF == False:
         write_header(path, float)
     else:
@@ -370,8 +370,8 @@ def build_model(model,
         else:        
             df = pd.read_csv(path, sep = sep)
     else:
-        df.to_csv('output/mydf.csv', index=False)
-        path = 'output/mydf.csv'
+        df.to_csv('mydf.csv', index=False)
+        path = 'mydf.csv'
            
     full_model = get_var(model)
     issues = get_undeclared_params(full_model, df = df)
@@ -414,7 +414,7 @@ def write_HMC(model,
               inDF = True
              ):
     saved_args = locals()
-    output_file = 'output/mymodel.py'
+    output_file = 'mymodel.py'
     with open(output_file,'a') as file:
         file.write('\n')
         file.write('\n')

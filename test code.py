@@ -4,10 +4,14 @@ formula = dict(main = 'y~Normal(m,s)',
             likelihood = 'm ~  alpha + beta',
             prior1 = 's~Exponential(1)',
             prior2 = 'alpha ~ Normal(0,1)',
-            prior3 = 'beta ~ Normal(0,1)')    
-m = model(formula= formula)
-m.sample(10)
-m.tensor
+            prior3 = 'beta ~ Normal(0,1)')   
+self = model(formula= formula) 
+self.sample(10)
+print('tensor DICT:')
+print(self.tensor_dict)
+print('tensor likelihoods:')
+print(self.main_text)
+
 
 #%% Test No data frame multiple likelihood-----------------------------------------------------
 from  main import *
@@ -24,7 +28,10 @@ formula = dict(main = 'y~Normal(m,s)',
             prior6 = 'beta2 ~ Normal(0,1)') 
 m = model(formula= formula)
 m.sample(10)
-m.tensor
+print('tensor DICT:')
+print(self.tensor_dict)
+print('tensor likelihoods:')
+print(self.main_text)
 
 #%% Test with data frame in likelihood-----------------------------------------------------
 from  main import *
@@ -32,17 +39,59 @@ d = pd.read_csv('./data/Howell1.csv', sep=';')
 d = d[d.age > 18]
 d.weight = d.weight - d.weight.mean()
 d.age = d.age - d.age.mean()
-formula = dict(main = 'height ~ Normal(mu,sigma)',
+formula = dict(main1 = 'height ~ Normal(mu,sigma)',
             likelihood = 'mu ~ alpha + beta * weight',
-            prior1 = 'sigma~Uniform(0,50)',
+            prior1 = 'sigma ~ Uniform(0,50)',
             prior2 = 'alpha ~ Normal(178,20)',
             prior3 = 'beta ~ Normal(0,1)')    
 
-model = model(formula, df = d, sep = ',', float=32)
+self = model(formula, df = d)
+print('tensor DICT:')
+print(self.tensor_dict)
+print('tensor likelihoods:')
+print(self.main_text)
+self.fit(observed_data = dict(height =d.height.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+self.diag_forest()
+
+#%%
+sample_stats_name = ['log_likelihood','tree_size','mean_tree_accept']
+
+def tfp_trace_to_arviz(
+    tfp_trace,
+    var_names=None, 
+    sample_stats_name=sample_stats_name):
+    
+    samps, trace = tfp_trace
+    if var_names is None:
+        var_names = ["var " + str(x) for x in range(len(samps))]
+        
+    sample_stats = {k:v.numpy().T for k, v in zip(sample_stats_name, trace)}
+    posterior = {name : tf.transpose(samp, [1, 0, 2]).numpy() for name, samp in zip(var_names, samps)}
+    return az.from_dict(posterior=posterior, sample_stats=sample_stats)
+
+
+#%%
+tfp_trace_to_arviz(res,['a','b','C'])
+#%%
+sample_stats_name = ['log_likelihood','tree_size','diverging','energy','mean_tree_accept']
+
+def tfp_trace_to_arviz(
+    tfp_trace,
+    var_names=None, 
+    sample_stats_name=sample_stats_name):
+    
+    samps, trace = tfp_trace
+    if var_names is None:
+        var_names = ["var " + str(x) for x in range(len(samps))]
+        
+    sample_stats = {k:v.numpy().T for k, v in zip(sample_stats_name, trace)}
+    posterior = {name : tf.transpose(samp, [1, 0, 2]).numpy() for name, samp in zip(var_names, samps)}
+    return az.from_dict(posterior=posterior, sample_stats=sample_stats)
 
 # %% Indices -------------------------------------
 from  main import *
-my_formula = dict(main = 'y ~ Normal(mu,sigma)',
+my_formula = dict(main = 'kcal_per_g ~ Normal(mu,sigma)',
             likelihood = 'mu ~ alpha[index_clade]',
             prior1 = 'sigma~Exponential(1)',
             prior2 = 'alpha ~ Normal(0,0.5)')  
@@ -51,67 +100,17 @@ self.import_csv('./data/milk.csv', sep = ';')
 self.index(cols = "clade")
 self.formula(f = my_formula)
 self.build_model()
-#%%
-new_tensor = tfd.JointDistributionNamed(self.tensor)
-new_tensor
-
-#%%
-# `self.tensor_prior()` is a method that calculates the prior distributions for each parameter in the
-# model. It takes the formula dictionary and converts the prior expressions into TensorFlow
-# probability distributions. The resulting distributions are stored in the `self.tensor` dictionary.
-self.tensor_prior()
-self.write_main_text()
-key = "y"
-self.tensor[key] = eval(f"{self.main_text[key]}")
-test = tfd.JointDistributionNamed(self.tensor)
-test.sample()
-self.tensor = test
-#%%
-self['y'] = eval(self.main_text['y'])
-test = tfd.JointDistributionNamed(self.tensor)
-test.sample()
-
-#%% Old code-------------------
-## Test with data frame in likelihood-----------------------------------------------------
-d = pd.read_csv('./data/Howell1.csv', sep=';')
-d = d[d.age > 18]
-d.weight = d.weight - d.weight.mean()
-weight = d.weight
-d.age = d.age - d.age.mean()
-age = d.age
-
-formula = dict(main = 'height ~ Normal(mu,sigma)',
-            likelihood = 'mu ~ alpha + beta * weight',
-            prior1 = 'sigma~Uniform(0,50)',
-            prior2 = 'alpha ~ Normal(178,20)',
-            prior3 = 'beta ~ Normal(0,1)')    
-
-model = build_model(formula, df = d, sep = ',', float=32)
-
-
-posterior, trace, sample_stats =  fit_model(model, 
-                                            observed_data = dict(height =  'height'),
-                                            num_chains = 4)
-
-az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-
-
-#%% Test  with data frame only as output-----------------------------------------------------
-model = dict(main = 'height ~ Normal(mu,sigma)',
-            prior1 = 'mu ~ Normal(178.0, 0.1)',            
-            prior2 = 'sigma ~ Uniform(0.0, 50.0)')    
-
-
-model = build_model(model, path = None, df = d, sep = ',', float=32)
-
-posterior, trace, sample_stats =  fit_model(model, 
-                                            observed_data = dict(height = 'height'),
-                                            num_chains = 4)
-
-az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
+self.sample(10)
+print('tensor DICT:')
+print(self.tensor_dict)
+print('tensor likelihoods:')
+print(self.main_text)
+self.fit(observed_data = dict(kcal_per_g =self.df.kcal_per_g.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
 
 #%% Test with multiple likelihood-----------------------------------------------------
-model = dict(main = 'z ~ Poisson(alpha)',
+from  main import *
+formula = dict(main = 'z ~ Poisson(alpha)',
             likelihood = 'alpha ~ a + beta * weight',
             prior1 = 'a ~ Normal(178,20)',
             prior2 = 'beta ~ Normal(0,1)',
@@ -122,16 +121,28 @@ model = dict(main = 'z ~ Poisson(alpha)',
             prior5 = 'alpha2 ~ Normal(0,1)'
             )    
 
-model = build_model(model, path = None, df = d, sep = ',', float=32)
+d = pd.read_csv('./data/Howell1.csv', sep=';')
+d = d[d.age > 18]
+d.weight = d.weight - d.weight.mean()
+d.age = d.age - d.age.mean()
+self = model(formula,d)
+print('tensor DICT:')
+print(self.tensor_dict)
+print('tensor likelihoods:')
+print(self.main_text)
 
-model.sample()
+#%% Test  with data frame only as output-----------------------------------------------------
+from  main import *
+formula = dict(main = 'height ~ Normal(mu,sigma)',
+            prior1 = 'mu ~ Normal(178.0, 0.1)',            
+            prior2 = 'sigma ~ Uniform(0.0, 50.0)')    
+d = pd.read_csv('./data/Howell1.csv', sep=';')
+d = d[d.age > 18]
+d.weight = d.weight - d.weight.mean()
+d.age = d.age - d.age.mean()
+self = model(formula,d)
 
-posterior, trace, sample_stats =  fit_model(model, 
-                                            observed_data = dict(y = 'height'),
-                                            num_chains = 4)
-
-az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-
+#%% Old code-------------------
 #%% Test error modeling-----------------------------------------------------
 # Initialize a single 2-variate Gaussian.
 mvn = tfd.MultivariateNormalTriL(
@@ -165,41 +176,6 @@ model = build_model(model, path = None, df = df, sep = ',', float=32)
 posterior, trace, sample_stats =  fit_model(model, 
                                             observed_data = dict(y = 'y'),
                                             num_chains = 4, inDF = True)
-
-az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-
-#%% Categorical models with OHE code 5.45
-d = pd.read_csv('./data/Howell1.csv', sep=';')
-formula = dict(main = 'y ~ Normal(mu,sigma)',
-            likelihood = 'mu ~ alpha + beta * male',
-            prior1 = 'sigma~Uniform(0,50)',
-            prior2 = 'alpha ~ Normal(178,100)',
-            prior3 = 'beta ~ Normal(0,10)')     
-
-model = build_model(formula, df = d, sep = ',', float=32)
-posterior, trace, sample_stats =  fit_model(model, 
-                                            observed_data = dict(y = 'height'),
-                                            num_chains = 4)
-
-az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-
-#%% Categorical models with OHE multiple categories code 5.52
-d = pd.read_csv('./data/milk.csv', sep=';')
-d = OHE(d, ['clade'])
-d.columns
-
-formula = dict(main = 'y ~ Normal(mu,sigma)',
-            likelihood = 'mu ~ alpha + B1*clade_New_World_Monkey + B2*clade_Old_World_Monkey + B3*clade_Strepsirrhine',
-            prior1 = 'sigma~Uniform(0,10)',
-            prior2 = 'alpha ~ Normal(0.6,10)',
-            prior3 = 'B1 ~ Normal(0,1)',
-            prior4 = 'B2 ~ Normal(0,1)',
-            prior5 = 'B3 ~ Normal(0,1)',)     
-
-model = build_model(formula, df = d, sep = ',', float=32)
-posterior, trace, sample_stats =  fit_model(model, 
-                                            observed_data = dict(y = 'kcal_per_g'),
-                                            num_chains = 4)
 
 az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
 
