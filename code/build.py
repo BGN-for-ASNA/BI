@@ -327,6 +327,7 @@ class write():
                 indices_prior = self.mains_infos[key]['indices_prior']
                 indices_var = self.mains_infos[key]['indices_var']
                 new_formula = likelihood_formula
+                # Manage indices
                 for a in range(len(indices_prior)):
                     item = indices_prior[a]
                     char_param_index = "tf.transpose(tf.gather(tf.transpose(" + item + "), tf.cast("
@@ -339,6 +340,12 @@ class write():
                     new_formula = new_formula.replace("[" + indices_var[a] + "]", char_var_index)
                     text = text + new_formula
 
+                # Manage non indices
+                for a in range(len(self.mains_infos[key]['likelihood_params_in_df'])):
+                    if self.mains_infos[key]['likelihood_params_in_df'][a] not in indices_var:
+                        if self.mains_infos[key]['likelihood_params_in_df'][a] in self.mains_infos[key]['likelihood_params_in_df']:
+                            text = text.replace(self.mains_infos[key]['likelihood_params_in_df'][a], 'df.' + self.mains_infos[key]['likelihood_params_in_df'][a] )
+                
                 text = text + ',' + ','.join(self.mains_infos[key]["params"][1:]) + ")"
             else:
                 if self.mains_infos[key]['with_likelihood'] is not None:
