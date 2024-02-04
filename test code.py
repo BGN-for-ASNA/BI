@@ -4,14 +4,19 @@ formula = dict(main = 'y~Normal(m,s)',
             likelihood = 'm ~  alpha + beta',
             prior1 = 's~Exponential(1)',
             prior2 = 'alpha ~ Normal(0,1)',
-            prior3 = 'beta ~ Normal(0,1)')   
-self = model(formula= formula) 
-self.sample(10)
-print('tensor DICT:')
-print(self.tensor_dict)
-print('tensor likelihoods:')
-print(self.main_text)
+            prior3 = 'beta ~ Normal(0,1)')  
+self = model(formula= formula, float = 16) 
+self.sample()
 
+#%%
+from  main import *
+formula = dict(main = 'y~Binomial(1,logits = m)',
+            likelihood = 'm ~  alpha + beta',
+            prior2 = 'alpha ~ Normal(0,1)',
+            prior3 = 'beta ~ Normal(0,1)')   
+
+self = model(formula, float = 16)
+self.sample()
 
 #%% Test No data frame multiple likelihood-----------------------------------------------------
 from  main import *
@@ -26,12 +31,8 @@ formula = dict(main = 'y~Normal(m,s)',
             prior4 = 's2~Exponential(1)',
             prior5 = 'alpha2 ~ Normal(0,1)',
             prior6 = 'beta2 ~ Normal(0,1)') 
-self = model(formula= formula)
+self = model(formula= formula, float = 16)
 self.sample(10)
-print('tensor DICT:')
-print(self.tensor_dict)
-print('tensor likelihoods:')
-print(self.main_text)
 
 #%% Test with data frame in likelihood-----------------------------------------------------
 from  main import *
@@ -47,7 +48,7 @@ formula = dict(main1 = 'height ~ Normal(mu,sigma)',
             prior2 = 'alpha ~ Normal(178,20)',
             prior3 = 'beta ~ Normal(0,1)')    
 
-self = model(formula, df = d)
+self = model(formula, df = d, float = 32)
 print('tensor DICT:')
 print(self.tensor_dict)
 print('tensor likelihoods:')
@@ -55,6 +56,7 @@ print(self.main_text)
 self.fit(observed_data = dict(height =d.height.astype('float32').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
 self.summary()
+
 
 # expected 
 #           Mean    StdDev  5.5%    94.5%   a   b   sigma
@@ -67,7 +69,7 @@ self.summary()
 #sigma[0]	5.14	    0.20	4.81	        5.43
 #beta[0]	0.91	    0.04	0.84	        0.97
 #alpha[0]	154.65	    0.28	154.22	        155.12
-# Sigma and alph are inverted!!!!!!!!!!!!!!!!!!
+
 
 # %% Indices -------------------------------------
 ## Model m5.9 
@@ -77,16 +79,16 @@ self.import_csv('./data/milk.csv', sep = ';')
 self.df["K"] = self.df["kcal.per.g"].pipe(lambda x: (x - x.mean()) / x.std())
 self.index(cols = "clade")
 
-my_formula = dict(main = 'K ~ Normal(mu,sigma)',
+formula = dict(main = 'K ~ Normal(mu,sigma)',
             likelihood = 'mu ~ alpha[index_clade]',
             prior1 = 'alpha~ Normal(0,0.5)',
-            prior2 = 'sigma ~ Exponential(1)')  
-self.formula(f = my_formula)
+            prior2 = 'sigma ~ Exponential(1)') 
+
+self.formula(f = formula)
 self.build_model()
-self.fit(observed_data = dict(K =self.df.K.astype('float32').values),
+self.fit(observed_data = dict(K =self.df.K.astype('float16').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
 self.summary()
-
 
 # Expected:
 #                mean	sd	    hdi_5.5%	hdi_94.5%
@@ -104,6 +106,30 @@ self.summary()
 #alpha[2]owm	0.64	0.28	0.17	    1.07
 #alpha[3]strep	-0.54	0.29	-1.00	    -0.07
 
+#%%
+def find_index_position(text):
+    pattern = r'\b(?:[^+\-*\/\(\)~]+|\([^)]+\]|[^[\]]+\])+'
+    result = re.findall(pattern, text)
+    position = []
+    for a in range(len(result)):
+        if "[" in result[a]:
+            position.append(a)
+    return position
+
+def convert_indices(text, a_value, cid_value):
+    positions = find_index_position(text)
+    converted_text = text
+    for pos in positions:
+        # Find the item inside square brackets
+        bracketed_item = re.search(r'\[(.*?)\]', text.split()[pos]).group(1)
+        # Replace the original item with the conversion pattern
+        converted_text = converted_text.replace(bracketed_item, 
+                                f"tf.transpose(tf.gather(tf.transpose({a_value}), tf.cast({cid_value}, dtype=tf.int32)))")
+    return converted_text
+
+f = 'a[cid] + b[cid]*rugged_std'
+find_index_position(f)
+convert_indices(f , 'a', 'cid')
 
 #%%
 from  main import*
@@ -127,13 +153,12 @@ formula = dict(
     prior2 = 'b ~ Normal( 0 , 0.3 )' ,
     prior3 = 'sigma ~ Exponential( 1 )'
 )
+
 m8_1 = model(formula, d)
 
 m8_1.fit(observed_data = dict(log_gdp_std =d.log_gdp_std.astype('float32').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
-print(m8_1.summary())
-
-
+m8_1.summary()
 
 #Expected:
 #       mean    sd      5.5%    94.5%
@@ -189,14 +214,27 @@ m8_2.summary()
 #a[0]	    0.89	0.02	0.86	    0.92
 #a[1]	    1.06	0.01	1.04	    1.08
 
-self.diag_compare({'m8.1': m8_1.trace, 'm8.2': m8_2.trace})
-
-
+m8_2.diag_compare({'m8.1': m8_1.trace, 'm8.2': m8_2.trace})
 #       rank	elpd_loo	p_loo	    elpd_diff	weight	se	    dse	    warning	    scale
 #m8.2	0	    128.021790	3.008224	0.000000	1.0	    0.0	    0.0	    True	    log
 #m8.1	1	    95.414886	2.317650	32.606903	0.0	    0.0	    0.0	    True	    log
 
 #%% Issue Don't work!!!!!!!!!!!
+from main import*
+d = pd.read_csv('./data/rugged.csv', sep = ';')
+d["log_gdp"] = d["rgdppc_2000"].pipe(np.log)
+
+# extract countries with GDP data
+dd = d[d["rgdppc_2000"].notnull()].copy()
+
+# rescale variables
+dd["log_gdp_std"] = dd.log_gdp / dd.log_gdp.mean()
+dd["rugged_std"] = dd.rugged / dd.rugged.max()
+
+dd["cid"] = np.where(dd.cont_africa.values == 1, 0, 1)
+dd["cid"]
+
+
 formula = dict(
     main = 'log_gdp_std ~ Normal( mu , sigma ) ',
     likelihood = 'mu ~ a[cid] + b[cid]*rugged_std',
@@ -204,6 +242,20 @@ formula = dict(
     prior2 = 'b ~ Normal( 0 , 0.3 )' ,
     prior3 = 'sigma ~ Exponential( 1 )'
 )
+
+
+self = model()
+self.df = dd
+self.f = formula
+self.get_model_type()
+self.get_var()
+self.get_undeclared_params()
+self.get_priors_names()
+self.get_mains_info()
+self.write_main_text()
+self.tensor_prior()
+self.tensor_main()
+
 
 m9_1= model(formula, dd)
 m9_1.fit(observed_data = dict(log_gdp_std =dd.log_gdp_std.astype('float32').values),
