@@ -45,15 +45,15 @@ class model(data, define, write, fit, diagnostic):
         self.df_path = 'output/mydf.csv'
         self.data_modification = {}
         if float == 16:
-            self.float = tf.float16
-            self.int = tf.int16
+           self.float_prior = tf.float16
+           self.int = tf.int16
         if float == 32:
-            self.float = tf.float32
-            self.int = tf.int32
+           self.float_prior = tf.float32
+           self.int = tf.int32
         if float == 64:
-            self.float = tf.float64
-            self.int = tf.int64
-
+           self.float_prior = tf.float64
+           self.int = tf.int64
+        self.float = float
         # GPU configuration ----------------------------
         if gpu:
             physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -71,9 +71,6 @@ class model(data, define, write, fit, diagnostic):
         self.get_model_type()
         self.get_mains_info() 
         
-        #self.output_path = 'output/mydf.csv'
-        #self.df.to_csv(self.output_path, index=False)
-
         # Formula input to tensorflow probability model
         self.tensor_prior()
         self.write_main_text()
