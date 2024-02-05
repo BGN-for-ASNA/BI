@@ -22,6 +22,12 @@ class define():
 
         return {'args': args, 'kwargs': kwargs}
     
+    def extract_indices_patterns(self, input_string):
+        pattern = r'\b(\w+)\s*\[(.*?)\]'
+        matches = re.findall(pattern, input_string)
+        patterns_dict = {match[0]: match[1] for match in matches}
+        return patterns_dict
+    
     def find_index_position(self, text):
         pattern = r'\b(?:[^+\-*\/\(\)~]+|\([^)]+\]|[^[\]]+\])+'
         result = re.findall(pattern, text)
@@ -60,7 +66,7 @@ class define():
         type["with_indices"]  = False
 
         formula = self.f  
-        indices = []
+        self.indices = {}
         var = []   
         
         if "likelihood" in self.f.keys():
@@ -74,17 +80,17 @@ class define():
                     type["with_indices"] = True
                     params = self.get_formula( formula = formula[key], type = 'likelihood') 
                     position = self.find_index_position(formula[key])  
+                    indices_dict = self.extract_indices_patterns(formula[key])
                     id = [params[1][i] for i in position]
                     id_var = [params[1][i+1] for i in position]
                     type[key] = {"params": id} 
-                    indices = indices + id
                     var = var + id_var
+                    self.indices.update(indices_dict)
                 else:
                     type["with_indices"] = False
 
         self.model_type = type
         # An index variable have a parameter and a variable associated (e.g. alpha[species])
-        self.indices = indices
         self.indices_var = var
         return type
 
@@ -240,6 +246,7 @@ class define():
     def get_main_info_likelihood_indices(self, dict):
         dict['with_indices'] = True
         dict['indices_position'] = self.find_index_position(dict['likelihood_formula'])  
+        dict['indices_patterns'] = self.extract_indices_patterns(dict['likelihood_formula'])  
         dict['indices_prior'] = [dict['likelihood_params'][i] for i in dict['indices_position']]
         dict['indices_var'] = [dict['likelihood_params'][i+1] for i in dict['indices_position']]
         return dict
@@ -370,6 +377,7 @@ class define():
                 'likelihood_params_in_df' : None,
                 'indices_prior' : None,
                 'indices_position': None,
+                'indices_patterns': None,
                 'indices_var': None,
                 } 
                 
@@ -469,41 +477,46 @@ class write():
         return lst
 
     # Wirte main functions -------------------------------------
-    def write_main_text_indices(self, mains_infos, text):
-        likelihood_formula = mains_infos['likelihood_formula']
-        likelihood_params = mains_infos['likelihood_params']
-        indices_prior = mains_infos['indices_prior']
-        indices_var = mains_infos['indices_var']
-        new_formula = likelihood_formula
-        new_formula = new_formula.split('~')[1]
-        new_formula = new_formula.replace(" ", "")
+    def convert_indices(self, input_string, dtype='32'):
+        pattern = r'(\w+)\[(.*?)\]'
+        output_string = re.sub(pattern, rf"tf.transpose(tf.gather(tf.transpose(\1), tf.cast(\2, dtype=tf.int{dtype})))", input_string)
+        return output_string
 
-        # Manage indices-------
-        for a in range(len(indices_prior)):
-            item = indices_prior[a]
-            char_param_index = "tf.transpose(tf.gather(tf.transpose(" + item + "), tf.cast("
-            new_formula = new_formula.replace(item, char_param_index)
- 
-            if mains_infos['likelihood_params_in_df'] is not None:
-                if indices_var[a] in mains_infos['likelihood_params_in_df']:
-                    char_var_index = 'df.' + indices_var[a] + ", dtype= tf.int32)))"
-                else:
-                    char_var_index = indices_var[a] + ", dtype= tf.int32))"
-                new_formula = new_formula.replace("[" + indices_var[a] + "]", char_var_index)
+    #def write_main_text_indices(self, mains_infos, text):
+    #    likelihood_formula = mains_infos['likelihood_formula']
+    #    likelihood_params = mains_infos['likelihood_params']
+    #    indices_prior = mains_infos['indices_prior']
+    #    indices_var = mains_infos['indices_var']
+    #    new_formula = likelihood_formula
+    #    new_formula = new_formula.split('~')[1]
+    #    new_formula = new_formula.replace(" ", "")
 
-            text = text + new_formula 
+    #    # Manage indices-------
+    #    for a in range(len(indices_prior)):
+    #        item = indices_prior[a]
+    #        char_param_index = "tf.transpose(tf.gather(tf.transpose(" + item + "), tf.cast("
+    #        new_formula = new_formula.replace(item, char_param_index)
+ #
+    #        if mains_infos['likelihood_params_in_df'] is not None:
+    #            if indices_var[a] in mains_infos['likelihood_params_in_df']:
+    #                char_var_index = 'df.' + indices_var[a] + ", dtype= tf.int32)))"
+    #            else:
+    #                char_var_index = indices_var[a] + ", dtype= tf.int32))"
+    #            new_formula = new_formula.replace("[" + indices_var[a] + "]", char_var_index)
+#
+    #        text = text + new_formula 
 
-        # Manage non indices-------
-        if mains_infos['likelihood_params_in_df'] is not None:
-            for a in range(len(mains_infos['likelihood_params_in_df'])):
-                if mains_infos['likelihood_params_in_df'][a] not in indices_var:
-                    if mains_infos['likelihood_params_in_df'][a] in mains_infos['likelihood_params_in_df']:
-                        text = text.replace(mains_infos['likelihood_params_in_df'][a], 'df.' + mains_infos['likelihood_params_in_df'][a] )
-        
-        if len(mains_infos['params']['args']) > 0:
-            no_indices_param = [mains_infos['params']['args'][i] for i in range(len(mains_infos['params']['args'])) if i not in mains_infos['indices_position']]
-            text = text + ', ' +','.join(no_indices_param) + ")"
-        return text
+    #    # Manage non indices-------
+    #    if mains_infos['likelihood_params_in_df'] is not None:
+    #        for a in range(len(mains_infos['likelihood_params_in_df'])):
+    #            if mains_infos['likelihood_params_in_df'][a] not in indices_var:
+    #                if mains_infos['likelihood_params_in_df'][a] in mains_infos['likelihood_params_in_df']:
+    #                    text = text.replace(mains_infos['likelihood_params_in_df'][a], 'df.' + mains_infos['likelihood_params_in_df'][a] )
+    #    
+    #    if len(mains_infos['params']['args']) > 0:
+    #        no_indices_param = [mains_infos['params']['args'][i] for i in range(len(mains_infos['params']['args'])) if i not in mains_infos['indices_position']]
+    #        text = text + ', ' +','.join(no_indices_param) + ")"
+    #    return text
     
     def write_main_text_no_indices(self, mains_infos, text):
         if mains_infos['with_likelihood']:
@@ -539,11 +552,21 @@ class write():
 
             # likelihood formula
             if self.mains_infos[key]['with_indices']:
-                text = self.write_main_text_indices(self.mains_infos[key], text)
+                #text = self.write_main_text_indices(self.mains_infos[key], text)
+                if len(self.mains_infos[key]['params']['args'])>0:
+                    for item in self.mains_infos[key]['params']['args']:
+                        text = text + self.convert_indices(item, self.float)+ ','
+
+                if len(self.mains_infos[key]['params']['kwargs'])>0:
+                    for key in self.mains_infos[key]['params']['kwargs'].keys():
+                        text = text + self.convert_indices(self.mains_infos[key]['params']['kwargs'][key], self.float) + ','
+                
+                text = text + "), reinterpreted_batch_ndims=1)"
+
             else:
                 text = self.write_main_text_no_indices(self.mains_infos[key], text)
+                text = text + ", reinterpreted_batch_ndims=1)"
 
-            text = text + ", reinterpreted_batch_ndims=1)"
             result[self.mains_infos[key]['ouput']] = text
         
         self.main_text = result
@@ -564,7 +587,7 @@ class write():
         self.tensor = {}
         # prior -------------------------------
         model = self.full_model
-        output_file = self.model_path
+        #output_file = self.model_path
         p = [] 
         for key in model.keys():
             input = model[key]['input']
@@ -573,9 +596,8 @@ class write():
                 p.append(var[0])
                 # Get indices shape
                 if self.model_type["with_indices"]:
-                    if var[0] in self.indices:
-                        idI = self.indices.index(var[0])
-                        shape = self.df[self.indices_var[idI]].nunique()
+                    if var[0] in self.indices.keys():
+                        shape = self.df[self.indices[var[0]]].nunique()
                     else:
                         shape = 1
                 else:
