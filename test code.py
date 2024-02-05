@@ -8,16 +8,6 @@ formula = dict(main = 'y~Normal(m,s)',
 self = model(formula= formula, float = 16) 
 self.sample()
 
-#%%
-from  main import *
-formula = dict(main = 'y~Binomial(1,logits = m)',
-            likelihood = 'm ~  alpha + beta',
-            prior2 = 'alpha ~ Normal(0,1)',
-            prior3 = 'beta ~ Normal(0,1)')   
-
-self = model(formula, float = 16)
-self.sample()
-
 #%% Test No data frame multiple likelihood-----------------------------------------------------
 from  main import *
 formula = dict(main = 'y~Normal(m,s)',
@@ -86,7 +76,7 @@ formula = dict(main = 'K ~ Normal(mu,sigma)',
 
 self.formula(f = formula)
 self.build_model()
-self.fit(observed_data = dict(K =self.df.K.astype('float16').values),
+self.fit(observed_data = dict(K =self.df.K.astype('float32').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
 self.summary()
 
@@ -106,32 +96,7 @@ self.summary()
 #alpha[2]owm	0.64	0.28	0.17	    1.07
 #alpha[3]strep	-0.54	0.29	-1.00	    -0.07
 
-#%%
-def find_index_position(text):
-    pattern = r'\b(?:[^+\-*\/\(\)~]+|\([^)]+\]|[^[\]]+\])+'
-    result = re.findall(pattern, text)
-    position = []
-    for a in range(len(result)):
-        if "[" in result[a]:
-            position.append(a)
-    return position
-
-def convert_indices(text, a_value, cid_value):
-    positions = find_index_position(text)
-    converted_text = text
-    for pos in positions:
-        # Find the item inside square brackets
-        bracketed_item = re.search(r'\[(.*?)\]', text.split()[pos]).group(1)
-        # Replace the original item with the conversion pattern
-        converted_text = converted_text.replace(bracketed_item, 
-                                f"tf.transpose(tf.gather(tf.transpose({a_value}), tf.cast({cid_value}, dtype=tf.int32)))")
-    return converted_text
-
-f = 'a[cid] + b[cid]*rugged_std'
-find_index_position(f)
-convert_indices(f , 'a', 'cid')
-
-#%%
+#%% Model comparaison --------------
 from  main import*
 # m8.1
 m = model()
@@ -172,8 +137,7 @@ m8_1.summary()
 #b[0]      0.01     0.07     -0.10       0.12
 #a[0]      1.00     0.02      0.97       1.02
 
-#%% Model comparaison -------------------------
-# make log version of outcome
+
 d = pd.read_csv('./data/rugged.csv', sep = ';')
 d["log_gdp"] = d["rgdppc_2000"].pipe(np.log)
 
@@ -219,7 +183,8 @@ m8_2.diag_compare({'m8.1': m8_1.trace, 'm8.2': m8_2.trace})
 #m8.2	0	    128.021790	3.008224	0.000000	1.0	    0.0	    0.0	    True	    log
 #m8.1	1	    95.414886	2.317650	32.606903	0.0	    0.0	    0.0	    True	    log
 
-#%% Issue Don't work!!!!!!!!!!!
+#%% Multiple indices ----------
+# m8.3
 from main import*
 d = pd.read_csv('./data/rugged.csv', sep = ';')
 d["log_gdp"] = d["rgdppc_2000"].pipe(np.log)
@@ -243,26 +208,29 @@ formula = dict(
     prior3 = 'sigma ~ Exponential( 1 )'
 )
 
-
-self = model()
-self.df = dd
-self.f = formula
-self.get_model_type()
-self.get_var()
-self.get_undeclared_params()
-self.get_priors_names()
-self.get_mains_info()
-self.write_main_text()
-self.tensor_prior()
-self.tensor_main()
-
-
-m9_1= model(formula, dd)
-m9_1.fit(observed_data = dict(log_gdp_std =dd.log_gdp_std.astype('float32').values),
+m8_3= model(formula, dd)
+m8_3.fit(observed_data = dict(log_gdp_std =dd.log_gdp_std.astype('float32').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
-m9_1.summary()
+m8_3.summary()
 
-#%%  8.3 Continuous interactions------------------------------
+# Expected:
+#       mean    sd      5.5%    94.5%
+#a[1]   0.89    0.02    0.86    0.91
+#a[2]   1.05    0.01    1.03    1.07
+#b[1]   0.13    0.07    0.01    0.25
+#b[2]   -0.14   0.05    -0.23    -0.06
+#sigma  0.11    0.01    0.10    0.12
+
+# got:
+#           mean	sd	    hdi_5.5%	hdi_94.5%
+#sigma[0]	0.11	0.01	0.10	    0.12
+#b[0]	    0.12	0.08	0.00	    0.25
+#b[1]	    -0.14	0.06	-0.22	    -0.04
+#a[0]	    0.86	0.02	0.83	    0.90
+#a[1]	    1.08	0.02	1.06	    1.11
+
+#%%  8.3 Categorical interactions------------------------------
+## Model m8.3
 d = pd.read_csv('./data/tulips.csv', sep = ';')
 d["blooms_std"] = d.blooms / d.blooms.max()
 d["water_cent"] = d.water - d.water.mean()
@@ -294,17 +262,136 @@ m8_4.summary()
 #bs[0]	    -0.11	0.04	-0.18	    -0.04
 #a[0]	    0.36	0.03	0.31	    0.41
 
-#%%
+#%%  8.3 Continuous interactions------------------------------
+## Model m8.3
+d = pd.read_csv('./data/tulips.csv', sep = ';')
+d["blooms_std"] = d.blooms / d.blooms.max()
+d["water_cent"] = d.water - d.water.mean()
+d["shade_cent"] = d.shade - d.shade.mean()
+
+formula = dict(
+            main = 'blooms_std ~ Normal( mu , sigma ) ',
+            likelihood ='mu ~ a + bw*water_cent + bs*shade_cent + bws*water_cent*shade_cent' ,
+            prior1 = 'a ~ Normal( 0.5 , 0.25 ) ',
+            prior2 = 'bw ~ Normal( 0 , 0.25 ) ',
+            prior3 = 'bs ~ Normal( 0 , 0.25 ) ',
+            prior4 = 'bws ~ Normal( 0 , 0.25 ) ',
+            prior5 = 'sigma ~ Exponential( 1 )',
+            )
+m8_5 = model(formula, d)
+m8_5.fit(observed_data = dict(blooms_std =d.blooms_std.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+m8_5.summary()
+
+# Expected
+#       mean   sd  5.5% 94.5%
+#a      0.36 0.02  0.32  0.40
+#bw     0.21 0.03  0.16  0.25
+#bs    -0.11 0.03 -0.16 -0.07
+#bws   -0.14 0.04 -0.20 -0.09
+#sigma  0.12 0.02  0.10  0.15
+
+# Got
+#           mean	sd	  hdi_5.5%	hdi_94.5%
+#sigma[0]	0.14	0.02	0.11	0.18
+#bws[0]	    -0.14	0.04	-0.21	-0.08
+#bw[0]	    0.21	0.03	0.16	0.26
+#bs[0]	    -0.11	0.03	-0.17	-0.06
+#a[0]	    0.36	0.03	0.31	0.40
+
+#%% Binomial model -------------------
+from main import*
 d = pd.read_csv('./data/chimpanzees.csv', sep = ';')
-d['treatment']  = 1 + d.prosoc_left + 2*d.condition
+d["treatment"] = d.prosoc_left + 2 * d.condition
+d["side"] = d.prosoc_left  # right 0, left 1
+d["cond"] = d.condition  # no partner 0, partner 1
+d_aggregated = (
+    d.groupby(["treatment", "actor", "side", "cond"])["pulled_left"].sum().reset_index()
+)
+d_aggregated.rename(columns={"pulled_left": "left_pulls"}, inplace=True)
+
+d_aggregated["actor_id"] = d_aggregated["actor"].values - 1
+
+
 formula = dict(
     main = 'pulled_left ~ Binomial( 1 , p )' ,
-    likelihood = 'p ~ a[actor] ' ,
-    prior1 = 'a ~ Normal( 0 , 1.5 )',
-    prior2 = 'b ~ Normal( 0 , 0.5 )'
+    likelihood = 'p ~ a' ,
+    prior1 = 'a ~ Normal( 0 , 1.5 )'
 )
-m11_4 = model(formula, d)
+m11_1 = model(formula, d)
+m11_1.fit(observed_data = dict(pulled_left =d.pulled_left.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+m11_1.summary()
 
+
+# expected
+#  mean   sd 5.5% 94.5%
+#a 0.32 0.09 0.18  0.46
+
+#Got
+#	   mean	    sd	  hdi_5.5%	hdi_94.5%
+#a[0]	0.32	0.09	0.17	0.46
+#%% Binomial with index -------------------
+formula = dict(
+    main = 'pulled_left ~ Binomial( 1 , p )' ,
+    likelihood = 'p ~ a + b[treatment]' ,
+    prior1 = 'a ~ Normal( 0 , 1.5 )',
+    prior2 = 'b ~ Normal(0,10)'
+)
+m11_2 = model(formula, d)
+m11_2.fit(observed_data = dict(pulled_left =d.pulled_left.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+m11_2.summary()
+
+# Expected
+#No chains finished successfully. Unable to retrieve the draws.
+# Got
+#	    mean	sd	  hdi_5.5%	hdi_94.5%
+#b[0]	0.16	1.39	-1.91	2.50
+#b[1]	0.64	1.39	-1.54	2.91
+#b[2]	-0.12	1.40	-2.34	2.10
+#b[3]	0.53	1.39	-1.64	2.78
+#a[0]	0.03	1.38	-2.26	2.14
+
+#%% Binomial with index -------------------
+formula = dict(
+    main = 'pulled_left ~ Binomial( 1 , p )' ,
+    likelihood = 'p ~ a[actor] + b[treatment]' ,
+    prior1 = 'a ~ Normal( 0 , 1.5 )',
+    prior2 = 'b ~ Normal(0,0.5)'
+)
+m11_3 = model(formula, d)
+m11_3.fit(observed_data = dict(pulled_left =d.pulled_left.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+m11_3.summary()
+
+# EXPECTED
+#      mean   sd  5.5%  94.5%  rhat  ess_bulk
+#a[1] -0.46  0.33 -0.96  0.07  1.01    552.71
+#a[2]  3.91  0.75  2.80  5.19  1.00   1456.71
+#a[3] -0.76  0.33 -1.29 -0.25  1.00    755.26
+#a[4] -0.76  0.33 -1.27 -0.24  1.00    672.34
+#a[5] -0.46  0.33 -0.99  0.06  1.00    790.64
+#a[6]  0.47  0.33 -0.05  0.99  1.00    566.48
+#a[7]  1.95  0.41  1.32  2.62  1.00    911.48
+#b[1] -0.02  0.28 -0.48  0.44  1.01    508.63
+#b[2]  0.50  0.29  0.04  0.95  1.01    530.28
+#b[3] -0.37  0.28 -0.82  0.08  1.00    591.59
+#b[4]  0.38  0.28 -0.09  0.83  1.00    626.19
+
+# Got
+#	    mean	sd	  hdi_5.5%	hdi_94.5%
+#b[0]	0.71	0.24	0.34	1.09
+#b[1]	1.18	0.24	0.81	1.59
+#b[2]	0.38	0.24	0.02	0.78
+#b[3]	1.07	0.24	0.69	1.47
+#a[0]	0.04	1.49	-2.45	2.31
+#a[1]	-1.16	0.29	-1.61	-0.69
+#a[2]	3.32	0.78	2.06	4.48
+#a[3]	-1.46	0.30	-1.97	-0.99
+#a[4]	-1.45	0.30	-1.94	-1.00
+#a[5]	-1.16	0.29	-1.62	-0.70
+#a[6]	-0.23	0.30	-0.72	0.23
 #%% Test with multiple likelihood-----------------------------------------------------
 from  main import *
 formula = dict(main = 'z ~ Poisson(alpha)',
