@@ -330,7 +330,8 @@ m11_1.summary()
 
 #Got
 #	   mean	    sd	  hdi_5.5%	hdi_94.5%
-#a[0]	0.32	0.09	0.17	0.46
+#a[0]	0.32	0.09	0.17	 0.46
+
 #%% Binomial with index -------------------
 formula = dict(
     main = 'pulled_left ~ Binomial( 1 , p )' ,
@@ -353,13 +354,19 @@ m11_2.summary()
 #b[3]	0.53	1.39	-1.64	2.78
 #a[0]	0.03	1.38	-2.26	2.14
 
-#%% Binomial with index -------------------
+#%% Binomial arguments -------------------
+from main import*
+d = pd.read_csv('./data/chimpanzees.csv', sep = ';')
+d["treatment"] = d.prosoc_left + 2 * d.condition
+d["side"] = d.prosoc_left  # right 0, left 1
+d["cond"] = d.condition  # no partner 0, partner 1
 formula = dict(
-    main = 'pulled_left ~ Binomial( 1 , p )' ,
+    main = 'pulled_left ~ Binomial( 1 , logits = p )' ,
     likelihood = 'p ~ a[actor] + b[treatment]' ,
     prior1 = 'a ~ Normal( 0 , 1.5 )',
     prior2 = 'b ~ Normal(0,0.5)'
 )
+
 m11_3 = model(formula, d)
 m11_3.fit(observed_data = dict(pulled_left =d.pulled_left.astype('float32').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
@@ -380,18 +387,18 @@ m11_3.summary()
 #b[4]  0.38  0.28 -0.09  0.83  1.00    626.19
 
 # Got
-#	    mean	sd	  hdi_5.5%	hdi_94.5%
-#b[0]	0.71	0.24	0.34	1.09
-#b[1]	1.18	0.24	0.81	1.59
-#b[2]	0.38	0.24	0.02	0.78
-#b[3]	1.07	0.24	0.69	1.47
-#a[0]	0.04	1.49	-2.45	2.31
-#a[1]	-1.16	0.29	-1.61	-0.69
-#a[2]	3.32	0.78	2.06	4.48
-#a[3]	-1.46	0.30	-1.97	-0.99
-#a[4]	-1.45	0.30	-1.94	-1.00
-#a[5]	-1.16	0.29	-1.62	-0.70
-#a[6]	-0.23	0.30	-0.72	0.23
+#        mean	sd	  hdi_5.5%	hdi_94.5%
+#b[0]	0.72	0.24	0.35	1.12
+#b[1]	1.19	0.24	0.81	1.57
+#b[2]	0.37	0.24	-0.01	0.75
+#b[3]	1.06	0.25	0.65	1.45
+#a[0]	-0.07	1.49	-2.57	2.15
+#a[1]	-1.15	0.29	-1.60	-0.67
+#a[2]	3.34	0.78	2.12	4.56
+#a[3]	-1.45	0.31	-1.94	-0.96
+#a[4]	-1.45	0.30	-1.92	-0.98
+#a[5]	-1.15	0.30	-1.65	-0.69
+#a[6]	-0.23	0.30	-0.71	0.2
 #%% Test with multiple likelihood-----------------------------------------------------
 from  main import *
 formula = dict(main = 'z ~ Poisson(alpha)',
