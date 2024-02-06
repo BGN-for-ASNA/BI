@@ -302,22 +302,22 @@ m8_5.summary()
 #%% Binomial model -------------------
 from main import*
 d = pd.read_csv('./data/chimpanzees.csv', sep = ';')
-d["treatment"] = d.prosoc_left + 2 * d.condition
+d["treatment"] = 1 + d.prosoc_left + 2 * d.condition
 d["side"] = d.prosoc_left  # right 0, left 1
 d["cond"] = d.condition  # no partner 0, partner 1
+
 d_aggregated = (
     d.groupby(["treatment", "actor", "side", "cond"])["pulled_left"].sum().reset_index()
 )
 d_aggregated.rename(columns={"pulled_left": "left_pulls"}, inplace=True)
-
 d_aggregated["actor_id"] = d_aggregated["actor"].values - 1
 
-
 formula = dict(
-    main = 'pulled_left ~ Binomial( 1 , p )' ,
+    main = 'pulled_left ~ Binomial( 1 , logits = p )' ,
     likelihood = 'p ~ a' ,
-    prior1 = 'a ~ Normal( 0 , 1.5 )'
+    prior1 = 'a ~ Normal( 0 , 10 )'
 )
+
 m11_1 = model(formula, d)
 m11_1.fit(observed_data = dict(pulled_left =d.pulled_left.astype('float32').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
@@ -334,71 +334,115 @@ m11_1.summary()
 
 #%% Binomial with index -------------------
 formula = dict(
-    main = 'pulled_left ~ Binomial( 1 , p )' ,
-    likelihood = 'p ~ a + b[treatment]' ,
-    prior1 = 'a ~ Normal( 0 , 1.5 )',
-    prior2 = 'b ~ Normal(0,10)'
-)
-m11_2 = model(formula, d)
-m11_2.fit(observed_data = dict(pulled_left =d.pulled_left.astype('float32').values),
-                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
-m11_2.summary()
-
-# Expected
-#No chains finished successfully. Unable to retrieve the draws.
-# Got
-#	    mean	sd	  hdi_5.5%	hdi_94.5%
-#b[0]	0.16	1.39	-1.91	2.50
-#b[1]	0.64	1.39	-1.54	2.91
-#b[2]	-0.12	1.40	-2.34	2.10
-#b[3]	0.53	1.39	-1.64	2.78
-#a[0]	0.03	1.38	-2.26	2.14
-
-#%% Binomial arguments -------------------
-from main import*
-d = pd.read_csv('./data/chimpanzees.csv', sep = ';')
-d["treatment"] = d.prosoc_left + 2 * d.condition
-d["side"] = d.prosoc_left  # right 0, left 1
-d["cond"] = d.condition  # no partner 0, partner 1
-formula = dict(
     main = 'pulled_left ~ Binomial( 1 , logits = p )' ,
     likelihood = 'p ~ a[actor] + b[treatment]' ,
     prior1 = 'a ~ Normal( 0 , 1.5 )',
     prior2 = 'b ~ Normal(0,0.5)'
 )
 
-m11_3 = model(formula, d)
-m11_3.fit(observed_data = dict(pulled_left =d.pulled_left.astype('float32').values),
+m11_4 = model(formula, d)
+m11_4.fit(observed_data = dict(pulled_left =d.pulled_left.astype('float32').values),
+                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+m11_4.summary()
+
+# Expected
+#          mean    sd   5.5%    94.5%   n_eff Rhat
+#a[1]   -0.45    0.32   -0.95    0.04   690 1
+#a[2]   3.86     0.73   2.78     5.09   1417 1
+#a[3]   -0.75    0.33   -1.28    -0.23   765 1
+#a[4]   -0.74    0.33   -1.26    -0.21   887 1
+#a[5]   -0.44    0.32   -0.94    0.10   743 1
+#a[6]   0.48     0.32   -0.02    1.00   894 1
+#a[7]   1.95     0.40   1.32    2.63    882 1
+#b[1]   -0.04    0.28   -0.51    0.40   669 1
+#b[2]   0.48     0.28   0.04    0.92    675 1
+#b[3]   -0.38    0.28   -0.83    0.06    768 1
+#b[4]   0.37     0.27   -0.07    0.79   666 1
+
+# Got
+#       mean	sd	    hdi_5.5%	hdi_94.5%
+#b[0]	-4.75	11.87	-21.80	    17.12
+#b[1]	0.44	0.25	0.06	    0.85
+#b[2]	0.98	0.25	0.59	    1.39
+#b[3]	0.07	0.24	-0.32	    0.45
+#a[0]	-0.02	1.49	-2.35	    2.43
+#a[1]	-0.71	0.28	-1.17	    -0.25
+#a[2]	3.70	0.76	2.50	    4.90
+#a[3]	-1.01	0.28	-1.48	    -0.55
+#a[4]	-1.02	0.29	-1.46	    -0.54
+#a[5]	-0.70	0.28	-1.14	    -0.25
+#a[6]	0.22	0.28	-0.21	    0.6
+
+#%% Binomial arguments -------------------
+from main import*
+d = pd.read_csv('./data/chimpanzees.csv', sep = ';')
+d["treatment"] = 1 + d.prosoc_left + 2 * d.condition
+d["side"] = d.prosoc_left  # right 0, left 1
+d["cond"] = d.condition  # no partner 0, partner 1
+d_aggregated = (
+    d.groupby(["treatment", "actor", "side", "cond"])["pulled_left"].sum().reset_index()
+)
+d_aggregated.rename(columns={"pulled_left": "left_pulls"}, inplace=True)
+
+d_aggregated["actor_id"] = d_aggregated["actor"].values - 1
+
+tmp = d
+tmp = tmp.loc[:,['actor', 'treatment', 'pulled_left']]
+tmp.dropna(inplace=True)
+
+formula = dict(
+    main = 'pulled_left ~ Binomial(18, probs  = p)' , 
+    likelihood = 'p ~ alpha[actor] + beta[treatment]' ,
+    prior1 = 'alpha ~ Normal( 0 , 1.5 )',
+    prior2 = 'beta ~ Normal(0,0.5)'
+)
+
+# This work but need to use d_aggregated and counts need to be 18 instead of 1 in rethinking
+#formula = dict(
+#    main = 'pulled_left ~ Binomial( 18 , logits = p )' ,
+#    likelihood = 'p ~ alpha[actor_id] + beta[treatment]' ,
+#    prior1 = 'alpha ~ Normal( 0 , 1.5 )',
+#    prior2 = 'beta ~ Normal(0,0.5)'
+#
+#)
+#m11_3 = model(formula, d_aggregated)
+#m11_3.fit(observed_data = dict(pulled_left = d_aggregated.left_pulls.astype('float32').values),
+#                                           num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
+#m11_3.summary()
+
+m11_3 = model(formula, tmp)
+m11_3.fit(observed_data = dict(pulled_left =tmp.pulled_left.astype('float32').values),
                                            num_results = 2000, num_burnin_steps=500, num_adaptation_steps=400, num_chains=4)
 m11_3.summary()
 
 # EXPECTED
-#      mean   sd  5.5%  94.5%  rhat  ess_bulk
-#a[1] -0.46  0.33 -0.96  0.07  1.01    552.71
-#a[2]  3.91  0.75  2.80  5.19  1.00   1456.71
-#a[3] -0.76  0.33 -1.29 -0.25  1.00    755.26
-#a[4] -0.76  0.33 -1.27 -0.24  1.00    672.34
-#a[5] -0.46  0.33 -0.99  0.06  1.00    790.64
-#a[6]  0.47  0.33 -0.05  0.99  1.00    566.48
-#a[7]  1.95  0.41  1.32  2.62  1.00    911.48
-#b[1] -0.02  0.28 -0.48  0.44  1.01    508.63
-#b[2]  0.50  0.29  0.04  0.95  1.01    530.28
-#b[3] -0.37  0.28 -0.82  0.08  1.00    591.59
-#b[4]  0.38  0.28 -0.09  0.83  1.00    626.19
+#      mean   sd  5.5%   94.5% rhat ess_bulk
+#a[1] -0.42  0.33 -0.93  0.09    1   629.05
+#a[2]  3.90  0.74  2.86  5.20    1  1295.46
+#a[3] -0.72  0.34 -1.26 -0.17    1   721.42
+#a[4] -0.72  0.35 -1.28 -0.17    1   536.97
+#a[5] -0.42  0.34 -0.97  0.12    1   569.91
+#a[6]  0.50  0.35 -0.04  1.06    1   639.05
+#a[7]  1.99  0.42  1.32  2.67    1   738.96
+#b[1] -0.07  0.29 -0.53  0.39    1   551.74
+#b[2]  0.46  0.29 -0.02  0.92    1   542.77
+#b[3] -0.41  0.30 -0.89  0.06    1   524.62
+#b[4]  0.35  0.29 -0.13  0.81    1   548.00
 
 # Got
-#        mean	sd	  hdi_5.5%	hdi_94.5%
-#b[0]	0.72	0.24	0.35	1.12
-#b[1]	1.19	0.24	0.81	1.57
-#b[2]	0.37	0.24	-0.01	0.75
-#b[3]	1.06	0.25	0.65	1.45
-#a[0]	-0.07	1.49	-2.57	2.15
-#a[1]	-1.15	0.29	-1.60	-0.67
-#a[2]	3.34	0.78	2.12	4.56
-#a[3]	-1.45	0.31	-1.94	-0.96
-#a[4]	-1.45	0.30	-1.92	-0.98
-#a[5]	-1.15	0.30	-1.65	-0.69
-#a[6]	-0.23	0.30	-0.71	0.2
+#	        mean	sd	    hdi_5.5%	hdi_94.5%
+#beta[0]	-0.05	0.77	-0.99	    1.15
+#beta[1]	0.60	0.62	-0.20	    1.47
+#beta[2]	-0.10	0.57	-0.66	    0.58
+#beta[3]	0.17	0.48	-0.52	    0.82
+#alpha[0]	0.41	2.06	-2.51	    3.14
+#alpha[1]	-0.29	1.32	-2.17	    1.12
+#alpha[2]	-0.25	1.27	-2.33	    1.06
+#alpha[3]	-0.96	1.15	-2.68	    0.33
+#alpha[4]	0.50	1.02	-1.22	    1.31
+#alpha[5]	-0.89	0.29	-1.38	    -0.67
+#alpha[6]	0.18	2.03	-2.39	    2.19
+
 #%% Test with multiple likelihood-----------------------------------------------------
 from  main import *
 formula = dict(main = 'z ~ Poisson(alpha)',
