@@ -421,6 +421,13 @@ class define():
         return mains_infos
 
 class write():
+    @tf.function
+    def inv_logit(self,x):
+        p = 1/(1+tf.math.exp(-x))
+        #print(x)
+        #if tf.math.is_inf(x):
+        #    p = 1
+        return p
     
     def create_distribution(self, distribution_name, *args, **kwargs):
         distribution_class = getattr(tfd, distribution_name, None)
@@ -484,6 +491,7 @@ class write():
         pattern = r'(\w+)\[(.*?)\]'
         #output_string = re.sub(pattern, rf"tf.transpose(tf.gather(tf.transpose(\1), tf.cast(\2, dtype=tf.int{dtype})))", input_string)
         output_string = re.sub(pattern, rf" tf.squeeze(tf.gather(\1,tf.cast(\2, dtype=tf.int{dtype}), axis = -1))", input_string)
+        #output_string = re.sub(pattern, rf" tf.gather(\1,\2, dtype=tf.int{dtype}), axis = -1)", input_string)
         return output_string
     
     def write_main_text_no_indices(self, mains_infos, text):
@@ -520,11 +528,20 @@ class write():
             if self.mains_infos[key]['with_indices']:
                 #text = self.write_main_text_indices(self.mains_infos[key], text)
                 if len(self.mains_infos[key]['params']['args'])>0:
-                    for item in self.mains_infos[key]['params']['args']:
-                        text = text + self.convert_indices(item, self.float)+ ','
+                    for a in range(len(self.mains_infos[key]['params']['args'])):                        
+                        #if 'logit' not in self.mains_infos[key]['params']['kwargs'].keys():
+                        #    if a == 1: #logits are in second position
+                        #         text = text + 'tf.math.sigmoid(' +  self.convert_indices(self.mains_infos[key]['params']['args'][a], self.float)+  ')'
+                        #    else:
+                        #        text = text + self.convert_indices(self.mains_infos[key]['params']['args'][a], self.float)+ ','
+                        #else:
+                        text = text + self.convert_indices(self.mains_infos[key]['params']['args'][a], self.float)+ ','
 
                 if len(self.mains_infos[key]['params']['kwargs'])>0:
                     for k in self.mains_infos[key]['params']['kwargs'].keys():
+                        #if 'probs' in k:
+                        #    text = text + str(k)+ ' = ' + 'tf.math.sigmoid(' +  self.convert_indices(self.mains_infos[key]['params']['kwargs'][k], self.float)+ ')' + ','                           
+                        #else: 
                         text = text + str(k)+ ' = ' +  self.convert_indices(self.mains_infos[key]['params']['kwargs'][k], self.float) + ','
                 
                 text = text + "), reinterpreted_batch_ndims=1)"
