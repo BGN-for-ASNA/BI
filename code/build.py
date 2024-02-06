@@ -482,18 +482,17 @@ class write():
     # Wirte main functions -------------------------------------
     def convert_indices(self, input_string, dtype='32'):
         pattern = r'(\w+)\[(.*?)\]'
-        output_string = re.sub(pattern, rf"tf.transpose(tf.gather(tf.transpose(\1), tf.cast(\2, dtype=tf.int{dtype})))", input_string)
+        #output_string = re.sub(pattern, rf"tf.transpose(tf.gather(tf.transpose(\1), tf.cast(\2, dtype=tf.int{dtype})))", input_string)
+        output_string = re.sub(pattern, rf" tf.squeeze(tf.gather(\1,tf.cast(\2, dtype=tf.int{dtype}), axis = -1))", input_string)
         return output_string
     
     def write_main_text_no_indices(self, mains_infos, text):
         if mains_infos['with_likelihood']:
             if len(mains_infos['params']['args']) > 0:
-               text = text + ','.join(mains_infos['params']['args']) 
+               text = text + ','.join(mains_infos['params']['args']) + ','
             if len(mains_infos['params']['kwargs']) > 0:
-                text = text + ','.join(mains_infos['params']['kwargs'])                 
-            #else:
-            #    text = text + ','.join(mains_infos["params"]['args']) + ","
-            #    text = text + ', '.join([f"{key} = {value}" for key, value in mains_infos["params"]['kwargs'].items()]) + ")"
+                for key in mains_infos['params']['kwargs'].keys():                    
+                    text = text + str(key) + '=' + str(mains_infos['params']['kwargs'][key])  + ','              
             text = text + ')'
         else:
              text = text + ','.join(mains_infos['params']) + ")"
@@ -526,7 +525,7 @@ class write():
 
                 if len(self.mains_infos[key]['params']['kwargs'])>0:
                     for k in self.mains_infos[key]['params']['kwargs'].keys():
-                        text = text + self.convert_indices(self.mains_infos[key]['params']['kwargs'][k], self.float) + ','
+                        text = text + str(k)+ ' = ' +  self.convert_indices(self.mains_infos[key]['params']['kwargs'][k], self.float) + ','
                 
                 text = text + "), reinterpreted_batch_ndims=1)"
 
