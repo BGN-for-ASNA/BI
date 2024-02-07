@@ -8,6 +8,7 @@ import numpy as np
 class define():
     def __init__(self, formula = None):
         self.f = formula        
+    
     # Basic functions----------------------------    
     def separate_args_kwargs(self,input_list):
         args = []
@@ -126,7 +127,8 @@ class define():
         x = x.replace(" ", "")
         if 'likelihood' in type: 
             if x.find('(') == -1: # If parenthesis then we concider the presence of a distribution
-                args = re.split(r'[+*()*[*,]',x)            
+                #args = re.split(r'[+*()*[*,]',x)          
+                args = re.split(r'[+*()*[*^*-*/*,]',x)            
                 new = []
                 for i in range(len(args)):
                     if args[i] != '':
@@ -134,7 +136,8 @@ class define():
                         new.append(args[i])
                 return [y, new]     
             else:
-                args = re.split(r'[+*()*,]',x)
+                #args = re.split(r'[+*()*[*,]',x)  
+                args = re.split(r'[+*()*[*^*-*/*,]',x)
                 new = []
                 dist = []
                 for i in range(len(args)):
