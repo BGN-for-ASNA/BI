@@ -6,6 +6,7 @@ from code.diagnostic import*
 import pandas as pd
 import numpy as np  
 import tensorflow as tf
+from tensorflow.python.client import device_lib
 ## Distribution functions -----------------------------------------------------
 def get_distribution_classes():
     # Get all names defined in the distributions module
@@ -30,7 +31,7 @@ class model(data, define, write, fit, diagnostic):
                  formula = None, 
                  df = None,
                  float = 32,  
-                 gpu = True,               
+                 gpu = False,               
                  **kwargs):      
         self.f = formula
         if df is None:
@@ -55,11 +56,20 @@ class model(data, define, write, fit, diagnostic):
            self.int = tf.int64
         self.float = float
         # GPU configuration ----------------------------
-        if gpu:
-            physical_devices = tf.config.experimental.list_physical_devices('GPU')
-            if len(physical_devices) > 0:
-                tf.config.experimental.set_memory_growth(physical_devices[0], True)
-
+        self.gpu = gpu
+        
+        local_device_protos = device_lib.list_local_devices()
+        self.devices = {}
+        cpu = {}
+        gpu = {}
+        for a in range(len(local_device_protos)):
+            if local_device_protos[a].device_type == 'CPU':
+                cpu[str(a)] = local_device_protos[a].name.replace('/device:', '')
+            else:
+                gpu[str(a)] =  local_device_protos[a].name.replace('/device:', '')
+        self.devices['CPU'] = cpu
+        self.devices['GPU'] = gpu
+                  
         if formula is not None:
             self.formula(self.f)
             self.build_model()
@@ -96,15 +106,28 @@ class model(data, define, write, fit, diagnostic):
             num_leapfrog_steps=5,
             num_adaptation_steps=400,
             num_chains=4):
-        
-        self.posterior, self.trace, self.sample_stats = self.run_model(observed_data,
-                       parallel_iterations=parallel_iterations,
-                       num_results=num_results,
-                       num_burnin_steps=num_burnin_steps,
-                       step_size=step_size,
-                       num_leapfrog_steps=num_leapfrog_steps,
-                       num_adaptation_steps=num_adaptation_steps,
-                       num_chains=num_chains)
+        if self.gpu: 
+
+            if len(devices['GPU']) > 0:
+                with tf.device(next(iter(self.devices['GPU'].values()))):
+                    self.posterior, self.trace, self.sample_stats = self.run_model(observed_data,
+                                   parallel_iterations=parallel_iterations,
+                                   num_results=num_results,
+                                   num_burnin_steps=num_burnin_steps,
+                                   step_size=step_size,
+                                   num_leapfrog_steps=num_leapfrog_steps,
+                                   num_adaptation_steps=num_adaptation_steps,
+                                   num_chains=num_chains)
+        else:
+            with tf.device(next(iter(self.devices['CPU'].values()))):
+                self.posterior, self.trace, self.sample_stats = self.run_model(observed_data,
+                                parallel_iterations=parallel_iterations,
+                                num_results=num_results,
+                                num_burnin_steps=num_burnin_steps,
+                                step_size=step_size,
+                                num_leapfrog_steps=num_leapfrog_steps,
+                                num_adaptation_steps=num_adaptation_steps,
+                                num_chains=num_chains)
         #self.posterior = posterior
         #self.trace = trace
         #self.sample_stats = sample_stats
