@@ -356,14 +356,18 @@ class define():
             for a in range(len(dict['likelihood_params_in_df'])):
                 for b in range(len(dict['params']['args'])):
                     if dict['likelihood_params_in_df'][a] in dict['params']['args'][b]:
-                        dict['params']['args'][b] = dict['params']['args'][b].replace(dict['likelihood_params_in_df'][a], 
-                                                                                      'df.' + dict['likelihood_params_in_df'][a])
+                         dict['params']['args'][b] = dict['params']['args'][b].replace(dict['likelihood_params_in_df'][a], 
+                                                                                      'df.' + dict['likelihood_params_in_df'][a] + '.values')
+                        #dict['params']['args'][b] = dict['params']['args'][b].replace(dict['likelihood_params_in_df'][a], 
+                        #                                                              ' tf.cast(df.' + dict['likelihood_params_in_df'][a] + ',dtype=tf.float' + str(self.float)+ ')')
         if len(dict['params']['kwargs']) > 0:
             for a in range(len(dict['likelihood_params_in_df'])):
                 for key in dict['params']['kwargs'].keys():
                     if dict['likelihood_params_in_df'][a] in dict['params']['kwargs'][key]:
                         dict['params']['kwargs'][key] = dict['params']['kwargs'][key].replace(dict['likelihood_params_in_df'][a], 
-                                                                                              'df.' + dict['likelihood_params_in_df'][a])
+                                                                                              'df.' + dict['likelihood_params_in_df'][a] + '.values')
+                        #dict['params']['kwargs'][key] = dict['params']['kwargs'][key].replace(dict['likelihood_params_in_df'][a], 
+                        #                                                                      ' tf.cast(df.' + dict['likelihood_params_in_df'][a] + ',dtype=tf.float' + str(self.float) + ')')
         return dict   
     
     # Build dictionary to store main informations
@@ -424,14 +428,7 @@ class define():
         return mains_infos
 
 class write():
-    @tf.function
-    def inv_logit(self,x):
-        p = 1/(1+tf.math.exp(-x))
-        #print(x)
-        #if tf.math.is_inf(x):
-        #    p = 1
-        return p
-    
+
     def create_distribution(self, distribution_name, *args, **kwargs):
         distribution_class = getattr(tfd, distribution_name, None)
 
