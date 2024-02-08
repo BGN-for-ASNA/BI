@@ -41,7 +41,11 @@ class model(data, define, write, fit, diagnostic):
                 self.df = df
             elif isinstance(df, str):
                 self.df = self.import_csv(df, **kwargs)
-            
+            # Select columns with 'float64' dtype  
+            float64_cols = list(self.df.select_dtypes(include='float'+ str(float)))
+            # The same code again calling the columns
+            self.df[float64_cols] = self.df[float64_cols].astype('float'+ str(float))
+
         self.model_path = 'output/mymodel.py'
         self.df_path = 'output/mydf.csv'
         self.data_modification = {}
@@ -55,6 +59,8 @@ class model(data, define, write, fit, diagnostic):
            self.float_prior = tf.float64
            self.int = tf.int64
         self.float = float
+
+
         # GPU configuration ----------------------------
         self.gpu = gpu
         
@@ -128,6 +134,4 @@ class model(data, define, write, fit, diagnostic):
                                 num_leapfrog_steps=num_leapfrog_steps,
                                 num_adaptation_steps=num_adaptation_steps,
                                 num_chains=num_chains)
-        #self.posterior = posterior
-        #self.trace = trace
-        #self.sample_stats = sample_stats
+
