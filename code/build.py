@@ -299,8 +299,11 @@ class define():
 
                     else:
                         dict['main_likelihood_params_in_df'] = False
+        
+            if dict['params']['args'][a] in self.undeclared_params['params_in_data']:
+                dict['params']['args'][a] = "df."+ dict['params']['args'][a] + """.astype('float""" + str(self.float) + """').values"""
         return dict
-    
+            
     def get_main_info_likelihood_kargs(self, dict):
         dict['new_params'] = dict['params'] 
         for key in dict['params']['kwargs']:
@@ -544,7 +547,7 @@ class write():
                         #else: 
                         text = text + str(k)+ ' = ' +  self.convert_indices(self.mains_infos[key]['params']['kwargs'][k], self.float) + ','
                 
-                text = text + "), reinterpreted_batch_ndims=1)"
+                text = text + 'name =' + "'" + str(key) + "'" + "), reinterpreted_batch_ndims=1)"
 
             else:
                 text = self.write_main_text_no_indices(self.mains_infos[key], text)
@@ -588,7 +591,7 @@ class write():
 
                 self.tensor[model[key]['var'][0]] = tfd.Sample(
                     self.create_distribution(model[key]['var'][1],
-                    *self.convert_to_numeric_prior(model[key]['var'][2])), sample_shape = shape)
+                    *self.convert_to_numeric_prior(model[key]['var'][2]), **{'name': str(key)}), sample_shape = shape)
             
         self.priors = p
    
