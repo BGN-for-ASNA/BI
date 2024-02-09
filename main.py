@@ -86,6 +86,7 @@ class model(data, define, write, fit, diagnostic):
         self.get_var()
         self.get_priors_names()
         self.get_model_type()
+        self.get_undeclared_params()
         self.get_mains_info() 
         
         # Formula input to tensorflow probability model
