@@ -3,6 +3,7 @@ from code.data import*
 from code.build import*
 from code.fit import*
 from code.diagnostic import*
+from code.helpers import*
 import pandas as pd
 import numpy as np  
 import tensorflow as tf

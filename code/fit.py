@@ -6,6 +6,7 @@ import arviz as az
 import numpy as np
 
 def trace_fn(_, pkr):  
+    #print(pkr)
     return (
         pkr.inner_results.inner_results.accepted_results.target_log_prob,
         pkr.inner_results.inner_results.accepted_results.num_leapfrog_steps,
@@ -14,9 +15,10 @@ def trace_fn(_, pkr):
         pkr.inner_results.inner_results.log_accept_ratio
     )
 
-def target_log_prob_fn(model, observed_data, *args):
+def target_log_prob_fn(model, observed_data, *args):    
     param_dict = {name: value for name, value in zip(model._flat_resolve_names(), args)}
     param_dict= {**param_dict, **observed_data}
+    #print(model.log_prob(model.sample(**param_dict)))
     return model.log_prob(model.sample(**param_dict))   
 
 def _trace_to_arviz(
@@ -58,13 +60,20 @@ def sampleH(model,
            num_leapfrog_steps = 5,
            num_adaptation_steps = 400,
            num_chains = 4):
+    
     unnormalized_posterior_log_prob = functools.partial(target_log_prob_fn, model, observed_data)
-
     # Assuming that 'model' is defined elsewhere
-    initial_state = list(model.sample(num_chains).values())[:-1]
 
+    # For multiple likelihoods, initial_state need to remove the correct outputs
+    init = model.sample(num_chains)
+    for k in observed_data.keys():
+        init.pop(k)
+    #initial_state = list(model.sample(num_chains).values())[:-1]
+    initial_state = list(init.values())
+    #initial_state = [tf.zeros([num_chains, 1])]
+    #print(initial_state)
     bijectors = [tfp.bijectors.Identity() for _ in initial_state]
-
+    #bijectors = [tfp.bijectors.Identity()]
     results, sample_stats =  tfp.mcmc.sample_chain(
     num_results=num_results,
     num_burnin_steps=num_burnin_steps,
@@ -164,7 +173,7 @@ class fit():
         self.num_chains = num_chains 
         self.params = self.priors
         self.hmc_results = None
-        self.hmc_sample_stats = None
+        #self.hmc_sample_stats = None
         self.hmc_posterior = None
 
         posterior, trace, sample_stats = run_modelH(self.tensor, 
