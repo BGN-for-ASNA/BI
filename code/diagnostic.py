@@ -8,6 +8,13 @@ class diagnostic():
         pass
         self.priors = None
 
+    def invt_logit(self, x):
+        import math
+        if x == math.isinf(x):
+            return 1
+        else:
+            return 1/(1 + math.exp(-x))
+        
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs):
         self.tab_summary = az.summary(self.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
         return self.tab_summary 
