@@ -299,9 +299,9 @@ class define():
 
                     else:
                         dict['main_likelihood_params_in_df'] = False
-        
-            if dict['params']['args'][a] in self.undeclared_params['params_in_data']:
-                dict['params']['args'][a] = "df."+ dict['params']['args'][a] + """.astype('float""" + str(self.float) + """').values"""
+            if len(self.undeclared_params) > 1:
+                if dict['params']['args'][a] in self.undeclared_params['params_in_data']:
+                    dict['params']['args'][a] = "df."+ dict['params']['args'][a] + """.astype('float""" + str(self.float) + """').values"""
         return dict
             
     def get_main_info_likelihood_kargs(self, dict):
