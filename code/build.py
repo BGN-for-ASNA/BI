@@ -321,6 +321,7 @@ class define():
                 if dict['likelihood_name'] is not None: 
                     dict['multiple_likelihoods'] = True
                     self.model_type['multiple_likelihoods'] = True # To work on
+                    print(dict['params']['kwargs'][key])
                     dict['multiple_likelihoods'].append = [k for k, v in self.model_names.items() if v == dict['params']['kwargs'][key]]   
                 else:
                     dict['likelihood_name'] = [k for k, v in self.model_names.items() if v == dict['params']['kwargs'][key]] 
@@ -395,7 +396,9 @@ class define():
                 } 
                 
         return dict
-    
+    def get_likelihood_dict():
+        LK_dict = {}
+        self.LK_dict = LK_dict
     def get_mains_info(self):
         tmp = self.full_model
         mains_infos = {}
