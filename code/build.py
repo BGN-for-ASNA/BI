@@ -120,7 +120,7 @@ class define():
                 priors.append(var[0])
         self.priors = priors
         return priors
-           
+
     def get_formula(self, formula = "y~Normal(0,1)", type = 'likelihood'):        
         y, x = re.split(r'[~]',formula)
         y = y.replace(" ", "")
@@ -396,9 +396,11 @@ class define():
                 } 
                 
         return dict
-    def get_likelihood_dict():
+    
+    def get_likelihood_dict(self):
         LK_dict = {}
         self.LK_dict = LK_dict
+        
     def get_mains_info(self):
         tmp = self.full_model
         mains_infos = {}
