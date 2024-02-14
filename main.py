@@ -115,7 +115,7 @@ class model(data, define, write, fit, diagnostic):
             num_chains=4):
         if self.gpu: 
 
-            if len(devices['GPU']) > 0:
+            if len(self.devices['GPU']) > 0:
                 with tf.device(next(iter(self.devices['GPU'].values()))):
                     self.posterior, self.trace, self.sample_stats = self.run_model(observed_data,
                                    parallel_iterations=parallel_iterations,
