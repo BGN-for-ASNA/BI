@@ -321,7 +321,7 @@ class define():
                 if dict['likelihood_name'] is not None: 
                     dict['multiple_likelihoods'] = True
                     self.model_type['multiple_likelihoods'] = True # To work on
-                    print(dict['params']['kwargs'][key])
+
                     dict['multiple_likelihoods'].append = [k for k, v in self.model_names.items() if v == dict['params']['kwargs'][key]]   
                 else:
                     dict['likelihood_name'] = [k for k, v in self.model_names.items() if v == dict['params']['kwargs'][key]] 
@@ -434,7 +434,6 @@ class define():
 
         self.mains_infos = mains_infos
         return mains_infos
-
 class write():
 
     def create_distribution(self, distribution_name, *args, **kwargs):
@@ -594,9 +593,12 @@ class write():
                 else:
                     shape = 1
 
+                print(model[key]['var'][1])
+                print(model[key]['var'][2])
                 self.tensor[model[key]['var'][0]] = tfd.Sample(
                     self.create_distribution(model[key]['var'][1],
-                    *self.convert_to_numeric_prior(model[key]['var'][2]), **{'name': str(key)}), sample_shape = shape)
+                    *self.convert_to_numeric_prior(model[key]['var'][2]), 
+                    **{'name': str(key)}), sample_shape = shape)
             
         self.priors = p
    
