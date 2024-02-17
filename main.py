@@ -7,24 +7,6 @@ import pandas as pd
 import numpy as np  
 import tensorflow as tf
 from tensorflow.python.client import device_lib
-## Distribution functions -----------------------------------------------------
-def get_distribution_classes():
-    # Get all names defined in the distributions module
-    all_names = dir(tfd)
-    
-    # Filter to include only classes
-    class_names = [name for name in all_names if isinstance(getattr(tfd, name), type)]
-    
-    # Create a dictionary of class names and corresponding classes
-    class_dict = {name: getattr(tfd, name) for name in class_names}
-    
-    return class_dict
-tf_classes = get_distribution_classes()
-
-def exportTFD(tf_classes):
-    for key in tf_classes.keys():
-        globals()[key] = tf_classes[key]
-exportTFD(tf_classes)
 
 class model(data, define, write, fit, diagnostic):
     def __init__(self, 
@@ -34,6 +16,7 @@ class model(data, define, write, fit, diagnostic):
                  gpu = False,               
                  **kwargs):      
         self.f = formula
+        self.Tensoflow = False     
         if df is None:
          self.df = pd.DataFrame({'A' : []})
         else:
@@ -49,6 +32,7 @@ class model(data, define, write, fit, diagnostic):
         self.model_path = 'output/mymodel.py'
         self.df_path = 'output/mydf.csv'
         self.data_modification = {}
+
         if float == 16:
            self.float_prior = tf.float16
            self.int = tf.int16
@@ -77,7 +61,7 @@ class model(data, define, write, fit, diagnostic):
         self.devices['GPU'] = gpu
                   
         if formula is not None:
-            self.formula(self.f)
+            #self.formula(self.f)
             self.build_model()
 
     def build_model(self):
