@@ -5,40 +5,9 @@ import pandas as pd
 import re
 import numpy as np
 
-def get_distribution_classes():
-    # Get all names defined in the distributions module
-    all_names = dir(tfd)
-    
-    # Filter to include only classes
-    class_names = [name for name in all_names if isinstance(getattr(tfd, name), type)]
-    
-    # Create a dictionary of class names and corresponding classes
-    class_dict = {name: getattr(tfd, name) for name in class_names}
-    
-    return class_dict
-def exportTFD(tfd_classes):
-    for key in tfd_classes.keys():
-        globals()[key] = tfd_classes[key]
-tfd_classes = get_distribution_classes()
-
-
-def get_tensorflow_classes():
-    # Get all names defined in the distributions module
-    all_names = dir(tf)
-    
-    # Create a dictionary with all names
-    class_dict = {name: getattr(tf, name) for name in all_names}
-    
-    return class_dict
-def exportTF(tf_classes):
-    for key in tf_classes.keys():
-        globals()[key] = tf_classes[key]
-tf_classes = get_tensorflow_classes()
-
-
 class define():
     def __init__(self, formula = None):
-        self.f = formula           
+        self.f = formula        
     
     # Basic functions----------------------------    
     def separate_args_kwargs(self,input_list):
@@ -91,32 +60,12 @@ class define():
         else:
             return str(input)
         
-    def unlist(self, L):
-        newList = []
-        for item in L:
-            if isinstance(item, list):
-                for i in item:
-                    newList.append(i)
-            else:
-                newList.append(item)
-        return newList
-    
-    def is_float(self, char):
-        try:
-            float(char)
-            return True
-        except ValueError:
-            return False
-
-    def remove_numeric_priors(self, characters):
-     return [char for char in characters if not self.is_float(char)]
-
     # Get model informations----------------------------    
     def get_model_type(self):
         type = {} 
         type["with_likelihood"] = False
         type["with_indices"]  = False
-        type["with_tf"] = self.Tensoflow
+
         formula = self.f  
         self.indices = {}
         var = []   
@@ -130,14 +79,10 @@ class define():
             if "likelihood" in key :
                 if "[" in formula[key]:               
                     type["with_indices"] = True
-                    print(formula[key])
                     params = self.get_formula( formula = formula[key], type = 'likelihood') 
-                    print(params)
                     position = self.find_index_position(formula[key])  
-                    print(position)
                     indices_dict = self.extract_indices_patterns(formula[key])
-                    print(indices_dict)
-                    id = [params[1][i] for i in position]                    
+                    id = [params[1][i] for i in position]
                     id_var = [params[1][i+1] for i in position]
                     type[key] = {"params": id} 
                     var = var + id_var
@@ -195,21 +140,13 @@ class define():
                 args = re.split(r'[+*()*[*^*-*/*,]',x)
                 new = []
                 dist = []
-                Tensorflow = []
                 for i in range(len(args)):
-                    if args[i] in list(tf_classes.keys()):
-
-                        Tensorflow.append('tf.' + str(args[i]))
-                        new.append('tf.' + str(args[i]) + '(')
-                        self.Tensoflow = True
-
-                    elif args[i] in list(tfd_classes.keys()):    
-                        dist.append('tfd.' + str(args[i]))
-                        new.append('tfd.' + str(args[i]) + '(')
-
-                    elif args[i] not in list(tf_classes.keys()) and args[i] in list(tfd_classes.keys()):
-                        new.append(args[i])                  
-                return [y,dist, new, Tensorflow] 
+                    if args[i] != '':
+                        if args[i] in list(tf_classes.keys()):
+                            dist.append('tf.' + str(args[i]))
+                        else:
+                            new.append(args[i])                       
+                return [y,dist, new] 
 
         else:
             dist, args = x.split('(')
@@ -311,10 +248,135 @@ class define():
        
         return self.undeclared_params
     
-    # Get main informations----------------------------   
-    ## Build dictionary to store main informations
+    # Get main informations----------------------------    
+    def get_main_info_likelihood_indices(self, dict):
+        dict['with_indices'] = True
+        dict['indices_position'] = self.find_index_position(dict['likelihood_formula'])  
+        dict['indices_patterns'] = self.extract_indices_patterns(dict['likelihood_formula'])  
+        dict['indices_prior'] = [dict['likelihood_params'][i] for i in dict['indices_position']]
+        dict['indices_var'] = [dict['likelihood_params'][i+1] for i in dict['indices_position']]
+        return dict
+    
+    def get_main_info_likelihood_args(self, dict):
+        dict['new_params'] = dict['params'] 
+        # Find likelihood associated to this main
+        for a in range(len(dict['params']['args'])):
+            if dict['params']['args'][a] in self.model_names.values():
+                #check if self.model_names.values() name have likelihhod in it
+                key_name = self.which_key_have_value(self.model_names, dict['params']['args'][a])
+
+                if 'prior' in key_name:
+                    dict['priors'] = self.add_entry_if_not_none(dict['priors'], self.model_names[key_name])
+                    
+                if 'likelihood' in key_name:
+                    dict['likelihood_ouput'] = dict['params']['args'][a]     
+                    
+                   # Handle multiple likelihood (to do)
+                    if dict['likelihood_name'] is not None: 
+                        dict['multiple_likelihoods'] = True
+                        self.model_type['multiple_likelihoods'] = True # To work on
+                        dict['likelihood_name'] = self.add_entry_if_not_none(dict['likelihood_name'],key_name)
+                    else:
+                        dict['likelihood_name'] = self.add_entry_if_not_none(dict['likelihood_name'],key_name)
+
+                    dict['multiple_likelihoods'] = False
+                    self.model_type['multiple_likelihoods'] = False            
+                    dict['likelihood_formula'] = self.full_model[dict['likelihood_name']]['input']
+                    dict['likelihood_output'] = self.full_model[dict['likelihood_name']]['var'][0]
+                    dict['likelihood_params'] = self.full_model[dict['likelihood_name']]['var'][1] 
+                    x = re.split(r'[~]',dict['likelihood_formula'])[1]
+                    x = x.replace(" ", "")
+                    dict['params']['args'][a] = x
+    
+                    # Index in formula
+                    if "[" in dict['likelihood_formula']:                    
+                        dict = self.get_main_info_likelihood_indices(dict)
+    
+                    if  len(self.undeclared_params) > 1:
+                        dict['likelihood_params_in_df'] = [x for x in dict['likelihood_params'] if x in self.undeclared_params['params_in_data']]                             
+                        dict['likelihood_params_not_in_df'] = [x for x in dict['likelihood_params'] if x not in self.undeclared_params['params_in_data']]
+                        dict['likelihood_params'] = [item for item in dict['likelihood_params']  if item not in dict['likelihood_params_in_df']]
+
+                    else:
+                        dict['main_likelihood_params_in_df'] = False
+            if len(self.undeclared_params) > 1:
+                if dict['params']['args'][a] in self.undeclared_params['params_in_data']:
+                    dict['params']['args'][a] = "df."+ dict['params']['args'][a] + """.astype('float""" + str(self.float) + """').values"""
+        return dict
+            
+    def get_main_info_likelihood_kargs(self, dict):
+        dict['new_params'] = dict['params'] 
+        for key in dict['params']['kwargs']:
+            if dict['params']['kwargs'][key] in self.model_names.values():               
+                #check if self.model_names.values() name have likelihhod in it
+                key_name = self.which_key_have_value(self.model_names, dict['params']['kwargs'][key])
+
+                if 'prior' in key_name:
+                    dict['priors'] = self.add_entry_if_not_none(dict['priors'], self.model_names[key_name])
+
+                if 'likelihood' in key_name:
+                    dict['likelihood_ouput'] = dict['params']['kwargs'][key]
+
+                # Handle multiple likelihood (to do)
+                if dict['likelihood_name'] is not None: 
+                    dict['multiple_likelihoods'] = True
+                    self.model_type['multiple_likelihoods'] = True # To work on
+
+                    dict['multiple_likelihoods'].append = [k for k, v in self.model_names.items() if v == dict['params']['kwargs'][key]]   
+                else:
+                    dict['likelihood_name'] = [k for k, v in self.model_names.items() if v == dict['params']['kwargs'][key]] 
+
+                dict['likelihood_name'] = dict['likelihood_name'][0]
+                dict['multiple_likelihoods'] = False
+                self.model_type['multiple_likelihoods'] = False            
+                dict['likelihood_formula'] = self.full_model[dict['likelihood_name']]['input']
+                dict['likelihood_output'] = self.full_model[dict['likelihood_name']]['var'][0]
+                dict['likelihood_params'] = self.full_model[dict['likelihood_name']]['var'][1] 
+                x = re.split(r'[~]',dict['likelihood_formula'])[1]
+                x = x.replace(" ", "")
+                dict['new_params']['kwargs'][key] = x
+
+                # Index in formula
+                if "[" in dict['likelihood_formula']:                    
+                    self.get_main_info_likelihood_indices(dict)
+
+                if  len(self.undeclared_params) > 1:
+                    dict['likelihood_params_in_df'] = [x for x in dict['likelihood_params'] if x in self.undeclared_params['params_in_data']]     
+                    dict['likelihood_params'] = [x for x in dict['likelihood_params'] if x not in self.undeclared_params['params_in_data']]
+                    dict['likelihood_params'] = [item for item in dict['likelihood_params']  if item not in dict['likelihood_params_in_df']]
+                else:
+                    dict['main_likelihood_params_in_df'] = False
+        return dict
+
+    def get_main_info_with_likelihood(self, dict):            
+            if len(dict['params']['args']) > 0:
+                dict = self.get_main_info_likelihood_args(dict)
+            if len(dict['params']['kwargs']) > 0:
+                dict = self.get_main_info_likelihood_kargs(dict)        
+            return  dict
+    
+    def get_main_info_likelihood_arguments_in_df(self, dict):
+        if len(dict['params']['args']) > 0:
+            for a in range(len(dict['likelihood_params_in_df'])):
+                for b in range(len(dict['params']['args'])):
+                    if dict['likelihood_params_in_df'][a] in dict['params']['args'][b]:
+                         dict['params']['args'][b] = dict['params']['args'][b].replace(dict['likelihood_params_in_df'][a], 
+                                                                                      'df.' + dict['likelihood_params_in_df'][a] + '.values')
+                        #dict['params']['args'][b] = dict['params']['args'][b].replace(dict['likelihood_params_in_df'][a], 
+                        #                                                              ' tf.cast(df.' + dict['likelihood_params_in_df'][a] + ',dtype=tf.float' + str(self.float)+ ')')
+        if len(dict['params']['kwargs']) > 0:
+            for a in range(len(dict['likelihood_params_in_df'])):
+                for key in dict['params']['kwargs'].keys():
+                    if dict['likelihood_params_in_df'][a] in dict['params']['kwargs'][key]:
+                        dict['params']['kwargs'][key] = dict['params']['kwargs'][key].replace(dict['likelihood_params_in_df'][a], 
+                                                                                              'df.' + dict['likelihood_params_in_df'][a] + '.values')
+                        #dict['params']['kwargs'][key] = dict['params']['kwargs'][key].replace(dict['likelihood_params_in_df'][a], 
+                        #                                                                      ' tf.cast(df.' + dict['likelihood_params_in_df'][a] + ',dtype=tf.float' + str(self.float) + ')')
+        return dict   
+    
+    # Build dictionary to store main informations
     def get_main_dict(self):
-        dict = {'output': None, 
+        dict = {'ouput': None, 
                 'input': None,
                 'distribution': None, 
                 'params' : None,
@@ -322,195 +384,56 @@ class define():
                 'with_likelihood': None,
                 'multiple_likelihoods': None,
                 'with_indices' : False,
-                'params_in_df': None,
-                'params_not_in_df': None,
-                'likelihood(s)': {}
+                'likelihood_name' : None,
+                'likelihood_output' : None,
+                'likelihood_formula': None,
+                'likelihood_params': None,                                          
+                'likelihood_params_in_df' : None,
+                'indices_prior' : None,
+                'indices_position': None,
+                'indices_patterns': None,
+                'indices_var': None,
                 } 
                 
         return dict
     
     def get_likelihood_dict(self):
         LK_dict = {}
-        return LK_dict
-
-    def get_main_info_likelihood_indices(self,dict):
-        dict['with_indices'] = True
-        dict['indices_position'] = self.find_index_position(dict['formula'])  
-        dict['indices_patterns'] = self.extract_indices_patterns(dict['formula'])  
-        dict['indices_prior'] = [dict['params'][i] for i in dict['indices_position']]
-        dict['indices_var'] = [dict['params'][i+1] for i in dict['indices_position']]
-        return dict
-
-    def get_main_info_with_likelihood(self,dict, LK_dict):         
-            if len(dict['params']['args']) > 0:
-                LK_dict = self.get_main_info_likelihood_args(dict, LK_dict)
-            if len(dict['params']['kwargs']) > 0:
-                LK_dict = self.get_main_info_likelihood_kwargs(dict, LK_dict)        
-            return  LK_dict
-
-    def get_main_info_likelihood_kwargs(self, main_dict, LK_dict):
-        for key in main_dict['params']['kwargs']:
-            if main_dict['params']['kwargs'][key] in self.model_names.values():               
-                #check if self.model_names.values() name have likelihood in it
-                key_name = self.which_key_have_value(self.model_names, main_dict['params']['kwargs'][key])
-                if 'prior' in key_name:
-                    main_dict['priors'] = self.add_entry_if_not_none(main_dict['priors'], self.model_names[key_name])
-
-                if 'likelihood' in key_name: # Get basic information of likelihood
-                    name = [k for k, v in self.model_names.items() if v == main_dict['params']['kwargs'][key]] 
-                    name = name[0]
-                    LK_dict[name] = {}   
-                    LK_dict[name]['main_params']= {'args':[], "kwargs":{}} 
-                    LK_dict[name]['formula'] = self.full_model[name]['input']
-                    LK_dict[name]['output'] = self.full_model[name]['var'][0]
-                    LK_dict[name]['params'] = self.full_model[name]['var'][1]
-                    x = re.split(r'[~]',LK_dict[name]['formula'])[1]
-                    x = x.replace(" ", "")
-                    LK_dict[name]['main_params']['kwargs'][key] = str(x)
-
-                    # Add information to main to build LK within lambda
-                    main_dict['params']['kwargs'][key] = LK_dict[name]['main_params']['kwargs'][key]
-                    main_dict['priors'] = self.add_entry_if_not_none(main_dict['priors'], LK_dict[name]['params'].copy())
-
-                    if "[" in LK_dict[name]['formula']: 
-                        main_dict['with_indices']   = True  
-                        LK_dict[name] = self.get_main_info_likelihood_indices(LK_dict[name])
-
-                    if len(self.undeclared_params) > 1:
-                        LK_dict[name]['params_in_df'] = [x for x in  LK_dict[name]['params'] if x in self.undeclared_params['params_in_data']]                          
-                        LK_dict[name]['params_not_in_df'] = [x for x in  LK_dict[name]['params']  if x not in self.undeclared_params['params_in_data']]
-
-                        if len(LK_dict[name]['params_in_df']) > 0:
-                            main_dict['params_in_df'] = self.add_entry_if_not_none(main_dict['params_in_df'], LK_dict[name]['params_in_df'])
-                        main_dict['params_not_in_df'] = self.add_entry_if_not_none(main_dict['params_not_in_df'], LK_dict[name]['params_not_in_df'])
-
-                    else:
-                        LK_dict[name]['params_in_df'] = None
-                        main_dict['params_in_df'] = {}
-                        main_dict['params_in_df'] = None
-
-        #main_dict['likelihood(s)'].update(LK_dict)
-        return LK_dict
-
-    def get_main_info_likelihood_args(self,main_dict, LK_dict):
-        # Find likelihood associated to this main
-        for a in range(len(main_dict['params']['args'])):
-            if main_dict['params']['args'][a] in self.model_names.values():
-                #check if self.model_names.values() name have likelihhod in it
-                key_name = self.which_key_have_value(self.model_names, main_dict['params']['args'][a])
-                if 'prior' in key_name:
-                    main_dict['priors'] = self.add_entry_if_not_none(main_dict['priors'], self.model_names[key_name])
-
-                if 'likelihood' in key_name:    
-                    name = key_name
-                    LK_dict[name] = {}
-                    LK_dict[name]['main_params'] =  main_dict['params'] # get corresponding main prior
-                    LK_dict[name]['formula'] = self.full_model[name]['input']
-                    LK_dict[name]['output'] = main_dict['params']['args'][a]
-                    LK_dict[name]['params'] = self.full_model[name]['var'][1] 
-                    x = re.split(r'[~]',LK_dict[name]['formula'])[1]
-                    x = x.replace(" ", "")
-                    LK_dict[name]['main_params']['args'][a] = x
-                    # Add information to main to build LK within lambda
-                    main_dict['params']['args'][a] = LK_dict[name]['main_params']['args'][a]
-                    main_dict['priors'] = self.add_entry_if_not_none(main_dict['priors'], LK_dict[name]['params'])
-
-                    # Index in formula
-                    if "[" in LK_dict[name]['formula']:   
-                        main_dict['with_indices']   = True             
-                        LK_dict[name] = self.get_main_info_likelihood_indices(LK_dict[name])
-
-                    if  len(self.undeclared_params) > 1:
-                        LK_dict[name]['params_in_df'] = [x for x in  LK_dict[name]['params'] if x in self.undeclared_params['params_in_data']]                          
-                        LK_dict[name]['params_not_in_df'] = [x for x in  LK_dict[name]['params']  if x not in self.undeclared_params['params_in_data']]
-
-                        if len(LK_dict[name]['params_in_df']) > 0:
-                            main_dict['params_in_df'] = self.add_entry_if_not_none(main_dict['params_in_df'], LK_dict[name]['params_in_df'])
-                        main_dict['params_not_in_df'] = self.add_entry_if_not_none(main_dict['params_not_in_df'], LK_dict[name]['params_not_in_df'])
-                    else:
-                        LK_dict[name]['params_in_df'] = None
-
-            if len(self.undeclared_params) > 1:# POurquoi n'est pas présent dans kwargs?
-                if main_dict['params']['args'][a] in self.undeclared_params['params_in_data']:
-                        main_dict['params']['args'][a] = "df."+ main_dict['params']['args'][a] + """.astype('float""" + str(self.float) + """').values"""
-
-        return LK_dict
-
-    def get_main_info_likelihood_arguments_in_df(self,dict):
-        if len(dict['params']['args']) > 0:
-            for a in range(len(dict['params_in_df'])):
-                for b in range(len(dict['params']['args'])):
-                    if dict['params_in_df'][a] in dict['params']['args'][b]:
-                         dict['params']['args'][b] = dict['params']['args'][b].replace(dict['params_in_df'][a], 
-                                                                                      'df.' + dict['params_in_df'][a] + '.values')
-                        #dict['params']['args'][b] = dict['params']['args'][b].replace(dict['likelihood_params_in_df'][a], 
-                        #                                                              ' tf.cast(df.' + dict['likelihood_params_in_df'][a] + ',dtype=tf.float' + str(self.float)+ ')')
-        if len(dict['params']['kwargs']) > 0:
-            for a in range(len(dict['params_in_df'])):
-                for key in dict['params']['kwargs'].keys():
-                    if dict['params_in_df'][a] in dict['params']['kwargs'][key]:
-                        dict['params']['kwargs'][key] = dict['params']['kwargs'][key].replace(dict['params_in_df'][a], 
-                                                                                              'df.' + dict['params_in_df'][a] + '.values')
-                        #dict['params']['kwargs'][key] = dict['params']['kwargs'][key].replace(dict['likelihood_params_in_df'][a], 
-                        #                                                                      ' tf.cast(df.' + dict['likelihood_params_in_df'][a] + ',dtype=tf.float' + str(self.float) + ')')
-        return dict   
-
-    def get_mains_info(self):    
+        self.LK_dict = LK_dict
+        
+    def get_mains_info(self):
         tmp = self.full_model
         mains_infos = {}
+        p = self.priors
         # For each main retrieve informations
         for key in tmp.keys():
             if 'main' in key.lower():                
                 main_name = key
                 infos = tmp[key]['var']
-                main_dict = self.get_main_dict()
-                main_dict['output'] = infos[0]
-                main_dict['distribution'] = infos[1]
-                main_dict['params'] = infos[2]
-                main_dict['params'] = self.separate_args_kwargs(main_dict['params'])
-                main_dict['input'] = tmp[key]['input']
-                main_dict['priors'] = self.priors
+                dict = self.get_main_dict()
+                dict['ouput'] = infos[0]
+                dict['distribution'] = infos[1]
+                dict['params'] = infos[2]
+                dict['params'] = self.separate_args_kwargs(dict['params'])
+                dict['input'] = tmp[key]['input']
 
-                # Handle Likelihood
+                # likelihood
                 if self.model_type['with_likelihood']:
-                    main_dict['with_likelihood'] = True
-                    LK_dict = {}
-                    LK_dict = self.get_main_info_with_likelihood(main_dict, LK_dict)
-                else:
-                    LK_dict = {}
-                
-                main_dict['likelihood(s)'].update(LK_dict)
+                    dict['with_likelihood'] = True
+                    dict = self.get_main_info_with_likelihood(dict)
+                    
+                    # Add params in df to LK
+                    if dict['likelihood_params_in_df'] is not None:
+                        dict['likelihood_params_in_df'] = list(set(dict['likelihood_params_in_df']))
+                        dict = self.get_main_info_likelihood_arguments_in_df(dict)
 
-                if len(LK_dict) > 1 :
-                    main_dict['multiple_likelihoods'] = True
-                
-                # Handle data frame data
-                if main_dict['params_in_df'] is not None:
-                    main_dict['params_in_df'] = list(set(main_dict['params_in_df']))
-                    main_dict = self.get_main_info_likelihood_arguments_in_df(main_dict)
+                    dict['new_params']['args'] = self.convert_to_numeric(dict['new_params']['args'])
+                    dict['new_params']['kwargs']= self.convert_to_numeric_dict(dict['new_params']['kwargs'])
+            mains_infos[main_name] = dict
 
-                # Clean main arguments
-                main_dict['params']['args'] = self.convert_to_numeric(main_dict['params']['args'])
-                main_dict['params']['kwargs']= self.convert_to_numeric_dict(main_dict['params']['kwargs'])
-
-                # Clean priors
-                if main_dict['priors'] is not None:
-                    main_dict['priors'] = self.unlist(main_dict['priors'])
-                    main_dict['priors'] = self.remove_numeric_priors(main_dict['priors'])
-
-                    if main_dict['params_in_df'] is not None:
-                        main_dict['priors'] =[char for char in main_dict['priors'] if char not in main_dict['params_in_df']]
-
-                    main_dict['priors'] = list(np.unique(main_dict['priors']))
-
-                #  Update model info
-                if main_dict["with_indices"] == True:
-                    self.model_type["with_indices"] = main_dict["with_indices"]
-
-                mains_infos[main_name] = main_dict
 
         self.mains_infos = mains_infos
-
+        return mains_infos
 class write():
 
     def create_distribution(self, distribution_name, *args, **kwargs):
@@ -561,10 +484,10 @@ class write():
         for key in lst.keys():
             try:
                 #myFloat = tf.cast(myFloat, self.float)
-                lst[key] = " tf.cast(" + str(float(lst[key] )) + ", dtype = tf.float" + str(self.float) + ')'
+                lst[key] = "tf.cast(" + str(float(lst[key] )) + ", dtype = tf.float" + str(self.float) + ')'
             except ValueError:
                 try:
-                    lst[key] =  " tf.cast(" + str(int(lst[key] ))  + ", dtype = tf.float" + str(self.float) + ')'
+                    lst[key] =  "tf.cast(" + str(int(lst[key] ))  + ", dtype = tf.float" + str(self.float) + ')'
                 except ValueError:
                     lst[key] = lst[key]
                      # Keep as is if not numeric
@@ -578,10 +501,8 @@ class write():
         #output_string = re.sub(pattern, rf" tf.gather(\1,\2, dtype=tf.int{dtype}), axis = -1)", input_string)
         return output_string
     
-    def write_main_text_no_indices2(self, mains_infos, text):
-        print("No indices in main" )
+    def write_main_text_no_indices(self, mains_infos, text):
         if mains_infos['with_likelihood']:
-            print("With LK")
             if len(mains_infos['params']['args']) > 0:
                text = text + ','.join(mains_infos['params']['args']) + ','
             if len(mains_infos['params']['kwargs']) > 0:
@@ -589,37 +510,8 @@ class write():
                     text = text + str(key) + '=' + str(mains_infos['params']['kwargs'][key])  + ','              
             text = text + ')'
         else:
-            print("Without LK")
-            if len(mains_infos['params']['args'])>0:                     
-                    text = text +  ','.join(mains_infos['params']['args'])+ ','
-            if len(mains_infos['params']['kwargs'])>0: 
-                    for k in mains_infos['params']['kwargs'].keys():  
-                        text = text + str(k)+ ' = ' +  mains_infos['params']['kwargs'][k] + ','
+             text = text + ','.join(mains_infos['params']) + ")"
         return text
-    
-    def write_main_text_no_indices(self, mains_infos, text):
-        print("No indices in main" )
-        if mains_infos['with_likelihood']:
-            print("With LK")
-            if len(mains_infos['params']['args']) > 0:
-               text = text + ','.join(mains_infos['params']['args']) + ','
-            if len(mains_infos['params']['kwargs']) > 0:
-                tmp = [] 
-                for k in mains_infos['params']['kwargs'].keys():                                       
-                    tmp.append(str(k)+ ' = ' +  mains_infos['params']['kwargs'][k])
-                text = text + ','.join(tmp)         
-            text = text + ')'
-        else:
-            print("Without LK")
-            if len(mains_infos['params']['args'])>0:                     
-                    text = text +  ','.join(mains_infos['params']['args'])+ ','
-            if len(mains_infos['params']['kwargs'])>0: 
-                tmp = []
-                for k in mains_infos['params']['kwargs'].keys():  
-                    tmp.append(str(k)+ ' = ' +  mains_infos['params']['kwargs'][k])
-                text = text + ','.join(tmp)
-            text = text + ')'
-        return text  
     
     def write_main_text(self):
         result = {}
@@ -630,11 +522,11 @@ class write():
             # Params
             ## likelihood priors 
             if self.mains_infos[key]['priors'] is not None:
-                text = text + ','.join(self.mains_infos[key]["priors"]) + ', '
+                text = text + self.join_elements(self.mains_infos[key]["priors"]) + ', '
 
-            ## likelihood params
-            #if self.mains_infos[key]["likelihood_params"] is not None:
-            #    text = text + ", ".join(self.mains_infos[key]["likelihood_params"])
+            # likelihood params
+            if self.mains_infos[key]["likelihood_params"] is not None:
+                text = text + ", ".join(self.mains_infos[key]["likelihood_params"])
 
             # likelihood distribution
             text = text + ": tfd.Independent(tfd." + self.mains_infos[key]['distribution'] + "(" 
@@ -644,10 +536,19 @@ class write():
                 #text = self.write_main_text_indices(self.mains_infos[key], text)
                 if len(self.mains_infos[key]['params']['args'])>0:
                     for a in range(len(self.mains_infos[key]['params']['args'])):                        
+                        #if 'logit' not in self.mains_infos[key]['params']['kwargs'].keys():
+                        #    if a == 1: #logits are in second position
+                        #         text = text + 'tf.math.sigmoid(' +  self.convert_indices(self.mains_infos[key]['params']['args'][a], self.float)+  ')'
+                        #    else:
+                        #        text = text + self.convert_indices(self.mains_infos[key]['params']['args'][a], self.float)+ ','
+                        #else:
                         text = text + self.convert_indices(self.mains_infos[key]['params']['args'][a], self.float)+ ','
 
                 if len(self.mains_infos[key]['params']['kwargs'])>0:
                     for k in self.mains_infos[key]['params']['kwargs'].keys():
+                        #if 'probs' in k:
+                        #    text = text + str(k)+ ' = ' + 'tf.math.sigmoid(' +  self.convert_indices(self.mains_infos[key]['params']['kwargs'][k], self.float)+ ')' + ','                           
+                        #else: 
                         text = text + str(k)+ ' = ' +  self.convert_indices(self.mains_infos[key]['params']['kwargs'][k], self.float) + ','
                 
                 text = text + 'name =' + "'" + str(key) + "'" + "), reinterpreted_batch_ndims=1)"
@@ -656,7 +557,7 @@ class write():
                 text = self.write_main_text_no_indices(self.mains_infos[key], text)
                 text = text + ", reinterpreted_batch_ndims=1)"
 
-            result[self.mains_infos[key]['output']] = text
+            result[self.mains_infos[key]['ouput']] = text
         
         self.main_text = result
         return result
@@ -692,10 +593,10 @@ class write():
                 else:
                     shape = 1
 
+            
                 self.tensor[model[key]['var'][0]] = tfd.Sample(
                     self.create_distribution(model[key]['var'][1],
-                    *self.convert_to_numeric_prior(model[key]['var'][2]), 
-                    **{'name': str(key)}), sample_shape = shape)
+                    *self.convert_to_numeric_prior(model[key]['var'][2]), **{'name': str(key)}), sample_shape = shape)
             
         self.priors = p
    
