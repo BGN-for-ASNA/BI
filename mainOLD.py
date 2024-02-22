@@ -1,6 +1,6 @@
 
 from code.data import*
-from code.build import*
+from code.buildOLD import*
 from code.fit import*
 from code.diagnostic import*
 import pandas as pd
@@ -18,7 +18,7 @@ class model(data, define, write, fit, diagnostic):
         self.f = formula
         self.Tensoflow = False     
         if df is None:
-            self.df = pd.DataFrame({'A' : []})
+         self.df = pd.DataFrame({'A' : []})
         else:
             if isinstance(df, pd.DataFrame):
                 self.df = df
@@ -44,13 +44,7 @@ class model(data, define, write, fit, diagnostic):
            self.int = tf.int64
         self.float = float
 
-        self.model_info = {}
-        self.model_info["multiple_lks"] = False
-        self.model_info["with_indices"] = False
-        self.model_info["indices"] = {}        
-        self.model_dict = {}
-        self.prior_dict = {}
-        self.priors_name = []
+
         # GPU configuration ----------------------------
         self.gpu = gpu
         
@@ -72,9 +66,20 @@ class model(data, define, write, fit, diagnostic):
 
     def build_model(self):
         # Gather formula input informations
-        self.get_model_info()
-        self.merge()
-        self.write_tensor()
+        self.get_var()
+        self.get_priors_names()
+        self.get_model_type()
+        self.get_undeclared_params()
+        self.get_mains_info() 
+        
+        # Formula input to tensorflow probability model
+        self.tensor_prior()
+        self.write_main_text()
+        for key in self.main_text.keys():
+            self.tensor[key] = self.create_function_from_string(func_str = self.main_text[key], name = key)
+
+        self.tensor_dict = self.tensor
+        self.tensor = tfd.JointDistributionNamed(self.tensor)
         
     def sample(self, *args, **kwargs):
         self.samples = self.tensor.sample(*args, **kwargs)
@@ -85,8 +90,6 @@ class model(data, define, write, fit, diagnostic):
         return self.prob
     
     def fit(self, observed_data,
-            init = None,
-            bijectors = None,
             parallel_iterations=1,
             num_results=2000,
             num_burnin_steps=500,
@@ -95,25 +98,20 @@ class model(data, define, write, fit, diagnostic):
             num_adaptation_steps=400,
             num_chains=4):
         if self.gpu: 
+
             if len(self.devices['GPU']) > 0:
                 with tf.device(next(iter(self.devices['GPU'].values()))):
                     self.posterior, self.trace, self.sample_stats = self.run_model(observed_data,
-                                    params = self.priors_dict.keys(),
-                                    init = init,
-                                    bijectors = bijectors,
-                                    parallel_iterations=parallel_iterations,
-                                    num_results=num_results,
-                                    num_burnin_steps=num_burnin_steps,
-                                    step_size=step_size,
-                                    num_leapfrog_steps=num_leapfrog_steps,
-                                    num_adaptation_steps=num_adaptation_steps,
-                                    num_chains=num_chains)
+                                   parallel_iterations=parallel_iterations,
+                                   num_results=num_results,
+                                   num_burnin_steps=num_burnin_steps,
+                                   step_size=step_size,
+                                   num_leapfrog_steps=num_leapfrog_steps,
+                                   num_adaptation_steps=num_adaptation_steps,
+                                   num_chains=num_chains)
         else:
             with tf.device(next(iter(self.devices['CPU'].values()))):
                 self.posterior, self.trace, self.sample_stats = self.run_model(observed_data,
-                                params = self.priors_name,
-                                init = init,
-                                bijectors = bijectors,
                                 parallel_iterations=parallel_iterations,
                                 num_results=num_results,
                                 num_burnin_steps=num_burnin_steps,
