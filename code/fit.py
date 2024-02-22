@@ -5,6 +5,7 @@ import functools
 import arviz as az
 import numpy as np
 
+@tf.function(autograph=False)
 def trace_fn(_, pkr): 
     return (
         pkr.inner_results.inner_results.accepted_results.target_log_prob,
@@ -14,39 +15,11 @@ def trace_fn(_, pkr):
         pkr.inner_results.inner_results.log_accept_ratio
     )
 
+@tf.function(autograph=False)
 def target_log_prob_fn(model, observed_data, *args):    
     param_dict = {name: value for name, value in zip(model._flat_resolve_names(), args)}
     param_dict= {**param_dict, **observed_data}
     return model.log_prob(model.sample(**param_dict))   
-
-def _trace_to_arviz(
-    trace=None,
-    sample_stats=None,
-    observed_data=None,
-    prior_predictive=None,
-    posterior_predictive=None,
-    inplace=True,
-):
-
-    if trace is not None and isinstance(trace, dict):
-        trace = {k: v.numpy() for k, v in trace.items()}
-    if sample_stats is not None and isinstance(sample_stats, dict):
-        sample_stats = {k: v.numpy().T for k, v in sample_stats.items()}
-    if prior_predictive is not None and isinstance(prior_predictive, dict):
-        prior_predictive = {k: v[np.newaxis] for k, v in prior_predictive.items()}
-    if posterior_predictive is not None and isinstance(posterior_predictive, dict):
-        if isinstance(trace, az.InferenceData) and inplace == True:
-            return trace + az.from_dict(posterior_predictive=posterior_predictive)
-        else:
-            trace = None
-
-    return az.from_dict(
-        posterior=trace,
-        sample_stats=sample_stats,
-        prior_predictive=prior_predictive,
-        posterior_predictive=posterior_predictive,
-        observed_data=observed_data,
-    )
 
 @tf.function(autograph=False)
 def sampleH(model,
@@ -70,12 +43,10 @@ def sampleH(model,
         for k in observed_data.keys():
             init.pop(k)
 
-        initial_state = list(init.values())
-    else:
-        initial_state = init
+        init = list(init.values())
 
     if bijectors is None:
-        bijectors = [tfp.bijectors.Identity() for _ in initial_state]
+        bijectors = [tfp.bijectors.Identity() for _ in init]
 
     #print(params)
     #print(model)
@@ -87,7 +58,7 @@ def sampleH(model,
     results, sample_stats =  tfp.mcmc.sample_chain(
     num_results=num_results,
     num_burnin_steps=num_burnin_steps,
-    current_state=initial_state,
+    current_state=init,
     kernel=tfp.mcmc.SimpleStepSizeAdaptation(
         tfp.mcmc.TransformedTransitionKernel(
             inner_kernel=tfp.mcmc.HamiltonianMonteCarlo(
@@ -99,23 +70,6 @@ def sampleH(model,
     trace_fn = trace_fn,
     parallel_iterations = parallel_iterations)  
     return results, sample_stats
-  
-def model_to_azH(sample_stats, results, params):    
-    stat_names = ["mean_tree_accept"]
-    sampler_stats = dict(zip(stat_names, [sample_stats]))
-    transposed_results = []
-    for r in results:
-        if len(r.shape) == 2:
-            transposed_shape = [1, 0]
-        elif len(r.shape) == 3:
-            transposed_shape = [1, 0, 2]
-        else:
-            transposed_shape = [1, 0, 2, 3]
-        transposed_results.append(tf.transpose(r, transposed_shape))
-    posterior = dict(zip(params, transposed_results))
-
-    az_trace = _trace_to_arviz(trace=posterior, sample_stats = sampler_stats)
-    return az_trace
 
 def tfp_trace_to_arviz(
     posterior, sample_stats,
@@ -138,6 +92,7 @@ def tfp_trace_to_arviz(
     trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
     return trace
 
+@tf.function(autograph=False)
 def run_modelH(model, 
                 observed_data,
                 params,
@@ -191,7 +146,7 @@ class fit():
         self.hmc_results = None
         #self.hmc_sample_stats = None
         self.hmc_posterior = None
-
+       
         res = run_modelH(self.tensor, 
                         observed_data,
                         params = params,
@@ -204,12 +159,13 @@ class fit():
                         num_leapfrog_steps = num_leapfrog_steps,
                         num_adaptation_steps = num_adaptation_steps,
                         num_chains = num_chains)
+        
         print('HMC done')
         posterior, sample_stats = res
         p = dict(zip(self.tensor._flat_resolve_names(), posterior))
         az_trace = tfp_trace_to_arviz(posterior, sample_stats, p)    
         return dict(p), az_trace, sample_stats
-        #return posterior, trace, sample_stats
+
 
 
 
