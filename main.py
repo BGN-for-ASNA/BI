@@ -44,7 +44,9 @@ class model(data, define, write, fit, diagnostic):
         self.model_info = {}
         self.model_info["multiple_lks"] = False
         self.model_info["with_indices"] = False
-        self.model_info["indices"] = {}        
+        self.model_info["indices"] = {}   
+        self.model_info['Multilevel'] = False
+        self.model_info['Multilevel_diag'] = {}             
         self.model_dict = {}
         self.prior_dict = {}
         self.priors_name = []
