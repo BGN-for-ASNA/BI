@@ -146,6 +146,17 @@ class define():
         modified_string = re.sub(pattern, replacement, input_string)
         return modified_string
     
+    def which_prior_in_LinearOperatorDiag(self, input_string):
+        match = re.search(r'LinearOperatorDiag\((.*?)\)', input_string)
+        if match:
+            prior_diag = match.group(1)
+        
+            match2 = re.search(r'concat\(\[(.*?)\]', input_string)
+            if match2:
+                extracted_string = match2.group(1)
+                elements = [e.strip() for e in extracted_string.split(',')]
+                self.model_info['Multilevel_diag'][prior_diag] = len(elements)
+
     # Get model informations----------------------------    
 
     def get_formula(self, formula = "y~Normal(0,1)", type = 'likelihood'):        
@@ -253,6 +264,10 @@ class define():
                 lk[key]['distribution(s)'].append('tfd.'+ lk[key]['args'][i]) # Add distribution to 
                 to_remove.append(i)
 
+            if 'LinearOperatorDiag' in lk[key]['args'][i]:                
+                lk[key]['formula'] = lk[key]['formula'].replace('LinearOperatorDiag', 'tf.linalg.LinearOperatorDiag')
+                self.which_prior_in_LinearOperatorDiag(lk[key]['formula'])
+
             # replace df arguments
             if not self.df.empty:
                 replace = False
@@ -279,7 +294,13 @@ class define():
         lk[key]['with_indices'] = "[" in lk[key]['input'] 
         lk[key]['indices'] = self.extract_indices_patterns(lk[key]['input'])
         lk[key]['formula'] = self.convert_indices(lk[key]['formula'], dtype = self.float)
-    
+
+         # check for Multilevel mdoel    
+        if 'CholeskyLKJ' in lk[key]['formula']:
+            self.model_info['Multilevel'] = True
+            
+
+
         lk[key]['params'] = self.separate_args_kwargs(lk[key]['args']) 
     
         if "[" in lk[key]['input'] :
@@ -463,11 +484,19 @@ class write():
     
     # Priors entries
     def write_priors(self):
+        # For non Multilevel models
         for key in self.priors.keys():
+           
             self.priors_name.append(self.priors[key]["output"])
             text = ''
             # Prior without prior
-            shape = 1
+            if self.priors[key]["output"] in list(self.model_info['Multilevel_diag'].keys()):
+                shape = self.model_info['Multilevel_diag'][ self.priors[key]["output"]]
+            elif 'CholeskyLKJ' in self.priors[key]['formula'] :
+                shape = ()
+            else:
+                shape = 1
+
             if len(self.priors[key]['prior(s)']) == 0:
                 text = "tfd.Sample("
                 text = text + self.priors[key]["formula"] 
