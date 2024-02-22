@@ -24,10 +24,7 @@ class model(data, define, write, fit, diagnostic):
                 self.df = df
             elif isinstance(df, str):
                 self.df = self.import_csv(df, **kwargs)
-            # Select columns with 'float64' dtype  
-            float64_cols = list(self.df.select_dtypes(include='float'+ str(float)))
-            # The same code again calling the columns
-            self.df[float64_cols] = self.df[float64_cols].astype('float'+ str(float))
+            self.df = self.convert_to_float(self.df)         
 
         self.model_path = 'output/mymodel.py'
         self.df_path = 'output/mydf.csv'
@@ -70,6 +67,12 @@ class model(data, define, write, fit, diagnostic):
             #self.formula(self.f)
             self.build_model()
 
+    def convert_to_float(self, df):
+        for col in df.columns:
+            if df[col].dtype == 'int64' or df[col].dtype == 'float64':
+                df[col] = df[col].astype(float)
+        return df
+    
     def build_model(self):
         # Gather formula input informations
         self.get_model_info()
