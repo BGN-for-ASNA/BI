@@ -160,7 +160,6 @@ class fit():
                         num_adaptation_steps = num_adaptation_steps,
                         num_chains = num_chains)
         
-        print('HMC done')
         posterior, sample_stats = res
         p = dict(zip(self.tensor._flat_resolve_names(), posterior))
         az_trace = tfp_trace_to_arviz(posterior, sample_stats, p)    

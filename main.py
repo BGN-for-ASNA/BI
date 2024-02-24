@@ -16,19 +16,7 @@ class model(data, define, write, fit, diagnostic):
                  gpu = False,               
                  **kwargs):      
         self.f = formula
-        self.Tensoflow = False     
-        if df is None:
-            self.df = pd.DataFrame({'A' : []})
-        else:
-            if isinstance(df, pd.DataFrame):
-                self.df = df
-            elif isinstance(df, str):
-                self.df = self.import_csv(df, **kwargs)
-            self.df = self.convert_to_float(self.df)         
-
-        self.model_path = 'output/mymodel.py'
-        self.df_path = 'output/mydf.csv'
-        self.data_modification = {}
+        self.Tensoflow = False 
 
         if float == 16:
            self.float_prior = tf.float16
@@ -39,14 +27,32 @@ class model(data, define, write, fit, diagnostic):
         if float == 64:
            self.float_prior = tf.float64
            self.int = tf.int64
-        self.float = float
+        self.float = float  
+
+        if df is None:
+            self.df = pd.DataFrame({'A' : []})
+        else:
+            if isinstance(df, pd.DataFrame):
+                self.df = df
+            elif isinstance(df, str):
+                self.df = self.import_csv(df, **kwargs)
+            #self.df = self.convert_to_float(self.df)  
+            self.df = self.change_float_precision(self.df, self.float)       
+
+        self.model_path = 'output/mymodel.py'
+        self.df_path = 'output/mydf.csv'
+        self.data_modification = {}
+
+
 
         self.model_info = {}
         self.model_info["multiple_lks"] = False
         self.model_info["with_indices"] = False
         self.model_info["indices"] = {}   
         self.model_info['Multilevel'] = False
-        self.model_info['Multilevel_diag'] = {}             
+        self.model_info['Multilevel_diag'] = {}       
+        self.model_info['Multilevel_indices'] = {}    
+        self.model_info['Multilevel_indices_dim'] = {}
         self.model_dict = {}
         self.prior_dict = {}
         self.priors_name = []
@@ -69,16 +75,35 @@ class model(data, define, write, fit, diagnostic):
             #self.formula(self.f)
             self.build_model()
 
+    def change_float_precision(self, df, precision=64):
+        # Get columns of integer and float types
+        int_columns = df.select_dtypes(include='int').columns
+        float_columns = df.select_dtypes(include='float').columns
+    
+        # Convert integer columns to float with specified precision
+        for col in int_columns:
+            df[col] = df[col].astype(f'float{precision}')
+    
+        # Convert float columns to float with specified precision
+        for col in float_columns:
+            df[col] = df[col].astype(f'float{precision}')
+    
+        return df
+    
     def convert_to_float(self, df):
         for col in df.columns:
             if df[col].dtype == 'int64' or df[col].dtype == 'float64':
-                df[col] = df[col].astype(float)
+                df[col] = df[col].astype('float' + str(self.float))
         return df
     
     def build_model(self):
         # Gather formula input informations
         self.get_model_info()
         self.merge()
+
+        if self.model_info['Multilevel']:            
+            self.extract_mvn_dimetion()
+
         self.write_tensor()
         
     def sample(self, *args, **kwargs):
