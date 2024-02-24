@@ -146,7 +146,7 @@ class define():
         modified_string = re.sub(pattern, replacement, input_string)
         return modified_string
     
-    def which_prior_in_LinearOperatorDiag(self, input_string):
+    def which_prior_in_LinearOperatorDiag(self, input_string, output, dimMulti = False):
         match = re.search(r'LinearOperatorDiag\((.*?)\)', input_string)
         if match:
             prior_diag = match.group(1)
@@ -156,8 +156,31 @@ class define():
                 extracted_string = match2.group(1)
                 elements = [e.strip() for e in extracted_string.split(',')]
                 self.model_info['Multilevel_diag'][prior_diag] = len(elements)
+                if dimMulti:
+                    self.model_info['Multilevel_indices_dim'][output] =  len(elements)
 
-    # Get model informations----------------------------    
+    def extract_mvn_dimetion(self):
+        for key in self.model_info['Multilevel_indices'].keys():
+            for k in self.mains.keys():
+                for inner_dict in self.mains[k]['likelihood(s)'].values():
+                    if key in inner_dict['formula']:
+                        #print(f'find {key} in {k} formula')
+                        if key in list(self.model_info['Multilevel_indices'].keys()):
+                                dim = self.model_info['Multilevel_indices_dim'][key]
+                                #print(f'find {key} in Multilevel_indices_dim with a dim of {dim}')
+                                Multilvel_occurrences = [m.start() for m in re.finditer(key, self.mains[k]['formula'])]
+                                Multilvel_occurrences_length = len(Multilvel_occurrences)
+                                if Multilvel_occurrences_length == dim:
+                                    input_string =  self.mains[k]['formula']
+                                    offset = 0
+                                    replacement_pattern = "tf.gather({}, {}, axis=-1)"
+                                    #print(f'{key} is observed {Multilvel_occurrences_length} times in formula which correspond to declared dim: {dim}' )
+                                    for i, index in enumerate(Multilvel_occurrences):
+                                        index += offset  # Adjust index by current offset
+                                        replacement = replacement_pattern.format(key, i)
+                                        input_string = input_string[:index] + replacement + input_string[index + len(key):]
+                                        offset += len(replacement)  - len(key)# Update offset by the difference in lengths
+                                    self.mains[k]['formula'] = input_string
 
     def get_formula(self, formula = "y~Normal(0,1)", type = 'likelihood'):        
         y, x = re.split(r'[~]',formula)
@@ -266,7 +289,12 @@ class define():
 
             if 'LinearOperatorDiag' in lk[key]['args'][i]:                
                 lk[key]['formula'] = lk[key]['formula'].replace('LinearOperatorDiag', 'tf.linalg.LinearOperatorDiag')
-                self.which_prior_in_LinearOperatorDiag(lk[key]['formula'])
+                if 'MultivariateNormalTriL' in lk[key]['input']:
+                    dimMulti = True
+                else:
+                    dimMulti = False
+                self.which_prior_in_LinearOperatorDiag(lk[key]['formula'], output = lk[key]['output'], dimMulti = dimMulti)
+                
 
             # replace df arguments
             if not self.df.empty:
@@ -292,15 +320,19 @@ class define():
         #lk[key]['args'] = np.delete(lk[key]['args'], to_remove)
         # check for indices        
         lk[key]['with_indices'] = "[" in lk[key]['input'] 
-        lk[key]['indices'] = self.extract_indices_patterns(lk[key]['input'])
+        lk[key]['indices'] = self.model_info['indices'] | self.extract_indices_patterns(lk[key]['input'])
         lk[key]['formula'] = self.convert_indices(lk[key]['formula'], dtype = self.float)
 
          # check for Multilevel mdoel    
         if 'CholeskyLKJ' in lk[key]['formula']:
-            self.model_info['Multilevel'] = True
-            
+            self.model_info['Multilevel'] = True          
 
-
+        if 'MultivariateNormalTriL' in lk[key]['formula']:   
+                self.model_info['Multilevel'] = True  
+                # Priors are treqted qfter likelihoods, we thus have lk indices storeed in  self.model_info['indices'].
+                # We can thus have variable to which mvn is liked, e.g. the specify random effect. This will be used after merge functions to change the lk formula to retrieve the mvn columns
+                self.model_info['Multilevel_indices'][lk[key]['output']] = self.model_info['indices'][lk[key]['output']]
+              
         lk[key]['params'] = self.separate_args_kwargs(lk[key]['args']) 
     
         if "[" in lk[key]['input'] :
@@ -489,14 +521,33 @@ class write():
            
             self.priors_name.append(self.priors[key]["output"])
             text = ''
-            # Prior without prior
+
+            # Setup prior shape------------------------
+            ## Prior for Multilevel model
             if self.priors[key]["output"] in list(self.model_info['Multilevel_diag'].keys()):
                 shape = self.model_info['Multilevel_diag'][ self.priors[key]["output"]]
+            
+            ## Prior with CholeskyLKJ
             elif 'CholeskyLKJ' in self.priors[key]['formula'] :
+                #text = self.priors[key]['formula']                
+                #self.prior_dict[self.priors[key]["output"]] = text
+                #self.model_dict[self.priors[key]["output"]] = text   
+                #continue
                 shape = ()
+
+            elif 'LKJ' in self.priors[key]['formula'] :
+                #text = self.priors[key]['formula']
+                #self.prior_dict[self.priors[key]["output"]] = text
+                #self.model_dict[self.priors[key]["output"]] = text   
+                #continue
+                shape = ()
+                
+            # #Default prior shape
             else:
                 shape = 1
 
+            # Setup tensor text---------------------
+            # For prior without hyperpriors
             if len(self.priors[key]['prior(s)']) == 0:
                 text = "tfd.Sample("
                 text = text + self.priors[key]["formula"] 
@@ -504,20 +555,23 @@ class write():
                 text = text + """, name = '""" + key + """')"""
                 text = text + ", sample_shape = "
 
+                ## Change shape if prior in indices
                 if self.model_info['with_indices']:
                     if self.priors[key]["output"]  in self.model_info["indices"].keys():
                         shape = self.df[self.model_info["indices"][self.priors[key]["output"]]].nunique()
 
                 text =  text = text + str(shape) + ")"
             
-            # Prior with Hyperpriors
+            # For prior with hyperpriors
             else :
                 text = 'lambda '
+                ## Get hyperpriors
                 for k in self.priors[key]['prior(s)'].keys():
                     text = text +  self.priors[key]['prior(s)'][k]['output'] + ', '
                 text = text[:-2] + ':'
                 text = text +' tfd.Sample(' + self.priors[key]['formula']
                 
+                ## Change shape if prior in indices
                 if self.model_info['with_indices']:
                     if self.priors[key]["output"]  in self.model_info["indices"].keys():
                         shape = self.df[self.model_info["indices"][self.priors[key]["output"]]].nunique()
