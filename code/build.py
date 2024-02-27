@@ -1,3 +1,4 @@
+import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
 import tensorflow as tf
 import pandas as pd
@@ -506,7 +507,7 @@ class write():
     
     def create_function_from_string(self, func_str, name):
         # Define required imports and namespace for exec
-        imports = {'tfd': tfd, 'tf': tf, 'df': self.df}
+        imports = {'tfp':tfp, 'tfd': tfd, 'tf': tf, 'df': self.df}
         namespace = {}
         # Execute the string as Python code within the specified namespace
         exec( name + ' = ' + func_str, imports, namespace)
