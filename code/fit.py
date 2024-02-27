@@ -19,7 +19,8 @@ def trace_fn(_, pkr):
 def target_log_prob_fn(model, observed_data, *args):    
     param_dict = {name: value for name, value in zip(model._flat_resolve_names(), args)}
     param_dict= {**param_dict, **observed_data}
-    return model.log_prob(model.sample(**param_dict))   
+    return model.log_prob(**param_dict) 
+    #return model.log_prob(model.sample(**param_dict))   
 
 @tf.function(autograph=False)
 def sampleH(model,
@@ -48,6 +49,7 @@ def sampleH(model,
     if bijectors is None:
         bijectors = [tfp.bijectors.Identity() for _ in init]
 
+    print(bijectors)
     #print(params)
     #print(model)
     #print(num_chains)
@@ -159,7 +161,7 @@ class fit():
                         num_leapfrog_steps = num_leapfrog_steps,
                         num_adaptation_steps = num_adaptation_steps,
                         num_chains = num_chains)
-        
+        self.res = res
         posterior, sample_stats = res
         p = dict(zip(self.tensor._flat_resolve_names(), posterior))
         az_trace = tfp_trace_to_arviz(posterior, sample_stats, p)    
