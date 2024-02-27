@@ -45,25 +45,25 @@ class diagnostic():
         return fig
 
     def diag_posterior(self):
-        posterior, axes = plt.subplots(1, len(self.priors), figsize=(8, 4))
-        axes = az.plot_posterior(self.trace , var_names=self.priors, ax=axes)
+        posterior, axes = plt.subplots(1, len(self.priors_name), figsize=(8, 4))
+        axes = az.plot_posterior(self.trace , var_names=self.priors_name, ax=axes)
         axes.flatten()[0].get_figure() 
         self.plot_posterior = posterior
 
     def diag_autocor(self, *args, **kwargs):
-        self.autocor = az.plot_autocorr(self.trace , var_names=self.priors, *args, **kwargs)
+        self.autocor = az.plot_autocorr(self.trace , var_names=self.priors_name, *args, **kwargs)
 
     def diag_traces(self, *args, **kwargs):
         self.traces =  az.plot_trace(self.trace, compact=False, *args, **kwargs)
 
     def diag_rank(self, *args, **kwargs):
-        rank, axes = plt.subplots(1, len( self.priors))
-        az.plot_rank(self.trace , var_names= self.priors, ax=axes, *args, **kwargs)
+        rank, axes = plt.subplots(1, len( self.priors_name))
+        az.plot_rank(self.trace , var_names= self.priors_name, ax=axes, *args, **kwargs)
         self.rank = rank
     
     def diag_forest(self, list = None, kind = "ridgeplot", ess = True, var_names = None, *args, **kwargs):
         if var_names is None:
-            var_names = self.priors
+            var_names = self.priors_name
         if list is None:
             list = self.trace
         self.forest = az.plot_forest(list, var_names = var_names,  kind = kind, ess = ess, *args, **kwargs)
@@ -93,7 +93,7 @@ class diagnostic():
                   figsize=(11.5, 5),
                   *args, **kwargs):
         if var_names is None:
-            var_names = self.priors
+            var_names = self.priors_name
         self.pair_plot = az.plot_pair(self.trace, var_names = var_names,                   
                                       kind=kind,
                                       kde_kwargs=kde_kwargs,
@@ -105,12 +105,10 @@ class diagnostic():
     
     def diag_density(self, var_names=None, shade=0.2, *args, **kwargs):
         if var_names is None:
-            var_names = self.priors
-        if list is None:
-            list = self.trace
+            var_names = self.priors_name
 
         self.density = az.plot_density(
-                            list,
+                            self.trace,
                             var_names=var_names,
                             shade=shade,
                             *args, **kwargs
@@ -118,11 +116,11 @@ class diagnostic():
         return self.density
     
     def diag_plot_ess(self,):
-        self.ess_plot = az.plot_ess(self.trace, var_names=self.priors, kind="evolution")
+        self.ess_plot = az.plot_ess(self.trace, var_names=self.priors_name, kind="evolution")
         return self.ess_plot
     
     def model_checks(self):
-        params = self.priors
+        params = self.priors_name
         posterior = self.hmc_posterior
         trace = self.trace 
 
