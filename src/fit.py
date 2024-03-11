@@ -22,7 +22,7 @@ def target_log_prob_fn(model, observed_data, *args):
     return model.log_prob(**param_dict) 
     #return model.log_prob(model.sample(**param_dict))   
 
-@tf.function(autograph=False)
+@tf.function(autograph=True)
 def sampleH(model,
             observed_data,
             params,
@@ -49,7 +49,6 @@ def sampleH(model,
     if bijectors is None:
         bijectors = [tfp.bijectors.Identity() for _ in init]
 
-    print(bijectors)
     #print(params)
     #print(model)
     #print(num_chains)
@@ -122,9 +121,11 @@ def run_modelH(model,
     
     return res
 
+
 class fit():
     def __init__():
         pass
+
     
     def run_model(self, observed_data,params,
                 init = None,
@@ -148,7 +149,7 @@ class fit():
         self.hmc_results = None
         #self.hmc_sample_stats = None
         self.hmc_posterior = None
-       
+
         res = run_modelH(self.tensor, 
                         observed_data,
                         params = params,
@@ -172,3 +173,5 @@ class fit():
 
 
 
+
+# %%

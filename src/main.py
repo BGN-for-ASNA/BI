@@ -1,13 +1,13 @@
-
-from code.data import*
-from code.build import*
-from code.fit import*
-from code.diagnostic import*
+#%%
+from src.data import*
+from src.build import*
+from src.fit import*
+from src.diagnostic import*
 import pandas as pd
 import numpy as np  
 import tensorflow as tf
 from tensorflow.python.client import device_lib
-
+#%%
 class model(data, define, write, fit, diagnostic):
     def __init__(self, 
                  formula = None, 
@@ -56,6 +56,7 @@ class model(data, define, write, fit, diagnostic):
         self.model_dict = {}
         self.prior_dict = {}
         self.priors_name = []
+        
         # GPU configuration ----------------------------
         self.gpu = gpu
         
