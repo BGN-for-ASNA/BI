@@ -3,9 +3,9 @@ import flet as ft
 import pandas as pd
 from gui.utils import *
 from bayesian.distribution import *
-from code.model_write import *
-from code.model_fit import *
-from code.model_diagnostic import *
+from src.model_write import *
+from src.model_fit import *
+from src.model_diagnostic import *
 
 # Model definition page ----------------------------------
 class TasksApp(ft.UserControl):

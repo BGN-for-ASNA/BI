@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
 VERSION = '0.0.1' 
-DESCRIPTION = 'My first Python package'
-LONG_DESCRIPTION = 'My first Python package with a slightly longer description'
+DESCRIPTION = 'Bayesian inferences'
+LONG_DESCRIPTION = 'Run Bayesian inferences models with tensorflow probability'
 
 # Setting up
 setup(
        # the name must match the folder name 'verysimplemodule'
-        name="brm", 
+        name="BY", 
         version=VERSION,
         author="Sebastian Sosa",
         author_email="<s.sosa@live.fr>",
