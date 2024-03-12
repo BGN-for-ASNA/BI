@@ -1,8 +1,8 @@
 #%%
-from src.data import*
-from src.build import*
-from src.fit import*
-from src.diagnostic import*
+from data import*
+from build import*
+from fit import*
+from diagnostic import*
 import pandas as pd
 import numpy as np  
 import tensorflow as tf

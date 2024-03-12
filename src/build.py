@@ -530,17 +530,9 @@ class write():
             
             ## Prior with CholeskyLKJ
             elif 'CholeskyLKJ' in self.priors[key]['formula'] :
-                #text = self.priors[key]['formula']                
-                #self.prior_dict[self.priors[key]["output"]] = text
-                #self.model_dict[self.priors[key]["output"]] = text   
-                #continue
                 shape = ()
 
             elif 'LKJ' in self.priors[key]['formula'] :
-                #text = self.priors[key]['formula']
-                #self.prior_dict[self.priors[key]["output"]] = text
-                #self.model_dict[self.priors[key]["output"]] = text   
-                #continue
                 shape = ()
                 
             # #Default prior shape
