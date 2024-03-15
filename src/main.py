@@ -1,8 +1,8 @@
 #%%
-from data import*
-from build import*
-from fit import*
-from diagnostic import*
+from src.data import*
+from src.build import*
+from src.fit import*
+from src.diagnostic import*
 import pandas as pd
 import numpy as np  
 import tensorflow as tf
@@ -53,6 +53,8 @@ class model(data, define, write, fit, diagnostic):
         self.model_info['Multilevel_diag'] = {}       
         self.model_info['Multilevel_indices'] = {}    
         self.model_info['Multilevel_indices_dim'] = {}
+        self.model_info['Categorical'] = False
+        self.model_info['catN'] = 0
         self.model_dict = {}
         self.prior_dict = {}
         self.priors_name = []
