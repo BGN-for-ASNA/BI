@@ -21,6 +21,25 @@ def target_log_prob_fn(model, observed_data, *args):
     param_dict= {**param_dict, **observed_data}
     return model.log_prob(**param_dict) 
 
+@tf.function(autograph=False)
+def build_bijectors_init(m, num_chains):
+    samples = m.sample(num_chains)
+    bijectors = []
+    init = []
+    for key in samples.keys():
+        if not key in  list(m.prior_dict.keys()):
+            continue
+        if 'tfd.CholeskyLKJ' in m.prior_dict[key] or 'tfd.LKJ' in m.prior_dict[key] :
+            bijectors.append(tfp.bijectors.CorrelationCholesky())
+            init.append(tf.stack([tf.eye(2) for _ in range(num_chains)]))
+        elif 'tfd.Exponential' in m.prior_dict[key] or 'tfd.HalfNormal' in m.prior_dict[key]:
+            bijectors.append(tfp.bijectors.Exp())
+            init.append(tf.ones_like(samples[key]))
+        else:
+            init.append(tf.ones_like(samples[key]))
+            bijectors.append(tfp.bijectors.Identity())
+    return init, bijectors
+
 @tf.function(autograph=True)
 def sampleH(model,
             observed_data,
@@ -36,24 +55,6 @@ def sampleH(model,
             num_chains = 4):
     
     unnormalized_posterior_log_prob = functools.partial(target_log_prob_fn, model, observed_data)
-
-    if init is None:
-        # For multiple likelihoods, initial_state need to remove the correct outputs
-        init = model.sample(num_chains)
-        for k in observed_data.keys():
-            init.pop(k)
-
-        init = list(init.values())
-
-    if bijectors is None:
-        bijectors = [tfp.bijectors.Identity() for _ in init]
-
-    #print(params)
-    #print(model)
-    #print(num_chains)
-    #print(model.sample(num_chains))
-    #initial_state = [model.sample(num_chains)[param].numpy() for param in params]    
-    #bijectors = [tfp.Identity() for _ in params]
 
     results, sample_stats =  tfp.mcmc.sample_chain(
     num_results=num_results,
@@ -105,8 +106,17 @@ def run_modelH(model,
                 num_leapfrog_steps = 5,
                 num_adaptation_steps = 400,
                 num_chains = 4):
+    if init is None and bijectors is None:
+        ## For multiple likelihoods, initial_state need to remove the correct outputs
+        #init = model.sample(num_chains)
+        #for k in observed_data.keys():
+        #    init.pop(k)
+#
+        #init = list(init.values())
+        init, bijectors = build_bijectors_init(model, num_chains)
+
     tf.config.experimental.enable_tensor_float_32_execution(False)   
-    res  =  sampleH(model = model, observed_data = observed_data,
+    res  =  sampleH(model = model.tensor, observed_data = observed_data,
                     params = params,
                     init = init,
                     bijectors = bijectors,
@@ -124,8 +134,7 @@ def run_modelH(model,
 class fit():
     def __init__():
         pass
-
-    
+   
     def run_model(self, observed_data,params,
                 init = None,
                 bijectors = None,
@@ -149,7 +158,7 @@ class fit():
         #self.hmc_sample_stats = None
         self.hmc_posterior = None
 
-        res = run_modelH(self.tensor, 
+        res = run_modelH(self, 
                         observed_data,
                         params = params,
                         init = init,
