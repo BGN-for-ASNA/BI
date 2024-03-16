@@ -5,6 +5,15 @@ import functools
 import arviz as az
 import numpy as np
 
+import jax.numpy as jnp
+from jax import grad
+from jax import jit
+from jax import random
+from jax import value_and_grad
+from jax import vmap
+from tensorflow_probability.substrates import jax as tfp
+
+
 @tf.function(autograph=False)
 def trace_fn(_, pkr): 
     return (
@@ -131,7 +140,7 @@ def run_modelH(model,
     return res
 
 
-class fit():
+class fit(jax = False):
     def __init__():
         pass
    
@@ -175,7 +184,6 @@ class fit():
         p = dict(zip(self.tensor._flat_resolve_names(), posterior))
         az_trace = tfp_trace_to_arviz(posterior, sample_stats, p)    
         return dict(p), az_trace, sample_stats
-
 
 
 
