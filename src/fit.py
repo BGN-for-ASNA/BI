@@ -140,7 +140,7 @@ def run_modelH(model,
     return res
 
 
-class fit(jax = False):
+class fit():
     def __init__():
         pass
    
