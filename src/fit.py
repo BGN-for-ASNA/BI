@@ -5,13 +5,6 @@ import functools
 import arviz as az
 import numpy as np
 
-import jax.numpy as jnp
-from jax import grad
-from jax import jit
-from jax import random
-from jax import value_and_grad
-from jax import vmap
-from tensorflow_probability.substrates import jax as tfp
 
 
 @tf.function(autograph=False)
