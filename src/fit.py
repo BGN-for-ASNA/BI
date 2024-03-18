@@ -21,6 +21,7 @@ def trace_fn(_, pkr):
 def target_log_prob_fn(model, observed_data, *args):  
     param_dict = {name: value for name, value in zip(model._flat_resolve_names(), args)}
     param_dict= {**param_dict, **observed_data}
+    print(model.log_prob(**param_dict) )
     return model.log_prob(**param_dict) 
 
 @tf.function(autograph=False)
@@ -57,6 +58,16 @@ def sampleH(model,
             num_chains = 4):
     
     unnormalized_posterior_log_prob = functools.partial(target_log_prob_fn, model, observed_data)
+    if init is None:
+        # For multiple likelihoods, initial_state need to remove the correct outputs
+        init = model.sample(num_chains)
+        for k in observed_data.keys():
+            init.pop(k)
+
+        init = list(init.values())
+
+    if bijectors is None:
+        bijectors = [tfp.bijectors.Identity() for _ in init]
 
     results, sample_stats =  tfp.mcmc.sample_chain(
     num_results=num_results,
@@ -108,14 +119,6 @@ def run_modelH(model,
                 num_leapfrog_steps = 5,
                 num_adaptation_steps = 400,
                 num_chains = 4):
-    if init is None and bijectors is None:
-        ## For multiple likelihoods, initial_state need to remove the correct outputs
-        #init = model.sample(num_chains)
-        #for k in observed_data.keys():
-        #    init.pop(k)
-#
-        #init = list(init.values())
-        init, bijectors = build_bijectors_init(model, num_chains)
 
     tf.config.experimental.enable_tensor_float_32_execution(False)   
     res  =  sampleH(model = model.tensor, observed_data = observed_data,
