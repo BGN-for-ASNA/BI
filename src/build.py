@@ -673,6 +673,13 @@ class write():
         for key in  self.main_dict.keys():
                 self.model_dict[key] = self.create_function_from_string(func_str =  self.main_dict[key], name = key)
 
+    def convert_to_seq(self):
+        names = self.model_names
+        components_dict = self.tensor.model
+        components_list = [components_dict[name] for name in names]
+        joint_seq = tfd.JointDistributionSequentialAutoBatched(components_list)
+        return joint_seq
+
     def write_tensor(self):
         self.write_priors()
         self.write_mains()
@@ -680,3 +687,5 @@ class write():
         self.tensor = tfd.JointDistributionNamedAutoBatched(self.model_dict)
         self.priors_dict = self.priors
         self.priors = list(self.priors.keys())
+        self.model_names = list(self.tensor.model.keys())
+        self.tensor_seq = self.convert_to_seq()
