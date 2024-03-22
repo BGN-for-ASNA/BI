@@ -17,14 +17,14 @@ def trace_fn(_, pkr):
         pkr.inner_results.inner_results.log_accept_ratio
     )
 
-@tf.function(autograph=False)
+@tf.function(autograph=False, jit_compile=False)
 def target_log_prob_fn(model, observed_data, *args):  
     param_dict = {name: value for name, value in zip(model._flat_resolve_names(), args)}
     param_dict= {**param_dict, **observed_data}
     print(model.log_prob(**param_dict) )
     return model.log_prob(**param_dict) 
 
-@tf.function(autograph=False)
+@tf.function(autograph=False, jit_compile=False)
 def build_bijectors_init(m, num_chains):
     samples = m.sample(num_chains)
     bijectors = []
@@ -43,7 +43,7 @@ def build_bijectors_init(m, num_chains):
             bijectors.append(tfp.bijectors.Identity())
     return init, bijectors
 
-@tf.function(autograph=True)
+@tf.function(autograph=True, jit_compile=False)
 def sampleH(model,
             observed_data,
             params,
@@ -60,7 +60,7 @@ def sampleH(model,
     unnormalized_posterior_log_prob = functools.partial(target_log_prob_fn, model, observed_data)
     if init is None:
         # For multiple likelihoods, initial_state need to remove the correct outputs
-        init = model.sample(num_chains)
+        init = model.sample(1)
         for k in observed_data.keys():
             init.pop(k)
 
@@ -106,7 +106,7 @@ def tfp_trace_to_arviz(
     trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
     return trace
 
-@tf.function(autograph=False)
+@tf.function(autograph=False, jit_compile=False)
 def run_modelH(model, 
                 observed_data,
                 params,
