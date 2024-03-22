@@ -6,6 +6,12 @@ import re
 import numpy as np
 import ast
 
+#import jax
+#import jax.numpy as jnp
+#from jax import random, jit
+#from tensorflow_probability.substrates import jax as tfp
+#from tensorflow_probability.substrates.jax.distributions import JointDistributionNamedAutoBatched as JDNAB
+
 def get_distribution_classes():
     # Get all names defined in the distributions module
     all_names = dir(tfd)
@@ -675,8 +681,8 @@ class write():
 
 
     def convert_to_seq(self):
-        components_list  = [self.tensor.model[k] for k in self.model_names_sample_order]
-        joint_seq = tfd.JointDistributionSequentialAutoBatched(components_list)
+        self.tensor_list  = [self.tensor.model[k] for k in self.model_names_sample_order]
+        joint_seq = tfd.JointDistributionSequentialAutoBatched(self.tensor_list)
         return joint_seq
 
     def write_tensor(self):
@@ -687,5 +693,7 @@ class write():
         self.priors_dict = self.priors
         self.priors = list(self.priors.keys())
         self.model_names = list(self.tensor.model.keys())
-        self.model_names_sample_order =  [node[0] for node in self.tensor.resolve_graph()]
-        self.tensor_seq = self.convert_to_seq()
+        self.keys = self.tensor._flat_resolve_names()
+        #self.model_names_sample_order =  [node[0] for node in self.tensor.resolve_graph()]
+        #self.tensor_seq = self.convert_to_seq()
+        #self.tensor_jax = JDNAB(self.model_dict)
