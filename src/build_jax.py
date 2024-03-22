@@ -1,16 +1,25 @@
-import tensorflow_probability as tfp
-from tensorflow_probability import distributions as tfd
+#%%
+import jax
+import jax.numpy as jnp
+from jax import vmap
+from jax.experimental import jax2tf
+from jax import jit
+from tensorflow_probability.substrates.jax.distributions import JointDistributionNamedAutoBatched as JDNAB
+from jax.scipy.linalg import svd
+
+tfd = tfp.distributions
 import tensorflow as tf
-import pandas as pd
 import re
 import numpy as np
 import ast
+import random as r
+@jit
+def jax_LinearOperatorDiag(s, cov):    
+    def multiply_with_s(a):
+        return jnp.multiply(a, jnp.transpose(s))
 
-#import jax
-#import jax.numpy as jnp
-#from jax import random, jit
-#from tensorflow_probability.substrates import jax as tfp
-#from tensorflow_probability.substrates.jax.distributions import JointDistributionNamedAutoBatched as JDNAB
+    vectorized_multiply = vmap(multiply_with_s)
+    return vectorized_multiply(cov)
 
 def get_distribution_classes():
     # Get all names defined in the distributions module
@@ -41,9 +50,24 @@ def exportTF(tf_classes):
         globals()[key] = tf_classes[key]
 tf_classes = get_tensorflow_classes()
 
+def get_jnp_classes():
+    # Get all names defined in the jnp
+    all_names = dir(jnp)
+    
+    # Create a dictionary with all names
+    class_dict = {name: getattr(jnp, name) for name in all_names}
+    
+    return class_dict
+
+def exportTF(jnp_classes):
+    for key in jnp_classes.keys():
+        globals()[key] = jnp_classes[key]
+jnp_classes= get_jnp_classes()
+
 class define():
     def __init__(self, formula = None, df = None):
         self.f = formula   
+
     # Utility functions----------------------------    
     def separate_args_kwargs(self,input_list):
         args = []
@@ -83,9 +107,10 @@ class define():
     
     def convert_indices(self, input_string, dtype='32'):
         pattern = r'(\w+)\[(.*?)\]'
-        #output_string = re.sub(pattern, rf"tf.transpose(tf.gather(tf.transpose(\1), tf.cast(\2, dtype=tf.int{dtype})))", input_string)
-        output_string = re.sub(pattern, rf" tf.squeeze(tf.gather(\1,tf.cast(\2, dtype=tf.int{dtype}), axis = -1))", input_string)
+        #output_string = re.sub(pattern, rf"tf.transpose(tf.gather(tf.transpose(\1), tf.cast(\2, dtype=tf.int{dtype})))", input_string)        
         #output_string = re.sub(pattern, rf" tf.gather(\1,\2, dtype=tf.int{dtype}), axis = -1)", input_string)
+        #output_string = re.sub(pattern, rf" tf.squeeze(tf.gather(\1,tf.cast(\2, dtype=tf.int{dtype}), axis = -1))", input_string)
+        output_string = re.sub(pattern, rf" jnp.squeeze(jnp.take(\1,jnp.array(\2, dtype=jnp.int{dtype}), axis = -1))", input_string)
         return output_string
     
     def unlist(self, data, remove_chars=[" ", "]"], remove_empty=True):
@@ -152,12 +177,12 @@ class define():
         # Use re.sub to replace only the exact match of the pattern with the replacement value
         modified_string = re.sub(pattern, replacement, input_string)
         return modified_string
-    
+
     def which_prior_in_LinearOperatorDiag(self, input_string, output, dimMulti = False):
         match = re.search(r'LinearOperatorDiag\((.*?)\)', input_string)
         if match:
             prior_diag = match.group(1)
-        
+            prior_diag = prior_diag.split(',')[0]
             match2 = re.search(r'concat\(\[(.*?)\]', input_string)
             if match2:
                 extracted_string = match2.group(1)
@@ -180,7 +205,7 @@ class define():
                                 if Multilvel_occurrences_length == dim:
                                     input_string =  self.mains[k]['formula']
                                     offset = 0
-                                    replacement_pattern = "tf.gather({}, {}, axis=-1)"
+                                    replacement_pattern = "jnp.take({}, {}, axis=-1)"
                                     #print(f'{key} is observed {Multilvel_occurrences_length} times in formula which correspond to declared dim: {dim}' )
                                     for i, index in enumerate(Multilvel_occurrences):
                                         index += offset  # Adjust index by current offset
@@ -210,17 +235,16 @@ class define():
                 dist = []
                 Tensorflow = []
                 for i in range(len(args)):
-                    if args[i] in list(tf_classes.keys()):
-
-                        Tensorflow.append('tf.' + str(args[i]))
-                        new.append('tf.' + str(args[i]) + '(')
+                    if args[i] in list(jnp_classes.keys()):
+                        Tensorflow.append('jnp.' + str(args[i]))
+                        new.append('jnp.' + str(args[i]) + '(')
                         self.Tensoflow = True
 
                     elif args[i] in list(tfd_classes.keys()):    
                         dist.append('tfd.' + str(args[i]))
                         new.append('tfd.' + str(args[i]) + '(')
 
-                    elif args[i] not in list(tf_classes.keys()) and args[i] in list(tfd_classes.keys()):
+                    elif args[i] not in list(jnp_classes.keys()) and args[i] in list(jnp_classes.keys()):
                         new.append(args[i])                  
                 return [y,dist, new, Tensorflow] 
 
@@ -296,7 +320,7 @@ class define():
                 else:
                     print("Formula doesn't contain intercept with indices")
                 # We repeat the formula for each cats
-                text = 'tf.nn.softmax(tf.stack(['
+                text = 'jnp.nn.softmax(jnp.stack(['
                 for i in range(len(self.model_info['catN'])):
                     if i + 1 == len(self.model_info['catN']):
                         #text = text +  'tf.zeros_like(tf.gather('+ list(myIndex.keys())[0] + ', [' + str(i-1) + '], axis=-1)' + tmpFormula + ')], axis=1))'
@@ -307,14 +331,13 @@ class define():
                         text = text + list(myIndex.keys())[0] + '[' + str(i) + ']' + tmpFormula + ','
                         text = text.replace(myIndex[list(myIndex.keys())[0]], str(self.model_info['catN'][i]))
                 lk[key]['formula'] = text  
-                print(text)
         else:
             for i in range(len(lk[key]['args'])):
                 # For the moment we replace tf and tfd functions, but we may also ask user to directly write tf and tfd
                 # replace tf function
-                if lk[key]['args'][i] in list(tf_classes.keys()):   
-                    lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 'tf.' + lk[key]['args'][i], lk[key]['formula'] )
-                    lk[key]['with_tensorflow'] = True
+                if lk[key]['args'][i] in list(jnp_classes.keys()):   
+                    lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 'jnp.' + lk[key]['args'][i], lk[key]['formula'] )
+                    lk[key]['with_jnp'] = True
 
                 # replace tfd function
                 elif lk[key]['args'][i]  in list(tfd_classes.keys()):        
@@ -339,11 +362,13 @@ class define():
                     continue
 
                 if 'LinearOperatorDiag' in lk[key]['args'][i]:                
-                    lk[key]['formula'] = lk[key]['formula'].replace('LinearOperatorDiag', 'tf.linalg.LinearOperatorDiag')
+                    lk[key]['formula'] = lk[key]['formula'].replace('LinearOperatorDiag', 'jax_LinearOperatorDiag') # How to convert this into a jax
                     if 'MultivariateNormalTriL' in lk[key]['input']:
                         dimMulti = True
                     else:
                         dimMulti = False
+
+                    
                     self.which_prior_in_LinearOperatorDiag(lk[key]['formula'], output = lk[key]['output'], dimMulti = dimMulti)
 
 
@@ -357,15 +382,15 @@ class define():
                         tmp2 = tmp[1]
 
                         if any(self.df.columns.str.strip().str.fullmatch(tmp2)): #if item in columns
-
+                            print(lk[key]['args'][i])
                             lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 
-                                                    tmp1 + '= df.' +tmp2 + """.astype('float""" + str(self.float) + """').values""",
+                                                    tmp1 + '= jnp.array(df.' + tmp2 + ".values, dtype=jnp.float" + str(self.float) + ')',
                                                     lk[key]['formula'])
 
                     else:
                         if any(self.df.columns.str.strip().str.fullmatch(lk[key]['args'][i])) :
                             lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 
-                                                                           'df.' + lk[key]['args'][i] + """.astype('float""" + str(self.float) + """').values""",
+                                                                           'jnp.array(df.' + lk[key]['args'][i] +  ".values, dtype=jnp.float" + str(self.float) + ')',
                                                                             lk[key]['formula'])
         
         #lk[key]['args'] = np.delete(lk[key]['args'], to_remove)
@@ -391,37 +416,7 @@ class define():
         if "[" in lk[key]['input'] :
             self.model_info["with_indices"] = True 
             self.model_info["indices"] = lk[key]['indices']
-    
-        ## Cast numeric (can't be done before, otherwise separate_args_kwargs will concider casts as kwargs )
-        #if len(lk[key]['params']['args']) > 0:
-        #    for a in range(len(lk[key]['params']['args'])):            
-        #        try:
-        #            tmp = "tf.cast(" + str(float(lk[key]['params']['args'][a])) + ", dtype = tf.float" + str(self.float) + ')'
-        #            lk[key]['formula'] =  self.replace_exact_match(lk[key]['params']['args'][a], tmp, lk[key]['formula'])
-        #            #lk[key]['params']['args'][a] = tmp
-        #        except ValueError:
-        #            try:
-        #                tmp = "tf.cast(" + str(int(lk[key]['params']['args'][a]))  + ", dtype = tf.float" + str(self.float) + ')'
-        #                lk[key]['formula'] = self.replace_exact_match(lk[key]['params']['args'][a], tmp, lk[key]['formula'])
-        #                #lk[key]['params']['args'][a] =  tmp
-    #
-        #            except ValueError:
-        #                lk[key]['params']['args'][a] =  lk[key]['params']['args'][a]
-    #
-        #if len(lk[key]['params']['kwargs']) > 0:
-        #    for k in lk[key]['params']['kwargs'].keys():            
-        #        try:
-        #            tmp = "tf.cast(" + str(float(lk[key]['params']['kwargs'][k])) + ", dtype = tf.float" + str(self.float) + ')'
-        #            lk[key]['formula'] = self.replace_exact_match(lk[key]['params']['kwargs'][k], tmp, lk[key]['formula'])
-        #            #lk[key]['params']['kwargs'][k] = tmp
-        #        except ValueError:
-        #            try:
-        #                tmp = "tf.cast(" + str(int(lk[key]['params']['kwargs'][k]))  + ", dtype = tf.float" + str(self.float) + ')'
-        #                lk[key]['formula'] = self.replace_exact_match(lk[key]['params']['kwargs'][k], tmp, lk[key]['formula'])
-        #                #lk[key]['params']['kwargs'][k] =  tmp
-    #
-        #            except ValueError:
-        #               lk[key]['params']['kwargs'][k] =  lk[key]['params']['kwargs'][k]
+
         if diagnostic:
             return lk # return more info for diagnostic
         else:
@@ -560,7 +555,7 @@ class write():
     
     def create_function_from_string(self, func_str, name):
         # Define required imports and namespace for exec
-        imports = {'tfp':tfp, 'tfd': tfd, 'tf': tf, 'df': self.df}
+        imports = {'tfp':tfp, 'tfd': tfd, 'tf': tf, 'jnp': jnp, 'df': self.df,  'jax_LinearOperatorDiag': jax_LinearOperatorDiag, 'jax2tf': jax2tf, 'r': r}
         namespace = {}
         # Execute the string as Python code within the specified namespace
         exec( name + ' = ' + func_str, imports, namespace)
@@ -659,16 +654,6 @@ class write():
                                     text = text + self.mains[key]['likelihood(s)'][a]['prior(s)'][b]["output"]  + ', '
 
 
-                #text = text[:-2] + " : tfd.Independent("+ self.mains[key]['distribution(s)'][0] + "(" # First argument is the distribution
-                
-                #if len(self.mains[key]['params']['args']) > 0:
-                #    text = text + ", ".join(self.mains[key]['params']['args']) + "," # Remove first argument 
-
-                #if len(self.mains[key]['params']['kwargs']) > 0:
-                #    for k, v in  self.mains[key]['params']['kwargs'].items():
-                #        text = text + k + " = " + v + ","
-                #text = text[:-1] +  ', name =' + "'" + str(key) + "'" + "), reinterpreted_batch_ndims=1)"
-                                    
                 text = text[:-2] + " : tfd.Independent("+ self.mains[key]['formula'] + ')'
 
                 text = text[:-2] +  ', name =' + "'" + str(key) + "'" + "), reinterpreted_batch_ndims=1)"
@@ -689,11 +674,10 @@ class write():
         self.write_priors()
         self.write_mains()
         self.build_tensor()
-        self.tensor = tfd.JointDistributionNamedAutoBatched(self.model_dict)
+        self.tensor = JDNAB(self.model_dict)
         self.priors_dict = self.priors
         self.priors = list(self.priors.keys())
         self.model_names = list(self.tensor.model.keys())
         self.keys = self.tensor._flat_resolve_names()
         #self.model_names_sample_order =  [node[0] for node in self.tensor.resolve_graph()]
         #self.tensor_seq = self.convert_to_seq()
-        #self.tensor_jax = JDNAB(self.model_dict)
