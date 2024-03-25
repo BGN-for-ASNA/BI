@@ -2,12 +2,11 @@
 import jax
 import jax.numpy as jnp
 from jax import vmap
-from jax.experimental import jax2tf
 from jax import jit
 from tensorflow_probability.substrates.jax.distributions import JointDistributionNamedAutoBatched as JDNAB
 from jax.scipy.linalg import svd
-
-tfd = tfp.distributions
+import tensorflow_probability.substrates.jax.distributions as tfd
+import tensorflow_probability.substrates.jax as tfp
 import tensorflow as tf
 import re
 import numpy as np
@@ -16,10 +15,9 @@ import random as r
 @jit
 def jax_LinearOperatorDiag(s, cov):    
     def multiply_with_s(a):
-        return jnp.multiply(a, jnp.transpose(s))
-
+        return jnp.multiply(a, s)
     vectorized_multiply = vmap(multiply_with_s)
-    return vectorized_multiply(cov)
+    return jnp.transpose(vectorized_multiply(cov))
 
 def get_distribution_classes():
     # Get all names defined in the distributions module
@@ -59,7 +57,7 @@ def get_jnp_classes():
     
     return class_dict
 
-def exportTF(jnp_classes):
+def exportJNP(jnp_classes):
     for key in jnp_classes.keys():
         globals()[key] = jnp_classes[key]
 jnp_classes= get_jnp_classes()
@@ -555,7 +553,7 @@ class write():
     
     def create_function_from_string(self, func_str, name):
         # Define required imports and namespace for exec
-        imports = {'tfp':tfp, 'tfd': tfd, 'tf': tf, 'jnp': jnp, 'df': self.df,  'jax_LinearOperatorDiag': jax_LinearOperatorDiag, 'jax2tf': jax2tf, 'r': r}
+        imports = {'tfp':tfp, 'tfd': tfd, 'tf': tf, 'jnp': jnp, 'df': self.df,  'jax_LinearOperatorDiag': jax_LinearOperatorDiag, 'r': r}
         namespace = {}
         # Execute the string as Python code within the specified namespace
         exec( name + ' = ' + func_str, imports, namespace)
