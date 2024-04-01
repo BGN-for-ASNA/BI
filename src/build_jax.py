@@ -19,6 +19,7 @@ def jax_LinearOperatorDiag(s, cov):
     vectorized_multiply = vmap(multiply_with_s)
     return jnp.transpose(vectorized_multiply(cov))
 
+
 def get_distribution_classes():
     # Get all names defined in the distributions module
     all_names = dir(tfd)
@@ -108,7 +109,9 @@ class define():
         #output_string = re.sub(pattern, rf"tf.transpose(tf.gather(tf.transpose(\1), tf.cast(\2, dtype=tf.int{dtype})))", input_string)        
         #output_string = re.sub(pattern, rf" tf.gather(\1,\2, dtype=tf.int{dtype}), axis = -1)", input_string)
         #output_string = re.sub(pattern, rf" tf.squeeze(tf.gather(\1,tf.cast(\2, dtype=tf.int{dtype}), axis = -1))", input_string)
-        output_string = re.sub(pattern, rf" jnp.squeeze(jnp.take(\1,jnp.array(\2, dtype=jnp.int{dtype}), axis = -1))", input_string)
+        #output_string = re.sub(pattern, rf" jnp.squeeze(jnp.take(\1,jnp.array(\2, dtype=jnp.int{dtype}), axis = -1))", input_string)
+        output_string = re.sub(pattern, rf" \1[\2]", input_string)
+        output_string = output_string.replace('jnp.float32', 'jnp.int32')
         return output_string
     
     def unlist(self, data, remove_chars=[" ", "]"], remove_empty=True):
@@ -203,7 +206,8 @@ class define():
                                 if Multilvel_occurrences_length == dim:
                                     input_string =  self.mains[k]['formula']
                                     offset = 0
-                                    replacement_pattern = "jnp.take({}, {}, axis=-1)"
+                                    replacement_pattern = "{}[:,{}]"
+                                    #replacement_pattern = "jnp.take({}, {}, axis=-1)"
                                     #print(f'{key} is observed {Multilvel_occurrences_length} times in formula which correspond to declared dim: {dim}' )
                                     for i, index in enumerate(Multilvel_occurrences):
                                         index += offset  # Adjust index by current offset

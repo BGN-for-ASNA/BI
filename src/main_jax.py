@@ -136,8 +136,8 @@ class model(data, define, write, fit, diagnostic):
         self.obs_names = list(observed_data.keys())[0]
         self.observed_data_jax = jnp.array(list(observed_data.values())[0])
         self.res = self.parallele_chains(num_chains)
-        posterior, sample_stats = self.res 
-        p = dict(zip(self.tensor._flat_resolve_names(), posterior))
-        self.az_trace = self.tfp_trace_to_arviz(posterior, sample_stats, p)    
+        self.posterior, self.sample_stats = self.res 
+        p = dict(zip(self.tensor._flat_resolve_names(), self.posterior))
+        self.az_trace = self.tfp_trace_to_arviz(self.posterior, self.sample_stats, p)    
 
 

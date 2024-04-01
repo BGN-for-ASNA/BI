@@ -1,4 +1,5 @@
 
+from tensorflow_probability.substrates import jax as tfp
 import tensorflow_probability.substrates.jax.distributions as tfd
 from tensorflow_probability.substrates.jax.distributions import*
 root = tfd.JointDistributionCoroutine.Root
