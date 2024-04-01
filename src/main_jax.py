@@ -1,20 +1,33 @@
 #%%
+import random as r
 from src.data import*
-from src.build import*
-from src.fit import*
+from src.build_jax import*
+from src.fit_jax import*
 from src.diagnostic import*
 import pandas as pd
 import numpy as np  
 import tensorflow as tf
 from tensorflow.python.client import device_lib
+import os
+import re
+
+
 #%%
 class model(data, define, write, fit, diagnostic):
     def __init__(self, 
                  formula = None, 
                  df = None,
                  float = 32,  
-                 gpu = False,               
-                 **kwargs):      
+                 cpu = None,               
+                 **kwargs): 
+
+        if cpu is None: # Set up maximum number of cores
+            Ncores = os.cpu_count()    
+            xla_flags = os.getenv("XLA_FLAGS", "")
+            xla_flags = re.sub(r"--xla_force_host_platform_device_count=\S+", "", xla_flags).split()
+            os.environ["XLA_FLAGS"] = " ".join(["--xla_force_host_platform_device_count={}".format(Ncores)] + xla_flags)
+            print('jax.local_device_count ',jax.local_device_count(backend=None))
+
         self.f = formula
         self.Tensoflow = False 
 
@@ -60,7 +73,7 @@ class model(data, define, write, fit, diagnostic):
         self.priors_name = []
         
         # GPU configuration ----------------------------
-        self.gpu = gpu
+        #self.gpu = gpu
         
         local_device_protos = device_lib.list_local_devices()
         self.devices = {}
@@ -110,48 +123,21 @@ class model(data, define, write, fit, diagnostic):
         self.write_tensor()
         
     def sample(self, *args, **kwargs):
-        self.samples = self.tensor.sample(*args, **kwargs)
+        init_key, sample_key = random.split(random.PRNGKey(int(r.randint(0, 10000000))))
+        self.samples = self.tensor.sample(seed=jnp.array(init_key), *args, **kwargs)
         return self.samples
+
     
     def log_prob(self, *args, **kwargs):
         self.prob = self.tensor.log_prob(*args, **kwargs)
         return self.prob
     
-    def fit(self, observed_data,
-            init = None,
-            bijectors = None,
-            parallel_iterations=1,
-            num_results=2000,
-            num_burnin_steps=500,
-            step_size=0.065,
-            num_leapfrog_steps=5,
-            num_adaptation_steps=400,
-            num_chains=4):
-        if self.gpu: 
-            if len(self.devices['GPU']) > 0:
-                with tf.device(next(iter(self.devices['GPU'].values()))):
-                    self.posterior, self.trace, self.sample_stats = self.run_model(observed_data,
-                                    params = self.priors_dict.keys(),
-                                    init = init,
-                                    bijectors = bijectors,
-                                    parallel_iterations=parallel_iterations,
-                                    num_results=num_results,
-                                    num_burnin_steps=num_burnin_steps,
-                                    step_size=step_size,
-                                    num_leapfrog_steps=num_leapfrog_steps,
-                                    num_adaptation_steps=num_adaptation_steps,
-                                    num_chains=num_chains)
-        else:
-            with tf.device(next(iter(self.devices['CPU'].values()))):
-                self.posterior, self.trace, self.sample_stats = self.run_model(observed_data,
-                                params = self.priors_name,
-                                init = init,
-                                bijectors = bijectors,
-                                parallel_iterations=parallel_iterations,
-                                num_results=num_results,
-                                num_burnin_steps=num_burnin_steps,
-                                step_size=step_size,
-                                num_leapfrog_steps=num_leapfrog_steps,
-                                num_adaptation_steps=num_adaptation_steps,
-                                num_chains=num_chains)
+    def fit(self, observed_data, num_chains=4):
+        self.obs_names = list(observed_data.keys())[0]
+        self.observed_data_jax = jnp.array(list(observed_data.values())[0])
+        self.res = self.parallele_chains(num_chains)
+        posterior, sample_stats = self.res 
+        p = dict(zip(self.tensor._flat_resolve_names(), posterior))
+        self.az_trace = self.tfp_trace_to_arviz(posterior, sample_stats, p)    
+
 
