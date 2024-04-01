@@ -6,6 +6,12 @@ import re
 import numpy as np
 import ast
 
+#import jax
+#import jax.numpy as jnp
+#from jax import random, jit
+#from tensorflow_probability.substrates import jax as tfp
+#from tensorflow_probability.substrates.jax.distributions import JointDistributionNamedAutoBatched as JDNAB
+
 def get_distribution_classes():
     # Get all names defined in the distributions module
     all_names = dir(tfd)
@@ -250,6 +256,8 @@ class define():
             self.likelihood = None
             return None
 
+    # Specific model function---------------------
+        
     # Extract informations functions --------
     def get_general_info(self, key, lk, is_main = False):
         lk[key] = {}
@@ -269,60 +277,104 @@ class define():
         lk[key]['with_tensorflow'] = False
         lk[key]['with_distribution'] = False    
         lk[key]['distribution(s)'] = [] 
+
+        lk[key]['cat'] = False 
+        lk[key]['catN'] = 0
         return lk
     
     def get_params_info(self, key, lk, diagnostic = False):
         # Evaluate arguments
         to_remove = []
-        for i in range(len(lk[key]['args'])):
-            # For the moment we replace tf and tfd functions, but we may also ask user to directly write tf and tfd
-            # replace tf function
-            if lk[key]['args'][i] in list(tf_classes.keys()):   
-                lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 'tf.' + lk[key]['args'][i], lk[key]['formula'] )
-                lk[key]['with_tensorflow'] = True
-    
-            # replace tfd function
-            elif lk[key]['args'][i]  in list(tfd_classes.keys()):        
-                lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 'tfd.'+ lk[key]['args'][i], lk[key]['formula'])
-                lk[key]['with_distribution'] = True
-                lk[key]['distribution(s)'].append('tfd.'+ lk[key]['args'][i]) # Add distribution to 
-                to_remove.append(i)
-
-            if 'LinearOperatorDiag' in lk[key]['args'][i]:                
-                lk[key]['formula'] = lk[key]['formula'].replace('LinearOperatorDiag', 'tf.linalg.LinearOperatorDiag')
-                if 'MultivariateNormalTriL' in lk[key]['input']:
-                    dimMulti = True
+        # Convert formula of lk for Categorical models
+        if self.model_info['Categorical'] and 'likelihood' in  key.lower():
+            if self.model_info['cat'] in lk[key]['formula']:
+                # Find intercept:
+                if "[" in lk[key]['input'] :
+                    myIndex = self.extract_indices_patterns(lk[key]['input'])
+                    lk[key]['indices'] = self.model_info['indices'] | self.extract_indices_patterns(lk[key]['input'])
+                    tmpFormula = lk[key]['formula'].replace(list(myIndex.keys())[0] + '[' + myIndex[list(myIndex.keys())[0]] + ']','') #remove intercept
                 else:
-                    dimMulti = False
-                self.which_prior_in_LinearOperatorDiag(lk[key]['formula'], output = lk[key]['output'], dimMulti = dimMulti)
-                
+                    print("Formula doesn't contain intercept with indices")
+                # We repeat the formula for each cats
+                text = 'tf.nn.softmax(tf.stack(['
+                for i in range(len(self.model_info['catN'])):
+                    if i + 1 == len(self.model_info['catN']):
+                        #text = text +  'tf.zeros_like(tf.gather('+ list(myIndex.keys())[0] + ', [' + str(i-1) + '], axis=-1)' + tmpFormula + ')], axis=1))'
+                        text = text + '0 ' + tmpFormula + '], axis=1))'
+                        text = text.replace(myIndex[list(myIndex.keys())[0]], str(self.model_info['catN'][i-1]))
+                    else:
+                        #text = text + 'tf.gather('+ list(myIndex.keys())[0] + ', [' + str(i) + '], axis=-1)' + tmpFormula + ','
+                        text = text + list(myIndex.keys())[0] + '[' + str(i) + ']' + tmpFormula + ','
+                        text = text.replace(myIndex[list(myIndex.keys())[0]], str(self.model_info['catN'][i]))
+                lk[key]['formula'] = text  
+                print(text)
+        else:
+            for i in range(len(lk[key]['args'])):
+                # For the moment we replace tf and tfd functions, but we may also ask user to directly write tf and tfd
+                # replace tf function
+                if lk[key]['args'][i] in list(tf_classes.keys()):   
+                    lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 'tf.' + lk[key]['args'][i], lk[key]['formula'] )
+                    lk[key]['with_tensorflow'] = True
 
-            # replace df arguments
-            if not self.df.empty:
-                replace = False
-                # If kwarg
-                if '=' in lk[key]['args'][i]:
-                    tmp = lk[key]['args'][i].split('=')
-                    tmp1 = tmp[0]
-                    tmp2 = tmp[1]
+                # replace tfd function
+                elif lk[key]['args'][i]  in list(tfd_classes.keys()):        
+                    lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 'tfd.'+ lk[key]['args'][i], lk[key]['formula'])
+                    lk[key]['with_distribution'] = True
+                    lk[key]['distribution(s)'].append('tfd.'+ lk[key]['args'][i]) # Add distribution to lk
+                    # If categorical model from distribution that is always first argument
+                    if 'tfd.Categorical' in lk[key]['distribution(s)']:
+                        self.model_info['Categorical'] = True
+                    to_remove.append(i)
 
-                    if any(self.df.columns.str.strip().str.fullmatch(tmp2)): #if item in columns
-                        lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 
-                                                tmp1 + '= df.' +tmp2 + """.astype('float""" + str(self.float) + """').values""",
-                                                lk[key]['formula'])
+                if self.model_info['Categorical'] and 'cat' in lk[key]['args'][i]:
+                    self.model_info['cat'] = lk[key]['args'][1].split('=')[1]
+                    lk[key]['cat'] = self.model_info['cat'] 
+                    lk[key]['formula'] = lk[key]['formula'].replace(','+lk[key]['args'][i],'')
+                    if not self.df.empty:
+                        if lk[key]['cat'] in self.df.columns:
+                            lk[key]['catN'] = sorted(self.df[lk[key]['cat']].unique())
+                            self.model_info['catN'] = lk[key]['catN']
 
-                else:
-                    if any(self.df.columns.str.strip().str.fullmatch(lk[key]['args'][i])) :
-                        lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 
-                                                                       'df.' + lk[key]['args'][i] + """.astype('float""" + str(self.float) + """').values""",
-                                                                        lk[key]['formula'])
+                    to_remove.append(i)
+                    continue
 
-    
+                if 'LinearOperatorDiag' in lk[key]['args'][i]:                
+                    lk[key]['formula'] = lk[key]['formula'].replace('LinearOperatorDiag', 'tf.linalg.LinearOperatorDiag')
+                    if 'MultivariateNormalTriL' in lk[key]['input']:
+                        dimMulti = True
+                    else:
+                        dimMulti = False
+                    self.which_prior_in_LinearOperatorDiag(lk[key]['formula'], output = lk[key]['output'], dimMulti = dimMulti)
+
+
+                # replace df arguments
+                if not self.df.empty:
+                    replace = False
+                    # If kwarg
+                    if '=' in lk[key]['args'][i]:
+                        tmp = lk[key]['args'][i].split('=')
+                        tmp1 = tmp[0]
+                        tmp2 = tmp[1]
+
+                        if any(self.df.columns.str.strip().str.fullmatch(tmp2)): #if item in columns
+
+                            lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 
+                                                    tmp1 + '= df.' +tmp2 + """.astype('float""" + str(self.float) + """').values""",
+                                                    lk[key]['formula'])
+
+                    else:
+                        if any(self.df.columns.str.strip().str.fullmatch(lk[key]['args'][i])) :
+                            lk[key]['formula'] = self.replace_exact_match(lk[key]['args'][i], 
+                                                                           'df.' + lk[key]['args'][i] + """.astype('float""" + str(self.float) + """').values""",
+                                                                            lk[key]['formula'])
+        
         #lk[key]['args'] = np.delete(lk[key]['args'], to_remove)
         # check for indices        
-        lk[key]['with_indices'] = "[" in lk[key]['input'] 
-        lk[key]['indices'] = self.model_info['indices'] | self.extract_indices_patterns(lk[key]['input'])
-        lk[key]['formula'] = self.convert_indices(lk[key]['formula'], dtype = self.float)
+            lk[key]['with_indices'] = "[" in lk[key]['input'] 
+            lk[key]['indices'] = self.model_info['indices'] | self.extract_indices_patterns(lk[key]['input'])
+            lk[key]['formula'] = self.convert_indices(lk[key]['formula'], dtype = self.float)
+
+        lk[key]['args'] = np.delete(lk[key]['args'], to_remove)
 
          # check for Multilevel mdoel    
         if 'CholeskyLKJ' in lk[key]['formula']:
@@ -374,7 +426,7 @@ class define():
             return lk # return more info for diagnostic
         else:
             new = {}
-            new = {a: lk[key][a] for a in ["input", "output", "formula", "args", "likelihood(s)", "params", 'distribution(s)'] if a in lk[key]}
+            new = {a: lk[key][a] for a in ["input", "output", "formula", "args", "likelihood(s)", "params", 'distribution(s)', 'cat', 'catN'] if a in lk[key]}
             lk[key] = new
             return  lk        
     
@@ -401,6 +453,7 @@ class define():
         self.mains = mains
         self.lks = lks
         self.priors = priors
+        self.priors_infos = priors
 
     # Merge mains, lks, priors-------------------------------
     def merge_main_lks(self, mains, lks):         
@@ -530,17 +583,9 @@ class write():
             
             ## Prior with CholeskyLKJ
             elif 'CholeskyLKJ' in self.priors[key]['formula'] :
-                #text = self.priors[key]['formula']                
-                #self.prior_dict[self.priors[key]["output"]] = text
-                #self.model_dict[self.priors[key]["output"]] = text   
-                #continue
                 shape = ()
 
             elif 'LKJ' in self.priors[key]['formula'] :
-                #text = self.priors[key]['formula']
-                #self.prior_dict[self.priors[key]["output"]] = text
-                #self.model_dict[self.priors[key]["output"]] = text   
-                #continue
                 shape = ()
                 
             # #Default prior shape
@@ -559,7 +604,10 @@ class write():
                 ## Change shape if prior in indices
                 if self.model_info['with_indices']:
                     if self.priors[key]["output"]  in self.model_info["indices"].keys():
-                        shape = self.df[self.model_info["indices"][self.priors[key]["output"]]].nunique()
+                        if not self.model_info['Categorical'] == False:
+                            shape = self.df[self.model_info["indices"][self.priors[key]["output"]]].nunique() - 1
+                        else:
+                            shape = self.df[self.model_info["indices"][self.priors[key]["output"]]].nunique()
 
                 text =  text = text + str(shape) + ")"
             
@@ -631,10 +679,21 @@ class write():
         for key in  self.main_dict.keys():
                 self.model_dict[key] = self.create_function_from_string(func_str =  self.main_dict[key], name = key)
 
+
+    def convert_to_seq(self):
+        self.tensor_list  = [self.tensor.model[k] for k in self.model_names_sample_order]
+        joint_seq = tfd.JointDistributionSequentialAutoBatched(self.tensor_list)
+        return joint_seq
+
     def write_tensor(self):
         self.write_priors()
         self.write_mains()
         self.build_tensor()
-        self.tensor = tfd.JointDistributionNamed(self.model_dict)
+        self.tensor = tfd.JointDistributionNamedAutoBatched(self.model_dict)
         self.priors_dict = self.priors
         self.priors = list(self.priors.keys())
+        self.model_names = list(self.tensor.model.keys())
+        self.keys = self.tensor._flat_resolve_names()
+        #self.model_names_sample_order =  [node[0] for node in self.tensor.resolve_graph()]
+        #self.tensor_seq = self.convert_to_seq()
+        #self.tensor_jax = JDNAB(self.model_dict)

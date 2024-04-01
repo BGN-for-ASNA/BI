@@ -53,6 +53,8 @@ class model(data, define, write, fit, diagnostic):
         self.model_info['Multilevel_diag'] = {}       
         self.model_info['Multilevel_indices'] = {}    
         self.model_info['Multilevel_indices_dim'] = {}
+        self.model_info['Categorical'] = False
+        self.model_info['catN'] = 0
         self.model_dict = {}
         self.prior_dict = {}
         self.priors_name = []
