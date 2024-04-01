@@ -36,7 +36,7 @@ def exportTF(tf_classes):
 tf_classes = get_tensorflow_classes()
 
 class define():
-    def __init__(self, formula = None, df = None, float = 32):
+    def __init__(self, formula = None, df = None):
         self.f = formula   
     # Utility functions----------------------------    
     def separate_args_kwargs(self,input_list):
