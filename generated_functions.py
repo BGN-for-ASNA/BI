@@ -2,10 +2,13 @@
 from tensorflow_probability.substrates import jax as tfp
 import tensorflow_probability.substrates.jax.distributions as tfd
 from tensorflow_probability.substrates.jax.distributions import*
+import tensorflow as tf
 root = tfd.JointDistributionCoroutine.Root
 import random as r
 from jax import*
 import jax.numpy as jnp
+import arviz as az
+import pandas as pd
 
 def autocompositetensordistribution(sample_shape=(), *args, **kwargs):
     return root(tfd.Sample(AutoCompositeTensorDistribution(*args, **kwargs), sample_shape))
