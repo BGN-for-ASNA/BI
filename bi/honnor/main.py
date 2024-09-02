@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpyro as numpyro
 import time as tm
 from jax import jit
+from jax import vmap
 
 class CustomError(Exception):
     pass
