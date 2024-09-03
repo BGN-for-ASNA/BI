@@ -8,16 +8,16 @@ import numpyro as numpyro
 import time as tm
 from jax import jit
 from jax import vmap
-
+import jax.numpy as jnp
+import jax as jax
+import numpy as np
+import jax.random as random
 class CustomError(Exception):
     pass
 
 class bi:
     def __init__(self, platform='cpu', cores=None, dealocate = False):
         setup.setup(platform, cores, dealocate) 
-        import Darray
-        import Mutils 
-        import numpyproLigth
         import numpyro
         self.numpypro = numpyro
         
@@ -28,8 +28,9 @@ class bi:
     def data(self, path, **kwargs):
         self.data_original_path = path
         self.data_args = kwargs
-        self.data = pd.read_csv(path, **kwargs)
-        return self.data
+        self.df = pd.read_csv(path, **kwargs)
+        self.data_modification = {}
+        return self.df
    
     def OHE(self, cols = 'all'):
         if cols == 'all':
@@ -68,9 +69,30 @@ class bi:
         self.df.columns = self.df.columns.str.replace('.', '_')
         self.df.columns = self.df.columns.str.replace(' ', '_')
 
-        self.data_modification['index'] = cols
+        self.data_modification['index'] = cols # store info of indexed columns
         
         return self.df
+
+    def scale(self, cols = 'all'):
+        if cols == 'all':
+            for col in self.df.columns:                
+                self.df.iloc[:, cols] =  self.df.iloc[:,col] - self.df.iloc[:,col].mean()
+
+        else:
+            for a in range(len(cols)):
+
+                self.df.loc[:, cols[a]] =  self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean()
+
+        self.data_modification['scale'] = cols # store info of scaled columns
+        
+        return self.df
+    
+    def data_to_model(self, cols):
+        jax_dict = {}
+        for col in cols:
+            jax_dict[col] = jnp.array(self.df.loc[:,col].values)
+        self.data_modification['data_on_model'] = cols # store info of data used in the model
+        self.data_on_model = jax_dict
 
     # Sampler ----------------------------------------------------------------------------
     def run(self, 
@@ -127,7 +149,7 @@ class bi:
                                 progress_bar=progress_bar,
                                 jit_model_args=jit_model_args)
         start = tm.time()  
-        self.sampler.run(jax.random.PRNGKey(0), **self.data)
+        self.sampler.run(jax.random.PRNGKey(0), **self.data_on_model)
         end = tm.time()    
         print(f"BI took: {end - start:.4f} seconds")
         self.trace = az.from_numpyro(self.sampler)
@@ -266,14 +288,22 @@ class bi:
 #from Darray import*
 #from Mutils import*
 #from numpyproLigth import*
+# Importing modified Numpyro functions
+from numpyro import sample as lk
+from samplers import sampler
+sample = sampler()
+from dists import Dist
+dist = Dist()
+#from Network import Net
+#net = Net()
+#from Mutils import Mgaussian
+#from Mutils import Mrandom
+#gaussian = Mgaussian()
+#random = Mrandom()
 
-import jax.numpy as jnp
-from numpyproLigth import*
-import jax as jax
-import jax.numpy as jnp
-from jax import jit
 from jax.experimental import mesh_utils
 from jax.sharding import PositionalSharding
-from jax import random
+#from jax import random
 import random as r
-#from Mutils import* # Issue that lead to jax n devices equal to 1 
+from numpyro.infer import MCMC, NUTS, Predictive
+from numpyro.distributions import*
