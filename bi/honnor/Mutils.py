@@ -3,6 +3,9 @@ import jax as jax
 import jax.numpy as jnp
 from jax import jit
 from jax import vmap
+import numpyro
+from dists import Dist
+dist = Dist()
 
 # Random factors related functions --------------------------------------------
 @jit
@@ -34,7 +37,7 @@ def jax_LinearOperatorDiag(s, cov):
 #def random_centered2(sigma, cor_mat, offset_mat):
 #    return ((sigma[..., None] * cor_mat) @ offset_mat)
 
-class Mrandom:
+class factors:
     def __init__(self) -> None:
         pass
 
@@ -45,7 +48,7 @@ class Mrandom:
 
     @staticmethod 
     @jit    
-    def factor_centered(sigma, cor_mat, offset_mat):
+    def random_centered(sigma, cor_mat, offset_mat):
         """Generate the centered matrix of random factors 
 
         Args:☺
@@ -56,7 +59,8 @@ class Mrandom:
         Returns:
             _type_: 2D array
         """
-        return jnp.dot(Mrandom.diag_pre_multiply(sigma, cor_mat), offset_mat)
+        #return jnp.dot(factors.diag_pre_multiply(sigma, cor_mat), offset_mat).T
+        return (factors.diag_pre_multiply(sigma, cor_mat) @ offset_mat).T
 
     
 # Gaussian process related functions ----------------------------------------
@@ -216,3 +220,10 @@ class Mgaussian:
         # Compute the kernel matrix using the squared exponential kernel
         return sigma**2 * jnp.exp(-2*jnp.sin(jnp.pi * m / period)**2 / length_scale**2)  * jnp.exp(-(m**2/ 2*length_scale**2))
 
+    @staticmethod
+    def gaussian_process(Dmat, etasq, rhosq, sigmaq):
+        SIGMA = cov_GPL2(Dmat, etasq, rhosq, sigmaq)
+        L_SIGMA = jnp.linalg.cholesky(SIGMA)
+        z = dist.normal('z', 0, 1, sample_shape= [10])
+        k = numpyro.deterministic("k", (L_SIGMA @ z[..., None])[..., 0])
+        return k
