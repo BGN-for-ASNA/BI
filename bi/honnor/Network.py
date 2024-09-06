@@ -1,14 +1,12 @@
 from numpyro import sample as lk
+from numpyro import deterministic
 from samplers import sampler
 sample = sampler()
-from dists import Dist
-dist = Dist()
-from Network import Net
-net = Net()
+from unified_dists import UnifiedDist as dist
 from Mutils import Mgaussian
-from Mutils import Mrandom
+from Mutils import factors
 gaussian = Mgaussian()
-random = Mrandom()
+factor = factors()
 from jax import vmap
 
 #from Darray import *
@@ -20,7 +18,7 @@ from jax import jit
 # vector related functions -----------------------------------
 @partial(jit, static_argnums=(1, 2,))
 def vec_to_mat_jax(arr, N, K):
-    return jnp.reshape(arr, (N, K))
+    return jnp.tile(arr, (N, K))
 
 # Matrices related functions ------------------------------------------------------------------
 def upper_tri(array, diag=1):
@@ -218,9 +216,9 @@ class Net:
 
     # Matrix manipulations -------------------------------------
     @staticmethod 
-    @partial(jit, static_argnums=(1, 2,))
-    def vec_to_mat(arr, N, K):
-        return jnp.reshape(arr, (N, K))
+    @partial(jit, static_argnums=(1, ))
+    def vec_to_mat(vec, shape = ()):
+        return jnp.tile(vec, shape)
 
     def get_tri(self, array, type='upper', diag=0):
         return get_tri(array, type=type, diag=diag)
@@ -237,6 +235,31 @@ class Net:
         tf = m2[(urows,ucols)]
         return jnp.stack([ft, tf], axis = -1)
 
+    @staticmethod 
+    @partial(jit, static_argnums=(1, ))
+    def edgl_to_mat(edgl, N_id):
+        m = jnp.zeros((N_id,N_id))
+        urows, ucols   = jnp.triu_indices(N_id, 1)
+        m = m.at[(urows, ucols)].set(edgl[:,0])
+        m = m.T
+        m2 = m.at[(urows, ucols)].set(edgl[:,1])
+        return m2
+    
+    @staticmethod 
+    @jit
+    def remove_diagonal(arr):
+        n = arr.shape[0]
+        if arr.shape[0] != arr.shape[1]:
+            raise ValueError("Array must be square to remove the diagonal.")
+
+        # Create a mask for non-diagonal elements
+        mask = ~jnp.eye(n, dtype=bool)
+
+        # Apply the mask to the array to get non-diagonal elements
+        non_diag_elements = arr[mask]  # Reshape as needed, here to an example shape
+    
+        return non_diag_elements
+    
     @staticmethod 
     @jit    
     def vec_node_to_edgle(sr):
@@ -362,15 +385,18 @@ class Net:
     def prepare_outcome_effects(list_mat):
         return Net.prerpare_dyadic_effect(list_mat)
 
-    def nodes_random_effects(N_id, sr_mu = 0, sr_sd = 1, sr_sigma = 1, cholesky_dim = 2, cholesky_density = 2 ):
-        sr_raw =  dist.normal('sr_raw', sr_mu, sr_sd, sample_shape=[N_id, 2])
-        sr_sigma =  dist.exponential('sr_sigma', sr_sigma, sample_shape= [2])
-        sr_L = dist.lkjcholesky("sr_L", cholesky_dim, cholesky_density)
-        rf = vmap(lambda x: random.factor_centered(sr_sigma, sr_L, x))(sr_raw)
+    @staticmethod 
+    def nodes_random_effects( N_id, sr_mu = 0, sr_sd = 1, sr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False ):
+        sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
+        sr_sigma =  dist.exponential( sr_sigma, shape= (2,), name = 'sr_sigma', sample = sample)
+        sr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
+        #rf = vmap(lambda x: factor.random_centered(sr_sigma, sr_L, x))(sr_raw)
+        rf = deterministic('sr_rf', factor.random_centered(sr_sigma, sr_L, sr_raw))
         return rf, sr_raw, sr_sigma, sr_L # we return everything to get posterior distributions for each parameters
 
-    def nodes_terms(self, N_var, focal_individual_predictors, target_individual_predictors,
-                    s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1 ):
+    @staticmethod 
+    def nodes_terms( N_var, focal_individual_predictors, target_individual_predictors,
+                    s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False ):
         """_summary_
 
         Args:
@@ -384,30 +410,34 @@ class Net:
         Returns:
             _type_: terms, focal_effects, target_effects
         """
-        focal_effects = dist.normal('focal_effects', s_mu, s_sd, sample_shape=[N_var,])
-        target_effects =  dist.normal('target_effects', r_mu, r_sd, sample_shape=[N_var,])
+        focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), name = 'focal_effects', sample = sample)
+        target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
         terms = jnp.stack([Net.apply_row_dotproduct(focal_effects, focal_individual_predictors)[:,0],
                    Net.apply_row_dotproduct(target_effects, target_individual_predictors)[:,0]], axis = -1)
         return terms, focal_effects, target_effects # we return everything to get posterior distributions for each parameters
 
-    def dyadic_random_effects(self, N_id, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2):
-        dr_raw =  dist.normal('dr_raw', dr_mu, dr_sd, sample_shape=[N_id,2])
-        dr_sigma = dist.exponential('dr_sigma', dr_sigma, sample_shape=[1])
-        dr_L = dist.lkjcholesky("dr_L", cholesky_dim, cholesky_density)
-        rf = vmap(lambda x: random.factor_centered(jnp.repeat(dr_sigma,2), dr_L, x))(dr_raw)
+    @staticmethod 
+    def dyadic_random_effects( N_id, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False):
+        dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2, N_id), name = 'dr_raw', sample = sample)
+        dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample )
+        dr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
+        rf = deterministic('dr_rf', factor.random_centered(jnp.repeat(dr_sigma,2), dr_L, dr_raw))
+        #rf = vmap(lambda x: factor.random_centered(jnp.repeat(dr_sigma,2), dr_L, x))(dr_raw)
         return rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
-    def dyadic_terms(self, d_s, d_r, d_m = 0, d_sd = 1):
-        dyad_effects = dist.normal('dyad_effects', d_m, d_sd)
+    @staticmethod 
+    def dyadic_terms( d_s, d_r, d_m = 0, d_sd = 1, sample = False):
+        dyad_effects = dist.normal(d_m, d_sd, name='dyad_effects', sample = sample)
         terms1 = Net.apply_row_dotproduct(dyad_effects,  d_s)
         terms2 = Net.apply_row_dotproduct(dyad_effects,  d_r)
         rf = jnp.stack([terms1, terms2], axis = 1)
         return rf, dyad_effects
     
-    def block_model_prior(self, N_grp, 
-                      b_ij_mean = 0.01, b_ij_sd = 2.5, 
-                      b_ii_mean = 0.1, b_ii_sd = 2.5,
-                      name_b_ij = 'b_ij', name_b_ii = 'b_ii'):
+    @staticmethod 
+    def block_model_prior(N_grp, 
+                          b_ij_mean = 0.01, b_ij_sd = 2.5, 
+                          b_ii_mean = 0.1, b_ii_sd = 2.5,
+                          name_b_ij = 'b_ij', name_b_ii = 'b_ii', sample = False):
         """Build block model prior matrix for within and between group links probabilities
 
         Args:
@@ -420,12 +450,13 @@ class Net:
         Returns:
             _type_: _description_
         """
-        b_ij = dist.normal(name_b_ij, logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, sample_shape=(N_grp, N_grp)) # transfers more likely within groups
-        b_ii = dist.normal(name_b_ii, logit(b_ii_mean/jnp.sqrt(N_grp)), b_ii_sd, sample_shape=(N_grp, )) # transfers less likely between groups
+        b_ij = dist.normal(logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_grp, N_grp), name = name_b_ij, sample = sample) # transfers more likely within groups
+        b_ii = dist.normal(logit(b_ii_mean/jnp.sqrt(N_grp)), b_ii_sd, shape=(N_grp, ), name = name_b_ii, sample = sample) # transfers less likely between groups
         b = b_ij
         b = b.at[jnp.diag_indices_from(b)].set(b_ii)
         return b, b_ij, b_ii
 
+    @staticmethod 
     def block_prior_to_edglelist(v, b):
         """Convert block vector id group belonging to edgelist of i->j group values
 

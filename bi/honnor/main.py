@@ -12,17 +12,31 @@ import jax.numpy as jnp
 import jax as jax
 import numpy as np
 import jax.random as random
-class CustomError(Exception):
-    pass
+from samplers import sampler
+from dists import Dist
+from Network import Net
+from Mutils import Mgaussian as gaussian
+from Mutils import factors 
+from unified_dists import UnifiedDist as dist
 
-class bi:
+class bi(sampler, gaussian, factors):
     def __init__(self, platform='cpu', cores=None, dealocate = False):
         setup.setup(platform, cores, dealocate) 
         import numpyro
         self.numpypro = numpyro
         
+
     def setup(self, platform='cpu', cores=None, dealocate = False):
         setup.setup(platform, cores, dealocate) 
+
+
+    # Dist functions (sampling and model)--------------------------
+    class dist(dist):
+        pass
+
+    # Network functions--------------------------
+    class net(Net):
+        pass
 
     # Import data----------------------------
     def data(self, path, **kwargs):
@@ -286,20 +300,19 @@ class bi:
         self.forest = forest
 
 #from Darray import*
-#from Mutils import*
 #from numpyproLigth import*
 # Importing modified Numpyro functions
 from numpyro import sample as lk
-from samplers import sampler
-sample = sampler()
-from dists import Dist
-dist = Dist()
+#from samplers import sampler
+#sample = sampler()
+#from dists import Dist
+#dist = Dist()
 #from Network import Net
 #net = Net()
 #from Mutils import Mgaussian
-#from Mutils import Mrandom
+#from Mutils import factors
 #gaussian = Mgaussian()
-#random = Mrandom()
+#factor = factors()
 
 from jax.experimental import mesh_utils
 from jax.sharding import PositionalSharding
