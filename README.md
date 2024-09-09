@@ -7,13 +7,27 @@ Currently, the package provides:
     + Conversion of index variables
     + Scaling
       
-+ Models:
-    + Single models
-    + Multiple models in one
-    + Continuous variables and index variables
-    + Poisson, Binomial, Normal, zero-inflated, negative binomial, Multinomial disguised as Binomial or Poisson, Beta-binomial
-    + Varying intercepts and effects
-    + Gaussian processes
++ Models (Using Numpyro):
+  
+    + [Linear Regression for continuous variable](doc/1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.md)
+    + [Multiple continuous Variable](doc/2.&#32;Multiple&#32;continuous&#32;Variables.md)
+    + [Interaction between continuous variable](doc/3.&#32;Interaction&#32;between&#32;continuous&#32;variables.md)
+    + [Categorical variable](doc/4.&#32;Categorical&#32;variable.md)
+    + [Binomial regression](doc/5.&#32;Binomial&#32;regression.md)
+    + [Poisson regression](doc/6.&#32;Poisson&#32;regression.md)
+    + [Negative binomial](doc/7.&#32;Negative&#32;binomial.md)
+    + [Multinomial](doc/8.&#32;Multinomial.md)
+    + [Beta binomial](doc/9.&#32;Beta&#32;binomial.md)
+    + [Negative-binomial](doc/10.&#32;Negative-binomial.md)
+    + [Zero inflated](doc/11.&#32;Zero&#32;inflated.md)
+    + [Varying interceps](doc/12.&#32;Varying&#32;interceps.md)
+    + [Varying slopes](doc/13.&#32;Varying&#32;slopes.md)
+    + [Multiple varying slopes](doc/14.Multiple&#32;varying&#32;slopes.md) (WIP)
+    + [Continuous varying slope](doc/15.&#32;Continuous&#32;varying&#32;slopes.md) (WIP)
+    + [Gaussian processes](doc/16.&#32;Gaussian&#32;processes.md) (WIP)    
+    + [Measuring error](doc/17.&#32;Measuring&#32;error.md) (WIP)
+    + [Missing data](doc/18.&#32;Missing&#32;data.md) (WIP)
+    + [Modeling Network](doc/19.&#32;Modeling&#32;Network.md)
 
 + Model diagnostics (using ARVIZ):
     + Data frame with summary statistics
@@ -64,11 +78,10 @@ m = bi(platform='cpu')
 m.data('../data/Howell1.csv', sep=';') 
 m.df = m.df[m.df.age > 18]
 m.scale(['weight'])
-# TODO: use jax arrays with hugging face package
 m.data_to_model(['weight', 'height'])
 
 
- # define model ------------------------------------------------
+ # Define model ------------------------------------------------
 def model(height, weight):
     s = dist.uniform( 0, 50, name = 's',shape = [1])
     a = dist.normal( 178, 20, name = 'a',shape= [1])
