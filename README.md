@@ -70,21 +70,9 @@ model = dict(main = 'height~Normal(m,sigma)',
 # Run Hamiltonian MonteCarlo
 Work in progress
 ```            
-## 3.  No compilation time, fast computation, easy GPU computation configuration for big models.
-If a GPU is detected, the model computation can be run on it.
-
-## 4.  Offer a graphical user interface.
-### Import data
-![image](https://github.com/BGN-for-ASNA/BI/assets/22368172/cc1d023c-2ef4-4822-89ab-f0db96729387)
-
-### Declared model
-![image](https://github.com/BGN-for-ASNA/BI/assets/22368172/5ce6dd41-1188-4cfe-83f1-481ce0992787)
-
-### Run model
-Work in progress
 
 # Todo 
-1. Redo GUI (Implementation of new approaches has led to substantial modifications and GUI incompatibility)
+1. GUI 
 2. Helper functions
 3. Documentation
 4. Multinomial models to be run with the Multinomial distribution
