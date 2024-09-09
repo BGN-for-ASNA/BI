@@ -3,6 +3,7 @@ import re
 def dealocate():
     os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"]="false"
     os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"]="platform"
+    
 def setup(platform='cpu', cores=None, dealocate = False):
     """
     Configures JAX for distributed computation.
