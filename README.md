@@ -55,20 +55,29 @@ height∼Normal(μ,σ)
     
 can be declared in the package as
 ```
-# Import data
-d = pd.read_csv('data/Howell1.csv', sep=';')
-weight_centered = d.weight - d.weight.mean()
-height = d.height.values
+# Setup device------------------------------------------------
+from main import*
+m = bi(platform='cpu')
 
-# Declare model
-model = dict(main = 'height~Normal(m,sigma)',
-            likelihood = 'm = alpha + beta*weight_centered',
-            prior1 = 'alpha~Normal(178, 20)',
-            prior2 = 'beta ~ Normal(0,10)',
-            prior3 = 'sigma ~ Uniform(0,50)')
 
-# Run Hamiltonian MonteCarlo
-Work in progress
+# Import data ------------------------------------------------
+m.data('../data/Howell1.csv', sep=';') 
+m.df = m.df[m.df.age > 18]
+m.scale(['weight'])
+# TODO: use jax arrays with hugging face package
+m.data_to_model(['weight', 'height'])
+
+
+ # define model ------------------------------------------------
+def model(height, weight):
+    s = dist.uniform( 0, 50, name = 's',shape = [1])
+    a = dist.normal( 178, 20, name = 'a',shape= [1])
+    b = dist.normal(  0, 1, name = 'b',shape= [1])   
+    lk("y", Normal(a + b * weight , s), obs=height)
+
+# Run sampler ------------------------------------------------
+m.run(model) 
+m.sampler.print_summary(0.89)
 ```            
 
 # Todo 
