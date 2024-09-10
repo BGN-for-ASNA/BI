@@ -1,0 +1,812 @@
+[
+  {
+    "objectID": "1. Linear Regression for continuous variable.html",
+    "href": "1. Linear Regression for continuous variable.html",
+    "title": "2  Linear Regression for continuous vairable",
+    "section": "",
+    "text": "2.1 General Principles\nTo study relationships between two continuous variables (e.g. heigth and weigth), we can use : Linear regression approach. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept \\(\\alpha\\) which inform us about the starting point of the line, 2) a coefficient \\(\\beta\\) which in inform us about the slope of the line and 3) a error term \\(\\sigma\\) which inform us about spread of points between the line. We can interpret the intercept \\(\\alpha\\) as the mean for of Y for the smaller value of X, the coefficient \\(\\beta\\) as how much Y increase for each increment of X, and \\(\\sigma\\) as the error arround the prediction. So the coefficient \\(\\beta\\) give the strength of the relationship between X and Y and \\(\\sigma\\) the amount of error in the model.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Linear Regression for continuous vairable</span>"
+    ]
+  },
+  {
+    "objectID": "1. Linear Regression for continuous variable.html#general-principles",
+    "href": "1. Linear Regression for continuous variable.html#general-principles",
+    "title": "2  Linear Regression for continuous vairable",
+    "section": "",
+    "text": "Plot",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Linear Regression for continuous vairable</span>"
+    ]
+  },
+  {
+    "objectID": "1. Linear Regression for continuous variable.html#conciderations",
+    "href": "1. Linear Regression for continuous variable.html#conciderations",
+    "title": "2  Linear Regression for continuous vairable",
+    "section": "2.2 Conciderations",
+    "text": "2.2 Conciderations\n\nBayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for \\(\\alpha\\) , \\(\\beta\\) and \\(\\sigma^2\\) .\nUssually, we use Normal distribution for \\(\\alpha\\) , \\(\\beta\\) and an exponential distributiuon for \\(\\sigma\\).\nAs we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.\n\\(\\sigma\\) is assumed to be normally distributed and is squared to force positive error and account for values bellow and above the line.\nGaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Linear Regression for continuous vairable</span>"
+    ]
+  },
+  {
+    "objectID": "1. Linear Regression for continuous variable.html#example",
+    "href": "1. Linear Regression for continuous variable.html#example",
+    "title": "2  Linear Regression for continuous vairable",
+    "section": "2.3 Example",
+    "text": "2.3 Example\nBelow is an example code snippet demonstrating Bayesian linear regression using Bayesian Inference (BI) package:\nfrom main import*\n# \n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Import data ------------------------------------------------\nm.data('../data/Howell1.csv', sep=';') \nm.df = m.df[m.df.age &gt; 18]\nm.scale(['weight'])\n# TODO: use jax arrays with hugging face package\nm.data_to_model(['weight', 'height'])\n#m.list = dict(height =  jnp.array(m.df.height), weight =  jnp.array(m.df.weight))\n\n# Define model ------------------------------------------------\ndef model(height, weight):\n    s = dist.uniform( 0, 50, name = 's',shape = [1])\n    a = dist.normal( 178, 20, name = 'a',shape= [1])\n    b = dist.normal(  0, 1, name = 'b',shape= [1])   \n    lk(\"y\", Normal(a + b * weight , s), obs=height)\n\n# Run mcmc ------------------------------------------------\nm.run(model) \nm.sampler.print_summary(0.89)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Linear Regression for continuous vairable</span>"
+    ]
+  },
+  {
+    "objectID": "1. Linear Regression for continuous variable.html#mathematical-details",
+    "href": "1. Linear Regression for continuous variable.html#mathematical-details",
+    "title": "2  Linear Regression for continuous vairable",
+    "section": "2.4 Mathematical Details",
+    "text": "2.4 Mathematical Details\n\n2.4.1 Formula\nThe following equation allow us to draw a line and is ths one that is most used in statistic clases: \\[\nY = \\alpha + \\beta  X + \\sigma\n\\]\nWhere: - Y is the target variable. - X is the input variable. - \\(\\beta\\) is the regression coefficient. - \\(\\alpha\\) is the intercept term. - \\(\\sigma\\) is the error term.\n\n\n2.4.2 Bayesian model\nThe equivalent version of the Bayesian linear regression model using probability distributions is as follows: \\[\np(Y | X, \\alpha , \\beta ) = Normal(\\alpha + \\beta  * X, \\sigma)\n\\]\n\\[\np(\\alpha) = Normal(0, 1)\n\\]\n\\[\np(\\beta) = Normal(0, 1)\n\\]\n\\[\np(\\sigma) = Exponential(1)\n\\]\nWhere: - \\(p(Y |X, \\alpha , \\beta)\\) is the likelihood function (equivalent of the line equation). - \\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept, respectivelly. - \\(σ\\), controll the variance of the likelihood.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Linear Regression for continuous vairable</span>"
+    ]
+  },
+  {
+    "objectID": "1. Linear Regression for continuous variable.html#references",
+    "href": "1. Linear Regression for continuous variable.html#references",
+    "title": "2  Linear Regression for continuous vairable",
+    "section": "2.5 Reference(s)",
+    "text": "2.5 Reference(s)\nMcElreath (2018)\n\n\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian Course with Examples in r and Stan. Chapman; Hall/CRC.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Linear Regression for continuous vairable</span>"
+    ]
+  },
+  {
+    "objectID": "0. Introduction.html",
+    "href": "0. Introduction.html",
+    "title": "1  Introduction",
+    "section": "",
+    "text": "1.1 1.1 Model set-up\nWe define a likelihood (e.g., a mathematical formula that specifies the plausibility of the data). The likelihood has parameters (e.g., adjustable inputs) for which we define priors (e.g., initial plausibility assignment for each possible value of the parameter). Considering a linear regression with an intercept (e.g., \\(μ\\) value when \\(x\\) is at zero, or at the mean if the data is centered), a slope (e.g., \\(μ\\) change value when \\(x\\) is incremented by one unit), and assuming the data is centered ( as we will always concider in the next chapters):\n* Toolpit available for each lines of equation\n\\[y \\sim  Normal(μ,σ)\n\\]\n\\[ μ \\sim α + βx\n\\]\n\\[ α \\sim Normal(0,1)\n\\]\n\\[ β \\sim Normal(0,1)\n\\]\n\\[ σ \\sim Uniform(0,1)\n\\]",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "0. Introduction.html#model-fitting",
+    "href": "0. Introduction.html#model-fitting",
+    "title": "1  Introduction",
+    "section": "1.2 1.2 Model fitting",
+    "text": "1.2 1.2 Model fitting\nBy using probability distributions for parameters, we can better tune the model by describing parameters with ‘subequations’ and accounting for correlated varying effects, Gaussian processes, measurement error, and missing data.\nIn addition, we can use Bayesian updating using the Bayesian theorem to ‘reshape’ the prior distributions by considering every possible combination of values for µ and σ and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of values µ and σ: the posterior distributions. Various techniques can be used to approximate the mathematics that follows from the definition of Bayes’ theorem: grid approximation, quadratic approximation, and Markov chain Monte Carlo (MCMC).\n\\[\\frac{likelihood*Priors}{average likelihood}\\]",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "0. Introduction.html#model-diagnostic",
+    "href": "0. Introduction.html#model-diagnostic",
+    "title": "1  Introduction",
+    "section": "1.3 1.3 Model ‘diagnostic’",
+    "text": "1.3 1.3 Model ‘diagnostic’\nThe posterior distribution can be described using percentile intervals (PI), the highest posterior density interval (HPDI), and point estimates. We can also sample the posterior distribution and generate dummy data, which can help check the model through observations and p uncertainty propagation on the samples. In some aspects, it is the opposite of a null model as it represents an expected model.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "0. Introduction.html#link-functions",
+    "href": "0. Introduction.html#link-functions",
+    "title": "1  Introduction",
+    "section": "1.4 1.4 Link functions",
+    "text": "1.4 1.4 Link functions\nWe will see different families of regreessions that have different distribtions. For the moment we just need to know that those different distribtions required _link function (for each specific family we will discuss the corresponding link function):\n\n\n\nimg",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "0. Introduction.html#vocabulary",
+    "href": "0. Introduction.html#vocabulary",
+    "title": "1  Introduction",
+    "section": "1.5 Vocabulary",
+    "text": "1.5 Vocabulary\nThis method evaluate if variable we want to predict -the dependent variable (Y)- and the variable(s) that may affect(s)-independent variables (Xs)- this dependent variable is",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "0. Introduction.html#conciderations",
+    "href": "0. Introduction.html#conciderations",
+    "title": "1  Introduction",
+    "section": "1.6 Conciderations",
+    "text": "1.6 Conciderations\nWhen implementing Bayesian linear regression with TensorFlow Probability, it’s important to consider the following: - Specifying appropriate prior distributions for the model parameters. - Choosing an appropriate likelihood function that captures the relationship between the inputs and outputs. - Selecting an inference method to approximate the posterior distribution over parameters, such as Markov chain Monte Carlo (MCMC) or variational inference.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "2. Multiple continuous Variables.html",
+    "href": "2. Multiple continuous Variables.html",
+    "title": "3  Linear Multiple Regression for continuous vairables",
+    "section": "",
+    "text": "3.1 General Principles\nTo study relationships between multiple continuous variables (e.g., effect of height and age on weight), we can use a Multiple Regression approach. Essentially, we extend the Linear Regression for continuous variable by adding a regression coefficient \\(\\beta\\) for each continuous variables.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Linear Multiple Regression for continuous vairables</span>"
+    ]
+  },
+  {
+    "objectID": "2. Multiple continuous Variables.html#general-principles",
+    "href": "2. Multiple continuous Variables.html#general-principles",
+    "title": "3  Linear Multiple Regression for continuous vairables",
+    "section": "",
+    "text": "Plot",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Linear Multiple Regression for continuous vairables</span>"
+    ]
+  },
+  {
+    "objectID": "2. Multiple continuous Variables.html#considerations",
+    "href": "2. Multiple continuous Variables.html#considerations",
+    "title": "3  Linear Multiple Regression for continuous vairables",
+    "section": "3.2 Considerations",
+    "text": "3.2 Considerations\n\nWe have the same considerations as for Regression for continuous variable.\nWe need regression coefficient \\(beta\\) for each independent variables 🛈.\nModel interpretation of the regression coefficients \\(\\beta\\) is considered for a fixed value of the other dependent variables’ regression coefficients —i.e., for a given age, a variation of 1 unit in height reflects the value of the regression coefficient $$ for height.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Linear Multiple Regression for continuous vairables</span>"
+    ]
+  },
+  {
+    "objectID": "2. Multiple continuous Variables.html#example",
+    "href": "2. Multiple continuous Variables.html#example",
+    "title": "3  Linear Multiple Regression for continuous vairables",
+    "section": "3.3 Example",
+    "text": "3.3 Example\nBelow is an example code snippet demonstrating Bayesian multiple regression using Bayesian Inference (BI) package:\nfrom BI import bi.hard\n# Import data\nd = pd.read_csv('/home/sosa/BI/data/Howell1.csv', sep=';')\n\n# Manipulate and scale data\nd = d[d.age &gt; 18]\n#self.df[\"weight.per.g\"].pipe(lambda x: (x - x.mean()) / x.std())\nd.weight = d.weight - d.weight.mean()\nd.age = d.age - d.age.mean()\nweight = jnp.array(d.weight.values)\n\n# Define your model\ndef model():\n    sigma = yield uniform(1, 0, 50)\n    alpha = yield normal(1, 178, 20)\n    beta = yield normal(1, 0, 1)    \n    beta2 = yield normal(1, 0, 1) \n    y = yield Independent(Normal(a + beta * weight + beta2 * age, s))\n    \nposterior, sample_stats = NUTStrans(model, \n                                    obs = jnp.array(d.height.values),  # define the dependent variable \n                                    n_chains = 4)  # define number of chains",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Linear Multiple Regression for continuous vairables</span>"
+    ]
+  },
+  {
+    "objectID": "2. Multiple continuous Variables.html#mathematical-details",
+    "href": "2. Multiple continuous Variables.html#mathematical-details",
+    "title": "3  Linear Multiple Regression for continuous vairables",
+    "section": "3.4 Mathematical Details",
+    "text": "3.4 Mathematical Details\n\n3.4.1 Formula\nWe model the relationship between the independent variables (X1, X2, …, Xn) and the dependent variable (Y) using the following equation:\n\\[\n𝑌 = \\alpha +\\beta_1 * 𝑋_1 + beta_2 * 𝑋_2 + ... + \\beta_n * 𝑋_𝑛 + \\sigma\n\\]\nWhere:\n\n\\(Y\\) is the dependent variable.\n\\(\\alpha\\) is the intercept term.\n\\(X_1\\), \\(X_2\\), …, \\(X_n\\) are the independent variables.\n\\(\\beta_1\\), \\(\\beta_2\\), …, \\(\\beta_n\\) are the regression coefficients.\n\\(sigma\\) is the error term.\n\n\n\n3.4.2 Bayesian model\nWe can express the Bayesian multiple regression model using probability distributions as follows:\n\\[\n𝑝(𝑌∣𝑋, \\alpha,\\beta) = Normal(\\alpha + \\sum_i^n  \\beta_i * X_i, σ²)\n\\]\n\\[\np(\\alpha) = Normal(0,1)\n\\]\n\\[\np(\\beta_i) = Normal(0,1)\n\\]\n\\[\np(σ) = Exponential(1)\n\\]\nWhere:\n\n\\(p(Y | 𝑋, \\alpha,\\beta)\\) is the likelihood function.\n\\(p(\\beta_i)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients - and intercept.\n\\(p(\\sigma)\\) is the prior distribution for the standard deviation, ensuring - it is positive.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Linear Multiple Regression for continuous vairables</span>"
+    ]
+  },
+  {
+    "objectID": "2. Multiple continuous Variables.html#references",
+    "href": "2. Multiple continuous Variables.html#references",
+    "title": "3  Linear Multiple Regression for continuous vairables",
+    "section": "3.5 Reference(s)",
+    "text": "3.5 Reference(s)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Linear Multiple Regression for continuous vairables</span>"
+    ]
+  },
+  {
+    "objectID": "3. Interaction between continuous variables.html",
+    "href": "3. Interaction between continuous variables.html",
+    "title": "4  Interaction Term between Two Continuous Variables",
+    "section": "",
+    "text": "4.1 General Principles\nTo study relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables.\nParallel lines indicate that there is no interaction effect while different slopes suggest that one might be present. Below is the plot for Food x Condiment. The crossed lines on the graph suggest that there is an interaction effect, which the significant p-value for the Food*Condiment term confirms. The graph shows that enjoyment levels are higher for chocolate sauce when the food is ice cream. Conversely, satisfaction levels are higher for mustard when the food is a hot dog. If you put mustard on ice cream or chocolate sauce on hot dogs, you won’t be happy!",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Interaction Term between Two Continuous Variables</span>"
+    ]
+  },
+  {
+    "objectID": "3. Interaction between continuous variables.html#general-principles",
+    "href": "3. Interaction between continuous variables.html#general-principles",
+    "title": "4  Interaction Term between Two Continuous Variables",
+    "section": "",
+    "text": "Picture",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Interaction Term between Two Continuous Variables</span>"
+    ]
+  },
+  {
+    "objectID": "3. Interaction between continuous variables.html#considerations",
+    "href": "3. Interaction between continuous variables.html#considerations",
+    "title": "4  Interaction Term between Two Continuous Variables",
+    "section": "4.2 Considerations",
+    "text": "4.2 Considerations\n\nWe have the same considerations as for Regression for continuous variable.\nModel relationship between Y and R to vary as a function of A. you explicitly model the hypothesis that the slope between Y and R depends—is conditional—upon A.\nFor continuous interactions, the intercept becomes the grand mean of the outcome variable. This ease of interpretation alone is a good reason to center predictor variables.\nEstimate interpretation is more difficult as estimate of non-interaction terms become expected change in Y when R increases by one unit and A is at its average value and estimate of interaction terms are expected change in the influence of A on Y when increasing R by one unit and expected change in the influence of R on Y when increasing A by one unit.\nTriptych 🛈 plots are very handy for understanding the impact of interactions.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Interaction Term between Two Continuous Variables</span>"
+    ]
+  },
+  {
+    "objectID": "3. Interaction between continuous variables.html#example",
+    "href": "3. Interaction between continuous variables.html#example",
+    "title": "4  Interaction Term between Two Continuous Variables",
+    "section": "4.3 Example",
+    "text": "4.3 Example\nBelow is an example code snippet demonstrating Bayesian regression with an interaction term between two continuous variables with the Bayesian Inference (BI) package:\nfrom BI import bi.hard\nd = pd.read_csv('/home/sosa/BI/data/tulips.csv', sep = ';')\nd[\"blooms_std\"] = d.blooms / d.blooms.max()\nd[\"water_cent\"] = d.water - d.water.mean()\nd[\"shade_cent\"] = d.shade - d.shade.mean()\n\nwater_cent = jnp.array(d.water_cent.values)\nblooms_std = jnp.array(d.blooms_std.values)\nshade_cent = jnp.array(d.shade_cent.values)\n\ndef model():\n    sigma = yield exponential(1, 1)\n    beta1 = yield normal(1,  0 , 0.25 )\n    beta2 = yield normal(1,  0 , 0.25 )\n    beta3 = yield normal(1,  0 , 0.25 )\n    alpha = yield normal(1,  0.5 , 0.25 )\n    mu = alpha + beta1 * water_cent + beta2 * shade_cent + beta3 * water_cent * shade_cent\n    y = yield tfd.Independent(tfd.Normal(mu, sigma), reinterpreted_batch_ndims=1)\n\nposterior, sample_stats = NUTSdual(model, \n                                    obs = jnp.array(d.blooms_std.values)) # define the dependent variable",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Interaction Term between Two Continuous Variables</span>"
+    ]
+  },
+  {
+    "objectID": "3. Interaction between continuous variables.html#mathematical-details",
+    "href": "3. Interaction between continuous variables.html#mathematical-details",
+    "title": "4  Interaction Term between Two Continuous Variables",
+    "section": "4.4 Mathematical Details",
+    "text": "4.4 Mathematical Details",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Interaction Term between Two Continuous Variables</span>"
+    ]
+  },
+  {
+    "objectID": "3. Interaction between continuous variables.html#formula",
+    "href": "3. Interaction between continuous variables.html#formula",
+    "title": "4  Interaction Term between Two Continuous Variables",
+    "section": "4.5 Formula",
+    "text": "4.5 Formula\nWe model the relationship between the input features (X1 and X2) and the target variable (Y) using the following equation: \\[\n𝑌 = \\alpha + \\beta_1*𝑋_1∗+\\beta_2*𝑋_2+\\\\beta_{interaction}*𝑋_1∗𝑋_2 + 𝜖\n\\]\nWhere:\n\n\\(Y\\) is the target variable.\n\\(X_1\\) and \\(X_2\\) are the input continuous variables.\n\\(\\beta_1\\) and \\(\\beta_2\\) are the regression coefficients for \\(X_1\\) and \\(X_2\\), respectively.\n\\(\\beta_{interaction}\\) is the regression coefficient for the interaction term \\((X_1 * X_2)\\).\n\\(\\alpha\\) is the intercept term.\n\\(\\epsilon\\) is the error term assumed to be normally distributed.\n\nIn this context, the interaction term \\(X_1 * X_2\\) captures the joint effect of \\(X_1\\) and \\(X_2\\) on the target variable \\(Y\\).\n\n4.5.1 Bayesian model\nWe can express the Bayesian regression model with an interaction term between two continuous variables using probability distributions as follows: \\[\np(Y∣X_1​ ,X_2​ , \\beta_1, \\beta_2, \\beta_{interaction} ) = \\\\Normal(\\alpha +  \\beta_1 * X_1​ + \\beta_1 - X_2​​ + \\beta_{interaction} * X_1​ ∗X_2​ ,σ² )\\\\\n𝑝(\\alpha)=Normal(0,1)\\\\\n𝑝(\\beta_1)=Normal(0,1)\\\\\n𝑝(\\beta_2)=Normal(0,1)\\\\\n𝑝(\\beta_{interaction})=Normal(0,1)\\\\\n𝑝(σ²)=Exponential(1)\\\\\n\\]\nWhere:\n\n\\(p(Y | X_1​ ,X_2​ , \\beta_1, \\beta_2, \\beta_{interaction})\\) is the likelihood function.\n\\(p(\\alpha)\\) and \\(p(b)\\) is the prior distribution for the intercept\n\\(p(\\beta_1)\\), \\(p(\\beta_2)\\) and \\(\\beta_{interaction}\\) are the prior distributions for the regression coefficients.\n\\(p(\\sigma^2)\\) is the prior distribution for the standard deviation, ensuring it is positive.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Interaction Term between Two Continuous Variables</span>"
+    ]
+  },
+  {
+    "objectID": "3. Interaction between continuous variables.html#references",
+    "href": "3. Interaction between continuous variables.html#references",
+    "title": "4  Interaction Term between Two Continuous Variables",
+    "section": "4.6 Reference(s)",
+    "text": "4.6 Reference(s)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Interaction Term between Two Continuous Variables</span>"
+    ]
+  },
+  {
+    "objectID": "4. Categorical variable.html",
+    "href": "4. Categorical variable.html",
+    "title": "5  Regression for Categorical Variables",
+    "section": "",
+    "text": "5.1 General Principles\nTo study the relationship between a categorical independent variable and a continuous dependent variable, we use Categorical Regression through stratification. Stratification concist in modeling how the different categories of the independent variable affect the target continuous variable, by performing a regression for each categories and asing a regression coefficient for each categories. To realize the stratification, categorical variables are often encoded using one-hot encoding or converting categories to indeces.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Regression for Categorical Variables</span>"
+    ]
+  },
+  {
+    "objectID": "4. Categorical variable.html#general-principles",
+    "href": "4. Categorical variable.html#general-principles",
+    "title": "5  Regression for Categorical Variables",
+    "section": "",
+    "text": "Plot",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Regression for Categorical Variables</span>"
+    ]
+  },
+  {
+    "objectID": "4. Categorical variable.html#considerations",
+    "href": "4. Categorical variable.html#considerations",
+    "title": "5  Regression for Categorical Variables",
+    "section": "5.2 Considerations",
+    "text": "5.2 Considerations\n\nBayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for \\(\\alpha\\) , \\(\\beta\\) and \\(\\sigma\\) .\nUssually, we use Normal distribution for \\(\\alpha\\) , \\(\\beta\\) and an exponential distributiuon for \\(\\sigma\\).\nAs we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.\nAs we generate regression coefficients for each category, we need to specify a prior with a shape equal to the number of categories (see comments in the code).\nFrom posterior predictions, we compute the distribution of the differences between categories, known as the contrast distribution. Never compare the confidence intervals or p-values directly.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Regression for Categorical Variables</span>"
+    ]
+  },
+  {
+    "objectID": "4. Categorical variable.html#example",
+    "href": "4. Categorical variable.html#example",
+    "title": "5  Regression for Categorical Variables",
+    "section": "5.3 Example",
+    "text": "5.3 Example\nBelow is an example code snippet demonstrating Bayesian regression with an independent categorical variable:\nfrom BI import bi.hard\nd = pd.read_csv('/home/sosa/BI/data/milk.csv', sep=';')\nd[\"K\"] = d[\"kcal.per.g\"].pipe(lambda x: (x - x.mean()) / x.std())\nd = index(d, cols = \"clade\")\nindex_clade = jnp.array(d.index_clade.values, dtype=jnp.int32)\ndef model():\n    s = yield exponential(1, 1)\n    a = yield normal(4, 0, 0.5)  # prior with a shape equal to the number of categories\n    m = a[index_clade] # Assign Prior to the Corresponding Categories\n    y = yield tfd.Independent(tfd.Normal(m, s), reinterpreted_batch_ndims=1)\n    \nposterior, sample_stats = NUTSdual(model, obs = jnp.array(d.K.values))",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Regression for Categorical Variables</span>"
+    ]
+  },
+  {
+    "objectID": "4. Categorical variable.html#mathematical-details",
+    "href": "4. Categorical variable.html#mathematical-details",
+    "title": "5  Regression for Categorical Variables",
+    "section": "5.4 Mathematical Details",
+    "text": "5.4 Mathematical Details\n\n5.4.1 Formula\nWe model the relationship between the categorical input feature (X) and the target variable (Y) using the following equation:\n\\[𝑌=\\alpha + \\beta_i X_i + \\sigma\\]\nWhere:\n\n\\(Y\\) is the target variable.\n\\(X\\) is the encoded categorical input variable .\n\\(\\alpha\\) is the intercept term.\n\\(\\beta_i\\) is the regression coefficient for the category i.\n\\(X_i\\) is a vector representing the categories of i\n\\(\\sigma\\) is the error term .\n\nWe can interpret \\(\\beta_i\\) as the effect of each category on \\(Y\\) relative to the baseline (usually one of the categories or the intercept).\n\n\n5.4.2 Bayesian model\nWe can express the Bayesian regression model with a categorical independent variable using probability distributions as follows:\n\\[\n𝑝(𝑌_i∣\\alpha, 𝑋_i,\\beta_i)=Normal(\\alpha +  \\beta_𝑖∗X_𝑖,𝜎) \\\\\n𝑝(\\alpha)=Normal(0,𝛼²)\\\\\n𝑝(\\beta_𝑖)=Normal(0,𝛼²)\\\\\n𝑝(𝜎)=Exponential(1)\n\\]\nWhere:\n\n\\(p(𝑌_i∣\\alpha, 𝑋_i, \\beta_i)\\) is the likelihood function.\n\\(p(\\beta_i)\\) and \\(\\alpha\\) are the prior distributions for the regression coefficients and intercept respectivelly.\n\\(p(\\sigma)\\) is the prior distribution for the standard deviation, ensuring it is positive.\n\\(\\sigma^2\\), \\(\\alpha^2\\), and \\(\\beta^2\\) are hyperparameters controlling the variance of the likelihood and priors.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Regression for Categorical Variables</span>"
+    ]
+  },
+  {
+    "objectID": "4. Categorical variable.html#notes",
+    "href": "4. Categorical variable.html#notes",
+    "title": "5  Regression for Categorical Variables",
+    "section": "5.5 Notes",
+    "text": "5.5 Notes\n\nWe can apply multiple variables similarly as chapter 2: Multiple continuous Variables.\nWe can apply interaction terms similarly as chapter 3: Interaction between continuous variables.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Regression for Categorical Variables</span>"
+    ]
+  },
+  {
+    "objectID": "5. Binomial regression.html",
+    "href": "5. Binomial regression.html",
+    "title": "6  Binomial Regression",
+    "section": "",
+    "text": "6.1 General Principles\nTo model the relationship between a binary outcome variable and one or more predictor variables, we can use Binomial Regression. This approach is suitable when the outcome variable follows a binomial distribution, such as success/failure, yes/no, or 1/0.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "5. Binomial regression.html#general-principles",
+    "href": "5. Binomial regression.html#general-principles",
+    "title": "6  Binomial Regression",
+    "section": "",
+    "text": "Plot",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "5. Binomial regression.html#considerations",
+    "href": "5. Binomial regression.html#considerations",
+    "title": "6  Binomial Regression",
+    "section": "6.2 Considerations",
+    "text": "6.2 Considerations\n\nBayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for \\(\\alpha\\) , \\(\\beta\\) and \\(\\sigma^2\\) .\nUssually, we use Normal distribution for \\(\\alpha\\) , \\(\\beta\\) and an exponential distributiuon for \\(\\sigma\\).\nAs we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.\nWe have the firs link function logit. The logit link function in Bayesian binomial regression converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "5. Binomial regression.html#example",
+    "href": "5. Binomial regression.html#example",
+    "title": "6  Binomial Regression",
+    "section": "6.3 Example",
+    "text": "6.3 Example\nBelow is an example code snippet demonstrating Bayesian binomial regression\nfrom BI import bi.hard\nd = pd.read_csv('/home/sosa/BI/data/chimpanzees.csv', sep = ';')\nd[\"treatment\"] = 1 + d.prosoc_left + 2 * d.condition\nd[\"side\"] = d.prosoc_left  # right 0, left 1\nd[\"cond\"] = d.condition  # no partner 0, partner 1\nd_aggregated = (\n    d.groupby([\"treatment\", \"actor\", \"side\", \"cond\"])[\"pulled_left\"].sum().reset_index()\n)\nd_aggregated.rename(columns={\"pulled_left\": \"left_pulls\"}, inplace=True)\nd_aggregated[\"actor_id\"] = d_aggregated[\"actor\"].values - 1\n\ndef model():\n    a = yield normal(1,  0 , 10)\n    y = yield Independent(Binomial(1, logits = a), reinterpreted_batch_ndims=1)\n\nposterior, sample_stats = NUTSdual(model, obs = jnp.array(d.pulled_left.values), seed= 151)",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "5. Binomial regression.html#mathematical-details",
+    "href": "5. Binomial regression.html#mathematical-details",
+    "title": "6  Binomial Regression",
+    "section": "6.4 Mathematical Details",
+    "text": "6.4 Mathematical Details\n\n6.4.1 Formula\nWe model the relationship between the predictor variable (\\(X\\)) and the binary outcome variable (\\(Y\\)) using the following equation: \\[\nlogit(𝑝)=\\alpha + \\beta *  𝑋 + \\sigma\n\\]\nWhere:\n\n\\(p\\) is the probability of success (or the probability of the binary outcome being 1).\n\\(X\\), is a predictor variables.\n\\(\\beta\\) is the regression coefficients.\n\\(\\alpha\\) is the intercept term.\n\\(\\sigma\\) is the error term.\n\\(\\text{logit}(p)\\) is the log-odds of success, calculated as the log of the odds ratio of success. Trhough this link function, the relationship between the predictor variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each predictor on the log-odds of success.\n\n\n\n6.4.2 Bayesian model\nWe can express the Bayesian binomial regression model using probability distributions as follows:\n\\[ 𝑝(𝑌∣\\alpha, \\beta, 𝑋) = Binomial(𝑛=1, 𝑝=sigmoid(\\alpha + \\beta * 𝑋 + \\sigma))\n\\] \\[\n𝑝(\\alpha)=Normal(0,1)\\\\\n𝑝(\\beta)=Normal(0,1)\\\\\np(sigma)=Exponential(1)\n\\]\nWhere:\n\n\\(p(Y | 𝑌∣\\alpha, \\beta, 𝑋)\\) is the likelihood function.\n\\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept, respectivelly.\n\\(n=1\\) represents the number of trials in the binomial distribution (binary outcome).\n\\(\\text{sigmoid}(X * W + b)\\) is the sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "5. Binomial regression.html#notes",
+    "href": "5. Binomial regression.html#notes",
+    "title": "6  Binomial Regression",
+    "section": "6.5 Notes",
+    "text": "6.5 Notes\n\nWe can apply multiple variables similarly as chapter 2.\nWe can apply interaction terms similarly as chapter 3.\nWe can apply caterogical variables similarly as chapter 4. Below is an example code snippet demonstrating Bayesian binomial regression for caterogical variables :\n\nd = pd.read_csv('/home/sosa/BI/data/chimpanzees.csv', sep = ';')\nd.actor = d.actor - 1\nd[\"treatment\"] = d.prosoc_left + 2 * d.condition\ntreatment = jnp.array(d[\"treatment\"], dtype=jnp.int32)\nactor = jnp.array(d[\"actor\"] )\nn_actor = len(jnp.unique(actor))\nn_treatment= len(jnp.unique(treatment))\n\ndef model():\n    a = yield normal(7, 0, 1.5)\n    b = yield normal(4, 0, 0.5)\n    p = a[actor] + b[treatment]\n    y = yield Independent(Binomial(1, logits = p), reinterpreted_batch_ndims=1)\n\nposterior, sample_stats = NUTSdual(model, obs = jnp.array(d.pulled_left.values), seed = 151)",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "6. Poisson regression.html",
+    "href": "6. Poisson regression.html",
+    "title": "7  Poisson Regression",
+    "section": "",
+    "text": "7.1 General Principles\nTo model the relationship between a count outcome variable and one or more predictor variables, we can use Poisson Regression. This approach is suitable when the outcome variable follows a Poisson distribution, such as counts of events occurring in a fixed interval of time or space.\nThis is a special shape of the binomial, it is useful because it allows us to model binomial events for which the number of trials n is unknown or uncountably large.\nThe parameter λ is the expected value of the outcome y. The conventional link function for a Poisson model is the log link (ensures that λ i is always positive). It also implies an exponential relationship between predictors and the expected value. The parameter λ is the expected value, but it’s also commonly thought of as a rate, allows us to make Implicitly, λ is equal to an expected number of events, µ, per unit time or distance, τ. This implies that λ = µ/τ, which lets us redefine the link:\nThen the offset τi does the important work of correctly scaling the expected number of events for each case i.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Poisson Regression</span>"
+    ]
+  },
+  {
+    "objectID": "6. Poisson regression.html#formula",
+    "href": "6. Poisson regression.html#formula",
+    "title": "7  Poisson Regression",
+    "section": "7.2 Formula",
+    "text": "7.2 Formula\nWe model the relationship between the predictor variable (\\(X\\)) and the count outcome variable (\\(Y\\)) using the following equation:\n\\[\nlog(𝜆)=\\alpha + \\beta  X + 𝜖\n\\]\nWhere:\n\n\\(\\lambda\\) is the mean rate parameter of the Poisson distribution (expected count).\n\\(X\\) is the predictor variables.\n\\(\\beta\\) is the regression coefficients.\n\\(\\alpha\\) is the intercept term.\n\\(\\log(\\lambda)\\) is the log of the mean rate parameter, ensuring it is positive.\n\nThe relationship between the predictor variables and the log of the mean rate parameter is modeled linearly, allowing us to interpret the effect of each predictor on the expected count.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Poisson Regression</span>"
+    ]
+  },
+  {
+    "objectID": "6. Poisson regression.html#considerations",
+    "href": "6. Poisson regression.html#considerations",
+    "title": "7  Poisson Regression",
+    "section": "7.3 Considerations",
+    "text": "7.3 Considerations\nTypically, we use a Normal distribution for \\(\\beta\\), and \\(\\alpha\\). We often use informative or weakly informative priors based on prior knowledge or beliefs about the relationships between predictors and the outcome.\n  Additional conciderations :  \n\nThe conventional link function for a Poisson model is the log link (ensures that λ i is always positive). It also implies an exponential relationship between predictors and the expected value.\nThe parameter \\(λ\\) is the expected value, but it’s also commonly thought of as a rate. \\(λ\\) is equal to an expected number of events, \\(µ\\), per unit time or distance, \\(\\tau\\). This implies that \\(λ = µ/τ\\), which lets us redefine the link\n\n\\[\nlog(\\lambda_i) = log(\\tau_i) + \\alpha + \\beta x_i\n\\]\nThen the offset \\(τi\\) does the important work of correctly scaling the expected number of events for each case \\(i\\).",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Poisson Regression</span>"
+    ]
+  },
+  {
+    "objectID": "6. Poisson regression.html#example",
+    "href": "6. Poisson regression.html#example",
+    "title": "7  Poisson Regression",
+    "section": "7.4 Example",
+    "text": "7.4 Example\nBelow is an example code snippet demonstrating Bayesian Poisson regression\nfrom BI import bi.hard\nd = pd.read_csv('/home/sosa/BI/data/Kline.csv', sep = ';')\nd[\"P\"] = d.population.pipe(np.log).pipe(lambda x: (x - x.mean()) / x.std())\nd[\"cid\"] = (d.contact == \"high\").astype(int)\nd['pLog'] = tf.math.log(d.P).numpy()\ncid = jnp.array(d[\"cid\"])\nP = jnp.array(d[\"P\"] )\n\ndef model():\n    a = yield normal(2, 3,0.5)\n    b = yield normal(2, 0,0.2)\n    l = a[cid] + b[cid]*P\n    y = yield Independent(Poisson(log_rate = l), reinterpreted_batch_ndims=1)\n\nposterior, sample_stats = NUTSdual(model, obs = jnp.array(d.total_tools.values))",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Poisson Regression</span>"
+    ]
+  },
+  {
+    "objectID": "6. Poisson regression.html#mathematical-details",
+    "href": "6. Poisson regression.html#mathematical-details",
+    "title": "7  Poisson Regression",
+    "section": "7.5 Mathematical Details",
+    "text": "7.5 Mathematical Details\nWe can express the Bayesian Poisson regression model using probability distributions as follows:\n\\[\np(Y∣X,W,b)=Poisson(λ=exp(X∗W+b))\\\\\np(W i​ )=Normal(0,α²)\\\\\np(b)=Normal(0,β²)\\\\\n\\]\nWhere:\n\n\\(p(Y | X, W, b)\\) is the likelihood function.\n\\(p(Wi)\\) and \\(p(b)\\) are the prior distributions for the regression coefficients and intercept.\n\\(\\lambda = \\exp(X * W + b)\\) is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.\n7.6 Notes\nWe can apply multiple variables similarly as chapter 2.\nWe can apply interaction terms similarly as chapter 3.\nWe can apply caterogical variables similarly as chapter 4.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Poisson Regression</span>"
+    ]
+  },
+  {
+    "objectID": "7. Negative binomial.html",
+    "href": "7. Negative binomial.html",
+    "title": "8  Negative binomial regression",
+    "section": "",
+    "text": "8.1 General Principles\nTo model the relationship between a count outcome variable and one or more predictor variables with overdispersion, we can use Negative Binomial Regression. This approach is suitable when the outcome variable follows a negative binomial distribution, allowing for overdispersion compared to a Poisson distribution.",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Negative binomial regression</span>"
+    ]
+  },
+  {
+    "objectID": "7. Negative binomial.html#formula",
+    "href": "7. Negative binomial.html#formula",
+    "title": "8  Negative binomial regression",
+    "section": "8.2 Formula",
+    "text": "8.2 Formula\nWe model the relationship between the predictor variables (X1, X2, …, Xn) and the count outcome variable (Y) using the following equation:\n\\[log⁡(𝜆)= exp(\\alpha + \\beta 𝑋 + 𝜖) \\]\nWhere:\n\n\\(\\lambda\\) is the mean rate parameter of the negative binomial distribution (expected count).\n\\(X\\) is the predictor variables.\n\\(\\beta\\) is the regression coefficients.\n\\(\\alpha\\) is the intercept term.\n\\(\\log(\\lambda)\\) is the log of the mean rate parameter, ensuring it is positive.\n\nThe relationship between the predictor variables and the log of the mean rate parameter is modeled linearly, similar to Poisson regression.",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Negative binomial regression</span>"
+    ]
+  },
+  {
+    "objectID": "7. Negative binomial.html#considerations",
+    "href": "7. Negative binomial.html#considerations",
+    "title": "8  Negative binomial regression",
+    "section": "8.3 Considerations",
+    "text": "8.3 Considerations\nIn Bayesian Negative Binomial regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for \\(W\\) and \\(b\\).\nTypically, we use a Normal distribution for W1, W2, …, Wn, and b. We often use informative or weakly informative priors based on prior knowledge or beliefs about the relationships between predictors and the outcome.\n  Additional conciderations :  \n\nWe use the exponential link function in Poisson regression because it ensures predicted values are positive, aligning with the nature of count data, and maintains a straightforward interpretation of coefficients.",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Negative binomial regression</span>"
+    ]
+  },
+  {
+    "objectID": "7. Negative binomial.html#example",
+    "href": "7. Negative binomial.html#example",
+    "title": "8  Negative binomial regression",
+    "section": "8.4 Example",
+    "text": "8.4 Example\nfrom BI import bi.hard\n# Data simulation--------------------------------------------------------------------------\nnum_days = 30\ny = tfd.Poisson(rate=1.5).sample(seed = init_key, sample_shape=(num_days,))\nnum_weeks = 4\ny_new = tfd.Poisson(rate=0.5 * 7).sample(seed = init_key, sample_shape=(num_weeks,))\ny_all = np.concatenate([y, y_new])\nexposure = np.concatenate([np.repeat(1, 30), np.repeat(7, 4)])\nmonastery = np.concatenate([np.repeat(0, 30), np.repeat(1, 4)])\nd = pd.DataFrame.from_dict(dict(y=y_all, days=exposure, monastery=monastery))\nd[\"log_days\"] = d.days.pipe(np.log)\n\n# Model-------------------------------------------------------------------------------------\ndef model():\n    alpha = yield normal(1, 0, 1)\n    beta = yield normal(1, 0, 1)\n    l = jnp.exp(log_days + alpha +  beta * monastery)\n    y = yield Independent(Poisson(log_rate = l), reinterpreted_batch_ndims=1)\n\nposterior, sample_stats = NUTSdual(model, obs = jnp.array(d.y.values))",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Negative binomial regression</span>"
+    ]
+  },
+  {
+    "objectID": "7. Negative binomial.html#mathematical-details",
+    "href": "7. Negative binomial.html#mathematical-details",
+    "title": "8  Negative binomial regression",
+    "section": "8.5 Mathematical Details",
+    "text": "8.5 Mathematical Details\nWe can express the Bayesian Negative Binomial regression model using probability distributions as follows:\n\\[\n𝑝(𝑌∣𝑋,𝑊,𝑏)=NegativeBinomial(𝑟=1,𝑝=11+exp⁡(𝑋∗𝑊+𝑏))\\\\\n𝑝(𝑊)=Normal(0,𝛼²)\\\\\n𝑝(𝑏)=Normal(0,𝛽²)\\\\\n\\]\nWhere:\n\n\\(p(Y | X, W, b)\\) is the likelihood function.\n\\(p(W)\\) and \\(p(b)\\) are the prior distributions for the regression coefficients and intercept.\n\\(r=1\\) represents the number of failures until the experiment stops in the negative binomial distribution.\n\\(p=\\frac{1}{1 + \\exp(X * W + b)}\\) is the success probability parameter of the negative binomial distribution, modeled as the logistic function of the linear combination of predictors.",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Negative binomial regression</span>"
+    ]
+  },
+  {
+    "objectID": "8. Multinomial.html",
+    "href": "8. Multinomial.html",
+    "title": "9  Multinomial Regression",
+    "section": "",
+    "text": "9.1 General Principles\nTo model the relationship between a categorical outcome variable with more than two categories and one or more predictor variables, we can use Multinomial Regression. The relationship between the predictor variables and the log-odds of each category is modeled linearly, allowing us to interpret the effect of each predictor on the log-odds of each category.",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Multinomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "8. Multinomial.html#formula",
+    "href": "8. Multinomial.html#formula",
+    "title": "9  Multinomial Regression",
+    "section": "9.2 Formula",
+    "text": "9.2 Formula\nWe model the relationship between the predictor variables (X1, X2, …, Xn) and the categorical outcome variable (Y) using the following equation:\n\\[\nlogit(𝑝_𝑘)=𝑋_1∗𝑊_{1𝑘}+𝑋_2∗𝑊_{2𝑘}+...+𝑋_𝑛∗𝑊_{𝑛𝑘}+𝑏_k\n\\] Where:\n\\(p_k\\) is the probability of category \\(k\\). \\(X1, X2, ..., Xn\\) are the predictor variables. \\(W1k, W2k, ..., Wnk\\) are the regression coefficients for category \\(k\\). \\(b_k\\) is the intercept term for category \\(k\\). \\(logit(𝑝_𝑘)\\) is the log-odds of category \\(k\\).",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Multinomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "8. Multinomial.html#considerations",
+    "href": "8. Multinomial.html#considerations",
+    "title": "9  Multinomial Regression",
+    "section": "9.3 Considerations",
+    "text": "9.3 Considerations\nIn Bayesian Multinomial regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for \\(W\\) and \\(b_k\\) for each category k.\n  Additional conciderations :  \n\nIn a multinomial model, you need K − 1 linear models for K types of events. Estimates need to be converted to a simplex 🛈. For this, we can convert regressions outputs using the softmax function (see “nn.softmax” line in code).\nThe relationship between the predictor variables and the log-odds of each category is modeled linearly, allowing us to interpret the effect of each predictor on the log-odds of each category.",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Multinomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "8. Multinomial.html#example",
+    "href": "8. Multinomial.html#example",
+    "title": "9  Multinomial Regression",
+    "section": "9.4 Example",
+    "text": "9.4 Example\nfrom BI import bi.hard\n# Data simulation--------------------------------------------------------------------------\n## simulate career choices among 500 individuals\nN = 500  # number of individuals\nincome = np.array([1, 2, 5])  # expected income of each career\nscore = 0.5 * income  # scores for each career, based on income\n\n## next line converts scores to probabilities\np = jnp.array(tf.nn.softmax(score))\n\n## now simulate choice\n## outcome career holds event type values, not counts\ncareer = tfd.Categorical(probs=p).sample(seed = init_key, sample_shape = N)\nresult = [income[index] for index in career]\ndata = {'career': career, 'income': result}\nd = pd.DataFrame(data)\ncareer = jnp.array(d.career.values)\ncareer_income = jnp.array(d.income.values)\nincome = jnp.array(income)\n\n# Model-------------------------------------------------------------------------------------\n\ndef model():\n    a = yield normal(2, 0, 1)\n    b = yield halfnormal(1,0.5)\n    ##  K − 1 linear models\n    s_1 = a[0] + b * income[0]\n    s_2 = a[1] + b * income[1]\n    s_3 = [0]\n\n    # converted to a vector of probabilities \n    p = nn.softmax(jnp.stack([s_1[0], s_2[0], s_3[0]])) \n    p = p[career] \n\n    y = yield Independent(Categorical(probs =  p))\n\nposterior, sample_stats = NUTS(model, obs = career)",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Multinomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "8. Multinomial.html#mathematical-details",
+    "href": "8. Multinomial.html#mathematical-details",
+    "title": "9  Multinomial Regression",
+    "section": "9.5 Mathematical Details",
+    "text": "9.5 Mathematical Details\nWe can express the Bayesian Multinomial model as follows:\nIf \\(K∈N ,  N∈N , and  θ∈K\\)-simplex , then for \\(y∈NK\\) such that \\(∑Kk=1yk=N\\):\n\\[\nMultinomial(y|θ)=(Ny1,…,yK)K∏k=1 θykk\n\\]\nWhere the multinomial coefficient is defined by:\n\\[\n(\\frac{N}{y_1,…,y_k})=\\frac{N!}{∏^K_{k=1}yk!}\n\\]",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Multinomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "9. Beta binomial.html",
+    "href": "9. Beta binomial.html",
+    "title": "10  Beta-Binomial Regression",
+    "section": "",
+    "text": "10.1 General Principles\nTo model the relationship between a binary outcome variable representing success counts and one or more predictor variables, we can use Beta-Binomial Regression. This approach is suitable when the outcome variable follows a beta-binomial distribution, which accounts for overdispersion relative to the binomial distribution.\nWe model the relationship between the predictor variables (X1, X2, …, Xn) and the probability of success (p) using the following equation:",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Beta-Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "9. Beta binomial.html#formula",
+    "href": "9. Beta binomial.html#formula",
+    "title": "10  Beta-Binomial Regression",
+    "section": "10.2 Formula",
+    "text": "10.2 Formula\n\\[\nlogit(𝑝)=𝑋_1∗𝑊_1+𝑋_2∗𝑊_2+...+𝑋_𝑛∗𝑊_𝑛+𝑏\n\\]\nWhere:\n\n\\(p\\) is the probability of success.\n\\(X1, X2, ..., Xn\\) are the predictor variables.\n\\(W1, W2, ..., Wn\\) are the regression coefficients.\n\\(b\\) is the intercept term.\n\\(\\text{logit}(p)\\) is the log-odds of success.",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Beta-Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "9. Beta binomial.html#considerations",
+    "href": "9. Beta binomial.html#considerations",
+    "title": "10  Beta-Binomial Regression",
+    "section": "10.3 Considerations",
+    "text": "10.3 Considerations\nIn Bayesian Beta-Binomial regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for W1, W2, …, Wn, and b.\n  Additional conciderations :  \n\nThe relationship between the predictor variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each predictor on the log-odds of success.",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Beta-Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "9. Beta binomial.html#example",
+    "href": "9. Beta binomial.html#example",
+    "title": "10  Beta-Binomial Regression",
+    "section": "10.4 Example",
+    "text": "10.4 Example\nBelow is an example code snippet demonstrating Bayesian Beta-Binomial regression:\nfrom BI import bi.hard\nd = pd.read_csv('/home/sosa/BI/data/UCBadmit.csv', sep = ';')\nd[\"gid\"] = (d[\"applicant.gender\"] != \"male\").astype(int)\ngid = jnp.array(d[\"gid\"].astype('int32').values)\napplications = jnp.array(d[\"applications\"].astype('float32').values)\nadmit = jnp.array(d[\"admit\"].astype('float32').values)\n\ndef model():\n    phi = yield exponential(1, 1)\n    #phi2 =  tfp.bijectors.Exp().forward(phi)\n    alpha = yield normal(2,0.,1.5)\n    theta = phi + 2\n    pbar = nn.sigmoid(alpha[gid])\n    concentration1 = pbar*theta\n    concentration0 = (1 - pbar) * theta\n    y = yield Independent(BetaBinomial(applications, concentration1 = concentration1, concentration0 = concentration0), reinterpreted_batch_ndims=1)\n\nposterior, sample_stats = NUTSdual(model, obs = admit)",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Beta-Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "9. Beta binomial.html#mathematical-details",
+    "href": "9. Beta binomial.html#mathematical-details",
+    "title": "10  Beta-Binomial Regression",
+    "section": "10.5 Mathematical Details",
+    "text": "10.5 Mathematical Details\nWe can express the Bayesian Beta-Binomial regression model using probability distributions as follows:\n\\[\n𝑝(𝑌∣𝑋,𝑊,𝑏)=BetaBinomial(𝑛,𝛼=𝑝⋅𝑛,𝛽=(1−𝑝)⋅𝑛)\n\\]\n\\[\n𝑝(𝑊𝑖)=Normal(0,𝛼2)\n\\] \\[\n𝑝(𝑏)=Normal(0,𝛽2)\n\\]\nWhere:\n\n\\(p(Y | X, W, b)\\) is the likelihood function.\n\\(p(Wi)\\) and \\(p(b)\\) are the prior distributions for the regression coefficients and intercept.\n$n is the total count of trials.\n\\(\\alpha = p \\cdot n\\) and \\(\\beta = (1 - p) \\cdot n\\) are the concentration parameters of the Beta distribution, with \\(p = \\text{sigmoid}(X * W + b)\\) being the success probability.",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Beta-Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "10. Negative-binomial.html",
+    "href": "10. Negative-binomial.html",
+    "title": "11  Negative Binomial Regression",
+    "section": "",
+    "text": "11.1 Formula\nWe model the relationship between the predictor variables (X1, X2, …, Xn) and the count outcome variable (Y) using the following equation: \\[\nlog(𝜆)=𝑋_1∗𝑊_1+𝑋_2∗𝑊_2+...+𝑋_𝑛∗𝑊_𝑛+𝑏\n\\]\nWhere:\nThe relationship between the predictor variables and the log of the mean rate parameter is modeled linearly, similar to Poisson regression.",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Negative Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "10. Negative-binomial.html#formula",
+    "href": "10. Negative-binomial.html#formula",
+    "title": "11  Negative Binomial Regression",
+    "section": "",
+    "text": "\\(\\lambda\\) is the mean rate parameter of the negative binomial distribution (expected count).\n\\(X1, X2, ..., Xn\\) are the predictor variables.\n\\(W1, W2, ..., Wn\\) are the regression coefficients.\n\\(b\\) is the intercept term.\n\\(\\log(\\lambda)\\) is the log of the mean rate parameter, ensuring it is positive.",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Negative Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "10. Negative-binomial.html#considerations",
+    "href": "10. Negative-binomial.html#considerations",
+    "title": "11  Negative Binomial Regression",
+    "section": "11.2 Considerations",
+    "text": "11.2 Considerations\nIn Bayesian Negative Binomial regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for W1, W2, …, Wn, and b.\n  Additional conciderations :  \n\nThe relationship between the predictor variables and the log of the mean rate parameter is modeled linearly, similar to Poisson regression.",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Negative Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "10. Negative-binomial.html#example",
+    "href": "10. Negative-binomial.html#example",
+    "title": "11  Negative Binomial Regression",
+    "section": "11.3 Example",
+    "text": "11.3 Example\nBelow is an example code snippet demonstrating Bayesian Negative Binomial regression:\nfrom BI import bi.hard\nd = pd.read_csv('/home/sosa/BI/data/UCBadmit.csv', sep = ';')\nd[\"gid\"] = (d[\"applicant.gender\"] != \"male\").astype(int)\ngid = jnp.array(d[\"gid\"].astype('int32').values)\napplications = jnp.array(d[\"applications\"].astype('float32').values)\nadmit = jnp.array(d[\"admit\"].astype('float32').values)\n\ndef model():\n    phi = yield exponential(1, 1)\n    alpha = yield normal(2,0.,1.5)\n    theta = phi + 2\n    pbar = nn.sigmoid(alpha[gid])\n    concentration1 = pbar*theta\n    concentration0 = (1 - pbar) * theta\n    y = yield Independent(BetaBinomial(applications, concentration1 = concentration1, concentration0 = concentration0), reinterpreted_batch_ndims=1)\n\nposterior, sample_stats = NUTS(model, obs = admit)",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Negative Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "10. Negative-binomial.html#mathematical-details",
+    "href": "10. Negative-binomial.html#mathematical-details",
+    "title": "11  Negative Binomial Regression",
+    "section": "11.4 Mathematical Details",
+    "text": "11.4 Mathematical Details\nWe can express the Bayesian Negative Binomial regression model using probability distributions as follows: \\[\n𝑝(𝑌∣𝑋,𝑊,𝑏)=NegativeBinomial(𝑟,p = \\frac{1}{1 + \\exp(X * W + b)})\n\\]\n\\[\np(W_i)=Normal(0,α^2 )\n\\]\n\\[\np(b)=Normal(0,β^2)\n\\]\nWhere:\n\n\\(p(Y | X, W, b)\\) is the likelihood function.\n\\(p(Wi)\\) and \\(p(b)\\) are the prior distributions for the regression coefficients and intercept.\n\\(r\\) represents the shape parameter of the negative binomial distribution.\n\\(p = \\frac{1}{1 + \\exp(X * W + b)}\\) is the success probability parameter of the negative binomial distribution, modeled as the logistic function of the linear combination of predictors.",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Negative Binomial Regression</span>"
+    ]
+  },
+  {
+    "objectID": "11. Zero inflated.html",
+    "href": "11. Zero inflated.html",
+    "title": "12  11. Zero inflated",
+    "section": "",
+    "text": "12.1 General Principles\nZero-Inflated Regression models are used when the outcome variable is a count variable with an excess of zero counts. These models combine a count model (e.g., Poisson or Negative Binomial) with a separate model for predicting the probability of excess zeros.",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>11. Zero inflated</span>"
+    ]
+  },
+  {
+    "objectID": "11. Zero inflated.html#formula",
+    "href": "11. Zero inflated.html#formula",
+    "title": "12  11. Zero inflated",
+    "section": "12.2 Formula",
+    "text": "12.2 Formula\nWe model the relationship between the predictor variables (X1, X2, …, Xn) and the count outcome variable (Y) using two components: 1. A logistic regression model to predict the probability of an excess zero. 2. A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.\nThe overall model can be represented as follows:\n\\[\n\\begin{aligned}\n& \\text{logit}(\\pi) = X_1 * W_{1\\pi} + X_2 * W_{2\\pi} + ... + X_n * W_{n\\pi} + b_\\pi+ \\epsilon_{\\pi} \\\\\n& \\text{log}(\\lambda) = X_1 * W_{1\\lambda} + X_2 * W_{2\\lambda} + ... + X_n * W_{n\\lambda} + b_\\lambda + \\epsilon_{\\lambda}\\\\\n& Y \\sim \\begin{cases}\n0 & \\text{with probability } \\pi \\\\\n\\text{CountModel}(\\lambda) & \\text{with probability } (1 - \\pi)\n\\end{cases}\n\\end{aligned}\n\\]\nWhere: -  is the probability of an excess zero. -  is the mean rate parameter of the count model. - X1, X2, …, Xn are the predictor variables. - W{1}, W_{2}, …, W_{n}_ are the regression coefficients for the logistic model. - W{1}, W_{2}, …, W_{n}_ are the regression coefficients for the count model. - b_ and b_ are the intercept terms for the logistic and count models, respectively. - \\(\\epsilon_{\\pi}\\) and \\(\\epsilon_{\\lambda}\\) a the error term, typically assumed to be normally distributed with mean 0 and variance \\(\\sigma^2\\).",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>11. Zero inflated</span>"
+    ]
+  },
+  {
+    "objectID": "11. Zero inflated.html#considerations",
+    "href": "11. Zero inflated.html#considerations",
+    "title": "12  11. Zero inflated",
+    "section": "12.3 Considerations",
+    "text": "12.3 Considerations\nIn Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for W{1}, W_{2}, …, W_{n}, W{1}, W{2}, …, W_{n}, b, and b_.\n  Additional conciderations :",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>11. Zero inflated</span>"
+    ]
+  },
+  {
+    "objectID": "11. Zero inflated.html#example",
+    "href": "11. Zero inflated.html#example",
+    "title": "12  11. Zero inflated",
+    "section": "12.4 Example",
+    "text": "12.4 Example\nBelow is an example code snippet demonstrating Bayesian Zero-Inflated Poisson regression using TensorFlow Probability:\nfrom BI import bi.hard\n# Data simulation --------------------\n# Define parameters\nprob_drink = 0.2  # 20% of days\nrate_work = 1     # average 1 manuscript per day\n\n# sample one year of production\nN = 365\n\nnp.random.seed(365)\ndrink = np.random.binomial(1, prob_drink, N)\ny = (1 - drink) * np.random.poisson(rate_work, N)\nd = pd.DataFrame(y)\n\n# Model --------------------\ndef model():\n    al = yield normal(1, 1, 0.5)\n    ap = yield normal(1, -1.5 , 1)\n    y = yield Independent(ZeroInflatedNegativeBinomial(total_count = 365, inflated_loc_logits = al, logits = jnp.log(ap)), reinterpreted_batch_ndims=1)\n\nposterior, sample_stats = NUTSdual(model, obs = jnp.array(d.iloc[:,0].values))",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>11. Zero inflated</span>"
+    ]
+  },
+  {
+    "objectID": "11. Zero inflated.html#mathematical-details",
+    "href": "11. Zero inflated.html#mathematical-details",
+    "title": "12  11. Zero inflated",
+    "section": "12.5 Mathematical Details",
+    "text": "12.5 Mathematical Details\nWe can express the Bayesian Zero-Inflated Poisson regression model using probability distributions as follows:\n\\[\np(Y | X, W_\\pi, b_\\pi, W_\\lambda, b_\\lambda) = \\pi \\cdot \\delta_0(Y) + (1 - \\pi) \\cdot \\text{Poisson}(\\lambda) \\\\\n\\pi = \\text{sigmoid}(X * W_\\pi + b_\\pi) \\\\\n\\lambda = \\exp(X * W_\\lambda + b_\\lambda) \\\\\np(W_{\\pi_i}) = \\text{Normal}(0, \\alpha^2) \\\\\np(W_{\\lambda_i}) = \\text{Normal}(0, \\alpha^2) \\\\\np(b_\\pi) = \\text{Normal}(0, \\beta^2) \\\\\np(b_\\lambda) = \\text{Normal}(0, \\beta^2)\\]\nWhere: - \\(p(Y | X, W_\\pi, b_\\pi, W_\\lambda, b_\\lambda)\\) is the likelihood function for the zero-inflated model. - \\(p(W_{\\pi_i})\\), \\(p(W_{\\lambda_i})\\), \\(p(b_\\pi)\\), and \\(p(b_\\lambda)\\) are the prior distributions for the regression coefficients and intercept terms. - \\(\\delta_0(Y)\\) represents a Dirac delta function at zero, indicating the probability of an excess zero. - \\(\\text{Poisson}(\\lambda)\\) is the Poisson distribution with rate parameter .",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>11. Zero inflated</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying interceps.html",
+    "href": "12. Varying interceps.html",
+    "title": "13  Varying interceps",
+    "section": "",
+    "text": "13.1 General Principles\nTo model the relationship between predictor variables and an outcome variable while allowing for different intercepts across groups or clusters, we can use a Varying Intercepts model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.",
+    "crumbs": [
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Varying interceps</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying interceps.html#formula",
+    "href": "12. Varying interceps.html#formula",
+    "title": "13  Varying interceps",
+    "section": "13.2 Formula",
+    "text": "13.2 Formula\nWe model the relationship between the predictor variables (X1, X2, …, Xn) and the outcome variable (Y) with varying intercepts (b_j) for each group (j) using the following equation:\n\\[\nY_{ij} = X_{ij1} * W_1 + X_{ij2} * W_2 + ... + X_{ijn} * W_n + b_j + \\epsilon_{ij}\n\\]\nWhere: - \\(Y_{ij}\\) is the outcome variable for observation i in group j. - \\(X_{ij1}, X_{ij2}, ..., X_{ijn}\\) are the predictor variables for observation i in group j. - \\(W_1, W_2, ..., W_n\\) are the regression coefficients. - \\(b_j\\) is the varying intercept for group j. - \\(\\epsilon_{ij}\\) is the error term, typically assumed to be normally distributed with mean 0 and variance \\(\\sigma^2\\).\nThe varying intercepts b_j are typically modeled as being drawn from a common distribution:\n\\[\nb_j \\sim \\text{Normal}(\\mu_b, \\sigma_b^2)\n\\]\nWhere: - b is the overall mean intercept. - b^2 is the variance of the intercepts across groups.",
+    "crumbs": [
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Varying interceps</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying interceps.html#considerations",
+    "href": "12. Varying interceps.html#considerations",
+    "title": "13  Varying interceps",
+    "section": "13.3 Considerations",
+    "text": "13.3 Considerations\nIn Bayesian regression with varying intercepts, we consider uncertainty in both the regression coefficients and the varying intercepts. We need to declare prior distributions for W_1, W_2, …, W_n, b, and b.\nTypically, we use a Normal distribution for W_1, W_2, …, W_n and b, and a Half-Normal or Exponential distribution for b.\n  Additional conciderations :  \n\nBasically, the idea of varying intercepts is to generate an intercept for each group. So the intercept ( b ) is defined based on the declared groups.\nTherefore, there are as many ( b ) values as there are groups.\nThese intercepts are defined using a Normal distribution with a mean specified by another prior (called a hyper-prior): \\[\nb_j \\sim \\text{Normal}(\\mu_b, \\sigma_b^2)\n\\]\nWhere:\n\n\\(\\mu_b\\)is the overall mean intercept.\n\\(\\sigma_b^2\\) is the variance of the intercepts across groups.\n\nIn the code below, the hyper-prior is a_bar.",
+    "crumbs": [
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Varying interceps</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying interceps.html#example",
+    "href": "12. Varying interceps.html#example",
+    "title": "13  Varying interceps",
+    "section": "13.4 Example",
+    "text": "13.4 Example\nBelow is an example code snippet demonstrating Bayesian regression with varying intercepts:\nfrom BI import bi.hard\nd = pd.read_csv('/home/sosa/BI/data/reedfrogs.csv', sep = ';')\nd[\"tank\"] = np.arange(d.shape[0])\ntank = jnp.array(d[\"tank\"].astype('int32').values)\ndensity = jnp.array(d[\"density\"].astype('float32').values)\ndef model():\n    sigma = yield exponential(1, 1)\n    a_bar = yield normal(1, 0, 1.5)\n    alpha = yield normal(48, a_bar, sigma)\n    p = jnp.squeeze(alpha[tank])[0]\n    y = yield Independent(Binomial(total_count = density, logits = p), reinterpreted_batch_ndims=1)\n\nposterior, sample_stats = NUTS(model, obs = jnp.array(d.surv.astype('float32').values))",
+    "crumbs": [
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Varying interceps</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying interceps.html#mathematical-details",
+    "href": "12. Varying interceps.html#mathematical-details",
+    "title": "13  Varying interceps",
+    "section": "13.5 Mathematical Details",
+    "text": "13.5 Mathematical Details\nWe can express the Bayesian regression model with varying intercepts using probability distributions as follows:\n\\[\np(Y_{ij} | X_{ij}, W, b_j, \\sigma) = \\text{Normal}(X_{ij} * W + b_j, \\sigma^2) \\\\\nb_j \\sim \\text{Normal}(\\mu_b, \\sigma_b^2) \\\\\np(W_i) = \\text{Normal}(0, \\alpha^2) \\\\\np(\\mu_b) = \\text{Normal}(0, \\beta^2) \\\\\np(\\sigma_b) = \\text{Exponential}(\\lambda)\n\\]\nWhere: - \\(p(Y_{ij} | X_{ij}, W, b_j, \\sigma)\\) is the likelihood function for the outcome variable. - \\(b_j \\sim \\text{Normal}(\\mu_b, \\sigma_b^2)\\) models the varying intercepts across groups. - \\(p(W_i)\\), \\(p(\\mu_b)\\), and \\(p(\\sigma_b)\\) are the prior distributions for the regression coefficients, overall mean intercept, and standard deviation of the intercepts, respectively.",
+    "crumbs": [
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Varying interceps</span>"
+    ]
+  },
+  {
+    "objectID": "13. Varying slopes.html",
+    "href": "13. Varying slopes.html",
+    "title": "14  13. Varying effects",
+    "section": "",
+    "text": "14.1 General Principles\nTo model the relationship between predictor variables and an outcome variable while allowing for both varying intercepts and varying slopes (effects) across groups or clusters, we use a Varying Effects model. This approach is useful when we expect the relationship between predictors and the outcome to differ across groups (e.g., different slopes for different subjects, locations, or time periods).This allow every unit in the data to have its own unique response to any treatment or exposure or event, while also improving estimates via pooling.\nThe idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a matrix of covariance.\n\\[\n\\left(\\begin{array}{cc}\n\\sigma_\\alpha^2 & \\sigma_\\alpha \\sigma_{\\beta \\rho }\\\\\n\\sigma_\\alpha \\sigma_{\\beta \\rho } & \\sigma_\\beta^2\n\\end{array}\\right)\n\\]\nwhere : - \\(\\sigma_\\alpha^2\\) is the variance of intercepts. - \\(\\sigma_\\beta^2\\) is the covariance of intercepts & slopes. - \\(\\sigma_\\alpha \\sigma_{\\beta \\rho }\\) is the covariance between intercepts and slopes -i.e. the product of the two standard deviations-.",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>13. Varying effects</span>"
+    ]
+  },
+  {
+    "objectID": "13. Varying slopes.html#formula",
+    "href": "13. Varying slopes.html#formula",
+    "title": "14  13. Varying effects",
+    "section": "14.2 Formula",
+    "text": "14.2 Formula\n\n14.2.1 Main equation\nWe model the relationship between the predictor variable (\\(X\\)) and the outcome variable (Y) with varying intercepts (\\(\\alpha\\)) and varying slopes (\\(\\beta\\)) for each group (i) using the following equation:\n\\[\nY_{i} = \\alpha_i + \\beta_i X_i + \\epsilon\n\\]\nWhere: - \\(Y_i\\) is the outcome variable for group i. - \\(X_i\\) are the predictor variables for group i. - \\(\\alpha_i\\) is the varying intercept for group i. - \\(\\beta_i\\) are the varying regression coefficients (slope) for group i. - \\(\\epsilon ~\\sim HalfCauchy(0,1)\\) is the error term, typically assumed to be strictly positive.",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>13. Varying effects</span>"
+    ]
+  },
+  {
+    "objectID": "13. Varying slopes.html#priors",
+    "href": "13. Varying slopes.html#priors",
+    "title": "14  13. Varying effects",
+    "section": "14.3 Priors",
+    "text": "14.3 Priors\nThe varying intercepts (\\(\\beta_i\\)) and slopes (\\(\\alpha_i\\)) are typically modeled using a Multivariate Normal distribution:\n[ ( , S) ]\nWhere: - \\(\\alpha \\sim Normal(0,1)\\), is the prior for average intercept. - \\(\\beta \\sim Normal(0,1)\\) is the prior for average slope. - $S = \\[\n\\left(\\begin{array}{cc}\n\\sigma_\\alpha & 0 \\\\\n0 & \\sigma_\\beta\n\\end{array}\\right)\nR\n\\left(\\begin{array}{cc}\n\\sigma_\\alpha & 0 \\\\\n0 & \\sigma_\\beta\n\\end{array}\\right)\n\\] $ is the covariance matrix where:\n- $\\sigma_\\alpha \\sim Halfcauchy(0,1)$ bewing the prior stddev among intercepts.\n- $\\sigma_\\beta \\sim Halfcauchy(0,1)$ bewing the prior stddev among slopes.\n- $R \\sim LKJcorr( η)$ bewing the prior for the correlation matrix.",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>13. Varying effects</span>"
+    ]
+  },
+  {
+    "objectID": "13. Varying slopes.html#considerations",
+    "href": "13. Varying slopes.html#considerations",
+    "title": "14  13. Varying effects",
+    "section": "14.4 Considerations",
+    "text": "14.4 Considerations\n\n\\(Halfcauchy\\) distribution allow use to specify strictly positive values for a parameter\n\nParameter \\(η\\) for \\(LKJcorr\\) distribution is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>13. Varying effects</span>"
+    ]
+  },
+  {
+    "objectID": "13. Varying slopes.html#example",
+    "href": "13. Varying slopes.html#example",
+    "title": "14  13. Varying effects",
+    "section": "14.5 Example",
+    "text": "14.5 Example\nBelow is an example code snippet demonstrating Bayesian regression with varying effects:\nfrom BI import bi.hard\n\n# Simulate data-----------------------------------------------------------------\nimport math\nimport os\n\nimport arviz as az\nimport matplotlib.pyplot as plt\nimport networkx as nx\nimport numpy as np\nimport pandas as pd\nfrom IPython.display import Image, set_matplotlib_formats\nfrom matplotlib.patches import Ellipse, transforms\n\nimport jax.numpy as jnp\nfrom jax import random, vmap\nfrom jax.scipy.special import expit\n\nimport numpy as onp\nimport numpyro as numpyro\nimport numpyro.distributions as dist\nfrom numpyro.diagnostics import effective_sample_size, print_summary\nfrom numpyro.infer import MCMC, NUTS, Predictive\n\naz.style.use(\"arviz-darkgrid\")\nnumpyro.set_platform(\"cpu\")\nnumpyro.set_host_device_count(4)\na = 3.5  # average morning wait time\nb = -1  # average difference afternoon wait time\nsigma_a = 1  # std dev in intercepts\nsigma_b = 0.5  # std dev in slopes\nrho = -0.7  # correlation between intercepts and slopes\nMu = jnp.array([a, b])\ncov_ab = sigma_a * sigma_b * rho\nSigma = jnp.array([[sigma_a**2, cov_ab], [cov_ab, sigma_b**2]])\n\nsigmas = jnp.array([sigma_a, sigma_b])  # standard deviations\nRho = jnp.array([[1, rho], [rho, 1]])  # correlation matrix\n\n# now matrix multiply to get covariance matrix\nSigma = jnp.diag(sigmas) @ Rho @ jnp.diag(sigmas)\nN_cafes = 20\nseed = random.PRNGKey(5)  # used to replicate example\nvary_effects = dist.MultivariateNormal(Mu, Sigma).sample(seed, (N_cafes,))\na_cafe = vary_effects[:, 0]\nb_cafe = vary_effects[:, 1]\nseed = random.PRNGKey(22)\nN_visits = 10\nafternoon = jnp.tile(jnp.arange(2), N_visits * N_cafes // 2)\ncafe_id = jnp.repeat(jnp.arange(N_cafes), N_visits)\nmu = a_cafe[cafe_id] + b_cafe[cafe_id] * afternoon\nsigma = 0.5  # std dev within cafes\nwait = dist.Normal(mu, sigma).sample(seed)\nd = pd.DataFrame(dict(cafe=cafe_id, afternoon=afternoon, wait=wait))\n\n# Define model-----------------------------------------------------------------\ncafe_id = jnp.array(d.cafe.values)\ndef model():    \n    sigma = yield exponential(1,1)\n    a = yield normal(1, 5, 2)\n    b = yield normal(1, -1, 0.5)\n    sigma_cafe = yield exponential(2, 1)    \n    Rho = yield lkj((), 2, 2)\n    a_cafe_b_cafe = yield multivariatenormaltril(N_cafes, loc = jnp.stack([a, b], axis=1)[0], scale_tril =  Rho * sigma_cafe)\n    mu = a_cafe_b_cafe[:, 0][cafe_id] + a_cafe_b_cafe[:, 1][cafe_id] * afternoon\n    y = yield Independent(Normal(mu, sigma), reinterpreted_batch_ndims=[1])\n\nposterior, sample_stats = NUTStrans(model, obs = jnp.array(d.wait.astype('float32').values))",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>13. Varying effects</span>"
+    ]
+  },
+  {
+    "objectID": "13. Varying slopes.html#mathematical-details",
+    "href": "13. Varying slopes.html#mathematical-details",
+    "title": "14  13. Varying effects",
+    "section": "14.6 Mathematical Details",
+    "text": "14.6 Mathematical Details\nWe can express the Bayesian regression model with varying effects using probability distributions as follows:\n\\[\np(Y_{i} |\\mu_i , \\sigma) = \\text{Normal}(\\mu_i , \\sigma) \\\\\n\\]\n\\[\n\\mu_i =   \\alpha_i + \\beta_i X_i \\\\\n\\]\n[ ( , S) ]\n\\[S =\n\\left(\\begin{array}{cc}\n\\sigma_\\alpha & 0 \\\\\n0 & \\sigma_\\beta\n\\end{array}\\right)\nR\n\\left(\\begin{array}{cc}\n\\sigma_\\alpha & 0 \\\\\n0 & \\sigma_\\beta\n\\end{array}\\right)\n\\]\n\\[\n\\alpha \\sim Normal(0,1) \\\\\n\\beta \\sim Normal(0,1) \\\\\n\\sigma_\\alpha \\sim Halfcauchy(0,1) \\\\\n\\sigma_\\beta \\sim Halfcauchy(0,1) \\\\\nR \\sim LKJcorr(2)\n\\]",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>13. Varying effects</span>"
+    ]
+  },
+  {
+    "objectID": "19. Modeling Network.html",
+    "href": "19. Modeling Network.html",
+    "title": "20  17. Modeling Network",
+    "section": "",
+    "text": "20.1 Conciderations",
+    "crumbs": [
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>17. Modeling Network</span>"
+    ]
+  },
+  {
+    "objectID": "19. Modeling Network.html#conciderations",
+    "href": "19. Modeling Network.html#conciderations",
+    "title": "20  17. Modeling Network",
+    "section": "",
+    "text": "Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of link weights — i.e., model binary networks.\nNote that if the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms ( _i ), ( j ), and ( {ij} ) are no longer required. (Is it correct?)\nIn the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).",
+    "crumbs": [
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>17. Modeling Network</span>"
+    ]
+  },
+  {
+    "objectID": "2. Multiple continuous Variables.html#author",
+    "href": "2. Multiple continuous Variables.html#author",
+    "title": "3  Linear Multiple Regression for continuous vairables",
+    "section": "3.6 Author",
+    "text": "3.6 Author\nSebastian Sosa\n\n\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian Course with Examples in r and Stan. Chapman; Hall/CRC.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Linear Multiple Regression for continuous vairables</span>"
+    ]
+  }
+]

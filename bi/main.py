@@ -88,12 +88,12 @@ class bi(dist, gaussian, factors):
     def scale(self, cols = 'all'):
         if cols == 'all':
             for col in self.df.columns:                
-                self.df.iloc[:, cols] =  self.df.iloc[:,col] - self.df.iloc[:,col].mean()
+                self.df.iloc[:, cols] = (self.df.iloc[:,col] - self.df.iloc[:,col].mean())/self.df.iloc[:,col].sd()
 
         else:
             for a in range(len(cols)):
 
-                self.df.loc[:, cols[a]] =  self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean()
+                self.df.loc[:, cols[a]] =  (self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean())/self.df.iloc[:,col].sd()
 
         self.data_modification['scale'] = cols # store info of scaled columns
         
