@@ -26,7 +26,8 @@ Additional conciderations :
 </i>
 </span>
 
-- In a multinomial model, you need K − 1 linear models for K types of events. Estimates need to be converted to a vector of probabilities using the softmax function.
+- In a multinomial model, you need K − 1 linear models for K types of events. Estimates need to be converted to a [simplex 🛈](8.&#32;Multinomial.md "A simplex is a vector of k−1 probabilities that sum to one."). For this, we can convert regressions outputs using the softmax function (see "nn.softmax" line in code).
+
 - The relationship between the predictor variables and the log-odds of each category is modeled linearly, allowing us to interpret the effect of each predictor on the log-odds of each category. 
 
 ## Example
