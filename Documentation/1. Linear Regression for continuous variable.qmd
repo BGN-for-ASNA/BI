@@ -40,6 +40,8 @@ def model(height, weight):
 
 # Run mcmc ------------------------------------------------
 m.run(model) 
+
+# Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
 
@@ -60,7 +62,7 @@ Where:
 ### *Bayesian model*
 The equivalent version of the Bayesian linear regression model using probability distributions is as follows:
 $$
-p(Y | X, \alpha , \beta ) = Normal(\alpha + \beta  * X, \sigma)
+p(Y | X, \alpha , \beta ) = Normal(\alpha + \beta   X, \sigma)
 $$
 
 $$
@@ -72,18 +74,15 @@ p(\beta) = Normal(0, 1)
 $$
 
 $$
-p(\sigma) = Exponential(1)
+p(\sigma) = Uniform(0, 50)
 $$
 
 
 Where:
 - $p(Y |X, \alpha , \beta)$ is the likelihood function (equivalent of the line equation).
 - $p(\beta)$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept, respectivelly.
-- $σ$, controll the variance of the likelihood.
+- $p(\sigma)$, controll the variance of the likelihood.
 
 
 ## Reference(s)
 @mcelreath2018statistical
-
-## Author
-Sebastian Sosa

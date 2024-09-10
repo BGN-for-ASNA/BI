@@ -1,19 +1,63 @@
-# Poisson Regression
+# Poisson model
 ## General Principles
-To model the relationship between a count outcome variable and one or more predictor variables, we can use Poisson Regression. This approach is suitable when the outcome variable follows a Poisson distribution, such as counts of events occurring in a fixed interval of time or space.
+To model the relationship between a count outcome variable -e.g. counts of events occurring in a fixed interval of time or space- and one or more independent variables, we can use Poisson model. 
 
-This is a special shape of the binomial, it is useful because it allows us to model binomial events for which the number of trials n is unknown or uncountably large.
- 
-The parameter λ is the expected value of the outcome y. The conventional link function for a Poisson model is the log link (ensures that λ i is always positive). It also implies an exponential relationship between predictors and the expected value.
-The parameter λ is the expected value, but it’s also commonly thought of as a rate, allows us to make Implicitly, λ is equal to an expected number of events, µ, per unit time or distance, τ. This implies that λ = µ/τ, which lets us redefine the link:
- 
-Then the offset τi does the important work of correctly scaling the expected number of events for each case i.
+This is a special shape of the binomial distribution, it is useful because it model binomial events for which the number of trials n is unknown or uncountably large.
 
-## Formula
+## Considerations
+- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+
+- We have the second [link function](6.&#32;Poisson&#32;regression.qmd "A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity."). The conventional link function for a Poisson model is the _log_ link (it ensures that _λ_ i is always positive).
+
+- To invert the log link function and model linearly the relationship between the predictor variables and the log of the mean rate parameter we can apply the exponential function (see comment in code)
+
+<!--
+- The parameter $λ$ is the expected value, but it’s also commonly thought of as a rate. $λ$ is equal to an expected number of events, $µ$, per unit time or distance, $\tau$. This implies that $λ = µ/τ$, which lets us redefine the link
+
+$$
+log(\lambda_i) = log(\tau_i) + \alpha + \beta x_i
+$$
+
+- The offset $τi$ scale the expected number of events for each case $i$.
+
+-->
+
+## Example
+Below is an example code snippet demonstrating Bayesian Poisson model
+
+```python
+from main import*
+
+# Setup device------------------------------------------------
+m = bi()
+
+# Import data ------------------------------------------------
+m.data('../data/Kline.csv', sep=';') 
+m.sale(["P"]) 
+m.df["cid"] = (m.df.contact == "high").astype(int)
+
+m.data_to_model(['total_tools', 'P', 'cid'])
+
+
+# Define model ------------------------------------------------
+def model(cid, P, total_tools):
+    alpha = dist.normal(3, 0.5, name='alpha')
+    beta = dist.normal(0, 0.2, name='beta')
+    lk("y", Poisson(jnp.exp(alpha[cid] + beta[cid]*P)), obs=total_tools) # Exponential ensure non-negative values and invert the log link function
+
+# Run mcmc ------------------------------------------------
+m.run(model) 
+
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89)
+```
+
+## Mathematical Details
+### *Formula*
 We model the relationship between the predictor variable ($X$) and the count outcome variable ($Y$) using the following equation:
 
 $$
-log(𝜆)=\alpha + \beta  X + 𝜖
+log(𝜆)=\alpha + \beta  X 
 $$
 
 Where:
@@ -24,67 +68,34 @@ Where:
 - $\alpha$ is the intercept term.
 - $\log(\lambda)$ is the log of the mean rate parameter, ensuring it is positive.
 
-
-The relationship between the predictor variables and the log of the mean rate parameter is modeled linearly, allowing us to interpret the effect of each predictor on the expected count.
-
-## Considerations
-Typically, we use a Normal distribution for $\beta$, and $\alpha$. We often use informative or weakly informative priors based on prior knowledge or beliefs about the relationships between predictors and the outcome.
-
-<span style="font-size:1em; color : red">
-<i>
-Additional conciderations : 
-</i>
-</span>
-
-- The conventional link function for a Poisson model is the log link (ensures that λ i is always positive). It also implies an exponential relationship between predictors and the expected value.
-  
-- The parameter $λ$ is the expected value, but it’s also commonly thought of as a rate. $λ$ is equal to an expected number of events, $µ$, per unit time or distance, $\tau$. This implies that $λ = µ/τ$, which lets us redefine the link
-
-$$
-log(\lambda_i) = log(\tau_i) + \alpha + \beta x_i
-$$
- 
-Then the offset $τi$ does the important work of correctly scaling the expected number of events for each case $i$.
-
-
-## Example
-Below is an example code snippet demonstrating Bayesian Poisson regression
-
-```python
-from BI import bi.hard
-d = pd.read_csv('/home/sosa/BI/data/Kline.csv', sep = ';')
-d["P"] = d.population.pipe(np.log).pipe(lambda x: (x - x.mean()) / x.std())
-d["cid"] = (d.contact == "high").astype(int)
-d['pLog'] = tf.math.log(d.P).numpy()
-cid = jnp.array(d["cid"])
-P = jnp.array(d["P"] )
-
-def model():
-    a = yield normal(2, 3,0.5)
-    b = yield normal(2, 0,0.2)
-    l = a[cid] + b[cid]*P
-    y = yield Independent(Poisson(log_rate = l), reinterpreted_batch_ndims=1)
-
-posterior, sample_stats = NUTSdual(model, obs = jnp.array(d.total_tools.values))
-```
-
-## Mathematical Details
+### *Bayesian model*
 We can express the Bayesian Poisson regression model using probability distributions as follows:
 
 $$
-p(Y∣X,W,b)=Poisson(λ=exp(X∗W+b))\\
-p(W i​ )=Normal(0,α²)\\
-p(b)=Normal(0,β²)\\
+p(Y∣\alpha, \beta, X)=Poisson(λ=exp(\alpha + \beta X))
+$$
+
+$$
+p(\alpha)=Normal(0, 1)
+$$
+
+$$
+p(\beta)=Normal(0, 1)
 $$
 
 Where:
 
-- $p(Y | X, W, b)$ is the likelihood function.
-- $p(Wi)$ and $p(b)$ are the prior distributions for the regression coefficients and intercept.
-- $\lambda = \exp(X * W + b)$ is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.
-- 
+- $p(Y |alpha, \beta, X)$ is the likelihood function.
+- $p(\beta)$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept.
+- $\lambda = \exp(\alpha + \beta X)$ is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.
+
 ## Notes
 
-- We can apply multiple variables similarly as [chapter 2](bi/doc/2.%20Multiple%20Regression%20for%20Continuous%20Variables.qmd).
-- We can apply interaction terms  similarly as [chapter 3](bi\doc\3.%20Interaction%20between%20continuous%20variables.qmd).
-- We can apply  caterogical variables similarly as [chapter 4](bi\doc\4.%20%Categorical%20%variable.md).
+- We can apply multiple variables similarly as [chapter 2](2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
+
+- We can apply interaction terms  similarly as [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+
+- We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.md).
+
+## Reference(s)
+@mcelreath2018statistical

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Linear Multiple Regression for continuous vairables – BI documentation</title>
+<title>4&nbsp; Multiple continuous variables model – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -54,7 +54,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -144,7 +164,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./2. Multiple continuous Variables.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Multiple Regression for continuous vairables</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./2. Multiple continuous Variables.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multiple continuous variables model</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -172,127 +192,127 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Preface</span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./0. Introduction.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./2. Multiple continuous Variables.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Multiple Regression for continuous vairables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multiple continuous variables model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interaction Term between Two Continuous Variables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interaction Term between Two Continuous Variables</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regression for Categorical Variables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Regression for Categorical Variables</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./5. Binomial regression.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Binomial Regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./6. Poisson regression.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Poisson Regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Poisson model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./7. Negative binomial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Negative binomial regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Negative binomial model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Multinomial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multinomial Regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Multinomial Regression</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./9. Beta binomial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Beta-Binomial Regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Beta-Binomial Regression</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Negative-binomial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Negative Binomial Regression</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Negative Binomial Regression</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">11. Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./12. Varying interceps.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Varying interceps</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying interceps</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./13. Varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">13. Varying effects</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying effects</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14. Multiple varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">14. Multiple varying slopes.html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">14. Multiple varying slopes.html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./15. Continuous varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">15. Continuous varying slopes.html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">15. Continuous varying slopes.html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./16. Gaussian processes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">16. Gaussian processes.html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">16. Gaussian processes.html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./17. Measuring error.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">17. Measuring error.html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">17. Measuring error.html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18. Missing data.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">18. Missing data.html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">18. Missing data.html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./19. Modeling Network.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></span></a>
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></span></a>
   </div>
 </li>
     </ul>
@@ -305,15 +325,15 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">3.1</span> General Principles</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">3.2</span> Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">3.3</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">3.4</span> Mathematical Details</a>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">4.1</span> General Principles</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">4.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">4.3</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">4.4</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">3.4.1</span> <em>Formula</em></a></li>
-  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">3.4.2</span> <em>Bayesian model</em></a></li>
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">4.4.1</span> <em>Formula</em></a></li>
+  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">4.4.2</span> <em>Bayesian model</em></a></li>
   </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">3.5</span> Reference(s)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">4.5</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -322,7 +342,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Multiple Regression for continuous vairables</span></h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multiple continuous variables model</span></h1>
 </div>
 
 
@@ -339,57 +359,55 @@ window.Quarto = {
 </header>
 
 
-<section id="general-principles" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">3.1</span> General Principles</h2>
+<section id="general-principles" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">4.1</span> General Principles</h2>
 <p>To study relationships between multiple continuous variables (e.g., effect of height and age on weight), we can use a Multiple Regression approach. Essentially, we extend the <a href="./1. Linear Regression for continuous variable.html">Linear Regression for continuous variable</a> by adding a regression coefficient <span class="math inline">\(\beta\)</span> for each continuous variables.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://miro.medium.com/v2/resize:fit:786/format:webp/0*dJqdzk1aMo2OQR7O.png" class="img-fluid figure-img"></p>
-<figcaption>Plot</figcaption>
-</figure>
-</div>
+<p><img src="https://miro.medium.com/v2/resize:fit:786/format:webp/0*dJqdzk1aMo2OQR7O.png" class="img-fluid"></p>
 </section>
-<section id="considerations" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">3.2</span> Considerations</h2>
+<section id="considerations" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">4.2</span> Considerations</h2>
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>We need regression coefficient <span class="math inline">\(beta\)</span> for each <a href="./2. Multiple continuous Variables.html" title="An independent variable is the factor that we change or control to see if it affects an outcome (the dependent variable).">independent variables 🛈</a>.</p></li>
-<li><p>Model interpretation of the regression coefficients <span class="math inline">\(\beta\)</span> is considered for a fixed value of the other dependent variables’ regression coefficients —i.e., for a given age, a variation of 1 unit in height reflects the value of the regression coefficient $$ for height.</p></li>
+<li><p>We need regression coefficient <span class="math inline">\(\beta\)</span> for each <a href="./2. Multiple continuous Variables.html" title="An independent variable is the factor that we change or control to see if it affects an outcome (the dependent variable).">independent variables 🛈</a>.</p></li>
+<li><p>Model interpretation of the regression coefficients <span class="math inline">\(\beta\)</span> is considered for a fixed value of the other dependent variables’ regression coefficients —i.e., for a given age, a variation of 1 unit in height reflects the value of the regression coefficient <span class="math inline">\(\beta\)</span> for height.</p></li>
 </ul>
 </section>
-<section id="example" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="example"><span class="header-section-number">3.3</span> Example</h2>
+<section id="example" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="example"><span class="header-section-number">4.3</span> Example</h2>
 <p>Below is an example code snippet demonstrating Bayesian multiple regression using Bayesian Inference (BI) package:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi.hard</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> pd.read_csv(<span class="st">'/home/sosa/BI/data/Howell1.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Manipulate and scale data</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> d[d.age <span class="op">&gt;</span> <span class="dv">18</span>]</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#self.df["weight.per.g"].pipe(lambda x: (x - x.mean()) / x.std())</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>d.weight <span class="op">=</span> d.weight <span class="op">-</span> d.weight.mean()</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>d.age <span class="op">=</span> d.age <span class="op">-</span> d.age.mean()</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>weight <span class="op">=</span> jnp.array(d.weight.values)</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/Howell1.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>, <span class="st">'age'</span>])</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'weight'</span>, <span class="st">'height'</span>, <span class="st">'age'</span>])</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define your model</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model():</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> <span class="cf">yield</span> uniform(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">50</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> <span class="cf">yield</span> normal(<span class="dv">1</span>, <span class="dv">178</span>, <span class="dv">20</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> <span class="cf">yield</span> normal(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)    </span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    beta2 <span class="op">=</span> <span class="cf">yield</span> normal(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>) </span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="cf">yield</span> Independent(Normal(a <span class="op">+</span> beta <span class="op">*</span> weight <span class="op">+</span> beta2 <span class="op">*</span> age, s))</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>posterior, sample_stats <span class="op">=</span> NUTStrans(model, </span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                                    obs <span class="op">=</span> jnp.array(d.height.values),  <span class="co"># define the dependent variable </span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                                    n_chains <span class="op">=</span> <span class="dv">4</span>)  <span class="co"># define number of chains</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(height, weight, age):</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'alpha'</span>)    </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'beta1'</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    beta2 <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'beta2'</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> bi.dist.uniform( <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Normal(alpha <span class="op">+</span> beta1 <span class="op">*</span> weight <span class="op">+</span> beta2 <span class="op">*</span> age, sigma), obs<span class="op">=</span>height)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">3.4</span> Mathematical Details</h2>
-<section id="formula" class="level3" data-number="3.4.1">
-<h3 data-number="3.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">3.4.1</span> <em>Formula</em></h3>
+<section id="mathematical-details" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">4.4</span> Mathematical Details</h2>
+<section id="formula" class="level3" data-number="4.4.1">
+<h3 data-number="4.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">4.4.1</span> <em>Formula</em></h3>
 <p>We model the relationship between the independent variables (X1, X2, …, Xn) and the dependent variable (Y) using the following equation:</p>
 <p><span class="math display">\[
-𝑌 = \alpha +\beta_1 * 𝑋_1 + beta_2 * 𝑋_2 + ... + \beta_n * 𝑋_𝑛 + \sigma
+𝑌 = \alpha +\beta_1  𝑋_1 + \beta_2  𝑋_2 + ... + \beta_n  𝑋_𝑛 + \sigma
 \]</span></p>
 <p>Where:</p>
 <ul>
@@ -400,11 +418,11 @@ window.Quarto = {
 <li><span class="math inline">\(sigma\)</span> is the error term.</li>
 </ul>
 </section>
-<section id="bayesian-model" class="level3" data-number="3.4.2">
-<h3 data-number="3.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">3.4.2</span> <em>Bayesian model</em></h3>
+<section id="bayesian-model" class="level3" data-number="4.4.2">
+<h3 data-number="4.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">4.4.2</span> <em>Bayesian model</em></h3>
 <p>We can express the Bayesian multiple regression model using probability distributions as follows:</p>
 <p><span class="math display">\[
-𝑝(𝑌∣𝑋, \alpha,\beta) = Normal(\alpha + \sum_i^n  \beta_i * X_i, σ²)
+𝑝(𝑌∣𝑋, \alpha,\beta) = Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
 \]</span></p>
 <p><span class="math display">\[
 p(\alpha) = Normal(0,1)
@@ -413,20 +431,27 @@ p(\alpha) = Normal(0,1)
 p(\beta_i) = Normal(0,1)
 \]</span></p>
 <p><span class="math display">\[
-p(σ) = Exponential(1)
+p(σ) = Uniform(0, 50)
 \]</span></p>
 <p>Where:</p>
 <ul>
 <li><span class="math inline">\(p(Y | 𝑋, \alpha,\beta)\)</span> is the likelihood function.</li>
-<li><span class="math inline">\(p(\beta_i)\)</span> and <span class="math inline">\(p(\alpha)\)</span> are the prior distributions for the regression coefficients - and intercept.</li>
+<li><span class="math inline">\(p(\alpha)\)</span> is prior distributions for the intercept</li>
+<li><span class="math inline">\(p(\beta_k)\)</span> are the prior distributions for the regression coefficients <em>k</em> distinct regression coefficients.</li>
 <li><span class="math inline">\(p(\sigma)\)</span> is the prior distribution for the standard deviation, ensuring - it is positive.</li>
 </ul>
 </section>
 </section>
-<section id="references" class="level2" data-number="3.5">
-<h2 data-number="3.5" class="anchored" data-anchor-id="references"><span class="header-section-number">3.5</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="references"><span class="header-section-number">4.5</span> Reference(s)</h2>
+<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->
@@ -853,12 +878,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./1. Linear Regression for continuous variable.html" class="pagination-link" aria-label="Linear Regression for continuous vairable">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="./3. Interaction between continuous variables.html" class="pagination-link" aria-label="Interaction Term between Two Continuous Variables">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interaction Term between Two Continuous Variables</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interaction Term between Two Continuous Variables</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

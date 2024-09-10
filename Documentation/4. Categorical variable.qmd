@@ -1,53 +1,62 @@
 #  Regression for Categorical Variables
 ## General Principles
-To study the relationship between a categorical independent variable and a continuous dependent variable, we use Categorical Regression through _stratification_. _Stratification_ concist in modeling how the different categories of the independent variable affect the target continuous variable, by performing a regression for each categories and asing a regression coefficient for each categories. To realize the  _stratification_, categorical variables are often encoded using one-hot encoding or converting categories to indeces.
+To study the relationship between a categorical independent variable and a continuous dependent variable, we use _Categorical model_ wich apply _stratification_.
 
-![Plot](https://i0.wp.com/67.media.tumblr.com/e8ec86a7dd863cfccb64fd40e55c0e90/tumblr_inline_o8j406qB4V1qa0hyw_540.png?resize=450%2C354)
+_Stratification_ concist in modeling how the different categories of the independent variable affect the target continuous variable, by performing a regression for each categories and asing a regression coefficient for each categories. To realize the  _stratification_, categorical variables are often encoded using one-hot encoding or converting categories to indeces.
+
+![](https://i0.wp.com/67.media.tumblr.com/e8ec86a7dd863cfccb64fd40e55c0e90/tumblr_inline_o8j406qB4V1qa0hyw_540.png?resize=450%2C354)
 
 
 
 ## Considerations
-- Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for  $\alpha$ , $\beta$ and $\sigma$ . 
+- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- Ussually, we use _Normal_ distribution for  $\alpha$ , $\beta$ and an exponential distributiuon for $\sigma$.
+- As we generate regression coefficients for each \( k \) category in the code, we need to specify a prior with a shape equal to the number of categories (see comments in the code).
 
-- As we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.
-
-- As we generate regression coefficients for each category, we need to specify a prior with a shape equal to the number of categories (see comments in the code).
-
-- From posterior predictions, we compute the distribution of the differences between categories, known as the contrast distribution. **Never compare the confidence intervals or p-values directly.**
+- To compare differences between categories, we need to compute the distribution of the differences between categories, known as the contrast distribution. **Never compare the confidence intervals or p-values directly.**
 
 ## Example
 Below is an example code snippet demonstrating Bayesian regression with an independent categorical variable:
 
 ```python
-from BI import bi.hard
-d = pd.read_csv('/home/sosa/BI/data/milk.csv', sep=';')
-d["K"] = d["kcal.per.g"].pipe(lambda x: (x - x.mean()) / x.std())
-d = index(d, cols = "clade")
-index_clade = jnp.array(d.index_clade.values, dtype=jnp.int32)
-def model():
-    s = yield exponential(1, 1)
-    a = yield normal(4, 0, 0.5)  # prior with a shape equal to the number of categories
-    m = a[index_clade] # Assign Prior to the Corresponding Categories
-    y = yield tfd.Independent(tfd.Normal(m, s), reinterpreted_batch_ndims=1)
-    
-posterior, sample_stats = NUTSdual(model, obs = jnp.array(d.K.values))
+from main import*
+
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m.data('../data/milk.csv', sep=';') 
+m.index(["clade"])
+m.scale(['kcal_per_g'])
+m.data_to_model(['kcal_per_g', "index_clade"])
+
+# Define model ------------------------------------------------
+def model(kcal_per_g, index_clade):    
+    beta = bi.dist.normal(0, 0.5, shape = (4,), name = 'beta') # we specify a vector of length 4 as we have 4 categories
+    sigma = bi.dist.exponential( 1,  name = 'sigma')
+    lk("y", Normal(beta[index_clade], s), obs= kcal_per_g)
+
+
+# Run mcmc ------------------------------------------------
+m.run(model) 
+
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89)
 ```
 
 ## Mathematical Details
 ### *Formula*
 We model the relationship between the categorical input feature (X) and the target variable (Y) using the following equation:
 
-$$𝑌=\alpha + \beta_i X_i + \sigma$$
+$$𝑌=\alpha + \beta_k X_i + \sigma$$
 
 Where:
 
 - $Y$ is the target variable.
 - $X$ is the encoded categorical input variable .
 - $\alpha$ is the intercept term.
-- $\beta_i$ is the regression coefficient for the category *i*.
-- $X_i$ is a vector representing the categories of *i*
+- $\beta_k$ are the regression coefficient for each _k_ categories.
+- $X$ is the independet varible
 - $\sigma$ is the error term .
   
 
@@ -57,21 +66,25 @@ We can interpret $\beta_i$ as the effect of each category on $Y$ relative to the
 We can express the Bayesian regression model with a categorical independent variable using probability distributions as follows:
 
 $$
-𝑝(𝑌_i∣\alpha, 𝑋_i,\beta_i)=Normal(\alpha +  \beta_𝑖∗X_𝑖,𝜎) \\
-𝑝(\alpha)=Normal(0,𝛼²)\\
-𝑝(\beta_𝑖)=Normal(0,𝛼²)\\
+𝑝(𝑌_i∣\alpha, 𝑋_i,\beta_i)=Normal(\alpha +  \beta_k X,𝜎) \\
+𝑝(\alpha)=Normal(0,1)\\
+𝑝(\beta_k)=Normal(0,1)\\
 𝑝(𝜎)=Exponential(1)
 $$
 
 Where:
 
 - $p(𝑌_i∣\alpha, 𝑋_i, \beta_i)$ is the likelihood function.
-- $p(\beta_i)$ and $\alpha$ are the prior distributions for the regression coefficients and  intercept respectivelly.
+- $p(\alpha)$ is prior distributions for the intercept
+- $p(\beta_k)$ are _k_ prior distributions for _k_ regression coefficients.
 - $p(\sigma)$ is the prior distribution for the standard deviation, ensuring it is  positive.
-- $\sigma^2$, $\alpha^2$, and $\beta^2$ are hyperparameters controlling the variance of the likelihood and priors.
 
 
 ## Notes
 
 - We can apply multiple variables similarly as [chapter 2: Multiple continuous Variables](2.&#32;Multiple&#32;continuous&#32;Variables.qmd).
+
 - We can apply interaction terms  similarly as [chapter 3: Interaction between continuous variables](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+
+## Reference(s)
+@mcelreath2018statistical
