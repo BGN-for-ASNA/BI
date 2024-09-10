@@ -1,8 +1,8 @@
-# Linear Multiple Regression for continuous vairables
+# Multiple continuous variables model
 ## General Principles
 To study relationships between multiple continuous variables (e.g., effect of height and age on weight), we can use a Multiple Regression approach. Essentially, we extend the [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd) by adding a regression coefficient $\beta$ for each continuous variables. 
 
-![Plot](https://miro.medium.com/v2/resize:fit:786/format:webp/0*dJqdzk1aMo2OQR7O)
+![](https://miro.medium.com/v2/resize:fit:786/format:webp/0*dJqdzk1aMo2OQR7O)
 
 ## Considerations
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
@@ -38,6 +38,8 @@ def model(height, weight, age):
 
 # Run mcmc ------------------------------------------------
 m.run(model) 
+
+# Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
 
@@ -46,7 +48,7 @@ m.sampler.print_summary(0.89)
 We model the relationship between the independent variables (X1, X2, ..., Xn) and the dependent variable (Y) using the following equation:
 
 $$
-𝑌 = \alpha +\beta_1 * 𝑋_1 + \beta_2 * 𝑋_2 + ... + \beta_n * 𝑋_𝑛 + \sigma
+𝑌 = \alpha +\beta_1  𝑋_1 + \beta_2  𝑋_2 + ... + \beta_n  𝑋_𝑛 + \sigma
 $$
 
 Where:
@@ -62,7 +64,7 @@ We can express the Bayesian multiple regression model using probability distribu
 
 
 $$
-𝑝(𝑌∣𝑋, \alpha,\beta) = Normal(\alpha + \sum_k^n  \beta_i * X_i, σ²)
+𝑝(𝑌∣𝑋, \alpha,\beta) = Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
 $$
 
 $$
@@ -74,17 +76,16 @@ p(\beta_i) = Normal(0,1)
 $$
 
 $$
-p(σ) = Exponential(1)
+p(σ) = Uniform(0, 50)
 $$
 
 Where:
 
 - $p(Y | 𝑋, \alpha,\beta)$ is the likelihood function.
-- $p(\beta_i)$ and $p(\alpha)$ are the prior distributions for the regression coefficients - and intercept.
+- $p(\alpha)$ is prior distributions for the intercept
+- $p(\beta_k)$ are the prior distributions for the regression coefficients _k_ distinct regression coefficients.
 - $p(\sigma)$ is the prior distribution for the standard deviation, ensuring - it is positive.
 
 ## Reference(s)
 @mcelreath2018statistical
 
-## Author
-Sebastian Sosa
