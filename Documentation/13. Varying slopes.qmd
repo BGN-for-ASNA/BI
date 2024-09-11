@@ -118,52 +118,57 @@ p(Y_{ik} |\mu_{ik} , \sigma) \sim \text{Normal}(\mu_{ik} , \sigma) \\
 \sigma \sim Exponential(0,1)
 $$
 
-The varying intercepts slopes ($\alpha_k$) and ($\beta_k$) are modeled using a Multivariate Normal distribution:
+The varying intercepts slopes ($\alpha_k$) and ($\beta_k$) are modeled using a _Multivariate Normal distribution_:
 
 $$
-\left[
-\begin{array}{c}
-\alpha_k \\
-\beta_k \\
-\end{array}
-\right] \sim 
+\left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
+ \sim 
 \text{MultivariateNormal}(
-   \left[
-\begin{array}{c}
-\alpha \\
-\beta \\
-\end{array}
-\right]
- , S)
 
+\left(\begin{array}{cc} 
+0 \\
+0
+\end{array}\right),
+\left(\begin{array}{cc} 
+\sigma_\alpha^2 & \sigma_\pi\sigma_{\alpha\rho} \\
+\sigma_\alpha\sigma_{\pi\rho} & \sigma_\pi
+\end{array}\right))
 $$
 
 Where:
-- $\alpha \sim Normal(0,1)$, is the prior for average intercept.
-- $\beta \sim Normal(0,1)$ is the prior for average slope.
-- $S$ is the covariance matrix where:
+- $\left(\begin{array}{cc} 0 \\0\end{array}\right)$, is the prior for average intercept.
+- $\left(\begin{array}{cc} \sigma_\alpha^2 & \sigma_\pi\sigma_{\alpha\rho} \\ \sigma_\alpha\sigma_{\pi\rho} & \sigma_\pi \end{array}\right)$ is is the covariance matrix which specifies the variance and covariance of $\alpha_k$ and $\beta_k$, where:
+    - $\sigma_\alpha^2$ The variance of $\alpha_k$.
+    - $\sigma_\pi^2$ The variance of $\beta_k$.
+    - $\sigma_\pi\sigma_{\alpha\rho}$ and $\sigma_\alpha\sigma_{\pi\rho}$ The covariance between $\alpha_k$ and $\beta_k$
+
+
+For computational reasons, it is often better to implement a [centered version of the varying intercept 🛈](12.&#32;Varying&#32;intercepts.qmd "The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.") that is equivalent to the _Multivariate Normal distribution_ approach:
+
 $$
+\left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
+ \sim 
 \left(\begin{array}{cc} 
-\sigma_\alpha & 0 \\
-0 & \sigma_\beta
-\end{array}\right)
-R
+\sigma_\alpha\\
+\sigma_\pi
+\end{array}\right) \circ 
+L *
 \left(\begin{array}{cc} 
-\sigma_\alpha & 0 \\
-0 & \sigma_\beta
+\widehat{\alpha}_k \\
+\widehat{\pi}_k
 \end{array}\right)
 $$
 
 
 - Where:
 
-    - $\sigma_\alpha \sim Halfcauchy(0,1)$ bewing the priorstddev      amongintercepts.
-    - $\sigma_\beta \sim Halfcauchy(0,1)$ bewing the prior stddevamongslopes.
-    - $R \sim LKJcorr( η)$ bewing the prior for the correlationmatrix.
+    - $\sigma_\alpha \sim Exponential(1)$ bewing the priorstddev      amongintercepts.
+    - $\sigma_\beta \sim Exponential(1)$ bewing the prior stddevamongslopes.
+    - $L \sim LKJcorr(η)$ bewing the prior for the correlationmatrix.
 
 
 
-The full model is thus : 
+The full cetered version of the model is thus : 
 
 $$
 p(Y_{i} |\mu_k , \sigma) \sim \text{Normal}(\mu_k , \sigma) \\
@@ -173,41 +178,28 @@ $$
 \mu_k =   \alpha_k + \beta_i X_i \\
 $$
 
-$$
-\left[
-\begin{array}{c}
-\alpha_k \\
-\beta_k \\
-\end{array}
-\right] \sim 
-\text{MultivariateNormal}(
-   \left[
-\begin{array}{c}
-\alpha \\
-\beta \\
-\end{array}
-\right]
- , S)
-$$
 
-$$S = 
+
+$$
+\left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
+ \sim 
 \left(\begin{array}{cc} 
-\sigma_\alpha & 0 \\
-0 & \sigma_\beta
-\end{array}\right)
-R
+\sigma_\alpha\\
+\sigma_\pi
+\end{array}\right) \circ 
+L *
 \left(\begin{array}{cc} 
-\sigma_\alpha & 0 \\
-0 & \sigma_\beta
+\widehat{\alpha}_k \\
+\widehat{\pi}_k
 \end{array}\right)
 $$
 
 $$
 \alpha \sim Normal(0,1) \\
 \beta \sim Normal(0,1) \\
-\sigma_\alpha \sim Halfcauchy(0,1) \\
-\sigma_\beta \sim Halfcauchy(0,1) \\
-R \sim LKJcorr(2)
+\sigma_\alpha \sim Exponential(1) \\
+\sigma_\beta \sim Exponential(1) \\
+L \sim LKJcorr(2)
 $$
 
 
@@ -221,7 +213,7 @@ $$
 
 - We can apply varying slopes with any distribution developped in previous chapters. 
 
-- For faster computation, we can modify the covariance matrix model by using the centered version of the varying slope. XXXXX
+
 
 ## Reference(s)
 @mcelreath2018statistical
