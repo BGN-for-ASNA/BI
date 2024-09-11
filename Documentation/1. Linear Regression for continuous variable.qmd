@@ -22,23 +22,27 @@ To study relationships between two continuous variables (e.g. heigth and weigth)
 
 Below is an example code snippet demonstrating Bayesian linear regression using Bayesian Inference (BI) package:
 
-```
-from .bi.main import*#
+```python
+from .bi.main import*
 # Setup device------------------------------------------------
-m = bi(platform='cpu')#
+m = bi(platform='cpu')
+
 # Import data ------------------------------------------------
 m.data('../data/Howell1.csv', sep=';') 
 m.df = m.df[m.df.age > 18]
 m.scale(['weight'])
-m.data_to_model(['weight', 'height'])#
+m.data_to_model(['weight', 'height'])
+
 # Define model ------------------------------------------------
 def model(height, weight):    
     alpha = dist.normal( 178, 20, name = 'alpha')
     beta = dist.normal(  0, 1, name = 'beta')   
     sigma = dist.uniform( 0, 50, name = 'sigma')
-    lk("Y", Normal(alpha + beta * weight , sigma), obs = height)#
+    lk("Y", Normal(alpha + beta * weight , sigma), obs = height)
+
 # Run mcmc ------------------------------------------------
-m.run(model) #
+m.run(model) 
+
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
@@ -60,19 +64,19 @@ Where:
 ### *Bayesian model*
 The equivalent version of the Bayesian linear regression model using probability distributions is as follows:
 $$
-p(Y | X, \alpha , \beta ) = Normal(\alpha + \beta   X, \sigma)
+p(Y | \alpha, \beta, X) \sim Normal(\alpha + \beta   X, \sigma)
 $$
 
 $$
-p(\alpha) = Normal(0, 1)
+p(\alpha) \sim Normal(0, 1)
 $$
 
 $$
-p(\beta) = Normal(0, 1)
+p(\beta) \sim Normal(0, 1)
 $$
 
 $$
-p(\sigma) = Uniform(0, 50)
+p(\sigma) \sim Uniform(0, 50)
 $$
 
 

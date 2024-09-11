@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>21&nbsp; 17. Modeling Network – BI documentation</title>
+<title>8&nbsp; Beta-Binomial model – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -30,7 +64,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./18. Missing data.html" rel="prev">
+<link href="./7. Poisson model.html" rel="next">
+<link href="./5. Binomial model.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -113,7 +148,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./19. Modeling Network.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./6. Beta binomial model.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial model</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -176,43 +211,43 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./5. Binomial regression.html" class="sidebar-item-text sidebar-link">
+  <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./6. Poisson regression.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Poisson model</span></span></a>
+  <a href="./6. Beta binomial model.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./7. Negative binomial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Negative binomial model</span></span></a>
+  <a href="./7. Poisson model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Poisson model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./8. Multinomial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Multinomial Regression</span></span></a>
+  <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Gamma-Poisson model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./9. Beta binomial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Beta-Binomial Regression</span></span></a>
+  <a href="./9. Multinomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Multinomial model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./10. Negative-binomial.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Negative Binomial Regression</span></span></a>
+  <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Dirichlet model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
+  <a href="./11. Zero inflated (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
   </div>
 </li>
@@ -225,7 +260,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./13. Varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying effects</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">13. Varying effects</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -248,20 +283,50 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Measuring error.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">17. Measuring error.html</span></span></a>
+  <a href="./17. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">17. Measuring error (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Missing data.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">18. Missing data.html</span></span></a>
+  <a href="./18. Missing data (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">18. Missing data (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19. Modeling Network.html" class="sidebar-item-text sidebar-link active">
+  <a href="./19. Network model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19.1. Sender receiver network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">19.1. Sender receiver network model.html</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19.2. Block model network.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">19.2. Block model network.html</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20. Multiplex network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multiplex Networks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21. Multiplex temporal network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">21. Multiplex temporal network model.html</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22. Multilayer network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -274,7 +339,14 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#conciderations" id="toc-conciderations" class="nav-link active" data-scroll-target="#conciderations"><span class="header-section-number">21.1</span> Conciderations</a></li>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">8.1</span> General Principles</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">8.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">8.3</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">8.4</span> Mathematical Details</a></li>
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">8.5</span> <em>Formula</em></a>
+  <ul class="collapse">
+  <li><a href="#bayesian-model-wip" id="toc-bayesian-model-wip" class="nav-link" data-scroll-target="#bayesian-model-wip"><span class="header-section-number">8.5.1</span> <em>Bayesian model (WIP)</em></a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -283,7 +355,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></h1>
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial model</span></h1>
 </div>
 
 
@@ -300,86 +372,90 @@ window.Quarto = {
 </header>
 
 
-<p>When modeling network data, the relationships between nodes can be represented by weighted links. These weights might indicate the strength of connections such as the number of interactions, shared attributes, or other quantitative measures of connection strength between nodes. The simple model that can be built to model link weights between nodes <em>i</em> and <em>j</em> can be defined as follows:</p>
-<p><span class="math display">\[
-G_{ij} \sim Poisson(Y_{ij}) \\
-log(Y_{ij}) =  \alpha  + \lambda_i + \pi_j + \delta_{ij}
-\]</span></p>
-<p>where: - ( Y_{ij} ) is the weight of links between <em>i</em> and <em>j</em>. - ( ) is the intercept. - ( _i ) is the characteristic of node <em>i</em> that affects node <em>i</em>’s propensity to emit a link toward node <em>j</em>. - ( <em>j ) is the characteristic of node <em>j</em> that affects node <em>j</em>’s propensity to receive a link from node <em>i</em>. - ( </em>{ij} ) is a matrix of dyadic effects governing reciprocity between dyads.</p>
-<p>Note that any additional covariates can be added with a regression coefficient to the model representing nodal characteristics (e.g., sex, age) or dyadic characteristics (e.g., genetic distances).</p>
-<p>To account for correlation between the propensity to emit and receive links of a dyad, we can use <a href="13. Varying slopes.md">varying slopes</a> as follows:</p>
-<p><span class="math display">\[
-\left(\begin{array}{cc}
-\lambda_i \\
-\pi_j
-\end{array}\right)
-\sim
-MultivariateNormal\left(\begin{array}{cc}
-\left(\begin{array}{cc}
-0 \\
-0
-\end{array}\right),
-\left(\begin{array}{cc}
-\sigma_\lambda^2 &amp; \sigma_\pi \sigma_{\lambda \rho }\\
-\sigma_\lambda \sigma_{\pi \rho } &amp; \sigma_\pi^2
-\end{array}\right)
-\end{array}\right)
-\]</span></p>
-<p>This can be optimized for computation by:</p>
-<p><span class="math display">\[
-\left(\begin{array}{cc}
-\lambda_i \\
-\pi_j
-\end{array}\right)
-\sim
-MultivariateNormal\left(\begin{array}{cc}
-\left(\begin{array}{cc}
-\sigma_\lambda \\
-\sigma_\pi
-\end{array}\right) \circ
-\left(\begin{array}{cc}
-L *
-\left(\begin{array}{cc}
-\hat{\lambda}_i \\ \hat{\pi}_i
-\end{array}\right)
-\end{array}\right)
-\end{array}\right)
-\]</span></p>
-<p><span class="math display">\[
-\sigma_\alpha \sim Exponential(1)
-\]</span></p>
-<p><span class="math display">\[
-\sigma_\pi \sim Exponential(1)
-\]</span></p>
-<p><span class="math display">\[
-L \sim LKJ(2)
-\]</span></p>
-<p>Similarly, the dyad reciprocity effect is also modeled using a random slope:</p>
-<p><span class="math display">\[
-\left(\begin{array}{cc}
-\delta_{ij} \\
-\delta_{ji}
-\end{array}\right)
-\sim
-MultivariateNormal\left(\begin{array}{cc}
-\left(\begin{array}{cc}
-\sigma_\delta \\
-\sigma_\delta
-\end{array}\right) \circ
-\left(\begin{array}{cc}
-L_\delta *
-\left(\begin{array}{cc}
-\hat{\delta}_{ij} \\ \hat{\delta}_{ji}
-\end{array}\right)
-\end{array}\right)
-\end{array}\right)
-\]</span></p>
-<section id="conciderations" class="level2" data-number="21.1">
-<h2 data-number="21.1" class="anchored" data-anchor-id="conciderations"><span class="header-section-number">21.1</span> Conciderations</h2>
+<section id="general-principles" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">8.1</span> General Principles</h2>
+<p>To model the relationship between a binary outcome variable representing success counts and one or more indepedent variables with <a href="./7. Poisson model.html" title="Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.">overdispersion 🛈</a>, we can use Beta-Binomial model.</p>
+<p>We model the relationship between the predictor variables (X1, X2, …, Xn) and the probability of success (p) using the following equation:</p>
+</section>
+<section id="considerations" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">8.2</span> Considerations</h2>
 <ul>
-<li><p>Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of link weights — i.e., model binary networks.</p></li>
-<li><p>Note that if the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms ( _i ), ( <em>j ), and ( </em>{ij} ) are no longer required. (Is it correct?)</p></li>
-<li><p>In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).</p></li>
+<li><p>We have the same considerations as for <a href="./5. Binomial model.html">Binomial regression</a>.</p></li>
+<li><p>A beta-binomial model assumes that each binomial count observation has its own probability of a success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.</p></li>
+<li><p>A beta distribution has two parameters, an average probability <em>p</em> and a shape parameter θ.</p></li>
+</ul>
+</section>
+<section id="example" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="example"><span class="header-section-number">8.3</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian Beta-Binomial regression:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> .bi.main <span class="im">import</span><span class="op">*</span><span class="co">#</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/UCBadmit.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"gid"</span>] <span class="op">=</span> (m.df[<span class="st">"applicant.gender"</span>] <span class="op">!=</span> <span class="st">"male"</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>gid <span class="op">=</span> jnp.array(m.df[<span class="st">"gid"</span>].astype(<span class="st">'int32'</span>).values)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>applications <span class="op">=</span> jnp.array(m.df[<span class="st">"applications"</span>].astype(<span class="st">'float32'</span>).values)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>admit <span class="op">=</span> jnp.array(m.df[<span class="st">"admit"</span>].astype(<span class="st">'float32'</span>).values)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    gid <span class="op">=</span> gid,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    applications <span class="op">=</span> applications,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    admit <span class="op">=</span>  admit</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(gid, applications, admit):</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name <span class="op">=</span> <span class="st">'phi'</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal( <span class="fl">0.</span>, <span class="fl">1.5</span>, shape<span class="op">=</span>[<span class="dv">2</span>], name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> phi <span class="op">+</span> <span class="dv">2</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    pbar <span class="op">=</span> jax.nn.sigmoid(alpha[gid])</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    concentration1 <span class="op">=</span> pbar<span class="op">*</span>theta</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    concentration0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> pbar) <span class="op">*</span> theta</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, BetaBinomial(total_count <span class="op">=</span> applications, concentration1 <span class="op">=</span> concentration1, concentration0 <span class="op">=</span> concentration0), obs<span class="op">=</span>admit)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="mathematical-details" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">8.4</span> Mathematical Details</h2>
+</section>
+<section id="formula" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="formula"><span class="header-section-number">8.5</span> <em>Formula</em></h2>
+<p><span class="math display">\[
+logit(𝑝)= \alpha + \beta X
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(p\)</span> is the probability of success.</li>
+<li><span class="math inline">\(\alpha\)</span> the intercept term.</li>
+<li><span class="math inline">\(\beta\)</span> the regression term.</li>
+<li><span class="math inline">\(X\)</span> is an independent variables.</li>
+<li><span class="math inline">\(\text{logit}(p)\)</span> is the log-odds of success.</li>
+</ul>
+<section id="bayesian-model-wip" class="level3" data-number="8.5.1">
+<h3 data-number="8.5.1" class="anchored" data-anchor-id="bayesian-model-wip"><span class="header-section-number">8.5.1</span> <em>Bayesian model (WIP)</em></h3>
+<p>We can express the Bayesian Beta-Binomial regression model using probability distributions as follows:</p>
+<p><span class="math display">\[
+p(Y|n, \overline{p}, \theta) = BetaBinomial(n, \overline{p}, \theta)
+\]</span></p>
+<p><span class="math display">\[
+logit(\overline{p}) = \alpha + \beta X
+\]</span></p>
+<p><span class="math display">\[𝑝(\alpha)=Normal(0,1)\]</span></p>
+<p><span class="math display">\[p(\theta)=HalfCaychy(0,1)\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(p(Y | n, \overline{p}, \theta)\)</span> is the likelihood function.</li>
+<li><span class="math inline">\(n\)</span> is the total count of trials.</li>
+<li><span class="math inline">\(\overline{p}\)</span> is the average probability.</li>
+<li><span class="math inline">\(p(\theta)\)</span> is the shape distribution term.</li>
+<li><span class="math inline">\(𝑝(\alpha)\)</span> is the intercept term.</li>
+<li><span class="math inline">\(𝑝(\beta)\)</span> is regression coefficient term.</li>
 </ul>
 
 
@@ -397,6 +473,7 @@ eyJjb250ZW50cyI6W119
 <script type="vfs-file">
 W10=
 </script>
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -833,11 +910,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./18. Missing data.html" class="pagination-link" aria-label="18. Missing data.html">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">18. Missing data.html</span></span>
+      <a href="./5. Binomial model.html" class="pagination-link" aria-label="Binomial model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial model</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="./7. Poisson model.html" class="pagination-link" aria-label="Poisson model">
+        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Poisson model</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->
