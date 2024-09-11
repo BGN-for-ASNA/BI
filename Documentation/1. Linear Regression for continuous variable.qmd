@@ -22,31 +22,25 @@ To study relationships between two continuous variables (e.g. heigth and weigth)
 
 Below is an example code snippet demonstrating Bayesian linear regression using Bayesian Inference (BI) package:
 
-```{pyodide}
-#from .bi.main import*#
-
-## Setup device------------------------------------------------
-#m = bi(platform='cpu')#
-
-## Import data ------------------------------------------------
-#m.data('../data/Howell1.csv', sep=';') 
-#m.df = m.df[m.df.age > 18]
-#m.scale(['weight'])
-#m.data_to_model(['weight', 'height'])#
-
-## Define model ------------------------------------------------
-#def model(height, weight):    
-#    alpha = dist.normal( 178, 20, name = 'alpha')
-#    beta = dist.normal(  0, 1, name = 'beta')   
-#    sigma = dist.uniform( 0, 50, name = 'sigma')
-#    lk("Y", Normal(alpha + beta * weight , sigma), obs = height)#
-
-## Run mcmc ------------------------------------------------
-#m.run(model) #
-
-## Summary ------------------------------------------------
-#m.sampler.print_summary(0.89)
-1+1
+```
+from .bi.main import*#
+# Setup device------------------------------------------------
+m = bi(platform='cpu')#
+# Import data ------------------------------------------------
+m.data('../data/Howell1.csv', sep=';') 
+m.df = m.df[m.df.age > 18]
+m.scale(['weight'])
+m.data_to_model(['weight', 'height'])#
+# Define model ------------------------------------------------
+def model(height, weight):    
+    alpha = dist.normal( 178, 20, name = 'alpha')
+    beta = dist.normal(  0, 1, name = 'beta')   
+    sigma = dist.uniform( 0, 50, name = 'sigma')
+    lk("Y", Normal(alpha + beta * weight , sigma), obs = height)#
+# Run mcmc ------------------------------------------------
+m.run(model) #
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89)
 ```
 
 ## Mathematical Details
