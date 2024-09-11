@@ -52,16 +52,21 @@ Where:
 - $\sigma$ is the error term.
 - $logit(Y)$ is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variables on the log-odds of success.
 
-### *Bayesian model*
+### *Bayesian model (WIP)*
 We can express the Bayesian binomial regression model using probability distributions as follows:
 
 $$ 
-𝑝(𝑌∣\alpha, \beta, 𝑋) = Binomial(𝑛=1, 𝑝=logit(\alpha + \beta  𝑋 ))
+Y \sim Binomial(𝑛 = 1, 𝑝)
 $$
-$$
-𝑝(\alpha)=Normal(0,1)\\
-𝑝(\beta)=Normal(0,1)\\
 
+$$
+logit(p) \sim \alpha + \beta X
+$$
+$$
+𝑝(\alpha) \sim Normal(0,1)
+$$
+$$
+𝑝(\beta) \sim Normal(0,1)
 $$
 
 
@@ -71,7 +76,7 @@ Where:
 - $p(Y | 𝑌∣\alpha, \beta, 𝑋)$ is the likelihood function.
 - $p(\beta)$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept, respectivelly.
 - $n=1$ represents the number of trials in the binomial distribution (binary outcome).
-- $\logit(\alpha + \beta  𝑋 )$ is the _logit_ link function that is equal to sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.
+- $logit(\alpha + \beta  𝑋 )$ is the _logit_ link function that is equal to sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.
 
 ## Notes
 

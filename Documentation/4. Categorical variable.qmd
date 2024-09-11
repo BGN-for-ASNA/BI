@@ -66,10 +66,17 @@ We can interpret $\beta_i$ as the effect of each category on $Y$ relative to the
 We can express the Bayesian regression model with a categorical independent variable using probability distributions as follows:
 
 $$
-𝑝(𝑌_i∣\alpha, 𝑋_i,\beta_i)=Normal(\alpha +  \beta_k X,𝜎) \\
-𝑝(\alpha)=Normal(0,1)\\
-𝑝(\beta_k)=Normal(0,1)\\
-𝑝(𝜎)=Exponential(1)
+p(Y|\alpha, \beta, X) \sim Normal(\alpha +  \beta_k X, \sigma)
+$$
+
+$$
+𝑝(\alpha) \sim Normal(0,1)
+$$
+$$
+𝑝(\beta_k) \sim Normal(0,1)
+$$
+$$
+𝑝(𝜎) \sim Exponential(1)
 $$
 
 Where:
