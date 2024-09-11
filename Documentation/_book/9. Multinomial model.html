@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Linear Regression for continuous vairable – BI documentation</title>
+<title>11&nbsp; Multinomial model – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -54,27 +54,7 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -84,8 +64,8 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./2. Multiple continuous Variables.html" rel="next">
-<link href="./0. Introduction.html" rel="prev">
+<link href="./10. Dirichlet model (wip).html" rel="next">
+<link href="./8. Gamma-Poisson.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -168,7 +148,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./1. Linear Regression for continuous variable.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./9. Multinomial model.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Multinomial model</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -207,7 +187,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link active">
+  <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></span></a>
   </div>
 </li>
@@ -255,7 +235,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./9. Multinomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./9. Multinomial model.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Multinomial model</span></span></a>
   </div>
 </li>
@@ -359,15 +339,14 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">3.1</span> General Principles</a></li>
-  <li><a href="#conciderations" id="toc-conciderations" class="nav-link" data-scroll-target="#conciderations"><span class="header-section-number">3.2</span> Conciderations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">3.3</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">3.4</span> Mathematical Details</a>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">11.1</span> General Principles</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">11.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">11.3</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">11.4</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">3.4.1</span> <em>Formula</em></a></li>
-  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">3.4.2</span> <em>Bayesian model</em></a></li>
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">11.4.1</span> <em>Formula</em></a></li>
+  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">11.4.2</span> <em>Bayesian model</em></a></li>
   </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">3.5</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -376,7 +355,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></h1>
+<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Multinomial model</span></h1>
 </div>
 
 
@@ -393,76 +372,86 @@ window.Quarto = {
 </header>
 
 
-<section id="general-principles" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">3.1</span> General Principles</h2>
-<p>To study relationships between two continuous variables (e.g.&nbsp;heigth and weigth), we can use : <em>Linear regression approach</em>. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept <span class="math inline">\(\alpha\)</span> which inform us about the starting point of the line, 2) a coefficient <span class="math inline">\(\beta\)</span> which in inform us about the slope of the line and 3) a error term <span class="math inline">\(\sigma\)</span> which inform us about spread of points between the line. We can interpret the intercept <span class="math inline">\(\alpha\)</span> as the mean for of <em>Y</em> for the smaller value of <em>X</em>, the coefficient <span class="math inline">\(\beta\)</span> as how much <em>Y</em> increase for each increment of <em>X</em>, and <span class="math inline">\(\sigma\)</span> as the error arround the prediction. So the coefficient <span class="math inline">\(\beta\)</span> give the strength of the relationship between <em>X</em> and <em>Y</em> and <span class="math inline">\(\sigma\)</span> the amount of error in the model.</p>
-<p><img src="https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg" class="img-fluid"></p>
+<section id="general-principles" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">11.1</span> General Principles</h2>
+<p>To model the relationship between a categorical outcome variable with more than two categories and one or more independent variables, we can use a <em>Multinomial</em> distribution.</p>
+<p><img src="https://statstest.b-cdn.net/wp-content/uploads/2020/05/Multinomial-Logistic-Regression-1.jpg" class="img-fluid"></p>
 </section>
-<section id="conciderations" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="conciderations"><span class="header-section-number">3.2</span> Conciderations</h2>
+<section id="considerations" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">11.2</span> Considerations</h2>
 <ul>
-<li><p>Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for <span class="math inline">\(\alpha\)</span> , <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma^2\)</span> .</p></li>
-<li><p>Ussually, we use <em>Normal</em> distribution for <span class="math inline">\(\alpha\)</span> , <span class="math inline">\(\beta\)</span> and an <em>exponential</em> or <em>Uniform</em> distributiuon for <span class="math inline">\(\sigma\)</span>.</p></li>
-<li><p>As we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is assumed to be normally distributed and is squared to force positive error and account for values bellow and above the line.</p></li>
-<li><p>Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.</p></li>
+<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
+<li><p>One way to interpret a multinomial is to consider that we need to build ( K - 1 ) linear models, where ( K ) is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a <a href="8. Multinomial.md" title="A simplex is a vector of k−1 probabilities that sum to one.">simplex 🛈</a>. To do this, we convert the regression outputs using the softmax function (see “nn.softmax” line in the code).</p></li>
+<li><p>The intercept captures the difference in the log-odds of the outcome categories, thus different categories need different intercepts.</p></li>
+<li><p>On the other hand as we assume that the effect of each predictor on the outcome is consistent across all categories, the regression coefficients are shared across categories.</p></li>
+<li><p>The relationship between the predictor variables and the log-odds of each category is modeled linearly, allowing us to interpret the effect of each predictor on the log-odds of each category.</p></li>
 </ul>
 </section>
-<section id="example" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="example"><span class="header-section-number">3.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian linear regression using Bayesian Inference (BI) package:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> .bi.main <span class="im">import</span><span class="op">*</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/Howell1.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>]</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>])</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'weight'</span>, <span class="st">'height'</span>])</span>
+<section id="example" class="level2" data-number="11.3">
+<h2 data-number="11.3" class="anchored" data-anchor-id="example"><span class="header-section-number">11.3</span> Example</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data--------------------------------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate career choices among 500 individuals</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">500</span>  <span class="co"># number of individuals</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>income <span class="op">=</span> jnp.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>])  <span class="co"># expected income of each career</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>score <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> income  <span class="co"># scores for each career, based on income</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># next line converts scores to probabilities</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> jnp.array( jax.nn.softmax(score))</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(height, weight):    </span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal( <span class="dv">178</span>, <span class="dv">20</span>, name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> dist.normal(  <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'beta'</span>)   </span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> dist.uniform( <span class="dv">0</span>, <span class="dv">50</span>, name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"Y"</span>, Normal(alpha <span class="op">+</span> beta <span class="op">*</span> weight , sigma), obs <span class="op">=</span> height)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># now simulate choice</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># outcome career holds event type values, not counts</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>career <span class="op">=</span> bi.dist.categorical(p, shape <span class="op">=</span> N, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    income <span class="op">=</span> income,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    career <span class="op">=</span> career</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(income, career):</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span> [<span class="dv">2</span>], name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.halfnormal(<span class="fl">0.5</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    s_1 <span class="op">=</span> a[<span class="dv">0</span>] <span class="op">+</span> b <span class="op">*</span> income[<span class="dv">0</span>]</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    s_2 <span class="op">=</span> a[<span class="dv">1</span>] <span class="op">+</span> b <span class="op">*</span> income[<span class="dv">1</span>]</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    s_3 <span class="op">=</span> a[<span class="dv">0</span>] <span class="op">+</span> b <span class="op">*</span> income[<span class="dv">0</span>]</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> jax.nn.softmax(jnp.stack([s_1[<span class="dv">0</span>], s_2[<span class="dv">0</span>], s_3[<span class="dv">0</span>]]))</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Categorical(probs <span class="op">=</span>  p[career]), obs<span class="op">=</span>career)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------ </span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>m.run(model)  </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">3.4</span> Mathematical Details</h2>
-<section id="formula" class="level3" data-number="3.4.1">
-<h3 data-number="3.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">3.4.1</span> <em>Formula</em></h3>
-<p>The following equation allow us to draw a line and is ths one that is most used in statistic clases: <span class="math display">\[
-Y = \alpha + \beta  X + \sigma
-\]</span></p>
-<p>Where: - <em>Y</em> is the target variable. - <em>X</em> is the input variable. - <span class="math inline">\(\beta\)</span> is the regression coefficient. - <span class="math inline">\(\alpha\)</span> is the intercept term. - <span class="math inline">\(\sigma\)</span> is the error term.</p>
+<section id="mathematical-details" class="level2" data-number="11.4">
+<h2 data-number="11.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">11.4</span> Mathematical Details</h2>
+<section id="formula" class="level3" data-number="11.4.1">
+<h3 data-number="11.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">11.4.1</span> <em>Formula</em></h3>
+<p>We model the relationship between the predictor variables (X1, X2, …, Xn) and the categorical outcome variable (Y) using the following equation:</p>
+<p>$$ logit(p_ik) = log() = β_k^T X_i +α_k k</p>
+<p>$$</p>
+<p>Where: - <span class="math inline">\(p_ik\)</span> is the probability of the 𝑖-th observation being in category 𝑘.</p>
+<ul>
+<li><p><span class="math inline">\(β_k\)</span> are the regression coefficients for category 𝑘.</p></li>
+<li><p><span class="math inline">\(α_k\)</span> is the intercept for category 𝑘.</p></li>
+<li><p><span class="math inline">\(X_i\)</span> is the vector of predictor variables for the 𝑖-th observation.</p></li>
+<li><p>The reference category 𝐾 is often chosen to simplify the model (Note that we didi not did it in the code).</p></li>
+</ul>
+<p>We can express the Bayesian Multinomial model as follows:</p>
+<p>If <span class="math inline">\(K∈N ,  N∈N , and  θ∈K\)</span>-simplex , then for <span class="math inline">\(y∈NK\)</span> such that <span class="math inline">\(∑Kk=1yk=N\)</span>:</p>
 </section>
-<section id="bayesian-model" class="level3" data-number="3.4.2">
-<h3 data-number="3.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">3.4.2</span> <em>Bayesian model</em></h3>
-<p>The equivalent version of the Bayesian linear regression model using probability distributions is as follows: <span class="math display">\[
-p(Y | \alpha, \beta, X) = Normal(\alpha + \beta   X, \sigma)
+<section id="bayesian-model" class="level3" data-number="11.4.2">
+<h3 data-number="11.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">11.4.2</span> <em>Bayesian model</em></h3>
+<p>In Bayesian multinomial modeling, the likelihood function of the data is specified using a multinomial distribution. The multinomial distribution models the counts of outcomes falling into different categories.For an outcome variable 𝑦 with 𝐾 categories, the multinomial likelihood function is: <span class="math display">\[
+Multinomial(y|θ)=\frac{N!}{∏^K_{k=1}yk!} ∏_{k = 1}^{K} \theta_{k}^{y_k}
 \]</span></p>
-<p><span class="math display">\[
-p(\alpha) = Normal(0, 1)
-\]</span></p>
-<p><span class="math display">\[
-p(\beta) = Normal(0, 1)
-\]</span></p>
-<p><span class="math display">\[
-p(\sigma) = Uniform(0, 50)
-\]</span></p>
-<p>Where: - <span class="math inline">\(p(Y |X, \alpha , \beta)\)</span> is the likelihood function (equivalent of the line equation). - <span class="math inline">\(p(\beta)\)</span> and <span class="math inline">\(p(\alpha)\)</span> are the prior distributions for the regression coefficients and intercept, respectivelly. - <span class="math inline">\(p(\sigma)\)</span>, controll the variance of the likelihood.</p>
-</section>
-</section>
-<section id="references" class="level2" data-number="3.5">
-<h2 data-number="3.5" class="anchored" data-anchor-id="references"><span class="header-section-number">3.5</span> Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(y=(y_1, y_2,…,y_K)\)</span> represents the counts of observations in each of the 𝐾 categories.</li>
+<li><span class="math inline">\(N\)</span> is the total number of observations or trials.</li>
+<li><span class="math inline">\(θ=(θ_1,θ_2,…,θ_K)\)</span> is a simplex of category probabilities, with <span class="math inline">\(𝜃_𝑘\)</span> representing the probability of category 𝑘.</li>
+<li><span class="math inline">\(\frac{N!}{∏^K_{k=1}yk!}\)</span> is the multinomial coefficient accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.</li>
+</ul>
 
 
 <script type="ojs-module-contents">
@@ -479,11 +468,7 @@ eyJjb250ZW50cyI6W119
 <script type="vfs-file">
 W10=
 </script>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div>
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -920,13 +905,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./0. Introduction.html" class="pagination-link" aria-label="Introduction">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span>
+      <a href="./8. Gamma-Poisson.html" class="pagination-link" aria-label="Gamma-Poisson model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Gamma-Poisson model</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./2. Multiple continuous Variables.html" class="pagination-link" aria-label="Multiple continuous variables model">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multiple continuous variables model</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./10. Dirichlet model (wip).html" class="pagination-link" aria-label="Dirichlet model">
+        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Dirichlet model</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

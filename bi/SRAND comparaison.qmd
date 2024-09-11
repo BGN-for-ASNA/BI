@@ -97,8 +97,8 @@ fit =  fit_social_relations_model(data=model_dat,
                               dyad_regression = ~ Kinship,
                               mode="mcmc",
                               stan_mcmc_parameters = list(chains = 1, parallel_chains = 1,
-                                                          refresh = 500,iter_warmup = 1000,
-                                                          iter_sampling = 1000,
+                                                          refresh = 500,iter_warmup = 500,
+                                                          iter_sampling = 500,
                                                           max_treedepth = NULL,
                                                           adapt_delta = .9)
                             )
@@ -110,7 +110,11 @@ res = summarize_strand_results(fit)
 ## Save data
 
 ```{r}
-save(model_dat, file = 'STRAND sim.Rdata')
+save(list(fit, model_dat), file = 'STRAND sim.Rdata')
+```
+
+```{r}
+load('STRAND sim.Rdata')
 ```
 
 # Running same model with BI
@@ -119,6 +123,7 @@ save(model_dat, file = 'STRAND sim.Rdata')
 
 ```{python}
 import jax.numpy as jnp
+r_sesssion = r
 data = r.model_dat
 data.keys()
 data['individual_predictors'] = jnp.array(data['individual_predictors']['Mass'])
@@ -170,13 +175,14 @@ def model(N_id, result_outcomes,d_s, d_r, focal_individual_predictors, target_in
 
     # Likelihood
     if outcome_mode == 1:
-        lk('Y', Poisson(B[0] + sr + dr), obs=result_outcomes)
-
+        lk('Y', Poisson(jnp.exp(B[0] + sr + dr)), obs=result_outcomes)
+        
     elif outcome_mode == 2:
         lk('Y', Binomial(total_count = exposure, logits= B[0] + sr + dr), obs=result_outcomes)
         
     elif outcome_mode == 3:
         lk('Y', Poisson(jnp.exp(B[0] + sr + dr)), obs=result_outcomes)
+        
 
 dat = dict(
     N_id = N_id,
