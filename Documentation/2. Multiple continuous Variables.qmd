@@ -7,7 +7,7 @@ To study relationships between multiple continuous variables (e.g., effect of he
 ## Considerations
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- We need regression coefficient $\beta$ for each [independent variables 🛈](2.&#32;Multiple&#32;continuous&#32;Variables.qmd "An independent variable is the factor that we change or control to see if it affects an outcome (the dependent variable).").
+- We need a regression coefficient $\beta$ for each [independent variables 🛈](2.&#32;Multiple&#32;continuous&#32;Variables.qmd "An independent variable is the factor that we change or control to see if it affects an outcome (the dependent variable).").
 
 - Model interpretation of the regression coefficients $\beta$  is considered for a fixed value of the other dependent variables' regression coefficients —i.e., for a given age, a variation of 1 unit in height reflects the value of the regression coefficient $\beta$ for height.
 
@@ -45,7 +45,7 @@ m.sampler.print_summary(0.89)
 
 ## Mathematical Details
 ### *Formula*
-We model the relationship between the independent variables (X1, X2, ..., Xn) and the dependent variable (Y) using the following equation:
+We model the relationship between the independent variables $(X_1, X_2, ..., X_n)$ and the dependent variable _Y_ using the following equation:
 
 $$
 𝑌 = \alpha +\beta_1  𝑋_1 + \beta_2  𝑋_2 + ... + \beta_n  𝑋_𝑛 + \sigma
@@ -64,19 +64,19 @@ We can express the Bayesian multiple regression model using probability distribu
 
 
 $$
-𝑝(𝑌∣𝑋, \alpha,\beta) = Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
+𝑝(𝑌∣\alpha, \beta, X) \sim Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
 $$
 
 $$
-p(\alpha) = Normal(0,1)
+p(\alpha) \sim Normal(0,1)
 $$
 
 $$
-p(\beta_i) = Normal(0,1)
+p(\beta_i) \sim Normal(0,1)
 $$
 
 $$
-p(σ) = Uniform(0, 50)
+p(σ) \sim Uniform(0, 50)
 $$
 
 Where:

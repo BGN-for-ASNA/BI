@@ -1,9 +1,11 @@
-# Negative binomial model
+#  Gamma-Poisson model
 ## General Principles
-To model the relationship between a count outcome variable and one or more independent variables with overdispersion, we can use _Negative Binomial model_. Overdispersion is handled because the Negative-binomial model assumes that each Poisson count observation has its own rate.
+To model the relationship between a count outcome variable and one or more independent variables with [overdispersion 🛈](7.&#32;Poisson&#32;model.qmd "Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the Poisson distribution."), we can use _Negative Binomial model_. 
 
 ## Considerations
-- We have the same considerations as for [Poisson model](6.&#32;Poisson&#32;regression.qmd).
+- We have the same considerations as for [Poisson model](7.&#32;Poisson&#32;model.qmd).
+  
+-  Overdispersion is handled because the Negative-binomial model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is `_log_days_`).
 
 
 ## Example
@@ -53,7 +55,9 @@ m.sampler.print_summary(0.89)
 ### *Formula*
 We model the relationship between the independent variable $X$ and the count outcome variable $Y$ using the following equation:
 
-$log⁡(𝜆)= exp(\alpha + \beta 𝑋)$
+$$
+log⁡(\lambda)= exp(rates + \alpha + \beta 𝑋)
+$$
 
 Where:
 
@@ -67,15 +71,19 @@ We can express the Bayesian Negative Binomial regression model using probability
 
 ### *Bayesian model*
 $$
-𝑝(𝑌∣\alpha, \beta, X)=Poisson( λ=exp(rates + \alpha + \beta X)))
+𝑝(𝑌∣\alpha, \beta, X) \sim Poisson(λ)
 $$
 
 $$
-𝑝(\alpha)=Normal(0,1)
+log(λ) \sim rates + \alpha + \beta X
 $$
 
 $$
-𝑝(\beta)=Normal(0,1)
+𝑝(\alpha)\sim Normal(0,1)
+$$
+
+$$
+𝑝(\beta) \sim Normal(0,1)
 $$
 
 
@@ -83,4 +91,15 @@ Where:
 
 - $p(Y | \alpha, \beta, X)$ is the likelihood function.
 - $p(\beta)$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept.
-- $\lambda = \exp(rates +\alpha + \beta X)$ is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors and assuming that each Poisson count observation has its own rate.
+- $\lambda = rates +\alpha + \beta X$ is the mean rate parameter of the Poisson distribution assuming that each Poisson count observation has its own rate.
+
+## Notes
+
+- We can apply multiple variables similarly as [chapter 2](2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
+
+- We can apply interaction terms  similarly as [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+
+- We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.md).
+
+## Reference(s)
+@mcelreath2018statistical
