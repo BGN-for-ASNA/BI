@@ -1,8 +1,81 @@
-# 13. Varying effects 
+# 13. Varying slopes_ 
 ## General Principles
-To model the relationship between predictor variables and an outcome variable while allowing for both varying intercepts and varying slopes (effects) across groups or clusters, we use a _Varying Effects_ model. This approach is useful when we expect the relationship between predictors and the outcome to differ across groups (e.g., different slopes for different subjects, locations, or time periods).This allow every unit in the data to have its own unique response to any treatment or exposure or event, while also improving estimates via pooling.
+To model the relationship between predictor variables and an independent variable while allowing for varying effects across groups or clusters, we use a _Varying slopes_ model. 
 
-The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a matrix of covariance.
+This approach is useful when we expect the relationship between predictors and the independent variable to differ across groups (e.g., different slopes for different subjects, locations, or time periods).This allow every unit in the data to have its own unique response to any treatment or exposure or event, while also improving estimates via pooling.
+
+## Considerations
+- We have the same considerations as for [12. Varying interceps 🛈](12.&#32;Varying&#32;intercepts.qmd).
+
+- The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [matrix of covariance i](13.&#32;Varying&#32;slopes.qmd "A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariances between different variables").
+
+- The covariance matrix requiere a correlation matris distribution which is modeleld using a $LKJcorr$ distribution that hold a parameter $η$. $η$ is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1.  When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely. 
+
+- The Half-Cauchy distribution is used when modeling the covariance matrix to specify strictly positive values for the diagonal of the covariance matrix, ensuring positive variances. 
+
+## Example
+Below is an example code snippet demonstrating Bayesian regression with varying effects:
+
+### Simulated data 
+```python
+from main import*
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+
+a = 3.5  # average morning wait time
+b = -1  # average difference afternoon wait time
+sigma_a = 1  # std dev in intercepts
+sigma_b = 0.5  # std dev in slopes
+rho = -0.7  # correlation between intercepts and slopes
+Mu = jnp.array([a, b])
+cov_ab = sigma_a * sigma_b * rho
+Sigma = jnp.array([[sigma_a**2, cov_ab], [cov_ab, sigma_b**2]])
+jnp.array([1, 2, 3, 4]).reshape(2, 2).T
+sigmas = jnp.array([sigma_a, sigma_b])  # standard deviations
+Rho = jnp.array([[1, rho], [rho, 1]])  # correlation matrix
+
+# now matrix multiply to get covariance matrix
+Sigma = jnp.diag(sigmas) @ Rho @ jnp.diag(sigmas)
+
+N_cafes = 20
+seed = random.PRNGKey(5)  # used to replicate example
+vary_effects = bi.dist.multivariatenormal(Mu, Sigma, shape=(N_cafes,), sample = True)
+a_cafe = vary_effects[:, 0]
+b_cafe = vary_effects[:, 1]
+
+seed = random.PRNGKey(22)
+N_visits = 10
+afternoon = jnp.tile(jnp.arange(2), N_visits * N_cafes // 2)
+cafe_id = jnp.repeat(jnp.arange(N_cafes), N_visits)
+mu = a_cafe[cafe_id] + b_cafe[cafe_id] * afternoon
+sigma = 0.5  # std dev within cafes
+wait = dist.normal(mu, sigma, sample = True)
+d = pd.DataFrame(dict(cafe=cafe_id, afternoon=afternoon, wait=wait))
+m.data_to_model(['cafe_id', "afternoon", "wait"])
+```
+#### Define model 
+```python
+def model(cafe, wait, N_cafes):
+    a = dist.normal(5, 2, name = 'a')
+    b = dist.normal(-1, 0.5, name = 'b')
+    sigma_cafe = dist.exponential(1, shape=[2], name = 'sigma_cafe')
+    sigma = dist.exponential( 1, name = 'sigma')
+    Rho = dist.lkj(2, 2, name = 'Rho')
+    cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho
+    a_cafe_b_cafe = dist.multivariatenormal(jnp.stack([a, b]), cov, shape = [N_cafes], name = 'a_cafe')    
+
+    a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
+    mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
+    lk("y", Normal(mu, sigma), obs=wait)
+
+# Run mcmc ------------------------------------------------
+m.run(model) 
+
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89)
+```
+## Mathematical Details
+### *Formula*
 
 $$
 \left(\begin{array}{cc} 
@@ -17,29 +90,41 @@ where :
 - $\sigma_\alpha \sigma_{\beta \rho }$ is the covariance between intercepts and slopes -i.e. the product of the two standard deviations-. 
 
 
-## Formula
-### Main equation
-We model the relationship between the predictor variable ($X$) and the outcome variable (_Y_) with varying intercepts ($\alpha$) and varying slopes ($\beta$) for each group (_i_) using the following equation:
+## Mathematical Details
+### *Formula*
+We model the relationship between the independent variable $X$ and the outcome variable _Y_ with varying intercepts ($\alpha$) and varying slopes ($\beta$) for each group (_k_) using the following equation:
 
 $$
-Y_{i} = \alpha_i + \beta_i X_i + \epsilon
+Y_{ik} = \alpha_k + \beta_k X_{ik} + \sigma
 $$
 
 Where:
-- $Y_i$ is the outcome variable for group _i_.
-- $X_i$  are the predictor variables for group _i_.
-- $\alpha_i$ is the varying intercept for group _i_.
-- $\beta_i$ are the varying regression coefficients (slope) for group _i_.
-- $\epsilon ~\sim HalfCauchy(0,1)$ is the error term, typically assumed to be strictly positive.
+- $Y_{ik}$ is the outcome variable for observation _i_ in group _k_.
+- $X_{ik}$ is the independent variables for observation _i_ in group _k_.
+- $\alpha_k$ is the varying intercept for group _k_.
+- $\beta_k$ is the varying regression coefficients for group _k_.
+- $\sigma $ is the error term, assumed to be strictly positive.
 
-## Priors
-The varying intercepts ($\beta_i$) and slopes ($\alpha_i$) are typically modeled using a Multivariate Normal distribution:
 
-\[
+
+### *Bayesian model*
+We can express the Bayesian regression model accounting for prior distribution as follows:
+
+$$
+p(Y_{ik} |\mu_{ik} , \sigma) \sim \text{Normal}(\mu_{ik} , \sigma) \\
+\mu_{ik} = \alpha_k + \beta_k X_{ik} + \sigma \\
+\alpha_k \sim Normal(0,1) \\
+\beta_k \sim Normal(0,1) \\
+\sigma \sim Exponential(0,1)
+$$
+
+The varying intercepts slopes ($\alpha_k$) and ($\beta_k$) are modeled using a Multivariate Normal distribution:
+
+$$
 \left[
 \begin{array}{c}
-\alpha_i \\
-\beta_i \\
+\alpha_k \\
+\beta_k \\
 \end{array}
 \right] \sim 
 \text{MultivariateNormal}(
@@ -50,12 +135,14 @@ The varying intercepts ($\beta_i$) and slopes ($\alpha_i$) are typically modeled
 \end{array}
 \right]
  , S)
-\]
+
+$$
 
 Where:
 - $\alpha \sim Normal(0,1)$, is the prior for average intercept.
 - $\beta \sim Normal(0,1)$ is the prior for average slope.
-- $S = $$
+- $S$ is the covariance matrix where:
+$$
 \left(\begin{array}{cc} 
 \sigma_\alpha & 0 \\
 0 & \sigma_\beta
@@ -65,111 +152,32 @@ R
 \sigma_\alpha & 0 \\
 0 & \sigma_\beta
 \end{array}\right)
-$$ $ is the covariance matrix where:
+$$
 
-    - $\sigma_\alpha \sim Halfcauchy(0,1)$ bewing the prior stddev among intercepts.
-    - $\sigma_\beta \sim Halfcauchy(0,1)$ bewing the prior stddev among slopes.
-    - $R \sim LKJcorr( η)$ bewing the prior for the correlation matrix.
 
-## Considerations
-- $Halfcauchy$ distribution allow use to specify strictly positive values for a parameter\
-- Parameter $η$ for $LKJcorr$ distribution is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1.  When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely. 
+- Where:
 
+    - $\sigma_\alpha \sim Halfcauchy(0,1)$ bewing the priorstddev      amongintercepts.
+    - $\sigma_\beta \sim Halfcauchy(0,1)$ bewing the prior stddevamongslopes.
+    - $R \sim LKJcorr( η)$ bewing the prior for the correlationmatrix.
 
 
 
-
-## Example
-
-Below is an example code snippet demonstrating Bayesian regression with varying effects:
-
-```python
-from BI import bi.hard
-
-# Simulate data-----------------------------------------------------------------
-import math
-import os
-
-import arviz as az
-import matplotlib.pyplot as plt
-import networkx as nx
-import numpy as np
-import pandas as pd
-from IPython.display import Image, set_matplotlib_formats
-from matplotlib.patches import Ellipse, transforms
-
-import jax.numpy as jnp
-from jax import random, vmap
-from jax.scipy.special import expit
-
-import numpy as onp
-import numpyro as numpyro
-import numpyro.distributions as dist
-from numpyro.diagnostics import effective_sample_size, print_summary
-from numpyro.infer import MCMC, NUTS, Predictive
-
-az.style.use("arviz-darkgrid")
-numpyro.set_platform("cpu")
-numpyro.set_host_device_count(4)
-a = 3.5  # average morning wait time
-b = -1  # average difference afternoon wait time
-sigma_a = 1  # std dev in intercepts
-sigma_b = 0.5  # std dev in slopes
-rho = -0.7  # correlation between intercepts and slopes
-Mu = jnp.array([a, b])
-cov_ab = sigma_a * sigma_b * rho
-Sigma = jnp.array([[sigma_a**2, cov_ab], [cov_ab, sigma_b**2]])
-
-sigmas = jnp.array([sigma_a, sigma_b])  # standard deviations
-Rho = jnp.array([[1, rho], [rho, 1]])  # correlation matrix
-
-# now matrix multiply to get covariance matrix
-Sigma = jnp.diag(sigmas) @ Rho @ jnp.diag(sigmas)
-N_cafes = 20
-seed = random.PRNGKey(5)  # used to replicate example
-vary_effects = dist.MultivariateNormal(Mu, Sigma).sample(seed, (N_cafes,))
-a_cafe = vary_effects[:, 0]
-b_cafe = vary_effects[:, 1]
-seed = random.PRNGKey(22)
-N_visits = 10
-afternoon = jnp.tile(jnp.arange(2), N_visits * N_cafes // 2)
-cafe_id = jnp.repeat(jnp.arange(N_cafes), N_visits)
-mu = a_cafe[cafe_id] + b_cafe[cafe_id] * afternoon
-sigma = 0.5  # std dev within cafes
-wait = dist.Normal(mu, sigma).sample(seed)
-d = pd.DataFrame(dict(cafe=cafe_id, afternoon=afternoon, wait=wait))
-
-# Define model-----------------------------------------------------------------
-cafe_id = jnp.array(d.cafe.values)
-def model():    
-    sigma = yield exponential(1,1)
-    a = yield normal(1, 5, 2)
-    b = yield normal(1, -1, 0.5)
-    sigma_cafe = yield exponential(2, 1)    
-    Rho = yield lkj((), 2, 2)
-    a_cafe_b_cafe = yield multivariatenormaltril(N_cafes, loc = jnp.stack([a, b], axis=1)[0], scale_tril =  Rho * sigma_cafe)
-    mu = a_cafe_b_cafe[:, 0][cafe_id] + a_cafe_b_cafe[:, 1][cafe_id] * afternoon
-    y = yield Independent(Normal(mu, sigma), reinterpreted_batch_ndims=[1])
-
-posterior, sample_stats = NUTStrans(model, obs = jnp.array(d.wait.astype('float32').values))
-```
-
-## Mathematical Details
-We can express the Bayesian regression model with varying effects using probability distributions as follows:
+The full model is thus : 
 
 $$
-p(Y_{i} |\mu_i , \sigma) = \text{Normal}(\mu_i , \sigma) \\
+p(Y_{i} |\mu_k , \sigma) \sim \text{Normal}(\mu_k , \sigma) \\
 $$
 
 $$
-\mu_i =   \alpha_i + \beta_i X_i \\
+\mu_k =   \alpha_k + \beta_i X_i \\
 $$
 
-\[
+$$
 \left[
 \begin{array}{c}
-\alpha_i \\
-\beta_i \\
+\alpha_k \\
+\beta_k \\
 \end{array}
 \right] \sim 
 \text{MultivariateNormal}(
@@ -180,7 +188,7 @@ $$
 \end{array}
 \right]
  , S)
-\]
+$$
 
 $$S = 
 \left(\begin{array}{cc} 
@@ -204,5 +212,16 @@ $$
 
 
 
+## Notes
+- We can apply multiple variables similarly as [chapter 2](/2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
 
+- We can apply interaction terms  similarly as [chapter 3](\3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
 
+- We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
+
+- We can apply varying slopes with any distribution developped in previous chapters. 
+
+- For faster computation, we can modify the covariance matrix model by using the centered version of the varying slope. XXXXX
+
+## Reference(s)
+@mcelreath2018statistical

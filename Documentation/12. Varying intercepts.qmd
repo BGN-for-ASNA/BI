@@ -1,4 +1,4 @@
-# Varying interceps
+# Varying intercepts
 ## General Principles
 To model the relationship between predictor variables and an independent variable while allowing for different intercepts across groups or clusters, we can use a _Varying Intercepts_ model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.
 
@@ -6,7 +6,7 @@ To model the relationship between predictor variables and an independent variabl
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
 - Basically, the idea of varying intercepts is to generate an intercept for each group. So the intercept \( b \) is defined based on the _k_ declared groups.
-- Each intercept have is own _Normal distribution_ -i.e. a [hyper-prior 🛈](12.&#32;Varying&#32;interceps.qmd "A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.")-. In the code below, the _hyper-prior_ is ```_a_bar_```.
+- Each intercept have is own _Normal distribution_ -i.e. a [hyper-prior 🛈](12.&#32;Varying&#32;intercepts.qmd "A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.")-. In the code below, the _hyper-prior_ is ```_a_bar_```.
 
 ## Example
 
@@ -46,37 +46,37 @@ m.sampler.print_summary(0.89)
 
 ## Mathematical Details
 ### *Formula*
-We model the relationship between the independent variables _X_ and the outcome variable _Y_ with varying intercepts $\alpha_j$ for each group _j_ using the following equation:
+We model the relationship between the independent variables _X_ and the outcome variable _Y_ with varying intercepts $\alpha$ for each group _k_ using the following equation:
 
 $$
-Y_{ij} = \alpha_j + \beta X_{ij1}  b_j + \sigma
+Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
 $$
 
 Where:
-- $Y_{ij}$ is the outcome variable for observation _i_ in group _j_.
-- $\alpha_j$ is the varying intercept for group _j_.
-- $X_{ij1}$ is the independent variables for observation _i_ in group _j_.
+- $Y_{ik}$ is the outcome variable for observation _i_ in group _k_.
+- $\alpha_k$ is the varying intercept for group _k_.
+- $X_{ik}$ is the independent variables for observation _i_ in group _k_.
 - $\beta$ is the regression coefficients term.
 - $\sigma$ is the error term, typically assumed to be normally distributed and positive.
 
 ### *Bayesian model*
-We can express the Bayesian regression model with varying intercepts using probability distributions as follows:
+We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
-p(Y_{ij} | \mu_{ij}, \sigma) = Normal(\mu_{ij}, \sigma) \\
-\mu_{ij} = \alpha_j + \beta X_{ij}  b_j + \sigma \\
-\alpha_j \sim \text{Normal}(\mu_{alpha_j}, \sigma_{alpha_j}) \\
+p(Y_{ik} | \mu_{ik}, \sigma) = Normal(\mu_{ik}, \sigma) \\
+\mu_{ik} = \alpha_j + \beta X_{ik} + \sigma \\
+\alpha_k \sim \text{Normal}(\mu_{alpha_k}, \sigma_{alpha_k}) \\
 p(\beta) \sim \text{Normal}(0, 1) \\
 p(\sigma) \sim \text{Exponential}(1) \\
-p(\mu_{alpha_j}) \sim \text{Normal}(0, 1) \\
-p(\sigma_{alpha_j}) \sim \text{Exponential}(1) \\
+p(\mu_{alpha_k}) \sim \text{Normal}(0, 1) \\
+p(\sigma_{alpha_k}) \sim \text{Exponential}(1) \\
 $$
 
 Where:
 - $p(Y_{ij} | \mu_{ij}, \sigma)$ is the likelihood function for the outcome variable.
-- $\alpha_j$ is the varying intercepts across groups.
-- $\mu_alpha_j$ is the overall mean intercept.
-- $\sigma_alpha_j$ is the variance of the intercepts across groups.
+- $\alpha_k$ is the varying intercepts across groups.
+- $\mu_alpha_k$ is the overall mean intercept.
+- $\sigma_alpha_k$ is the variance of the intercepts across groups.
 - $p(\beta)$ is the prior distributions for the regression coefficients.
 - $p(\sigma)$ is the prior distributions for the error term.
   
@@ -88,4 +88,7 @@ Where:
 
 - We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
 
-- We can apply  varying intercepts to with any distribution developped in previous chapters. 
+- We can apply  varying intercepts with any distribution developped in previous chapters. 
+
+## Reference(s)
+@mcelreath2018statistical
