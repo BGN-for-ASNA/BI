@@ -1,0 +1,48 @@
+project:
+  type: website
+
+website:
+  title: "Quarto Live Documentation"
+  description: "Interactive code blocks and exercises, powered by WebAssembly."
+  repo-url: https://github.com/r-wasm/quarto-live
+  repo-actions: [edit, issue]
+  repo-subdir: "docs"
+  page-navigation: true
+  sidebar:
+    contents:
+      - href: index.qmd
+      - section: Getting Started
+        contents:
+          - getting_started/installation.qmd
+          - getting_started/editor.qmd
+          - getting_started/packages.qmd
+          - getting_started/plotting.qmd
+      - section: Exercises and Grading
+        contents:
+          - exercises/exercises.qmd
+          - exercises/environments.qmd
+          - exercises/grading.qmd
+          - exercises/gradethis.qmd
+      - section: Interactive Documents and Tutorials
+        contents:
+          - interactive/reactivity.qmd
+          - interactive/data.qmd
+          - interactive/dynamic.qmd
+          - interactive/hybrid.qmd
+          - interactive/dashboards.qmd
+      - section: Other Features
+        contents:
+          - other/tables.qmd
+          - other/resources.qmd
+          - other/htmlwidgets.qmd
+          - other/py_output.qmd
+          - other/slides.qmd
+      - text: "---"
+      - section: Reference
+        contents:
+          - reference/document-yaml.qmd
+          - reference/cell-options.qmd
+
+theme:
+  light: cosmo
+  dark: darkly

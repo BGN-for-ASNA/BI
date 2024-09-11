@@ -1,3 +1,6 @@
+---
+format: live-html
+---
 # Linear Regression for continuous vairable
 ## General Principles
 To study relationships between two continuous variables (e.g. heigth and weigth), we can use : _Linear regression approach_. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept $\alpha$ which inform us about the starting point of the line, 2) a coefficient $\beta$ which in inform us about the slope of the line and 3) a error term $\sigma$ which inform us about spread of points between the line. We can interpret the intercept $\alpha$  as the mean for of _Y_ for the smaller value of _X_, the coefficient $\beta$ as how much _Y_ increase for each increment of  _X_, and $\sigma$ as the error arround the prediction. So the coefficient $\beta$ give the strength of the relationship between _X_ and _Y_ and $\sigma$ the amount of error in the model.
@@ -19,30 +22,32 @@ To study relationships between two continuous variables (e.g. heigth and weigth)
 
 Below is an example code snippet demonstrating Bayesian linear regression using Bayesian Inference (BI) package:
 
-```python
-from main import*
+```{python}
+#| edit: true
+#from .bi.main import*#
 
-# Setup device------------------------------------------------
-m = bi(platform='cpu')
+## Setup device------------------------------------------------
+#m = bi(platform='cpu')#
 
-# Import data ------------------------------------------------
-m.data('../data/Howell1.csv', sep=';') 
-m.df = m.df[m.df.age > 18]
-m.scale(['weight'])
-m.data_to_model(['weight', 'height'])
+## Import data ------------------------------------------------
+#m.data('../data/Howell1.csv', sep=';') 
+#m.df = m.df[m.df.age > 18]
+#m.scale(['weight'])
+#m.data_to_model(['weight', 'height'])#
 
-# Define model ------------------------------------------------
-def model(height, weight):    
-    alpha = dist.normal( 178, 20, name = 'alpha')
-    beta = dist.normal(  0, 1, name = 'beta')   
-    sigma = dist.uniform( 0, 50, name = 'sigma')
-    lk("Y", Normal(alpha + beta * weight , sigma), obs = height)
+## Define model ------------------------------------------------
+#def model(height, weight):    
+#    alpha = dist.normal( 178, 20, name = 'alpha')
+#    beta = dist.normal(  0, 1, name = 'beta')   
+#    sigma = dist.uniform( 0, 50, name = 'sigma')
+#    lk("Y", Normal(alpha + beta * weight , sigma), obs = height)#
 
-# Run mcmc ------------------------------------------------
-m.run(model) 
+## Run mcmc ------------------------------------------------
+#m.run(model) #
 
-# Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+## Summary ------------------------------------------------
+#m.sampler.print_summary(0.89)
+1+1
 ```
 
 ## Mathematical Details
