@@ -75,6 +75,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
+<link href="site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -102,6 +104,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -393,7 +397,7 @@ window.Quarto = {
 <section id="formula" class="level3" data-number="9.4.1">
 <h3 data-number="9.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">9.4.1</span> <em>Formula</em></h3>
 <p>We model the relationship between the independent variable <span class="math inline">\(X\)</span> and the count outcome variable <span class="math inline">\(Y\)</span> using the following equation:</p>
-<p><span class="math display">\[log⁡(𝜆)= exp(\alpha + \beta 𝑋 + 𝜖) \]</span></p>
+<p><span class="math inline">\(log⁡(𝜆)= exp(\alpha + \beta 𝑋)\)</span></p>
 <p>Where:</p>
 <ul>
 <li><span class="math inline">\(\lambda\)</span> is the mean rate parameter of the negative binomial distribution (expected count).</li>
@@ -407,7 +411,8 @@ window.Quarto = {
 <section id="bayesian-model" class="level3" data-number="9.4.2">
 <h3 data-number="9.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">9.4.2</span> <em>Bayesian model</em></h3>
 <p><span class="math display">\[
-𝑝(𝑌∣\alpha, \beta, X)=NegativeBinomial(𝑟=1,𝑝=11+exp⁡(\alpha + \beta X))\]</span> $$</p>
+𝑝(𝑌∣\alpha, \beta, X)=Poisson( λ=exp(rates + \alpha + \beta X)))
+\]</span></p>
 <p><span class="math display">\[
 𝑝(\alpha)=Normal(0,1)
 \]</span></p>
@@ -418,15 +423,39 @@ window.Quarto = {
 <ul>
 <li><span class="math inline">\(p(Y | \alpha, \beta, X)\)</span> is the likelihood function.</li>
 <li><span class="math inline">\(p(\beta)\)</span> and <span class="math inline">\(p(\alpha)\)</span> are the prior distributions for the regression coefficients and intercept.</li>
-<li><span class="math inline">\(r=1\)</span> represents the number of failures until the experiment stops in the negative binomial distribution.</li>
-<li><span class="math inline">\(p=\frac{1}{1 + \exp(X * W + b)}\)</span> is the success probability parameter of the negative binomial distribution, modeled as the logistic function of the linear combination of predictors.</li>
+<li><span class="math inline">\(\lambda = \exp(rates +\alpha + \beta X)\)</span> is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors and assuming that each Poisson count observation has its own rate.</li>
 </ul>
 
 
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W119
+</script>
+<div id="exercise-loading-indicator" class="exercise-loading-indicator d-none d-flex align-items-center gap-2">
+<div id="exercise-loading-status" class="d-flex gap-2">
+
+</div>
+<div class="spinner-grow spinner-grow-sm">
+
+</div>
+</div>
+<script type="vfs-file">
+W10=
+</script>
 </section>
 </section>
 
 </main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W119
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../..";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

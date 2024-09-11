@@ -1,0 +1,45 @@
+---
+title: Code Cell Options
+format: html
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+The following code cell options can be used in `webr` or `pyodide` blocks, or set for an entire document using the `cell-options` key in the [document YAML options](document-yaml.qmd).
+
+## Interactive code blocks
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `autorun` | `true` | Evaluate initial code block contents automatically? |
+| `caption` | None | Heading text for code editor block. |
+| `completion` | `false` | Show code completion and suggestions in editor? |
+| `echo` | `false` | Show source code in output display? |
+| `edit` | `true` | Show the code editor? If `false`, a read-only code block is shown. |
+| `envir` | `"global"` | Label for execution environment. |
+| `error` | `true` | Continue execution after an error? |
+| `eval` | `true` | Evaluate code using WebAssembly engine? |
+| `fig-width` | `7` | Width of graphics output in "inches". |
+| `fig-height` | `5` | Height of graphics output in "inches". |
+| `fig-dpi` | `5` | DPI of graphics output (Pyodide only). |
+| `include` | `true` | Include this code block in the document? |
+| `persist` | `false` | Persist changes in the editor to browser's local storage? |
+| `output` | `true` | Display execution output in the document? |
+| `runbutton` | `true` | Show the "Run Code" button? If `false`, code is immediately evaluated. |
+| `startover` | `true` | Show the "Start Over" button? |
+| `timelimit` | `30` | Execution time limit in seconds. |
+| `warning` | `true` | Show warning messages? |
+| `min-lines` | `0` | Minimum editor height in number of lines. |
+| `max-lines` | `Infinity` | Maximum editor height in number of lines. |
+: {tbl-colwidths="[10,10,80]"}
+
+## Exercises
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `check` | `false` | Create exercise grading algorithm. |
+| `exercise` | None | Exercise label. |
+| `hint` | `false` | Create exercise hint block. |
+| `setup` | `false` | Create exercise setup block. |
+| `solution` | `false` | Create exercise solution block. |
+: {tbl-colwidths="[10,10,80]"}
