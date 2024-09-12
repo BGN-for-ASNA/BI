@@ -5,7 +5,8 @@ To model the relationship between predictor variables and an independent variabl
 ## Considerations
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- Basically, the idea of varying intercepts is to generate an intercept for each group. So the intercept \( b \) is defined based on the _k_ declared groups.
+- The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $ \beta$ is defined based on the $k$ declared groups.
+  
 - Each intercept have is own _Normal distribution_ -i.e. a [hyper-prior 🛈](12.&#32;Varying&#32;intercepts.qmd "A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.")-. In the code below, the _hyper-prior_ is ```_a_bar_```.
 
 ## Example
