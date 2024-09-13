@@ -198,22 +198,241 @@ $$
 \alpha \sim Normal(0,1) \\
 \beta \sim Normal(0,1) \\
 \sigma_\alpha \sim Exponential(1) \\
-\sigma_\beta \sim Exponential(1) \\
+\sigma_\pi \sim Exponential(1) \\
 L \sim LKJcorr(2)
 $$
 
 
-
 ## Notes
-- We can apply multiple variables similarly as [chapter 2](/2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
+- We can apply multivariate model similarly as [chapter 2](/2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd). In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ actors in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
+
+$$
+p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
+$$
+
+$$
+\mu_i =   \alpha_i + \beta_{1i} X_{1i}  + \beta_{1i} X_{2i} \\
+$$
+
+
+$$
+\left(\begin{array}{cc} 
+\alpha_{i}\\ 
+\beta_{1i}\\ 
+\beta_{2i}
+\end{array}\right)
+
+ \sim 
+\left(\begin{array}{cc} 
+\sigma_{\alpha}\\
+\sigma_{\pi}\\
+\sigma_{\gamma}
+\end{array}\right) \circ 
+L *
+\left(\begin{array}{cc} 
+\widehat{\alpha}_{k} \\
+\widehat{\pi}_{k} \\
+\widehat{\gamma}_{k} 
+\end{array}\right)
+$$
+
+$$
+\sigma_{\alpha} \sim Exponential(1) \\
+\sigma_{\pi} \sim Exponential(1) \\
+\sigma_{\gamma} \sim Exponential(1) \\
+L \sim LKJcorr(2)
+$$
+
 
 - We can apply interaction terms  similarly as [chapter 3](\3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
 
 - We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
 
-- We can apply varying slopes with any distribution developped in previous chapters. 
+- We can apply varying slopes with any distribution presented in previous chapters. 
+
+- For more than two varying effects we apply the same principel but with a covariance matrix for each varying effect that are summed to gernerat the varying intercept and slope. For exmaple, if we want to generate random slopes for $i$ actors, and $k$ groups we can define the formula as follow:
+
+$$
+p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
+$$
+
+$$
+\mu_i =   \alpha_i + \beta_{i} X_i \\
+\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]} \\
+\beta_{i} = \beta + \beta_{actor[i]} + \beta_{group[i]} \\
+$$
+
+$$
+\alpha \sim Normal(0,1) \\
+\beta \sim Normal(0,1) \\
+$$
+
+$$
+\left(\begin{array}{cc} 
+\alpha_{actor}\\ 
+\beta_{actor}
+\end{array}\right)
+
+ \sim 
+\left(\begin{array}{cc} 
+\sigma_{\alpha a}\\
+\sigma_{\pi a}
+\end{array}\right) \circ 
+L_{a} *
+\left(\begin{array}{cc} 
+\widehat{\alpha}_{ka} \\
+\widehat{\pi}_{ka} 
+\end{array}\right)
+$$
+
+$$
+\sigma_{\alpha a} \sim Exponential(1) \\
+\sigma_{\pi a} \sim Exponential(1) \\
+L_{a} \sim LKJcorr(2)
+$$
+
+$$
+\left(\begin{array}{cc} 
+\alpha_{group }\\ 
+\beta_{group}
+\end{array}\right)
+
+ \sim 
+\left(\begin{array}{cc} 
+\sigma_{\alpha g}\\
+\sigma_{\pi g}\
+\end{array}\right) \circ 
+L_{g} *
+\left(\begin{array}{cc} 
+\widehat{\alpha}_{kg} \\
+\widehat{\pi}_{kg}
+\end{array}\right)
+$$
+
+$$
+\sigma_{\alpha g} \sim Exponential(1) \\
+\sigma_{\pi g} \sim Exponential(1) \\
+L_{g} \sim LKJcorr(2)
+$$
+
+- Bellow the formula and the code snipset for a Binomial multivariate model with interaction between two independent variables $X_1$ and $X_2$ and multiples varying effects for each actor and each group:
+
+$$
+p(Y_{i} |n , p_i) \sim \text{Binomial}(n = 1, p_i) \\
+$$
+
+$$
+logit{p_i}=   \alpha_i + (\beta_{1i}  + \beta_{2i} X_{2i})  X_{1i} \\
+\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]} \\
+\beta_{1i} = \beta + \beta_{1 actor[i]} + \beta_{ group[i]} \\
+\beta_{2i} = \beta + \beta_{2 actor[i]} + \beta_{2 group[i]} \\
+$$
+
+$$
+\alpha \sim Normal(0,1) \\
+\beta \sim Normal(0,1) \\
+$$
+
+$$
+\left(\begin{array}{cc} 
+\alpha_{actor}\\ 
+\beta_{1 actor}\\ 
+\beta_{2 actor}
+\end{array}\right)
+
+ \sim 
+\left(\begin{array}{cc} 
+\sigma_{\alpha a}\\
+\sigma_{\pi a}\\
+\sigma_{\gamma a}\\
+\end{array}\right) \circ 
+L_{a} *
+\left(\begin{array}{cc} 
+\widehat{\alpha}_{ka} \\
+\widehat{\pi}_{ka} \\
+\widehat{\gamma}_{ka}
+\end{array}\right)
+$$
+
+$$
+\sigma_{\alpha a} \sim Exponential(1) \\
+\sigma_{\pi a} \sim Exponential(1) \\
+\sigma_{\gamma a} \sim Exponential(1) \\
+L_{a} \sim LKJcorr(2)
+$$
+
+$$
+\left(\begin{array}{cc} 
+\alpha_{group}\\ 
+\beta_{1 group}\\ 
+\beta_{2 group}
+\end{array}\right)
+
+ \sim 
+\left(\begin{array}{cc} 
+\sigma_{\alpha g}\\
+\sigma_{\pi g}\\
+\sigma_{\gamma g}
+\end{array}\right) \circ 
+L_{g} *
+\left(\begin{array}{cc} 
+\widehat{\alpha}_{kg} \\
+\widehat{\pi}_{kg}\\
+\widehat{\gamma}_{kg}
+\end{array}\right)
+$$
+
+$$
+\sigma_{\alpha g} \sim Exponential(1) \\
+\sigma_{\pi g} \sim Exponential(1) \\
+\sigma_{\gamma g} \sim Exponential(1) \\
+L_{g} \sim LKJcorr(2)
+$$
+
+```{python}
+from main import*
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+# Import data
+m.read_csv("../data/chimpanzees.csv", sep=";")
+m.df["block_id"] = m.df.block
+m.df["treatment"] = 1 + m.df.prosoc_left + 2 * m.df.condition
+m.data_to_model(['pulled_left', 'treatment', 'actor', 'block_id'])
 
 
+def model(tid, actor, block_id, L=None, link=False):
+    # fixed priors
+    g = dist.normal(0, 1, name = 'g', shape = (4,))
+    sigma_actor = dist.exponential(1, name = 'sigma_actor', shape = (4,))
+    L_Rho_actor = dist.lkjcholesky(4, 2, name = "L_Rho_actor")
+    sigma_block = dist.exponential(1, name = "sigma_block", shape = (4,))
+    L_Rho_block = dist.lkjcholesky(4, 2, name = "L_Rho_block")
 
+    # adaptive priors - non-centered
+    z_actor = dist.normal(0, 1, name = "z_actor", shape = (4,7)
+    z_block = dist.normal(0, 1, name = "z_block", shape = (4,3)
+    alpha = deterministic(
+        "alpha", ((sigma_actor[..., None] * L_Rho_actor) @ z_actor).T
+    )
+    beta = deterministic(
+        "beta", ((sigma_block[..., None] * L_Rho_block) @ z_block).T
+    )
+
+    logit_p = g[tid] + alpha[actor, tid] + beta[block_id, tid]
+    dist("L", dist.Binomial(logits=logit_p), obs=L)
+
+    # compute ordinary correlation matrixes from Cholesky factors
+    if link:
+        deterministic("Rho_actor", L_Rho_actor @ L_Rho_actor.T)
+        deterministic("Rho_block", L_Rho_block @ L_Rho_block.T)
+        deterministic("p", expit(logit_p))
+
+# Run mcmc ------------------------------------------------
+m.run(model) 
+
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89)
+```
 ## Reference(s)
 @mcelreath2018statistical
+
