@@ -408,10 +408,10 @@ class Net:
         Returns:
             _type_: terms, focal_effects, target_effects
         """
-        focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), name = 'focal_effects', sample = sample)
+        focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), sample = sample, name = 'focal_effects')
         target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
-        terms = jnp.stack([Net.apply_row_dotproduct(focal_effects, focal_individual_predictors)[:,0],
-                   Net.apply_row_dotproduct(target_effects, target_individual_predictors)[:,0]], axis = -1)
+        terms = jnp.stack([focal_effects @ focal_individual_predictors,
+        target_effects @  target_individual_predictors], axis = -1)
         return terms, focal_effects, target_effects # we return everything to get posterior distributions for each parameters
 
     @staticmethod 

@@ -5,7 +5,9 @@ editor: visual
 filters:
   - critic-markup
 ---
+
 # Testing models
+
 ## Runing STRAND example without block
 
 ```{r}
@@ -14,88 +16,49 @@ filters:
 #   Binomial Analyses - Simulated data  
 #
 ########################################
-
+getwd()
+setwd(paste(getwd(), '/bi', sep = ""))
 # Clear working space
 rm(list = ls())
 set.seed(10)
+set
 # Load libraries
 library(STRAND)
 library(rethinking)
 library(ggplot2)
 
 # Make data
-N_id = 100
+N_id = 50
 
 # Covariates
-Kinship = rlkjcorr( 1 , N_id , eta=1.5 )
-Dominant = ceiling(rlkjcorr( 1 , N_id , eta=1.5 ) - 0.1)
 Mass = rbern(N_id, 0.4)
 
-# Organize into list
-dyadic_preds = array(NA,c(N_id,N_id,3))
-
-dyadic_preds[,,1] = Kinship
-dyadic_preds[,,2] = Dominant
-dyadic_preds[,,3] = Kinship*Dominant
-
-# Set effect sizes
-sr_mu = c(0,0)  
-sr_sigma = c(2.2, 1.7) 
-sr_rho = 0.55
-
-dr_mu = 0 
-dr_sigma = 1.5
-dr_rho= 0.6
-sr_effects_1 = c(1.9, 1.3)
-dr_effects_1 = c(1.2, 1.7, -2.2)
-
-## Block structure
-#group_probs_block_size = c(0.25, c(0.25, 0.25)*(1-0.25))
-#
-#B_1 = matrix(-10,nrow=1,ncol=1)
-#B_2 = matrix(rnorm(9,0,3),nrow=3,ncol=3)
-#B_3 = matrix(rnorm(4,0,3),nrow=2,ncol=2)
-#
-#diag(B_2) = diag(B_2) + 2
-#diag(B_3) = diag(B_3) + 3.5
-#
-#B=list(B_1, B_2, B_3)
-# 
-#groups_1 = rep("Any",N_id) 
-#groups_2 = sample( c("Red","White","Blue") , size=N_id , replace=TRUE , prob=group_probs_block_size )
-#groups_3 = sample( c("Strange", "Charm") , size=N_id , replace=TRUE , prob=c(0.5,0.5) )
-#
-#groups = data.frame(Intercept=as.numeric(factor(groups_1)), Merica=as.numeric(factor(groups_2)), Quantum=as.numeric(factor(groups_3)))
-#groups_f = data.frame(Intercept=factor(groups_1), Merica=factor(groups_2), Quantum=factor(groups_3))
-
 #################################################### Simulate SBM + SRM network
+sr_effects_1 = c(1.9, 1.3)
 G = simulate_srm_network(N_id = N_id, 
                          #B = B, 
                          #V=3,
                          #groups=groups,                  
-                         sr_mu = sr_mu,  
-                         sr_sigma = sr_sigma, 
-                         sr_rho = sr_rho,
-                         dr_mu = dr_mu,  
-                         dr_sigma = dr_sigma, 
-                         dr_rho = dr_rho,
+                         sr_mu = c(0,0),  
+                         sr_sigma = c(2.2, 1.7) , 
+                         sr_rho = 0.55,
                          mode="poisson",                  
                          individual_predictors = data.frame(Mass=Mass),
-                         dyadic_predictors = dyadic_preds,
+                         dyadic_predictors = NULL,
                          individual_effects = matrix(sr_effects_1,nrow=2,ncol=1),
-                         dyadic_effects = dr_effects_1
+                         dyadic_effects = NULL
                          )        
 
 ################################################### Organize for model fitting
 model_dat = make_strand_data(outcome=list(G$network),  
                               individual_covariates=data.frame(Mass=Mass), 
-                                                         dyadic_covariates=list(Kinship=Kinship, Dominant=Dominant),  outcome_mode = "poisson", exposure=list(G$samps))
+                              outcome_mode = "poisson")
 
 # Model the data with STRAND
 fit =  fit_social_relations_model(data=model_dat,
                               focal_regression = ~ Mass,
                               target_regression = ~ Mass,
-                              dyad_regression = ~ Kinship,
+                              dyad_regression = ~ 1,
                               mode="mcmc",
                               stan_mcmc_parameters = list(chains = 1, parallel_chains = 1,
                                                           refresh = 500,iter_warmup = 500,
@@ -109,21 +72,37 @@ res = summarize_strand_results(fit)
 ```
 
 ### Save data
+
 ```{r}
-save(list(fit, model_dat), file = 'STRAND sim.Rdata')
+save(fit, model_dat, file = 'STRAND sim sr only.Rdata')
 ```
 
-
 ## Running same model with BI
+
 ### importing R simulated data
+
 ```{r}
-load('STRAND sim.Rdata')
+getwd()
+setwd(paste(getwd(), '/bi', sep = ""))
+load('STRAND sim sr only.Rdata')
+model_dat
+#reticulate::py_install("numpyro")
+#reticulate::py_install("arviz")
+#reticulate::py_install("seaborn")
 ```
 
 ```{python}
-import jax.numpy as jnp
+import os
+os.getcwd()
+os.chdir('bi')
+os.getcwd()
 r_sesssion = r
-data = r.model_dat
+data = r_sesssion.model_dat
+from main import *
+m = bi(platform='cpu')
+```
+
+```{python}
 data.keys()
 data['individual_predictors'] = jnp.array(data['individual_predictors']['Mass'])
 Kinship = jnp.array(data['dyadic_predictors']['Kinship'])
@@ -141,176 +120,55 @@ N_id = data['N_id']
 from main import *
 m = bi(platform='cpu')
 result_outcomes = bi.net.mat_to_edgl(data['outcomes'][:,:,0])
-result_kin = bi.net.mat_to_edgl(Kinship)
-result_dom = bi.net.mat_to_edgl(Dominant)
-
 ```
 
 ### Running model
 ```{python}
-    def nodes_terms2( N_var, focal_individual_predictors, target_individual_predictors,
-                    s_mu = 0.1, s_sd = 1, r_mu = 0.01, r_sd = 1, sample = False ):
-        """_summary_
-
-        Args:
-            focal_individual_predictors (2D jax array): each column represent node characteristics.
-            target_individual_predictors (2D jax array): each column represent node characteristics.
-            s_mu (int, optional): Default mean prior for focal_effect, defaults to 0.
-            s_sd (int, optional): Default sd prior for focal_effect, defaults to 1.
-            r_mu (int, optional): Default mean prior for target_effect, defaults to 0.
-            r_sd (int, optional): Default sd prior for target_effect, defaults to 1.
-
-        Returns:
-            _type_: terms, focal_effects, target_effects
-        """
-        focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), name = 'focal_effects', sample = sample)
-        target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
-        
-        
-        terms = jnp.stack([
-          focal_effects @ focal_individual_predictors.reshape(1,focal_individual_predictors.shape[0]),
-          target_effects @ target_individual_predictors.reshape(1,target_individual_predictors.shape[0]),
-          
-                    ]).T
-        return terms, focal_effects, target_effects # we return everything to get posterior distributions for each parameters
-
-```
-
-```{python}
-import numpyro
-def nodes_random_effects2( N_id, sr_mu = 0, sr_sd = 1, sr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False ):
-        sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
-        sr_sigma =  dist.exponential( sr_sigma, name = 'sr_sigma', sample = sample)
-        sr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
-        rf = numpyro.deterministic('rf', ((jnp.repeat(sr_sigma, 2)[..., None] * sr_L) @ sr_raw).T)
-        #rf = vmap(lambda x: factor.random_centered(sr_sigma, sr_L, x))(sr_raw)
-        #rf = deterministic('sr_rf', factor.random_centered(sr_sigma, sr_L, sr_raw))
-        return rf, sr_raw, sr_sigma, sr_L # we return everything to get posterior distributions for each parameters
-#nodes_random_effects2(10, sample = True)
-
-nodes_random_effects = bi.net.nodes_random_effects
-```
-```{python}
-sr_raw =  dist.normal(0, 1, shape=(N_id,2), name = 'sr_raw', sample = True)
-sr_sigma =  dist.exponential( 1, name = 'sr_sigma', sample = True)
-sr_L = dist.lkjcholesky(2, 4, name = "sr_L", sample = True)
-sr_rf = numpyro.deterministic('rf', ((jnp.repeat(sr_sigma, 2)[..., None] * sr_L) @ sr_raw).T)
-```
-```{python}
-((jnp.repeat(sr_sigma, 2)[..., None] * sr_L) @ sr_raw.T)
-```
-
-```{python}
-rft, t, t1, t2= bi.net.nodes_random_effects(10, sample = True)
-rft
-rft, t, t1, t2= nodes_random_effects2(10, sample = True)
-rft
-bi.net.vec_node_to_edgle(rft)
-bi.net.edgl_to_mat(bi.net.vec_node_to_edgle(rft), 10)
-```
-
-```{python}
-sr_terms, focal_effects, target_effects = nodes_terms2(1, 
-                                                          focal_individual_predictors, 
-                                                          target_individual_predictors,
-                                                          s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = True)
-sr_terms.shape
-#sr_terms = bi.net.vec_node_to_edgle(sr_terms)
-```
-
-```{python}
-m = bi.net.edgl_to_mat(sr_terms, N_id)
-m == m.T
-```
-
-```{python}
-vec = jnp.array([[1,1],[2,2],[3,3], [4,4], [5,5], [6,6], [7,7]])
-edgl = bi.net.vec_node_to_edgle(vec)
-bi.net.edgl_to_mat(edgl, 7)
-```
-
-```{python}
-sr = vec
-N = sr.shape[0]
-lrows, lcols   = jnp.tril_indices(N, k=-1)
-urows, ucols   = jnp.triu_indices(N, k=1)
-ft = sr[ucols,0]
-tf = sr[urows, 1]
-t = jnp.stack([ft, tf], axis = -1)
-bi.net.edgl_to_mat(t, 7)
-```
-
-```{python}
 # Building model and sampling it ------------------
-d_s, d_r = bi.net.prerpare_dyadic_effect(Kinship)
 @jit
 def logit(x):
     return jnp.log(x / (1 - x))
 
-def model(N_id, result_outcomes,d_s, d_r, focal_individual_predictors, target_individual_predictors, outcome_mode, exposure):
+def model(N_id, result_outcomes,focal_individual_predictors, target_individual_predictors):
     ## Block ---------------------------------------
     B = bi.dist.normal(logit(0.1/jnp.sqrt(N_id)), 2.5, shape=(1,), name = 'block')
+    sr_terms, focal_effects, target_effects = bi.net.nodes_terms(1, 
+                                                      focal_individual_predictors, 
+                                                      target_individual_predictors,
+                                                      s_mu = 0.1, s_sd = 1, r_mu = 0, r_sd = 1)
 
-    ## SR ---------------------------------------
-    sr_terms, focal_effects, target_effects = nodes_terms2(1, 
-                                                          focal_individual_predictors, 
-                                                          target_individual_predictors,
-                                                          s_mu = 0.1, s_sd = 1, r_mu = 0, r_sd = 1)
-                                                          
-
-    sr_rf, sr_raw, sr_sigma, sr_L = nodes_random_effects2(sr_terms.shape[0], cholesky_density = 8)
+    sr_rf, sr_raw, sr_sigma, sr_L = bi.net.nodes_random_effects(sr_terms.shape[0], cholesky_density = 8)
     sr = bi.net.vec_node_to_edgle(sr_terms + sr_rf)
-  
-    ## Dyadic--------------------------------------  
-    dr_terms, dyad_effects = bi.net.dyadic_terms(d_s, d_r)
-    rf, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(dr_terms.shape[0], cholesky_density = 8)
-    dr = dr_terms + rf
-
-    lk('Y', Poisson(jnp.exp(sr)), obs=result_outcomes)
+    ## SR ---------------------------------------                                                      
+    lk('Y', Poisson(jnp.exp(B[0] + sr)), obs=result_outcomes)
         
 
 dat = dict(
     N_id = N_id,
     result_outcomes = result_outcomes,
-    d_s = d_s, d_r = d_r,
     focal_individual_predictors = focal_individual_predictors,
     target_individual_predictors = target_individual_predictors,
-    outcome_mode = int(3),
-    exposure = bi.net.mat_to_edgl(exposure)
 )
+import json
+with open('STRAND sim sr only', 'w') as file:
+    json.dump(data, file, indent=4)
 
-m = MCMC(NUTS(model), num_warmup=500, num_samples=500, num_chains=1)
-m.run(random.PRNGKey(0), **dat)
-res = az.from_numpyro(m)
-```
-```{python}
-#print("dyad_effects:")
-#jnp.mean(jnp.array(res["posterior"]["dyad_effects"]),axis=1)
-print("focal_effects:")
-jnp.mean(jnp.array(res["posterior"]["focal_effects"]),axis=1)
-print("target_effects:")
-jnp.mean(jnp.array(res["posterior"]["target_effects"]),axis=1)
-print("block:")
-jnp.mean(jnp.array(res["posterior"]["block"]),axis=1)
+m.data_on_model = dat
+m.run(model) 
+m.sampler.print_summary(0.89)
 ```
 
 
-```{python}
-#print("dyad_effects:")
-#jnp.mean(jnp.array(res["posterior"]["dyad_effects"]),axis=1)
-print("focal_effects:")
-jnp.mean(jnp.array(res["posterior"]["focal_effects"]),axis=1)
-print("target_effects:")
-jnp.mean(jnp.array(res["posterior"]["target_effects"]),axis=1)
-#print("block:")
-#jnp.mean(jnp.array(res["posterior"]["block"]),axis=1)
-```
+
 
 ```{r}
-res$summary
+data.frame(
+res$summary$Variable,
+res$summary$Median)
 ```
 
 ## Runing STRAND example with block
+
 ```{r}
 #####################################
 #
@@ -414,7 +272,9 @@ save(list(fit2,model_dat2), file = 'STRAND sim block.Rdata')
 ```
 
 ## Running same model with BI
+
 ### importing R simulated data
+
 ```{r}
 load('STRAND sim .Rdata')
 ```
