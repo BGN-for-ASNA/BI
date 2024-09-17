@@ -88,7 +88,7 @@ def mat_to_edgl_jax(mat):
     ft = mat[(urows,ucols)]
     m2 = jnp.transpose(mat)
     tf = m2[(urows,ucols)]
-    return jnp.stack([ft, tf], axis = -1)
+    return jnp.stack([tf, ft], axis = -1)
 
 
 ## strength ------------------------------------------
@@ -238,10 +238,9 @@ class Net:
     def edgl_to_mat(edgl, N_id):
         m = jnp.zeros((N_id,N_id))
         urows, ucols   = jnp.triu_indices(N_id, 1)
+        m = m.at[(ucols, urows)].set(edgl[:,1])
         m = m.at[(urows, ucols)].set(edgl[:,0])
-        m = m.T
-        m2 = m.at[(urows, ucols)].set(edgl[:,1])
-        return m2
+        return m
     
     @staticmethod 
     @jit
@@ -271,10 +270,10 @@ class Net:
             First column represent the value fo individual i  in the first column of argument sr, the second column the value of j in the second column of argument sr
         """
         N = sr.shape[0]
-        lrows, lcols   = jnp.tril_indices(N, k=-1)
-        urows, ucols   = jnp.triu_indices(N, k=1)
+        lrows, lcols = jnp.tril_indices(N, k=-1)
+        urows, ucols = jnp.triu_indices(N, k=1)
         ft = sr[urows,0]
-        tf = sr[ucols, 1]
+        tf = sr[ucols,1]
         return jnp.stack([ft, tf], axis = -1)
     
     # Netowrk metrics ----------------------
@@ -393,11 +392,12 @@ class Net:
         return rf, sr_raw, sr_sigma, sr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
-    def nodes_terms( N_var, focal_individual_predictors, target_individual_predictors,
-                    s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False ):
+    def nodes_terms(focal_individual_predictors, target_individual_predictors,
+                    N_var = 1, s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False ):
         """_summary_
 
         Args:
+            idx (2D, jax array): An edglist of ids.
             focal_individual_predictors (2D jax array): each column represent node characteristics.
             target_individual_predictors (2D jax array): each column represent node characteristics.
             s_mu (int, optional): Default mean prior for focal_effect, defaults to 0.
@@ -410,8 +410,9 @@ class Net:
         """
         focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), sample = sample, name = 'focal_effects')
         target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
-        terms = jnp.stack([focal_effects @ focal_individual_predictors,
-        target_effects @  target_individual_predictors], axis = -1)
+
+        terms = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  target_individual_predictors], axis = -1)
+        #sr0 = sr_terms[:,0][idx[:,0]] + sr_terms[:,1][idx[:,1]]
         return terms, focal_effects, target_effects # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
@@ -419,7 +420,8 @@ class Net:
         dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2, N_id), name = 'dr_raw', sample = sample)
         dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample )
         dr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
-        rf = deterministic('dr_rf', factor.random_centered(jnp.repeat(dr_sigma,2), dr_L, dr_raw))
+        rf = deterministic('dr_rf', ((jnp.repeat(dr_sigma,2) * dr_L) @ dr_raw).T)
+        #rf = deterministic('dr_rf', factor.random_centered(jnp.repeat(dr_sigma,2), dr_L, dr_raw))
         #rf = vmap(lambda x: factor.random_centered(jnp.repeat(dr_sigma,2), dr_L, x))(dr_raw)
         return rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
