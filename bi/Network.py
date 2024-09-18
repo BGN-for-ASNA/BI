@@ -427,10 +427,10 @@ class Net:
         return rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
-    def dyadic_terms( d_s, d_r, d_m = 0, d_sd = 1, sample = False):
-        dyad_effects = dist.normal(d_m, d_sd, name='dyad_effects', sample = sample)
-        terms1 = Net.apply_row_dotproduct(dyad_effects,  d_s)
-        terms2 = Net.apply_row_dotproduct(dyad_effects,  d_r)
+    def dyadic_terms( d_s, d_r, d_m = 0, d_sd = 1, shape = (1,), sample = False):
+        dyad_effects = dist.normal(d_m, d_sd, name='dyad_effects',  shape = shape, sample = sample)
+        terms1 = dyad_effects @ d_s.reshape(1,d_s.shape[0])
+        terms2 = dyad_effects @ d_r.reshape(1,d_r.shape[0])
         rf = jnp.stack([terms1, terms2], axis = 1)
         return rf, dyad_effects
     
