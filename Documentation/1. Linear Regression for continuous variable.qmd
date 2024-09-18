@@ -1,28 +1,32 @@
 ---
 format: live-html
 ---
+
 # Linear Regression for continuous vairable
+
 ## General Principles
-To study relationships between two continuous variables (e.g. heigth and weigth), we can use : _Linear regression approach_. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept $\alpha$ which inform us about the starting point of the line, 2) a coefficient $\beta$ which in inform us about the slope of the line and 3) a error term $\sigma$ which inform us about spread of points between the line. We can interpret the intercept $\alpha$  as the mean for of _Y_ for the smaller value of _X_, the coefficient $\beta$ as how much _Y_ increase for each increment of  _X_, and $\sigma$ as the error arround the prediction. So the coefficient $\beta$ give the strength of the relationship between _X_ and _Y_ and $\sigma$ the amount of error in the model.
+
+To study relationships between two continuous variables (e.g. heigth and weigth), we can use : *Linear regression approach*. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept $\alpha$ which inform us about the starting point of the line, 2) a coefficient $\beta$ which in inform us about the slope of the line and 3) a error term $\sigma$ which inform us about spread of points between the line. We can interpret the intercept $\alpha$ as the mean for of *Y* for the smaller value of *X*, the coefficient $\beta$ as how much *Y* increase for each increment of *X*, and $\sigma$ as the error arround the prediction. So the coefficient $\beta$ give the strength of the relationship between *X* and *Y* and $\sigma$ the amount of error in the model.
 
 ![](https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg)
 
 ## Conciderations
-- Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for  $\alpha$ , $\beta$ and $\sigma^2$ . 
 
-- Ussually, we use _Normal_ distribution for  $\alpha$ , $\beta$ and an _exponential_ or _Uniform_ distributiuon for $\sigma$.
+-   Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for $\alpha$ , $\beta$ and $\sigma^2$ .
 
-- As we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.
+-   Ussually, we use *Normal* distribution for $\alpha$ , $\beta$ and an *exponential* or *Uniform* distributiuon for $\sigma$.
 
-- $\sigma$ is assumed to be normally distributed and is squared to force positive error and account for values bellow and above the line.
+-   As we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.
 
-- Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
+-   $\sigma$ is assumed to be normally distributed and is squared to force positive error and account for values bellow and above the line.
+
+-   Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
 
 ## Example
 
 Below is an example code snippet demonstrating Bayesian linear regression using Bayesian Inference (BI) package:
 
-```python
+``` python
 from .bi.main import*
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -48,21 +52,18 @@ m.sampler.print_summary(0.89)
 ```
 
 ## Mathematical Details
+
 ### *Formula*
 The following equation allow us to draw a line and is ths one that is most used in statistic clases:
-$$
+ $$
 Y = \alpha + \beta  X + \sigma
 $$
 
-Where:
-- _Y_ is the target variable.
-- _X_ is the input variable.
-- $\beta$ is the regression coefficient.
-- $\alpha$ is the intercept term.
-- $\sigma$ is the error term.
+Where: - *Y* is the target variable. - *X* is the input variable. - $\beta$ is the regression coefficient. - $\alpha$ is the intercept term. - $\sigma$ is the error term.
 
 ### *Bayesian model*
-We can express the Bayesian regression model accounting for prior distribution as follows:
+
+We can express the Bayesian regression model accounting for prior distribution as follows: 
 $$
 p(Y | \alpha, \beta, X) \sim Normal(\alpha + \beta   X, \sigma)
 $$
@@ -79,12 +80,8 @@ $$
 p(\sigma) \sim Uniform(0, 50)
 $$
 
-
-Where:
-- $p(Y |X, \alpha , \beta)$ is the likelihood function (equivalent of the line equation).
-- $p(\beta)$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept, respectivelly.
-- $p(\sigma)$, controll the variance of the likelihood.
-
+Where: - $p(Y |X, \alpha , \beta)$ is the likelihood function (equivalent of the line equation). - $p(\beta)$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept, respectivelly. - $p(\sigma)$, controll the variance of the likelihood.
 
 ## Reference(s)
+
 @mcelreath2018statistical
