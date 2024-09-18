@@ -387,8 +387,9 @@ class Net:
         sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
         sr_sigma =  dist.exponential( sr_sigma, shape= (2,), name = 'sr_sigma', sample = sample)
         sr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
+        rf = deterministic('sr_rf',((jnp.outer(sr_sigma, sr_sigma)  * sr_L) @ sr_raw).T)
         #rf = vmap(lambda x: factor.random_centered(sr_sigma, sr_L, x))(sr_raw)
-        rf = deterministic('sr_rf', factor.random_centered(sr_sigma, sr_L, sr_raw))
+        #rf = deterministic('sr_rf', factor.random_centered(sr_sigma, sr_L, sr_raw))
         return rf, sr_raw, sr_sigma, sr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
