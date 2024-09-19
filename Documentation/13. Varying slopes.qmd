@@ -8,9 +8,9 @@ This approach is useful when we expect the relationship between predictors and t
 
 ## Considerations
 
--   We have the same considerations as for [12. Varying interceps 🛈](12.%20Varying%20intercepts.qmd).
+-   We have the same considerations as for [12. Varying interceps](12.%20Varying%20intercepts.qmd).
 
--   The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [matrix of covariance i](13.%20Varying%20slopes.qmd "A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariances between different variables").
+-   The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [matrix of covariance 🛈](13.%20Varying%20slopes.qmd "A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariances between different variables").
 
 -   The covariance matrix requiere a correlation matris distribution which is modeleld using a $LKJcorr$ distribution that hold a parameter $η$. $η$ is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.
 
@@ -121,7 +121,8 @@ $$
 
 The varying intercepts slopes ($\alpha_k$) and ($\beta_k$) are modeled using a *Multivariate Normal distribution*:
 
-\$\$ \left(
+$$ 
+\left(
 
 \begin{array}{cc} \alpha_k \\ \beta_k\end{array}
 
@@ -141,7 +142,8 @@ The varying intercepts slopes ($\alpha_k$) and ($\beta_k$) are modeled using a *
 \sigma_\alpha\sigma_{\pi\rho} & \sigma_\pi
 \end{array}
 
-\right)) \$\$
+\right)) 
+$$
 
 Where: - $\left(\begin{array}{cc} 0 \\0\end{array}\right)$, is the prior for average intercept. - $\left(\begin{array}{cc} \sigma_\alpha^2 & \sigma_\pi\sigma_{\alpha\rho} \\ \sigma_\alpha\sigma_{\pi\rho} & \sigma_\pi \end{array}\right)$ is is the covariance matrix which specifies the variance and covariance of $\alpha_k$ and $\beta_k$, where: - $\sigma_\alpha^2$ The variance of $\alpha_k$. - $\sigma_\pi^2$ The variance of $\beta_k$. - $\sigma_\pi\sigma_{\alpha\rho}$ and $\sigma_\alpha\sigma_{\pi\rho}$ The covariance between $\alpha_k$ and $\beta_k$
 
@@ -211,7 +213,7 @@ $$
 \mu_i =   \alpha_i + \beta_{1i} X_{1i}  + \beta_{1i} X_{2i} \\
 $$
 
-\$\$ \left(
+$$ \left(
 
 \begin{array}{cc} 
 \alpha_{i}\\ 
@@ -237,7 +239,7 @@ $$
 \widehat{\gamma}_{k} 
 \end{array}
 
-\right) \$\$
+\right) $$
 
 $$
 \sigma_{\alpha} \sim Exponential(1) \\
@@ -269,7 +271,7 @@ $$
 \beta \sim Normal(0,1) \\
 $$
 
-\$\$ \left(
+$$ \left(
 
 \begin{array}{cc} 
 \alpha_{actor}\\ 
@@ -278,21 +280,23 @@ $$
 
 \right)
 
-\sim  \left(
+\sim  
+
+\left(
 
 \begin{array}{cc} 
 \sigma_{\alpha a}\\
 \sigma_{\pi a}
 \end{array}
 
-\right) \circ  L\_{a} \* \left(
+\right) \circ  L\_{a} * \left(
 
 \begin{array}{cc} 
 \widehat{\alpha}_{ka} \\
 \widehat{\pi}_{ka} 
 \end{array}
-
-\right) \$\$
+\right) 
+$$
 
 $$
 \sigma_{\alpha a} \sim Exponential(1) \\
@@ -300,7 +304,7 @@ $$
 L_{a} \sim LKJcorr(2)
 $$
 
-\$\$ \left(
+$$ \left(
 
 \begin{array}{cc} 
 \alpha_{group }\\ 
@@ -313,18 +317,19 @@ $$
 
 \begin{array}{cc} 
 \sigma_{\alpha g}\\
-\sigma_{\pi g}\
+\sigma_{\pi g}\\
 \end{array}
 \end{array}
 
-\\end{array}\right) \circ  L\_{g} \* \left(
+\\end{array}\right) \circ  L\_{g} * \left(
 
 \begin{array}{cc} 
 \widehat{\alpha}_{kg} \\
 \widehat{\pi}_{kg}
 \end{array}
 
-\right) \$\$
+\right) 
+$$
 
 $$
 \sigma_{\alpha g} \sim Exponential(1) \\
@@ -350,7 +355,7 @@ $$
 \beta \sim Normal(0,1) \\
 $$
 
-\$\$ \left(
+$$ \left(
 
 \begin{array}{cc} 
 \alpha_{actor}\\ 
@@ -368,7 +373,7 @@ $$
 \sigma_{\gamma a}\\
 \end{array}
 
-\right) \circ  L\_{a} \* \left(
+\right) \circ  L\_{a} * \left(
 
 \begin{array}{cc} 
 \widehat{\alpha}_{ka} \\
@@ -376,7 +381,7 @@ $$
 \widehat{\gamma}_{ka}
 \end{array}
 
-\right) \$\$
+\right) $$
 
 $$
 \sigma_{\alpha a} \sim Exponential(1) \\
@@ -385,7 +390,7 @@ $$
 L_{a} \sim LKJcorr(2)
 $$
 
-\$\$ \left(
+$$ \left(
 
 \begin{array}{cc} 
 \alpha_{group}\\ 
@@ -403,7 +408,7 @@ $$
 \sigma_{\gamma g}
 \end{array}
 
-\right) \circ  L\_{g} \* \left(
+\right) \circ  L\_{g} * \left(
 
 \begin{array}{cc} 
 \widehat{\alpha}_{kg} \\
@@ -411,7 +416,7 @@ $$
 \widehat{\gamma}_{kg}
 \end{array}
 
-\right) \$\$
+\right) $$
 
 $$
 \sigma_{\alpha g} \sim Exponential(1) \\
@@ -420,7 +425,7 @@ $$
 L_{g} \sim LKJcorr(2)
 $$
 
-```{python}
+```python
 from main import*
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -440,8 +445,8 @@ def model(tid, actor, block_id, L=None, link=False):
     L_Rho_block = dist.lkjcholesky(4, 2, name = "L_Rho_block")
 
     # adaptive priors - non-centered
-    z_actor = dist.normal(0, 1, name = "z_actor", shape = (4,7)
-    z_block = dist.normal(0, 1, name = "z_block", shape = (4,3)
+    z_actor = dist.normal(0, 1, name = "z_actor", shape = (4,7))
+    z_block = dist.normal(0, 1, name = "z_block", shape = (4,3))
     alpha = deterministic(
         "alpha", ((sigma_actor[..., None] * L_Rho_actor) @ z_actor).T
     )
