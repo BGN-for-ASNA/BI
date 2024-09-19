@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>15&nbsp; 13. Varying effects – BI documentation</title>
+<title>15&nbsp; 13. Varying slopes – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -54,7 +54,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -64,8 +84,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./14. Multiple varying slopes.html" rel="next">
-<link href="./12. Varying interceps.html" rel="prev">
+<link href="./15. Continuous varying slopes (wip).html" rel="next">
+<link href="./12. Varying intercepts.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -75,8 +95,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
-<link href="site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -104,8 +122,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
-<link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -148,7 +164,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./13. Varying slopes.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">13. Varying effects</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./13. Varying slopes.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">13. Varying slopes</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -253,80 +269,74 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./12. Varying interceps.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying interceps</span></span></a>
+  <a href="./12. Varying intercepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./13. Varying slopes.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">13. Varying effects</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">13. Varying slopes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./14. Multiple varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">14. Multiple varying slopes.html</span></span></a>
+  <a href="./15. Continuous varying slopes (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">15. Continuous varying slopes (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./15. Continuous varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">15. Continuous varying slopes.html</span></span></a>
+  <a href="./15. Gaussian processes (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">15. Gaussian processes (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Gaussian processes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">16. Gaussian processes.html</span></span></a>
+  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">16. Measuring error (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">17. Measuring error (wip).html</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./18. Missing data (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">18. Missing data (wip).html</span></span></a>
+  <a href="./17. Missing data (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">17. Missing data (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./19. Network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></span></a>
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19.1. Sender receiver network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">19.1. Sender receiver network model.html</span></span></a>
+  <a href="./19.1. Sender receiver network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">19.1. Sender receiver network model (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19.2. Block model network.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">19.2. Block model network.html</span></span></a>
+  <a href="./19.2. Block model network (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">19.2. Block model network (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20. Multiplex network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multiplex Networks</span></span></a>
+  <a href="./20. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Multiplex Networks</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./21. Multiplex temporal network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">21. Multiplex temporal network model.html</span></span></a>
+  <a href="./21. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">21. Multiplex temporal network model (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./22. Multilayer network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
+  <a href="./22. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -340,14 +350,22 @@ window.Quarto = {
    
   <ul>
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">15.1</span> General Principles</a></li>
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">15.2</span> Formula</a>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">15.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">15.3</span> Example</a>
   <ul class="collapse">
-  <li><a href="#main-equation" id="toc-main-equation" class="nav-link" data-scroll-target="#main-equation"><span class="header-section-number">15.2.1</span> Main equation</a></li>
+  <li><a href="#simulated-data" id="toc-simulated-data" class="nav-link" data-scroll-target="#simulated-data"><span class="header-section-number">15.3.1</span> Simulated data</a></li>
   </ul></li>
-  <li><a href="#priors" id="toc-priors" class="nav-link" data-scroll-target="#priors"><span class="header-section-number">15.3</span> Priors</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">15.4</span> Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">15.5</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">15.6</span> Mathematical Details</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">15.4</span> Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">15.4.1</span> <em>Formula</em></a></li>
+  </ul></li>
+  <li><a href="#mathematical-details-1" id="toc-mathematical-details-1" class="nav-link" data-scroll-target="#mathematical-details-1"><span class="header-section-number">15.5</span> Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#formula-1" id="toc-formula-1" class="nav-link" data-scroll-target="#formula-1"><span class="header-section-number">15.5.1</span> <em>Formula</em></a></li>
+  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">15.5.2</span> <em>Bayesian model</em></a></li>
+  </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">15.6</span> Notes</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">15.7</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -356,7 +374,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">13. Varying effects</span></h1>
+<h1 class="title"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">13. Varying slopes</span></h1>
 </div>
 
 
@@ -375,8 +393,84 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="15.1">
 <h2 data-number="15.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">15.1</span> General Principles</h2>
-<p>To model the relationship between predictor variables and an outcome variable while allowing for both varying intercepts and varying slopes (effects) across groups or clusters, we use a <em>Varying Effects</em> model. This approach is useful when we expect the relationship between predictors and the outcome to differ across groups (e.g., different slopes for different subjects, locations, or time periods).This allow every unit in the data to have its own unique response to any treatment or exposure or event, while also improving estimates via pooling.</p>
-<p>The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a matrix of covariance.</p>
+<p>To model the relationship between predictor variables and an independent variable while allowing for varying effects across groups or clusters, we use a <em>Varying slopes</em> model.</p>
+<p>This approach is useful when we expect the relationship between predictors and the independent variable to differ across groups (e.g., different slopes for different subjects, locations, or time periods).This allow every unit in the data to have its own unique response to any treatment or exposure or event, while also improving estimates via pooling.</p>
+</section>
+<section id="considerations" class="level2" data-number="15.2">
+<h2 data-number="15.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">15.2</span> Considerations</h2>
+<ul>
+<li><p>We have the same considerations as for <a href="./12. Varying intercepts.html">12. Varying interceps 🛈</a>.</p></li>
+<li><p>The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a <a href="./13. Varying slopes.html" title="A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariances between different variables">matrix of covariance i</a>.</p></li>
+<li><p>The covariance matrix requiere a correlation matris distribution which is modeleld using a <span class="math inline">\(LKJcorr\)</span> distribution that hold a parameter <span class="math inline">\(η\)</span>. <span class="math inline">\(η\)</span> is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.</p></li>
+<li><p>The Half-Cauchy distribution is used when modeling the covariance matrix to specify strictly positive values for the diagonal of the covariance matrix, ensuring positive variances.</p></li>
+</ul>
+</section>
+<section id="example" class="level2" data-number="15.3">
+<h2 data-number="15.3" class="anchored" data-anchor-id="example"><span class="header-section-number">15.3</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian regression with varying effects:</p>
+<section id="simulated-data" class="level3" data-number="15.3.1">
+<h3 data-number="15.3.1" class="anchored" data-anchor-id="simulated-data"><span class="header-section-number">15.3.1</span> Simulated data</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">3.5</span>  <span class="co"># average morning wait time</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>  <span class="co"># average difference afternoon wait time</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>sigma_a <span class="op">=</span> <span class="dv">1</span>  <span class="co"># std dev in intercepts</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>sigma_b <span class="op">=</span> <span class="fl">0.5</span>  <span class="co"># std dev in slopes</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>rho <span class="op">=</span> <span class="op">-</span><span class="fl">0.7</span>  <span class="co"># correlation between intercepts and slopes</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>Mu <span class="op">=</span> jnp.array([a, b])</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>cov_ab <span class="op">=</span> sigma_a <span class="op">*</span> sigma_b <span class="op">*</span> rho</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>Sigma <span class="op">=</span> jnp.array([[sigma_a<span class="op">**</span><span class="dv">2</span>, cov_ab], [cov_ab, sigma_b<span class="op">**</span><span class="dv">2</span>]])</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>jnp.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>]).reshape(<span class="dv">2</span>, <span class="dv">2</span>).T</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>sigmas <span class="op">=</span> jnp.array([sigma_a, sigma_b])  <span class="co"># standard deviations</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>Rho <span class="op">=</span> jnp.array([[<span class="dv">1</span>, rho], [rho, <span class="dv">1</span>]])  <span class="co"># correlation matrix</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># now matrix multiply to get covariance matrix</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>Sigma <span class="op">=</span> jnp.diag(sigmas) <span class="op">@</span> Rho <span class="op">@</span> jnp.diag(sigmas)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>N_cafes <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>seed <span class="op">=</span> random.PRNGKey(<span class="dv">5</span>)  <span class="co"># used to replicate example</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>vary_effects <span class="op">=</span> bi.dist.multivariatenormal(Mu, Sigma, shape<span class="op">=</span>(N_cafes,), sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>a_cafe <span class="op">=</span> vary_effects[:, <span class="dv">0</span>]</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>b_cafe <span class="op">=</span> vary_effects[:, <span class="dv">1</span>]</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>seed <span class="op">=</span> random.PRNGKey(<span class="dv">22</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>N_visits <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>afternoon <span class="op">=</span> jnp.tile(jnp.arange(<span class="dv">2</span>), N_visits <span class="op">*</span> N_cafes <span class="op">//</span> <span class="dv">2</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>cafe_id <span class="op">=</span> jnp.repeat(jnp.arange(N_cafes), N_visits)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> a_cafe[cafe_id] <span class="op">+</span> b_cafe[cafe_id] <span class="op">*</span> afternoon</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="fl">0.5</span>  <span class="co"># std dev within cafes</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>wait <span class="op">=</span> dist.normal(mu, sigma, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> pd.DataFrame(<span class="bu">dict</span>(cafe<span class="op">=</span>cafe_id, afternoon<span class="op">=</span>afternoon, wait<span class="op">=</span>wait))</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'cafe_id'</span>, <span class="st">"afternoon"</span>, <span class="st">"wait"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="define-model" class="level4" data-number="15.3.1.1">
+<h4 data-number="15.3.1.1" class="anchored" data-anchor-id="define-model"><span class="header-section-number">15.3.1.1</span> Define model</h4>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(cafe, wait, N_cafes):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">5</span>, <span class="dv">2</span>, name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="op">-</span><span class="dv">1</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    sigma_cafe <span class="op">=</span> dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">2</span>], name <span class="op">=</span> <span class="st">'sigma_cafe'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> dist.exponential( <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    Rho <span class="op">=</span> dist.lkj(<span class="dv">2</span>, <span class="dv">2</span>, name <span class="op">=</span> <span class="st">'Rho'</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> jnp.outer(sigma_cafe, sigma_cafe) <span class="op">*</span> Rho</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    a_cafe_b_cafe <span class="op">=</span> dist.multivariatenormal(jnp.stack([a, b]), cov, shape <span class="op">=</span> [N_cafes], name <span class="op">=</span> <span class="st">'a_cafe'</span>)    </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    a_cafe, b_cafe <span class="op">=</span> a_cafe_b_cafe[:, <span class="dv">0</span>], a_cafe_b_cafe[:, <span class="dv">1</span>]</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a_cafe[cafe] <span class="op">+</span> b_cafe[cafe] <span class="op">*</span> afternoon</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Normal(mu, sigma), obs<span class="op">=</span>wait)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="mathematical-details" class="level2" data-number="15.4">
+<h2 data-number="15.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">15.4</span> Mathematical Details</h2>
+<section id="formula" class="level3" data-number="15.4.1">
+<h3 data-number="15.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">15.4.1</span> <em>Formula</em></h3>
 <p><span class="math display">\[
 \left(\begin{array}{cc}
 \sigma_\alpha^2 &amp; \sigma_\alpha \sigma_{\beta \rho }\\
@@ -385,174 +479,319 @@ window.Quarto = {
 \]</span></p>
 <p>where : - <span class="math inline">\(\sigma_\alpha^2\)</span> is the variance of intercepts. - <span class="math inline">\(\sigma_\beta^2\)</span> is the covariance of intercepts &amp; slopes. - <span class="math inline">\(\sigma_\alpha \sigma_{\beta \rho }\)</span> is the covariance between intercepts and slopes -i.e.&nbsp;the product of the two standard deviations-.</p>
 </section>
-<section id="formula" class="level2" data-number="15.2">
-<h2 data-number="15.2" class="anchored" data-anchor-id="formula"><span class="header-section-number">15.2</span> Formula</h2>
-<section id="main-equation" class="level3" data-number="15.2.1">
-<h3 data-number="15.2.1" class="anchored" data-anchor-id="main-equation"><span class="header-section-number">15.2.1</span> Main equation</h3>
-<p>We model the relationship between the predictor variable (<span class="math inline">\(X\)</span>) and the outcome variable (<em>Y</em>) with varying intercepts (<span class="math inline">\(\alpha\)</span>) and varying slopes (<span class="math inline">\(\beta\)</span>) for each group (<em>i</em>) using the following equation:</p>
+</section>
+<section id="mathematical-details-1" class="level2" data-number="15.5">
+<h2 data-number="15.5" class="anchored" data-anchor-id="mathematical-details-1"><span class="header-section-number">15.5</span> Mathematical Details</h2>
+<section id="formula-1" class="level3" data-number="15.5.1">
+<h3 data-number="15.5.1" class="anchored" data-anchor-id="formula-1"><span class="header-section-number">15.5.1</span> <em>Formula</em></h3>
+<p>We model the relationship between the independent variable <span class="math inline">\(X\)</span> and the outcome variable <em>Y</em> with varying intercepts (<span class="math inline">\(\alpha\)</span>) and varying slopes (<span class="math inline">\(\beta\)</span>) for each group (<em>k</em>) using the following equation:</p>
 <p><span class="math display">\[
-Y_{i} = \alpha_i + \beta_i X_i + \epsilon
+Y_{ik} = \alpha_k + \beta_k X_{ik} + \sigma
 \]</span></p>
-<p>Where: - <span class="math inline">\(Y_i\)</span> is the outcome variable for group <em>i</em>. - <span class="math inline">\(X_i\)</span> are the predictor variables for group <em>i</em>. - <span class="math inline">\(\alpha_i\)</span> is the varying intercept for group <em>i</em>. - <span class="math inline">\(\beta_i\)</span> are the varying regression coefficients (slope) for group <em>i</em>. - <span class="math inline">\(\epsilon ~\sim HalfCauchy(0,1)\)</span> is the error term, typically assumed to be strictly positive.</p>
+<p>Where: - <span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <em>i</em> in group <em>k</em>. - <span class="math inline">\(X_{ik}\)</span> is the independent variables for observation <em>i</em> in group <em>k</em>. - <span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <em>k</em>. - <span class="math inline">\(\beta_k\)</span> is the varying regression coefficients for group <em>k</em>. - $$ is the error term, assumed to be strictly positive.</p>
 </section>
-</section>
-<section id="priors" class="level2" data-number="15.3">
-<h2 data-number="15.3" class="anchored" data-anchor-id="priors"><span class="header-section-number">15.3</span> Priors</h2>
-<p>The varying intercepts (<span class="math inline">\(\beta_i\)</span>) and slopes (<span class="math inline">\(\alpha_i\)</span>) are typically modeled using a Multivariate Normal distribution:</p>
-<p>[ ( , S) ]</p>
-<p>Where: - <span class="math inline">\(\alpha \sim Normal(0,1)\)</span>, is the prior for average intercept. - <span class="math inline">\(\beta \sim Normal(0,1)\)</span> is the prior for average slope. - $S = <span class="math display">\[
+<section id="bayesian-model" class="level3" data-number="15.5.2">
+<h3 data-number="15.5.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">15.5.2</span> <em>Bayesian model</em></h3>
+<p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<p><span class="math display">\[
+p(Y_{ik} |\mu_{ik} , \sigma) \sim \text{Normal}(\mu_{ik} , \sigma) \\
+\mu_{ik} = \alpha_k + \beta_k X_{ik} + \sigma \\
+\alpha_k \sim Normal(0,1) \\
+\beta_k \sim Normal(0,1) \\
+\sigma \sim Exponential(0,1)
+\]</span></p>
+<p>The varying intercepts slopes (<span class="math inline">\(\alpha_k\)</span>) and (<span class="math inline">\(\beta_k\)</span>) are modeled using a <em>Multivariate Normal distribution</em>:</p>
+<p>$$ (</p>
+<span class="math display">\[\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\]</span>
+<p>) (</p>
+<p>(</p>
+<span class="math display">\[\begin{array}{cc}
+0 \\
+0
+\end{array}\]</span>
+<p>), (</p>
+<span class="math display">\[\begin{array}{cc}
+\sigma_\alpha^2 &amp; \sigma_\pi\sigma_{\alpha\rho} \\
+\sigma_\alpha\sigma_{\pi\rho} &amp; \sigma_\pi
+\end{array}\]</span>
+<p>)) $$</p>
+<p>Where: - <span class="math inline">\(\left(\begin{array}{cc} 0 \\0\end{array}\right)\)</span>, is the prior for average intercept. - <span class="math inline">\(\left(\begin{array}{cc} \sigma_\alpha^2 &amp; \sigma_\pi\sigma_{\alpha\rho} \\ \sigma_\alpha\sigma_{\pi\rho} &amp; \sigma_\pi \end{array}\right)\)</span> is is the covariance matrix which specifies the variance and covariance of <span class="math inline">\(\alpha_k\)</span> and <span class="math inline">\(\beta_k\)</span>, where: - <span class="math inline">\(\sigma_\alpha^2\)</span> The variance of <span class="math inline">\(\alpha_k\)</span>. - <span class="math inline">\(\sigma_\pi^2\)</span> The variance of <span class="math inline">\(\beta_k\)</span>. - <span class="math inline">\(\sigma_\pi\sigma_{\alpha\rho}\)</span> and <span class="math inline">\(\sigma_\alpha\sigma_{\pi\rho}\)</span> The covariance between <span class="math inline">\(\alpha_k\)</span> and <span class="math inline">\(\beta_k\)</span></p>
+<p>For computational reasons, it is often better to implement a <a href="./12. Varying intercepts.html" title="The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.">centered version of the varying intercept 🛈</a> that is equivalent to the <em>Multivariate Normal distribution</em> approach:</p>
+<p><span class="math display">\[
+\left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
+\sim
 \left(\begin{array}{cc}
-\sigma_\alpha &amp; 0 \\
-0 &amp; \sigma_\beta
-\end{array}\right)
-R
+\sigma_\alpha\\
+\sigma_\pi
+\end{array}\right) \circ
+L *
 \left(\begin{array}{cc}
-\sigma_\alpha &amp; 0 \\
-0 &amp; \sigma_\beta
+\widehat{\alpha}_k \\
+\widehat{\pi}_k
 \end{array}\right)
-\]</span> $ is the covariance matrix where:</p>
-<pre><code>- $\sigma_\alpha \sim Halfcauchy(0,1)$ bewing the prior stddev among intercepts.
-- $\sigma_\beta \sim Halfcauchy(0,1)$ bewing the prior stddev among slopes.
-- $R \sim LKJcorr( η)$ bewing the prior for the correlation matrix.</code></pre>
-</section>
-<section id="considerations" class="level2" data-number="15.4">
-<h2 data-number="15.4" class="anchored" data-anchor-id="considerations"><span class="header-section-number">15.4</span> Considerations</h2>
+\]</span></p>
 <ul>
-<li><span class="math inline">\(Halfcauchy\)</span> distribution allow use to specify strictly positive values for a parameter<br>
-</li>
-<li>Parameter <span class="math inline">\(η\)</span> for <span class="math inline">\(LKJcorr\)</span> distribution is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.</li>
+<li><p>Where:</p>
+<ul>
+<li><span class="math inline">\(\sigma_\alpha \sim Exponential(1)\)</span> bewing the priorstddev amongintercepts.</li>
+<li><span class="math inline">\(\sigma_\beta \sim Exponential(1)\)</span> bewing the prior stddevamongslopes.</li>
+<li><span class="math inline">\(L \sim LKJcorr(η)\)</span> bewing the prior for the correlationmatrix.</li>
+</ul></li>
 </ul>
-</section>
-<section id="example" class="level2" data-number="15.5">
-<h2 data-number="15.5" class="anchored" data-anchor-id="example"><span class="header-section-number">15.5</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian regression with varying effects:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi.hard</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data-----------------------------------------------------------------</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image, set_matplotlib_formats</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Ellipse, transforms</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax <span class="im">import</span> random, vmap</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax.scipy.special <span class="im">import</span> expit</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> onp</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpyro <span class="im">as</span> numpyro</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpyro.distributions <span class="im">as</span> dist</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numpyro.diagnostics <span class="im">import</span> effective_sample_size, print_summary</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numpyro.infer <span class="im">import</span> MCMC, NUTS, Predictive</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>numpyro.set_platform(<span class="st">"cpu"</span>)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>numpyro.set_host_device_count(<span class="dv">4</span>)</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">3.5</span>  <span class="co"># average morning wait time</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>  <span class="co"># average difference afternoon wait time</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>sigma_a <span class="op">=</span> <span class="dv">1</span>  <span class="co"># std dev in intercepts</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>sigma_b <span class="op">=</span> <span class="fl">0.5</span>  <span class="co"># std dev in slopes</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>rho <span class="op">=</span> <span class="op">-</span><span class="fl">0.7</span>  <span class="co"># correlation between intercepts and slopes</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>Mu <span class="op">=</span> jnp.array([a, b])</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>cov_ab <span class="op">=</span> sigma_a <span class="op">*</span> sigma_b <span class="op">*</span> rho</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>Sigma <span class="op">=</span> jnp.array([[sigma_a<span class="op">**</span><span class="dv">2</span>, cov_ab], [cov_ab, sigma_b<span class="op">**</span><span class="dv">2</span>]])</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>sigmas <span class="op">=</span> jnp.array([sigma_a, sigma_b])  <span class="co"># standard deviations</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>Rho <span class="op">=</span> jnp.array([[<span class="dv">1</span>, rho], [rho, <span class="dv">1</span>]])  <span class="co"># correlation matrix</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="co"># now matrix multiply to get covariance matrix</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>Sigma <span class="op">=</span> jnp.diag(sigmas) <span class="op">@</span> Rho <span class="op">@</span> jnp.diag(sigmas)</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>N_cafes <span class="op">=</span> <span class="dv">20</span></span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>seed <span class="op">=</span> random.PRNGKey(<span class="dv">5</span>)  <span class="co"># used to replicate example</span></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>vary_effects <span class="op">=</span> dist.MultivariateNormal(Mu, Sigma).sample(seed, (N_cafes,))</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>a_cafe <span class="op">=</span> vary_effects[:, <span class="dv">0</span>]</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>b_cafe <span class="op">=</span> vary_effects[:, <span class="dv">1</span>]</span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>seed <span class="op">=</span> random.PRNGKey(<span class="dv">22</span>)</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>N_visits <span class="op">=</span> <span class="dv">10</span></span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>afternoon <span class="op">=</span> jnp.tile(jnp.arange(<span class="dv">2</span>), N_visits <span class="op">*</span> N_cafes <span class="op">//</span> <span class="dv">2</span>)</span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>cafe_id <span class="op">=</span> jnp.repeat(jnp.arange(N_cafes), N_visits)</span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> a_cafe[cafe_id] <span class="op">+</span> b_cafe[cafe_id] <span class="op">*</span> afternoon</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="fl">0.5</span>  <span class="co"># std dev within cafes</span></span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>wait <span class="op">=</span> dist.Normal(mu, sigma).sample(seed)</span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> pd.DataFrame(<span class="bu">dict</span>(cafe<span class="op">=</span>cafe_id, afternoon<span class="op">=</span>afternoon, wait<span class="op">=</span>wait))</span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model-----------------------------------------------------------------</span></span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>cafe_id <span class="op">=</span> jnp.array(d.cafe.values)</span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model():    </span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> <span class="cf">yield</span> exponential(<span class="dv">1</span>,<span class="dv">1</span>)</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> <span class="cf">yield</span> normal(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">2</span>)</span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> <span class="cf">yield</span> normal(<span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>, <span class="fl">0.5</span>)</span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    sigma_cafe <span class="op">=</span> <span class="cf">yield</span> exponential(<span class="dv">2</span>, <span class="dv">1</span>)    </span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    Rho <span class="op">=</span> <span class="cf">yield</span> lkj((), <span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    a_cafe_b_cafe <span class="op">=</span> <span class="cf">yield</span> multivariatenormaltril(N_cafes, loc <span class="op">=</span> jnp.stack([a, b], axis<span class="op">=</span><span class="dv">1</span>)[<span class="dv">0</span>], scale_tril <span class="op">=</span>  Rho <span class="op">*</span> sigma_cafe)</span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a_cafe_b_cafe[:, <span class="dv">0</span>][cafe_id] <span class="op">+</span> a_cafe_b_cafe[:, <span class="dv">1</span>][cafe_id] <span class="op">*</span> afternoon</span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="cf">yield</span> Independent(Normal(mu, sigma), reinterpreted_batch_ndims<span class="op">=</span>[<span class="dv">1</span>])</span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>posterior, sample_stats <span class="op">=</span> NUTStrans(model, obs <span class="op">=</span> jnp.array(d.wait.astype(<span class="st">'float32'</span>).values))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-<section id="mathematical-details" class="level2" data-number="15.6">
-<h2 data-number="15.6" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">15.6</span> Mathematical Details</h2>
-<p>We can express the Bayesian regression model with varying effects using probability distributions as follows:</p>
+<p>The full cetered version of the model is thus :</p>
 <p><span class="math display">\[
-p(Y_{i} |\mu_i , \sigma) = \text{Normal}(\mu_i , \sigma) \\
+p(Y_{i} |\mu_k , \sigma) \sim \text{Normal}(\mu_k , \sigma) \\
 \]</span></p>
 <p><span class="math display">\[
-\mu_i =   \alpha_i + \beta_i X_i \\
+\mu_k =   \alpha_k + \beta_i X_i \\
 \]</span></p>
-<p>[ ( , S) ]</p>
-<p><span class="math display">\[S =
+<p><span class="math display">\[
+\left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
+\sim
 \left(\begin{array}{cc}
-\sigma_\alpha &amp; 0 \\
-0 &amp; \sigma_\beta
-\end{array}\right)
-R
+\sigma_\alpha\\
+\sigma_\pi
+\end{array}\right) \circ
+L *
 \left(\begin{array}{cc}
-\sigma_\alpha &amp; 0 \\
-0 &amp; \sigma_\beta
+\widehat{\alpha}_k \\
+\widehat{\pi}_k
 \end{array}\right)
 \]</span></p>
 <p><span class="math display">\[
 \alpha \sim Normal(0,1) \\
 \beta \sim Normal(0,1) \\
-\sigma_\alpha \sim Halfcauchy(0,1) \\
-\sigma_\beta \sim Halfcauchy(0,1) \\
-R \sim LKJcorr(2)
+\sigma_\alpha \sim Exponential(1) \\
+\sigma_\pi \sim Exponential(1) \\
+L \sim LKJcorr(2)
 \]</span></p>
+</section>
+</section>
+<section id="notes" class="level2" data-number="15.6">
+<h2 data-number="15.6" class="anchored" data-anchor-id="notes"><span class="header-section-number">15.6</span> Notes</h2>
+<ul>
+<li>We can apply multivariate model similarly as <a href="./2. Multiple Regression for Continuous Variables.qmd">chapter 2</a>. In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for <span class="math inline">\(i\)</span> actors in a model with two independent variables <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>, we can define the formula as follows:</li>
+</ul>
+<p><span class="math display">\[
+p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
+\]</span></p>
+<p><span class="math display">\[
+\mu_i =   \alpha_i + \beta_{1i} X_{1i}  + \beta_{1i} X_{2i} \\
+\]</span></p>
+<p>$$ (</p>
+<span class="math display">\[\begin{array}{cc}
+\alpha_{i}\\
+\beta_{1i}\\
+\beta_{2i}
+\end{array}\]</span>
+<p>)</p>
+<p>(</p>
+<span class="math display">\[\begin{array}{cc}
+\sigma_{\alpha}\\
+\sigma_{\pi}\\
+\sigma_{\gamma}
+\end{array}\]</span>
+<p>) L * (</p>
+<span class="math display">\[\begin{array}{cc}
+\widehat{\alpha}_{k} \\
+\widehat{\pi}_{k} \\
+\widehat{\gamma}_{k}
+\end{array}\]</span>
+<p>) $$</p>
+<p><span class="math display">\[
+\sigma_{\alpha} \sim Exponential(1) \\
+\sigma_{\pi} \sim Exponential(1) \\
+\sigma_{\gamma} \sim Exponential(1) \\
+L \sim LKJcorr(2)
+\]</span></p>
+<ul>
+<li><p>We can apply interaction terms similarly as <a href=".//3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
+<li><p>We can apply caterogical variables similarly as <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
+<li><p>We can apply varying slopes with any distribution presented in previous chapters.</p></li>
+<li><p>For more than two varying effects we apply the same principel but with a covariance matrix for each varying effect that are summed to gernerat the varying intercept and slope. For exmaple, if we want to generate random slopes for <span class="math inline">\(i\)</span> actors, and <span class="math inline">\(k\)</span> groups we can define the formula as follow:</p></li>
+</ul>
+<p><span class="math display">\[
+p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
+\]</span></p>
+<p><span class="math display">\[
+\mu_i =   \alpha_i + \beta_{i} X_i \\
+\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]} \\
+\beta_{i} = \beta + \beta_{actor[i]} + \beta_{group[i]} \\
+\]</span></p>
+<p><span class="math display">\[
+\alpha \sim Normal(0,1) \\
+\beta \sim Normal(0,1) \\
+\]</span></p>
+<p>$$ (</p>
+<span class="math display">\[\begin{array}{cc}
+\alpha_{actor}\\
+\beta_{actor}
+\end{array}\]</span>
+<p>)</p>
+<p></p>
+<p>(</p>
+<span class="math display">\[\begin{array}{cc}
+\sigma_{\alpha a}\\
+\sigma_{\pi a}
+\end{array}\]</span>
+<p>) L_{a} * (</p>
+<span class="math display">\[\begin{array}{cc}
+\widehat{\alpha}_{ka} \\
+\widehat{\pi}_{ka}
+\end{array}\]</span>
+<p>) $$</p>
+<p><span class="math display">\[
+\sigma_{\alpha a} \sim Exponential(1) \\
+\sigma_{\pi a} \sim Exponential(1) \\
+L_{a} \sim LKJcorr(2)
+\]</span></p>
+<p>$$ (</p>
+<span class="math display">\[\begin{array}{cc}
+\alpha_{group }\\
+\beta_{group}
+\end{array}\]</span>
+<p>)</p>
+<p>(</p>
+<span class="math display">\[\begin{array}{cc}
+\sigma_{\alpha g}\\
+\sigma_{\pi g}\\
+\end{array}\]</span>
+<p>\end{array}</p>
+<p>\end{array}) L_{g} * (</p>
+<span class="math display">\[\begin{array}{cc}
+\widehat{\alpha}_{kg} \\
+\widehat{\pi}_{kg}
+\end{array}\]</span>
+<p>) $$</p>
+<p><span class="math display">\[
+\sigma_{\alpha g} \sim Exponential(1) \\
+\sigma_{\pi g} \sim Exponential(1) \\
+L_{g} \sim LKJcorr(2)
+\]</span></p>
+<ul>
+<li>Bellow the formula and the code snipset for a Binomial multivariate model with interaction between two independent variables <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> and multiples varying effects for each actor and each group:</li>
+</ul>
+<p><span class="math display">\[
+p(Y_{i} |n , p_i) \sim \text{Binomial}(n = 1, p_i) \\
+\]</span></p>
+<p><span class="math display">\[
+logit{p_i}=   \alpha_i + (\beta_{1i}  + \beta_{2i} X_{2i})  X_{1i} \\
+\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]} \\
+\beta_{1i} = \beta + \beta_{1 actor[i]} + \beta_{ group[i]} \\
+\beta_{2i} = \beta + \beta_{2 actor[i]} + \beta_{2 group[i]} \\
+\]</span></p>
+<p><span class="math display">\[
+\alpha \sim Normal(0,1) \\
+\beta \sim Normal(0,1) \\
+\]</span></p>
+<p>$$ (</p>
+<span class="math display">\[\begin{array}{cc}
+\alpha_{actor}\\
+\beta_{1 actor}\\
+\beta_{2 actor}
+\end{array}\]</span>
+<p>)</p>
+<p>(</p>
+<span class="math display">\[\begin{array}{cc}
+\sigma_{\alpha a}\\
+\sigma_{\pi a}\\
+\sigma_{\gamma a}\\
+\end{array}\]</span>
+<p>) L_{a} * (</p>
+<span class="math display">\[\begin{array}{cc}
+\widehat{\alpha}_{ka} \\
+\widehat{\pi}_{ka} \\
+\widehat{\gamma}_{ka}
+\end{array}\]</span>
+<p>) $$</p>
+<p><span class="math display">\[
+\sigma_{\alpha a} \sim Exponential(1) \\
+\sigma_{\pi a} \sim Exponential(1) \\
+\sigma_{\gamma a} \sim Exponential(1) \\
+L_{a} \sim LKJcorr(2)
+\]</span></p>
+<p>$$ (</p>
+<span class="math display">\[\begin{array}{cc}
+\alpha_{group}\\
+\beta_{1 group}\\
+\beta_{2 group}
+\end{array}\]</span>
+<p>)</p>
+<p>(</p>
+<span class="math display">\[\begin{array}{cc}
+\sigma_{\alpha g}\\
+\sigma_{\pi g}\\
+\sigma_{\gamma g}
+\end{array}\]</span>
+<p>) L_{g} * (</p>
+<span class="math display">\[\begin{array}{cc}
+\widehat{\alpha}_{kg} \\
+\widehat{\pi}_{kg}\\
+\widehat{\gamma}_{kg}
+\end{array}\]</span>
+<p>) $$</p>
+<p><span class="math display">\[
+\sigma_{\alpha g} \sim Exponential(1) \\
+\sigma_{\pi g} \sim Exponential(1) \\
+\sigma_{\gamma g} \sim Exponential(1) \\
+L_{g} \sim LKJcorr(2)
+\]</span></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>m.read_csv(<span class="st">"../data/chimpanzees.csv"</span>, sep<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"block_id"</span>] <span class="op">=</span> m.df.block</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"treatment"</span>] <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> m.df.prosoc_left <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> m.df.condition</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>, <span class="st">'treatment'</span>, <span class="st">'actor'</span>, <span class="st">'block_id'</span>])</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(tid, actor, block_id, L<span class="op">=</span><span class="va">None</span>, link<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># fixed priors</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'g'</span>, shape <span class="op">=</span> (<span class="dv">4</span>,))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    sigma_actor <span class="op">=</span> dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'sigma_actor'</span>, shape <span class="op">=</span> (<span class="dv">4</span>,))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    L_Rho_actor <span class="op">=</span> dist.lkjcholesky(<span class="dv">4</span>, <span class="dv">2</span>, name <span class="op">=</span> <span class="st">"L_Rho_actor"</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    sigma_block <span class="op">=</span> dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">"sigma_block"</span>, shape <span class="op">=</span> (<span class="dv">4</span>,))</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    L_Rho_block <span class="op">=</span> dist.lkjcholesky(<span class="dv">4</span>, <span class="dv">2</span>, name <span class="op">=</span> <span class="st">"L_Rho_block"</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># adaptive priors - non-centered</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    z_actor <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">"z_actor"</span>, shape <span class="op">=</span> (<span class="dv">4</span>,<span class="dv">7</span>))</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    z_block <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">"z_block"</span>, shape <span class="op">=</span> (<span class="dv">4</span>,<span class="dv">3</span>))</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> deterministic(</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"alpha"</span>, ((sigma_actor[..., <span class="va">None</span>] <span class="op">*</span> L_Rho_actor) <span class="op">@</span> z_actor).T</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> deterministic(</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">"beta"</span>, ((sigma_block[..., <span class="va">None</span>] <span class="op">*</span> L_Rho_block) <span class="op">@</span> z_block).T</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    logit_p <span class="op">=</span> g[tid] <span class="op">+</span> alpha[actor, tid] <span class="op">+</span> beta[block_id, tid]</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    dist(<span class="st">"L"</span>, dist.Binomial(logits<span class="op">=</span>logit_p), obs<span class="op">=</span>L)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute ordinary correlation matrixes from Cholesky factors</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> link:</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        deterministic(<span class="st">"Rho_actor"</span>, L_Rho_actor <span class="op">@</span> L_Rho_actor.T)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        deterministic(<span class="st">"Rho_block"</span>, L_Rho_block <span class="op">@</span> L_Rho_block.T)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        deterministic(<span class="st">"p"</span>, expit(logit_p))</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="references" class="level2" data-number="15.7">
+<h2 data-number="15.7" class="anchored" data-anchor-id="references"><span class="header-section-number">15.7</span> Reference(s)</h2>
+<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
-<script type="ojs-module-contents">
-eyJjb250ZW50cyI6W119
-</script>
-<div id="exercise-loading-indicator" class="exercise-loading-indicator d-none d-flex align-items-center gap-2">
-<div id="exercise-loading-status" class="d-flex gap-2">
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
 </div>
-<div class="spinner-grow spinner-grow-sm">
-
 </div>
-</div>
-<script type="vfs-file">
-W10=
-</script>
 </section>
 
 </main> <!-- /main -->
-<script type="ojs-module-contents">
-eyJjb250ZW50cyI6W119
-</script>
-<script type="module">
-if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
-window._ojs.paths.runtimeToDoc = "../..";
-window._ojs.paths.runtimeToRoot = "../..";
-window._ojs.paths.docToRoot = "";
-window._ojs.selfContained = false;
-window._ojs.runtime.interpretFromScriptTags();
-</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -975,13 +1214,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./12. Varying interceps.html" class="pagination-link" aria-label="Varying interceps">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying interceps</span></span>
+      <a href="./12. Varying intercepts.html" class="pagination-link" aria-label="Varying intercepts">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./14. Multiple varying slopes.html" class="pagination-link" aria-label="14. Multiple varying slopes.html">
-        <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">14. Multiple varying slopes.html</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./15. Continuous varying slopes (wip).html" class="pagination-link" aria-label="15. Continuous varying slopes (wip).html">
+        <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">15. Continuous varying slopes (wip).html</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
