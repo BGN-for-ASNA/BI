@@ -212,6 +212,11 @@ class Net:
     def __init__(self) -> None:
         pass
 
+    @staticmethod 
+    @jit
+    def logit(x):
+        return jnp.log(x / (1 - x))
+
     # Matrix manipulations -------------------------------------
     @staticmethod 
     @partial(jit, static_argnums=(1, ))
@@ -311,78 +316,6 @@ class Net:
 
     # Sender receiver  ----------------------
     @staticmethod 
-    @jit
-    def apply_row_dotproduct(A, v):
-        """
-        Perform matrix-vector multiplication for each row of the array v.
-
-        Parameters:
-        A (jax.numpy.ndarray): A 2x2 matrix.
-        v (jax.numpy.ndarray): An array of shape (n, 2) where each row is a 2-vector.
-
-        Returns:
-        jax.numpy.ndarray: An array of shape (n, 2) where each row is the result of the matrix-vector multiplication.
-        """
-        # Define a function that performs the matrix-vector multiplication
-        def dotvec(A, v):
-            return jnp.dot(A, v)
-
-        # Vectorize the function using jax.vmap
-        vmap_dotvec = jax.vmap(lambda v: dotvec(A, v))
-
-        # Apply the vectorized function to the array of vectors
-        result = vmap_dotvec(v)
-
-        return result
-    
-    @staticmethod 
-    @jit
-    def apply_row_matmul(v, A):
-        """
-        Perform matrix-vector multiplication for each row of the array v.
-
-        Parameters:
-        A (jax.numpy.ndarray): A 2x2 matrix.
-        v (jax.numpy.ndarray): An array of shape (n, 2) where each row is a 2-vector.
-
-        Returns:
-        jax.numpy.ndarray: An array of shape (n, 2) where each row is the result of the matrix-vector multiplication.
-        """
-        # Define a function that performs the matrix-vector multiplication
-        def matvec(A, v):
-            return A * v
-
-        # Vectorize the function using jax.vmap
-        vmap_matvec = jax.vmap(lambda v: matvec(A, v))
-
-        # Apply the vectorized function to the array of vectors
-        result = vmap_matvec(v)
-
-        return result
-    
-    @staticmethod 
-    @jit
-    def prerpare_dyadic_effect(list_mat):
-        if len(list_mat.shape) == 2:
-            d = Net.mat_to_edgl(list_mat)
-            d_s = d[:,0]
-            d_r = d[:,1]
-
-        elif len(list_mat.shape) == 3:
-            dyadic_effects = vmap(Net.mat_to_edgl)(list_mat) 
-            d_s = dyadic_effects[:,:,0].T
-            d_r = dyadic_effects[:,:,1].T
-            return d_s, d_r
-        else:
-            raise ValueError("Input must be a 2D or 3D array")   
-        return d_s, d_r
-
-    @staticmethod 
-    @jit
-    def prepare_outcome_effects(list_mat):
-        return Net.prerpare_dyadic_effect(list_mat)
-
-    @staticmethod 
     def nodes_random_effects( N_id, sr_mu = 0, sr_sd = 1, sr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False ):
         sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
         sr_sigma =  dist.exponential( sr_sigma, shape= (2,), name = 'sr_sigma', sample = sample)
@@ -422,8 +355,6 @@ class Net:
         dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample )
         dr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
         rf = deterministic('dr_rf', ((jnp.repeat(dr_sigma,2) * dr_L) @ dr_raw).T)
-        #rf = deterministic('dr_rf', factor.random_centered(jnp.repeat(dr_sigma,2), dr_L, dr_raw))
-        #rf = vmap(lambda x: factor.random_centered(jnp.repeat(dr_sigma,2), dr_L, x))(dr_raw)
         return rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
@@ -442,7 +373,7 @@ class Net:
         """Build block model prior matrix for within and between group links probabilities
 
         Args:
-            N_grp (int): Number of blocks
+            grp (int): vector of group id
             b_ij_mean (float, optional): mean prior for between groups. Defaults to 0.01.
             b_ij_sd (float, optional): sd prior for between groups. Defaults to 2.5.
             b_ii_mean (float, optional): mean prior for within groups. Defaults to 0.01.
@@ -451,11 +382,11 @@ class Net:
         Returns:
             _type_: _description_
         """
-        b_ij = dist.normal(logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_grp, N_grp), name = name_b_ij, sample = sample) # transfers more likely within groups
-        b_ii = dist.normal(logit(b_ii_mean/jnp.sqrt(N_grp)), b_ii_sd, shape=(N_grp, ), name = name_b_ii, sample = sample) # transfers less likely between groups
+        b_ij = dist.normal(Net.logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_grp, N_grp), name = name_b_ij, sample = sample) # transfers more likely within groups
+        b_ii = dist.normal(Net.logit(b_ii_mean/jnp.sqrt(N_grp)), b_ii_sd, shape=(N_grp, ), name = name_b_ii, sample = sample) # transfers less likely between groups
         b = b_ij
         b = b.at[jnp.diag_indices_from(b)].set(b_ii)
-        return b, b_ij, b_ii
+        return b[0], b_ij[0], b_ii[0]
 
     @staticmethod 
     def block_prior_to_edglelist(v, b):
@@ -469,6 +400,33 @@ class Net:
             _type_: 1D array representing the probability of links from i-> j 
         """
 
-        v = Net.vec_node_to_edgle(jnp.stack([v, v], axis= 1), axis = 1)
-        return b[(v[:,0], v[:,1])]
+        v = Net.vec_node_to_edgle(jnp.stack([v, v], axis= 1)).astype(int)
+        return jnp.stack([b[v[:,0]], b[v[:,1]]], axis = 1)
+
+
+    @staticmethod 
+    def block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 2.5, b_ii_mean = 0.1, b_ii_sd = 2.5, name_b_ij = 'b_ij', name_b_ii = 'b_ii', sample = False):
+        """Generate block model model matrix.
+
+        Args:
+            grp (_type_): _description_
+            b_ij_mean (float, optional): _description_. Defaults to 0.01.
+            b_ij_sd (float, optional): _description_. Defaults to 2.5.
+            b_ii_mean (float, optional): _description_. Defaults to 0.1.
+            b_ii_sd (float, optional): _description_. Defaults to 2.5.
+            name_b_ij (str, optional): _description_. Defaults to 'b_ij'.
+            name_b_ii (str, optional): _description_. Defaults to 'b_ii'.
+            sample (bool, optional): _description_. Defaults to False.
+
+        Returns:
+            _type_: _description_
+        """
+        b, b_ij, b_ii = Net.block_model_prior(N_grp, 
+                         b_ij_mean = b_ij_mean, b_ij_sd = b_ij_sd, 
+                         b_ii_mean = b_ii_mean, b_ii_sd = b_ii_sd,
+                         name_b_ij = name_b_ij, name_b_ii = name_b_ii, sample = sample)
+        edgl_block = Net.block_prior_to_edglelist(grp, b)
+        edgl_block = jnp.sum(edgl_block, axis = 1)
+        edgl_block = jnp.stack([edgl_block, edgl_block], axis = 1)
+        return edgl_block, b, b_ij, b_ii
     
