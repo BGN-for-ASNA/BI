@@ -90,100 +90,6 @@ def mat_to_edgl_jax(mat):
     tf = m2[(urows,ucols)]
     return jnp.stack([tf, ft], axis = -1)
 
-
-## strength ------------------------------------------
-#def sum(x):
-#    return jax.numpy.sum(x)
-#
-#@jit
-#def outstrength_jax(x):
-#    return jax.numpy.sum(x, axis=1)
-#
-#@jit
-#def instrength_jax(x):
-#    return jax.numpy.sum(x, axis=0)
-#
-#@jit
-#def strength_jax(x):
-#    return outstrength_jax(x) +  instrength_jax(x)
-#
-#def vec_outstrength(matrix):
-#    """
-#    Compute row sums across a batch of matrices using JAX's vmap.
-#
-#    Args:
-#        matrices (jax.interpreters.xla.DeviceArray): Batch of matrices with shape (batch_size, num_rows, num_cols).
-#
-#    Returns:
-#        jax.interpreters.xla.DeviceArray: Array containing row sums for each matrix in the batch with shape (batch_size, num_rows).
-#    """
-#    # Use vmap to apply outstrength to each matrix in the batch
-#    return jax.vmap(sum, in_axes = 0)(matrix)
-#
-#def vec_instrength(matrix):
-#    """
-#    Compute column sums across a batch of matrices using JAX's vmap.
-#
-#    Args:
-#        matrices (jax.interpreters.xla.DeviceArray): Batch of matrices with shape (batch_size, num_rows, num_cols).
-#
-#    Returns:
-#        jax.interpreters.xla.DeviceArray: Array containing column sums for each matrix in the batch with shape (batch_size, num_cols).
-#    """
-#    # Use vmap to apply instrength to each matrix in the batch
-#    return jax.vmap(sum, in_axes = 1)(matrix)
-#
-#def para_outstrength(x):
-#    return jnp.sum(split_array_to_cores(x), axis = 1)
-#
-#def para_instrength(x):
-#    return jnp.sum(split_array_to_cores(x), axis = 0)
-#
-## degree ------------------------------------------
-#def outdegree(x):
-#    mask = x != 0
-#    return jax.numpy.sum(mask, axis=1)
-#
-#def indegree(x):
-#    mask = x != 0
-#    return jax.numpy.sum(mask, axis=0)
-#
-#def vec_outdegree(matrix):
-#    """
-#    Compute row sums across a batch of matrices using JAX's vmap.
-#
-#    Args:
-#        matrices (jax.interpreters.xla.DeviceArray): Batch of matrices with shape (batch_size, num_rows, num_cols).
-#
-#    Returns:
-#        jax.interpreters.xla.DeviceArray: Array containing row sums for each matrix in the batch with shape (batch_size, num_rows).
-#    """
-#    mask = x != 0
-#    # Use vmap to apply outstrength to each matrix in the batch
-#    return jax.vmap(sum, in_axes=0)(mask)
-#
-#def vec_indegree(matrix):
-#    """
-#    Compute column sums across a batch of matrices using JAX's vmap.
-#
-#    Args:
-#        matrices (jax.interpreters.xla.DeviceArray): Batch of matrices with shape (batch_size, num_rows, num_cols).
-#
-#    Returns:
-#        jax.interpreters.xla.DeviceArray: Array containing column sums for each matrix in the batch with shape (batch_size, num_cols).
-#    """
-#    # Use vmap to apply instrength to each matrix in the batch
-#    mask = x != 0
-#    return jax.vmap(sum, in_axes=1)(mask)
-#
-#def para_outdegree(x):
-#    x = split_array_to_cores(x)
-#    return outdegree(x)
-#
-#def para_indegree(x):
-#    x = split_array_to_cores(x)
-#    return indegree(x)
-
 # Eigenvector ------------------------------------------
 # Not working with @jit
 @jax.jit
@@ -281,41 +187,7 @@ class Net:
         tf = sr[ucols,1]
         return jnp.stack([ft, tf], axis = -1)
     
-    # Netowrk metrics ----------------------
-    @staticmethod 
-    @jit    
-    def outstrength(x):
-        return jax.numpy.sum(x, axis=1)
-    
-    @staticmethod 
-    @jit
-    def instrength(x):
-        return jax.numpy.sum(x, axis=0)
-
-    @staticmethod 
-    @jit
-    def strength(x):
-        return Net.outstrength(x) +  Net.instrength(x)
-
-    @staticmethod 
-    @jit
-    def outdegree(x):
-        mask = x != 0
-        return jax.numpy.sum(mask, axis=1)
-
-    @staticmethod 
-    @jit
-    def indegree(x):
-        mask = x != 0
-        return jax.numpy.sum(mask, axis=0)
-    
-    @staticmethod 
-    @jit
-    def degree(x):
-        return Net.indegree(x) + Net.outdegree(x)
-
     # Sender receiver  ----------------------
-
     def nodes_random_effects( N_id, sr_mu = 0, sr_sd = 1, sr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False ):
         sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
         sr_sigma =  dist.exponential( sr_sigma, shape= (2,), name = 'sr_sigma', sample = sample)
@@ -378,14 +250,14 @@ class Net:
     def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, shape = (1,), sample = False):
         dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.shape[0],), sample = sample)
         rf = jax.vmap(lambda x, y : x * y)(dyad_effects, dyadic_predictors)
-        if dyadic_predictors.shape[0] == 1:
+        if dyadic_predictors.ndim == 1:
             return rf, dyad_effects
         else:
             return jnp.sum(rf, axis=0), dyad_effects
 
 
     @staticmethod 
-    def dyadic_terms2(d_s, d_r, d_m = 0, d_sd = 1, shape = (1,), sample = False):
+    def dyadic_terms2(d_s, d_r, d_m = 0, d_sd = 1, shape = (1,), sample = False): # old
         dyad_effects = dist.normal(d_m, d_sd, name='dyad_effects',  shape = shape, sample = sample)
         terms1 = dyad_effects @ d_s.reshape(1,d_s.shape[0])
         terms2 = dyad_effects @ d_r.reshape(1,d_r.shape[0])
@@ -456,4 +328,66 @@ class Net:
         edgl_block = jnp.sum(edgl_block, axis = 1)
         edgl_block = jnp.stack([edgl_block, edgl_block], axis = 1)
         return edgl_block, b, b_ij, b_ii
+
+    # Netowrk metrics ----------------------
+    @staticmethod 
+    @jit    
+    def outstrength(x):
+        return jax.numpy.sum(x, axis=1)
+    
+    @staticmethod 
+    @jit
+    def instrength(x):
+        return jax.numpy.sum(x, axis=0)
+
+    @staticmethod 
+    @jit
+    def strength(x):
+        return Net.outstrength(x) +  Net.instrength(x)
+
+    @staticmethod 
+    @jit
+    def outdegree(x):
+        mask = x != 0
+        return jax.numpy.sum(mask, axis=1)
+
+    @staticmethod 
+    @jit
+    def indegree(x):
+        mask = x != 0
+        return jax.numpy.sum(mask, axis=0)
+    
+    @staticmethod 
+    @jit
+    def degree(x):
+        return Net.indegree(x) + Net.outdegree(x)
+
+    def mat_row_wise_multiplication(M, v):
+        return jnp.dot(M, v)
+    
+  
+    def met_eigen(M, eps=1e-6, maxiter=1000):
+        M_size = M.shape[1]
+        v = jnp.ones(M_size)
+        
+        v2 = v
+        eigen = v
+        count = 1
+    
+        while count < maxiter:
+            eigen = Net.mat_row_wise_multiplication(M, v2)
+            tmp =  jnp.linalg.norm(eigen)
+            eigen = eigen / tmp
+    
+            abs_v2 = jnp.abs(v2)
+            abs_eigen = jnp.abs(eigen)
+    
+            if jnp.sqrt(jnp.sum(abs_eigen - abs_v2)) <= eps:
+                break
+            
+            v2 = eigen
+            count += 1
+    
+        result = eigen / jnp.max(eigen)
+        return result
     
