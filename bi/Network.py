@@ -250,12 +250,14 @@ class Net(met):
         return rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
-    def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, shape = (1,), sample = False):
-        dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.shape[0],), sample = sample)
-        rf = jax.vmap(lambda x, y : x * y)(dyad_effects, dyadic_predictors)
-        if dyadic_predictors.ndim == 1:
+    def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, sample = False):
+        dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.ndim - 1,), sample = sample)
+        
+        if dyadic_predictors.ndim == 2:
+            rf = dyad_effects * dyadic_predictors
             return rf, dyad_effects
         else:
+            rf = jax.vmap(lambda x, y : x * y)(dyad_effects, dyadic_predictors)
             return jnp.sum(rf, axis=0), dyad_effects
 
 
