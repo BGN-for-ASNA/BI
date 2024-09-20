@@ -315,18 +315,22 @@ class Net:
         return Net.indegree(x) + Net.outdegree(x)
 
     # Sender receiver  ----------------------
-    @staticmethod 
+
     def nodes_random_effects( N_id, sr_mu = 0, sr_sd = 1, sr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False ):
         sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
         sr_sigma =  dist.exponential( sr_sigma, shape= (2,), name = 'sr_sigma', sample = sample)
         sr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
         rf = deterministic('sr_rf',((jnp.outer(sr_sigma, sr_sigma)  * sr_L) @ sr_raw).T)
-        #rf = vmap(lambda x: factor.random_centered(sr_sigma, sr_L, x))(sr_raw)
-        #rf = deterministic('sr_rf', factor.random_centered(sr_sigma, sr_L, sr_raw))
-        return rf, sr_raw, sr_sigma, sr_L # we return everything to get posterior distributions for each parameters
 
-    @staticmethod 
-    def nodes_terms(edgl_idx, focal_individual_predictors, target_individual_predictors,
+        ids = jnp.arange(0,N_id)
+        edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+        sender_random = rf[edgl_idx[:,0],0] + rf[edgl_idx[:,1],1]
+        receiver_random = rf[edgl_idx[:,1],0] + rf[edgl_idx[:,0],1]
+        random_effects = jnp.stack([sender_random, receiver_random], axis = 1)
+        return random_effects, sr_raw, sr_sigma, sr_L # we return everything to get posterior distributions for each parameters
+
+    
+    def nodes_terms(focal_individual_predictors, target_individual_predictors,
                     N_var = 1, s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False ):
         """_summary_
 
@@ -344,11 +348,15 @@ class Net:
         """
         focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), sample = sample, name = 'focal_effects')
         target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
-
         terms = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  target_individual_predictors], axis = -1)
+
+        #return terms, focal_effects, target_effects
+        ids = jnp.arange(0,focal_individual_predictors[0].shape[0])
+        edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
         sender = terms[edgl_idx[:,0],0] + terms[edgl_idx[:,1],1] # Sender effect between i and j is the sum of sender effects of i and j 
         receiver = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
         return jnp.stack([sender, receiver], axis = 1), focal_effects, target_effects # we return everything to get posterior distributions for each parameters
+        
 
     @staticmethod 
     def dyadic_random_effects( N_id, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False):
