@@ -326,7 +326,7 @@ class Net:
         return rf, sr_raw, sr_sigma, sr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
-    def nodes_terms(focal_individual_predictors, target_individual_predictors,
+    def nodes_terms(edgl_idx, focal_individual_predictors, target_individual_predictors,
                     N_var = 1, s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False ):
         """_summary_
 
@@ -346,8 +346,9 @@ class Net:
         target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
 
         terms = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  target_individual_predictors], axis = -1)
-        #sr0 = sr_terms[:,0][idx[:,0]] + sr_terms[:,1][idx[:,1]]
-        return terms, focal_effects, target_effects # we return everything to get posterior distributions for each parameters
+        sender = terms[edgl_idx[:,0],0] + terms[edgl_idx[:,1],1] # Sender effect between i and j is the sum of sender effects of i and j 
+        receiver = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
+        return jnp.stack([sender, receiver], axis = 1), focal_effects, target_effects # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
     def dyadic_random_effects( N_id, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False):
