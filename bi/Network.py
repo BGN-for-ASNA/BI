@@ -357,6 +357,14 @@ class Net:
         receiver_sender_ji = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
         return jnp.stack([sender_receiver_ij, receiver_sender_ji], axis = 1), focal_effects, target_effects # we return everything to get posterior distributions for each parameters
         
+    # dyadic effects ------------------------------------------
+    @staticmethod 
+    @jit
+    def prepare_dyadic_effect(dyadic_effect_mat):
+        if dyadic_effect_mat.ndim == 2:
+            return Net.mat_to_edgl(dyadic_effect_mat)
+        else:
+            return  jax.vmap(Net.mat_to_edgl)(jnp.stack(dyadic_effect_mat))
 
     @staticmethod 
     def dyadic_random_effects( N_id, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False):
@@ -367,13 +375,23 @@ class Net:
         return rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
-    def dyadic_terms( d_s, d_r, d_m = 0, d_sd = 1, shape = (1,), sample = False):
+    def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, shape = (1,), sample = False):
+        dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.shape[0],), sample = sample)
+        rf = jax.vmap(lambda x, y : x * y)(dyad_effects, dyadic_predictors)
+        if dyadic_predictors.shape[0] == 1:
+            return rf, dyad_effects
+        else:
+            return jnp.sum(rf, axis=0), dyad_effects
+
+
+    @staticmethod 
+    def dyadic_terms2(d_s, d_r, d_m = 0, d_sd = 1, shape = (1,), sample = False):
         dyad_effects = dist.normal(d_m, d_sd, name='dyad_effects',  shape = shape, sample = sample)
         terms1 = dyad_effects @ d_s.reshape(1,d_s.shape[0])
         terms2 = dyad_effects @ d_r.reshape(1,d_r.shape[0])
         rf = jnp.stack([terms1, terms2], axis = 1)
         return rf, dyad_effects
-    
+             
     @staticmethod 
     def block_model_prior(N_grp, 
                           b_ij_mean = 0.01, b_ij_sd = 2.5, 
