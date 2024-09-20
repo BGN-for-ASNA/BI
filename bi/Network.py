@@ -320,7 +320,7 @@ class Net:
         sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
         sr_sigma =  dist.exponential( sr_sigma, shape= (2,), name = 'sr_sigma', sample = sample)
         sr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
-        rf = deterministic('sr_rf',((jnp.outer(sr_sigma, sr_sigma)  * sr_L) @ sr_raw).T)
+        rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
 
         ids = jnp.arange(0,N_id)
         edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
@@ -353,9 +353,9 @@ class Net:
         #return terms, focal_effects, target_effects
         ids = jnp.arange(0,focal_individual_predictors[0].shape[0])
         edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
-        sender = terms[edgl_idx[:,0],0] + terms[edgl_idx[:,1],1] # Sender effect between i and j is the sum of sender effects of i and j 
-        receiver = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
-        return jnp.stack([sender, receiver], axis = 1), focal_effects, target_effects # we return everything to get posterior distributions for each parameters
+        sender_receiver_ij = terms[edgl_idx[:,0],0] + terms[edgl_idx[:,1],1] # Sender effect between i and j is the sum of sender effects of i and j 
+        receiver_sender_ji = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
+        return jnp.stack([sender_receiver_ij, receiver_sender_ji], axis = 1), focal_effects, target_effects # we return everything to get posterior distributions for each parameters
         
 
     @staticmethod 
@@ -363,7 +363,7 @@ class Net:
         dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2, N_id), name = 'dr_raw', sample = sample)
         dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample )
         dr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
-        rf = deterministic('dr_rf', ((jnp.repeat(dr_sigma,2) * dr_L) @ dr_raw).T)
+        rf = deterministic('dr_rf', ((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2)))
         return rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
