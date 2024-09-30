@@ -95,6 +95,8 @@ div.csl-indent {
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
+<link href="site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -122,6 +124,8 @@ div.csl-indent {
     "search-label": "Search"
   }
 }</script>
+<script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -399,8 +403,8 @@ window.Quarto = {
 <section id="considerations" class="level2" data-number="15.2">
 <h2 data-number="15.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">15.2</span> Considerations</h2>
 <ul>
-<li><p>We have the same considerations as for <a href="./12. Varying intercepts.html">12. Varying interceps 🛈</a>.</p></li>
-<li><p>The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a <a href="./13. Varying slopes.html" title="A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariances between different variables">matrix of covariance i</a>.</p></li>
+<li><p>We have the same considerations as for <a href="./12. Varying intercepts.html">12. Varying interceps</a>.</p></li>
+<li><p>The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a <a href="./13. Varying slopes.html" title="A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariances between different variables">matrix of covariance 🛈</a>.</p></li>
 <li><p>The covariance matrix requiere a correlation matris distribution which is modeleld using a <span class="math inline">\(LKJcorr\)</span> distribution that hold a parameter <span class="math inline">\(η\)</span>. <span class="math inline">\(η\)</span> is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.</p></li>
 <li><p>The Half-Cauchy distribution is used when modeling the covariance matrix to specify strictly positive values for the diagonal of the covariance matrix, ensuring positive variances.</p></li>
 </ul>
@@ -444,8 +448,8 @@ window.Quarto = {
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>wait <span class="op">=</span> dist.normal(mu, sigma, sample <span class="op">=</span> <span class="va">True</span>)</span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> pd.DataFrame(<span class="bu">dict</span>(cafe<span class="op">=</span>cafe_id, afternoon<span class="op">=</span>afternoon, wait<span class="op">=</span>wait))</span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'cafe_id'</span>, <span class="st">"afternoon"</span>, <span class="st">"wait"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<section id="define-model" class="level4" data-number="15.3.1.1">
-<h4 data-number="15.3.1.1" class="anchored" data-anchor-id="define-model"><span class="header-section-number">15.3.1.1</span> Define model</h4>
+<section id="model-definition" class="level4" data-number="15.3.1.1">
+<h4 data-number="15.3.1.1" class="anchored" data-anchor-id="model-definition"><span class="header-section-number">15.3.1.1</span> Model definition</h4>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(cafe, wait, N_cafes):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">5</span>, <span class="dv">2</span>, name <span class="op">=</span> <span class="st">'a'</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="op">-</span><span class="dv">1</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
@@ -494,10 +498,14 @@ Y_{ik} = \alpha_k + \beta_k X_{ik} + \sigma
 <h3 data-number="15.5.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">15.5.2</span> <em>Bayesian model</em></h3>
 <p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
 <p><span class="math display">\[
-p(Y_{ik} |\mu_{ik} , \sigma) \sim \text{Normal}(\mu_{ik} , \sigma) \\
-\mu_{ik} = \alpha_k + \beta_k X_{ik} + \sigma \\
-\alpha_k \sim Normal(0,1) \\
-\beta_k \sim Normal(0,1) \\
+p(Y_{ik} |\mu_{ik} , \sigma) \sim \text{Normal}(\mu_{ik} , \sigma)
+\]</span> <span class="math display">\[
+\mu_{ik} = \alpha_k + \beta_k X_{ik} + \sigma
+\]</span> <span class="math display">\[
+\alpha_k \sim Normal(0,1)
+\]</span> <span class="math display">\[
+\beta_k \sim Normal(0,1)
+\]</span> <span class="math display">\[
 \sigma \sim Exponential(0,1)
 \]</span></p>
 <p>The varying intercepts slopes (<span class="math inline">\(\alpha_k\)</span>) and (<span class="math inline">\(\beta_k\)</span>) are modeled using a <em>Multivariate Normal distribution</em>:</p>
@@ -570,7 +578,7 @@ L \sim LKJcorr(2)
 <section id="notes" class="level2" data-number="15.6">
 <h2 data-number="15.6" class="anchored" data-anchor-id="notes"><span class="header-section-number">15.6</span> Notes</h2>
 <ul>
-<li>We can apply multivariate model similarly as <a href="./2. Multiple Regression for Continuous Variables.qmd">chapter 2</a>. In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for <span class="math inline">\(i\)</span> actors in a model with two independent variables <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>, we can define the formula as follows:</li>
+<li>We can apply multivariate model similarly as <a href=".\2. Multiple Regression for Continuous Variables.qmd">chapter 2</a>. In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for <span class="math inline">\(i\)</span> actors in a model with two independent variables <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>, we can define the formula as follows:</li>
 </ul>
 <p><span class="math display">\[
 p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
@@ -605,7 +613,7 @@ p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
 L \sim LKJcorr(2)
 \]</span></p>
 <ul>
-<li><p>We can apply interaction terms similarly as <a href=".//3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
+<li><p>We can apply interaction terms similarly as <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
 <li><p>We can apply caterogical variables similarly as <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
 <li><p>We can apply varying slopes with any distribution presented in previous chapters.</p></li>
 <li><p>For more than two varying effects we apply the same principel but with a covariance matrix for each varying effect that are summed to gernerat the varying intercept and slope. For exmaple, if we want to generate random slopes for <span class="math inline">\(i\)</span> actors, and <span class="math inline">\(k\)</span> groups we can define the formula as follow:</p></li>
@@ -784,6 +792,20 @@ L_{g} \sim LKJcorr(2)
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W119
+</script>
+<div id="exercise-loading-indicator" class="exercise-loading-indicator d-none d-flex align-items-center gap-2">
+<div id="exercise-loading-status" class="d-flex gap-2">
+
+</div>
+<div class="spinner-grow spinner-grow-sm">
+
+</div>
+</div>
+<script type="vfs-file">
+W10=
+</script>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
 McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
@@ -792,6 +814,17 @@ McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Exa
 </section>
 
 </main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W119
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../..";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
