@@ -59,7 +59,7 @@ d = pd.DataFrame(dict(cafe=cafe_id, afternoon=afternoon, wait=wait))
 m.data_to_model(['cafe_id', "afternoon", "wait"])
 ```
 
-#### Define model
+#### Model definition
 
 ``` python
 def model(cafe, wait, N_cafes):
@@ -112,10 +112,18 @@ Where: - $Y_{ik}$ is the outcome variable for observation *i* in group *k*. - $X
 We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
-p(Y_{ik} |\mu_{ik} , \sigma) \sim \text{Normal}(\mu_{ik} , \sigma) \\
-\mu_{ik} = \alpha_k + \beta_k X_{ik} + \sigma \\
-\alpha_k \sim Normal(0,1) \\
-\beta_k \sim Normal(0,1) \\
+p(Y_{ik} |\mu_{ik} , \sigma) \sim \text{Normal}(\mu_{ik} , \sigma)
+$$
+$$
+\mu_{ik} = \alpha_k + \beta_k X_{ik} + \sigma 
+$$
+$$
+\alpha_k \sim Normal(0,1) 
+$$
+$$
+\beta_k \sim Normal(0,1)
+$$
+$$
 \sigma \sim Exponential(0,1)
 $$
 

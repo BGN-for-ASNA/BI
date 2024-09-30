@@ -94,7 +94,7 @@
     "href": "1. Linear Regression for continuous variable.html#mathematical-details",
     "title": "3  Linear Regression for continuous vairable",
     "section": "3.4 Mathematical Details",
-    "text": "3.4 Mathematical Details\n\n3.4.1 Formula\nThe following equation allow us to draw a line and is ths one that is most used in statistic clases: \\[\nY = \\alpha + \\beta  X + \\sigma\n\\]\nWhere: - Y is the target variable. - X is the input variable. - \\(\\beta\\) is the regression coefficient. - \\(\\alpha\\) is the intercept term. - \\(\\sigma\\) is the error term.\n\n\n3.4.2 Bayesian model\nThe equivalent version of the Bayesian linear regression model using probability distributions is as follows: \\[\np(Y | \\alpha, \\beta, X) = Normal(\\alpha + \\beta   X, \\sigma)\n\\]\n\\[\np(\\alpha) = Normal(0, 1)\n\\]\n\\[\np(\\beta) = Normal(0, 1)\n\\]\n\\[\np(\\sigma) = Uniform(0, 50)\n\\]\nWhere: - \\(p(Y |X, \\alpha , \\beta)\\) is the likelihood function (equivalent of the line equation). - \\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept, respectivelly. - \\(p(\\sigma)\\), controll the variance of the likelihood.",
+    "text": "3.4 Mathematical Details\n\n3.4.1 Formula\nThe following equation allow us to draw a line and is ths one that is most used in statistic clases: \\[\nY = \\alpha + \\beta  X + \\sigma\n\\]\nWhere: - Y is the target variable. - X is the input variable. - \\(\\beta\\) is the regression coefficient. - \\(\\alpha\\) is the intercept term. - \\(\\sigma\\) is the error term.\n\n\n3.4.2 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows: \\[\np(Y | \\alpha, \\beta, X) \\sim Normal(\\alpha + \\beta   X, \\sigma)\n\\]\n\\[\np(\\alpha) \\sim Normal(0, 1)\n\\]\n\\[\np(\\beta) \\sim Normal(0, 1)\n\\]\n\\[\np(\\sigma) \\sim Uniform(0, 50)\n\\]\nWhere: - \\(p(Y |X, \\alpha , \\beta)\\) is the likelihood function (equivalent of the line equation). - \\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept, respectivelly. - \\(p(\\sigma)\\), controll the variance of the likelihood.",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Linear Regression for continuous vairable</span>"
     ]
@@ -144,7 +144,7 @@
     "href": "2. Multiple continuous Variables.html#mathematical-details",
     "title": "4  Multiple continuous variables model",
     "section": "4.4 Mathematical Details",
-    "text": "4.4 Mathematical Details\n\n4.4.1 Formula\nWe model the relationship between the independent variables \\((X_1, X_2, ..., X_n)\\) and the dependent variable Y using the following equation:\n\\[\n𝑌 = \\alpha +\\beta_1  𝑋_1 + \\beta_2  𝑋_2 + ... + \\beta_n  𝑋_𝑛 + \\sigma\n\\]\nWhere:\n\n\\(Y\\) is the dependent variable.\n\\(\\alpha\\) is the intercept term.\n\\(X_1\\), \\(X_2\\), …, \\(X_n\\) are the independent variables.\n\\(\\beta_1\\), \\(\\beta_2\\), …, \\(\\beta_n\\) are the regression coefficients.\n\\(sigma\\) is the error term.\n\n\n\n4.4.2 Bayesian model\nWe can express the Bayesian multiple regression model using probability distributions as follows:\n\\[\n𝑝(𝑌∣\\alpha, \\beta, X) = Normal(\\alpha + \\sum_k^n  \\beta_k  X, σ²)\n\\]\n\\[\np(\\alpha) = Normal(0,1)\n\\]\n\\[\np(\\beta_i) = Normal(0,1)\n\\]\n\\[\np(σ) = Uniform(0, 50)\n\\]\nWhere:\n\n\\(p(Y | 𝑋, \\alpha,\\beta)\\) is the likelihood function.\n\\(p(\\alpha)\\) is prior distributions for the intercept\n\\(p(\\beta_k)\\) are the prior distributions for the regression coefficients k distinct regression coefficients.\n\\(p(\\sigma)\\) is the prior distribution for the standard deviation, ensuring - it is positive.",
+    "text": "4.4 Mathematical Details\n\n4.4.1 Formula\nWe model the relationship between the independent variables \\((X_1, X_2, ..., X_n)\\) and the dependent variable Y using the following equation:\n\\[\n𝑌 = \\alpha +\\beta_1  𝑋_1 + \\beta_2  𝑋_2 + ... + \\beta_n  𝑋_𝑛 + \\sigma\n\\]\nWhere:\n\n\\(Y\\) is the dependent variable.\n\\(\\alpha\\) is the intercept term.\n\\(X_1\\), \\(X_2\\), …, \\(X_n\\) are the independent variables.\n\\(\\beta_1\\), \\(\\beta_2\\), …, \\(\\beta_n\\) are the regression coefficients.\n\\(sigma\\) is the error term.\n\n\n\n4.4.2 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\n𝑝(𝑌∣\\alpha, \\beta, X) \\sim Normal(\\alpha + \\sum_k^n  \\beta_k  X, σ²)\n\\]\n\\[\np(\\alpha) \\sim Normal(0,1)\n\\]\n\\[\np(\\beta_i) \\sim Normal(0,1)\n\\]\n\\[\np(σ) \\sim Uniform(0, 50)\n\\]\nWhere:\n\n\\(p(Y | 𝑋, \\alpha,\\beta)\\) is the likelihood function.\n\\(p(\\alpha)\\) is prior distributions for the intercept\n\\(p(\\beta_k)\\) are the prior distributions for the regression coefficients k distinct regression coefficients.\n\\(p(\\sigma)\\) is the prior distribution for the standard deviation, ensuring - it is positive.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Multiple continuous variables model</span>"
     ]
@@ -204,7 +204,7 @@
     "href": "3. Interaction between continuous variables.html#formula",
     "title": "5  Interaction Term between Two Continuous Variables",
     "section": "5.5 Formula",
-    "text": "5.5 Formula\nWe model the relationship between the input features (X1 and X2) and the target variable (Y) using the following equation: \\[\n𝑌 = \\alpha + \\beta_1𝑋_1∗+\\beta_2𝑋_2+\\\\beta_{interaction}𝑋_1𝑋_2 + $\\sigma$\n\\]\nWhere:\n\n\\(Y\\) is the target variable.\n\\(\\alpha\\) is the intercept term.\n\\(X_1\\) and \\(X_2\\) are the two independent continuous variables.\n\\(\\beta_1\\) and \\(\\beta_2\\) are the regression coefficients for \\(X_1\\) and \\(X_2\\), respectively.\n\\(\\beta_{interaction}\\) is the regression coefficient for the interaction term \\((X_1  X_2)\\).\n\\(\\sigma\\) is the error term assumed to be normally distributed.\n\nIn this context, the interaction term \\(X_1 * X_2\\) captures the joint effect of \\(X_1\\) and \\(X_2\\) on the target variable \\(Y\\).\n\n5.5.1 Bayesian model\nWe can express the Bayesian regression model with an interaction term between two continuous variables using probability distributions as follows:\n\\[\np(Y∣X_1​ ,X_2​ , \\beta_1, \\beta_2, \\beta_{interaction} ) = Normal(\\alpha +  \\beta_1  X_1​ + \\beta_2  X_2​​ + \\beta_{interaction}  X_1​ X_2​ ,  $\\sigma$)\n\\]\n\\[\n𝑝(\\alpha)=Normal(0,1)\n\\]\n\\[\n𝑝(\\beta_1)=Normal(0,1)\n\\]\n\\[\n𝑝(\\beta_2)=Normal(0,1)\n\\]\n\\[\n𝑝(\\beta_{interaction})=Normal(0,1)\n\\]\n\\[\n𝑝(σ)=Exponential(1)\n\\]\nWhere:\n\n\\(p(Y | X_1​ ,X_2​ , \\beta_1, \\beta_2, \\beta_{interaction})\\) is the likelihood function.\n\\(p(\\alpha)\\) is the prior distribution for the intercept\n\\(p(\\beta_1)\\), \\(p(\\beta_2)\\) and \\(\\beta_{interaction}\\) are the prior distributions for the regression coefficients.\n\\(p(\\sigma)\\) is the prior distribution for the standard deviation, ensuring it is positive.",
+    "text": "5.5 Formula\nWe model the relationship between the input features (X1 and X2) and the target variable (Y) using the following equation: \\[\n𝑌 = \\alpha + \\beta_1𝑋_1∗+\\beta_2𝑋_2+\\\\beta_{interaction}𝑋_1𝑋_2 + $\\sigma$\n\\]\nWhere:\n\n\\(Y\\) is the target variable.\n\\(\\alpha\\) is the intercept term.\n\\(X_1\\) and \\(X_2\\) are the two independent continuous variables.\n\\(\\beta_1\\) and \\(\\beta_2\\) are the regression coefficients for \\(X_1\\) and \\(X_2\\), respectively.\n\\(\\beta_{interaction}\\) is the regression coefficient for the interaction term \\((X_1  X_2)\\).\n\\(\\sigma\\) is the error term assumed to be normally distributed.\n\nIn this context, the interaction term \\(X_1 * X_2\\) captures the joint effect of \\(X_1\\) and \\(X_2\\) on the target variable \\(Y\\).\n\n5.5.1 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\np(Y∣X_1​ ,X_2​ , \\beta_1, \\beta_2, \\beta_{interaction} ) \\sim Normal(\\alpha +  \\beta_1  X_1​ + \\beta_2  X_2​​ + \\beta_{interaction}  X_1​ X_2​ ,  $\\sigma$)\n\\]\n\\[\n𝑝(\\alpha) \\sim Normal(0,1)\n\\]\n\\[\n𝑝(\\beta_1) \\sim Normal(0,1)\n\\]\n\\[\n𝑝(\\beta_2) \\sim Normal(0,1)\n\\]\n\\[\n𝑝(\\beta_{interaction}) \\sim Normal(0,1)\n\\]\n\\[\n𝑝(σ) \\sim Exponential(1)\n\\]\nWhere:\n\n\\(p(Y | X_1​ ,X_2​ , \\beta_1, \\beta_2, \\beta_{interaction})\\) is the likelihood function.\n\\(p(\\alpha)\\) is the prior distribution for the intercept\n\\(p(\\beta_1)\\), \\(p(\\beta_2)\\) and \\(\\beta_{interaction}\\) are the prior distributions for the regression coefficients.\n\\(p(\\sigma)\\) is the prior distribution for the standard deviation, ensuring it is positive.",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Interaction Term between Two Continuous Variables</span>"
     ]
@@ -254,7 +254,7 @@
     "href": "4. Categorical variable.html#mathematical-details",
     "title": "6  Regression for Categorical Variables",
     "section": "6.4 Mathematical Details",
-    "text": "6.4 Mathematical Details\n\n6.4.1 Formula\nWe model the relationship between the categorical input feature (X) and the target variable (Y) using the following equation:\n\\[𝑌=\\alpha + \\beta_k X_i + \\sigma\\]\nWhere:\n\n\\(Y\\) is the target variable.\n\\(X\\) is the encoded categorical input variable .\n\\(\\alpha\\) is the intercept term.\n\\(\\beta_k\\) are the regression coefficient for each k categories.\n\\(X\\) is the independet varible\n\\(\\sigma\\) is the error term .\n\nWe can interpret \\(\\beta_i\\) as the effect of each category on \\(Y\\) relative to the baseline (usually one of the categories or the intercept).\n\n\n6.4.2 Bayesian model\nWe can express the Bayesian regression model with a categorical independent variable using probability distributions as follows:\n\\[\np(Y|\\alpha, \\beta, X) = Normal(\\alpha +  \\beta_k X, \\sigma)\n\\]\n\\[\n𝑝(\\alpha)=Normal(0,1)\n\\] \\[\n𝑝(\\beta_k)=Normal(0,1)\n\\] \\[\n𝑝(𝜎)=Exponential(1)\n\\]\nWhere:\n\n\\(p(𝑌_i∣\\alpha, 𝑋_i, \\beta_i)\\) is the likelihood function.\n\\(p(\\alpha)\\) is prior distributions for the intercept\n\\(p(\\beta_k)\\) are k prior distributions for k regression coefficients.\n\\(p(\\sigma)\\) is the prior distribution for the standard deviation, ensuring it is positive.",
+    "text": "6.4 Mathematical Details\n\n6.4.1 Formula\nWe model the relationship between the categorical input feature (X) and the target variable (Y) using the following equation:\n\\[𝑌=\\alpha + \\beta_k X_i + \\sigma\\]\nWhere:\n\n\\(Y\\) is the target variable.\n\\(X\\) is the encoded categorical input variable .\n\\(\\alpha\\) is the intercept term.\n\\(\\beta_k\\) are the regression coefficient for each k categories.\n\\(X\\) is the independet varible\n\\(\\sigma\\) is the error term .\n\nWe can interpret \\(\\beta_i\\) as the effect of each category on \\(Y\\) relative to the baseline (usually one of the categories or the intercept).\n\n\n6.4.2 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\np(Y|\\alpha, \\beta, X) \\sim Normal(\\alpha +  \\beta_k X, \\sigma)\n\\]\n\\[\n𝑝(\\alpha) \\sim Normal(0,1)\n\\] \\[\n𝑝(\\beta_k) \\sim Normal(0,1)\n\\] \\[\n𝑝(𝜎) \\sim Exponential(1)\n\\]\nWhere:\n\n\\(p(𝑌_i∣\\alpha, 𝑋_i, \\beta_i)\\) is the likelihood function.\n\\(p(\\alpha)\\) is prior distributions for the intercept\n\\(p(\\beta_k)\\) are k prior distributions for k regression coefficients.\n\\(p(\\sigma)\\) is the prior distribution for the standard deviation, ensuring it is positive.",
     "crumbs": [
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>Regression for Categorical Variables</span>"
     ]
@@ -314,7 +314,7 @@
     "href": "5. Binomial model.html#mathematical-details",
     "title": "7  Binomial model",
     "section": "7.4 Mathematical Details",
-    "text": "7.4 Mathematical Details\n\n7.4.1 Formula\nWe model the relationship between the independent variable (\\(X\\)) and the binary outcome variable (\\(Y\\)) using the following equation: \\[\nlogit(Y)=\\alpha + \\beta   𝑋\n\\]\nWhere:\n\n\\(Y\\) is the probability of success (or the probability of the binary outcome being 1).\n\\(X\\), is an independent variables.\n\\(\\beta\\) is the regression coefficients.\n\\(\\alpha\\) is the intercept term.\n\\(\\sigma\\) is the error term.\n\\(logit(Y)\\) is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variables on the log-odds of success.\n\n\n\n7.4.2 Bayesian model (WIP)\nWe can express the Bayesian binomial regression model using probability distributions as follows:\n\\[\nY = Binomial(𝑛 = 1, 𝑝)\n\\]\n\\[\nlogit(p) = \\alpha + \\beta X\n\\] \\[\n𝑝(\\alpha)=Normal(0,1)\n\\] \\[\n𝑝(\\beta)=Normal(0,1)\n\\]\nWhere:\n\n\\(p(Y | 𝑌∣\\alpha, \\beta, 𝑋)\\) is the likelihood function.\n\\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept, respectivelly.\n\\(n=1\\) represents the number of trials in the binomial distribution (binary outcome).\n\\(logit(\\alpha + \\beta  𝑋 )\\) is the logit link function that is equal to sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.",
+    "text": "7.4 Mathematical Details\n\n7.4.1 Formula\nWe model the relationship between the independent variable (\\(X\\)) and the binary outcome variable (\\(Y\\)) using the following equation: \\[\nlogit(Y)=\\alpha + \\beta   𝑋\n\\]\nWhere:\n\n\\(Y\\) is the probability of success (or the probability of the binary outcome being 1).\n\\(X\\), is an independent variables.\n\\(\\beta\\) is the regression coefficients.\n\\(\\alpha\\) is the intercept term.\n\\(\\sigma\\) is the error term.\n\\(logit(Y)\\) is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variables on the log-odds of success.\n\n\n\n7.4.2 Bayesian model (WIP)\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\nY \\sim Binomial(𝑛 = 1, 𝑝)\n\\]\n\\[\nlogit(p) \\sim \\alpha + \\beta X\n\\] \\[\n𝑝(\\alpha) \\sim Normal(0,1)\n\\] \\[\n𝑝(\\beta) \\sim Normal(0,1)\n\\]\nWhere:\n\n\\(p(Y | 𝑌∣\\alpha, \\beta, 𝑋)\\) is the likelihood function.\n\\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept, respectivelly.\n\\(n=1\\) represents the number of trials in the binomial distribution (binary outcome).\n\\(logit(\\alpha + \\beta  𝑋 )\\) is the logit link function that is equal to sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.",
     "crumbs": [
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Binomial model</span>"
     ]
@@ -384,7 +384,7 @@
     "href": "6. Beta binomial model.html#formula",
     "title": "8  Beta-Binomial model",
     "section": "8.5 Formula",
-    "text": "8.5 Formula\n\\[\nlogit(𝑝)= \\alpha + \\beta X\n\\]\nWhere:\n\n\\(p\\) is the probability of success.\n\\(\\alpha\\) the intercept term.\n\\(\\beta\\) the regression term.\n\\(X\\) is an independent variables.\n\\(\\text{logit}(p)\\) is the log-odds of success.\n\n\n8.5.1 Bayesian model (WIP)\nWe can express the Bayesian Beta-Binomial regression model using probability distributions as follows:\n\\[\np(Y|n, \\overline{p}, \\theta) = BetaBinomial(n, \\overline{p}, \\theta)\n\\]\n\\[\nlogit(\\overline{p}) = \\alpha + \\beta X\n\\]\n\\[𝑝(\\alpha)=Normal(0,1)\\]\n\\[p(\\theta)=HalfCaychy(0,1)\\]\nWhere:\n\n\\(p(Y | n, \\overline{p}, \\theta)\\) is the likelihood function.\n\\(n\\) is the total count of trials.\n\\(\\overline{p}\\) is the average probability.\n\\(p(\\theta)\\) is the shape distribution term.\n\\(𝑝(\\alpha)\\) is the intercept term.\n\\(𝑝(\\beta)\\) is regression coefficient term.",
+    "text": "8.5 Formula\n\\[\nlogit(𝑝)= \\alpha + \\beta X\n\\]\nWhere:\n\n\\(p\\) is the probability of success.\n\\(\\alpha\\) the intercept term.\n\\(\\beta\\) the regression term.\n\\(X\\) is an independent variables.\n\\(\\text{logit}(p)\\) is the log-odds of success.\n\n\n8.5.1 Bayesian model (WIP)\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\np(Y|n, \\overline{p}, \\theta) \\sim BetaBinomial(n, \\overline{p}, \\theta)\n\\]\n\\[\nlogit(\\overline{p}) \\sim \\alpha + \\beta X\n\\]\n\\[𝑝(\\alpha) \\sim Normal(0,1)\\]\n\\[p(\\theta) \\sim HalfCaychy(0,1)\\]\nWhere:\n\n\\(p(Y | n, \\overline{p}, \\theta)\\) is the likelihood function.\n\\(n\\) is the total count of trials.\n\\(\\overline{p}\\) is the average probability.\n\\(p(\\theta)\\) is the shape distribution term.\n\\(𝑝(\\alpha)\\) is the intercept term.\n\\(𝑝(\\beta)\\) is regression coefficient term.",
     "crumbs": [
       "<span class='chapter-number'>8</span>  <span class='chapter-title'>Beta-Binomial model</span>"
     ]
@@ -424,7 +424,7 @@
     "href": "7. Poisson model.html#mathematical-details",
     "title": "9  Poisson model",
     "section": "9.4 Mathematical Details",
-    "text": "9.4 Mathematical Details\n\n9.4.1 Formula\nWe model the relationship between the predictor variable (\\(X\\)) and the count outcome variable (\\(Y\\)) using the following equation:\n\\[\nlog(𝜆)=\\alpha + \\beta  X\n\\]\nWhere:\n\n\\(\\lambda\\) is the mean rate parameter of the Poisson distribution (expected count).\n\\(X\\) is the predictor variables.\n\\(\\beta\\) is the regression coefficients.\n\\(\\alpha\\) is the intercept term.\n\\(\\log(\\lambda)\\) is the log of the mean rate parameter, ensuring it is positive.\n\n\n\n9.4.2 Bayesian model (WIP)\nWe can express the Bayesian Poisson regression model using probability distributions as follows:\n\\[\np(Y∣\\alpha, \\beta, X)=Poisson(λ)\n\\]\n\\[\nlog(\\lambda) = \\alpha + \\beta X\n\\] \\[\np(\\alpha)=Normal(0, 1)\n\\]\n\\[\np(\\beta)=Normal(0, 1)\n\\]\nWhere:\n\n\\(p(Y |alpha, \\beta, X)\\) is the likelihood function.\n\\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept.\n\\(\\lambda\\) is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.",
+    "text": "9.4 Mathematical Details\n\n9.4.1 Formula\nWe model the relationship between the predictor variable (\\(X\\)) and the count outcome variable (\\(Y\\)) using the following equation:\n\\[\nlog(𝜆)=\\alpha + \\beta  X\n\\]\nWhere:\n\n\\(\\lambda\\) is the mean rate parameter of the Poisson distribution (expected count).\n\\(X\\) is the predictor variables.\n\\(\\beta\\) is the regression coefficients.\n\\(\\alpha\\) is the intercept term.\n\\(\\log(\\lambda)\\) is the log of the mean rate parameter, ensuring it is positive.\n\n\n\n9.4.2 Bayesian model (WIP)\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\np(Y∣\\alpha, \\beta, X) \\sim Poisson(λ)\n\\]\n\\[\nlog(\\lambda) \\sim \\alpha + \\beta X\n\\] \\[\np(\\alpha) \\sim Normal(0, 1)\n\\]\n\\[\np(\\beta) \\sim Normal(0, 1)\n\\]\nWhere:\n\n\\(p(Y |alpha, \\beta, X)\\) is the likelihood function.\n\\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept.\n\\(\\lambda\\) is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.",
     "crumbs": [
       "<span class='chapter-number'>9</span>  <span class='chapter-title'>Poisson model</span>"
     ]
@@ -484,7 +484,7 @@
     "href": "8. Gamma-Poisson.html#mathematical-details",
     "title": "10  Gamma-Poisson model",
     "section": "10.4 Mathematical Details",
-    "text": "10.4 Mathematical Details\n\n10.4.1 Formula\nWe model the relationship between the independent variable \\(X\\) and the count outcome variable \\(Y\\) using the following equation:\n\\[\nlog⁡(\\lambda)= exp(rates + \\alpha + \\beta 𝑋)\n\\]\nWhere:\n\n\\(\\lambda\\) is the mean rate parameter of the negative binomial distribution (expected count).\n\\(X\\) is the predictor variables.\n\\(\\beta\\) is the regression coefficients.\n\\(\\alpha\\) is the intercept term.\n\\(\\log(\\lambda)\\) is the log of the mean rate parameter, ensuring it is positive.\n\nWe can express the Bayesian Negative Binomial regression model using probability distributions as follows:\n\n\n10.4.2 Bayesian model\n\\[\n𝑝(𝑌∣\\alpha, \\beta, X)=Poisson(λ)\n\\]\n\\[\nlog(λ) = rates + \\alpha + \\beta X\n\\]\n\\[\n𝑝(\\alpha)=Normal(0,1)\n\\]\n\\[\n𝑝(\\beta)=Normal(0,1)\n\\]\nWhere:\n\n\\(p(Y | \\alpha, \\beta, X)\\) is the likelihood function.\n\\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept.\n\\(\\lambda = rates +\\alpha + \\beta X\\) is the mean rate parameter of the Poisson distribution assuming that each Poisson count observation has its own rate.",
+    "text": "10.4 Mathematical Details\n\n10.4.1 Formula\nWe model the relationship between the independent variable \\(X\\) and the count outcome variable \\(Y\\) using the following equation:\n\\[\nlog⁡(\\lambda)= exp(rates + \\alpha + \\beta 𝑋)\n\\]\nWhere:\n\n\\(\\lambda\\) is the mean rate parameter of the negative binomial distribution (expected count).\n\\(X\\) is the predictor variables.\n\\(\\beta\\) is the regression coefficients.\n\\(\\alpha\\) is the intercept term.\n\\(\\log(\\lambda)\\) is the log of the mean rate parameter, ensuring it is positive.\n\n\n\n10.4.2 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\n𝑝(𝑌∣\\alpha, \\beta, X) \\sim Poisson(λ)\n\\]\n\\[\nlog(λ) \\sim rates + \\alpha + \\beta X\n\\]\n\\[\n𝑝(\\alpha)\\sim Normal(0,1)\n\\]\n\\[\n𝑝(\\beta) \\sim Normal(0,1)\n\\]\nWhere:\n\n\\(p(Y | \\alpha, \\beta, X)\\) is the likelihood function.\n\\(p(\\beta)\\) and \\(p(\\alpha)\\) are the prior distributions for the regression coefficients and intercept.\n\\(\\lambda = rates +\\alpha + \\beta X\\) is the mean rate parameter of the Poisson distribution assuming that each Poisson count observation has its own rate.",
     "crumbs": [
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>Gamma-Poisson model</span>"
     ]
@@ -544,7 +544,7 @@
     "href": "9. Multinomial model.html#mathematical-details",
     "title": "11  Multinomial model",
     "section": "11.4 Mathematical Details",
-    "text": "11.4 Mathematical Details\n\n11.4.1 Formula\nWe model the relationship between the predictor variables (X1, X2, …, Xn) and the categorical outcome variable (Y) using the following equation:\n$$ logit(p_ik) = log() = β_k^T X_i +α_k k\n$$\nWhere: - \\(p_ik\\) is the probability of the 𝑖-th observation being in category 𝑘.\n\n\\(β_k\\) are the regression coefficients for category 𝑘.\n\\(α_k\\) is the intercept for category 𝑘.\n\\(X_i\\) is the vector of predictor variables for the 𝑖-th observation.\nThe reference category 𝐾 is often chosen to simplify the model (Note that we didi not did it in the code).\n\nWe can express the Bayesian Multinomial model as follows:\nIf \\(K∈N ,  N∈N , and  θ∈K\\)-simplex , then for \\(y∈NK\\) such that \\(∑Kk=1yk=N\\):\n\n\n11.4.2 Bayesian model\nIn Bayesian multinomial modeling, the likelihood function of the data is specified using a multinomial distribution. The multinomial distribution models the counts of outcomes falling into different categories.For an outcome variable 𝑦 with 𝐾 categories, the multinomial likelihood function is: \\[\nMultinomial(y|θ)=\\frac{N!}{∏^K_{k=1}yk!} ∏_{k = 1}^{K} \\theta_{k}^{y_k}\n\\]\nWhere:\n\n\\(y=(y_1, y_2,…,y_K)\\) represents the counts of observations in each of the 𝐾 categories.\n\\(N\\) is the total number of observations or trials.\n\\(θ=(θ_1,θ_2,…,θ_K)\\) is a simplex of category probabilities, with \\(𝜃_𝑘\\) representing the probability of category 𝑘.\n\\(\\frac{N!}{∏^K_{k=1}yk!}\\) is the multinomial coefficient accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.",
+    "text": "11.4 Mathematical Details\n\n11.4.1 Formula\nWe model the relationship between the predictor variables (X1, X2, …, Xn) and the categorical outcome variable (Y) using the following equation:\n$$ logit(p_ik) = log() = β_k^T X_i +α_k k\n$$\nWhere: - \\(p_ik\\) is the probability of the 𝑖-th observation being in category 𝑘.\n\n\\(β_k\\) are the regression coefficients for category 𝑘.\n\\(α_k\\) is the intercept for category 𝑘.\n\\(X_i\\) is the vector of predictor variables for the 𝑖-th observation.\nThe reference category 𝐾 is often chosen to simplify the model (Note that we didi not did it in the code).\n\nWe can express the Bayesian Multinomial model as follows:\nIf \\(K∈N ,  N∈N , and  θ∈K\\)-simplex , then for \\(y∈NK\\) such that \\(∑Kk=1yk=N\\):\n\n\n11.4.2 Bayesian model\nIn Bayesian multinomial modeling, the likelihood function of the data is specified using a multinomial distribution. The multinomial distribution models the counts of outcomes falling into different categories.For an outcome variable 𝑦 with 𝐾 categories, the multinomial likelihood function is: \\[\nMultinomial(y|θ)=\\frac{N!}{∏^K_{k=1}yk!} ∏_{k = 1}^{K} \\theta_{k}^{y_k}\n\\]\nWhere:\n\n\\(y=(y_1, y_2,…,y_K)\\) represents the counts of observations in each of the 𝐾 categories.\n\\(N\\) is the total number of observations or trials.\n\\(θ=(θ_1,θ_2,…,θ_K)\\) is a simplex of category probabilities, with \\(𝜃_𝑘\\) representing the probability of category 𝑘.\n\\(\\frac{N!}{∏^K_{k=1}yk!}\\) is the multinomial coefficient accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories. ## Reference(s) McElreath (2018)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian Course with Examples in r and Stan. Chapman; Hall/CRC.",
     "crumbs": [
       "<span class='chapter-number'>11</span>  <span class='chapter-title'>Multinomial model</span>"
     ]
@@ -584,7 +584,7 @@
     "href": "10. Dirichlet model (wip).html#mathematical-details",
     "title": "12  Dirichlet model",
     "section": "12.4 Mathematical Details",
-    "text": "12.4 Mathematical Details\n\n12.4.1 Formula\n\n\n12.4.2 Bayesian model",
+    "text": "12.4 Mathematical Details\n\n12.4.1 Formula\n\n\n12.4.2 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows:",
     "crumbs": [
       "<span class='chapter-number'>12</span>  <span class='chapter-title'>Dirichlet model</span>"
     ]
@@ -634,7 +634,7 @@
     "href": "11. Zero inflated (wip).html#formula",
     "title": "13  Zero inflated",
     "section": "13.5 Formula",
-    "text": "13.5 Formula\nWe model the relationship between the predictor variables (X1, X2, …, Xn) and the count outcome variable (Y) using two components: 1. A logistic regression model to predict the probability of an excess zero. 2. A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.\nThe overall model can be represented as follows:\n\\[\n\\begin{aligned}\n& \\text{logit}(\\pi) = X_1 * W_{1\\pi} + X_2 * W_{2\\pi} + ... + X_n * W_{n\\pi} + b_\\pi+ \\epsilon_{\\pi} \\\\\n& \\text{log}(\\lambda) = X_1 * W_{1\\lambda} + X_2 * W_{2\\lambda} + ... + X_n * W_{n\\lambda} + b_\\lambda + \\epsilon_{\\lambda}\\\\\n& Y \\sim \\begin{cases}\n0 & \\text{with probability } \\pi \\\\\n\\text{CountModel}(\\lambda) & \\text{with probability } (1 - \\pi)\n\\end{cases}\n\\end{aligned}\n\\]\nWhere: -  is the probability of an excess zero. -  is the mean rate parameter of the count model. - X1, X2, …, Xn are the predictor variables. - W{1}, W_{2}, …, W_{n}_ are the regression coefficients for the logistic model. - W{1}, W_{2}, …, W_{n}_ are the regression coefficients for the count model. - b_ and b_ are the intercept terms for the logistic and count models, respectively. - \\(\\epsilon_{\\pi}\\) and \\(\\epsilon_{\\lambda}\\) a the error term, typically assumed to be normally distributed with mean 0 and variance \\(\\sigma^2\\).\n\n13.5.1 Bayesian model (WIP)\nWe can express the Bayesian Zero-Inflated Poisson regression model using probability distributions as follows:\n\\[\np(Y | X, W_\\pi, b_\\pi, W_\\lambda, b_\\lambda) = \\pi \\cdot \\delta_0(Y) + (1 - \\pi) \\cdot \\text{Poisson}(\\lambda) \\\\\n\\pi = \\text{sigmoid}(X * W_\\pi + b_\\pi) \\\\\n\\lambda = \\exp(X * W_\\lambda + b_\\lambda) \\\\\np(W_{\\pi_i}) = \\text{Normal}(0, \\alpha^2) \\\\\np(W_{\\lambda_i}) = \\text{Normal}(0, \\alpha^2) \\\\\np(b_\\pi) = \\text{Normal}(0, \\beta^2) \\\\\np(b_\\lambda) = \\text{Normal}(0, \\beta^2)\\]\nWhere: - \\(p(Y | X, W_\\pi, b_\\pi, W_\\lambda, b_\\lambda)\\) is the likelihood function for the zero-inflated model. - \\(p(W_{\\pi_i})\\), \\(p(W_{\\lambda_i})\\), \\(p(b_\\pi)\\), and \\(p(b_\\lambda)\\) are the prior distributions for the regression coefficients and intercept terms. - \\(\\delta_0(Y)\\) represents a Dirac delta function at zero, indicating the probability of an excess zero. - \\(\\text{Poisson}(\\lambda)\\) is the Poisson distribution with rate parameter .",
+    "text": "13.5 Formula\nWe model the relationship between the predictor variables X and the count outcome variable Y using two components: 1. A logistic regression model to predict the probability of an excess zero. 2. A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.\nThe overall model can be represented as follows:\n\\[\n\\begin{aligned}\n& \\text{logit}(\\pi) = \\alpha_\\pi + \\beta_\\pi X \\\\\n& \\text{log}(\\lambda) = \\alpha_\\lambda + \\beta_\\lambda X\\\\\n& Y \\sim \\begin{cases}\n0 & \\text{with probability } \\pi \\\\\n\\text{CountModel}(\\lambda) & \\text{with probability } (1 - \\pi)\n\\end{cases}\n\\end{aligned}\n\\]\nWhere: - \\(\\pi\\) is the probability of an excess zero. - \\(\\lambda\\) is the mean rate parameter of the count model. - \\(\\alpha_\\pi\\) and \\(\\beta_\\pi\\) are respectivelly, the intercept and the regression coefficient for the logistic model. - \\(\\alpha_\\lambda\\) and \\(\\beta_\\lambda\\) are respectivelly, the regression coefficient for the the count model. - \\(X\\) is the independent variables.\n\n13.5.1 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\n𝑝(𝑌∣\\lambda) \\sim  ZIPoisson(\\pi,\\lambda)\n\\]\n\\[\nlogit(\\pi) = \\alpha_\\pi + \\beta_\\pi X\n\\]\n\\[\nlog(\\lambda) = \\alpha_\\lambda + \\beta_\\lambda X\n\\]\n\\[\np(\\alpha_\\pi) \\sim Normal(0,1)\n\\]\n\\[\np(\\beta_\\pi) \\sim Normal(0,1)\n\\]\n\\[\np(\\alpha_\\lambda) \\sim Normal(0,1)\n\\]\n\\[\np(\\beta_\\lambda) \\sim Normal(0,1)\n\\]\nWhere: - \\(\\pi\\) is the probability of an excess zero. - \\(\\lambda\\) is the mean rate parameter of the count model. - \\(\\alpha_\\pi\\) and \\(\\beta_\\pi\\) are respectivelly, the intercept and the regression coefficient for the logistic model. - \\(\\alpha_\\lambda\\) and \\(\\beta_\\lambda\\) are respectivelly, the regression coefficient for the the count model. - \\(X\\) is the independent variables.",
     "crumbs": [
       "<span class='chapter-number'>13</span>  <span class='chapter-title'>Zero inflated</span>"
     ]
@@ -724,7 +724,7 @@
     "href": "13. Varying slopes.html#considerations",
     "title": "15  13. Varying slopes",
     "section": "15.2 Considerations",
-    "text": "15.2 Considerations\n\nWe have the same considerations as for 12. Varying interceps 🛈.\nThe idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a matrix of covariance i.\nThe covariance matrix requiere a correlation matris distribution which is modeleld using a \\(LKJcorr\\) distribution that hold a parameter \\(η\\). \\(η\\) is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.\nThe Half-Cauchy distribution is used when modeling the covariance matrix to specify strictly positive values for the diagonal of the covariance matrix, ensuring positive variances.",
+    "text": "15.2 Considerations\n\nWe have the same considerations as for 12. Varying interceps.\nThe idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a matrix of covariance 🛈.\nThe covariance matrix requiere a correlation matris distribution which is modeleld using a \\(LKJcorr\\) distribution that hold a parameter \\(η\\). \\(η\\) is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.\nThe Half-Cauchy distribution is used when modeling the covariance matrix to specify strictly positive values for the diagonal of the covariance matrix, ensuring positive variances.",
     "crumbs": [
       "<span class='chapter-number'>15</span>  <span class='chapter-title'>13. Varying slopes</span>"
     ]
@@ -734,7 +734,7 @@
     "href": "13. Varying slopes.html#example",
     "title": "15  13. Varying slopes",
     "section": "15.3 Example",
-    "text": "15.3 Example\nBelow is an example code snippet demonstrating Bayesian regression with varying effects:\n\n15.3.1 Simulated data\nfrom main import*\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\na = 3.5  # average morning wait time\nb = -1  # average difference afternoon wait time\nsigma_a = 1  # std dev in intercepts\nsigma_b = 0.5  # std dev in slopes\nrho = -0.7  # correlation between intercepts and slopes\nMu = jnp.array([a, b])\ncov_ab = sigma_a * sigma_b * rho\nSigma = jnp.array([[sigma_a**2, cov_ab], [cov_ab, sigma_b**2]])\njnp.array([1, 2, 3, 4]).reshape(2, 2).T\nsigmas = jnp.array([sigma_a, sigma_b])  # standard deviations\nRho = jnp.array([[1, rho], [rho, 1]])  # correlation matrix\n\n# now matrix multiply to get covariance matrix\nSigma = jnp.diag(sigmas) @ Rho @ jnp.diag(sigmas)\n\nN_cafes = 20\nseed = random.PRNGKey(5)  # used to replicate example\nvary_effects = bi.dist.multivariatenormal(Mu, Sigma, shape=(N_cafes,), sample = True)\na_cafe = vary_effects[:, 0]\nb_cafe = vary_effects[:, 1]\n\nseed = random.PRNGKey(22)\nN_visits = 10\nafternoon = jnp.tile(jnp.arange(2), N_visits * N_cafes // 2)\ncafe_id = jnp.repeat(jnp.arange(N_cafes), N_visits)\nmu = a_cafe[cafe_id] + b_cafe[cafe_id] * afternoon\nsigma = 0.5  # std dev within cafes\nwait = dist.normal(mu, sigma, sample = True)\nd = pd.DataFrame(dict(cafe=cafe_id, afternoon=afternoon, wait=wait))\nm.data_to_model(['cafe_id', \"afternoon\", \"wait\"])\n\n15.3.1.1 Define model\ndef model(cafe, wait, N_cafes):\n    a = dist.normal(5, 2, name = 'a')\n    b = dist.normal(-1, 0.5, name = 'b')\n    sigma_cafe = dist.exponential(1, shape=[2], name = 'sigma_cafe')\n    sigma = dist.exponential( 1, name = 'sigma')\n    Rho = dist.lkj(2, 2, name = 'Rho')\n    cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho\n    a_cafe_b_cafe = dist.multivariatenormal(jnp.stack([a, b]), cov, shape = [N_cafes], name = 'a_cafe')    \n\n    a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]\n    mu = a_cafe[cafe] + b_cafe[cafe] * afternoon\n    lk(\"y\", Normal(mu, sigma), obs=wait)\n\n# Run mcmc ------------------------------------------------\nm.run(model) \n\n# Summary ------------------------------------------------\nm.sampler.print_summary(0.89)",
+    "text": "15.3 Example\nBelow is an example code snippet demonstrating Bayesian regression with varying effects:\n\n15.3.1 Simulated data\nfrom main import*\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\na = 3.5  # average morning wait time\nb = -1  # average difference afternoon wait time\nsigma_a = 1  # std dev in intercepts\nsigma_b = 0.5  # std dev in slopes\nrho = -0.7  # correlation between intercepts and slopes\nMu = jnp.array([a, b])\ncov_ab = sigma_a * sigma_b * rho\nSigma = jnp.array([[sigma_a**2, cov_ab], [cov_ab, sigma_b**2]])\njnp.array([1, 2, 3, 4]).reshape(2, 2).T\nsigmas = jnp.array([sigma_a, sigma_b])  # standard deviations\nRho = jnp.array([[1, rho], [rho, 1]])  # correlation matrix\n\n# now matrix multiply to get covariance matrix\nSigma = jnp.diag(sigmas) @ Rho @ jnp.diag(sigmas)\n\nN_cafes = 20\nseed = random.PRNGKey(5)  # used to replicate example\nvary_effects = bi.dist.multivariatenormal(Mu, Sigma, shape=(N_cafes,), sample = True)\na_cafe = vary_effects[:, 0]\nb_cafe = vary_effects[:, 1]\n\nseed = random.PRNGKey(22)\nN_visits = 10\nafternoon = jnp.tile(jnp.arange(2), N_visits * N_cafes // 2)\ncafe_id = jnp.repeat(jnp.arange(N_cafes), N_visits)\nmu = a_cafe[cafe_id] + b_cafe[cafe_id] * afternoon\nsigma = 0.5  # std dev within cafes\nwait = dist.normal(mu, sigma, sample = True)\nd = pd.DataFrame(dict(cafe=cafe_id, afternoon=afternoon, wait=wait))\nm.data_to_model(['cafe_id', \"afternoon\", \"wait\"])\n\n15.3.1.1 Model definition\ndef model(cafe, wait, N_cafes):\n    a = dist.normal(5, 2, name = 'a')\n    b = dist.normal(-1, 0.5, name = 'b')\n    sigma_cafe = dist.exponential(1, shape=[2], name = 'sigma_cafe')\n    sigma = dist.exponential( 1, name = 'sigma')\n    Rho = dist.lkj(2, 2, name = 'Rho')\n    cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho\n    a_cafe_b_cafe = dist.multivariatenormal(jnp.stack([a, b]), cov, shape = [N_cafes], name = 'a_cafe')    \n\n    a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]\n    mu = a_cafe[cafe] + b_cafe[cafe] * afternoon\n    lk(\"y\", Normal(mu, sigma), obs=wait)\n\n# Run mcmc ------------------------------------------------\nm.run(model) \n\n# Summary ------------------------------------------------\nm.sampler.print_summary(0.89)",
     "crumbs": [
       "<span class='chapter-number'>15</span>  <span class='chapter-title'>13. Varying slopes</span>"
     ]
@@ -752,21 +752,21 @@
   {
     "objectID": "19. Network model.html",
     "href": "19. Network model.html",
-    "title": "21  17. Modeling Network",
+    "title": "20  17. Modeling Network",
     "section": "",
-    "text": "21.1 Conciderations",
+    "text": "20.1 Conciderations",
     "crumbs": [
-      "<span class='chapter-number'>21</span>  <span class='chapter-title'>17. Modeling Network</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>17. Modeling Network</span>"
     ]
   },
   {
     "objectID": "19. Network model.html#conciderations",
     "href": "19. Network model.html#conciderations",
-    "title": "21  17. Modeling Network",
+    "title": "20  17. Modeling Network",
     "section": "",
-    "text": "Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of link weights — i.e., model binary networks.\nNote that if the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms ( _i ), ( j ), and ( {ij} ) are no longer required. (Is it correct?)\nIn the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).",
+    "text": "Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of link weights — i.e., model binary networks.\nNote that if the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms ( _i ), ( j ), and (* ) are no longer required. (Is it correct?)\nIn the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).",
     "crumbs": [
-      "<span class='chapter-number'>21</span>  <span class='chapter-title'>17. Modeling Network</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>17. Modeling Network</span>"
     ]
   },
   {
@@ -834,7 +834,7 @@
     "href": "13. Varying slopes.html#mathematical-details-1",
     "title": "15  13. Varying slopes",
     "section": "15.5 Mathematical Details",
-    "text": "15.5 Mathematical Details\n\n15.5.1 Formula\nWe model the relationship between the independent variable \\(X\\) and the outcome variable Y with varying intercepts (\\(\\alpha\\)) and varying slopes (\\(\\beta\\)) for each group (k) using the following equation:\n\\[\nY_{ik} = \\alpha_k + \\beta_k X_{ik} + \\sigma\n\\]\nWhere: - \\(Y_{ik}\\) is the outcome variable for observation i in group k. - \\(X_{ik}\\) is the independent variables for observation i in group k. - \\(\\alpha_k\\) is the varying intercept for group k. - \\(\\beta_k\\) is the varying regression coefficients for group k. - $$ is the error term, assumed to be strictly positive.\n\n\n15.5.2 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\np(Y_{ik} |\\mu_{ik} , \\sigma) \\sim \\text{Normal}(\\mu_{ik} , \\sigma) \\\\\n\\mu_{ik} = \\alpha_k + \\beta_k X_{ik} + \\sigma \\\\\n\\alpha_k \\sim Normal(0,1) \\\\\n\\beta_k \\sim Normal(0,1) \\\\\n\\sigma \\sim Exponential(0,1)\n\\]\nThe varying intercepts slopes (\\(\\alpha_k\\)) and (\\(\\beta_k\\)) are modeled using a Multivariate Normal distribution:\n$$ (\n\\[\\begin{array}{cc} \\alpha_k \\\\ \\beta_k\\end{array}\\]\n) (\n(\n\\[\\begin{array}{cc}\n0 \\\\\n0\n\\end{array}\\]\n), (\n\\[\\begin{array}{cc}\n\\sigma_\\alpha^2 & \\sigma_\\pi\\sigma_{\\alpha\\rho} \\\\\n\\sigma_\\alpha\\sigma_{\\pi\\rho} & \\sigma_\\pi\n\\end{array}\\]\n)) $$\nWhere: - \\(\\left(\\begin{array}{cc} 0 \\\\0\\end{array}\\right)\\), is the prior for average intercept. - \\(\\left(\\begin{array}{cc} \\sigma_\\alpha^2 & \\sigma_\\pi\\sigma_{\\alpha\\rho} \\\\ \\sigma_\\alpha\\sigma_{\\pi\\rho} & \\sigma_\\pi \\end{array}\\right)\\) is is the covariance matrix which specifies the variance and covariance of \\(\\alpha_k\\) and \\(\\beta_k\\), where: - \\(\\sigma_\\alpha^2\\) The variance of \\(\\alpha_k\\). - \\(\\sigma_\\pi^2\\) The variance of \\(\\beta_k\\). - \\(\\sigma_\\pi\\sigma_{\\alpha\\rho}\\) and \\(\\sigma_\\alpha\\sigma_{\\pi\\rho}\\) The covariance between \\(\\alpha_k\\) and \\(\\beta_k\\)\nFor computational reasons, it is often better to implement a centered version of the varying intercept 🛈 that is equivalent to the Multivariate Normal distribution approach:\n\\[\n\\left(\\begin{array}{cc} \\alpha_k \\\\ \\beta_k\\end{array}\\right)\n\\sim\n\\left(\\begin{array}{cc}\n\\sigma_\\alpha\\\\\n\\sigma_\\pi\n\\end{array}\\right) \\circ\nL *\n\\left(\\begin{array}{cc}\n\\widehat{\\alpha}_k \\\\\n\\widehat{\\pi}_k\n\\end{array}\\right)\n\\]\n\nWhere:\n\n\\(\\sigma_\\alpha \\sim Exponential(1)\\) bewing the priorstddev amongintercepts.\n\\(\\sigma_\\beta \\sim Exponential(1)\\) bewing the prior stddevamongslopes.\n\\(L \\sim LKJcorr(η)\\) bewing the prior for the correlationmatrix.\n\n\nThe full cetered version of the model is thus :\n\\[\np(Y_{i} |\\mu_k , \\sigma) \\sim \\text{Normal}(\\mu_k , \\sigma) \\\\\n\\]\n\\[\n\\mu_k =   \\alpha_k + \\beta_i X_i \\\\\n\\]\n\\[\n\\left(\\begin{array}{cc} \\alpha_k \\\\ \\beta_k\\end{array}\\right)\n\\sim\n\\left(\\begin{array}{cc}\n\\sigma_\\alpha\\\\\n\\sigma_\\pi\n\\end{array}\\right) \\circ\nL *\n\\left(\\begin{array}{cc}\n\\widehat{\\alpha}_k \\\\\n\\widehat{\\pi}_k\n\\end{array}\\right)\n\\]\n\\[\n\\alpha \\sim Normal(0,1) \\\\\n\\beta \\sim Normal(0,1) \\\\\n\\sigma_\\alpha \\sim Exponential(1) \\\\\n\\sigma_\\pi \\sim Exponential(1) \\\\\nL \\sim LKJcorr(2)\n\\]",
+    "text": "15.5 Mathematical Details\n\n15.5.1 Formula\nWe model the relationship between the independent variable \\(X\\) and the outcome variable Y with varying intercepts (\\(\\alpha\\)) and varying slopes (\\(\\beta\\)) for each group (k) using the following equation:\n\\[\nY_{ik} = \\alpha_k + \\beta_k X_{ik} + \\sigma\n\\]\nWhere: - \\(Y_{ik}\\) is the outcome variable for observation i in group k. - \\(X_{ik}\\) is the independent variables for observation i in group k. - \\(\\alpha_k\\) is the varying intercept for group k. - \\(\\beta_k\\) is the varying regression coefficients for group k. - $$ is the error term, assumed to be strictly positive.\n\n\n15.5.2 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\np(Y_{ik} |\\mu_{ik} , \\sigma) \\sim \\text{Normal}(\\mu_{ik} , \\sigma)\n\\] \\[\n\\mu_{ik} = \\alpha_k + \\beta_k X_{ik} + \\sigma\n\\] \\[\n\\alpha_k \\sim Normal(0,1)\n\\] \\[\n\\beta_k \\sim Normal(0,1)\n\\] \\[\n\\sigma \\sim Exponential(0,1)\n\\]\nThe varying intercepts slopes (\\(\\alpha_k\\)) and (\\(\\beta_k\\)) are modeled using a Multivariate Normal distribution:\n$$ (\n\\[\\begin{array}{cc} \\alpha_k \\\\ \\beta_k\\end{array}\\]\n) (\n(\n\\[\\begin{array}{cc}\n0 \\\\\n0\n\\end{array}\\]\n), (\n\\[\\begin{array}{cc}\n\\sigma_\\alpha^2 & \\sigma_\\pi\\sigma_{\\alpha\\rho} \\\\\n\\sigma_\\alpha\\sigma_{\\pi\\rho} & \\sigma_\\pi\n\\end{array}\\]\n)) $$\nWhere: - \\(\\left(\\begin{array}{cc} 0 \\\\0\\end{array}\\right)\\), is the prior for average intercept. - \\(\\left(\\begin{array}{cc} \\sigma_\\alpha^2 & \\sigma_\\pi\\sigma_{\\alpha\\rho} \\\\ \\sigma_\\alpha\\sigma_{\\pi\\rho} & \\sigma_\\pi \\end{array}\\right)\\) is is the covariance matrix which specifies the variance and covariance of \\(\\alpha_k\\) and \\(\\beta_k\\), where: - \\(\\sigma_\\alpha^2\\) The variance of \\(\\alpha_k\\). - \\(\\sigma_\\pi^2\\) The variance of \\(\\beta_k\\). - \\(\\sigma_\\pi\\sigma_{\\alpha\\rho}\\) and \\(\\sigma_\\alpha\\sigma_{\\pi\\rho}\\) The covariance between \\(\\alpha_k\\) and \\(\\beta_k\\)\nFor computational reasons, it is often better to implement a centered version of the varying intercept 🛈 that is equivalent to the Multivariate Normal distribution approach:\n\\[\n\\left(\\begin{array}{cc} \\alpha_k \\\\ \\beta_k\\end{array}\\right)\n\\sim\n\\left(\\begin{array}{cc}\n\\sigma_\\alpha\\\\\n\\sigma_\\pi\n\\end{array}\\right) \\circ\nL *\n\\left(\\begin{array}{cc}\n\\widehat{\\alpha}_k \\\\\n\\widehat{\\pi}_k\n\\end{array}\\right)\n\\]\n\nWhere:\n\n\\(\\sigma_\\alpha \\sim Exponential(1)\\) bewing the priorstddev amongintercepts.\n\\(\\sigma_\\beta \\sim Exponential(1)\\) bewing the prior stddevamongslopes.\n\\(L \\sim LKJcorr(η)\\) bewing the prior for the correlationmatrix.\n\n\nThe full cetered version of the model is thus :\n\\[\np(Y_{i} |\\mu_k , \\sigma) \\sim \\text{Normal}(\\mu_k , \\sigma) \\\\\n\\]\n\\[\n\\mu_k =   \\alpha_k + \\beta_i X_i \\\\\n\\]\n\\[\n\\left(\\begin{array}{cc} \\alpha_k \\\\ \\beta_k\\end{array}\\right)\n\\sim\n\\left(\\begin{array}{cc}\n\\sigma_\\alpha\\\\\n\\sigma_\\pi\n\\end{array}\\right) \\circ\nL *\n\\left(\\begin{array}{cc}\n\\widehat{\\alpha}_k \\\\\n\\widehat{\\pi}_k\n\\end{array}\\right)\n\\]\n\\[\n\\alpha \\sim Normal(0,1) \\\\\n\\beta \\sim Normal(0,1) \\\\\n\\sigma_\\alpha \\sim Exponential(1) \\\\\n\\sigma_\\pi \\sim Exponential(1) \\\\\nL \\sim LKJcorr(2)\n\\]",
     "crumbs": [
       "<span class='chapter-number'>15</span>  <span class='chapter-title'>13. Varying slopes</span>"
     ]
@@ -854,9 +854,149 @@
     "href": "13. Varying slopes.html#references",
     "title": "15  13. Varying slopes",
     "section": "15.7 Reference(s)",
-    "text": "15.7 Reference(s)\nMcElreath (2018)\n\n\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian Course with Examples in r and Stan. Chapman; Hall/CRC.",
+    "text": "15.7 Reference(s)\nMcElreath (2018)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian Course with Examples in r and Stan. Chapman; Hall/CRC.",
     "crumbs": [
       "<span class='chapter-number'>15</span>  <span class='chapter-title'>13. Varying slopes</span>"
+    ]
+  },
+  {
+    "objectID": "10. Dirichlet model (wip).html#references",
+    "href": "10. Dirichlet model (wip).html#references",
+    "title": "12  Dirichlet model",
+    "section": "12.5 Reference(s)",
+    "text": "12.5 Reference(s)\nMcElreath (2018)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian Course with Examples in r and Stan. Chapman; Hall/CRC.",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Dirichlet model</span>"
+    ]
+  },
+  {
+    "objectID": "11. Zero inflated (wip).html#references",
+    "href": "11. Zero inflated (wip).html#references",
+    "title": "13  Zero inflated",
+    "section": "13.6 Reference(s)",
+    "text": "13.6 Reference(s)\nMcElreath (2018)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian Course with Examples in r and Stan. Chapman; Hall/CRC.",
+    "crumbs": [
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Zero inflated</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying intercepts.html",
+    "href": "12. Varying intercepts.html",
+    "title": "14  Varying intercepts",
+    "section": "",
+    "text": "14.1 General Principles\nTo model the relationship between predictor variables and an independent variable while allowing for different intercepts across groups or clusters, we can use a Varying Intercepts model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Varying intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying intercepts.html#considerations",
+    "href": "12. Varying intercepts.html#considerations",
+    "title": "14  Varying intercepts",
+    "section": "14.2 Considerations",
+    "text": "14.2 Considerations\n\nWe have the same considerations as for Regression for continuous variable.\nThe main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $ $ is defined based on the \\(k\\) declared groups.\nEach intercept have is own Normal distribution -i.e. a hyper-prior 🛈-. In the code below, the hyper-prior is _a_bar_.",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Varying intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying intercepts.html#example",
+    "href": "12. Varying intercepts.html#example",
+    "title": "14  Varying intercepts",
+    "section": "14.3 Example",
+    "text": "14.3 Example\nBelow is an example code snippet demonstrating Bayesian regression with varying intercepts:\nfrom main import*\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Import data ------------------------------------------------\nm.data('../data/reedfrogs.csv', sep=';') \nm.df[\"tank\"] = np.arange(m.df.shape[0])\ntank = jnp.array(m.df[\"tank\"].astype('int32').values)\ndensity = jnp.array(m.df[\"density\"].astype('float32').values)\nsurv = jnp.array(m.df[\"surv\"].astype('int32').values)\nm.data_on_model = dict(\n    tank = tank,\n    surv = surv\n)\n\n# Define model ------------------------------------------------\ndef model(tank, surv):\n    sigma = dist.exponential( 1,  name = 'sigma')\n    a_bar = dist.normal( 0., 1.5, name = 'a_bar')\n    alpha = dist.normal( a_bar, sigma, shape= [48], name = 'alpha')\n    p = jnp.squeeze(alpha[tank])[0]\n    lk(\"y\", Binomial(total_count = density, logits = p), obs=surv)\n\n# Run mcmc ------------------------------------------------\nm.run(model) \n\n# Summary ------------------------------------------------\nm.sampler.print_summary(0.89)",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Varying intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying intercepts.html#mathematical-details",
+    "href": "12. Varying intercepts.html#mathematical-details",
+    "title": "14  Varying intercepts",
+    "section": "14.4 Mathematical Details",
+    "text": "14.4 Mathematical Details\n\n14.4.1 Formula\nWe model the relationship between the independent variables X and the outcome variable Y with varying intercepts \\(\\alpha\\) for each group k using the following equation:\n\\[\nY_{ik} = \\alpha_k + \\beta X_{ik} + \\sigma\n\\]\nWhere: - \\(Y_{ik}\\) is the outcome variable for observation i in group k. - \\(\\alpha_k\\) is the varying intercept for group k. - \\(X_{ik}\\) is the independent variables for observation i in group k. - \\(\\beta\\) is the regression coefficients term. - \\(\\sigma\\) is the error term, typically assumed to be normally distributed and positive.\n\n\n14.4.2 Bayesian model\nWe can express the Bayesian regression model accounting for prior distribution as follows:\n\\[\np(Y_{ik} | \\mu_{ik}, \\sigma) = Normal(\\mu_{ik}, \\sigma) \\\\\n\\mu_{ik} = \\alpha_j + \\beta X_{ik} + \\sigma \\\\\n\\alpha_k \\sim \\text{Normal}(\\mu_{alpha_k}, \\sigma_{alpha_k}) \\\\\np(\\beta) \\sim \\text{Normal}(0, 1) \\\\\np(\\sigma) \\sim \\text{Exponential}(1) \\\\\np(\\mu_{alpha_k}) \\sim \\text{Normal}(0, 1) \\\\\np(\\sigma_{alpha_k}) \\sim \\text{Exponential}(1) \\\\\n\\]\nWhere: - \\(p(Y_{ij} | \\mu_{ij}, \\sigma)\\) is the likelihood function for the outcome variable. - \\(\\alpha_k\\) is the varying intercepts across groups. - \\(\\mu_alpha_k\\) is the overall mean intercept. - \\(\\sigma_alpha_k\\) is the variance of the intercepts across groups. - \\(p(\\beta)\\) is the prior distributions for the regression coefficients. - \\(p(\\sigma)\\) is the prior distributions for the error term.",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Varying intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying intercepts.html#notes",
+    "href": "12. Varying intercepts.html#notes",
+    "title": "14  Varying intercepts",
+    "section": "14.5 Notes",
+    "text": "14.5 Notes\n\nWe can apply multiple variables similarly as chapter 2.\nWe can apply interaction terms similarly as chapter 3.\nWe can apply caterogical variables similarly as chapter 4.\nWe can apply varying intercepts with any distribution developped in previous chapters.",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Varying intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "12. Varying intercepts.html#references",
+    "href": "12. Varying intercepts.html#references",
+    "title": "14  Varying intercepts",
+    "section": "14.6 Reference(s)",
+    "text": "14.6 Reference(s)\nMcElreath (2018)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian Course with Examples in r and Stan. Chapman; Hall/CRC.",
+    "crumbs": [
+      "<span class='chapter-number'>14</span>  <span class='chapter-title'>Varying intercepts</span>"
+    ]
+  },
+  {
+    "objectID": "20. Multiplex network model (wip).html",
+    "href": "20. Multiplex network model (wip).html",
+    "title": "23  Multiplex Networks",
+    "section": "",
+    "text": "23.1 General Principles\nA multiplex network is a type of multilayer network where all layers consist of the same set of nodes, but the links between them differ. Each layer represents a different type of relationship or interaction between the same entities (nodes).",
+    "crumbs": [
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Multiplex Networks</span>"
+    ]
+  },
+  {
+    "objectID": "20. Multiplex network model (wip).html#considerations",
+    "href": "20. Multiplex network model (wip).html#considerations",
+    "title": "23  Multiplex Networks",
+    "section": "23.2 Considerations",
+    "text": "23.2 Considerations\n\nWe have the same considerations as for Network model. ## Example",
+    "crumbs": [
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Multiplex Networks</span>"
+    ]
+  },
+  {
+    "objectID": "20. Multiplex network model (wip).html#mathematical-details",
+    "href": "20. Multiplex network model (wip).html#mathematical-details",
+    "title": "23  Multiplex Networks",
+    "section": "23.3 Mathematical Details",
+    "text": "23.3 Mathematical Details\n\n23.3.1 Formula\n\n\n23.3.2 Bayesian model (WIP)",
+    "crumbs": [
+      "<span class='chapter-number'>23</span>  <span class='chapter-title'>Multiplex Networks</span>"
+    ]
+  },
+  {
+    "objectID": "22. Multilayer network model (wip).html",
+    "href": "22. Multilayer network model (wip).html",
+    "title": "25  Multilayer Networks",
+    "section": "",
+    "text": "25.1 General Principles\nA multilayer network is a broader term that refers to networks composed of multiple layers, where each layer may have its own set of nodes and edges, potentially representing different types of entities and interactions. This means the nodes can be the same or different across layers.",
+    "crumbs": [
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Multilayer Networks</span>"
+    ]
+  },
+  {
+    "objectID": "22. Multilayer network model (wip).html#considerations",
+    "href": "22. Multilayer network model (wip).html#considerations",
+    "title": "25  Multilayer Networks",
+    "section": "25.2 Considerations",
+    "text": "25.2 Considerations\n\nWe have the same considerations as for Network model. ## Example",
+    "crumbs": [
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Multilayer Networks</span>"
+    ]
+  },
+  {
+    "objectID": "22. Multilayer network model (wip).html#mathematical-details",
+    "href": "22. Multilayer network model (wip).html#mathematical-details",
+    "title": "25  Multilayer Networks",
+    "section": "25.3 Mathematical Details",
+    "text": "25.3 Mathematical Details\n\n25.3.1 Formula\n\n\n25.3.2 Bayesian model (WIP)",
+    "crumbs": [
+      "<span class='chapter-number'>25</span>  <span class='chapter-title'>Multilayer Networks</span>"
     ]
   }
 ]
