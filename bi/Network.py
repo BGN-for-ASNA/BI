@@ -281,11 +281,12 @@ class Net:
         Returns:
             _type_: _description_
         """
-        b_ij = dist.normal(Net.logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_grp, N_grp), name = name_b_ij, sample = sample) # transfers more likely within groups
+        N_dyads = int(((N_grp*(N_grp-1))/2))
+        b_ij = dist.normal(Net.logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_dyads, 2), name = name_b_ij, sample = sample) # transfers more likely within groups
         b_ii = dist.normal(Net.logit(b_ii_mean/jnp.sqrt(N_grp)), b_ii_sd, shape=(N_grp, ), name = name_b_ii, sample = sample) # transfers less likely between groups
-        b = b_ij
+        b = Net.edgl_to_mat(b_ij, N_grp)
         b = b.at[jnp.diag_indices_from(b)].set(b_ii)
-        return b[0], b_ij[0], b_ii[0]
+        return b, b_ij, b_ii
 
     @staticmethod 
     def block_prior_to_edglelist(v, b):
@@ -300,7 +301,7 @@ class Net:
         """
 
         v = Net.vec_node_to_edgle(jnp.stack([v, v], axis= 1)).astype(int)
-        return jnp.stack([b[v[:,0]], b[v[:,1]]], axis = 1)
+        return jnp.stack([b[v[:,1],v[:,0]], b[v[:,0],v[:,1]]], axis = 1)
 
 
     @staticmethod 
