@@ -7,13 +7,14 @@ _Stratification_ concist in modeling how the different categories of the indepen
 ![](https://i0.wp.com/67.media.tumblr.com/e8ec86a7dd863cfccb64fd40e55c0e90/tumblr_inline_o8j406qB4V1qa0hyw_540.png?resize=450%2C354)
 
 
-
+::: callout-caution
 ## Considerations
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
 - As we generate regression coefficients for each \( k \) category in the code, we need to specify a prior with a shape equal to the number of categories (see comments in the code).
 
 - To compare differences between categories, we need to compute the distribution of the differences between categories, known as the contrast distribution. **Never compare the confidence intervals or p-values directly.**
+:::
 
 ## Example
 Below is an example code snippet demonstrating Bayesian regression with an independent categorical variable:
@@ -87,11 +88,14 @@ Where:
 - $p(\sigma)$ is the prior distribution for the standard deviation, ensuring it is  positive.
 
 
+::: callout-note
 ## Notes
 
 - We can apply multiple variables similarly as [chapter 2: Multiple continuous Variables](2.&#32;Multiple&#32;continuous&#32;Variables.qmd).
 
 - We can apply interaction terms  similarly as [chapter 3: Interaction between continuous variables](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+:::
+
 
 ## Reference(s)
 @mcelreath2018statistical
