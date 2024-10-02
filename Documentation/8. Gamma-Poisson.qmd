@@ -2,11 +2,12 @@
 ## General Principles
 To model the relationship between a count outcome variable and one or more independent variables with [overdispersion 🛈](7.&#32;Poisson&#32;model.qmd "Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the Poisson distribution."), we can use _Negative Binomial model_. 
 
+::: callout-caution 
 ## Considerations
 - We have the same considerations as for [Poisson model](7.&#32;Poisson&#32;model.qmd).
   
 -  Overdispersion is handled because the Negative-binomial model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is `_log_days_`).
-
+:::
 
 ## Example
 
@@ -93,6 +94,7 @@ Where:
 - $p(\beta)$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept.
 - $\lambda = rates +\alpha + \beta X$ is the mean rate parameter of the Poisson distribution assuming that each Poisson count observation has its own rate.
 
+::: callout-note 
 ## Notes
 
 - We can apply multiple variables similarly as [chapter 2](2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
@@ -100,6 +102,7 @@ Where:
 - We can apply interaction terms  similarly as [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
 
 - We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.md).
+:::
 
 ## Reference(s)
 @mcelreath2018statistical

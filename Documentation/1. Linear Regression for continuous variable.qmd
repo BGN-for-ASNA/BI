@@ -10,8 +10,9 @@ To study relationships between two continuous variables (e.g. heigth and weigth)
 
 ![](https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg)
 
-## Conciderations
 
+::: callout-caution 
+## Conciderations
 -   Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for $\alpha$ , $\beta$ and $\sigma^2$ .
 
 -   Ussually, we use *Normal* distribution for $\alpha$ , $\beta$ and an *exponential* or *Uniform* distributiuon for $\sigma$.
@@ -21,6 +22,9 @@ To study relationships between two continuous variables (e.g. heigth and weigth)
 -   $\sigma$ is assumed to be normally distributed and is squared to force positive error and account for values bellow and above the line.
 
 -   Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
+
+:::
+
 
 ## Example
 
@@ -54,8 +58,8 @@ m.sampler.print_summary(0.89)
 ## Mathematical Details
 
 ### *Formula*
-The following equation allow us to draw a line and is ths one that is most used in statistic clases:
- $$
+
+The following equation allow us to draw a line and is ths one that is most used in statistic clases: $$
 Y = \alpha + \beta  X + \sigma
 $$
 
@@ -63,8 +67,7 @@ Where: - *Y* is the target variable. - *X* is the input variable. - $\beta$ is t
 
 ### *Bayesian model*
 
-We can express the Bayesian regression model accounting for prior distribution as follows: 
-$$
+We can express the Bayesian regression model accounting for prior distribution as follows: $$
 p(Y | \alpha, \beta, X) \sim Normal(\alpha + \beta   X, \sigma)
 $$
 

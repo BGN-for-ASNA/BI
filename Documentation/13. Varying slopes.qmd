@@ -1,4 +1,4 @@
-# 13. Varying slopes
+# Varying slopes
 
 ## General Principles
 
@@ -6,6 +6,7 @@ To model the relationship between predictor variables and an independent variabl
 
 This approach is useful when we expect the relationship between predictors and the independent variable to differ across groups (e.g., different slopes for different subjects, locations, or time periods).This allow every unit in the data to have its own unique response to any treatment or exposure or event, while also improving estimates via pooling.
 
+::: callout-caution 
 ## Considerations
 
 -   We have the same considerations as for [12. Varying interceps](12.%20Varying%20intercepts.qmd).
@@ -15,6 +16,7 @@ This approach is useful when we expect the relationship between predictors and t
 -   The covariance matrix requiere a correlation matris distribution which is modeleld using a $LKJcorr$ distribution that hold a parameter $η$. $η$ is ussually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use LKJ- corr(1), the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.
 
 -   The Half-Cauchy distribution is used when modeling the covariance matrix to specify strictly positive values for the diagonal of the covariance matrix, ensuring positive variances.
+:::
 
 ## Example
 
@@ -130,27 +132,19 @@ $$
 The varying intercepts slopes ($\alpha_k$) and ($\beta_k$) are modeled using a *Multivariate Normal distribution*:
 
 $$ 
-\left(
-
-\begin{array}{cc} \alpha_k \\ \beta_k\end{array}
-
-\right) \sim  \text{MultivariateNormal}(
-
-\left(
-
-\begin{array}{cc} 
-0 \\
-0
-\end{array}
-
-\right), \left(
-
-\begin{array}{cc} 
-\sigma_\alpha^2 & \sigma_\pi\sigma_{\alpha\rho} \\
-\sigma_\alpha\sigma_{\pi\rho} & \sigma_\pi
-\end{array}
-
-\right)) 
+\begin{pmatrix} 
+\alpha_k \\ 
+\beta_k 
+\end{pmatrix} \sim \text{MultivariateNormal}\left( 
+\begin{pmatrix} 
+0 \\ 
+0 
+\end{pmatrix}, 
+\begin{pmatrix} 
+\sigma_\alpha^2 & \sigma_\pi \sigma_{\alpha\rho} \\ 
+\sigma_\alpha \sigma_{\pi\rho} & \sigma_\pi 
+\end{pmatrix} 
+\right) 
 $$
 
 Where: - $\left(\begin{array}{cc} 0 \\0\end{array}\right)$, is the prior for average intercept. - $\left(\begin{array}{cc} \sigma_\alpha^2 & \sigma_\pi\sigma_{\alpha\rho} \\ \sigma_\alpha\sigma_{\pi\rho} & \sigma_\pi \end{array}\right)$ is is the covariance matrix which specifies the variance and covariance of $\alpha_k$ and $\beta_k$, where: - $\sigma_\alpha^2$ The variance of $\alpha_k$. - $\sigma_\pi^2$ The variance of $\beta_k$. - $\sigma_\pi\sigma_{\alpha\rho}$ and $\sigma_\alpha\sigma_{\pi\rho}$ The covariance between $\alpha_k$ and $\beta_k$
@@ -202,57 +196,62 @@ L *
 $$
 
 $$
-\alpha \sim Normal(0,1) \\
-\beta \sim Normal(0,1) \\
-\sigma_\alpha \sim Exponential(1) \\
-\sigma_\pi \sim Exponential(1) \\
+\alpha \sim Normal(0,1)
+$$
+$$
+\beta \sim Normal(0,1)
+$$
+$$
+\sigma_\alpha \sim Exponential(1)
+$$
+$$
+\sigma_\pi \sim Exponential(1)
+$$
+$$
 L \sim LKJcorr(2)
 $$
 
+::: callout-note 
 ## Notes
 
 -   We can apply multivariate model similarly as [chapter 2](/2.%20Multiple%20Regression%20for%20Continuous%20Variables.qmd). In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ actors in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
 
 $$
-p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
+p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) 
 $$
 
 $$
-\mu_i =   \alpha_i + \beta_{1i} X_{1i}  + \beta_{1i} X_{2i} \\
+\mu_i =   \alpha_i + \beta_{1i} X_{1i}  + \beta_{1i} X_{2i} 
 $$
 
-$$ \left(
-
-\begin{array}{cc} 
+$$ 
+\begin{pmatrix} 
 \alpha_{i}\\ 
 \beta_{1i}\\ 
-\beta_{2i}
-\end{array}
-
-\right)
-
-\sim  \left(
-
-\begin{array}{cc} 
-\sigma_{\alpha}\\
-\sigma_{\pi}\\
-\sigma_{\gamma}
-\end{array}
-
-\right) \circ  L \* \left(
-
-\begin{array}{cc} 
-\widehat{\alpha}_{k} \\
-\widehat{\pi}_{k} \\
+\beta_{2i} 
+\end{pmatrix} 
+\sim \begin{pmatrix} 
+\sigma_{\alpha}\\ 
+\sigma_{\pi}\\ 
+\sigma_{\gamma} 
+\end{pmatrix} \circ L \cdot \begin{pmatrix} 
+\widehat{\alpha}_{k} \\ 
+\widehat{\pi}_{k} \\ 
 \widehat{\gamma}_{k} 
-\end{array}
+\end{pmatrix} 
+$$
 
-\right) $$
 
 $$
-\sigma_{\alpha} \sim Exponential(1) \\
-\sigma_{\pi} \sim Exponential(1) \\
-\sigma_{\gamma} \sim Exponential(1) \\
+\sigma_{\alpha} \sim Exponential(1)
+$$
+$$
+\sigma_{\pi} \sim Exponential(1)
+$$
+$$
+\sigma_{\gamma} \sim Exponential(1) 
+$$
+$$
 L \sim LKJcorr(2)
 $$
 
@@ -269,79 +268,72 @@ p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
 $$
 
 $$
-\mu_i =   \alpha_i + \beta_{i} X_i \\
-\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]} \\
-\beta_{i} = \beta + \beta_{actor[i]} + \beta_{group[i]} \\
+\mu_i =   \alpha_i + \beta_{i} X_i 
+$$
+$$
+\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]}
+$$
+$$
+\beta_{i} = \beta + \beta_{actor[i]} + \beta_{group[i]} 
 $$
 
 $$
-\alpha \sim Normal(0,1) \\
-\beta \sim Normal(0,1) \\
+\alpha \sim Normal(0,1)
+$$
+$$
+\beta \sim Normal(0,1) 
 $$
 
-$$ \left(
-
-\begin{array}{cc} 
-\alpha_{actor}\\ 
-\beta_{actor}
-\end{array}
-
-\right)
-
-\sim  
-
-\left(
-
-\begin{array}{cc} 
-\sigma_{\alpha a}\\
-\sigma_{\pi a}
-\end{array}
-
-\right) \circ  L\_{a} * \left(
-
-\begin{array}{cc} 
-\widehat{\alpha}_{ka} \\
+$$ 
+\begin{pmatrix} 
+\alpha_{\text{actor}} \\ 
+\beta_{\text{actor}} 
+\end{pmatrix} 
+\sim 
+\begin{pmatrix} 
+\sigma_{\alpha a} \\ 
+\sigma_{\pi a} 
+\end{pmatrix} \circ L_a \cdot \begin{pmatrix} 
+\widehat{\alpha}_{ka} \\ 
 \widehat{\pi}_{ka} 
-\end{array}
-\right) 
+\end{pmatrix} 
 $$
 
+
 $$
-\sigma_{\alpha a} \sim Exponential(1) \\
-\sigma_{\pi a} \sim Exponential(1) \\
+\sigma_{\alpha a} \sim Exponential(1)
+$$
+$$
+\sigma_{\pi a} \sim Exponential(1)
+$$
+$$
 L_{a} \sim LKJcorr(2)
 $$
 
-$$ \left(
-
-\begin{array}{cc} 
-\alpha_{group }\\ 
-\beta_{group}
-\end{array}
-
-\right)
-
-\sim  \left(
-
-\begin{array}{cc} 
-\sigma_{\alpha g}\\
-\sigma_{\pi g}\\
-\end{array}
-\end{array}
-
-\\end{array}\right) \circ  L\_{g} * \left(
-
-\begin{array}{cc} 
-\widehat{\alpha}_{kg} \\
-\widehat{\pi}_{kg}
-\end{array}
-
-\right) 
+$$ 
+\begin{pmatrix} 
+\alpha_{\text{group}} \\ 
+\beta_{\text{group}} 
+\end{pmatrix} 
+\sim  
+\begin{pmatrix} 
+\sigma_{\alpha g} \\ 
+\sigma_{\pi g} 
+\end{pmatrix} \circ L_g \cdot 
+\begin{pmatrix} 
+\widehat{\alpha}_{kg} \\ 
+\widehat{\pi}_{kg} 
+\end{pmatrix} 
 $$
 
+
 $$
-\sigma_{\alpha g} \sim Exponential(1) \\
-\sigma_{\pi g} \sim Exponential(1) \\
+\sigma_{\alpha g} \sim Exponential(1)
+$$
+$$
+\sigma_{\pi g} \sim Exponential(1) 
+$$
+$$
 L_{g} \sim LKJcorr(2)
 $$
 
@@ -352,84 +344,89 @@ p(Y_{i} |n , p_i) \sim \text{Binomial}(n = 1, p_i) \\
 $$
 
 $$
-logit{p_i}=   \alpha_i + (\beta_{1i}  + \beta_{2i} X_{2i})  X_{1i} \\
-\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]} \\
-\beta_{1i} = \beta + \beta_{1 actor[i]} + \beta_{ group[i]} \\
-\beta_{2i} = \beta + \beta_{2 actor[i]} + \beta_{2 group[i]} \\
+logit{p_i}=   \alpha_i + (\beta_{1i}  + \beta_{2i} X_{2i})  X_{1i}
+$$
+$$
+\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]}
+$$
+$$
+\beta_{1i} = \beta + \beta_{1 actor[i]} + \beta_{ group[i]}
+$$
+$$
+\beta_{2i} = \beta + \beta_{2 actor[i]} + \beta_{2 group[i]}
 $$
 
 $$
-\alpha \sim Normal(0,1) \\
-\beta \sim Normal(0,1) \\
+\alpha \sim Normal(0,1)
+$$
+$$
+\beta \sim Normal(0,1)
 $$
 
-$$ \left(
+$$ 
+\begin{pmatrix} 
+\alpha_{\text{actor}} \\ 
+\beta_{1 \, \text{actor}} \\ 
+\beta_{2 \, \text{actor}} 
+\end{pmatrix} 
+\sim  
+\begin{pmatrix} 
+\sigma_{\alpha a} \\ 
+\sigma_{\pi a} \\ 
+\sigma_{\gamma a} 
+\end{pmatrix} \circ L_a \cdot 
+\begin{pmatrix} 
+\widehat{\alpha}_{ka} \\ 
+\widehat{\pi}_{ka} \\ 
+\widehat{\gamma}_{ka} 
+\end{pmatrix} 
+$$
 
-\begin{array}{cc} 
-\alpha_{actor}\\ 
-\beta_{1 actor}\\ 
-\beta_{2 actor}
-\end{array}
-
-\right)
-
-\sim  \left(
-
-\begin{array}{cc} 
-\sigma_{\alpha a}\\
-\sigma_{\pi a}\\
-\sigma_{\gamma a}\\
-\end{array}
-
-\right) \circ  L\_{a} * \left(
-
-\begin{array}{cc} 
-\widehat{\alpha}_{ka} \\
-\widehat{\pi}_{ka} \\
-\widehat{\gamma}_{ka}
-\end{array}
-
-\right) $$
 
 $$
-\sigma_{\alpha a} \sim Exponential(1) \\
-\sigma_{\pi a} \sim Exponential(1) \\
-\sigma_{\gamma a} \sim Exponential(1) \\
+\sigma_{\alpha a} \sim Exponential(1) 
+$$
+
+$$
+\sigma_{\pi a} \sim Exponential(1) 
+$$
+$$
+\sigma_{\gamma a} \sim Exponential(1) 
+$$
+$$
 L_{a} \sim LKJcorr(2)
 $$
 
-$$ \left(
+$$ 
+\begin{pmatrix} 
+\alpha_{\text{group}} \\ 
+\beta_{1 \, \text{group}} \\ 
+\beta_{2 \, \text{group}} 
+\end{pmatrix} 
+\sim  
+\begin{pmatrix} 
+\sigma_{\alpha g} \\ 
+\sigma_{\pi g} \\ 
+\sigma_{\gamma g} 
+\end{pmatrix} \circ L_g \cdot 
+\begin{pmatrix} 
+\widehat{\alpha}_{kg} \\ 
+\widehat{\pi}_{kg} \\ 
+\widehat{\gamma}_{kg} 
+\end{pmatrix} 
+$$
 
-\begin{array}{cc} 
-\alpha_{group}\\ 
-\beta_{1 group}\\ 
-\beta_{2 group}
-\end{array}
-
-\right)
-
-\sim  \left(
-
-\begin{array}{cc} 
-\sigma_{\alpha g}\\
-\sigma_{\pi g}\\
-\sigma_{\gamma g}
-\end{array}
-
-\right) \circ  L\_{g} * \left(
-
-\begin{array}{cc} 
-\widehat{\alpha}_{kg} \\
-\widehat{\pi}_{kg}\\
-\widehat{\gamma}_{kg}
-\end{array}
-
-\right) $$
 
 $$
-\sigma_{\alpha g} \sim Exponential(1) \\
-\sigma_{\pi g} \sim Exponential(1) \\
-\sigma_{\gamma g} \sim Exponential(1) \\
+\sigma_{\alpha g} \sim Exponential(1)
+$$
+$$
+\sigma_{\pi g} \sim Exponential(1) 
+$$
+$$
+\sigma_{\gamma g} \sim Exponential(1)
+$$
+$$
 L_{g} \sim LKJcorr(2)
 $$
 
@@ -477,7 +474,7 @@ m.run(model)
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
-
+:::
 ## Reference(s)
 
 @mcelreath2018statistical

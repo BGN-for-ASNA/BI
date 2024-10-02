@@ -6,13 +6,14 @@ This is a special shape of the binomial distribution, it is useful because it mo
 
 ![](https://www.researchgate.net/publication/349989811/figure/fig1/AS:1024685147947009@1621315385285/Comparison-of-linear-model-and-Poisson-model-Note-The-red-line-shows-how-expected-y.png)
 
+::: callout-caution 
 ## Considerations
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
 - We have the second [link function](6.&#32;Poisson&#32;regression.qmd "A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity."). The conventional link function for a Poisson model is the _log_ link (it ensures that _λ_ i is always positive).
 
 - To invert the log link function and model linearly the relationship between the predictor variables and the log of the mean rate parameter we can apply the exponential function (see comment in code)
-
+:::
 <!--
 - The parameter $λ$ is the expected value, but it’s also commonly thought of as a rate. $λ$ is equal to an expected number of events, $µ$, per unit time or distance, $\tau$. This implies that $λ = µ/τ$, which lets us redefine the link
 

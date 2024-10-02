@@ -3,10 +3,13 @@ from numpyro import deterministic
 from unified_dists import UnifiedDist as dist
 from Mutils import Mgaussian
 from Mutils import factors
+from Metrics import metrics as met
 gaussian = Mgaussian()
 factor = factors()
-from jax import vmap
 
+from jax import vmap
+#' Test
+#region
 #from Darray import *
 from functools import partial
 import jax as jax
@@ -114,7 +117,7 @@ def power_iteration(A, max_iter=100, tol=1e-10):
 
     return x
 
-class Net:
+class Net(met):
     def __init__(self) -> None:
         pass
 
@@ -330,65 +333,6 @@ class Net:
         edgl_block = jnp.stack([edgl_block, edgl_block], axis = 1)
         return edgl_block, b, b_ij, b_ii
 
-    # Netowrk metrics ----------------------
-    @staticmethod 
-    @jit    
-    def outstrength(x):
-        return jax.numpy.sum(x, axis=1)
-    
-    @staticmethod 
-    @jit
-    def instrength(x):
-        return jax.numpy.sum(x, axis=0)
-
-    @staticmethod 
-    @jit
-    def strength(x):
-        return Net.outstrength(x) +  Net.instrength(x)
-
-    @staticmethod 
-    @jit
-    def outdegree(x):
-        mask = x != 0
-        return jax.numpy.sum(mask, axis=1)
-
-    @staticmethod 
-    @jit
-    def indegree(x):
-        mask = x != 0
-        return jax.numpy.sum(mask, axis=0)
-    
-    @staticmethod 
-    @jit
-    def degree(x):
-        return Net.indegree(x) + Net.outdegree(x)
 
     def mat_row_wise_multiplication(M, v):
         return jnp.dot(M, v)
-    
-  
-    def met_eigen(M, eps=1e-6, maxiter=1000):
-        M_size = M.shape[1]
-        v = jnp.ones(M_size)
-        
-        v2 = v
-        eigen = v
-        count = 1
-    
-        while count < maxiter:
-            eigen = Net.mat_row_wise_multiplication(M, v2)
-            tmp =  jnp.linalg.norm(eigen)
-            eigen = eigen / tmp
-    
-            abs_v2 = jnp.abs(v2)
-            abs_eigen = jnp.abs(eigen)
-    
-            if jnp.sqrt(jnp.sum(abs_eigen - abs_v2)) <= eps:
-                break
-            
-            v2 = eigen
-            count += 1
-    
-        result = eigen / jnp.max(eigen)
-        return result
-    
