@@ -2,12 +2,14 @@
 ## General Principles
 To model the relationship between predictor variables and an independent variable while allowing for different intercepts across groups or clusters, we can use a _Varying Intercepts_ model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.
 
+::: callout-caution 
 ## Considerations
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
 - The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $ \beta$ is defined based on the $k$ declared groups.
   
 - Each intercept have is own _Normal distribution_ -i.e. a [hyper-prior 🛈](12.&#32;Varying&#32;intercepts.qmd "A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.")-. In the code below, the _hyper-prior_ is ```_a_bar_```.
+:::
 
 ## Example
 
@@ -64,13 +66,25 @@ Where:
 We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
-p(Y_{ik} | \mu_{ik}, \sigma) = Normal(\mu_{ik}, \sigma) \\
-\mu_{ik} = \alpha_j + \beta X_{ik} + \sigma \\
-\alpha_k \sim \text{Normal}(\mu_{alpha_k}, \sigma_{alpha_k}) \\
-p(\beta) \sim \text{Normal}(0, 1) \\
-p(\sigma) \sim \text{Exponential}(1) \\
-p(\mu_{alpha_k}) \sim \text{Normal}(0, 1) \\
-p(\sigma_{alpha_k}) \sim \text{Exponential}(1) \\
+p(Y_{ik} | \mu_{ik}, \sigma) = Normal(\mu_{ik}, \sigma)
+$$
+$$
+\mu_{ik} = \alpha_j + \beta X_{ik} + \sigma 
+$$
+$$
+\alpha_k \sim \text{Normal}(\mu_{alpha_k}, \sigma_{alpha_k}) 
+$$
+$$
+p(\beta) \sim \text{Normal}(0, 1)
+$$
+$$
+p(\sigma) \sim \text{Exponential}(1)
+$$
+$$
+p(\mu_{alpha_k}) \sim \text{Normal}(0, 1)
+$$
+$$
+p(\sigma_{alpha_k}) \sim \text{Exponential}(1)
 $$
 
 Where:
@@ -82,6 +96,7 @@ Where:
 - $p(\sigma)$ is the prior distributions for the error term.
   
 
+::: callout-note 
 ## Notes
 - We can apply multiple variables similarly as [chapter 2](/2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
 
@@ -90,6 +105,7 @@ Where:
 - We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
 
 - We can apply  varying intercepts with any distribution developped in previous chapters. 
+:::
 
 ## Reference(s)
 @mcelreath2018statistical

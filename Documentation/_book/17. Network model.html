@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Sebastian Sosa">
-<meta name="dcterms.date" content="2024-09-09">
 
-<title>BI documentation</title>
+<title>19&nbsp; 17. Modeling Network – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -32,7 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./0. Introduction.html" rel="next">
+<link href="./17.1. Sender receiver network model (wip).html" rel="next">
+<link href="./16. Missing data (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -70,10 +69,39 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
-<body class="nav-sidebar floating fullcontent">
+<body class="nav-sidebar floating">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -82,7 +110,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./17. Network model.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -109,7 +137,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span></a>
   </div>
 </li>
@@ -217,7 +245,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Network model.html" class="sidebar-item-text sidebar-link">
+  <a href="./17. Network model.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></span></a>
   </div>
 </li>
@@ -256,32 +284,28 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#notes" id="toc-notes" class="nav-link active" data-scroll-target="#notes"><span class="header-section-number">20</span> Notes</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">BI documentation</h1>
+<h1 class="title"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">17. Modeling Network</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Sebastian Sosa </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">September 9, 2024</p>
-    </div>
-  </div>
   
     
   </div>
@@ -291,6 +315,107 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p>A network represents the relationships (links) between entities (nodes). These links can be weighted (weighted network) or unweighted (binary network), directed (directed network) or undirected (undirected network). Regardless of their type, networks generate links shared by nodes, leading to data dependency when modeling the network. One proposed solution is to model network links with random <a href="./12. Varying intercepts.html">intercepts</a> and <a href="./13. Varying slopes.html">effects</a>. By adding such parameters to the model, we can account for the correlations between node link relationships. The particularity here is that random intercepts and effects are generated for both <a href="19.  Network model.qmd" title="nodal categorical (e.g., sex) or continuous (e.g., age) characteristics">nodal effects 🛈</a> and [dyadic effects 🛈](19.%20Network%20model.qmd ” link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes”). For nodal characteristics, the random intercepts and effects are identical to those described in previous chapters and will therefore not be detailed further.</p>
+<p>When modeling network data, the relationships between nodes can be represented by weighted links. These weights might indicate the strength of connections such as the number of interactions, shared attributes, or other quantitative measures of connection strength between nodes. However, in such cases as links are shared between nodes we obtain data dependency and to account for such data structure we need to account for it. One proposed solution is to generate random intercepts and effects. Indeed, by adding such parameter in our model we can account for correlation between</p>
+<p>The simple model that can be built to model link weights between nodes <em>i</em> and <em>j</em> can be defined as follows:</p>
+<p><span class="math display">\[
+G_{ij} \sim Poisson(Y_{ij}) \\
+log(Y_{ij}) =  \alpha  + \lambda_i + \pi_j + \delta_{ij}
+\]</span></p>
+<p>where: - ( Y_{ij} ) is the weight of links between <em>i</em> and <em>j</em>. - ( ) is the intercept. - ( _i ) is the characteristic of node <em>i</em> that affects node <em>i</em>’s propensity to emit a link toward node <em>j</em>. - ( j ) is the characteristic of node j* that affects node <em>j</em>’s propensity to receive a link from node <em>i</em>. - ( ) is a matrix of dyadic effects governing reciprocity between dyads.</p>
+<p>Note that any additional covariates can be added with a regression coefficient to the model representing nodal characteristics (e.g., sex, age) or dyadic characteristics (e.g., genetic distances).</p>
+<p>To account for correlation between the propensity to emit and receive links of a dyad, we can use <a href="13. Varying slopes.md">varying slopes</a> as follows:</p>
+<p><span class="math display">\[
+\left(\begin{array}{cc}
+\lambda_i \\
+\pi_j
+\end{array}\right)
+\sim
+MultivariateNormal\left(\begin{array}{cc}
+\left(\begin{array}{cc}
+0 \\
+0
+\end{array}\right),
+\left(\begin{array}{cc}
+\sigma_\lambda^2 &amp; \sigma_\pi \sigma_{\lambda \rho }\\
+\sigma_\lambda \sigma_{\pi \rho } &amp; \sigma_\pi^2
+\end{array}\right)
+\end{array}\right)
+\]</span></p>
+<p>This can be optimized for computation by:</p>
+<p><span class="math display">\[
+\left(\begin{array}{cc}
+\lambda_i \\
+\pi_j
+\end{array}\right)
+\sim
+MultivariateNormal\left(\begin{array}{cc}
+\left(\begin{array}{cc}
+\sigma_\lambda \\
+\sigma_\pi
+\end{array}\right) \circ
+\left(\begin{array}{cc}
+L *
+\left(\begin{array}{cc}
+\hat{\lambda}_i \\ \hat{\pi}_i
+\end{array}\right)
+\end{array}\right)
+\end{array}\right)
+\]</span></p>
+<p><span class="math display">\[
+\sigma_\alpha \sim Exponential(1)
+\]</span></p>
+<p><span class="math display">\[
+\sigma_\pi \sim Exponential(1)
+\]</span></p>
+<p><span class="math display">\[
+L \sim LKJ(2)
+\]</span></p>
+<p>Similarly, the dyad reciprocity effect is also modeled using a random slope:</p>
+<p><span class="math display">\[
+\left(\begin{array}{cc}
+\delta_{ij} \\
+\delta_{ji}
+\end{array}\right)
+\sim
+MultivariateNormal\left(\begin{array}{cc}
+\left(\begin{array}{cc}
+\sigma_\delta \\
+\sigma_\delta
+\end{array}\right) \circ
+\left(\begin{array}{cc}
+L_\delta *
+\left(\begin{array}{cc}
+\hat{\delta}_{ij} \\ \hat{\delta}_{ji}
+\end{array}\right)
+\end{array}\right)
+\end{array}\right)
+\]</span></p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Conciderations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of link weights — i.e., model binary networks.</p></li>
+<li><p>Note that if the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms ( _i ), ( j ), and (* ) are no longer required. (Is it correct?)</p></li>
+<li><p>In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).</p></li>
+</ul>
+</div>
+</div>
+<section id="notes" class="level1 callout-npte" data-number="20">
+<h1 data-number="20"><span class="header-section-number">20</span> Notes</h1>
+<ul>
+<li><p>We can apply multiple variables similarly as <a href="./2. Multiple continuous Variables.html">chapter 2: Multiple continuous Variables</a>.</p></li>
+<li><p>We can apply interaction terms similarly as <a href="./3. Interaction between continuous variables.html">chapter 3: Interaction between continuous variables</a>.</p></li>
+<li></li>
+</ul>
+</section>
 
 
 
@@ -717,10 +842,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./16. Missing data (wip).html" class="pagination-link" aria-label="16. Missing data (wip).html">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">16. Missing data (wip).html</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./0. Introduction.html" class="pagination-link" aria-label="Introduction">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./17.1. Sender receiver network model (wip).html" class="pagination-link" aria-label="17.1. Sender receiver network model (wip).html">
+        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">17.1. Sender receiver network model (wip).html</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
