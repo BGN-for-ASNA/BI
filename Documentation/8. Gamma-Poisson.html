@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>8&nbsp; Beta-Binomial model – BI documentation</title>
+<title>10&nbsp; Gamma-Poisson model – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -54,7 +54,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -64,8 +84,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./7. Poisson model.html" rel="next">
-<link href="./5. Binomial model.html" rel="prev">
+<link href="./9. Multinomial model.html" rel="next">
+<link href="./7. Poisson model.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -144,7 +164,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./6. Beta binomial model.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial model</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./8. Gamma-Poisson.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Gamma-Poisson model</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -213,7 +233,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./6. Beta binomial model.html" class="sidebar-item-text sidebar-link active">
+  <a href="./6. Beta binomial model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial model</span></span></a>
   </div>
 </li>
@@ -225,7 +245,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
+  <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Gamma-Poisson model</span></span></a>
   </div>
 </li>
@@ -285,14 +305,14 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network with block model (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./18. Network with block model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./19. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">19. Network control for data collection biases (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -329,13 +349,14 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">8.1</span> General Principles</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">8.2</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">8.3</span> Mathematical Details</a></li>
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">8.4</span> <em>Formula</em></a>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">10.1</span> General Principles</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">10.2</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">10.3</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#bayesian-model-wip" id="toc-bayesian-model-wip" class="nav-link" data-scroll-target="#bayesian-model-wip"><span class="header-section-number">8.4.1</span> <em>Bayesian model (WIP)</em></a></li>
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">10.3.1</span> <em>Formula</em></a></li>
+  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">10.3.2</span> <em>Bayesian model</em></a></li>
   </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">10.4</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -344,7 +365,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial model</span></h1>
+<h1 class="title"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Gamma-Poisson model</span></h1>
 </div>
 
 
@@ -361,10 +382,9 @@ window.Quarto = {
 </header>
 
 
-<section id="general-principles" class="level2" data-number="8.1">
-<h2 data-number="8.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">8.1</span> General Principles</h2>
-<p>To model the relationship between a binary outcome variable representing success counts and one or more indepedent variables with <a href="./7. Poisson model.html" title="Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.">overdispersion 🛈</a>, we can use Beta-Binomial model.</p>
-<p>We model the relationship between the predictor variables (X1, X2, …, Xn) and the probability of success (p) using the following equation:</p>
+<section id="general-principles" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">10.1</span> General Principles</h2>
+<p>To model the relationship between a count outcome variable and one or more independent variables with <a href="./7. Poisson model.html" title="Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the Poisson distribution.">overdispersion 🛈</a>, we can use <em>Negative Binomial model</em>.</p>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -376,88 +396,119 @@ Considerations
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We have the same considerations as for <a href="./5. Binomial model.html">Binomial regression</a>.</p></li>
-<li><p>A beta-binomial model assumes that each binomial count observation has its own probability of a success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.</p></li>
-<li><p>A beta distribution has two parameters, an average probability <em>p</em> and a shape parameter θ.</p></li>
+<li><p>We have the same considerations as for <a href="./7. Poisson model.html">Poisson model</a>.</p></li>
+<li><p>Overdispersion is handled because the Negative-binomial model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is <code>_log_days_</code>).</p></li>
 </ul>
 </div>
 </div>
 </section>
-<section id="example" class="level2" data-number="8.2">
-<h2 data-number="8.2" class="anchored" data-anchor-id="example"><span class="header-section-number">8.2</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian Beta-Binomial regression:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> .bi.main <span class="im">import</span><span class="op">*</span><span class="co">#</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/UCBadmit.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"gid"</span>] <span class="op">=</span> (m.df[<span class="st">"applicant.gender"</span>] <span class="op">!=</span> <span class="st">"male"</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>gid <span class="op">=</span> jnp.array(m.df[<span class="st">"gid"</span>].astype(<span class="st">'int32'</span>).values)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>applications <span class="op">=</span> jnp.array(m.df[<span class="st">"applications"</span>].astype(<span class="st">'float32'</span>).values)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>admit <span class="op">=</span> jnp.array(m.df[<span class="st">"admit"</span>].astype(<span class="st">'float32'</span>).values)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    gid <span class="op">=</span> gid,</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    applications <span class="op">=</span> applications,</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    admit <span class="op">=</span>  admit</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(gid, applications, admit):</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name <span class="op">=</span> <span class="st">'phi'</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal( <span class="fl">0.</span>, <span class="fl">1.5</span>, shape<span class="op">=</span>[<span class="dv">2</span>], name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> phi <span class="op">+</span> <span class="dv">2</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    pbar <span class="op">=</span> jax.nn.sigmoid(alpha[gid])</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    concentration1 <span class="op">=</span> pbar<span class="op">*</span>theta</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    concentration0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> pbar) <span class="op">*</span> theta</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, BetaBinomial(total_count <span class="op">=</span> applications, concentration1 <span class="op">=</span> concentration1, concentration0 <span class="op">=</span> concentration0), obs<span class="op">=</span>admit)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="example" class="level2" data-number="10.2">
+<h2 data-number="10.2" class="anchored" data-anchor-id="example"><span class="header-section-number">10.2</span> Example</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data -------------------------------------------------------------</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow_probability.substrates.jax.distributions <span class="im">as</span> tfd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>init_key, sample_key <span class="op">=</span> random.split(random.PRNGKey(<span class="bu">int</span>(r.randint(<span class="dv">0</span>, <span class="dv">10000000</span>))))</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>init_key <span class="op">=</span> jnp.array(init_key)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>num_days <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> tfd.Poisson(rate<span class="op">=</span><span class="fl">1.5</span>).sample(seed <span class="op">=</span> init_key, sample_shape<span class="op">=</span>(num_days,))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>num_weeks <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>y_new <span class="op">=</span> tfd.Poisson(rate<span class="op">=</span><span class="fl">0.5</span> <span class="op">*</span> <span class="dv">7</span>).sample(seed <span class="op">=</span> init_key, sample_shape<span class="op">=</span>(num_weeks,))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>y_all <span class="op">=</span> np.concatenate([y, y_new])</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>exposure <span class="op">=</span> np.concatenate([np.repeat(<span class="dv">1</span>, <span class="dv">30</span>), np.repeat(<span class="dv">7</span>, <span class="dv">4</span>)])</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>monastery <span class="op">=</span> np.concatenate([np.repeat(<span class="dv">0</span>, <span class="dv">30</span>), np.repeat(<span class="dv">1</span>, <span class="dv">4</span>)])</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> pd.DataFrame.from_dict(<span class="bu">dict</span>(y<span class="op">=</span>y_all, days<span class="op">=</span>exposure, monastery<span class="op">=</span>monastery))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>d[<span class="st">"log_days"</span>] <span class="op">=</span> d.days.pipe(np.log)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># import data ------------------------------------------------</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    log_days <span class="op">=</span> jnp.array(d.log_days.values), <span class="co"># rate of each counts data</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    monastery <span class="op">=</span> jnp.array(d.monastery.values),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    output <span class="op">=</span> jnp.array(d.y.values)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(log_days, monastery, output):</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> log_days <span class="op">+</span> a <span class="op">+</span>  b <span class="op">*</span> monastery</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Poisson(rate <span class="op">=</span> l), obs<span class="op">=</span>output)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="8.3">
-<h2 data-number="8.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">8.3</span> Mathematical Details</h2>
-</section>
-<section id="formula" class="level2" data-number="8.4">
-<h2 data-number="8.4" class="anchored" data-anchor-id="formula"><span class="header-section-number">8.4</span> <em>Formula</em></h2>
+<section id="mathematical-details" class="level2" data-number="10.3">
+<h2 data-number="10.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">10.3</span> Mathematical Details</h2>
+<section id="formula" class="level3" data-number="10.3.1">
+<h3 data-number="10.3.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">10.3.1</span> <em>Formula</em></h3>
+<p>We model the relationship between the independent variable <span class="math inline">\(X\)</span> and the count outcome variable <span class="math inline">\(Y\)</span> using the following equation:</p>
 <p><span class="math display">\[
-logit(𝑝)= \alpha + \beta X
+log⁡(\lambda)= exp(rates + \alpha + \beta 𝑋)
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><span class="math inline">\(p\)</span> is the probability of success.</li>
-<li><span class="math inline">\(\alpha\)</span> the intercept term.</li>
-<li><span class="math inline">\(\beta\)</span> the regression term.</li>
-<li><span class="math inline">\(X\)</span> is an independent variables.</li>
-<li><span class="math inline">\(\text{logit}(p)\)</span> is the log-odds of success.</li>
+<li><span class="math inline">\(\lambda\)</span> is the mean rate parameter of the negative binomial distribution (expected count).</li>
+<li><span class="math inline">\(X\)</span> is the predictor variables.</li>
+<li><span class="math inline">\(\beta\)</span> is the regression coefficients.</li>
+<li><span class="math inline">\(\alpha\)</span> is the intercept term.</li>
+<li><span class="math inline">\(\log(\lambda)\)</span> is the log of the mean rate parameter, ensuring it is positive.</li>
 </ul>
-<section id="bayesian-model-wip" class="level3" data-number="8.4.1">
-<h3 data-number="8.4.1" class="anchored" data-anchor-id="bayesian-model-wip"><span class="header-section-number">8.4.1</span> <em>Bayesian model (WIP)</em></h3>
+</section>
+<section id="bayesian-model" class="level3" data-number="10.3.2">
+<h3 data-number="10.3.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">10.3.2</span> <em>Bayesian model</em></h3>
 <p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
 <p><span class="math display">\[
-p(Y|n, \overline{p}, \theta) \sim BetaBinomial(n, \overline{p}, \theta)
+𝑝(𝑌∣\alpha, \beta, X) \sim Poisson(λ)
 \]</span></p>
 <p><span class="math display">\[
-logit(\overline{p}) \sim \alpha + \beta X
+log(λ) \sim rates + \alpha + \beta X
 \]</span></p>
-<p><span class="math display">\[𝑝(\alpha) \sim Normal(0,1)\]</span></p>
-<p><span class="math display">\[p(\theta) \sim HalfCaychy(0,1)\]</span></p>
+<p><span class="math display">\[
+𝑝(\alpha)\sim Normal(0,1)
+\]</span></p>
+<p><span class="math display">\[
+𝑝(\beta) \sim Normal(0,1)
+\]</span></p>
 <p>Where:</p>
 <ul>
-<li><span class="math inline">\(p(Y | n, \overline{p}, \theta)\)</span> is the likelihood function.</li>
-<li><span class="math inline">\(n\)</span> is the total count of trials.</li>
-<li><span class="math inline">\(\overline{p}\)</span> is the average probability.</li>
-<li><span class="math inline">\(p(\theta)\)</span> is the shape distribution term.</li>
-<li><span class="math inline">\(𝑝(\alpha)\)</span> is the intercept term.</li>
-<li><span class="math inline">\(𝑝(\beta)\)</span> is regression coefficient term.</li>
+<li><span class="math inline">\(p(Y | \alpha, \beta, X)\)</span> is the likelihood function.</li>
+<li><span class="math inline">\(p(\beta)\)</span> and <span class="math inline">\(p(\alpha)\)</span> are the prior distributions for the regression coefficients and intercept.</li>
+<li><span class="math inline">\(\lambda = rates +\alpha + \beta X\)</span> is the mean rate parameter of the Poisson distribution assuming that each Poisson count observation has its own rate.</li>
 </ul>
-
-
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Notes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>We can apply multiple variables similarly as <a href="2. Multiple Regression for Continuous Variables.qmd">chapter 2</a>.</p></li>
+<li><p>We can apply interaction terms similarly as <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
+<li><p>We can apply caterogical variables similarly as <a href="4. Categorical variable.md">chapter 4</a>.</p></li>
+</ul>
+</div>
+</div>
 </section>
+</section>
+<section id="references" class="level2" data-number="10.4">
+<h2 data-number="10.4" class="anchored" data-anchor-id="references"><span class="header-section-number">10.4</span> Reference(s)</h2>
+<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->
@@ -883,13 +934,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./5. Binomial model.html" class="pagination-link" aria-label="Binomial model">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial model</span></span>
+      <a href="./7. Poisson model.html" class="pagination-link" aria-label="Poisson model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Poisson model</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./7. Poisson model.html" class="pagination-link" aria-label="Poisson model">
-        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Poisson model</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./9. Multinomial model.html" class="pagination-link" aria-label="Multinomial model">
+        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Multinomial model</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
