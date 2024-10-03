@@ -9,6 +9,7 @@ A network represents the relationships (links) between entities (nodes). These l
 :::
 
 ## Example
+Below is an example code snippet demonstrating Bayesian network model with send-receiver effect:
 
 ``` python
 # Building model and sampling it ------------------
@@ -58,18 +59,17 @@ G_{ij} \sim Poisson(Y_{ij})
 $$ 
 
 $$
-log(Y_{ij}) =  \alpha  + \lambda_i + \pi_j + \delta_{ij}
+log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
 $$
 
 where:
 
 -   $Y\_{ij}$ is the weight of links between *i* and *j*.
--   $\alpha$ is the intercept.
 -   $\lambda_i$ is the [sender effect 🛈](# "node *i*'s propensity to emit a link.")
 -   $\pi_j$ is the [receiver effect 🛈](# "node *j*'s propensity to receive a link.")
 -   $\delta_{ij}$ is the [dyadic effect 🛈](# "Propesnity of node *i* and *j* to receive from each other.").
 
-### *Difining formula sub-equations and priors distributions*
+### *Defining formula sub-equations and prior distributions*
 
 $\lambda_i$ and $\pi_j$ are varying [intercepts](12.%20Varying%20intercepts.qmd) and [slopes](13.%20Varying%20slopes.qmd) identical to those described in previous chapters and are define through the following equations:
 
@@ -146,14 +146,6 @@ $$
 -  Note that any additional covariates can be summed with a regression coefficient to $\lambda_i$, $\pi_j$ and $\delta_{ij}$. Of course for $\lambda_i$, $\pi_j$ as they represent nodal effects those covariates need to be nodal characteristics (e.g., sex, age) whereas for $\\delta_{ij}$ as it represents dyadic effects those covariates need to be dyadic characteristics (e.g., genetic distances). Concidering previous example given a vector of nodal characteristics *individual_predictors* and a a matrix of dyadic characteristics *kinship* we can incorporate those covariates in the sender-receiver effect and dyadic effect respectivelly as fellow:
 
 ``` python
-# Building model and sampling it ------------------
-ids = jnp.arange(0,data['N_id'][0])
-idx = bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
-
-@jit
-def logit(x):
-    return jnp.log(x / (1 - x))
-
 def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):
     N_id = ids.shape[0]
 
