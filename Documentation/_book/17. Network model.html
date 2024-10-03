@@ -64,7 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./18. Network with block model network (wip).html" rel="next">
+<link href="./18. Network with block model (wip).html" rel="next">
 <link href="./16. Missing data (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -285,8 +285,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network with block model network (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">18. Network with block model network (wip).html</span></span></a>
+  <a href="./18. Network with block model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -333,7 +333,7 @@ window.Quarto = {
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">19.2</span> Mathematical Details</a>
   <ul class="collapse">
   <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">19.2.1</span> <em>Main Formula</em></a></li>
-  <li><a href="#difining-formula-sub-equations-and-priors-distributions" id="toc-difining-formula-sub-equations-and-priors-distributions" class="nav-link" data-scroll-target="#difining-formula-sub-equations-and-priors-distributions"><span class="header-section-number">19.2.2</span> <em>Difining formula sub-equations and priors distributions</em></a></li>
+  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">19.2.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
   </ul></li>
   </ul>
 </nav>
@@ -378,6 +378,7 @@ Considerations
 </div>
 <section id="example" class="level2" data-number="19.1">
 <h2 data-number="19.1" class="anchored" data-anchor-id="example"><span class="header-section-number">19.1</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian network model with send-receiver effect:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Building model and sampling it ------------------</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ids <span class="op">=</span> jnp.arange(<span class="dv">0</span>,data[<span class="st">'N_id'</span>][<span class="dv">0</span>])</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>))</span>
@@ -422,19 +423,18 @@ Considerations
 G_{ij} \sim Poisson(Y_{ij})
 \]</span></p>
 <p><span class="math display">\[
-log(Y_{ij}) =  \alpha  + \lambda_i + \pi_j + \delta_{ij}
+log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
 \]</span></p>
 <p>where:</p>
 <ul>
 <li><span class="math inline">\(Y\_{ij}\)</span> is the weight of links between <em>i</em> and <em>j</em>.</li>
-<li><span class="math inline">\(\alpha\)</span> is the intercept.</li>
 <li><span class="math inline">\(\lambda_i\)</span> is the <a href="#" title="node *i*'s propensity to emit a link.">sender effect 🛈</a></li>
 <li><span class="math inline">\(\pi_j\)</span> is the <a href="#" title="node *j*'s propensity to receive a link.">receiver effect 🛈</a></li>
 <li><span class="math inline">\(\delta_{ij}\)</span> is the <a href="#" title="Propesnity of node *i* and *j* to receive from each other.">dyadic effect 🛈</a>.</li>
 </ul>
 </section>
-<section id="difining-formula-sub-equations-and-priors-distributions" class="level3" data-number="19.2.2">
-<h3 data-number="19.2.2" class="anchored" data-anchor-id="difining-formula-sub-equations-and-priors-distributions"><span class="header-section-number">19.2.2</span> <em>Difining formula sub-equations and priors distributions</em></h3>
+<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="19.2.2">
+<h3 data-number="19.2.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">19.2.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
 <p><span class="math inline">\(\lambda_i\)</span> and <span class="math inline">\(\pi_j\)</span> are varying <a href="./12. Varying intercepts.html">intercepts</a> and <a href="./13. Varying slopes.html">slopes</a> identical to those described in previous chapters and are define through the following equations:</p>
 <p><span class="math display">\[
 \left(\begin{array}{cc}
@@ -989,8 +989,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./18. Network with block model network (wip).html" class="pagination-link" aria-label="18. Network with block model network (wip).html">
-        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">18. Network with block model network (wip).html</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./18. Network with block model (wip).html" class="pagination-link" aria-label="Network with block model">
+        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

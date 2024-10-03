@@ -1,0 +1,86 @@
+# Modeling Network
+Data collection biases are a persistent issue in studies of social networks. Two main types of biases can be considered: [exposure biases 🛈](# "Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals") and [censoring biases 🛈](# "Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations)").
+
+To account for exposure biases, we can switch the network link probability model from a *Poisson* distribution to a *Binomial* distribution, as the binomial distribution allows us to account for the number of trials for each data estimation.
+
+To address censoring biases, we need to add an additional equation to account for the probability of missing an interaction during observation when modeling interaction between individual *i* and *j*.
+
+::: callout-caution
+## Considerations
+
+:::
+
+## Example 1
+Below is an example code snippet demonstrating Bayesian network model with send-receiver effect, dyadic effect and block model effect while accounting for exposure biases:
+
+``` python
+
+```
+
+## Example2 
+Below is an example code snippet demonstrating Bayesian network model with send-receiver effect, dyadic effect and block model effect while accounting for exposure biases and cesnsoring biases:
+
+``` python
+
+```
+
+## Mathematical Details
+
+### *Main Formula*
+
+$$
+\begin{align}
+	Y_{[i,j]} &\sim \mathrm{Binomial}\Big(E_{[i,j]}, Q_{[i,j]}  \Big)
+\end{align}
+$$
+
+$$
+Q_{[i,j]} \in \{0,1\} 
+$$
+
+Where:
+
+-   $E_{[i,j]}$ is the number of trials for each observation (i.e., the sampling effort).
+-   $Q_{[i,j]}$ is the indicator of a true tie between $i$ and $j$.
+
+
+$$
+\begin{aligned}
+Q_{[i,j]} \sim \begin{cases} 
+0 & \text{when no interactions occurs or when i or j are not detectable} \\
+\text{1}  & \text{when i and j are both detectable}
+\end{cases}
+\end{aligned}
+$$
+
+
+$$
+\begin{align}
+  Q_{[i,j]}= \phi_{[i,j]}\eta_{[i]}\eta_{[j]}
+\end{align}
+$$
+
+Where:
+-   $\phi_{[i,j]}$ is the probability of a true tie between $i$ and $j$.
+-   $\eta_{[i]}$ is the probability of individual $i$ being detectable.
+-   $\eta_{[j]}$ is the probability of individual $j$ being detectable.
+
+### *Defining formula sub-equations and prior distributions*
+
+
+::: callout-note
+We can let $\eta_{[i]}$ depend on individual-specific covariates. To model the probability of censoring, we can model  $1-\eta_{[i]}$:
+$$
+\text{logit}(1-\eta_{[i]}) = \mu_\psi + \hat\psi_{[i]}  \sigma_\psi + \ldots 
+$$
+
+where 
+-   $\mu_\psi$ is an intercept
+-   $\sigma_\psi$ is a scalar for the variance of random effects
+-   $\hat\psi_{[i]}\sim \text {Normal}(0,1)$, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if $C$ is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with:  $\kappa_{[5]}C_{[i]}$, to give the effects of coloration on censoring probability.
+
+
+## Note(s)
+-   One major limitation of this model is the necessity of having an estimation of the censoring bias for each individual.
+:::
+
