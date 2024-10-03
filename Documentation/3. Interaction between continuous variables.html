@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>multiplex-temporal-network-model-(wip – BI documentation</title>
+<title>5&nbsp; Interaction Term between Two Continuous Variables – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,7 +20,61 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -30,8 +84,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./23. Multilayer network model (wip).html" rel="next">
-<link href="./21. Multiplex model (wip).html" rel="prev">
+<link href="./4. Categorical variable.html" rel="next">
+<link href="./2. Multiple continuous Variables.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -69,10 +123,39 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
-<body class="nav-sidebar floating fullcontent">
+<body class="nav-sidebar floating">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -81,7 +164,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./22. Multiplex temporal network model (wip).html"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">22. Multiplex temporal network model (wip).html</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./3. Interaction between continuous variables.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interaction Term between Two Continuous Variables</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -132,7 +215,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
+  <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interaction Term between Two Continuous Variables</span></span></a>
   </div>
 </li>
@@ -222,14 +305,14 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network with block model (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./18. Network with block model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./19. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">19. Network control for data collection biases (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -246,7 +329,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./22. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link active">
+  <a href="./22. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">22. Multiplex temporal network model (wip).html</span></span></a>
   </div>
 </li>
@@ -261,15 +344,156 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">5.1</span> General Principles</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">5.2</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">5.3</span> Mathematical Details</a></li>
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">5.4</span> <em>Formula</em></a>
+  <ul class="collapse">
+  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">5.4.1</span> <em>Bayesian model</em></a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">5.5</span> Reference(s)</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interaction Term between Two Continuous Variables</span></h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
+</header>
+
+
+<section id="general-principles" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">5.1</span> General Principles</h2>
+<p>To study relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables.</p>
+<p>Parallel lines indicate that there is no interaction effect while different slopes suggest that one might be present. Below is the plot for Food x Condiment. The crossed lines on the graph suggest that there is an interaction effect, which the significant p-value for the Food*Condiment term confirms. The graph shows that enjoyment levels are higher for chocolate sauce when the food is ice cream. Conversely, satisfaction levels are higher for mustard when the food is a hot dog. If you put mustard on ice cream or chocolate sauce on hot dogs, you won’t be happy!</p>
+<p><img src="https://i0.wp.com/statisticsbyjim.com/wp-content/uploads/2017/10/interactions_plot_categorical.png?w=576&amp;ssl=1" class="img-fluid"></p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Considerations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
+<li><p>Model relationship between Y and R to vary as a function of A. you explicitly model the hypothesis that the slope between Y and R depends—is conditional—upon A.</p></li>
+<li><p>For continuous interactions, the intercept becomes the grand mean of the outcome variable. This ease of interpretation alone is a good reason to center predictor variables.</p></li>
+<li><p>Estimate interpretation is more difficult as estimate of non-interaction terms become expected change in Y when R increases by one unit and A is at its average value and estimate of interaction terms are expected change in the influence of A on Y when increasing R by one unit and expected change in the influence of R on Y when increasing A by one unit.</p></li>
+<li><p><a href="3.%20%Interaction%20%between%20%continuous%20%variables.qmd" title="Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.">Triptych 🛈</a> plots are very handy for understanding the impact of interactions.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="example" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="example"><span class="header-section-number">5.2</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian regression with an interaction term between two continuous variables with the Bayesian Inference (BI) package:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/tulips.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>])</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>])</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(blooms,shade, water):</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal(<span class="fl">0.5</span>, <span class="fl">0.25</span>, name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name <span class="op">=</span> <span class="st">'beta1'</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    beta2 <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name <span class="op">=</span> <span class="st">'beta2'</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    beta_interaction_ <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name <span class="op">=</span> <span class="st">'beta_interaction_'</span>)    </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Normal(a <span class="op">+</span> beta1<span class="op">*</span>water <span class="op">+</span> beta2<span class="op">*</span>shade <span class="op">+</span> beta_interaction_<span class="op">*</span>water<span class="op">*</span>shade, sigma), obs<span class="op">=</span>blooms)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="mathematical-details" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">5.3</span> Mathematical Details</h2>
+</section>
+<section id="formula" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="formula"><span class="header-section-number">5.4</span> <em>Formula</em></h2>
+<p>We model the relationship between the input features (X1 and X2) and the target variable (Y) using the following equation: <span class="math display">\[
+𝑌 = \alpha + \beta_1𝑋_1∗+\beta_2𝑋_2+\\beta_{interaction}𝑋_1𝑋_2 + $\sigma$
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(Y\)</span> is the target variable.</li>
+<li><span class="math inline">\(\alpha\)</span> is the intercept term.</li>
+<li><span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> are the two independent continuous variables.</li>
+<li><span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> are the regression coefficients for <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>, respectively.</li>
+<li><span class="math inline">\(\beta_{interaction}\)</span> is the regression coefficient for the interaction term <span class="math inline">\((X_1  X_2)\)</span>.</li>
+<li><span class="math inline">\(\sigma\)</span> is the error term assumed to be normally distributed.</li>
+</ul>
+<p>In this context, the interaction term <span class="math inline">\(X_1 * X_2\)</span> captures the joint effect of <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> on the target variable <span class="math inline">\(Y\)</span>.</p>
+<section id="bayesian-model" class="level3" data-number="5.4.1">
+<h3 data-number="5.4.1" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">5.4.1</span> <em>Bayesian model</em></h3>
+<p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<p><span class="math display">\[
+p(Y∣X_1​ ,X_2​ , \beta_1, \beta_2, \beta_{interaction} ) \sim Normal(\alpha +  \beta_1  X_1​ + \beta_2  X_2​​ + \beta_{interaction}  X_1​ X_2​ ,  $\sigma$)
+\]</span></p>
+<p><span class="math display">\[
+𝑝(\alpha) \sim Normal(0,1)
+\]</span></p>
+<p><span class="math display">\[
+𝑝(\beta_1) \sim Normal(0,1)
+\]</span></p>
+<p><span class="math display">\[
+𝑝(\beta_2) \sim Normal(0,1)
+\]</span></p>
+<p><span class="math display">\[
+𝑝(\beta_{interaction}) \sim Normal(0,1)
+\]</span></p>
+<p><span class="math display">\[
+𝑝(σ) \sim Exponential(1)
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(p(Y | X_1​ ,X_2​ , \beta_1, \beta_2, \beta_{interaction})\)</span> is the likelihood function.</li>
+<li><span class="math inline">\(p(\alpha)\)</span> is the prior distribution for the intercept</li>
+<li><span class="math inline">\(p(\beta_1)\)</span>, <span class="math inline">\(p(\beta_2)\)</span> and <span class="math inline">\(\beta_{interaction}\)</span> are the prior distributions for the regression coefficients.</li>
+<li><span class="math inline">\(p(\sigma)\)</span> is the prior distribution for the standard deviation, ensuring it is positive.</li>
+</ul>
+</section>
+</section>
+<section id="references" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="references"><span class="header-section-number">5.5</span> Reference(s)</h2>
+<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -694,13 +918,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./21. Multiplex model (wip).html" class="pagination-link" aria-label="21. Multiplex model (wip).html">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Multiplex model (wip).html</span></span>
+      <a href="./2. Multiple continuous Variables.html" class="pagination-link" aria-label="Multiple continuous variables model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multiple continuous variables model</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./23. Multilayer network model (wip).html" class="pagination-link" aria-label="Multilayer Networks">
-        <span class="nav-page-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./4. Categorical variable.html" class="pagination-link" aria-label="Regression for Categorical Variables">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Regression for Categorical Variables</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

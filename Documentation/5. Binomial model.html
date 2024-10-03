@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>19&nbsp; Modeling Network – BI documentation</title>
+<title>7&nbsp; Binomial model – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -54,7 +54,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -64,8 +84,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./18. Network with block model (wip).html" rel="next">
-<link href="./16. Missing data (wip).html" rel="prev">
+<link href="./6. Beta binomial model.html" rel="next">
+<link href="./4. Categorical variable.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -144,7 +164,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./17. Network model.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Modeling Network</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./5. Binomial model.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial model</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -207,7 +227,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial model</span></span></a>
   </div>
 </li>
@@ -279,20 +299,20 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Network model.html" class="sidebar-item-text sidebar-link active">
+  <a href="./17. Network model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network with block model (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./18. Network with block model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./19. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">19. Network control for data collection biases (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -329,12 +349,15 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#example" id="toc-example" class="nav-link active" data-scroll-target="#example"><span class="header-section-number">19.1</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">19.2</span> Mathematical Details</a>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">7.1</span> General Principles</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">7.2</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">7.3</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">19.2.1</span> <em>Main Formula</em></a></li>
-  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">19.2.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">7.3.1</span> <em>Formula</em></a></li>
+  <li><a href="#bayesian-model-wip" id="toc-bayesian-model-wip" class="nav-link" data-scroll-target="#bayesian-model-wip"><span class="header-section-number">7.3.2</span> <em>Bayesian model (WIP)</em></a></li>
   </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">7.4</span> Notes</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">7.5</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -343,7 +366,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Modeling Network</span></h1>
+<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial model</span></h1>
 </div>
 
 
@@ -360,7 +383,10 @@ window.Quarto = {
 </header>
 
 
-<p>A network represents the relationships (links) between entities (nodes). These links can be weighted (weighted network) or unweighted (binary network), directed (directed network) or undirected (undirected network). Regardless of their type, networks generate links shared by nodes, leading to data dependency when modeling the network. One proposed solution is to model network links with random <a href="./12. Varying intercepts.html">intercepts</a> and <a href="./13. Varying slopes.html">effects</a>. By adding such parameters to the model, we can account for the correlations between node link relationships.</p>
+<section id="general-principles" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">7.1</span> General Principles</h2>
+<p>To model the relationship between a binary outcome -e.g.&nbsp;such as success/failure, yes/no, or 1/0.- variable and one or more independent variables, we can use Binomial model.</p>
+<p><img src="https://i.sstatic.net/xHlvv.png" class="img-fluid"></p>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -372,193 +398,116 @@ Considerations
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li>The particularity here is that varying intercepts and slopes are generated for both <a href="#" title="nodal categorical (e.g., sex) or continuous (e.g., age) characteristics">nodal effects 🛈</a> and [dyadic effects 🛈](# ” link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes”). Those the varying intercepts and slopes are identical to those described in previous chapters and will therefore not be detailed further and only the random centered version of the varying slopes will be described here.</li>
+<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
+<li><p>We have the firs <a href="5. Binomial regression.qmd" title="A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.">link function</a> <em>logit</em>. The <em>logit</em> link function in Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution.</p></li>
 </ul>
 </div>
 </div>
-<section id="example" class="level2" data-number="19.1">
-<h2 data-number="19.1" class="anchored" data-anchor-id="example"><span class="header-section-number">19.1</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian network model with send-receiver effect:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Building model and sampling it ------------------</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ids <span class="op">=</span> jnp.arange(<span class="dv">0</span>,data[<span class="st">'N_id'</span>][<span class="dv">0</span>])</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>))</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">@jit</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> logit(x):</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jnp.log(x <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> x))</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> ids.shape[<span class="dv">0</span>]</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sender Receiver effect (SR) its shape is equal to N_id ---------------------------------------</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Varying intercept and slope for SR</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    sr_rf, sr_raw, sr_sigma, sr_L <span class="op">=</span> bi.net.nodes_random_effects(N_id, cholesky_density <span class="op">=</span> <span class="dv">2</span>) </span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    sender_receiver <span class="op">=</span> sr_rf</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic effect (D) its shape is equal to n dyads -----------------------------------------</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Varying intercept and slope for D</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> bi.net.dyadic_random_effects(sender_receiver.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span>  rf</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">'Y'</span>, Poisson(jnp.exp( sender_receiver <span class="op">+</span> dr )), obs<span class="op">=</span>result_outcomes)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> idx,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> bi.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    dyad_effects <span class="op">=</span> bi.net.prepare_dyadic_effect(kinship), <span class="co"># Can be a jax array of multiple dimensions</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>],</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>]</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>m.run(model2) </span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="19.2">
-<h2 data-number="19.2" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">19.2</span> Mathematical Details</h2>
-<section id="main-formula" class="level3" data-number="19.2.1">
-<h3 data-number="19.2.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">19.2.1</span> <em>Main Formula</em></h3>
-<p>The simple model that can be built to model link weights between nodes <em>i</em> and <em>j</em> can be defined using a poisson distribution:</p>
-<p><span class="math display">\[
-G_{ij} \sim Poisson(Y_{ij})
+<section id="example" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="example"><span class="header-section-number">7.2</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian binomial regression</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>])</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal( <span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Binomial(logits<span class="op">=</span> alpha[actor] <span class="op">+</span> beta1[side] <span class="op">+</span> beta2[cond]), obs<span class="op">=</span>pulled_left)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>m.run(model, init_strategy <span class="op">=</span> numpyro.infer.initialization.init_to_mean()) </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="mathematical-details" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">7.3</span> Mathematical Details</h2>
+<section id="formula" class="level3" data-number="7.3.1">
+<h3 data-number="7.3.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">7.3.1</span> <em>Formula</em></h3>
+<p>We model the relationship between the independent variable (<span class="math inline">\(X\)</span>) and the binary outcome variable (<span class="math inline">\(Y\)</span>) using the following equation: <span class="math display">\[
+logit(Y)=\alpha + \beta   𝑋
 \]</span></p>
-<p><span class="math display">\[
-log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
-\]</span></p>
-<p>where:</p>
+<p>Where:</p>
 <ul>
-<li><span class="math inline">\(Y\_{ij}\)</span> is the weight of links between <em>i</em> and <em>j</em>.</li>
-<li><span class="math inline">\(\lambda_i\)</span> is the <a href="#" title="node *i*'s propensity to emit a link.">sender effect 🛈</a></li>
-<li><span class="math inline">\(\pi_j\)</span> is the <a href="#" title="node *j*'s propensity to receive a link.">receiver effect 🛈</a></li>
-<li><span class="math inline">\(\delta_{ij}\)</span> is the <a href="#" title="Propesnity of node *i* and *j* to receive from each other.">dyadic effect 🛈</a>.</li>
+<li><span class="math inline">\(Y\)</span> is the probability of success (or the probability of the binary outcome being 1).</li>
+<li><span class="math inline">\(X\)</span>, is an independent variables.</li>
+<li><span class="math inline">\(\beta\)</span> is the regression coefficients.</li>
+<li><span class="math inline">\(\alpha\)</span> is the intercept term.</li>
+<li><span class="math inline">\(\sigma\)</span> is the error term.</li>
+<li><span class="math inline">\(logit(Y)\)</span> is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variables on the log-odds of success.</li>
 </ul>
 </section>
-<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="19.2.2">
-<h3 data-number="19.2.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">19.2.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
-<p><span class="math inline">\(\lambda_i\)</span> and <span class="math inline">\(\pi_j\)</span> are varying <a href="./12. Varying intercepts.html">intercepts</a> and <a href="./13. Varying slopes.html">slopes</a> identical to those described in previous chapters and are define through the following equations:</p>
+<section id="bayesian-model-wip" class="level3" data-number="7.3.2">
+<h3 data-number="7.3.2" class="anchored" data-anchor-id="bayesian-model-wip"><span class="header-section-number">7.3.2</span> <em>Bayesian model (WIP)</em></h3>
+<p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
 <p><span class="math display">\[
-\left(\begin{array}{cc}
-\lambda_i \\
-\pi_j
-\end{array}\right)
-\sim
-MultivariateNormal\left(\begin{array}{cc}
-\left(\begin{array}{cc}
-\sigma_\lambda \\
-\sigma_\pi
-\end{array}\right) \circ
-\left(\begin{array}{cc}
-L *
-\left(\begin{array}{cc}
-\hat{\lambda}_i \\ \hat{\pi}_i
-\end{array}\right)
-\end{array}\right)
-\end{array}\right)
+Y \sim Binomial(𝑛 = 1, 𝑝)
 \]</span></p>
 <p><span class="math display">\[
-\sigma_\lambda \sim Exponential(1)
+logit(p) \sim \alpha + \beta X
+\]</span> <span class="math display">\[
+𝑝(\alpha) \sim Normal(0,1)
+\]</span> <span class="math display">\[
+𝑝(\beta) \sim Normal(0,1)
 \]</span></p>
-<p><span class="math display">\[
-\sigma_\pi \sim Exponential(1)
-\]</span></p>
-<p><span class="math display">\[
-L \sim LKJ(2)
-\]</span></p>
-<p>Similarly, for each dyads we can define varying intercepts and slopes to account for correlation between the propensity to emit and receive links of a dyad :</p>
-<p><span class="math display">\[
-\left(\begin{array}{cc}
-\delta_{ij} \\
-\delta_{ji}
-\end{array}\right)
-\sim
-MultivariateNormal\left(\begin{array}{cc}
-\left(\begin{array}{cc}
-\sigma_\delta \\
-\sigma_\delta
-\end{array}\right) \circ
-\left(\begin{array}{cc}
-L_\delta *
-\left(\begin{array}{cc}
-\hat{\delta}_{ij} \\ \hat{\delta}_{ji}
-\end{array}\right)
-\end{array}\right)
-\end{array}\right)
-\]</span></p>
-<p><span class="math display">\[
-\sigma_\delta \sim Exponential(1)
-\]</span></p>
-<p><span class="math display">\[
-\sigma_\delta \sim Exponential(1)
-\]</span></p>
-<p><span class="math display">\[
-L \sim LKJ(2)
-\]</span></p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note(s)
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<p>Where:</p>
 <ul>
-<li>Note that any additional covariates can be summed with a regression coefficient to <span class="math inline">\(\lambda_i\)</span>, <span class="math inline">\(\pi_j\)</span> and <span class="math inline">\(\delta_{ij}\)</span>. Of course for <span class="math inline">\(\lambda_i\)</span>, <span class="math inline">\(\pi_j\)</span> as they represent nodal effects those covariates need to be nodal characteristics (e.g., sex, age) whereas for <span class="math inline">\(\\delta_{ij}\)</span> as it represents dyadic effects those covariates need to be dyadic characteristics (e.g., genetic distances). Concidering previous example given a vector of nodal characteristics <em>individual_predictors</em> and a a matrix of dyadic characteristics <em>kinship</em> we can incorporate those covariates in the sender-receiver effect and dyadic effect respectivelly as fellow:</li>
+<li><span class="math inline">\(p(Y | 𝑌∣\alpha, \beta, 𝑋)\)</span> is the likelihood function.</li>
+<li><span class="math inline">\(p(\beta)\)</span> and <span class="math inline">\(p(\alpha)\)</span> are the prior distributions for the regression coefficients and intercept, respectivelly.</li>
+<li><span class="math inline">\(n=1\)</span> represents the number of trials in the binomial distribution (binary outcome).</li>
+<li><span class="math inline">\(logit(\alpha + \beta  𝑋 )\)</span> is the <em>logit</em> link function that is equal to sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Building model and sampling it ------------------</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>ids <span class="op">=</span> jnp.arange(<span class="dv">0</span>,data[<span class="st">'N_id'</span>][<span class="dv">0</span>])</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">@jit</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> logit(x):</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jnp.log(x <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> x))</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> ids.shape[<span class="dv">0</span>]</span>
+</section>
+</section>
+<section id="notes" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="notes"><span class="header-section-number">7.4</span> Notes</h2>
+<ul>
+<li><p>We can apply multiple variables similarly as <a href=".\2. Multiple Regression for Continuous Variables.qmd">chapter 2</a>.</p></li>
+<li><p>We can apply interaction terms similarly as <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
+<li><p>We can apply caterogical variables similarly as <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
+<li><p>Below is an example code snippet demonstrating Bayesian binomial model for multiple caterogical variables :</p></li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"side"</span>] <span class="op">=</span> m.df.prosoc_left  <span class="co"># right 0, left 1</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"cond"</span>] <span class="op">=</span> m.df.condition  <span class="co"># no partner 0, partner 1</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>, <span class="st">"actor"</span>, <span class="st">"side"</span>, <span class="st">"cond"</span>])</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sender Receiver effect (SR) its shape is equal to N_id ---------------------------------------</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Covariates for SR</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    sr_terms, focal_effects, target_effects <span class="op">=</span> bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors) </span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Varying intercept and slope for SR</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    sr_rf, sr_raw, sr_sigma, sr_L <span class="op">=</span> bi.net.nodes_random_effects(N_id, cholesky_density <span class="op">=</span> <span class="dv">2</span>) </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left):</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">10</span>, shape <span class="op">=</span> (<span class="dv">7</span>,), <span class="st">"alpha"</span>) <span class="co"># generating k intercept  #(one for each actor)</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">10</span>, shape <span class="op">=</span> (<span class="dv">2</span>,), <span class="st">"beta"</span>) <span class="co"># generating k regression coefficient  for each k prosoc_left)</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    beta2 <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">10</span>, shape <span class="op">=</span> (<span class="dv">2</span>,), <span class="st">"alpha"</span>) <span class="co"># generating k regression coefficient for each k condition)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Binomial(logits<span class="op">=</span> alpha[actor] <span class="op">+</span> beta1[side] <span class="op">+</span> beta2[cond]), obs<span class="op">=</span>pulled_left)</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    sender_receiver <span class="op">=</span> sr_terms <span class="op">+</span> sr_rf</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic effect (D) its shape is equal to n dyads -----------------------------------------</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Covariates for D</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    dr_terms, dyad_effects <span class="op">=</span> bi.net.dyadic_terms(dyad_effects)</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Varying intercept and slope for D</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> bi.net.dyadic_random_effects(sender_receiver.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span> dr_terms <span class="op">+</span> rf</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">'Y'</span>, Poisson(jnp.exp( sender_receiver <span class="op">+</span> dr )), obs<span class="op">=</span>result_outcomes)</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> idx,</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> bi.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    dyad_effects <span class="op">=</span> bi.net.prepare_dyadic_effect(kinship), <span class="co"># Can be a jax array of multiple dimensions</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>],</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>]</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>m.run(model2) </span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>summary.loc[[<span class="st">'focal_effects[0]'</span>, <span class="st">'target_effects[0]'</span>, <span class="st">'dyad_effects[0]'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ul>
-<li><p>We can apply multiple variables similarly as <a href="./2. Multiple continuous Variables.html">chapter 2: Multiple continuous Variables</a>.</p></li>
-<li><p>We can apply interaction terms similarly as <a href="./3. Interaction between continuous variables.html">chapter 3: Interaction between continuous variables</a>.</p></li>
-<li><p>Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of link — i.e., model binary networks.</p></li>
-<li><p>If the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms <span class="math inline">\(\lambda_i\)</span>, <span class="math inline">\(\pi_j\)</span> , and <span class="math inline">\(\delta{ij}\)</span> are no longer required. (Is it correct?)</p></li>
-<li><p>In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).</p></li>
-</ul>
-</div>
-</div>
-
-
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>m.run(model, init_strategy <span class="op">=</span> numpyro.infer.initialization.init_to_mean()) </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
+<section id="references" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="references"><span class="header-section-number">7.5</span> Reference(s)</h2>
+<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->
@@ -984,13 +933,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./16. Missing data (wip).html" class="pagination-link" aria-label="16. Missing data (wip).html">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">16. Missing data (wip).html</span></span>
+      <a href="./4. Categorical variable.html" class="pagination-link" aria-label="Regression for Categorical Variables">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Regression for Categorical Variables</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./18. Network with block model (wip).html" class="pagination-link" aria-label="Network with block model">
-        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./6. Beta binomial model.html" class="pagination-link" aria-label="Beta-Binomial model">
+        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial model</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
