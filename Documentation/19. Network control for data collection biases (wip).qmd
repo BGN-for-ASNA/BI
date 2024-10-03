@@ -66,9 +66,6 @@ Where:
 -   $\eta_{[j]}$ is the probability of individual $j$ being detectable.
 
 ### *Defining formula sub-equations and prior distributions*
-
-
-::: callout-note
 We can let $\eta_{[i]}$ depend on individual-specific covariates. To model the probability of censoring, we can model  $1-\eta_{[i]}$:
 $$
 \text{logit}(1-\eta_{[i]}) = \mu_\psi + \hat\psi_{[i]}  \sigma_\psi + \ldots 
@@ -79,7 +76,7 @@ where
 -   $\sigma_\psi$ is a scalar for the variance of random effects
 -   $\hat\psi_{[i]}\sim \text {Normal}(0,1)$, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if $C$ is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with:  $\kappa_{[5]}C_{[i]}$, to give the effects of coloration on censoring probability.
 
-
+::: callout-note
 ## Note(s)
 -   One major limitation of this model is the necessity of having an estimation of the censoring bias for each individual.
 :::
