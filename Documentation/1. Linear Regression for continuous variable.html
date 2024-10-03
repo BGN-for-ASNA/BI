@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>2&nbsp; Introduction – BI documentation</title>
+<title>3&nbsp; Linear Regression for continuous vairable – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,7 +20,61 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -30,8 +84,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./1. Linear Regression for continuous variable.html" rel="next">
-<link href="./index.html" rel="prev">
+<link href="./2. Multiple continuous Variables.html" rel="next">
+<link href="./0. Introduction.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -110,7 +164,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./0. Introduction.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./1. Linear Regression for continuous variable.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -143,13 +197,13 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./0. Introduction.html" class="sidebar-item-text sidebar-link active">
+  <a href="./0. Introduction.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
+  <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></span></a>
   </div>
 </li>
@@ -251,14 +305,14 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network with block model (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./18. Network with block model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./19. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">19. Network control for data collection biases (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -295,12 +349,14 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#model-set-up" id="toc-model-set-up" class="nav-link active" data-scroll-target="#model-set-up"><span class="header-section-number">2.1</span> 1.1 Model set-up</a></li>
-  <li><a href="#model-fitting" id="toc-model-fitting" class="nav-link" data-scroll-target="#model-fitting"><span class="header-section-number">2.2</span> 1.2 Model fitting</a></li>
-  <li><a href="#model-diagnostic" id="toc-model-diagnostic" class="nav-link" data-scroll-target="#model-diagnostic"><span class="header-section-number">2.3</span> 1.3 Model ‘diagnostic’</a></li>
-  <li><a href="#link-functions" id="toc-link-functions" class="nav-link" data-scroll-target="#link-functions"><span class="header-section-number">2.4</span> 1.4 Link functions</a></li>
-  <li><a href="#vocabulary" id="toc-vocabulary" class="nav-link" data-scroll-target="#vocabulary"><span class="header-section-number">2.5</span> Vocabulary</a></li>
-  <li><a href="#conciderations" id="toc-conciderations" class="nav-link" data-scroll-target="#conciderations"><span class="header-section-number">2.6</span> Conciderations</a></li>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">3.1</span> General Principles</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">3.2</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">3.3</span> Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">3.3.1</span> <em>Formula</em></a></li>
+  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">3.3.2</span> <em>Bayesian model</em></a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">3.4</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -309,7 +365,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></h1>
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></h1>
 </div>
 
 
@@ -326,50 +382,92 @@ window.Quarto = {
 </header>
 
 
-<section id="model-set-up" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="model-set-up"><span class="header-section-number">2.1</span> 1.1 Model set-up</h2>
-<p>We define a likelihood (e.g., a mathematical formula that specifies the plausibility of the data). The likelihood has parameters (e.g., adjustable inputs) for which we define priors (e.g., initial plausibility assignment for each possible value of the parameter). Considering a linear regression with an intercept (e.g., <span class="math inline">\(μ\)</span> value when <span class="math inline">\(x\)</span> is at zero, or at the mean if the data is centered), a slope (e.g., <span class="math inline">\(μ\)</span> change value when <span class="math inline">\(x\)</span> is incremented by one unit), and assuming the data is centered (<span style="color:red"> as we will always concider in the next chapters</span>):</p>
-<p><span style="font-size:0.7em;"> <i> * Toolpit available for each lines of equation </i> </span></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the 'main' equation which use a specific distribution to account for uncertainty in the model."><span class="math display">\[y \sim  Normal(μ,σ)
-\]</span></a></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the 'likelihood' that combine the differnt terms of the model"><span class="math display">\[ μ \sim α + βx
-\]</span></a></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the prior for the intercept"><span class="math display">\[ α \sim Normal(0,1)
-\]</span></a></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the prior for the slope or regression coefficient"><span class="math display">\[ β \sim Normal(0,1)
-\]</span></a></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the prior"><span class="math display">\[ σ \sim Uniform(0,1)
-\]</span></a></p>
-</section>
-<section id="model-fitting" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="model-fitting"><span class="header-section-number">2.2</span> 1.2 Model fitting</h2>
-<p>By using probability distributions for parameters, we can better tune the model by describing parameters with ‘<em>subequations</em>’ and accounting for <em>correlated varying effects</em>, <em>Gaussian processes</em>, <em>measurement error</em>, and <em>missing data</em>.</p>
-<p>In addition, we can use <em>Bayesian updating</em> using the <em>Bayesian theorem</em> to ‘reshape’ the prior distributions by considering every possible combination of values for µ and σ and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of values µ and σ: the <em>posterior distributions</em>. Various techniques can be used to approximate the mathematics that follows from the definition of Bayes’ theorem: grid approximation, quadratic approximation, and Markov chain Monte Carlo (<em>MCMC</em>).</p>
-<p><a href="#" title="This is the Bayesian theorem"><span class="math display">\[\frac{likelihood*Priors}{average likelihood}\]</span></a></p>
-</section>
-<section id="model-diagnostic" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="model-diagnostic"><span class="header-section-number">2.3</span> 1.3 Model ‘diagnostic’</h2>
-<p>The posterior distribution can be described using percentile intervals (<em>PI</em>), the highest posterior density interval (<em>HPDI</em>), and point estimates. We can also sample the posterior distribution and generate <em>dummy data</em>, which can help check the model through <em>observations and p uncertainty propagation on the samples</em>. In some aspects, it is the opposite of a null model as it represents an expected model.</p>
-</section>
-<section id="link-functions" class="level2" data-number="2.4">
-<h2 data-number="2.4" class="anchored" data-anchor-id="link-functions"><span class="header-section-number">2.4</span> 1.4 Link functions</h2>
-<p>We will see different families of regreessions that have different distribtions. For the moment we just need to know that those different distribtions required _link function (for each specific family we will discuss the corresponding link function):</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="image.png" class="img-fluid figure-img"></p>
-<figcaption>img</figcaption>
-</figure>
+<section id="general-principles" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">3.1</span> General Principles</h2>
+<p>To study relationships between two continuous variables (e.g.&nbsp;heigth and weigth), we can use : <em>Linear regression approach</em>. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept <span class="math inline">\(\alpha\)</span> which inform us about the starting point of the line, 2) a coefficient <span class="math inline">\(\beta\)</span> which in inform us about the slope of the line and 3) a error term <span class="math inline">\(\sigma\)</span> which inform us about spread of points between the line. We can interpret the intercept <span class="math inline">\(\alpha\)</span> as the mean for of <em>Y</em> for the smaller value of <em>X</em>, the coefficient <span class="math inline">\(\beta\)</span> as how much <em>Y</em> increase for each increment of <em>X</em>, and <span class="math inline">\(\sigma\)</span> as the error arround the prediction. So the coefficient <span class="math inline">\(\beta\)</span> give the strength of the relationship between <em>X</em> and <em>Y</em> and <span class="math inline">\(\sigma\)</span> the amount of error in the model.</p>
+<p><img src="https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg" class="img-fluid"></p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Conciderations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for <span class="math inline">\(\alpha\)</span> , <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma^2\)</span> .</p></li>
+<li><p>Ussually, we use <em>Normal</em> distribution for <span class="math inline">\(\alpha\)</span> , <span class="math inline">\(\beta\)</span> and an <em>exponential</em> or <em>Uniform</em> distributiuon for <span class="math inline">\(\sigma\)</span>.</p></li>
+<li><p>As we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is assumed to be normally distributed and is squared to force positive error and account for values bellow and above the line.</p></li>
+<li><p>Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.</p></li>
+</ul>
+</div>
 </div>
 </section>
-<section id="vocabulary" class="level2" data-number="2.5">
-<h2 data-number="2.5" class="anchored" data-anchor-id="vocabulary"><span class="header-section-number">2.5</span> Vocabulary</h2>
-<p>This method evaluate if variable we want to predict -the dependent variable (<em>Y</em>)- and the variable(s) that may affect(s)-independent variables (<em>Xs</em>)- this dependent variable is</p>
+<section id="example" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="example"><span class="header-section-number">3.2</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian linear regression using Bayesian Inference (BI) package:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> .bi.main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/Howell1.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>])</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'weight'</span>, <span class="st">'height'</span>])</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(height, weight):    </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal( <span class="dv">178</span>, <span class="dv">20</span>, name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> dist.normal(  <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'beta'</span>)   </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> dist.uniform( <span class="dv">0</span>, <span class="dv">50</span>, name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"Y"</span>, Normal(alpha <span class="op">+</span> beta <span class="op">*</span> weight , sigma), obs <span class="op">=</span> height)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="conciderations" class="level2" data-number="2.6">
-<h2 data-number="2.6" class="anchored" data-anchor-id="conciderations"><span class="header-section-number">2.6</span> Conciderations</h2>
-<p>When implementing Bayesian linear regression with TensorFlow Probability, it’s important to consider the following: - Specifying appropriate prior distributions for the model parameters. - Choosing an appropriate likelihood function that captures the relationship between the inputs and outputs. - Selecting an inference method to approximate the posterior distribution over parameters, such as Markov chain Monte Carlo (MCMC) or variational inference.</p>
+<section id="mathematical-details" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">3.3</span> Mathematical Details</h2>
+<section id="formula" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">3.3.1</span> <em>Formula</em></h3>
+<p>The following equation allow us to draw a line and is ths one that is most used in statistic clases: <span class="math display">\[
+Y = \alpha + \beta  X + \sigma
+\]</span></p>
+<p>Where: - <em>Y</em> is the target variable. - <em>X</em> is the input variable. - <span class="math inline">\(\beta\)</span> is the regression coefficient. - <span class="math inline">\(\alpha\)</span> is the intercept term. - <span class="math inline">\(\sigma\)</span> is the error term.</p>
+</section>
+<section id="bayesian-model" class="level3" data-number="3.3.2">
+<h3 data-number="3.3.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">3.3.2</span> <em>Bayesian model</em></h3>
+<p>We can express the Bayesian regression model accounting for prior distribution as follows: <span class="math display">\[
+p(Y | \alpha, \beta, X) \sim Normal(\alpha + \beta   X, \sigma)
+\]</span></p>
+<p><span class="math display">\[
+p(\alpha) \sim Normal(0, 1)
+\]</span></p>
+<p><span class="math display">\[
+p(\beta) \sim Normal(0, 1)
+\]</span></p>
+<p><span class="math display">\[
+p(\sigma) \sim Uniform(0, 50)
+\]</span></p>
+<p>Where: - <span class="math inline">\(p(Y |X, \alpha , \beta)\)</span> is the likelihood function (equivalent of the line equation). - <span class="math inline">\(p(\beta)\)</span> and <span class="math inline">\(p(\alpha)\)</span> are the prior distributions for the regression coefficients and intercept, respectivelly. - <span class="math inline">\(p(\sigma)\)</span>, controll the variance of the likelihood.</p>
+</section>
+</section>
+<section id="references" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="references"><span class="header-section-number">3.4</span> Reference(s)</h2>
+<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->
@@ -795,13 +893,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./index.html" class="pagination-link" aria-label="index.html">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span>
+      <a href="./0. Introduction.html" class="pagination-link" aria-label="Introduction">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./1. Linear Regression for continuous variable.html" class="pagination-link" aria-label="Linear Regression for continuous vairable">
-        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./2. Multiple continuous Variables.html" class="pagination-link" aria-label="Multiple continuous variables model">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multiple continuous variables model</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
