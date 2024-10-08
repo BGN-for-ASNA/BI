@@ -353,8 +353,8 @@ window.Quarto = {
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">3.2</span> Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">3.3</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">3.3.1</span> <em>Formula</em></a></li>
-  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">3.3.2</span> <em>Bayesian model</em></a></li>
+  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">3.3.1</span> <em>Frequentist formulation</em></a></li>
+  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">3.3.2</span> <em>Bayesian formulation</em></a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">3.4</span> Reference(s)</a></li>
   </ul>
@@ -384,7 +384,8 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">3.1</span> General Principles</h2>
-<p>To study relationships between two continuous variables (e.g.&nbsp;heigth and weigth), we can use : <em>Linear regression approach</em>. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept <span class="math inline">\(\alpha\)</span> which inform us about the starting point of the line, 2) a coefficient <span class="math inline">\(\beta\)</span> which in inform us about the slope of the line and 3) a error term <span class="math inline">\(\sigma\)</span> which inform us about spread of points between the line. We can interpret the intercept <span class="math inline">\(\alpha\)</span> as the mean for of <em>Y</em> for the smaller value of <em>X</em>, the coefficient <span class="math inline">\(\beta\)</span> as how much <em>Y</em> increase for each increment of <em>X</em>, and <span class="math inline">\(\sigma\)</span> as the error arround the prediction. So the coefficient <span class="math inline">\(\beta\)</span> give the strength of the relationship between <em>X</em> and <em>Y</em> and <span class="math inline">\(\sigma\)</span> the amount of error in the model.</p>
+<p>To study relationships between two continuous variables (e.g.&nbsp;heigth and weigth), we can use : <em>Linear regression approach</em>. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept <span class="math inline">\(\alpha\)</span> which inform us about the starting point of the line, 2) a coefficient <span class="math inline">\(\beta\)</span> which in inform us about the slope of the line and 3) a error term <span class="math inline">\(\sigma\)</span> which inform us about spread of points between the line. We can interpret the intercept <span class="math inline">\(\alpha\)</span> as the mean for of <em>Y</em> for the smaller value of <em>X</em>, the coefficient <span class="math inline">\(\beta\)</span> as how much <em>Y</em> increase for each increment of <em>X</em>, and <span class="math inline">\(\sigma\)</span> as the error arround the prediction.</p>
+<!-- def alpha (when factor = 0), sigma is an estimate of the unexplain variance -->
 <p><img src="https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg" class="img-fluid"></p>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -398,9 +399,9 @@ Conciderations
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for <span class="math inline">\(\alpha\)</span> , <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma^2\)</span> .</p></li>
-<li><p>Ussually, we use <em>Normal</em> distribution for <span class="math inline">\(\alpha\)</span> , <span class="math inline">\(\beta\)</span> and an <em>exponential</em> or <em>Uniform</em> distributiuon for <span class="math inline">\(\sigma\)</span>.</p></li>
+<li><p>Ussually, we use <em>Normal</em> distribution for <span class="math inline">\(\alpha\)</span> , <span class="math inline">\(\beta\)</span> and an <em>exponential</em> or <em>Gamma</em> distributiuon for <span class="math inline">\(\sigma\)</span> (basically any distribution that are positivelly defined).</p></li>
 <li><p>As we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is assumed to be normally distributed and is squared to force positive error and account for values bellow and above the line.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is assumed to be strictily positive.</p></li>
 <li><p>Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.</p></li>
 </ul>
 </div>
@@ -424,38 +425,71 @@ Conciderations
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal( <span class="dv">178</span>, <span class="dv">20</span>, name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> dist.normal(  <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'beta'</span>)   </span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> dist.uniform( <span class="dv">0</span>, <span class="dv">50</span>, name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"Y"</span>, Normal(alpha <span class="op">+</span> beta <span class="op">*</span> weight , sigma), obs <span class="op">=</span> height)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"height"</span>, Normal(alpha <span class="op">+</span> beta <span class="op">*</span> weight , sigma), obs <span class="op">=</span> height)</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="fu">paste0</span>(<span class="fu">getwd</span>(), <span class="st">'/bi'</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>bi <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"main"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">'STRAND sim sr dyad.Rdata'</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> bi<span class="sc">$</span><span class="fu">bi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'../data/Howell1.csv'</span>, <span class="at">sep=</span><span class="st">';'</span>) </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'height'</span>))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight){</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">uniform</span>( <span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>,<span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>( <span class="dv">178</span>, <span class="dv">20</span>, <span class="at">name =</span> <span class="st">'a'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(  <span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))   </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">Normal</span>(a <span class="sc">+</span> b <span class="sc">*</span> weight , s), <span class="at">obs=</span>height)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="mathematical-details" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">3.3</span> Mathematical Details</h2>
-<section id="formula" class="level3" data-number="3.3.1">
-<h3 data-number="3.3.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">3.3.1</span> <em>Formula</em></h3>
+<section id="frequentist-formulation" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">3.3.1</span> <em>Frequentist formulation</em></h3>
 <p>The following equation allow us to draw a line and is ths one that is most used in statistic clases: <span class="math display">\[
-Y = \alpha + \beta  X + \sigma
+Y_i = \alpha + \beta  X_i + \epsilon_i
 \]</span></p>
-<p>Where: - <em>Y</em> is the target variable. - <em>X</em> is the input variable. - <span class="math inline">\(\beta\)</span> is the regression coefficient. - <span class="math inline">\(\alpha\)</span> is the intercept term. - <span class="math inline">\(\sigma\)</span> is the error term.</p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(Y_i\)</span> is the target variable.</li>
+<li><span class="math inline">\(\alpha\)</span> is the intercept term.</li>
+<li><span class="math inline">\(\beta\)</span> is the regression coefficient.</li>
+<li><span class="math inline">\(X_i\)</span> is the input variable.</li>
+<li><span class="math inline">\(\epsilon\)</span> is vector of error terms independently distributed.</li>
+</ul>
 </section>
-<section id="bayesian-model" class="level3" data-number="3.3.2">
-<h3 data-number="3.3.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">3.3.2</span> <em>Bayesian model</em></h3>
-<p>We can express the Bayesian regression model accounting for prior distribution as follows: <span class="math display">\[
-p(Y | \alpha, \beta, X) \sim Normal(\alpha + \beta   X, \sigma)
+<section id="bayesian-formulation" class="level3" data-number="3.3.2">
+<h3 data-number="3.3.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">3.3.2</span> <em>Bayesian formulation</em></h3>
+<p>In the Bayesian formulation we define each parameters with <a href="#" title="Priors are distribution that represent the value of the parameter before contioning it on the data.">priors</a>. We can express a Bayesian version of this regression model using the following model: <span class="math display">\[
+Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 \]</span></p>
 <p><span class="math display">\[
-p(\alpha) \sim Normal(0, 1)
+\alpha \sim Normal(0, 1)
 \]</span></p>
 <p><span class="math display">\[
-p(\beta) \sim Normal(0, 1)
+\beta \sim Normal(0, 1)
 \]</span></p>
 <p><span class="math display">\[
-p(\sigma) \sim Uniform(0, 50)
+\sigma \sim Uniform(0, 50)
 \]</span></p>
-<p>Where: - <span class="math inline">\(p(Y |X, \alpha , \beta)\)</span> is the likelihood function (equivalent of the line equation). - <span class="math inline">\(p(\beta)\)</span> and <span class="math inline">\(p(\alpha)\)</span> are the prior distributions for the regression coefficients and intercept, respectivelly. - <span class="math inline">\(p(\sigma)\)</span>, controll the variance of the likelihood.</p>
+<p>Where: - <span class="math inline">\(Y_i\)</span> is the target variable. - <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span> are the regression coefficients and intercept paramters, respectively. - <span class="math inline">\(\sigma\)</span>, is prior .</p>
 </section>
 </section>
 <section id="references" class="level2" data-number="3.4">
