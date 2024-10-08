@@ -27,7 +27,6 @@ class bi(dist, gaussian, factors):
     def setup(self, platform='cpu', cores=None, dealocate = False):
         setup.setup(platform, cores, dealocate) 
 
-
     # Dist functions (sampling and model)--------------------------
     class dist(dist):
         pass
