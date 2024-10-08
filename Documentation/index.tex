@@ -361,41 +361,41 @@ Carlo (MCMC) or variational inference.
 \bookmarksetup{startatroot}
 
 \chapter{Linear Regression for continuous
-vairable}\label{linear-regression-for-continuous-vairable}
+variable}\label{linear-regression-for-continuous-variable}
 
 \section{General Principles}\label{general-principles}
 
-To study relationships between two continuous variables (e.g.~heigth and
-weigth), we can use : \emph{Linear regression approach}. Basically, we
+To study relationships between two continuous variables (e.g.~height and
+weight), we can use : \emph{Linear regression approach}. Basically, we
 draw a line that cross the points clouds of the two tested variables.
 For this we need to have: 1) an intercept \(\alpha\) which inform us
 about the starting point of the line, 2) a coefficient \(\beta\) which
-in inform us about the slope of the line and 3) a error term \(\sigma\)
+in inform us about the slope of the line and 3) an error term \(\sigma\)
 which inform us about spread of points between the line. We can
 interpret the intercept \(\alpha\) as the mean for of \emph{Y} for the
 smaller value of \emph{X}, the coefficient \(\beta\) as how much
 \emph{Y} increase for each increment of \emph{X}, and \(\sigma\) as the
-error arround the prediction.
+error around the prediction.
 
 \includegraphics{index_files/mediabag/1-WCcaObzvvVzcrg8CBi.webp}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Conciderations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Conciderations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
   Bayesian linear regression considers uncertainty in the model
   parameters and provides a full posterior distribution over them. We
-  thus need to decalre prior distribution for \(\alpha\) , \(\beta\) and
-  \(\sigma^2\) .
+  thus need to declare prior distribution for \(\alpha\), \(\beta\) and
+  \(\sigma^2\).
 \item
-  Ussually, we use \emph{Normal} distribution for \(\alpha\) , \(\beta\)
-  and an \emph{exponential} or \emph{Gamma} distributiuon for \(\sigma\)
-  (basically any distribution that are positivelly defined).
+  Usually, we use \emph{Normal} distribution for \(\alpha\), \(\beta\)
+  and an \emph{exponential} or \emph{Gamma} distribution for \(\sigma\)
+  (basically any distribution that are positively defined).
 \item
-  As we concider that data is standardized (see introduction) we use a
+  As we consider that data is standardized (see introduction) we use a
   distribution of mean 0 and of standard deviation of 1.
 \item
-  \(\sigma\) is assumed to be strictily positive.
+  \(\sigma\) is assumed to be strictly positive.
 \item
   Gaussian regression deals directly with continuous outcomes,
   estimating a linear relationship between predictors and the outcome
@@ -474,8 +474,8 @@ regression using Bayesian Inference (BI) package:
 \subsection{\texorpdfstring{\emph{Frequentist
 formulation}}{Frequentist formulation}}\label{frequentist-formulation}
 
-The following equation allow us to draw a line and is ths one that is
-most used in statistic clases: \[
+The following equation allows us to draw a line and is the one that is
+most used in statistic class: \[
 Y_i = \alpha + \beta  X_i + \epsilon_i
 \]
 
@@ -498,7 +498,7 @@ Where:
 \subsection{\texorpdfstring{\emph{Bayesian
 formulation}}{Bayesian formulation}}\label{bayesian-formulation}
 
-In the Bayesian formulation we define each parameters with
+In the Bayesian formulation we define each parameter with
 \hyperref[]{priors}. We can express a Bayesian version of this
 regression model using the following model: \[
 Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
@@ -516,9 +516,18 @@ Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 \sigma \sim Uniform(0, 50)
 \]
 
-Where: - \(Y_i\) is the target variable. - \(\beta\) and \(\alpha\) are
-the regression coefficients and intercept paramters, respectively. -
-\(\sigma\), is prior .
+Where:
+
+\begin{itemize}
+\tightlist
+\item
+  \(Y_i\) is the target variable.
+\item
+  \(\beta\) and \(\alpha\) are the regression coefficients and intercept
+  parameters, respectively.
+\item
+  \(\sigma\), is a prior.
+\end{itemize}
 
 \section{Reference(s)}\label{references}
 
@@ -540,7 +549,7 @@ Regression for continuous variable} by adding a regression coefficient
 
 \includegraphics{index_files/mediabag/0-dJqdzk1aMo2OQR7O.pdf}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -693,7 +702,7 @@ won't be happy!
 
 \includegraphics{index_files/mediabag/interactions_plot_ca.png}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -860,7 +869,7 @@ converting categories to indeces.
 
 \includegraphics{index_files/mediabag/tumblr_inline_o8j406.png}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -979,7 +988,7 @@ Where:
   ensuring it is positive.
 \end{itemize}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, breakable, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, colback=white, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -1010,7 +1019,7 @@ variables, we can use Binomial model.
 
 \includegraphics{index_files/mediabag/xHlvv.png}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -1192,7 +1201,7 @@ We model the relationship between the predictor variables (X1, X2,
 \ldots, Xn) and the probability of success (p) using the following
 equation:
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -1328,7 +1337,7 @@ unknown or uncountably large.
 
 \includegraphics{index_files/mediabag/Comparison-of-linear.png}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -1475,7 +1484,7 @@ more independent variables with
 \href{7.\%20Poisson\%20model.qmd}{overdispersion 🛈}, we can use
 \emph{Negative Binomial model}.
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -1600,7 +1609,7 @@ Where:
   has its own rate.
 \end{itemize}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, breakable, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, colback=white, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -1634,7 +1643,7 @@ use a \emph{Multinomial} distribution.
 
 \includegraphics{index_files/mediabag/Multinomial-Logistic.jpg}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -1780,7 +1789,7 @@ more than two categories and one or more independent variables with
 
 \includegraphics{index_files/mediabag/Multinomial-Logistic.jpg}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -1915,7 +1924,7 @@ count variable with an excess of zero counts. These models combine a
 count model (e.g., Poisson or Negative Binomial) with a separate model
 for predicting the probability of excess zeros.
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 In Bayesian Zero-Inflated regression, we consider uncertainty in the
 model parameters and provide a full posterior distribution over them. We
@@ -2057,7 +2066,7 @@ particularly useful when data is grouped (e.g., by subject, location, or
 time period) and we expect the baseline level of the outcome to vary
 across these groups.
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -2164,7 +2173,7 @@ groups. - \(\mu_alpha_k\) is the overall mean intercept. -
 \(p(\beta)\) is the prior distributions for the regression coefficients.
 - \(p(\sigma)\) is the prior distributions for the error term.
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, breakable, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, colback=white, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -2206,7 +2215,7 @@ periods).This allow every unit in the data to have its own unique
 response to any treatment or exposure or event, while also improving
 estimates via pooling.
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -2461,7 +2470,7 @@ L *
 L \sim LKJcorr(2)
 \]
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, breakable, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, colback=white, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -2762,7 +2771,7 @@ proposed solution is to model network links with random
 to the model, we can account for the correlations between node link
 relationships.
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -2930,7 +2939,7 @@ L_\delta *
 L \sim LKJ(2)
 \]
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, breakable, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, colback=white, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -3024,7 +3033,7 @@ different sexes. To model the propensity for interaction between nodes
 based on the categories they belong to, we can use a stochastic block
 model approach.
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -3175,7 +3184,7 @@ where :
   \(k \rightarrow \tilde{k}\) indicates an off-diagonal element.
 \end{itemize}
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, breakable, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, colback=white, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \item
@@ -3206,7 +3215,7 @@ To address censoring biases, we need to add an additional equation to
 account for the probability of missing an interaction during observation
 when modeling interaction between individual \emph{i} and \emph{j}.
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, breakable, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, colback=white, colframe=quarto-callout-caution-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \end{tcolorbox}
 
@@ -3298,7 +3307,7 @@ for cryptic coloration, then the ellipsis may be replaced with:
 \(\kappa_{[5]}C_{[i]}\), to give the effects of coloration on censoring
 probability.
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, titlerule=0mm, coltitle=black, rightrule=.15mm, toprule=.15mm, toptitle=1mm, leftrule=.75mm, arc=.35mm, bottomtitle=1mm, opacitybacktitle=0.6, opacityback=0, bottomrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, breakable, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, colback=white, colframe=quarto-callout-note-color-frame]
+\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
 
 \begin{itemize}
 \tightlist

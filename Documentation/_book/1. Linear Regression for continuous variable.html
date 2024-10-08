@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Linear Regression for continuous vairable – BI documentation</title>
+<title>3&nbsp; Linear Regression for continuous variable – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -164,7 +164,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./1. Linear Regression for continuous variable.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./1. Linear Regression for continuous variable.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -204,7 +204,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -365,7 +365,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous vairable</span></h1>
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></h1>
 </div>
 
 
@@ -384,7 +384,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">3.1</span> General Principles</h2>
-<p>To study relationships between two continuous variables (e.g.&nbsp;heigth and weigth), we can use : <em>Linear regression approach</em>. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept <span class="math inline">\(\alpha\)</span> which inform us about the starting point of the line, 2) a coefficient <span class="math inline">\(\beta\)</span> which in inform us about the slope of the line and 3) a error term <span class="math inline">\(\sigma\)</span> which inform us about spread of points between the line. We can interpret the intercept <span class="math inline">\(\alpha\)</span> as the mean for of <em>Y</em> for the smaller value of <em>X</em>, the coefficient <span class="math inline">\(\beta\)</span> as how much <em>Y</em> increase for each increment of <em>X</em>, and <span class="math inline">\(\sigma\)</span> as the error arround the prediction.</p>
+<p>To study relationships between two continuous variables (e.g.&nbsp;height and weight), we can use : <em>Linear regression approach</em>. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept <span class="math inline">\(\alpha\)</span> which inform us about the starting point of the line, 2) a coefficient <span class="math inline">\(\beta\)</span> which in inform us about the slope of the line and 3) an error term <span class="math inline">\(\sigma\)</span> which inform us about spread of points between the line. We can interpret the intercept <span class="math inline">\(\alpha\)</span> as the mean for of <em>Y</em> for the smaller value of <em>X</em>, the coefficient <span class="math inline">\(\beta\)</span> as how much <em>Y</em> increase for each increment of <em>X</em>, and <span class="math inline">\(\sigma\)</span> as the error around the prediction.</p>
 <!-- def alpha (when factor = 0), sigma is an estimate of the unexplain variance -->
 <p><img src="https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg" class="img-fluid"></p>
 <div class="callout callout-style-default callout-caution callout-titled">
@@ -398,10 +398,10 @@ Conciderations
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to decalre prior distribution for <span class="math inline">\(\alpha\)</span> , <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma^2\)</span> .</p></li>
-<li><p>Ussually, we use <em>Normal</em> distribution for <span class="math inline">\(\alpha\)</span> , <span class="math inline">\(\beta\)</span> and an <em>exponential</em> or <em>Gamma</em> distributiuon for <span class="math inline">\(\sigma\)</span> (basically any distribution that are positivelly defined).</p></li>
-<li><p>As we concider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is assumed to be strictily positive.</p></li>
+<li><p>Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to declare prior distribution for <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma^2\)</span>.</p></li>
+<li><p>Usually, we use <em>Normal</em> distribution for <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span> and an <em>exponential</em> or <em>Gamma</em> distribution for <span class="math inline">\(\sigma\)</span> (basically any distribution that are positively defined).</p></li>
+<li><p>As we consider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is assumed to be strictly positive.</p></li>
 <li><p>Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.</p></li>
 </ul>
 </div>
@@ -463,7 +463,7 @@ Conciderations
 <h2 data-number="3.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">3.3</span> Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3" data-number="3.3.1">
 <h3 data-number="3.3.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">3.3.1</span> <em>Frequentist formulation</em></h3>
-<p>The following equation allow us to draw a line and is ths one that is most used in statistic clases: <span class="math display">\[
+<p>The following equation allows us to draw a line and is the one that is most used in statistic class: <span class="math display">\[
 Y_i = \alpha + \beta  X_i + \epsilon_i
 \]</span></p>
 <p>Where:</p>
@@ -477,7 +477,7 @@ Y_i = \alpha + \beta  X_i + \epsilon_i
 </section>
 <section id="bayesian-formulation" class="level3" data-number="3.3.2">
 <h3 data-number="3.3.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">3.3.2</span> <em>Bayesian formulation</em></h3>
-<p>In the Bayesian formulation we define each parameters with <a href="#" title="Priors are distribution that represent the value of the parameter before contioning it on the data.">priors</a>. We can express a Bayesian version of this regression model using the following model: <span class="math display">\[
+<p>In the Bayesian formulation we define each parameter with <a href="#" title="Priors are distribution that represent the value of the parameter before contioning it on the data.">priors</a>. We can express a Bayesian version of this regression model using the following model: <span class="math display">\[
 Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 \]</span></p>
 <p><span class="math display">\[
@@ -489,7 +489,12 @@ Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 <p><span class="math display">\[
 \sigma \sim Uniform(0, 50)
 \]</span></p>
-<p>Where: - <span class="math inline">\(Y_i\)</span> is the target variable. - <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span> are the regression coefficients and intercept paramters, respectively. - <span class="math inline">\(\sigma\)</span>, is prior .</p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(Y_i\)</span> is the target variable.</li>
+<li><span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span> are the regression coefficients and intercept parameters, respectively.</li>
+<li><span class="math inline">\(\sigma\)</span>, is a prior.</li>
+</ul>
 </section>
 </section>
 <section id="references" class="level2" data-number="3.4">
