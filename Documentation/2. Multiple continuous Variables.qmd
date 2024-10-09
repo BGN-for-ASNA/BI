@@ -1,6 +1,6 @@
 # Multiple continuous variables model
 ## General Principles
-To study relationships between multiple continuous variables (e.g., effect of height and age on weight), we can use a Multiple Regression approach. Essentially, we extend the [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd) by adding a regression coefficient $\beta$ for each continuous variables. 
+To study relationships between multiple continuous variables (e.g., the effect of height and age on weight), we can use a Multiple Regression approach. Essentially, we extend the [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd) by adding a regression coefficient $\beta$ for each continuous variable. 
 
 ![](https://miro.medium.com/v2/resize:fit:786/format:webp/0*dJqdzk1aMo2OQR7O)
 
@@ -8,14 +8,13 @@ To study relationships between multiple continuous variables (e.g., effect of he
 ## Considerations
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- We need a regression coefficient $\beta$ for each [independent variables 🛈](2.&#32;Multiple&#32;continuous&#32;Variables.qmd "An independent variable is the factor that we change or control to see if it affects an outcome (the dependent variable).").
+- We need a regression coefficient $\beta$ for each [independent variable 🛈](2.&#32;Multiple&#32;continuous&#32;Variables.qmd "An independent variable is the factor that we change or control to see if it affects an outcome (the dependent variable).").
 
-- Model interpretation of the regression coefficients $\beta$  is considered for a fixed value of the other dependent variables' regression coefficients —i.e., for a given age, a variation of 1 unit in height reflects the value of the regression coefficient $\beta$ for height.
+- Model interpretation of the regression coefficients $\beta$ is considered for a fixed value of the other dependent variables' regression coefficients—i.e., for a given age, a variation of 1 unit in height reflects the value of the regression coefficient $\beta$ for height.
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian multiple regression using Bayesian Inference (BI) package:
-
+Below is an example code snippet demonstrating Bayesian multiple regression using the Bayesian Inference (BI) package:
 
 ```python
 from main import*
@@ -57,12 +56,12 @@ m$df = m$df[m$df$age > 18,]
 m$data_to_model(list('weight', 'height', 'age'))
 
 # Define model ------------------------------------------------
-model <- function(height, weight,age){
-  alpha = bi$dist$normal( 0, 0.5, name = 'a',shape= tuple(as.integer(1)))
-  beta1 = bi$dist$normal( 0, 0.5, name = 'b1',shape= tuple(as.integer(1)))
-  beta2 = bi$dist$normal(  0, 0.5, name = 'b2',shape= tuple(as.integer(1)))   
-  sigma = bi$dist$uniform(0, 50, name = 's',shape = tuple(as.integer(1)))
-  bi$lk("y", bi$Normal(alpha + beta1 * weight +  beta2 * age , sigma), obs=height)
+model <- function(height, weight, age){
+  alpha = bi$dist$normal( 0, 0.5, name = 'a', shape = tuple(as.integer(1)))
+  beta1 = bi$dist$normal( 0, 0.5, name = 'b1', shape = tuple(as.integer(1)))
+  beta2 = bi$dist$normal(  0, 0.5, name = 'b2', shape = tuple(as.integer(1)))   
+  sigma = bi$dist$uniform(0, 50, name = 's', shape = tuple(as.integer(1)))
+  bi$lk("y", bi$Normal(alpha + beta1 * weight + beta2 * age, sigma), obs=height)
 }
 
 # Run mcmc ------------------------------------------------
@@ -70,7 +69,6 @@ m$run(model)
 
 # Summary ------------------------------------------------
 m$sampler$print_summary(0.89)
-
 ```
 
 ## Mathematical Details
@@ -87,33 +85,33 @@ Where:
 - $\alpha$ is the intercept term.
 - $X_1$, $X_2$, ..., $X_n$ are the independent variables.
 - $\beta_1$, $\beta_2$, ..., $\beta_n$ are the regression coefficients.
-- $sigma$ is the error term.
+- $\sigma$ is the error term.
 
 ### *Bayesian model*
 We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
-𝑝(𝑌∣\alpha, \beta, X) \sim Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
+𝑌 \sim Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
 $$
 
 $$
-p(\alpha) \sim Normal(0,1)
+\alpha \sim Normal(0,1)
 $$
 
 $$
-p(\beta_i) \sim Normal(0,1)
+\beta_i \sim Normal(0,1)
 $$
 
 $$
-p(σ) \sim Uniform(0, 50)
+σ \sim Uniform(0, 50)
 $$
 
 Where:
 
-- $p(Y | 𝑋, \alpha,\beta)$ is the likelihood function.
-- $p(\alpha)$ is prior distributions for the intercept
-- $p(\beta_k)$ are the prior distributions for the regression coefficients _k_ distinct regression coefficients.
-- $p(\sigma)$ is the prior distribution for the standard deviation, ensuring - it is positive.
+- $Y_i$ is the likelihood function.
+- $\alpha$ is the prior distribution for the intercept.
+- $\beta_k$ are the prior distributions for the regression coefficients _k_ distinct regression coefficients.
+- $\sigma$ is the prior distribution for the standard deviation, ensuring it is positive.
 
 ## Reference(s)
 @mcelreath2018statistical
