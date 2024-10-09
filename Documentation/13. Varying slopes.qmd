@@ -6,9 +6,8 @@ To model the relationship between predictor variables and an independent variabl
 
 This approach is useful when we expect the relationship between predictors and the independent variable to differ across groups (e.g., different slopes for different subjects, locations, or time periods).This allow every unit in the data to have its own unique response to any treatment or exposure or event, while also improving estimates via pooling.
 
-::: callout-caution 
 ## Considerations
-
+::: callout-caution 
 -   We have the same considerations as for [12. Varying interceps](12.%20Varying%20intercepts.qmd).
 
 -   The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [matrix of covariance 🛈](13.%20Varying%20slopes.qmd "A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariances between different variables").
@@ -211,9 +210,8 @@ $$
 L \sim LKJcorr(2)
 $$
 
-::: callout-note 
 ## Notes
-
+::: callout-note 
 -   We can apply multivariate model similarly as [chapter 2](/2.%20Multiple%20Regression%20for%20Continuous%20Variables.qmd). In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ actors in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
 
 $$

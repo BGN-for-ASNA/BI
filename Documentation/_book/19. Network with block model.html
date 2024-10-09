@@ -160,6 +160,43 @@ window.Quarto = {
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">BI documentation</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/BGN-for-ASNA/ASNA_reliability" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Download" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Download"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Download PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.epub">
+              <i class="bi bi-journal pe-1"></i>
+            Download ePub
+            </a>
+          </li>
+      </ul>
+    </div>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-1" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-1">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+              <i class="bi bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -335,12 +372,14 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#example" id="toc-example" class="nav-link active" data-scroll-target="#example"><span class="header-section-number">21.1</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">21.2</span> Mathematical Details</a>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link active" data-scroll-target="#considerations"><span class="header-section-number">21.1</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">21.2</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">21.3</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">21.2.1</span> <em>Main Formula</em></a></li>
-  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">21.2.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
+  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">21.3.1</span> <em>Main Formula</em></a></li>
+  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">21.3.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
   </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">21.4</span> Note(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -367,6 +406,8 @@ window.Quarto = {
 
 
 <p>Within networks, nodes can belong to different categories, and these categories can potentially affect the propensity for node interactions. For example, nodes can have different sex categories, and the propensity to interact with nodes of the same sex can be higher than with nodes of different sexes. To model the propensity for interaction between nodes based on the categories they belong to, we can use a stochastic block model approach.</p>
+<section id="considerations" class="level2" data-number="21.1">
+<h2 data-number="21.1" class="anchored" data-anchor-id="considerations"><span class="header-section-number">21.1</span> Considerations</h2>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -383,8 +424,9 @@ Caution
 </ul>
 </div>
 </div>
-<section id="example" class="level2" data-number="21.1">
-<h2 data-number="21.1" class="anchored" data-anchor-id="example"><span class="header-section-number">21.1</span> Example</h2>
+</section>
+<section id="example" class="level2" data-number="21.2">
+<h2 data-number="21.2" class="anchored" data-anchor-id="example"><span class="header-section-number">21.2</span> Example</h2>
 <p>Below is an example code snippet demonstrating a Bayesian network model using the stochastic block model approach. The data is identical to the <a href="./18. Network model.html">Network model</a> example, with the addition of covariates <em>Any</em>, <em>Merica</em>, and <em>Quantum</em>, representing the block membership of each node.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model3(idx, result_outcomes, kinship, focal_individual_predictors, target_individual_predictors, Any, Merica, Quantum):</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> ids.shape[<span class="dv">0</span>]</span>
@@ -424,10 +466,10 @@ Caution
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>summary.loc[[<span class="st">'focal_effects[0]'</span>, <span class="st">'target_effects[0]'</span>, <span class="st">'dyad_effects[0]'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="21.2">
-<h2 data-number="21.2" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">21.2</span> Mathematical Details</h2>
-<section id="main-formula" class="level3" data-number="21.2.1">
-<h3 data-number="21.2.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">21.2.1</span> <em>Main Formula</em></h3>
+<section id="mathematical-details" class="level2" data-number="21.3">
+<h2 data-number="21.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">21.3</span> Mathematical Details</h2>
+<section id="main-formula" class="level3" data-number="21.3.1">
+<h3 data-number="21.3.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">21.3.1</span> <em>Main Formula</em></h3>
 <p>The model’s block structure can be represented by the following formula. Note that the sender-receiver and dyadic effects are not represented here, as they are already accounted for in the <a href="./18. Network model.html">Network model</a> chapter:</p>
 <p><span class="math display">\[
 G_{ij} \sim Poisson(Y_{ij})
@@ -441,8 +483,8 @@ log(Y_{ij}) =  B_{ij} + B_{ji}
 <li><span class="math inline">\(B_{ji}\)</span> is the link probability between category j to i.</li>
 </ul>
 </section>
-<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="21.2.2">
-<h3 data-number="21.2.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">21.2.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
+<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="21.3.2">
+<h3 data-number="21.3.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">21.3.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
 <p>To account for all link probabilities between categories, we can define a square matrix <span class="math inline">\(B\)</span> as follows: the off-diagonal elements represent the link probabilities between categories <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, while the diagonal elements represent the link probabilities between categories <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>.</p>
 <p><span class="math display">\[
 B_{i,j} =
@@ -470,13 +512,17 @@ a_{i,1} &amp; a_{i,2} &amp; \cdots &amp; a_{i,j}
 <li><span class="math inline">\(k \rightarrow k\)</span> indicates a diagonal element.</li>
 <li><span class="math inline">\(k \rightarrow \tilde{k}\)</span> indicates an off-diagonal element.</li>
 </ul>
+</section>
+</section>
+<section id="notes" class="level2" data-number="21.4">
+<h2 data-number="21.4" class="anchored" data-anchor-id="notes"><span class="header-section-number">21.4</span> Note(s)</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note(s)
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -488,7 +534,6 @@ Note(s)
 </div>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
