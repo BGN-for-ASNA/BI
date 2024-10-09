@@ -64,6 +64,7 @@ m = bi$bi(platform='cpu')
 # Import data ------------------------------------------------
 m$data('../data/Howell1.csv', sep=';') 
 m$df = m$df[m$df$age > 18,]
+m$scale(list('weight'))
 m$data_to_model(list('weight', 'height'))
 
 # Define model ------------------------------------------------
