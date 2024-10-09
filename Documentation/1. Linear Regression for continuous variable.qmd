@@ -1,36 +1,30 @@
----
-format: live-html
----
-
 # Linear Regression for continuous variable
 
 ## General Principles
 
-To study relationships between two continuous variables (e.g. height and weight), we can use : *Linear regression approach*. Basically, we draw a line that cross the points clouds of the two tested variables. For this we need to have: 1) an intercept $\alpha$ which inform us about the starting point of the line, 2) a coefficient $\beta$ which in inform us about the slope of the line and 3) an error term $\sigma$ which inform us about spread of points between the line. We can interpret the intercept $\alpha$ as the mean for of *Y* for the smaller value of *X*, the coefficient $\beta$ as how much *Y* increase for each increment of *X*, and $\sigma$ as the error around the prediction. 
+To study relationships between two continuous variables (e.g., height and weight), we can use a *Linear regression approach*. Basically, we draw a line that crosses the point cloud of the two tested variables. For this, we need to have: 1) an intercept $\alpha$, which represents origin of the line, 2) a coefficient $\beta$, which informs us about the slope of the line, and 3) an variance term $\sigma$, which informs us about the spread of points around the line. We can interpret the intercept $\alpha$ as the expected value of the dependent variable when all independent variables are equal to zero, the coefficient $\beta$ as how much *Y* increases for each increment of *X*, and $\sigma$ as the varrance around the prediction. 
 
-<!-- def alpha (when factor = 0), sigma is an estimate of the unexplain variance -->
+<!-- def alpha (when factor = 0), sigma is an estimate of the unexplained variance -->
 
 ![](https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg)
 
 
 ::: callout-caution 
-## Conciderations
--   Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to declare prior distribution for $\alpha$, $\beta$ and $\sigma^2$.
+## Considerations
+-   Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to declare prior distributions for $\alpha$, $\beta$, and $\sigma^2$.
 
--   Usually, we use *Normal* distribution for $\alpha$, $\beta$ and an *exponential* or *Gamma* distribution for $\sigma$ (basically any distribution that are positively defined).
+-   Usually, we use a *Normal* distribution for $\alpha$ and $\beta$, and an *exponential* or *Gamma* distribution for $\sigma$ (basically any distribution that is positively defined).
 
--   As we consider that data is standardized (see introduction) we use a distribution of mean 0 and of standard deviation of 1.
+-   As we consider that data is standardized (see introduction), we use a distribution with a mean of 0 and a standard deviation of 1.
 
 -   $\sigma$ is assumed to be strictly positive.
 
 -   Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
-
 :::
-
 
 ## Example
 
-Below is an example code snippet demonstrating Bayesian linear regression using Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating Bayesian linear regression using the Bayesian Inference (BI) package:
 
 ``` python
 from .bi.main import*
@@ -45,10 +39,10 @@ m.data_to_model(['weight', 'height'])
 
 # Define model ------------------------------------------------
 def model(height, weight):    
-    alpha = dist.normal( 178, 20, name = 'alpha')
-    beta = dist.normal(  0, 1, name = 'beta')   
-    sigma = dist.uniform( 0, 50, name = 'sigma')
-    lk("height", Normal(alpha + beta * weight , sigma), obs = height)
+    alpha = dist.normal(178, 20, name = 'alpha')
+    beta = dist.normal(0, 1, name = 'beta')   
+    sigma = dist.uniform(0, 50, name = 'sigma')
+    lk("height", Normal(alpha + beta * weight, sigma), obs = height)
 
 # Run mcmc ------------------------------------------------
 m.run(model) 
@@ -73,10 +67,10 @@ m$data_to_model(list('weight', 'height'))
 
 # Define model ------------------------------------------------
 model <- function(height, weight){
-  s = bi$dist$uniform( 0, 50, name = 's',shape = tuple(as.integer(1)))
-  a = bi$dist$normal( 178, 20, name = 'a',shape= tuple(as.integer(1)))
-  b = bi$dist$normal(  0, 1, name = 'b',shape= tuple(as.integer(1)))   
-  bi$lk("y", bi$Normal(a + b * weight , s), obs=height)
+  s = bi$dist$uniform(0, 50, name = 's', shape = tuple(as.integer(1)))
+  a = bi$dist$normal(178, 20, name = 'a', shape = tuple(as.integer(1)))
+  b = bi$dist$normal(0, 1, name = 'b', shape = tuple(as.integer(1)))   
+  bi$lk("y", bi$Normal(a + b * weight, s), obs = height)
 }
 
 # Run mcmc ------------------------------------------------
@@ -84,27 +78,31 @@ m$run(model)
 
 # Summary ------------------------------------------------
 m$sampler$print_summary(0.89)
-
 ```
+
 ## Mathematical Details
 
 ### *Frequentist formulation*
 
-The following equation allows us to draw a line and is the one that is most used in statistic class: 
+The following equation allows us to draw a line and is the one that is most used in statistics classes: 
 $$
 Y_i = \alpha + \beta  X_i + \epsilon_i
 $$
 
 Where: 
 
-- $Y_i$ is the target variable. 
+- $Y_i$ is the dependent variable for observation *i*. 
+  
 - $\alpha$ is the intercept term. 
+  
 - $\beta$ is the regression coefficient.
-- $X_i$ is the input variable. 
-- $\epsilon$ is vector of error terms independently distributed.
+  
+- $X_i$ is the input variable for observation *i*. 
+  
+- $\epsilon_i$ is a vector of error terms, independently distributed.
 
 ### *Bayesian formulation*
-In the Bayesian formulation we define each parameter with [priors](# "Priors are distribution that represent the value of the parameter before contioning it on the data."). We can express a Bayesian version of this regression model using the following model: 
+In the Bayesian formulation, we define each parameter with [priors](# "Priors are distributions that represent the value of the parameter before conditioning it on the data."). We can express a Bayesian version of this regression model using the following model: 
 $$
 Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 $$
@@ -123,10 +121,16 @@ $$
 
 Where: 
 
-- $Y_i$ is the target variable. 
+- $Y_i$ is dependent variable for observation *i*. 
+  
 - $\beta$ and $\alpha$ are the regression coefficients and intercept parameters, respectively.
-- $\sigma$, is a prior.
+  
+- $X_i$ is the input variable for observation *i*. 
+  
+- $\sigma$ is a prior for the vairance term standard deviation of the normal distribution that describes the variance in the relationship between the dependent variable $Y$ and the independent variable $X$.
+
 
 ## Reference(s)
 
 @mcelreath2018statistical
+

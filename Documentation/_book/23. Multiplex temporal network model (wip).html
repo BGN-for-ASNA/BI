@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>20&nbsp; Network with block model – BI documentation</title>
+<title>multiplex-temporal-network-model-(wip – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -64,8 +30,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./19. Network control for data collection biases (wip).html" rel="next">
-<link href="./17. Network model.html" rel="prev">
+<link href="./24. Multiplex network model (wip).html" rel="next">
+<link href="./22. Multilayer network model (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -103,39 +69,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
-<body class="nav-sidebar floating">
+<body class="nav-sidebar floating fullcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -144,7 +81,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./18. Network with block model.html"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./23. Multiplex temporal network model (wip).html"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">23. Multiplex temporal network model (wip).html</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -208,13 +145,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial model</span></span></a>
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial Model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./6. Beta binomial model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial model</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial Model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -279,44 +216,50 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
+  <a href="./17. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Bayesian Regression with Latent Variables</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network with block model.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
+  <a href="./18. Network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
+  <a href="./19. Network with block model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">20. Network Metrics (wip).html</span></span></a>
+  <a href="./20. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./21. Multiplex model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Multiplex model (wip).html</span></span></a>
+  <a href="./21. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Network Metrics (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./22. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">22. Multiplex temporal network model (wip).html</span></span></a>
+  <a href="./22. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./23. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
+  <a href="./23. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">23. Multiplex temporal network model (wip).html</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">24. Multiplex network model (wip).html</span></span></a>
   </div>
 </li>
     </ul>
@@ -324,166 +267,15 @@ window.Quarto = {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#example" id="toc-example" class="nav-link active" data-scroll-target="#example"><span class="header-section-number">20.1</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">20.2</span> Mathematical Details</a>
-  <ul class="collapse">
-  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">20.2.1</span> <em>Main Formula</em></a></li>
-  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">20.2.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
-  </ul></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></h1>
-</div>
 
 
 
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
 
 
-</header>
-
-
-<p>Within networks, nodes can belong to different categories, and these categories can potentially affect the propensity for node interactions. For example, nodes can have different sex categories, and the propensity to interact with nodes of the same sex can be higher than with nodes of different sexes. To model the propensity for interaction between nodes based on the categories they belong to, we can use a stochastic block model approach.</p>
-<div class="callout callout-style-default callout-caution callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Caution
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul>
-<li>We consider predefined groups here, with the goal of evaluating the propensity for interaction between nodes within each group.</li>
-<li>In addition to the block(s) model being tested, we need to include a block where all individuals are considered as belonging to the same group (<code>Any</code> in the example). This allows us to assess whether interaction tendencies differ between groups or if the propensity to interact is uniform across all individuals.</li>
-</ul>
-</div>
-</div>
-<section id="example" class="level2" data-number="20.1">
-<h2 data-number="20.1" class="anchored" data-anchor-id="example"><span class="header-section-number">20.1</span> Example</h2>
-<p>Below is an example code snippet demonstrating a Bayesian network model using the stochastic block model approach. The data is identical to the <a href="18. Network model.qmd">Network model</a> example, with the addition of covariates <em>Any</em>, <em>Merica</em>, and <em>Quantum</em>, representing the block membership of each node.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model3(idx, result_outcomes, kinship, focal_individual_predictors, target_individual_predictors, Any, Merica, Quantum):</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> ids.shape[<span class="dv">0</span>]</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Block ---------------------------------------</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    B_any, b_any, b_ij_any, b_ii_any <span class="op">=</span> bi.net.block_model(Any,<span class="dv">1</span>, name_b_ij <span class="op">=</span> <span class="st">'b_ij_Any'</span>, name_b_ii <span class="op">=</span> <span class="st">'b_ii_Any'</span> )</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    B_Merica, b_Merica, b_ij_Merica, b_ii_Merica <span class="op">=</span> bi.net.block_model(Merica,  <span class="dv">3</span>, name_b_ij <span class="op">=</span> <span class="st">'b_ij_Merica'</span>, name_b_ii <span class="op">=</span> <span class="st">'b_ii_Merica'</span> )</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    B_Quantum, b_Quantum, b_ij_Quantum, b_ii_Quantum <span class="op">=</span> bi.net.block_model(Quantum, <span class="dv">2</span>, name_b_ij <span class="op">=</span> <span class="st">'b_ij_Quantum'</span>, name_b_ii <span class="op">=</span> <span class="st">'b_ii_Quantum'</span> )</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">## SR ---------------------------------------</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    sr_terms, focal_effects, target_effects <span class="op">=</span> bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    sr_rf, sr_raw, sr_sigma, sr_L <span class="op">=</span> bi.net.nodes_random_effects(sr_terms.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    sender <span class="op">=</span> sr_terms[idx[:,<span class="dv">0</span>],<span class="dv">0</span>] <span class="op">+</span> sr_terms[idx[:,<span class="dv">1</span>],<span class="dv">1</span>] <span class="op">+</span> sr_rf[idx[:,<span class="dv">0</span>],<span class="dv">0</span>]</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    receiver <span class="op">=</span>  sr_terms[idx[:,<span class="dv">1</span>],<span class="dv">0</span>] <span class="op">+</span> sr_terms[idx[:,<span class="dv">0</span>],<span class="dv">1</span>] <span class="op">+</span> sr_rf[idx[:,<span class="dv">1</span>],<span class="dv">1</span>]</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    sender_receiver <span class="op">=</span> jnp.stack([sender, receiver], axis <span class="op">=</span> <span class="dv">1</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic--------------------------------------  </span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    dr_terms, dyad_effects <span class="op">=</span> bi.net.dyadic_terms(kinship[:,<span class="dv">0</span>], kinship[:,<span class="dv">1</span>])</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> bi.net.dyadic_random_effects(idx.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span> dr_terms <span class="op">+</span> rf</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">'Y'</span>, Poisson(jnp.exp(B_any <span class="op">+</span> B_Merica <span class="op">+</span> B_Quantum <span class="op">+</span> sender_receiver <span class="op">+</span> dr )), obs<span class="op">=</span>result_outcomes)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> idx,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    Any <span class="op">=</span> Any<span class="op">-</span><span class="dv">1</span>, </span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    Merica <span class="op">=</span> Merica<span class="op">-</span><span class="dv">1</span>, </span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    Quantum <span class="op">=</span> Quantum<span class="op">-</span><span class="dv">1</span>,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> bi.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    kinship <span class="op">=</span> bi.net.mat_to_edgl(kinship),</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>],</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>]</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>m.run(model3) </span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>summary.loc[[<span class="st">'focal_effects[0]'</span>, <span class="st">'target_effects[0]'</span>, <span class="st">'dyad_effects[0]'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-<section id="mathematical-details" class="level2" data-number="20.2">
-<h2 data-number="20.2" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">20.2</span> Mathematical Details</h2>
-<section id="main-formula" class="level3" data-number="20.2.1">
-<h3 data-number="20.2.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">20.2.1</span> <em>Main Formula</em></h3>
-<p>The model’s block structure can be represented by the following formula. Note that the sender-receiver and dyadic effects are not represented here, as they are already accounted for in the <a href="18. Network model.qmd">Network model</a> chapter:</p>
-<p><span class="math display">\[
-G_{ij} \sim Poisson(Y_{ij})
-\]</span></p>
-<p><span class="math display">\[
-log(Y_{ij}) =  B_{ij} + B_{ji}
-\]</span></p>
-<p>where:</p>
-<ul>
-<li><span class="math inline">\(B_{ij}\)</span> is the link probability between category <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>.</li>
-<li><span class="math inline">\(B_{ji}\)</span> is the link probability between category j to i.</li>
-</ul>
-</section>
-<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="20.2.2">
-<h3 data-number="20.2.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">20.2.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
-<p>To account for all link probabilities between categories, we can define a square matrix <span class="math inline">\(B\)</span> as follows: the off-diagonal elements represent the link probabilities between categories <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, while the diagonal elements represent the link probabilities between categories <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>.</p>
-<p><span class="math display">\[
-B_{i,j} =
-\begin{bmatrix}
-a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,j} \\
-a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,j} \\
-\vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
-a_{i,1} &amp; a_{i,2} &amp; \cdots &amp; a_{i,j}
-\end{bmatrix}
-\]</span></p>
-<p>Where:</p>
-<ul>
-<li><span class="math inline">\(B[i,j]\)</span> is the link probability between category <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> when <span class="math inline">\(i \neq j\)</span>.</li>
-<li><span class="math inline">\(B[i,j]\)</span> is the link probability within category <span class="math inline">\(i\)</span> when <span class="math inline">\(i = j\)</span>.</li>
-</ul>
-<p>As we concider link probability within categorioes to be higher to links probabilites between categories we define different priors for the diagonal and the off-diagonal. Priors should also depend on sample size, N, so that the resultant network density approximates empirical networks. Basic priors could be:</p>
-<p><span class="math display">\[
-\beta_{k \rightarrow k} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.1}{\sqrt{N_k}}\right), 1.5\right)
-\]</span></p>
-<p><span class="math display">\[
-\beta_{k \rightarrow \tilde{k}} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.01}{0.5 \sqrt{N_k} + 0.5 \sqrt{N_{\tilde{k}}}}\right), 1.5\right)
-\]</span></p>
-<p>where :</p>
-<ul>
-<li><span class="math inline">\(k \rightarrow k\)</span> indicates a diagonal element.</li>
-<li><span class="math inline">\(k \rightarrow \tilde{k}\)</span> indicates an off-diagonal element.</li>
-</ul>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note(s)
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul>
-<li><p>By defining this block model within our network model, we are estimating <a href="#" title="The tendency of nodes to connect with similar nodes">assortativity 🛈</a> and <a href="#" title="The tendency of nodes to connect with dissimilar nodes.">disassortativity 🛈</a> for categorical variables.</p></li>
-<li><p>Similarly, for continuous variables, we can generate a block model that includes all continuous variables. <!--Correct? --></p></li>
-</ul>
-</div>
-</div>
-
-
-</section>
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -908,13 +700,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./17. Network model.html" class="pagination-link" aria-label="Modeling Network">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Modeling Network</span></span>
+      <a href="./22. Multilayer network model (wip).html" class="pagination-link" aria-label="Multilayer Networks">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./19. Network control for data collection biases (wip).html" class="pagination-link" aria-label="Modeling Network">
-        <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Modeling Network</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./24. Multiplex network model (wip).html" class="pagination-link" aria-label="24. Multiplex network model (wip).html">
+        <span class="nav-page-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">24. Multiplex network model (wip).html</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
