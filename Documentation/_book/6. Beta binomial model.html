@@ -54,7 +54,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -384,6 +404,7 @@ window.Quarto = {
   <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">8.4.1</span> <em>Formula</em></a></li>
   <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">8.4.2</span> <em>Bayesian Model</em></a></li>
   </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">8.5</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -411,7 +432,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="8.1">
 <h2 data-number="8.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">8.1</span> General Principles</h2>
-<p>To model the relationship between a binary outcome variable representing success counts and one or more independent variables with <a href="./7. Poisson model.html" title="Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.">overdispersion 🛈</a>, we can use the Beta-Binomial model.</p>
+<p>To model the relationship between a binary outcome variable representing success counts and one or more independent variables with <a href="#" title="Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.">overdispersion 🛈</a>, we can use the Beta-Binomial model.</p>
 <p>We model the relationship between the predictor variables (X1, X2, …, Xn) and the probability of success (p) using the following equation:</p>
 </section>
 <section id="considerations" class="level2" data-number="8.2">
@@ -544,9 +565,18 @@ logit(p_i) \sim \alpha + \beta X
 <li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term.</p></li>
 <li><p><span class="math inline">\(X_i\)</span> is the value of the independent variable for observation <em>i</em>.</p></li>
 </ul>
-
-
 </section>
+</section>
+<section id="references" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="references"><span class="header-section-number">8.5</span> Reference(s)</h2>
+<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->

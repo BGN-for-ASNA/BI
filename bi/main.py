@@ -169,15 +169,7 @@ class bi(dist, gaussian, factors):
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
         self.tab_summary = az.summary(self.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
         return self.tab_summary 
-
-    def model_output_to_df(self, sample):
-        l = {}
-        for key in sample.keys():
-            l[key] = list(tf.squeeze(sample[key]).numpy())
-        post_df = pd.DataFrame.from_dict(l)
-        self.post_df = post_df
-        return post_df
-    
+   
     def diag_prior_dist(self, N = 100):
         samples = self.sample.sample(N)
         prob = self.log_prob(samples)
