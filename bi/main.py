@@ -91,8 +91,8 @@ class bi(dist, gaussian, factors):
 
         else:
             for a in range(len(cols)):
+                self.df.loc[:, cols[a]] = (self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean()) / self.df.loc[:, cols[a]].std()
 
-                self.df.loc[:, cols[a]] =  (self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean())/self.df.iloc[:,col].sd()
 
         self.data_modification['scale'] = cols # store info of scaled columns
         
