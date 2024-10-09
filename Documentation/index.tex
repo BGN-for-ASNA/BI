@@ -365,35 +365,35 @@ variable}\label{linear-regression-for-continuous-variable}
 
 \section{General Principles}\label{general-principles}
 
-To study relationships between two continuous variables (e.g.~height and
-weight), we can use : \emph{Linear regression approach}. Basically, we
-draw a line that cross the points clouds of the two tested variables.
-For this we need to have: 1) an intercept \(\alpha\) which inform us
-about the starting point of the line, 2) a coefficient \(\beta\) which
-in inform us about the slope of the line and 3) an error term \(\sigma\)
-which inform us about spread of points between the line. We can
-interpret the intercept \(\alpha\) as the mean for of \emph{Y} for the
-smaller value of \emph{X}, the coefficient \(\beta\) as how much
-\emph{Y} increase for each increment of \emph{X}, and \(\sigma\) as the
-error around the prediction.
+To study relationships between two continuous variables (e.g., height
+and weight), we can use a \emph{Linear regression approach}. Basically,
+we draw a line that crosses the point cloud of the two tested variables.
+For this, we need to have: 1) an intercept \(\alpha\), which represents
+origin of the line, 2) a coefficient \(\beta\), which informs us about
+the slope of the line, and 3) an variance term \(\sigma\), which informs
+us about the spread of points around the line. We can interpret the
+intercept \(\alpha\) as the expected value of the dependent variable
+when all independent variables are equal to zero, the coefficient
+\(\beta\) as how much \emph{Y} increases for each increment of \emph{X},
+and \(\sigma\) as the varrance around the prediction.
 
 \includegraphics{index_files/mediabag/1-WCcaObzvvVzcrg8CBi.webp}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Conciderations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
   Bayesian linear regression considers uncertainty in the model
   parameters and provides a full posterior distribution over them. We
-  thus need to declare prior distribution for \(\alpha\), \(\beta\) and
-  \(\sigma^2\).
+  thus need to declare prior distributions for \(\alpha\), \(\beta\),
+  and \(\sigma^2\).
 \item
-  Usually, we use \emph{Normal} distribution for \(\alpha\), \(\beta\)
-  and an \emph{exponential} or \emph{Gamma} distribution for \(\sigma\)
-  (basically any distribution that are positively defined).
+  Usually, we use a \emph{Normal} distribution for \(\alpha\) and
+  \(\beta\), and an \emph{exponential} or \emph{Gamma} distribution for
+  \(\sigma\) (basically any distribution that is positively defined).
 \item
-  As we consider that data is standardized (see introduction) we use a
-  distribution of mean 0 and of standard deviation of 1.
+  As we consider that data is standardized (see introduction), we use a
+  distribution with a mean of 0 and a standard deviation of 1.
 \item
   \(\sigma\) is assumed to be strictly positive.
 \item
@@ -409,7 +409,7 @@ error around the prediction.
 \section{Example}\label{example}
 
 Below is an example code snippet demonstrating Bayesian linear
-regression using Bayesian Inference (BI) package:
+regression using the Bayesian Inference (BI) package:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -425,10 +425,10 @@ regression using Bayesian Inference (BI) package:
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \KeywordTok{def}\NormalTok{ model(height, weight):    }
-\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ dist.normal( }\DecValTok{178}\NormalTok{, }\DecValTok{20}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
-\NormalTok{    beta }\OperatorTok{=}\NormalTok{ dist.normal(  }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{)   }
-\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ dist.uniform( }\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
-\NormalTok{    lk(}\StringTok{"height"}\NormalTok{, Normal(alpha }\OperatorTok{+}\NormalTok{ beta }\OperatorTok{*}\NormalTok{ weight , sigma), obs }\OperatorTok{=}\NormalTok{ height)}
+\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{178}\NormalTok{, }\DecValTok{20}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
+\NormalTok{    beta }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{)   }
+\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ dist.uniform(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
+\NormalTok{    lk(}\StringTok{"height"}\NormalTok{, Normal(alpha }\OperatorTok{+}\NormalTok{ beta }\OperatorTok{*}\NormalTok{ weight, sigma), obs }\OperatorTok{=}\NormalTok{ height)}
 
 \CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m.run(model) }
@@ -455,10 +455,10 @@ regression using Bayesian Inference (BI) package:
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(height, weight)\{}
-\NormalTok{  s }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{uniform}\NormalTok{( }\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{,}\AttributeTok{shape =} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
-\NormalTok{  a }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{( }\DecValTok{178}\NormalTok{, }\DecValTok{20}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
-\NormalTok{  b }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(  }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))   }
-\NormalTok{  bi}\SpecialCharTok{$}\FunctionTok{lk}\NormalTok{(}\StringTok{"y"}\NormalTok{, bi}\SpecialCharTok{$}\FunctionTok{Normal}\NormalTok{(a }\SpecialCharTok{+}\NormalTok{ b }\SpecialCharTok{*}\NormalTok{ weight , s), }\AttributeTok{obs=}\NormalTok{height)}
+\NormalTok{  s }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{uniform}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
+\NormalTok{  a }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(}\DecValTok{178}\NormalTok{, }\DecValTok{20}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
+\NormalTok{  b }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))   }
+\NormalTok{  bi}\SpecialCharTok{$}\FunctionTok{lk}\NormalTok{(}\StringTok{"y"}\NormalTok{, bi}\SpecialCharTok{$}\FunctionTok{Normal}\NormalTok{(a }\SpecialCharTok{+}\NormalTok{ b }\SpecialCharTok{*}\NormalTok{ weight, s), }\AttributeTok{obs =}\NormalTok{ height)}
 \NormalTok{\}}
 
 \CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
@@ -475,30 +475,29 @@ regression using Bayesian Inference (BI) package:
 formulation}}{Frequentist formulation}}\label{frequentist-formulation}
 
 The following equation allows us to draw a line and is the one that is
-most used in statistic class: \[
+most used in statistics classes: \[
 Y_i = \alpha + \beta  X_i + \epsilon_i
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(Y_i\) is the target variable.
+  \(Y_i\) is the dependent variable for observation \emph{i}.
 \item
   \(\alpha\) is the intercept term.
 \item
   \(\beta\) is the regression coefficient.
 \item
-  \(X_i\) is the input variable.
+  \(X_i\) is the input variable for observation \emph{i}.
 \item
-  \(\epsilon\) is vector of error terms independently distributed.
+  \(\epsilon_i\) is a vector of error terms, independently distributed.
 \end{itemize}
 
 \subsection{\texorpdfstring{\emph{Bayesian
 formulation}}{Bayesian formulation}}\label{bayesian-formulation}
 
-In the Bayesian formulation we define each parameter with
+In the Bayesian formulation, we define each parameter with
 \hyperref[]{priors}. We can express a Bayesian version of this
 regression model using the following model: \[
 Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
@@ -519,14 +518,18 @@ Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(Y_i\) is the target variable.
+  \(Y_i\) is dependent variable for observation \emph{i}.
 \item
   \(\beta\) and \(\alpha\) are the regression coefficients and intercept
   parameters, respectively.
 \item
-  \(\sigma\), is a prior.
+  \(X_i\) is the input variable for observation \emph{i}.
+\item
+  \(\sigma\) is a prior for the vairance term standard deviation of the
+  normal distribution that describes the variance in the relationship
+  between the dependent variable \(Y\) and the independent variable
+  \(X\).
 \end{itemize}
 
 \section{Reference(s)}\label{references}
@@ -540,16 +543,18 @@ model}\label{multiple-continuous-variables-model}
 
 \section{General Principles}\label{general-principles-1}
 
-To study relationships between multiple continuous variables (e.g.,
+To study relationships between multiple continuous variables (e.g., the
 effect of height and age on weight), we can use a Multiple Regression
 approach. Essentially, we extend the
 \href{1.\%20Linear\%20Regression\%20for\%20continuous\%20variable.qmd}{Linear
 Regression for continuous variable} by adding a regression coefficient
-\(\beta\) for each continuous variables.
+\(\beta\) for each continuous variable.
 
 \includegraphics{index_files/mediabag/0-dJqdzk1aMo2OQR7O.pdf}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Considerations}\label{considerations-1}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -559,13 +564,13 @@ Regression for continuous variable} by adding a regression coefficient
 \item
   We need a regression coefficient \(\beta\) for each
   \href{2.\%20Multiple\%20continuous\%20Variables.qmd}{independent
-  variables 🛈}.
+  variable 🛈}.
 \item
   Model interpretation of the regression coefficients \(\beta\) is
   considered for a fixed value of the other dependent variables'
-  regression coefficients ---i.e., for a given age, a variation of 1
-  unit in height reflects the value of the regression coefficient
-  \(\beta\) for height.
+  regression coefficients---i.e., for a given age, a variation of 1 unit
+  in height reflects the value of the regression coefficient \(\beta\)
+  for height.
 \end{itemize}
 
 \end{tcolorbox}
@@ -573,7 +578,7 @@ Regression for continuous variable} by adding a regression coefficient
 \section{Example}\label{example-1}
 
 Below is an example code snippet demonstrating Bayesian multiple
-regression using Bayesian Inference (BI) package:
+regression using the Bayesian Inference (BI) package:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -593,7 +598,7 @@ regression using Bayesian Inference (BI) package:
 \NormalTok{    alpha }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)    }
 \NormalTok{    beta1 }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}beta1\textquotesingle{}}\NormalTok{)}
 \NormalTok{    beta2 }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}beta2\textquotesingle{}}\NormalTok{)}
-\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ bi.dist.uniform( }\DecValTok{1}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
+\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ bi.dist.uniform(}\DecValTok{0}\NormalTok{,}\DecValTok{50}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
 
 \NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Normal(alpha }\OperatorTok{+}\NormalTok{ beta1 }\OperatorTok{*}\NormalTok{ weight }\OperatorTok{+}\NormalTok{ beta2 }\OperatorTok{*}\NormalTok{ age, sigma), obs}\OperatorTok{=}\NormalTok{height)}
 
@@ -605,71 +610,103 @@ regression using Bayesian Inference (BI) package:
 \end{Highlighting}
 \end{Shaded}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(reticulate)}
+\CommentTok{\# Setup device{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{bi }\OtherTok{\textless{}{-}} \FunctionTok{import}\NormalTok{(}\StringTok{"main"}\NormalTok{)}
+\NormalTok{m }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\FunctionTok{bi}\NormalTok{(}\AttributeTok{platform=}\StringTok{\textquotesingle{}cpu\textquotesingle{}}\NormalTok{)}
+
+\CommentTok{\# Import data {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m}\SpecialCharTok{$}\FunctionTok{data}\NormalTok{(}\StringTok{\textquotesingle{}../data/Howell1.csv\textquotesingle{}}\NormalTok{, }\AttributeTok{sep=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{) }
+\NormalTok{m}\SpecialCharTok{$}\NormalTok{df }\OtherTok{=}\NormalTok{ m}\SpecialCharTok{$}\NormalTok{df[m}\SpecialCharTok{$}\NormalTok{df}\SpecialCharTok{$}\NormalTok{age }\SpecialCharTok{\textgreater{}} \DecValTok{18}\NormalTok{,]}
+\NormalTok{m}\SpecialCharTok{$}\FunctionTok{data\_to\_model}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\StringTok{\textquotesingle{}weight\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}height\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{))}
+
+\CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(height, weight, age)\{}
+\NormalTok{  alpha }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
+\NormalTok{  beta1 }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b1\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
+\NormalTok{  beta2 }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(  }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b2\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))   }
+\NormalTok{  sigma }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{uniform}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
+\NormalTok{  bi}\SpecialCharTok{$}\FunctionTok{lk}\NormalTok{(}\StringTok{"y"}\NormalTok{, bi}\SpecialCharTok{$}\FunctionTok{Normal}\NormalTok{(alpha }\SpecialCharTok{+}\NormalTok{ beta1 }\SpecialCharTok{*}\NormalTok{ weight }\SpecialCharTok{+}\NormalTok{ beta2 }\SpecialCharTok{*}\NormalTok{ age, sigma), }\AttributeTok{obs=}\NormalTok{height)}
+\NormalTok{\}}
+
+\CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m}\SpecialCharTok{$}\FunctionTok{run}\NormalTok{(model) }
+
+\CommentTok{\# Summary {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m}\SpecialCharTok{$}\NormalTok{sampler}\SpecialCharTok{$}\FunctionTok{print\_summary}\NormalTok{(}\FloatTok{0.89}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
 \section{Mathematical Details}\label{mathematical-details-1}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula}
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-1}
 
 We model the relationship between the independent variables
 \((X_1, X_2, ..., X_n)\) and the dependent variable \emph{Y} using the
 following equation:
 
 \[
-𝑌 = \alpha +\beta_1  𝑋_1 + \beta_2  𝑋_2 + ... + \beta_n  𝑋_𝑛 + \sigma
+𝑌_i = \alpha +\beta_1  𝑋_{1i} + \beta_2  𝑋_{2i} + ... + \beta_n  𝑋_{1n} + \sigma
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(Y\) is the dependent variable.
+  \(Y_i\) is the dependent variable for observation \emph{i}.
 \item
   \(\alpha\) is the intercept term.
 \item
-  \(X_1\), \(X_2\), \ldots, \(X_n\) are the independent variables.
+  \(X_{1i}\), \(X_{2i}\), \ldots, \(X_{1n}\) are the values of the
+  independent variables for observation \emph{i}.
 \item
   \(\beta_1\), \(\beta_2\), \ldots, \(\beta_n\) are the regression
   coefficients.
 \item
-  \(sigma\) is the error term.
+  \(\sigma\) is the error term.
 \end{itemize}
 
 \subsection{\texorpdfstring{\emph{Bayesian
-model}}{Bayesian model}}\label{bayesian-model}
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-1}
 
-We can express the Bayesian regression model accounting for prior
-distribution as follows:
+In the Bayesian formulation, we define each parameter with
+\hyperref[]{priors}. We can express the Bayesian model as follows:
 
 \[
-𝑝(𝑌∣\alpha, \beta, X) \sim Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
+𝑌 \sim Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
 \]
 
 \[
-p(\alpha) \sim Normal(0,1)
+\alpha \sim Normal(0,1)
 \]
 
 \[
-p(\beta_i) \sim Normal(0,1)
+\beta_i \sim Normal(0,1)
 \]
 
 \[
-p(σ) \sim Uniform(0, 50)
+σ \sim Uniform(0, 50)
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(p(Y | 𝑋, \alpha,\beta)\) is the likelihood function.
+  \(Y_i\) is dependent variable for observation \emph{i}.
 \item
-  \(p(\alpha)\) is prior distributions for the intercept
+  \(\alpha\) is the prior distribution for the intercept.
 \item
-  \(p(\beta_k)\) are the prior distributions for the regression
+  \(\beta_k\) are the prior distributions for the regression
   coefficients \emph{k} distinct regression coefficients.
 \item
-  \(p(\sigma)\) is the prior distribution for the standard deviation,
-  ensuring - it is positive.
+  \(X_{1i}\), \(X_{2i}\), \ldots, \(X_{1n}\) are the values of the
+  independent variables for observation \emph{i}.
+\item
+  \(\sigma\) is the prior distribution for the standard deviation,
+  ensuring it is positive.
 \end{itemize}
 
 \section{Reference(s)}\label{references-1}
@@ -690,7 +727,7 @@ with Interaction Terms. In this approach, we extend the simple linear
 regression model to include an interaction term (a multiplication)
 between the two continuous variables.
 
-Parallel lines indicate that there is no interaction effect while
+Parallel lines indicate that there is no interaction effect, while
 different slopes suggest that one might be present. Below is the plot
 for Food x Condiment. The crossed lines on the graph suggest that there
 is an interaction effect, which the significant p-value for the
@@ -702,7 +739,9 @@ won't be happy!
 
 \includegraphics{index_files/mediabag/interactions_plot_ca.png}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Considerations}\label{considerations-2}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -710,7 +749,7 @@ won't be happy!
   \href{1.\%20Linear\%20Regression\%20for\%20continuous\%20variable.qmd}{Regression
   for continuous variable}.
 \item
-  Model relationship between Y and R to vary as a function of A. you
+  Model the relationship between Y and R to vary as a function of A. You
   explicitly model the hypothesis that the slope between Y and R
   depends---is conditional---upon A.
 \item
@@ -718,12 +757,12 @@ won't be happy!
   the outcome variable. This ease of interpretation alone is a good
   reason to center predictor variables.
 \item
-  Estimate interpretation is more difficult as estimate of
-  non-interaction terms become expected change in Y when R increases by
-  one unit and A is at its average value and estimate of interaction
-  terms are expected change in the influence of A on Y when increasing R
-  by one unit and expected change in the influence of R on Y when
-  increasing A by one unit.
+  The interpretation of estimates is more difficult, as the estimate of
+  non-interaction terms becomes the expected change in Y when R
+  increases by one unit and A is at its average value. The estimate of
+  interaction terms represents the expected change in the influence of A
+  on Y when increasing R by one unit and the expected change in the
+  influence of R on Y when increasing A by one unit.
 \item
   \href{3.\%20\%Interaction\%20\%between\%20\%continuous\%20\%variables.qmd}{Triptych
   🛈} plots are very handy for understanding the impact of interactions.
@@ -750,13 +789,13 @@ Inference (BI) package:
 \NormalTok{m.data\_to\_model([}\StringTok{\textquotesingle{}blooms\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}water\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}shade\textquotesingle{}}\NormalTok{])}
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
-\KeywordTok{def}\NormalTok{ model(blooms,shade, water):}
-\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ dist.normal(}\FloatTok{0.5}\NormalTok{, }\FloatTok{0.25}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
-\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ dist.exponential(}\DecValTok{1}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
-\NormalTok{    beta1 }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.25}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}beta1\textquotesingle{}}\NormalTok{)}
-\NormalTok{    beta2 }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.25}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}beta2\textquotesingle{}}\NormalTok{)}
-\NormalTok{    beta\_interaction\_ }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.25}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}beta\_interaction\_\textquotesingle{}}\NormalTok{)    }
-\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Normal(a }\OperatorTok{+}\NormalTok{ beta1}\OperatorTok{*}\NormalTok{water }\OperatorTok{+}\NormalTok{ beta2}\OperatorTok{*}\NormalTok{shade }\OperatorTok{+}\NormalTok{ beta\_interaction\_}\OperatorTok{*}\NormalTok{water}\OperatorTok{*}\NormalTok{shade, sigma), obs}\OperatorTok{=}\NormalTok{blooms)}
+\KeywordTok{def}\NormalTok{ model(blooms, shade, water):}
+\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ dist.normal(}\FloatTok{0.5}\NormalTok{, }\FloatTok{0.25}\NormalTok{, name}\OperatorTok{=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
+\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ dist.exponential(}\DecValTok{1}\NormalTok{, name}\OperatorTok{=}\StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
+\NormalTok{    beta1 }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.25}\NormalTok{, name}\OperatorTok{=}\StringTok{\textquotesingle{}beta1\textquotesingle{}}\NormalTok{)}
+\NormalTok{    beta2 }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.25}\NormalTok{, name}\OperatorTok{=}\StringTok{\textquotesingle{}beta2\textquotesingle{}}\NormalTok{)}
+\NormalTok{    beta\_interaction\_ }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.25}\NormalTok{, name}\OperatorTok{=}\StringTok{\textquotesingle{}beta\_interaction\_\textquotesingle{}}\NormalTok{)    }
+\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Normal(alpha }\OperatorTok{+}\NormalTok{ beta1 }\OperatorTok{*}\NormalTok{ water }\OperatorTok{+}\NormalTok{ beta2 }\OperatorTok{*}\NormalTok{ shade }\OperatorTok{+}\NormalTok{ beta\_interaction\_ }\OperatorTok{*}\NormalTok{ water }\OperatorTok{*}\NormalTok{ shade, sigma), obs}\OperatorTok{=}\NormalTok{blooms)}
 
 \CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m.run(model) }
@@ -766,82 +805,116 @@ Inference (BI) package:
 \end{Highlighting}
 \end{Shaded}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(reticulate)}
+\NormalTok{bi }\OtherTok{\textless{}{-}} \FunctionTok{import}\NormalTok{(}\StringTok{"main"}\NormalTok{)}
+
+\CommentTok{\# Setup device{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\FunctionTok{bi}\NormalTok{(}\AttributeTok{platform=}\StringTok{\textquotesingle{}cpu\textquotesingle{}}\NormalTok{)}
+
+\CommentTok{\# Import data {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m}\SpecialCharTok{$}\FunctionTok{data}\NormalTok{(}\StringTok{\textquotesingle{}../data/tulips.csv\textquotesingle{}}\NormalTok{, }\AttributeTok{sep=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{) }
+\CommentTok{\#m.scale([\textquotesingle{}blooms\textquotesingle{}, \textquotesingle{}water\textquotesingle{}, \textquotesingle{}shade\textquotesingle{}])}
+\NormalTok{m}\SpecialCharTok{$}\FunctionTok{data\_to\_model}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\StringTok{\textquotesingle{}blooms\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}water\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}shade\textquotesingle{}}\NormalTok{))}
+
+\CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(blooms, water,shade)\{}
+\NormalTok{  alpha }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{( }\FloatTok{0.5}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
+\NormalTok{  beta1 }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{( }\DecValTok{0}\NormalTok{,  }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b1\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
+\NormalTok{  beta2 }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(  }\DecValTok{0}\NormalTok{,  }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b2\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))   }
+\NormalTok{  beta\_interaction\_ }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(  }\DecValTok{0}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}bint\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{))) }
+\NormalTok{  sigma }\OtherTok{=}\NormalTok{ bi}\SpecialCharTok{$}\NormalTok{dist}\SpecialCharTok{$}\FunctionTok{uniform}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{,}\AttributeTok{shape =} \FunctionTok{tuple}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{)))}
+\NormalTok{  bi}\SpecialCharTok{$}\FunctionTok{lk}\NormalTok{(}\StringTok{"y"}\NormalTok{, bi}\SpecialCharTok{$}\FunctionTok{Normal}\NormalTok{(alpha }\SpecialCharTok{+}\NormalTok{ beta1}\SpecialCharTok{*}\NormalTok{water }\SpecialCharTok{+}\NormalTok{ beta2}\SpecialCharTok{*}\NormalTok{shade }\SpecialCharTok{+}\NormalTok{ beta\_interaction\_}\SpecialCharTok{*}\NormalTok{water}\SpecialCharTok{*}\NormalTok{shade, sigma), }\AttributeTok{obs=}\NormalTok{blooms)}
+\NormalTok{\}}
+
+\CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m}\SpecialCharTok{$}\FunctionTok{run}\NormalTok{(model) }
+
+\CommentTok{\# Summary {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m}\SpecialCharTok{$}\NormalTok{sampler}\SpecialCharTok{$}\FunctionTok{print\_summary}\NormalTok{(}\FloatTok{0.89}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
 \section{Mathematical Details}\label{mathematical-details-2}
 
-\section{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-1}
+\section{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-2}
 
 We model the relationship between the input features (X1 and X2) and the
 target variable (Y) using the following equation: \[
-𝑌 = \alpha + \beta_1𝑋_1∗+\beta_2𝑋_2+\\beta_{interaction}𝑋_1𝑋_2 + $\sigma$
+𝑌_i = \alpha + \beta_1𝑋_{1i} + \beta_2𝑋_{2i} + \beta_{interaction}𝑋_{1i}𝑋_{2i} + \sigma
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(Y\) is the target variable.
+  \(Y_i\) is the dependent variable for observation \emph{i}.
 \item
   \(\alpha\) is the intercept term.
 \item
-  \(X_1\) and \(X_2\) are the two independent continuous variables.
+  \(X_{1i}\) and \(X_{2i}\) are the two values of the independent
+  continuous variables for observation \emph{i}.
 \item
   \(\beta_1\) and \(\beta_2\) are the regression coefficients for
-  \(X_1\) and \(X_2\), respectively.
+  \(X_{1i}\) and \(X_{2i}\), respectively.
 \item
   \(\beta_{interaction}\) is the regression coefficient for the
-  interaction term \((X_1  X_2)\).
+  interaction term \((X_{1i}  X_{2i})\).
 \item
   \(\sigma\) is the error term assumed to be normally distributed.
 \end{itemize}
 
-In this context, the interaction term \(X_1 * X_2\) captures the joint
-effect of \(X_1\) and \(X_2\) on the target variable \(Y\).
+In this context, the interaction term \(X_{1i} * X_{2i}\) captures the
+joint effect of \(X_{1i}\) and \(X_{2i}\) on the target variable
+\(Y_i\).
 
 \subsection{\texorpdfstring{\emph{Bayesian
-model}}{Bayesian model}}\label{bayesian-model-1}
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-2}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
 
 \[
-p(Y∣X_1​ ,X_2​ , \beta_1, \beta_2, \beta_{interaction} ) \sim Normal(\alpha +  \beta_1  X_1​ + \beta_2  X_2​​ + \beta_{interaction}  X_1​ X_2​ ,  $\sigma$)
+Y \sim Normal(\alpha +  \beta_1  X_{1i}​ + \beta_2  X_{2i}​​ + \beta_{interaction}  X_1{1i} X_{2i}​ ,  \sigma)
 \]
 
 \[
-𝑝(\alpha) \sim Normal(0,1)
+\alpha \sim Normal(0,1)
 \]
 
 \[
-𝑝(\beta_1) \sim Normal(0,1)
+\beta_1 \sim Normal(0,1)
 \]
 
 \[
-𝑝(\beta_2) \sim Normal(0,1)
+\beta_2 \sim Normal(0,1)
 \]
 
 \[
-𝑝(\beta_{interaction}) \sim Normal(0,1)
+\beta_{interaction} \sim Normal(0,1)
 \]
 
 \[
-𝑝(σ) \sim Exponential(1)
+σ \sim Exponential(1)
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(p(Y | X_1​ ,X_2​ , \beta_1, \beta_2, \beta_{interaction})\) is the
-  likelihood function.
+  \(Y_i\) is dependent variable for observation \emph{i}.
 \item
-  \(p(\alpha)\) is the prior distribution for the intercept
+  \(\alpha\) is the prior distribution for the intercept.
 \item
-  \(p(\beta_1)\), \(p(\beta_2)\) and \(\beta_{interaction}\) are the
-  prior distributions for the regression coefficients.
+  \(\beta_1\), \(\beta_2\), and \(\beta_{interaction}\) are the prior
+  distributions for the regression coefficients.
 \item
-  \(p(\sigma)\) is the prior distribution for the standard deviation,
+  \(X_{1i}\) and \(X_{2i}\) are the two values of the independent
+  continuous variables for observation \emph{i}.
+\item
+  \(\sigma\) is the prior distribution for the standard deviation,
   ensuring it is positive.
 \end{itemize}
 
@@ -857,19 +930,21 @@ Variables}\label{regression-for-categorical-variables}
 \section{General Principles}\label{general-principles-3}
 
 To study the relationship between a categorical independent variable and
-a continuous dependent variable, we use \emph{Categorical model} wich
-apply \emph{stratification}.
+a continuous dependent variable, we use a \emph{Categorical model} which
+applies \emph{stratification}.
 
-\emph{Stratification} concist in modeling how the different categories
-of the independent variable affect the target continuous variable, by
-performing a regression for each categories and asing a regression
-coefficient for each categories. To realize the \emph{stratification},
+\emph{Stratification} consists of modeling how the different categories
+of the independent variable affect the target continuous variable by
+performing a regression for each category and assigning a regression
+coefficient for each category. To realize the \emph{stratification},
 categorical variables are often encoded using one-hot encoding or
-converting categories to indeces.
+converting categories to indices.
 
 \includegraphics{index_files/mediabag/tumblr_inline_o8j406.png}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Considerations}\label{considerations-3}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -877,9 +952,9 @@ converting categories to indeces.
   \href{1.\%20Linear\%20Regression\%20for\%20continuous\%20variable.qmd}{Regression
   for continuous variable}.
 \item
-  As we generate regression coefficients for each ( k ) category in the
-  code, we need to specify a prior with a shape equal to the number of
-  categories (see comments in the code).
+  As we generate regression coefficients for each \emph{k} category in
+  the code, we need to specify a prior with a shape equal to the number
+  of categories (see comments in the code).
 \item
   To compare differences between categories, we need to compute the
   distribution of the differences between categories, known as the
@@ -909,9 +984,9 @@ an independent categorical variable:
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \KeywordTok{def}\NormalTok{ model(kcal\_per\_g, index\_clade):    }
-\NormalTok{    beta }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, shape }\OperatorTok{=}\NormalTok{ (}\DecValTok{4}\NormalTok{,), name }\OperatorTok{=} \StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{) }\CommentTok{\# we specify a vector of length 4 as we have 4 categories}
-\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ bi.dist.exponential( }\DecValTok{1}\NormalTok{,  name }\OperatorTok{=} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
-\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Normal(beta[index\_clade], s), obs}\OperatorTok{=}\NormalTok{ kcal\_per\_g)}
+\NormalTok{    beta }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(}\DecValTok{4}\NormalTok{,), name}\OperatorTok{=}\StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{)  }\CommentTok{\# we specify a vector of length 4 as we have 4 categories}
+\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ bi.dist.exponential(}\DecValTok{1}\NormalTok{, name}\OperatorTok{=}\StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
+\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Normal(beta[index\_clade], sigma), obs}\OperatorTok{=}\NormalTok{kcal\_per\_g)}
 
 
 \CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
@@ -924,30 +999,31 @@ an independent categorical variable:
 
 \section{Mathematical Details}\label{mathematical-details-3}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-2}
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-3}
 
 We model the relationship between the categorical input feature (X) and
 the target variable (Y) using the following equation:
 
-\[𝑌=\alpha + \beta_k X_i + \sigma\]
+\[
+Y_i = \alpha + \beta_k X_i + \sigma
+\]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(Y\) is the target variable.
-\item
-  \(X\) is the encoded categorical input variable .
+  \(Y_i\) is dependent variable for observation \emph{i}.
 \item
   \(\alpha\) is the intercept term.
 \item
-  \(\beta_k\) are the regression coefficient for each \emph{k}
-  categories.
+  \(\beta_k\) are the regression coefficients for each \emph{k}
+  category.
 \item
-  \(X\) is the independet varible
+  \(X_i\) is the encoded categorical input variable for observation
+  \emph{i}.
 \item
-  \(\sigma\) is the error term .
+  \(\sigma\) is the error term.
 \end{itemize}
 
 We can interpret \(\beta_i\) as the effect of each category on \(Y\)
@@ -955,50 +1031,58 @@ relative to the baseline (usually one of the categories or the
 intercept).
 
 \subsection{\texorpdfstring{\emph{Bayesian
-model}}{Bayesian model}}\label{bayesian-model-2}
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-3}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
 
 \[
-p(Y|\alpha, \beta, X) \sim Normal(\alpha +  \beta_k X, \sigma)
+Y \sim Normal(\alpha +  \beta_k X, \sigma)
 \]
 
 \[
-𝑝(\alpha) \sim Normal(0,1)
-\] \[
-𝑝(\beta_k) \sim Normal(0,1)
-\] \[
-𝑝(𝜎) \sim Exponential(1)
+\alpha \sim Normal(0,1)
+\]
+
+\[
+\beta_k \sim Normal(0,1)
+\]
+
+\[
+\sigma \sim Exponential(1)
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(p(𝑌_i∣\alpha, 𝑋_i, \beta_i)\) is the likelihood function.
+  \(Y_i\) is dependent variable for observation \emph{i}.
 \item
-  \(p(\alpha)\) is prior distributions for the intercept
+  \(\alpha\) is the prior distribution for the intercept.
 \item
-  \(p(\beta_k)\) are \emph{k} prior distributions for \emph{k}
-  regression coefficients.
+  \(\beta_k\) are \emph{k} prior distributions for \emph{k} regression
+  coefficients.
 \item
-  \(p(\sigma)\) is the prior distribution for the standard deviation,
+  \(X_i\) is the encoded categorical input variable for observation
+  \emph{i}.
+\item
+  \(\sigma\) is the prior distribution for the standard deviation,
   ensuring it is positive.
 \end{itemize}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Notes}\label{notes}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
-  We can apply multiple variables similarly as
-  \href{2.\%20Multiple\%20continuous\%20Variables.qmd}{chapter 2:
-  Multiple continuous Variables}.
+  We can apply multiple variables similarly as in
+  \href{2.\%20Multiple\%20continuous\%20Variables.qmd}{Chapter 2:
+  Multiple Continuous Variables}.
 \item
-  We can apply interaction terms similarly as
-  \href{3.\%20Interaction\%20between\%20continuous\%20variables.qmd}{chapter
-  3: Interaction between continuous variables}.
+  We can apply interaction terms similarly as in
+  \href{3.\%20Interaction\%20between\%20continuous\%20variables.qmd}{Chapter
+  3: Interaction between Continuous Variables}.
 \end{itemize}
 
 \end{tcolorbox}
@@ -1009,17 +1093,19 @@ McElreath (2018)
 
 \bookmarksetup{startatroot}
 
-\chapter{Binomial model}\label{binomial-model}
+\chapter{Binomial Model}\label{binomial-model}
 
 \section{General Principles}\label{general-principles-4}
 
-To model the relationship between a binary outcome -e.g.~such as
-success/failure, yes/no, or 1/0.- variable and one or more independent
-variables, we can use Binomial model.
+To model the relationship between a binary outcome ---e.g.,
+success/failure, yes/no, or 1/0---and one or more independent variables,
+we can use a Binomial model.
 
 \includegraphics{index_files/mediabag/xHlvv.png}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Considerations}\label{considerations-4}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -1027,8 +1113,8 @@ variables, we can use Binomial model.
   \href{1.\%20Linear\%20Regression\%20for\%20continuous\%20variable.qmd}{Regression
   for continuous variable}.
 \item
-  We have the firs \href{5.\%20Binomial\%20regression.qmd}{link
-  function} \emph{logit}. The \emph{logit} link function in Bayesian
+  We have the first \href{5.\%20Binomial\%20regression.qmd}{link
+  function} \emph{logit}. The \emph{logit} link function in the Bayesian
   binomial model converts the linear combination of predictor variables
   into probabilities, making it suitable for modeling binary outcomes.
   It helps estimate the relationship between predictors and the
@@ -1041,7 +1127,7 @@ variables, we can use Binomial model.
 \section{Example}\label{example-4}
 
 Below is an example code snippet demonstrating Bayesian binomial
-regression
+regression:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1056,11 +1142,11 @@ regression
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \KeywordTok{def}\NormalTok{ model(pulled\_left):}
-\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ dist.normal( }\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{)}
-\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Binomial(logits}\OperatorTok{=}\NormalTok{ alpha[actor] }\OperatorTok{+}\NormalTok{ beta1[side] }\OperatorTok{+}\NormalTok{ beta2[cond]), obs}\OperatorTok{=}\NormalTok{pulled\_left)}
+\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{)}
+\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Binomial(logits}\OperatorTok{=}\NormalTok{alpha[actor] }\OperatorTok{+}\NormalTok{ beta1[side] }\OperatorTok{+}\NormalTok{ beta2[cond]), obs}\OperatorTok{=}\NormalTok{pulled\_left)}
 
-\CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
-\NormalTok{m.run(model, init\_strategy }\OperatorTok{=}\NormalTok{ numpyro.infer.initialization.init\_to\_mean()) }
+\CommentTok{\# Run MCMC {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m.run(model, init\_strategy}\OperatorTok{=}\NormalTok{numpyro.infer.initialization.init\_to\_mean()) }
 
 \CommentTok{\# Summary {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m.sampler.print\_summary(}\FloatTok{0.89}\NormalTok{)}
@@ -1069,89 +1155,94 @@ regression
 
 \section{Mathematical Details}\label{mathematical-details-4}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-3}
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-4}
 
-We model the relationship between the independent variable (\(X\)) and
-the binary outcome variable (\(Y\)) using the following equation: \[
-logit(Y)=\alpha + \beta   𝑋 
+We model the relationship between the independent variable (\(X_i\)) and
+the binary dependent variable (\(Y_i\)) using the following equation: \[
+logit(Y_i) = \alpha + \beta X 
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(Y\) is the probability of success (or the probability of the binary
-  outcome being 1).
-\item
-  \(X\), is an independent variables.
-\item
-  \(\beta\) is the regression coefficients.
+  \(Y_i\) is the probability of success (or the probability of the
+  binary outcome being 1) for observation \emph{i}.
 \item
   \(\alpha\) is the intercept term.
 \item
-  \(\sigma\) is the error term.
+  \(\beta\) is the regression coefficient.
 \item
-  \(logit(Y)\) is the log-odds of success, calculated as the log of the
-  odds ratio of success. Through this link function, the relationship
-  between the independent variables and the log-odds of success is
-  modeled linearly, allowing us to interpret the effect of each
-  independent variables on the log-odds of success.
+  \(X_i\) is the value of the independent variable for observation
+  \emph{i}.
+\item
+  \(logit(Y_i)\) is the log-odds of success, calculated as the log of
+  the odds ratio of success. Through this link function, the
+  relationship between the independent variables and the log-odds of
+  success is modeled linearly, allowing us to interpret the effect of
+  each independent variable on the log-odds of success for observation
+  \emph{i}.
 \end{itemize}
 
-\subsection{\texorpdfstring{\emph{Bayesian model
-(WIP)}}{Bayesian model (WIP)}}\label{bayesian-model-wip}
+\subsection{\texorpdfstring{\emph{Bayesian
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-4}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
 
 \[ 
-Y \sim Binomial(𝑛 = 1, 𝑝)
+Y \sim Binomial(n = 1, p)
 \]
 
 \[
 logit(p) \sim \alpha + \beta X
-\] \[
-𝑝(\alpha) \sim Normal(0,1)
-\] \[
-𝑝(\beta) \sim Normal(0,1)
+\]
+
+\[
+\alpha \sim Normal(0,1)
+\]
+
+\[
+\beta \sim Normal(0,1)
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(p(Y | 𝑌∣\alpha, \beta, 𝑋)\) is the likelihood function.
+  \(Y\) is the likelihood function.
 \item
-  \(p(\beta)\) and \(p(\alpha)\) are the prior distributions for the
-  regression coefficients and intercept, respectivelly.
+  \(\beta\) and \(p(\alpha)\) are the prior distributions for the
+  regression coefficients and intercept, respectively.
 \item
-  \(n=1\) represents the number of trials in the binomial distribution
+  \(n = 1\) represents the number of trials in the binomial distribution
   (binary outcome).
 \item
-  \(logit(\alpha + \beta  𝑋 )\) is the \emph{logit} link function that
-  is equal to sigmoid function applied to the linear combination of
+  \(logit(\alpha + \beta X)\) is the \emph{logit} link function that is
+  equal to the sigmoid function applied to the linear combination of
   predictors, mapping the log-odds to probabilities.
 \end{itemize}
 
 \section{Notes}\label{notes-1}
 
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, rightrule=.15mm, colback=white]
+
 \begin{itemize}
 \item
-  We can apply multiple variables similarly as
+  We can apply multiple variables similarly as in
   \href{./2.\%20Multiple\%20Regression\%20for\%20Continuous\%20Variables.qmd}{chapter
   2}.
 \item
-  We can apply interaction terms similarly as
+  We can apply interaction terms similarly as in
   \href{/3.\%20Interaction\%20between\%20continuous\%20variables.qmd}{chapter
   3}.
 \item
-  We can apply caterogical variables similarly as
+  We can apply categorical variables similarly as in
   \href{4.\%20Categorical\%20variable.qmd}{chapter 4}.
 \item
-  Below is an example code snippet demonstrating Bayesian binomial model
-  for multiple caterogical variables :
+  Below is an example code snippet demonstrating a Bayesian binomial
+  model for multiple categorical variables:
 \end{itemize}
 
 \begin{Shaded}
@@ -1169,18 +1260,20 @@ Where:
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \KeywordTok{def}\NormalTok{ model(pulled\_left):}
-\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, shape }\OperatorTok{=}\NormalTok{ (}\DecValTok{7}\NormalTok{,), }\StringTok{"alpha"}\NormalTok{) }\CommentTok{\# generating k intercept  \#(one for each actor)}
-\NormalTok{    beta1 }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, shape }\OperatorTok{=}\NormalTok{ (}\DecValTok{2}\NormalTok{,), }\StringTok{"beta"}\NormalTok{) }\CommentTok{\# generating k regression coefficient  for each k prosoc\_left)}
-\NormalTok{    beta2 }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, shape }\OperatorTok{=}\NormalTok{ (}\DecValTok{2}\NormalTok{,), }\StringTok{"alpha"}\NormalTok{) }\CommentTok{\# generating k regression coefficient for each k condition)}
-\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Binomial(logits}\OperatorTok{=}\NormalTok{ alpha[actor] }\OperatorTok{+}\NormalTok{ beta1[side] }\OperatorTok{+}\NormalTok{ beta2[cond]), obs}\OperatorTok{=}\NormalTok{pulled\_left)}
+\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(}\DecValTok{7}\NormalTok{,), name}\OperatorTok{=}\StringTok{"alpha"}\NormalTok{)  }\CommentTok{\# generating k intercepts (one for each actor)}
+\NormalTok{    beta1 }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(}\DecValTok{2}\NormalTok{,), name}\OperatorTok{=}\StringTok{"beta"}\NormalTok{)  }\CommentTok{\# generating k regression coefficients for each k prosoc\_left}
+\NormalTok{    beta2 }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(}\DecValTok{2}\NormalTok{,), name}\OperatorTok{=}\StringTok{"beta"}\NormalTok{)  }\CommentTok{\# generating k regression coefficients for each k condition}
+\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Binomial(logits}\OperatorTok{=}\NormalTok{alpha[actor] }\OperatorTok{+}\NormalTok{ beta1[side] }\OperatorTok{+}\NormalTok{ beta2[cond]), obs}\OperatorTok{=}\NormalTok{pulled\_left)}
 
-\CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
-\NormalTok{m.run(model, init\_strategy }\OperatorTok{=}\NormalTok{ numpyro.infer.initialization.init\_to\_mean()) }
+\CommentTok{\# Run MCMC {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m.run(model, init\_strategy}\OperatorTok{=}\NormalTok{numpyro.infer.initialization.init\_to\_mean()) }
 
 \CommentTok{\# Summary {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m.sampler.print\_summary(}\FloatTok{0.89}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+\end{tcolorbox}
 
 \section{Reference(s)}\label{references-4}
 
@@ -1188,32 +1281,34 @@ McElreath (2018)
 
 \bookmarksetup{startatroot}
 
-\chapter{Beta-Binomial model}\label{beta-binomial-model}
+\chapter{Beta-Binomial Model}\label{beta-binomial-model}
 
 \section{General Principles}\label{general-principles-5}
 
 To model the relationship between a binary outcome variable representing
-success counts and one or more indepedent variables with
-\href{7.\%20Poisson\%20model.qmd}{overdispersion 🛈}, we can use
+success counts and one or more independent variables with
+\href{7.\%20Poisson\%20model.qmd}{overdispersion 🛈}, we can use the
 Beta-Binomial model.
 
 We model the relationship between the predictor variables (X1, X2,
 \ldots, Xn) and the probability of success (p) using the following
 equation:
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Considerations}\label{considerations-5}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
   We have the same considerations as for
   \href{5.\%20Binomial\%20model.qmd}{Binomial regression}.
 \item
-  A beta-binomial model assumes that each binomial count observation has
-  its own probability of a success. The model estimates the distribution
+  A Beta-Binomial model assumes that each binomial count observation has
+  its own probability of success. The model estimates the distribution
   of probabilities of success across cases, instead of a single
   probability of success.
 \item
-  A beta distribution has two parameters, an average probability
+  A Beta distribution has two parameters: an average probability
   \emph{p} and a shape parameter θ.
 \end{itemize}
 
@@ -1238,22 +1333,22 @@ regression:
 \NormalTok{admit }\OperatorTok{=}\NormalTok{ jnp.array(m.df[}\StringTok{"admit"}\NormalTok{].astype(}\StringTok{\textquotesingle{}float32\textquotesingle{}}\NormalTok{).values)}
 
 \NormalTok{m.data\_on\_model }\OperatorTok{=} \BuiltInTok{dict}\NormalTok{(}
-\NormalTok{    gid }\OperatorTok{=}\NormalTok{ gid,}
-\NormalTok{    applications }\OperatorTok{=}\NormalTok{ applications,}
-\NormalTok{    admit }\OperatorTok{=}\NormalTok{  admit}
+\NormalTok{    gid}\OperatorTok{=}\NormalTok{gid,}
+\NormalTok{    applications}\OperatorTok{=}\NormalTok{applications,}
+\NormalTok{    admit}\OperatorTok{=}\NormalTok{admit}
 \NormalTok{)}
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \KeywordTok{def}\NormalTok{ model(gid, applications, admit):}
-\NormalTok{    phi }\OperatorTok{=}\NormalTok{ dist.exponential(}\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{1}\NormalTok{], name }\OperatorTok{=} \StringTok{\textquotesingle{}phi\textquotesingle{}}\NormalTok{)}
-\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ dist.normal( }\FloatTok{0.}\NormalTok{, }\FloatTok{1.5}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{2}\NormalTok{], name }\OperatorTok{=} \StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
+\NormalTok{    phi }\OperatorTok{=}\NormalTok{ dist.exponential(}\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{1}\NormalTok{], name}\OperatorTok{=}\StringTok{\textquotesingle{}phi\textquotesingle{}}\NormalTok{)}
+\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ dist.normal(}\FloatTok{0.}\NormalTok{, }\FloatTok{1.5}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{2}\NormalTok{], name}\OperatorTok{=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
 \NormalTok{    theta }\OperatorTok{=}\NormalTok{ phi }\OperatorTok{+} \DecValTok{2}
 \NormalTok{    pbar }\OperatorTok{=}\NormalTok{ jax.nn.sigmoid(alpha[gid])}
-\NormalTok{    concentration1 }\OperatorTok{=}\NormalTok{ pbar}\OperatorTok{*}\NormalTok{theta}
+\NormalTok{    concentration1 }\OperatorTok{=}\NormalTok{ pbar }\OperatorTok{*}\NormalTok{ theta}
 \NormalTok{    concentration0 }\OperatorTok{=}\NormalTok{ (}\DecValTok{1} \OperatorTok{{-}}\NormalTok{ pbar) }\OperatorTok{*}\NormalTok{ theta}
-\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, BetaBinomial(total\_count }\OperatorTok{=}\NormalTok{ applications, concentration1 }\OperatorTok{=}\NormalTok{ concentration1, concentration0 }\OperatorTok{=}\NormalTok{ concentration0), obs}\OperatorTok{=}\NormalTok{admit)}
+\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, BetaBinomial(total\_count}\OperatorTok{=}\NormalTok{applications, concentration1}\OperatorTok{=}\NormalTok{concentration1, concentration0}\OperatorTok{=}\NormalTok{concentration0), obs}\OperatorTok{=}\NormalTok{admit)}
 
-\CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\CommentTok{\# Run MCMC {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m.run(model) }
 
 \CommentTok{\# Summary {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
@@ -1263,62 +1358,69 @@ regression:
 
 \section{Mathematical Details}\label{mathematical-details-5}
 
-\section{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-4}
+\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula}
 
 \[
-logit(𝑝)= \alpha + \beta X
+logit(p_i) = \alpha + \beta X_i
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(p\) is the probability of success.
+  \(p_i\) is the probability of success for observation \emph{i}.
 \item
-  \(\alpha\) the intercept term.
+  \(\alpha\) is the intercept term.
 \item
-  \(\beta\) the regression term.
+  \(\beta\) is the regression term.
 \item
-  \(X\) is an independent variables.
+  \(X_i\) is the value of the independent variable for observation
+  \emph{i}.
 \item
-  \(\text{logit}(p)\) is the log-odds of success.
+  \(\text{logit}(p_i)\) is the log-odds of success for observation
+  \emph{i}.
 \end{itemize}
 
-\subsection{\texorpdfstring{\emph{Bayesian model
-(WIP)}}{Bayesian model (WIP)}}\label{bayesian-model-wip-1}
+\subsection{\texorpdfstring{\emph{Bayesian
+Model}}{Bayesian Model}}\label{bayesian-model}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
 
 \[
-p(Y|n, \overline{p}, \theta) \sim BetaBinomial(n, \overline{p}, \theta)
+Y_i \sim BetaBinomial(n_i, p_i, \theta)
 \]
 
 \[
-logit(\overline{p}) \sim \alpha + \beta X
+logit(p_i) \sim \alpha + \beta X
 \]
 
-\[𝑝(\alpha) \sim Normal(0,1)\]
+\[
+\alpha \sim Normal(0,1)
+\]
 
-\[p(\theta) \sim HalfCaychy(0,1)\]
+\[
+\theta \sim HalfCauchy(0,1)
+\]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(p(Y | n, \overline{p}, \theta)\) is the likelihood function.
+  \(Y_i\) is the dependent variable for observation \emph{i}.
 \item
-  \(n\) is the total count of trials.
+  \(n_i\) is the total count of trials for observation \emph{i}.
 \item
-  \(\overline{p}\) is the average probability.
+  \(p_i\) is the probability of success for observation \emph{i}.
 \item
-  \(p(\theta)\) is the shape distribution term.
+  \(\theta\) is the shape distribution term.
 \item
-  \(𝑝(\alpha)\) is the intercept term.
+  \(\alpha\) is the intercept term.
 \item
-  \(𝑝(\beta)\) is regression coefficient term.
+  \(\beta\) is the regression coefficient term.
+\item
+  \(X_i\) is the value of the independent variable for observation
+  \emph{i}.
 \end{itemize}
 
 \bookmarksetup{startatroot}
@@ -1327,17 +1429,19 @@ Where:
 
 \section{General Principles}\label{general-principles-6}
 
-To model the relationship between a count outcome variable -e.g.~counts
-of events occurring in a fixed interval of time or space- and one or
-more independent variables, we can use Poisson model.
+To model the relationship between a count outcome variable---e.g.,
+counts of events occurring in a fixed interval of time or space---and
+one or more independent variables, we can use the Poisson model.
 
-This is a special shape of the binomial distribution, it is useful
-because it model binomial events for which the number of trials n is
-unknown or uncountably large.
+This is a special shape of the binomial distribution; it is useful
+because it models binomial events for which the number of trials ( n )
+is unknown or uncountably large.
 
 \includegraphics{index_files/mediabag/Comparison-of-linear.png}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Considerations}\label{considerations-6}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -1347,18 +1451,30 @@ unknown or uncountably large.
 \item
   We have the second \href{6.\%20Poisson\%20regression.qmd}{link
   function}. The conventional link function for a Poisson model is the
-  \emph{log} link (it ensures that \emph{λ} i is always positive).
+  \emph{log} link (it ensures that \emph{λ} is always positive).
 \item
   To invert the log link function and model linearly the relationship
-  between the predictor variables and the log of the mean rate parameter
-  we can apply the exponential function (see comment in code)
+  between the predictor variables and the log of the mean rate
+  parameter, we can apply the exponential function (see comment in
+  code).
+\end{itemize}
+
+\[
+log(\lambda_i) = log(\tau_i) + \alpha + \beta x_i
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  The offset \(τ_i\) scales the expected number of events for each case
+  \(i\).
 \end{itemize}
 
 \end{tcolorbox}
 
 \section{Example}\label{example-6}
 
-Below is an example code snippet demonstrating Bayesian Poisson model
+Below is an example code snippet demonstrating a Bayesian Poisson model.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1379,7 +1495,7 @@ Below is an example code snippet demonstrating Bayesian Poisson model
 \KeywordTok{def}\NormalTok{ model(cid, P, total\_tools):}
 \NormalTok{    alpha }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{3}\NormalTok{, }\FloatTok{0.5}\NormalTok{, name}\OperatorTok{=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
 \NormalTok{    beta }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.2}\NormalTok{, name}\OperatorTok{=}\StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{)}
-\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Poisson(jnp.exp(alpha[cid] }\OperatorTok{+}\NormalTok{ beta[cid]}\OperatorTok{*}\NormalTok{P)), obs}\OperatorTok{=}\NormalTok{total\_tools) }\CommentTok{\# Exponential ensure non{-}negative values and invert the log link function}
+\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Poisson(jnp.exp(alpha[cid] }\OperatorTok{+}\NormalTok{ beta[cid]}\OperatorTok{*}\NormalTok{P)), obs}\OperatorTok{=}\NormalTok{total\_tools)  }\CommentTok{\# Exponential ensures non{-}negative values and inverts the log link function}
 
 \CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m.run(model) }
@@ -1391,83 +1507,100 @@ Below is an example code snippet demonstrating Bayesian Poisson model
 
 \section{Mathematical Details}\label{mathematical-details-6}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-5}
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-5}
 
-We model the relationship between the predictor variable (\(X\)) and the
-count outcome variable (\(Y\)) using the following equation:
+We model the relationship between the predictor variable (\(X_i\)) and
+the count outcome variable (\(Y_i\)) using the following equation:
 
 \[
-log(𝜆)=\alpha + \beta  X 
+\log(\lambda_i) = \alpha + \beta  X_i 
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(\lambda\) is the mean rate parameter of the Poisson distribution
-  (expected count).
+  \(\lambda_i\) is the mean rate parameter of the Poisson distribution
+  (expected count) for observation \emph{i}, modeled as the exponential
+  function of the linear combination of predictors.
 \item
-  \(X\) is the predictor variables.
+  \(\log(\lambda_i)\) is the log of the mean rate parameter for
+  observation \emph{i}, ensuring it is positive.
 \item
-  \(\beta\) is the regression coefficients.
+  \(\beta\) are the regression coefficients.
 \item
   \(\alpha\) is the intercept term.
 \item
-  \(\log(\lambda)\) is the log of the mean rate parameter, ensuring it
-  is positive.
+  \(X_i\) is the value for the independent variables for observation
+  \emph{i}.
 \end{itemize}
 
-\subsection{\texorpdfstring{\emph{Bayesian model
-(WIP)}}{Bayesian model (WIP)}}\label{bayesian-model-wip-2}
+\subsection{\texorpdfstring{\emph{Bayesian
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-5}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
 
 \[
-p(Y∣\alpha, \beta, X) \sim Poisson(λ)
+Y \sim Poisson(\lambda_i)
 \]
 
 \[
-log(\lambda) \sim \alpha + \beta X
-\] \[
-p(\alpha) \sim Normal(0, 1)
+\log(\lambda_i) \sim \alpha + \beta X_i
 \]
 
 \[
-p(\beta) \sim Normal(0, 1)
+\alpha \sim Normal(0, 1)
+\]
+
+\[
+\beta \sim Normal(0, 1)
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(p(Y |alpha, \beta, X)\) is the likelihood function.
+  \(Y_i\) is the dependent variable for observation \emph{i}.
 \item
-  \(p(\beta)\) and \(p(\alpha)\) are the prior distributions for the
-  regression coefficients and intercept.
+  \(\lambda_i\) is the mean rate parameter of the Poisson distribution
+  for observation \emph{i}, modeled as the exponential function of the
+  linear combination of predictors.
+\item
+  \(\log(\lambda_i)\) is the log of the mean rate parameter for
+  observation \emph{i}.
+\item
+  \(\alpha\) and \(\beta\) are the prior distributions for the intercept
+  and the regression coefficients, respectivelly .
 \item
   \(\lambda\) is the mean rate parameter of the Poisson distribution,
   modeled as the exponential function of the linear combination of
   predictors.
+\item
+  \(X_i\) is the value for the independent variables for observation
+  \emph{i}.
 \end{itemize}
 
 \section{Notes}\label{notes-2}
 
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, rightrule=.15mm, colback=white]
+
 \begin{itemize}
 \item
-  We can apply multiple variables similarly as
+  We can apply multiple variables similarly as in
   \href{2.\%20Multiple\%20Regression\%20for\%20Continuous\%20Variables.qmd}{chapter
   2}.
 \item
-  We can apply interaction terms similarly as
+  We can apply interaction terms similarly as in
   \href{3.\%20Interaction\%20between\%20continuous\%20variables.qmd}{chapter
   3}.
 \item
-  We can apply caterogical variables similarly as
+  We can apply categorical variables similarly as in
   \href{4.\%20Categorical\%20variable.md}{chapter 4}.
 \end{itemize}
+
+\end{tcolorbox}
 
 \section{Reference(s)}\label{references-5}
 
@@ -1481,17 +1614,19 @@ McElreath (2018)
 
 To model the relationship between a count outcome variable and one or
 more independent variables with
-\href{7.\%20Poisson\%20model.qmd}{overdispersion 🛈}, we can use
+\href{7.\%20Poisson\%20model.qmd}{overdispersion 🛈}, we can use the
 \emph{Negative Binomial model}.
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Considerations}\label{considerations-7}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
-  We have the same considerations as for
+  We have the same considerations as for the
   \href{7.\%20Poisson\%20model.qmd}{Poisson model}.
 \item
-  Overdispersion is handled because the Negative-binomial model assumes
+  Overdispersion is handled because the Negative Binomial model assumes
   that each Poisson count observation has its own rate. This is an
   additional parameter specified in the model (in the code, it is
   \texttt{\_log\_days\_}).
@@ -1508,34 +1643,34 @@ more independent variables with
 \NormalTok{init\_key, sample\_key }\OperatorTok{=}\NormalTok{ random.split(random.PRNGKey(}\BuiltInTok{int}\NormalTok{(r.randint(}\DecValTok{0}\NormalTok{, }\DecValTok{10000000}\NormalTok{))))}
 \NormalTok{init\_key }\OperatorTok{=}\NormalTok{ jnp.array(init\_key)}
 \NormalTok{num\_days }\OperatorTok{=} \DecValTok{30}
-\NormalTok{y }\OperatorTok{=}\NormalTok{ tfd.Poisson(rate}\OperatorTok{=}\FloatTok{1.5}\NormalTok{).sample(seed }\OperatorTok{=}\NormalTok{ init\_key, sample\_shape}\OperatorTok{=}\NormalTok{(num\_days,))}
+\NormalTok{y }\OperatorTok{=}\NormalTok{ tfd.Poisson(rate}\OperatorTok{=}\FloatTok{1.5}\NormalTok{).sample(seed}\OperatorTok{=}\NormalTok{init\_key, sample\_shape}\OperatorTok{=}\NormalTok{(num\_days,))}
 \NormalTok{num\_weeks }\OperatorTok{=} \DecValTok{4}
-\NormalTok{y\_new }\OperatorTok{=}\NormalTok{ tfd.Poisson(rate}\OperatorTok{=}\FloatTok{0.5} \OperatorTok{*} \DecValTok{7}\NormalTok{).sample(seed }\OperatorTok{=}\NormalTok{ init\_key, sample\_shape}\OperatorTok{=}\NormalTok{(num\_weeks,))}
+\NormalTok{y\_new }\OperatorTok{=}\NormalTok{ tfd.Poisson(rate}\OperatorTok{=}\FloatTok{0.5} \OperatorTok{*} \DecValTok{7}\NormalTok{).sample(seed}\OperatorTok{=}\NormalTok{init\_key, sample\_shape}\OperatorTok{=}\NormalTok{(num\_weeks,))}
 \NormalTok{y\_all }\OperatorTok{=}\NormalTok{ np.concatenate([y, y\_new])}
 \NormalTok{exposure }\OperatorTok{=}\NormalTok{ np.concatenate([np.repeat(}\DecValTok{1}\NormalTok{, }\DecValTok{30}\NormalTok{), np.repeat(}\DecValTok{7}\NormalTok{, }\DecValTok{4}\NormalTok{)])}
 \NormalTok{monastery }\OperatorTok{=}\NormalTok{ np.concatenate([np.repeat(}\DecValTok{0}\NormalTok{, }\DecValTok{30}\NormalTok{), np.repeat(}\DecValTok{1}\NormalTok{, }\DecValTok{4}\NormalTok{)])}
 \NormalTok{d }\OperatorTok{=}\NormalTok{ pd.DataFrame.from\_dict(}\BuiltInTok{dict}\NormalTok{(y}\OperatorTok{=}\NormalTok{y\_all, days}\OperatorTok{=}\NormalTok{exposure, monastery}\OperatorTok{=}\NormalTok{monastery))}
 \NormalTok{d[}\StringTok{"log\_days"}\NormalTok{] }\OperatorTok{=}\NormalTok{ d.days.pipe(np.log)}
 
-\ImportTok{from}\NormalTok{ main }\ImportTok{import}\OperatorTok{*}
-\CommentTok{\# Setup device{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\ImportTok{from}\NormalTok{ main }\ImportTok{import} \OperatorTok{*}
+\CommentTok{\# Setup device {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m }\OperatorTok{=}\NormalTok{ bi()}
 
-\CommentTok{\# import data {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\CommentTok{\# Import data {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m.data\_on\_model }\OperatorTok{=} \BuiltInTok{dict}\NormalTok{(}
-\NormalTok{    log\_days }\OperatorTok{=}\NormalTok{ jnp.array(d.log\_days.values), }\CommentTok{\# rate of each counts data}
-\NormalTok{    monastery }\OperatorTok{=}\NormalTok{ jnp.array(d.monastery.values),}
-\NormalTok{    output }\OperatorTok{=}\NormalTok{ jnp.array(d.y.values)}
+\NormalTok{    log\_days}\OperatorTok{=}\NormalTok{jnp.array(d.log\_days.values),  }\CommentTok{\# rate of each count data}
+\NormalTok{    monastery}\OperatorTok{=}\NormalTok{jnp.array(d.monastery.values),}
+\NormalTok{    output}\OperatorTok{=}\NormalTok{jnp.array(d.y.values)}
 \NormalTok{)}
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \KeywordTok{def}\NormalTok{ model(log\_days, monastery, output):}
-\NormalTok{    a }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{1}\NormalTok{], name }\OperatorTok{=} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
-\NormalTok{    b }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{1}\NormalTok{], name }\OperatorTok{=} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
-\NormalTok{    l }\OperatorTok{=}\NormalTok{ log\_days }\OperatorTok{+}\NormalTok{ a }\OperatorTok{+}\NormalTok{  b }\OperatorTok{*}\NormalTok{ monastery}
-\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Poisson(rate }\OperatorTok{=}\NormalTok{ l), obs}\OperatorTok{=}\NormalTok{output)}
+\NormalTok{    a }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{1}\NormalTok{], name}\OperatorTok{=}\StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
+\NormalTok{    b }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{1}\NormalTok{], name}\OperatorTok{=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
+\NormalTok{    l }\OperatorTok{=}\NormalTok{ log\_days }\OperatorTok{+}\NormalTok{ a }\OperatorTok{+}\NormalTok{ b }\OperatorTok{*}\NormalTok{ monastery}
+\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Poisson(rate}\OperatorTok{=}\NormalTok{l), obs}\OperatorTok{=}\NormalTok{output)}
 
-\CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\CommentTok{\# Run MCMC {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m.run(model) }
 
 \CommentTok{\# Summary {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
@@ -1545,83 +1680,91 @@ more independent variables with
 
 \section{Mathematical Details}\label{mathematical-details-7}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-6}
+\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-1}
 
-We model the relationship between the independent variable \(X\) and the
-count outcome variable \(Y\) using the following equation:
+We model the relationship between the independent variable (X) and the
+count outcome variable (Y) using the following equation:
 
 \[
-log⁡(\lambda)= exp(rates + \alpha + \beta 𝑋)
+\log(\lambda_i) = \exp(\text{rates_i} + \alpha + \beta X_i)
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(\lambda\) is the mean rate parameter of the negative binomial
-  distribution (expected count).
+  \(\lambda_i\) is the mean rate parameter of the negative binomial
+  distribution (expected count) for observation \emph{i}.
 \item
-  \(X\) is the predictor variables.
-\item
-  \(\beta\) is the regression coefficients.
+  \(\log(\lambda_i)\) is the log of the mean rate parameter, ensuring it
+  is positive for observation \emph{i}.
 \item
   \(\alpha\) is the intercept term.
 \item
-  \(\log(\lambda)\) is the log of the mean rate parameter, ensuring it
-  is positive.
+  \(\beta\) is the regression coefficients.
+\item
+  \(X_i\) is the value of the predictor variable for observation
+  \emph{i}.
 \end{itemize}
 
 \subsection{\texorpdfstring{\emph{Bayesian
-model}}{Bayesian model}}\label{bayesian-model-3}
+model}}{Bayesian model}}\label{bayesian-model-1}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
 
 \[
-𝑝(𝑌∣\alpha, \beta, X) \sim Poisson(λ)
+Y_i \sim \text{Poisson}(\lambda)
 \]
 
 \[
-log(λ) \sim rates + \alpha + \beta X
+\log(\lambda_i) \sim \text{rates_i} + \alpha + \beta X
 \]
 
 \[
-𝑝(\alpha)\sim Normal(0,1)
+\alpha \sim \text{Normal}(0,1)
 \]
 
 \[
-𝑝(\beta) \sim Normal(0,1)
+\beta \sim \text{Normal}(0,1)
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
-  \(p(Y | \alpha, \beta, X)\) is the likelihood function.
+  \(Y_i\) is dependent variable for observation \emph{i}.
 \item
-  \(p(\beta)\) and \(p(\alpha)\) are the prior distributions for the
-  regression coefficients and intercept.
-\item
-  \(\lambda = rates +\alpha + \beta X\) is the mean rate parameter of
-  the Poisson distribution assuming that each Poisson count observation
+  \(\lambda_i\) is the mean rate parameter of the Poisson distribution
+  for observation \emph{i}, assuming that each Poisson count observation
   has its own rate.
+\item
+  \(\log(\lambda_i)\) is the log of the mean rate parameterfor
+  observation \emph{i}, ensuring it is positive.
+\item
+  \(\alpha\) is the intercept term.
+\item
+  \(\beta\) is the regression coefficients.
+\item
+  \(X_i\) is the value of the predictor variable for observation
+  \emph{i}.
 \end{itemize}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Notes}\label{notes-4}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
-  We can apply multiple variables similarly as
+  We can apply multiple variables similarly as in
   \href{2.\%20Multiple\%20Regression\%20for\%20Continuous\%20Variables.qmd}{chapter
   2}.
 \item
-  We can apply interaction terms similarly as
-  \href{3.\%20Interaction\%20between\%20continuous\%20variables.qmd}{chapter
+  We can apply interaction terms similarly as in
+  \href{3.\%20Interaction\%20between\%20Continuous\%20Variables.qmd}{chapter
   3}.
 \item
-  We can apply caterogical variables similarly as
+  We can apply categorical variables similarly as in
   \href{4.\%20Categorical\%20variable.md}{chapter 4}.
 \end{itemize}
 
@@ -1643,7 +1786,9 @@ use a \emph{Multinomial} distribution.
 
 \includegraphics{index_files/mediabag/Multinomial-Logistic.jpg}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\section{Considerations}\label{considerations-8}
+
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -1651,18 +1796,18 @@ use a \emph{Multinomial} distribution.
   \href{1.\%20Linear\%20Regression\%20for\%20continuous\%20variable.qmd}{Regression
   for continuous variable}.
 \item
-  One way to interpret a multinomial is to consider that we need to
-  build ( K - 1 ) linear models, where ( K ) is the number of
+  One way to interpret a multinomial model is to consider that we need
+  to build ( K - 1 ) linear models, where ( K ) is the number of
   categories. Once we get the linear prediction for each category, we
   can convert these predictions to probabilities by building a
   \href{8.\%20Multinomial.md}{simplex 🛈}. To do this, we convert the
-  regression outputs using the softmax function (see ``nn.softmax'' line
-  in the code).
+  regression outputs using the softmax function (see the ``nn.softmax''
+  line in the code).
 \item
   The intercept captures the difference in the log-odds of the outcome
-  categories, thus different categories need different intercepts.
+  categories; thus, different categories need different intercepts.
 \item
-  On the other hand as we assume that the effect of each predictor on
+  On the other hand, as we assume that the effect of each predictor on
   the outcome is consistent across all categories, the regression
   coefficients are shared across categories.
 \item
@@ -1685,25 +1830,25 @@ use a \emph{Multinomial} distribution.
 \NormalTok{score }\OperatorTok{=} \FloatTok{0.5} \OperatorTok{*}\NormalTok{ income  }\CommentTok{\# scores for each career, based on income}
 
 \CommentTok{\# next line converts scores to probabilities}
-\NormalTok{p }\OperatorTok{=}\NormalTok{ jnp.array( jax.nn.softmax(score))}
+\NormalTok{p }\OperatorTok{=}\NormalTok{ jnp.array(jax.nn.softmax(score))}
 
 \CommentTok{\# now simulate choice}
 \CommentTok{\# outcome career holds event type values, not counts}
-\NormalTok{career }\OperatorTok{=}\NormalTok{ bi.dist.categorical(p, shape }\OperatorTok{=}\NormalTok{ N, sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
+\NormalTok{career }\OperatorTok{=}\NormalTok{ bi.dist.categorical(p, shape}\OperatorTok{=}\NormalTok{N, sample}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
 \NormalTok{m.data\_on\_model }\OperatorTok{=} \BuiltInTok{dict}\NormalTok{(}
-\NormalTok{    income }\OperatorTok{=}\NormalTok{ income,}
-\NormalTok{    career }\OperatorTok{=}\NormalTok{ career}
+\NormalTok{    income}\OperatorTok{=}\NormalTok{income,}
+\NormalTok{    career}\OperatorTok{=}\NormalTok{career}
 \NormalTok{)}
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \KeywordTok{def}\NormalTok{ model(income, career):}
-\NormalTok{    a }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{ [}\DecValTok{2}\NormalTok{], name }\OperatorTok{=} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
-\NormalTok{    b }\OperatorTok{=}\NormalTok{ dist.halfnormal(}\FloatTok{0.5}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{1}\NormalTok{], name }\OperatorTok{=} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
+\NormalTok{    a }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{2}\NormalTok{], name}\OperatorTok{=}\StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
+\NormalTok{    b }\OperatorTok{=}\NormalTok{ dist.halfnormal(}\FloatTok{0.5}\NormalTok{, shape}\OperatorTok{=}\NormalTok{[}\DecValTok{1}\NormalTok{], name}\OperatorTok{=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
 \NormalTok{    s\_1 }\OperatorTok{=}\NormalTok{ a[}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ b }\OperatorTok{*}\NormalTok{ income[}\DecValTok{0}\NormalTok{]}
 \NormalTok{    s\_2 }\OperatorTok{=}\NormalTok{ a[}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\NormalTok{ b }\OperatorTok{*}\NormalTok{ income[}\DecValTok{1}\NormalTok{]}
 \NormalTok{    s\_3 }\OperatorTok{=}\NormalTok{ a[}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ b }\OperatorTok{*}\NormalTok{ income[}\DecValTok{0}\NormalTok{]}
 \NormalTok{    p }\OperatorTok{=}\NormalTok{ jax.nn.softmax(jnp.stack([s\_1[}\DecValTok{0}\NormalTok{], s\_2[}\DecValTok{0}\NormalTok{], s\_3[}\DecValTok{0}\NormalTok{]]))}
-\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Categorical(probs }\OperatorTok{=}\NormalTok{  p[career]), obs}\OperatorTok{=}\NormalTok{career)}
+\NormalTok{    lk(}\StringTok{"y"}\NormalTok{, Categorical(probs}\OperatorTok{=}\NormalTok{p[career]), obs}\OperatorTok{=}\NormalTok{career)}
 
 \CommentTok{\# Run sampler {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-} }
 \NormalTok{m.run(model)  }
@@ -1715,29 +1860,29 @@ use a \emph{Multinomial} distribution.
 
 \section{Mathematical Details}\label{mathematical-details-8}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-7}
+\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-2}
 
 We model the relationship between the predictor variables (X1, X2,
-\ldots, Xn) and the categorical outcome variable (Y) using the following
-equation:
+\ldots, Xn) and the categorical outcome variable (\(Y_i\)) using the
+following equation:
 
-\$\$ logit(p\_ik) = log(\frac{p_ik}{p_iK}) = β\_k\^{}T X\_i +α\_k k
-
-\$\$
+\[
+logit(p_ik) = log(\frac{p_ik}{p_iK})  = β_k^T X_i + α_k
+\]
 
 Where: - \(p_ik\) is the probability of the 𝑖-th observation being in
 category 𝑘.
 
 \begin{itemize}
 \item
-  \(β_k\) are the regression coefficients for category 𝑘.
+  \(β_k\) is the regression coefficients for category 𝑘.
 \item
   \(α_k\) is the intercept for category 𝑘.
 \item
   \(X_i\) is the vector of predictor variables for the 𝑖-th observation.
 \item
   The reference category 𝐾 is often chosen to simplify the model (Note
-  that we didi not did it in the code).
+  that we did not do this in the code).
 \end{itemize}
 
 We can express the Bayesian Multinomial model as follows:
@@ -1746,20 +1891,19 @@ If \(K∈N ,  N∈N , and  θ∈K\)-simplex , then for \(y∈NK\) such that
 \(∑Kk=1yk=N\):
 
 \subsection{\texorpdfstring{\emph{Bayesian
-model}}{Bayesian model}}\label{bayesian-model-4}
+model}}{Bayesian model}}\label{bayesian-model-2}
 
 In Bayesian multinomial modeling, the likelihood function of the data is
 specified using a multinomial distribution. The multinomial distribution
-models the counts of outcomes falling into different categories.For an
+models the counts of outcomes falling into different categories. For an
 outcome variable 𝑦 with 𝐾 categories, the multinomial likelihood
 function is: \[
-Multinomial(y|θ)=\frac{N!}{∏^K_{k=1}yk!} ∏_{k = 1}^{K} \theta_{k}^{y_k}
+Multinomial(y|θ)=\frac{N!}{∏^K_{k=1}yk!} ∏_{k=1}^{K} θ_{k}^{y_k}
 \]
 
 Where:
 
 \begin{itemize}
-\tightlist
 \item
   \(y=(y_1, y_2,…,y_K)\) represents the counts of observations in each
   of the 𝐾 categories.
@@ -1767,13 +1911,17 @@ Where:
   \(N\) is the total number of observations or trials.
 \item
   \(θ=(θ_1,θ_2,…,θ_K)\) is a simplex of category probabilities, with
-  \(𝜃_𝑘\) representing the probability of category 𝑘.
+  \(θ_k\) representing the probability of category 𝑘.
 \item
-  \(\frac{N!}{∏^K_{k=1}yk!}\) is the multinomial coefficient accounts
-  for the number of ways to arrange the observations into the
+  \(\frac{N!}{∏^K_{k=1}yk!}\) is the multinomial coefficient that
+  accounts for the number of ways to arrange the observations into the
   categories. This coefficient ensures that the likelihood function
   properly accounts for the permutations of the counts across different
-  categories. \#\# Reference(s) McElreath (2018)
+  categories.
+\item ~
+  \section{Reference(s)}\label{references-7}
+
+  McElreath (2018)
 \end{itemize}
 
 \bookmarksetup{startatroot}
@@ -1789,7 +1937,7 @@ more than two categories and one or more independent variables with
 
 \includegraphics{index_files/mediabag/Multinomial-Logistic.jpg}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -1901,15 +2049,15 @@ more than two categories and one or more independent variables with
 
 \section{Mathematical Details}\label{mathematical-details-9}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-8}
+\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-3}
 
 \subsection{\texorpdfstring{\emph{Bayesian
-model}}{Bayesian model}}\label{bayesian-model-5}
+model}}{Bayesian model}}\label{bayesian-model-3}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
 
-\section{Reference(s)}\label{references-7}
+\section{Reference(s)}\label{references-8}
 
 McElreath (2018)
 
@@ -1924,7 +2072,7 @@ count variable with an excess of zero counts. These models combine a
 count model (e.g., Poisson or Negative Binomial) with a separate model
 for predicting the probability of excess zeros.
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, rightrule=.15mm, colback=white]
 
 In Bayesian Zero-Inflated regression, we consider uncertainty in the
 model parameters and provide a full posterior distribution over them. We
@@ -1980,7 +2128,7 @@ Poisson regression using TensorFlow Probability:
 
 \section{Mathematical Details}\label{mathematical-details-10}
 
-\section{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-9}
+\section{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-4}
 
 We model the relationship between the predictor variables \emph{X} and
 the count outcome variable \emph{Y} using two components: 1. A logistic
@@ -2009,7 +2157,7 @@ coefficient for the logistic model. - \(\alpha_\lambda\) and
 the count model. - \(X\) is the independent variables.
 
 \subsection{\texorpdfstring{\emph{Bayesian
-model}}{Bayesian model}}\label{bayesian-model-6}
+model}}{Bayesian model}}\label{bayesian-model-4}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
@@ -2049,7 +2197,7 @@ coefficient for the logistic model. - \(\alpha_\lambda\) and
 \(\beta_\lambda\) are respectivelly, the regression coefficient for the
 the count model. - \(X\) is the independent variables.
 
-\section{Reference(s)}\label{references-8}
+\section{Reference(s)}\label{references-9}
 
 McElreath (2018)
 
@@ -2066,7 +2214,7 @@ particularly useful when data is grouped (e.g., by subject, location, or
 time period) and we expect the baseline level of the outcome to vary
 across these groups.
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -2127,7 +2275,7 @@ varying intercepts:
 
 \section{Mathematical Details}\label{mathematical-details-11}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-10}
+\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-5}
 
 We model the relationship between the independent variables \emph{X} and
 the outcome variable \emph{Y} with varying intercepts \(\alpha\) for
@@ -2145,7 +2293,7 @@ term. - \(\sigma\) is the error term, typically assumed to be normally
 distributed and positive.
 
 \subsection{\texorpdfstring{\emph{Bayesian
-model}}{Bayesian model}}\label{bayesian-model-7}
+model}}{Bayesian model}}\label{bayesian-model-5}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
@@ -2173,7 +2321,7 @@ groups. - \(\mu_alpha_k\) is the overall mean intercept. -
 \(p(\beta)\) is the prior distributions for the regression coefficients.
 - \(p(\sigma)\) is the prior distributions for the error term.
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -2194,7 +2342,7 @@ groups. - \(\mu_alpha_k\) is the overall mean intercept. -
 
 \end{tcolorbox}
 
-\section{Reference(s)}\label{references-9}
+\section{Reference(s)}\label{references-10}
 
 McElreath (2018)
 
@@ -2215,7 +2363,7 @@ periods).This allow every unit in the data to have its own unique
 response to any treatment or exposure or event, while also improving
 estimates via pooling.
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -2317,7 +2465,7 @@ varying effects:
 
 \section{Mathematical Details}\label{mathematical-details-12}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-11}
+\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-6}
 
 \[
 \left(\begin{array}{cc} 
@@ -2333,7 +2481,7 @@ intercepts and slopes -i.e.~the product of the two standard deviations-.
 
 \section{Mathematical Details}\label{mathematical-details-13}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-12}
+\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-7}
 
 We model the relationship between the independent variable \(X\) and the
 outcome variable \emph{Y} with varying intercepts (\(\alpha\)) and
@@ -2352,7 +2500,7 @@ coefficients for group \emph{k}. - \$\sigma \$ is the error term,
 assumed to be strictly positive.
 
 \subsection{\texorpdfstring{\emph{Bayesian
-model}}{Bayesian model}}\label{bayesian-model-8}
+model}}{Bayesian model}}\label{bayesian-model-6}
 
 We can express the Bayesian regression model accounting for prior
 distribution as follows:
@@ -2470,7 +2618,7 @@ L *
 L \sim LKJcorr(2)
 \]
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -2740,7 +2888,7 @@ L_{g} \sim LKJcorr(2)
 
 \end{tcolorbox}
 
-\section{Reference(s)}\label{references-10}
+\section{Reference(s)}\label{references-11}
 
 McElreath (2018)
 
@@ -2758,6 +2906,177 @@ McElreath (2018)
 
 \bookmarksetup{startatroot}
 
+\chapter{Bayesian Regression with Latent
+Variables}\label{bayesian-regression-with-latent-variables}
+
+\section{General Principles}\label{general-principles-13}
+
+In some scenarios, the observed data does not directly reflect the
+underlying structure or factors influencing the outcome. Instead,
+\emph{latent variables} --- variables that are not directly observed but
+inferred from the data --- can help model this hidden structure. These
+latent variables capture unobserved factors that affect the relationship
+between predictors (\emph{X}) and the outcome (\emph{Y}).
+
+We model the relationship between the predictor variables (\emph{X}) and
+the outcome variable (\emph{Y}) with a latent variable (\emph{Z}) as
+follows:
+
+\[
+Y = f(X, Z) + \epsilon
+\]
+
+Where: - \emph{Y} is the observed outcome variable. - \emph{X} is the
+observed predictor variable(s). - \emph{Z} is the latent (unobserved)
+variable, which we aim to infer. - \emph{f(X, Z)} is the function that
+relates \emph{X} and \emph{Z} to \emph{Y}. - \emph{\epsilon} is the
+error term, typically assumed to be normally distributed with mean 0 and
+variance \emph{\sigma\^{}2}.
+
+The latent variable \emph{Z} can represent various phenomena, such as
+group-level effects, time-varying trends, or individual-level factors,
+that are not captured by the observed predictors alone.
+
+\section{Considerations}\label{considerations-13}
+
+In Bayesian regression with latent variables, we consider the
+uncertainty in both the observed and latent variables. We declare prior
+distributions for the latent variables, in addition to the usual priors
+for regression coefficients and intercepts. These latent variables are
+often modeled using Gaussian distributions (\emph{Normal} priors) or
+more flexible distributions such as \emph{Multivariate Normal} for
+correlations among the latent variables.
+
+The goal is to infer the posterior distribution over both the parameters
+and the latent variables, given the observed data.
+
+\section{Example}\label{example-13}
+
+Below is an example code snippet demonstrating Bayesian regression with
+latent variables using TensorFlow Probability:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{from}\NormalTok{ main }\ImportTok{import}\OperatorTok{*}
+\CommentTok{\# Setup device{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m }\OperatorTok{=}\NormalTok{ bi(platform}\OperatorTok{=}\StringTok{\textquotesingle{}cpu\textquotesingle{}}\NormalTok{)}
+
+\CommentTok{\# Data Simulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{NY }\OperatorTok{=} \DecValTok{4}  \CommentTok{\# Number of dependent variables or outcomes (e.g., dimensions for latent variables)}
+\NormalTok{NV }\OperatorTok{=} \DecValTok{8}  \CommentTok{\# Number of observations or individual{-}level data points (e.g., subjects)}
+
+\CommentTok{\# Initialize the matrix Y2 with shape (NV, NY) filled with NaN values, to be filled later}
+\NormalTok{Y2 }\OperatorTok{=}\NormalTok{ np.full((NV, NY), np.nan)}
+
+\CommentTok{\# Generate the means and offsets for the data}
+\CommentTok{\# means: Generate random normal means for each of the NY outcomes}
+\CommentTok{\# offsets: Generate random normal offsets for each of the NV observations}
+\NormalTok{means }\OperatorTok{=}\NormalTok{ bi.distribution.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(NY,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{, seed }\OperatorTok{=} \DecValTok{10}\NormalTok{)}
+\NormalTok{offsets }\OperatorTok{=}\NormalTok{ bi.distribution.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(NV,}\DecValTok{1}\NormalTok{), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{, seed }\OperatorTok{=} \DecValTok{20}\NormalTok{)}
+
+\CommentTok{\# Fill the matrix Y2 with simulated data based on the generated means and offsets}
+\CommentTok{\# Each observation (i) is the sum of an individual{-}specific offset and an outcome{-}specific mean}
+\ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(NV):}
+    \ControlFlowTok{for}\NormalTok{ k }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(NY):}
+\NormalTok{        Y2[i, k] }\OperatorTok{=}\NormalTok{ means[k] }\OperatorTok{+}\NormalTok{ offsets[i]}
+
+\CommentTok{\# Simulate individual{-}level random effects (e.g., random slopes or intercepts)}
+\CommentTok{\# b\_individual: A matrix of size (N, K) where N is the number of individuals and K is the number of covariates}
+\NormalTok{b\_individual }\OperatorTok{=}\NormalTok{ bi.distribution.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{N, K), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{, seed }\OperatorTok{=} \DecValTok{0}\NormalTok{)}
+
+\CommentTok{\# mu: Add an additional effect \textquotesingle{}a\textquotesingle{} to the individual{-}level random effects \textquotesingle{}b\_individual\textquotesingle{}}
+\CommentTok{\# \textquotesingle{}a\textquotesingle{} could represent a population{-}level effect or a baseline}
+\NormalTok{mu }\OperatorTok{=}\NormalTok{ b\_individual }\OperatorTok{+}\NormalTok{ a}
+
+\CommentTok{\# Convert Y2 to a JAX array for further computation in a JAX{-}based framework}
+\NormalTok{Y2 }\OperatorTok{=}\NormalTok{ jnp.array(Y2)}
+
+
+\CommentTok{\# Set data {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{dat }\OperatorTok{=} \BuiltInTok{dict}\NormalTok{(}
+\NormalTok{    NY }\OperatorTok{=}\NormalTok{ NY,}
+\NormalTok{    NV }\OperatorTok{=}\NormalTok{ NV,}
+\NormalTok{    Y2 }\OperatorTok{=}\NormalTok{ Y2}
+\NormalTok{)}
+
+\CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\KeywordTok{def}\NormalTok{ model(NY, NV, Y2):}
+\NormalTok{    means }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(NY,), name }\OperatorTok{=} \StringTok{\textquotesingle{}means\textquotesingle{}}\NormalTok{)}
+\NormalTok{    offset }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(NY,}\DecValTok{1}\NormalTok{), name }\OperatorTok{=} \StringTok{\textquotesingle{}offset\textquotesingle{}}\NormalTok{)}
+\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ bi.dist.exponential(}\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(NY,), name }\OperatorTok{=} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
+\NormalTok{    sigma }\OperatorTok{=}\NormalTok{  numpyro.sample(}\StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{, numpyro.distributions.Exponential(}\DecValTok{1}\NormalTok{).expand([NY])) }
+\NormalTok{    tmp }\OperatorTok{=}\NormalTok{ jnp.tile(means, (NV, }\DecValTok{1}\NormalTok{)).reshape(NV,NY)  }
+\NormalTok{    mu\_l }\OperatorTok{=}\NormalTok{ tmp }\OperatorTok{+}\NormalTok{ offset }
+\NormalTok{    numpyro.sample(}\StringTok{\textquotesingle{}Y2\textquotesingle{}}\NormalTok{, Normal(mu\_l, jnp.tile(sigma, [NV, }\DecValTok{1}\NormalTok{])), obs}\OperatorTok{=}\NormalTok{Y2)}
+
+\CommentTok{\# Run mcmc {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m.run(model) }
+
+\CommentTok{\# Summary {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\NormalTok{m.sampler.print\_summary(}\FloatTok{0.89}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Mathematical Details}\label{mathematical-details-14}
+
+We can express the Bayesian latent variable model using probability
+distributions as follows:
+
+\[
+\begin{aligned}
+& p(Y | X, Z, W, \sigma) = \text{Normal}(X * W + Z, \sigma^2) \\
+& p(Z) = \text{Normal}(0, \tau^2) \\
+& p(W) = \text{Normal}(0, \alpha^2) \\
+\end{aligned}
+\]
+
+Where: - \emph{p(Y \textbar{} X, Z, W, \sigma)} is the likelihood
+function for the observed outcome variable, which depends on both the
+observed predictor \emph{X} and the latent variable \emph{Z}. -
+\emph{p(Z)} is the prior distribution for the latent variable \emph{Z},
+often modeled as \emph{Normal} with a mean of 0 and variance
+\emph{\tau\^{}2}. - \emph{p(W)} is the prior distribution for the
+regression coefficient(s) \emph{W}, typically assumed to follow a
+\emph{Normal} distribution with mean 0 and variance \emph{\alpha\^{}2}.
+
+The latent variable \emph{Z} introduces additional flexibility to the
+model, capturing unobserved influences on the outcome \emph{Y}.
+
+\section{Interpretation of Latent
+Variables}\label{interpretation-of-latent-variables}
+
+\begin{itemize}
+\item
+  \textbf{Latent Variable (\emph{Z})}: Represents hidden factors not
+  captured by the observed variables, allowing the model to explain more
+  of the variance in the outcome. For instance, in a psychological
+  model, \emph{Z} might represent a latent trait such as intelligence or
+  anxiety that influences the outcome.
+\item
+  \textbf{Posterior Inference}: The posterior distribution of the latent
+  variable \emph{Z} can give insights into how much the unobserved
+  factors contribute to the outcome.
+\end{itemize}
+
+\section{Use Cases}\label{use-cases}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Latent Factors in Psychometrics}: In psychometric models,
+  latent variables represent traits or abilities that are not directly
+  observed, such as cognitive ability or personality traits.
+\item
+  \textbf{Time-Varying Effects}: Latent variables can represent
+  unobserved time trends or individual-specific effects in time-series
+  or longitudinal models.
+\item
+  \textbf{Mixed Models}: In hierarchical or mixed models, latent
+  variables can represent group-specific intercepts or slopes.
+\end{itemize}
+
+\bookmarksetup{startatroot}
+
 \chapter{Modeling Network}\label{modeling-network}
 
 A network represents the relationships (links) between entities (nodes).
@@ -2771,7 +3090,7 @@ proposed solution is to model network links with random
 to the model, we can account for the correlations between node link
 relationships.
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -2788,7 +3107,7 @@ relationships.
 
 \end{tcolorbox}
 
-\section{Example}\label{example-13}
+\section{Example}\label{example-14}
 
 Below is an example code snippet demonstrating Bayesian network model
 with send-receiver effect:
@@ -2832,7 +3151,7 @@ with send-receiver effect:
 \end{Highlighting}
 \end{Shaded}
 
-\section{Mathematical Details}\label{mathematical-details-14}
+\section{Mathematical Details}\label{mathematical-details-15}
 
 \subsection{\texorpdfstring{\emph{Main
 Formula}}{Main Formula}}\label{main-formula}
@@ -2939,7 +3258,7 @@ L_\delta *
 L \sim LKJ(2)
 \]
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -3033,7 +3352,7 @@ different sexes. To model the propensity for interaction between nodes
 based on the categories they belong to, we can use a stochastic block
 model approach.
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -3050,7 +3369,7 @@ model approach.
 
 \end{tcolorbox}
 
-\section{Example}\label{example-14}
+\section{Example}\label{example-15}
 
 Below is an example code snippet demonstrating a Bayesian network model
 using the stochastic block model approach. The data is identical to the
@@ -3100,7 +3419,7 @@ representing the block membership of each node.
 \end{Highlighting}
 \end{Shaded}
 
-\section{Mathematical Details}\label{mathematical-details-15}
+\section{Mathematical Details}\label{mathematical-details-16}
 
 \subsection{\texorpdfstring{\emph{Main
 Formula}}{Main Formula}}\label{main-formula-1}
@@ -3184,7 +3503,7 @@ where :
   \(k \rightarrow \tilde{k}\) indicates an off-diagonal element.
 \end{itemize}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \item
@@ -3215,7 +3534,7 @@ To address censoring biases, we need to add an additional equation to
 account for the probability of missing an interaction during observation
 when modeling interaction between individual \emph{i} and \emph{j}.
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-caution-color!10!white, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, breakable, toprule=.15mm, colframe=quarto-callout-caution-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-caution-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Considerations}, rightrule=.15mm, colback=white]
 
 \end{tcolorbox}
 
@@ -3243,7 +3562,7 @@ accounting for exposure biases and cesnsoring biases:
 \end{Highlighting}
 \end{Shaded}
 
-\section{Mathematical Details}\label{mathematical-details-16}
+\section{Mathematical Details}\label{mathematical-details-17}
 
 \subsection{\texorpdfstring{\emph{Main
 Formula}}{Main Formula}}\label{main-formula-2}
@@ -3307,7 +3626,7 @@ for cryptic coloration, then the ellipsis may be replaced with:
 \(\kappa_{[5]}C_{[i]}\), to give the effects of coloration on censoring
 probability.
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, leftrule=.75mm, bottomrule=.15mm, toptitle=1mm, bottomtitle=1mm, rightrule=.15mm, titlerule=0mm, colbacktitle=quarto-callout-note-color!10!white, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, breakable, toprule=.15mm, colframe=quarto-callout-note-color-frame, coltitle=black, arc=.35mm, left=2mm, opacityback=0, colback=white]
+\begin{tcolorbox}[enhanced jigsaw, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, coltitle=black, leftrule=.75mm, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, left=2mm, toprule=.15mm, opacitybacktitle=0.6, titlerule=0mm, breakable, bottomrule=.15mm, arc=.35mm, toptitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note(s)}, rightrule=.15mm, colback=white]
 
 \begin{itemize}
 \tightlist
@@ -3324,17 +3643,9 @@ probability.
 
 \bookmarksetup{startatroot}
 
-\chapter{}\label{section-5}
-
-\bookmarksetup{startatroot}
-
-\chapter{}\label{section-6}
-
-\bookmarksetup{startatroot}
-
 \chapter{Multilayer Networks}\label{multilayer-networks}
 
-\section{General Principles}\label{general-principles-13}
+\section{General Principles}\label{general-principles-14}
 
 A multilayer network is a broader term that refers to networks composed
 of multiple layers, where each layer may have its own set of nodes and
@@ -3342,7 +3653,7 @@ edges, potentially representing different types of entities and
 interactions. This means the nodes can be the same or different across
 layers.
 
-\section{Considerations}\label{considerations-14}
+\section{Considerations}\label{considerations-16}
 
 \begin{itemize}
 \tightlist
@@ -3351,16 +3662,16 @@ layers.
   \href{19.\%20Network\%20model.qmd}{Network model}. \#\# Example
 \end{itemize}
 
-\section{Mathematical Details}\label{mathematical-details-17}
+\section{Mathematical Details}\label{mathematical-details-18}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-13}
+\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-8}
 
 \subsection{\texorpdfstring{\emph{Bayesian model
-(WIP)}}{Bayesian model (WIP)}}\label{bayesian-model-wip-3}
+(WIP)}}{Bayesian model (WIP)}}\label{bayesian-model-wip}
 
 \bookmarksetup{startatroot}
 
-\chapter{Notes}\label{notes-9}
+\chapter{Notes}\label{notes-10}
 
 \begin{itemize}
 \item
@@ -3372,6 +3683,15 @@ layers.
   \href{3.\%20Block\%20model\%20network.qmd}{19.2. Block model
   network.qmd}.
 \end{itemize}
+
+\bookmarksetup{startatroot}
+
+\chapter{}\label{section-5}
+
+\bookmarksetup{startatroot}
+
+\chapter*{}\label{section-6}
+\addcontentsline{toc}{chapter}{}
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}

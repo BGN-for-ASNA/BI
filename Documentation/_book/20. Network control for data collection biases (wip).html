@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>multiplex-model-(wip – BI documentation</title>
+<title>22&nbsp; Modeling Network – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -30,8 +64,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./22. Multiplex temporal network model (wip).html" rel="next">
-<link href="./20. Network Metrics (wip).html" rel="prev">
+<link href="./21. Network Metrics (wip).html" rel="next">
+<link href="./19. Network with block model.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -69,10 +103,39 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
-<body class="nav-sidebar floating fullcontent">
+<body class="nav-sidebar floating">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -81,7 +144,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./21. Multiplex model (wip).html"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Multiplex model (wip).html</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./20. Network control for data collection biases (wip).html"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -145,13 +208,13 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial model</span></span></a>
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Binomial Model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./6. Beta binomial model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial model</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Beta-Binomial Model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -216,44 +279,50 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
+  <a href="./17. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Bayesian Regression with Latent Variables</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network with block model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
+  <a href="./18. Network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
+  <a href="./19. Network with block model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">20. Network Metrics (wip).html</span></span></a>
+  <a href="./20. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./21. Multiplex model (wip).html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Multiplex model (wip).html</span></span></a>
+  <a href="./21. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Network Metrics (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./22. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">22. Multiplex temporal network model (wip).html</span></span></a>
+  <a href="./22. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./23. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
+  <a href="./23. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">23. Multiplex temporal network model (wip).html</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">24. Multiplex network model (wip).html</span></span></a>
   </div>
 </li>
     </ul>
@@ -261,15 +330,126 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#example-1" id="toc-example-1" class="nav-link active" data-scroll-target="#example-1"><span class="header-section-number">22.1</span> Example 1</a></li>
+  <li><a href="#example2" id="toc-example2" class="nav-link" data-scroll-target="#example2"><span class="header-section-number">22.2</span> Example2</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">22.3</span> Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">22.3.1</span> <em>Main Formula</em></a></li>
+  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">22.3.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
+</header>
+
+
+<p>Data collection biases are a persistent issue in studies of social networks. Two main types of biases can be considered: <a href="#" title="Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals">exposure biases 🛈</a> and <a href="#" title="Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations)">censoring biases 🛈</a>.</p>
+<p>To account for exposure biases, we can switch the network link probability model from a <em>Poisson</em> distribution to a <em>Binomial</em> distribution, as the binomial distribution allows us to account for the number of trials for each data estimation.</p>
+<p>To address censoring biases, we need to add an additional equation to account for the probability of missing an interaction during observation when modeling interaction between individual <em>i</em> and <em>j</em>.</p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Considerations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+<section id="example-1" class="level2" data-number="22.1">
+<h2 data-number="22.1" class="anchored" data-anchor-id="example-1"><span class="header-section-number">22.1</span> Example 1</h2>
+<p>Below is an example code snippet demonstrating Bayesian network model with send-receiver effect, dyadic effect and block model effect while accounting for exposure biases:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="example2" class="level2" data-number="22.2">
+<h2 data-number="22.2" class="anchored" data-anchor-id="example2"><span class="header-section-number">22.2</span> Example2</h2>
+<p>Below is an example code snippet demonstrating Bayesian network model with send-receiver effect, dyadic effect and block model effect while accounting for exposure biases and cesnsoring biases:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="mathematical-details" class="level2" data-number="22.3">
+<h2 data-number="22.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">22.3</span> Mathematical Details</h2>
+<section id="main-formula" class="level3" data-number="22.3.1">
+<h3 data-number="22.3.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">22.3.1</span> <em>Main Formula</em></h3>
+<p><span class="math display">\[
+\begin{align}
+    Y_{[i,j]} &amp;\sim \mathrm{Binomial}\Big(E_{[i,j]}, Q_{[i,j]}  \Big)
+\end{align}
+\]</span></p>
+<p><span class="math display">\[
+Q_{[i,j]} \in \{0,1\}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(E_{[i,j]}\)</span> is the number of trials for each observation (i.e., the sampling effort).</li>
+<li><span class="math inline">\(Q_{[i,j]}\)</span> is the indicator of a true tie between <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>.</li>
+</ul>
+<p><span class="math display">\[
+\begin{aligned}
+Q_{[i,j]} \sim \begin{cases}
+0 &amp; \text{when no interactions occurs or when i or j are not detectable} \\
+\text{1}  &amp; \text{when i and j are both detectable}
+\end{cases}
+\end{aligned}
+\]</span></p>
+<p><span class="math display">\[
+\begin{align}
+  Q_{[i,j]}= \phi_{[i,j]}\eta_{[i]}\eta_{[j]}
+\end{align}
+\]</span></p>
+<p>Where: - <span class="math inline">\(\phi_{[i,j]}\)</span> is the probability of a true tie between <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>. - <span class="math inline">\(\eta_{[i]}\)</span> is the probability of individual <span class="math inline">\(i\)</span> being detectable. - <span class="math inline">\(\eta_{[j]}\)</span> is the probability of individual <span class="math inline">\(j\)</span> being detectable.</p>
+</section>
+<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="22.3.2">
+<h3 data-number="22.3.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">22.3.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
+<p>We can let <span class="math inline">\(\eta_{[i]}\)</span> depend on individual-specific covariates. To model the probability of censoring, we can model <span class="math inline">\(1-\eta_{[i]}\)</span>: <span class="math display">\[
+\text{logit}(1-\eta_{[i]}) = \mu_\psi + \hat\psi_{[i]}  \sigma_\psi + \ldots
+\]</span></p>
+<p>where - <span class="math inline">\(\mu_\psi\)</span> is an intercept - <span class="math inline">\(\sigma_\psi\)</span> is a scalar for the variance of random effects - <span class="math inline">\(\hat\psi_{[i]}\sim \text {Normal}(0,1)\)</span>, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if <span class="math inline">\(C\)</span> is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with: <span class="math inline">\(\kappa_{[5]}C_{[i]}\)</span>, to give the effects of coloration on censoring probability.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note(s)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>One major limitation of this model is the necessity of having an estimation of the censoring bias for each individual.</li>
+</ul>
+</div>
+</div>
+
+
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -694,13 +874,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./20. Network Metrics (wip).html" class="pagination-link" aria-label="20. Network Metrics (wip).html">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">20. Network Metrics (wip).html</span></span>
+      <a href="./19. Network with block model.html" class="pagination-link" aria-label="Network with block model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Network with block model</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./22. Multiplex temporal network model (wip).html" class="pagination-link" aria-label="22. Multiplex temporal network model (wip).html">
-        <span class="nav-page-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">22. Multiplex temporal network model (wip).html</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./21. Network Metrics (wip).html" class="pagination-link" aria-label="21. Network Metrics (wip).html">
+        <span class="nav-page-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Network Metrics (wip).html</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

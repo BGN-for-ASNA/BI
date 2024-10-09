@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Sebastian Sosa">
-<meta name="dcterms.date" content="2024-09-09">
 
-<title>BI documentation</title>
+<title>24&nbsp; Multilayer Networks – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -32,7 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./0. Introduction.html" rel="next">
+<link href="./23. Multiplex temporal network model (wip).html" rel="next">
+<link href="./21. Network Metrics (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -73,7 +72,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-sidebar floating fullcontent">
+<body class="nav-sidebar floating">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -82,7 +81,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./22. Multilayer network model (wip).html"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -109,7 +108,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span></a>
   </div>
 </li>
@@ -247,7 +246,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./22. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./22. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
@@ -268,32 +267,35 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">24.1</span> General Principles</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">24.2</span> Considerations</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">24.3</span> Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">24.3.1</span> <em>Formula</em></a></li>
+  <li><a href="#bayesian-model-wip" id="toc-bayesian-model-wip" class="nav-link" data-scroll-target="#bayesian-model-wip"><span class="header-section-number">24.3.2</span> <em>Bayesian model (WIP)</em></a></li>
+  </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">25</span> Notes</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">BI documentation</h1>
+<h1 class="title"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Sebastian Sosa </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">September 9, 2024</p>
-    </div>
-  </div>
   
     
   </div>
@@ -303,8 +305,34 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="general-principles" class="level2" data-number="24.1">
+<h2 data-number="24.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">24.1</span> General Principles</h2>
+<p>A multilayer network is a broader term that refers to networks composed of multiple layers, where each layer may have its own set of nodes and edges, potentially representing different types of entities and interactions. This means the nodes can be the same or different across layers.</p>
+</section>
+<section id="considerations" class="level2" data-number="24.2">
+<h2 data-number="24.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">24.2</span> Considerations</h2>
+<ul>
+<li>We have the same considerations as for <a href="19. Network model.qmd">Network model</a>. ## Example</li>
+</ul>
+</section>
+<section id="mathematical-details" class="level2" data-number="24.3">
+<h2 data-number="24.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">24.3</span> Mathematical Details</h2>
+<section id="formula" class="level3" data-number="24.3.1">
+<h3 data-number="24.3.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">24.3.1</span> <em>Formula</em></h3>
+</section>
+<section id="bayesian-model-wip" class="level3" data-number="24.3.2">
+<h3 data-number="24.3.2" class="anchored" data-anchor-id="bayesian-model-wip"><span class="header-section-number">24.3.2</span> <em>Bayesian model (WIP)</em></h3>
+</section>
+</section>
+<section id="notes" class="level1" data-number="25">
+<h1 data-number="25"><span class="header-section-number">25</span> Notes</h1>
+<ul>
+<li><p>We can apply sender-receiver model <a href="19.1. Sender receiver network model.qmd">19.1. Sender receiver network model.</a>.</p></li>
+<li><p>We can apply block model <a href="3. Block model network.qmd">19.2. Block model network.qmd</a>.</p></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -729,10 +757,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./21. Network Metrics (wip).html" class="pagination-link" aria-label="21. Network Metrics (wip).html">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Network Metrics (wip).html</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./0. Introduction.html" class="pagination-link" aria-label="Introduction">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./23. Multiplex temporal network model (wip).html" class="pagination-link" aria-label="23. Multiplex temporal network model (wip).html">
+        <span class="nav-page-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">23. Multiplex temporal network model (wip).html</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
