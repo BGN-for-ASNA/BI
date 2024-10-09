@@ -453,7 +453,7 @@ Caution
 <li><p>Model the relationship between Y and R to vary as a function of A. You explicitly model the hypothesis that the slope between Y and R depends—is conditional—upon A.</p></li>
 <li><p>For continuous interactions, the intercept becomes the grand mean of the outcome variable. This ease of interpretation alone is a good reason to center predictor variables.</p></li>
 <li><p>The interpretation of estimates is more difficult, as the estimate of non-interaction terms becomes the expected change in Y when R increases by one unit and A is at its average value. The estimate of interaction terms represents the expected change in the influence of A on Y when increasing R by one unit and the expected change in the influence of R on Y when increasing A by one unit.</p></li>
-<li><p><a href="3.%20%Interaction%20%between%20%continuous%20%variables.qmd" title="Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.">Triptych 🛈</a> plots are very handy for understanding the impact of interactions.</p></li>
+<li><p><a href="#" title="Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.">Triptych 🛈</a> plots are very handy for understanding the impact of interactions.</p></li>
 </ul>
 </div>
 </div>
@@ -498,7 +498,7 @@ Caution
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'../data/tulips.csv'</span>, <span class="at">sep=</span><span class="st">';'</span>) </span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#m.scale(['blooms', 'water', 'shade'])</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>))</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>))</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>

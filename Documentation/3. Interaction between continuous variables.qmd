@@ -18,7 +18,7 @@ Parallel lines indicate that there is no interaction effect, while different slo
 
 - The interpretation of estimates is more difficult, as the estimate of non-interaction terms becomes the expected change in Y when R increases by one unit and A is at its average value. The estimate of interaction terms represents the expected change in the influence of A on Y when increasing R by one unit and the expected change in the influence of R on Y when increasing A by one unit.
 
-- [Triptych 🛈](3.%20%Interaction%20%between%20%continuous%20%variables.qmd "Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.
+- [Triptych 🛈](# "Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.
 :::
 
 ## Example
@@ -63,7 +63,7 @@ m = bi$bi(platform='cpu')
 
 # Import data ------------------------------------------------
 m$data('../data/tulips.csv', sep=';') 
-#m.scale(['blooms', 'water', 'shade'])
+m$scale(list('blooms', 'water', 'shade'))
 m$data_to_model(list('blooms', 'water', 'shade'))
 
 # Define model ------------------------------------------------
