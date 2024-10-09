@@ -47,19 +47,20 @@ m.sampler.print_summary(0.89)
 ```R
 library(reticulate)
 bi <- import("main")
+
 # Setup device------------------------------------------------
 m = bi$bi(platform='cpu')
 
 # Import data ------------------------------------------------
 m$data('../data/milk.csv', sep=';') 
-#m.scale(['blooms', 'water', 'shade'])
+m$scale(list('kcal_per_g'))
 m$index(list('clade'))
 m$data_to_model(list('kcal_per_g', 'index_clade'))
 
 # Define model ------------------------------------------------
 model <- function(kcal_per_g, index_clade){
-  beta = bi$dist$normal( 0.5, 0.25, name = 'beta',shape= tuple(as.integer(1)))
-  sigma = bi$dist$uniform(0, 50, name = 's',shape = tuple(as.integer(1)))
+  beta = bi$dist$normal( 0, 0.5, name = 'beta',shape= tuple(as.integer(1)))
+  sigma = bi$dist$exponential(1, name = 's',shape = tuple(as.integer(1)))
   bi$lk("Y", bi$Normal(beta[index_clade], sigma), obs=kcal_per_g)
 }
 

@@ -37,6 +37,30 @@ m.sampler.print_summary(0.89)
 
 ```
 
+```R
+library(reticulate)
+bi <- import("main")
+# Setup device------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('../data/chimpanzees.csv', sep=';') 
+m$data_to_model(list('pulled_left'))
+
+# Define model ------------------------------------------------
+model <- function(pulled_left){
+  alpha = bi$dist$normal( 0, 10, name = 'alpha')
+  bi$lk("Y", bi$Binomial(logits = alpha), obs=pulled_left)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+
+```
+
 ## Mathematical Details
 ### *Frequentist formulation*
 We model the relationship between the independent variable ($X_i$) and the binary dependent variable ($Y_i$) using the following equation:
@@ -64,7 +88,7 @@ Y \sim Binomial(n = 1, p)
 $$
 
 $$
-logit(p) \sim \alpha + \beta X
+logit(p) \sim \alpha + \beta X_i
 $$
 
 $$
