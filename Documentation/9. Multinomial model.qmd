@@ -10,7 +10,7 @@ To model the relationship between a categorical outcome variable with more than 
 ::: callout-caution 
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
   
-- One way to interpret a multinomial model is to consider that we need to build \( K - 1 \) linear models, where \( K \) is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a [simplex 🛈](8.&#32;Multinomial.md "A simplex is a vector of k−1 probabilities that sum to one."). To do this, we convert the regression outputs using the softmax function (see the "nn.softmax" line in the code). 
+- One way to interpret a multinomial model is to consider that we need to build \( K - 1 \) linear models, where \( K \) is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a [simplex 🛈](# "A simplex is a vector of k−1 probabilities that sum to one."). To do this, we convert the regression outputs using the softmax function (see the "nn.softmax" line in the code). 
   
 - The intercept captures the difference in the log-odds of the outcome categories; thus, different categories need different intercepts.
   

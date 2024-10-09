@@ -394,7 +394,11 @@ window.Quarto = {
   <ul>
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">9.1</span> General Principles</a></li>
   <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">9.2</span> Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">9.3</span> Example</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">9.3</span> Example</a>
+  <ul class="collapse">
+  <li><a href="#python" id="toc-python" class="nav-link" data-scroll-target="#python"><span class="header-section-number">9.3.1</span> Python</a></li>
+  <li><a href="#r" id="toc-r" class="nav-link" data-scroll-target="#r"><span class="header-section-number">9.3.2</span> R</a></li>
+  </ul></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">9.4</span> Mathematical Details</a>
   <ul class="collapse">
   <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">9.4.1</span> <em>Frequentist formulation</em></a></li>
@@ -447,7 +451,7 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>We have the second <a href="6. Poisson regression.qmd" title="A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.">link function</a>. The conventional link function for a Poisson model is the <em>log</em> link (it ensures that <em>λ</em> is always positive).</p></li>
+<li><p>We have the second <a href="#" title="A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.">link function</a>. The conventional link function for a Poisson model is the <em>log</em> link (it ensures that <em>λ</em> is always positive).</p></li>
 <li><p>To invert the log link function and model linearly the relationship between the predictor variables and the log of the mean rate parameter, we can apply the exponential function (see comment in code).</p></li>
 </ul>
 <!--
@@ -465,7 +469,8 @@ log(\lambda_i) = log(\tau_i) + \alpha + \beta x_i
 <section id="example" class="level2" data-number="9.3">
 <h2 data-number="9.3" class="anchored" data-anchor-id="example"><span class="header-section-number">9.3</span> Example</h2>
 <p>Below is an example code snippet demonstrating a Bayesian Poisson model.</p>
-<p><span style="color:blue"> <strong><em>Python</em></strong></span></p>
+<section id="python" class="level3" data-number="9.3.1">
+<h3 data-number="9.3.1" class="anchored" data-anchor-id="python"><span class="header-section-number">9.3.1</span> Python</h3>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
@@ -473,10 +478,10 @@ log(\lambda_i) = log(\tau_i) + \alpha + \beta x_i
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/Kline.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.sale([<span class="st">"P"</span>]) </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.sale([<span class="st">"population"</span>]) </span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"cid"</span>] <span class="op">=</span> (m.df.contact <span class="op">==</span> <span class="st">"high"</span>).astype(<span class="bu">int</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'P'</span>, <span class="st">'cid'</span>])</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>, <span class="st">'cid'</span>])</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
@@ -490,6 +495,35 @@ log(\lambda_i) = log(\tau_i) + \alpha + \beta x_i
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="r" class="level3" data-number="9.3.2">
+<h3 data-number="9.3.2" class="anchored" data-anchor-id="r"><span class="header-section-number">9.3.2</span> R</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>bi <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"main"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> bi<span class="sc">$</span><span class="fu">bi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'../data/Kline.csv'</span>, <span class="at">sep=</span><span class="st">';'</span>) </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'population'</span>))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df[<span class="st">"cid"</span>] <span class="ot">=</span>  <span class="fu">as.integer</span>(<span class="fu">ifelse</span>(m<span class="sc">$</span>df<span class="sc">$</span>contact <span class="sc">==</span> <span class="st">"high"</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'total_tools'</span>, <span class="st">'population'</span>, <span class="st">'cid'</span> ))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(total_tools, population, cid){</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">3</span>, <span class="fl">0.5</span>, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">name=</span><span class="st">'beta'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">=</span> bi<span class="sc">$</span>jnp<span class="sc">$</span><span class="fu">exp</span>(alpha[cid] <span class="sc">+</span> beta[cid]<span class="sc">*</span>population)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">Poisson</span>(l), <span class="at">obs=</span>total_tools)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 </section>
 <section id="mathematical-details" class="level2" data-number="9.4">
 <h2 data-number="9.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">9.4</span> Mathematical Details</h2>
