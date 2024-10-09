@@ -25,6 +25,7 @@ exposure = np.concatenate([np.repeat(1, 30), np.repeat(7, 4)])
 monastery = np.concatenate([np.repeat(0, 30), np.repeat(1, 4)])
 d = pd.DataFrame.from_dict(dict(y=y_all, days=exposure, monastery=monastery))
 d["log_days"] = d.days.pipe(np.log)
+d.to_csv('Sim dat Gamma poisson.csv', index=False)
 
 from main import *
 # Setup device ------------------------------------------------
@@ -50,7 +51,31 @@ m.run(model)
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
+### R
+```R
+library(reticulate)
+bi <- import("main")
 
+# Setup device ------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('Sim dat Gamma poisson.csv', sep=',') 
+m$data_to_model(list('log_days', 'monastery', 'y' ))
+
+# Define model ------------------------------------------------
+model <- function(log_days, monastery, y){
+  alpha = bi$dist$normal(0, 1, name='alpha')
+  beta = bi$dist$normal(0, 0.2, name='beta')
+  l = log_days + alpha + beta * monastery
+  bi$lk("y", bi$Poisson(rate=l), obs=y)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+```
 ## Mathematical Details
 ### *Formula*
 We model the relationship between the independent variable \(X\) and the count outcome variable \(Y\) using the following equation:
