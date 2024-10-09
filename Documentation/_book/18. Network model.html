@@ -160,6 +160,43 @@ window.Quarto = {
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">BI documentation</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/BGN-for-ASNA/ASNA_reliability" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Download" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Download"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Download PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.epub">
+              <i class="bi bi-journal pe-1"></i>
+            Download ePub
+            </a>
+          </li>
+      </ul>
+    </div>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-1" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-1">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+              <i class="bi bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -335,12 +372,14 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#example" id="toc-example" class="nav-link active" data-scroll-target="#example"><span class="header-section-number">20.1</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">20.2</span> Mathematical Details</a>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link active" data-scroll-target="#considerations"><span class="header-section-number">20.1</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">20.2</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">20.3</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">20.2.1</span> <em>Main Formula</em></a></li>
-  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">20.2.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
+  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">20.3.1</span> <em>Main Formula</em></a></li>
+  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">20.3.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
   </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">20.4</span> Note(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -367,13 +406,15 @@ window.Quarto = {
 
 
 <p>A network represents the relationships (links) between entities (nodes). These links can be weighted (weighted network) or unweighted (binary network), directed (directed network) or undirected (undirected network). Regardless of their type, networks generate links shared by nodes, leading to data dependency when modeling the network. One proposed solution is to model network links with random <a href="./12. Varying intercepts.html">intercepts</a> and <a href="./13. Varying slopes.html">effects</a>. By adding such parameters to the model, we can account for the correlations between node link relationships.</p>
+<section id="considerations" class="level2" data-number="20.1">
+<h2 data-number="20.1" class="anchored" data-anchor-id="considerations"><span class="header-section-number">20.1</span> Considerations</h2>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Considerations
+Caution
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -382,8 +423,9 @@ Considerations
 </ul>
 </div>
 </div>
-<section id="example" class="level2" data-number="20.1">
-<h2 data-number="20.1" class="anchored" data-anchor-id="example"><span class="header-section-number">20.1</span> Example</h2>
+</section>
+<section id="example" class="level2" data-number="20.2">
+<h2 data-number="20.2" class="anchored" data-anchor-id="example"><span class="header-section-number">20.2</span> Example</h2>
 <p>Below is an example code snippet demonstrating Bayesian network model with send-receiver effect:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Building model and sampling it ------------------</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ids <span class="op">=</span> jnp.arange(<span class="dv">0</span>,data[<span class="st">'N_id'</span>][<span class="dv">0</span>])</span>
@@ -420,10 +462,10 @@ Considerations
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="20.2">
-<h2 data-number="20.2" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">20.2</span> Mathematical Details</h2>
-<section id="main-formula" class="level3" data-number="20.2.1">
-<h3 data-number="20.2.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">20.2.1</span> <em>Main Formula</em></h3>
+<section id="mathematical-details" class="level2" data-number="20.3">
+<h2 data-number="20.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">20.3</span> Mathematical Details</h2>
+<section id="main-formula" class="level3" data-number="20.3.1">
+<h3 data-number="20.3.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">20.3.1</span> <em>Main Formula</em></h3>
 <p>The simple model that can be built to model link weights between nodes <em>i</em> and <em>j</em> can be defined using a poisson distribution:</p>
 <p><span class="math display">\[
 G_{ij} \sim Poisson(Y_{ij})
@@ -439,8 +481,8 @@ log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
 <li><span class="math inline">\(\delta_{ij}\)</span> is the <a href="#" title="Propesnity of node *i* and *j* to receive from each other.">dyadic effect 🛈</a>.</li>
 </ul>
 </section>
-<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="20.2.2">
-<h3 data-number="20.2.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">20.2.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
+<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="20.3.2">
+<h3 data-number="20.3.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">20.3.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
 <p><span class="math inline">\(\lambda_i\)</span> and <span class="math inline">\(\pi_j\)</span> are varying <a href="./12. Varying intercepts.html">intercepts</a> and <a href="./13. Varying slopes.html">slopes</a> identical to those described in previous chapters and are define through the following equations:</p>
 <p><span class="math display">\[
 \left(\begin{array}{cc}
@@ -499,13 +541,17 @@ L_\delta *
 <p><span class="math display">\[
 L \sim LKJ(2)
 \]</span></p>
+</section>
+</section>
+<section id="notes" class="level2" data-number="20.4">
+<h2 data-number="20.4" class="anchored" data-anchor-id="notes"><span class="header-section-number">20.4</span> Note(s)</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note(s)
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -556,7 +602,6 @@ Note(s)
 </div>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
