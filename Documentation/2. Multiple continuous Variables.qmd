@@ -34,7 +34,7 @@ def model(height, weight, age):
     alpha = bi.dist.normal(0, 0.5, name = 'alpha')    
     beta1 = bi.dist.normal(0, 0.5, name = 'beta1')
     beta2 = bi.dist.normal(0, 0.5, name = 'beta2')
-    sigma = bi.dist.uniform( 1, name = 'sigma')
+    sigma = bi.dist.uniform(0,50, name = 'sigma')
 
     lk("y", Normal(alpha + beta1 * weight + beta2 * age, sigma), obs=height)
 
@@ -43,6 +43,34 @@ m.run(model)
 
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
+```
+
+```R
+library(reticulate)
+# Setup device------------------------------------------------
+bi <- import("main")
+m = bi$bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('../data/Howell1.csv', sep=';') 
+m$df = m$df[m$df$age > 18,]
+m$data_to_model(list('weight', 'height', 'age'))
+
+# Define model ------------------------------------------------
+model <- function(height, weight,age){
+  alpha = bi$dist$normal( 0, 0.5, name = 'a',shape= tuple(as.integer(1)))
+  beta1 = bi$dist$normal( 0, 0.5, name = 'b1',shape= tuple(as.integer(1)))
+  beta2 = bi$dist$normal(  0, 0.5, name = 'b2',shape= tuple(as.integer(1)))   
+  sigma = bi$dist$uniform(0, 50, name = 's',shape = tuple(as.integer(1)))
+  bi$lk("y", bi$Normal(alpha + beta1 * weight +  beta2 * age , sigma), obs=height)
+}
+
+# Run mcmc ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+
 ```
 
 ## Mathematical Details
