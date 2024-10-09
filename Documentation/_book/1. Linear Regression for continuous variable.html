@@ -180,6 +180,43 @@ window.Quarto = {
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">BI documentation</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/BGN-for-ASNA/ASNA_reliability" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Download" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Download"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Download PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.epub">
+              <i class="bi bi-journal pe-1"></i>
+            Download ePub
+            </a>
+          </li>
+      </ul>
+    </div>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-1" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-1">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+              <i class="bi bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -356,13 +393,18 @@ window.Quarto = {
    
   <ul>
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">3.1</span> General Principles</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">3.2</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">3.3</span> Mathematical Details</a>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">3.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">3.3</span> Example</a>
   <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">3.3.1</span> <em>Frequentist formulation</em></a></li>
-  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">3.3.2</span> <em>Bayesian formulation</em></a></li>
+  <li><a href="#python" id="toc-python" class="nav-link" data-scroll-target="#python"><span class="header-section-number">3.3.1</span> Python</a></li>
+  <li><a href="#r" id="toc-r" class="nav-link" data-scroll-target="#r"><span class="header-section-number">3.3.2</span> R</a></li>
   </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">3.4</span> Reference(s)</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">3.4</span> Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">3.4.1</span> <em>Frequentist formulation</em></a></li>
+  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">3.4.2</span> <em>Bayesian formulation</em></a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">3.5</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -393,13 +435,16 @@ window.Quarto = {
 <p>To study relationships between two continuous variables (e.g., height and weight), we can use a <em>Linear regression approach</em>. Basically, we draw a line that crosses the point cloud of the two tested variables. For this, we need to have: 1) an intercept <span class="math inline">\(\alpha\)</span>, which represents origin of the line, 2) a coefficient <span class="math inline">\(\beta\)</span>, which informs us about the slope of the line, and 3) an variance term <span class="math inline">\(\sigma\)</span>, which informs us about the spread of points around the line. We can interpret the intercept <span class="math inline">\(\alpha\)</span> as the expected value of the dependent variable when all independent variables are equal to zero, the coefficient <span class="math inline">\(\beta\)</span> as how much <em>Y</em> increases for each increment of <em>X</em>, and <span class="math inline">\(\sigma\)</span> as the varrance around the prediction.</p>
 <!-- def alpha (when factor = 0), sigma is an estimate of the unexplained variance -->
 <p><img src="https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg" class="img-fluid"></p>
+</section>
+<section id="considerations" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">3.2</span> Considerations</h2>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Considerations
+Caution
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -413,9 +458,11 @@ Considerations
 </div>
 </div>
 </section>
-<section id="example" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="example"><span class="header-section-number">3.2</span> Example</h2>
+<section id="example" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="example"><span class="header-section-number">3.3</span> Example</h2>
 <p>Below is an example code snippet demonstrating Bayesian linear regression using the Bayesian Inference (BI) package:</p>
+<section id="python" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="python"><span class="header-section-number">3.3.1</span> Python</h3>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> .bi.main <span class="im">import</span><span class="op">*</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
@@ -438,6 +485,9 @@ Considerations
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="r" class="level3" data-number="3.3.2">
+<h3 data-number="3.3.2" class="anchored" data-anchor-id="r"><span class="header-section-number">3.3.2</span> R</h3>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="fu">paste0</span>(<span class="fu">getwd</span>(), <span class="st">'/bi'</span>))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -465,10 +515,11 @@ Considerations
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">3.3</span> Mathematical Details</h2>
-<section id="frequentist-formulation" class="level3" data-number="3.3.1">
-<h3 data-number="3.3.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">3.3.1</span> <em>Frequentist formulation</em></h3>
+</section>
+<section id="mathematical-details" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">3.4</span> Mathematical Details</h2>
+<section id="frequentist-formulation" class="level3" data-number="3.4.1">
+<h3 data-number="3.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">3.4.1</span> <em>Frequentist formulation</em></h3>
 <p>The following equation allows us to draw a line and is the one that is most used in statistics classes: <span class="math display">\[
 Y_i = \alpha + \beta  X_i + \epsilon_i
 \]</span></p>
@@ -481,8 +532,8 @@ Y_i = \alpha + \beta  X_i + \epsilon_i
 <li><p><span class="math inline">\(\epsilon_i\)</span> is a vector of error terms, independently distributed.</p></li>
 </ul>
 </section>
-<section id="bayesian-formulation" class="level3" data-number="3.3.2">
-<h3 data-number="3.3.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">3.3.2</span> <em>Bayesian formulation</em></h3>
+<section id="bayesian-formulation" class="level3" data-number="3.4.2">
+<h3 data-number="3.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">3.4.2</span> <em>Bayesian formulation</em></h3>
 <p>In the Bayesian formulation, we define each parameter with <a href="#" title="Priors are distributions that represent the value of the parameter before conditioning it on the data.">priors</a>. We can express a Bayesian version of this regression model using the following model: <span class="math display">\[
 Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 \]</span></p>
@@ -504,8 +555,8 @@ Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 </ul>
 </section>
 </section>
-<section id="references" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="references"><span class="header-section-number">3.4</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="references"><span class="header-section-number">3.5</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 

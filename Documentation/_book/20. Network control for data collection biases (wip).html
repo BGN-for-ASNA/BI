@@ -160,6 +160,43 @@ window.Quarto = {
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">BI documentation</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/BGN-for-ASNA/ASNA_reliability" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Download" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Download"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Download PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.epub">
+              <i class="bi bi-journal pe-1"></i>
+            Download ePub
+            </a>
+          </li>
+      </ul>
+    </div>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-1" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-1">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+              <i class="bi bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -335,13 +372,15 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#example-1" id="toc-example-1" class="nav-link active" data-scroll-target="#example-1"><span class="header-section-number">22.1</span> Example 1</a></li>
-  <li><a href="#example2" id="toc-example2" class="nav-link" data-scroll-target="#example2"><span class="header-section-number">22.2</span> Example2</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">22.3</span> Mathematical Details</a>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link active" data-scroll-target="#considerations"><span class="header-section-number">22.1</span> Considerations</a></li>
+  <li><a href="#example-1" id="toc-example-1" class="nav-link" data-scroll-target="#example-1"><span class="header-section-number">22.2</span> Example 1</a></li>
+  <li><a href="#example2" id="toc-example2" class="nav-link" data-scroll-target="#example2"><span class="header-section-number">22.3</span> Example2</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">22.4</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">22.3.1</span> <em>Main Formula</em></a></li>
-  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">22.3.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
+  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">22.4.1</span> <em>Main Formula</em></a></li>
+  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">22.4.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
   </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">22.5</span> Note(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -370,33 +409,36 @@ window.Quarto = {
 <p>Data collection biases are a persistent issue in studies of social networks. Two main types of biases can be considered: <a href="#" title="Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals">exposure biases 🛈</a> and <a href="#" title="Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations)">censoring biases 🛈</a>.</p>
 <p>To account for exposure biases, we can switch the network link probability model from a <em>Poisson</em> distribution to a <em>Binomial</em> distribution, as the binomial distribution allows us to account for the number of trials for each data estimation.</p>
 <p>To address censoring biases, we need to add an additional equation to account for the probability of missing an interaction during observation when modeling interaction between individual <em>i</em> and <em>j</em>.</p>
+<section id="considerations" class="level2" data-number="22.1">
+<h2 data-number="22.1" class="anchored" data-anchor-id="considerations"><span class="header-section-number">22.1</span> Considerations</h2>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Considerations
+Caution
 </div>
 </div>
 <div class="callout-body-container callout-body">
 
 </div>
 </div>
-<section id="example-1" class="level2" data-number="22.1">
-<h2 data-number="22.1" class="anchored" data-anchor-id="example-1"><span class="header-section-number">22.1</span> Example 1</h2>
+</section>
+<section id="example-1" class="level2" data-number="22.2">
+<h2 data-number="22.2" class="anchored" data-anchor-id="example-1"><span class="header-section-number">22.2</span> Example 1</h2>
 <p>Below is an example code snippet demonstrating Bayesian network model with send-receiver effect, dyadic effect and block model effect while accounting for exposure biases:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="example2" class="level2" data-number="22.2">
-<h2 data-number="22.2" class="anchored" data-anchor-id="example2"><span class="header-section-number">22.2</span> Example2</h2>
+<section id="example2" class="level2" data-number="22.3">
+<h2 data-number="22.3" class="anchored" data-anchor-id="example2"><span class="header-section-number">22.3</span> Example2</h2>
 <p>Below is an example code snippet demonstrating Bayesian network model with send-receiver effect, dyadic effect and block model effect while accounting for exposure biases and cesnsoring biases:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="22.3">
-<h2 data-number="22.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">22.3</span> Mathematical Details</h2>
-<section id="main-formula" class="level3" data-number="22.3.1">
-<h3 data-number="22.3.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">22.3.1</span> <em>Main Formula</em></h3>
+<section id="mathematical-details" class="level2" data-number="22.4">
+<h2 data-number="22.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">22.4</span> Mathematical Details</h2>
+<section id="main-formula" class="level3" data-number="22.4.1">
+<h3 data-number="22.4.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">22.4.1</span> <em>Main Formula</em></h3>
 <p><span class="math display">\[
 \begin{align}
     Y_{[i,j]} &amp;\sim \mathrm{Binomial}\Big(E_{[i,j]}, Q_{[i,j]}  \Big)
@@ -425,19 +467,23 @@ Q_{[i,j]} \sim \begin{cases}
 \]</span></p>
 <p>Where: - <span class="math inline">\(\phi_{[i,j]}\)</span> is the probability of a true tie between <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>. - <span class="math inline">\(\eta_{[i]}\)</span> is the probability of individual <span class="math inline">\(i\)</span> being detectable. - <span class="math inline">\(\eta_{[j]}\)</span> is the probability of individual <span class="math inline">\(j\)</span> being detectable.</p>
 </section>
-<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="22.3.2">
-<h3 data-number="22.3.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">22.3.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
+<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="22.4.2">
+<h3 data-number="22.4.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">22.4.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
 <p>We can let <span class="math inline">\(\eta_{[i]}\)</span> depend on individual-specific covariates. To model the probability of censoring, we can model <span class="math inline">\(1-\eta_{[i]}\)</span>: <span class="math display">\[
 \text{logit}(1-\eta_{[i]}) = \mu_\psi + \hat\psi_{[i]}  \sigma_\psi + \ldots
 \]</span></p>
 <p>where - <span class="math inline">\(\mu_\psi\)</span> is an intercept - <span class="math inline">\(\sigma_\psi\)</span> is a scalar for the variance of random effects - <span class="math inline">\(\hat\psi_{[i]}\sim \text {Normal}(0,1)\)</span>, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if <span class="math inline">\(C\)</span> is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with: <span class="math inline">\(\kappa_{[5]}C_{[i]}\)</span>, to give the effects of coloration on censoring probability.</p>
+</section>
+</section>
+<section id="notes" class="level2" data-number="22.5">
+<h2 data-number="22.5" class="anchored" data-anchor-id="notes"><span class="header-section-number">22.5</span> Note(s)</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note(s)
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -448,7 +494,6 @@ Note(s)
 </div>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

@@ -5,8 +5,9 @@ To account for exposure biases, we can switch the network link probability model
 
 To address censoring biases, we need to add an additional equation to account for the probability of missing an interaction during observation when modeling interaction between individual *i* and *j*.
 
-::: callout-caution
 ## Considerations
+::: callout-caution
+
 
 :::
 
@@ -76,8 +77,8 @@ where
 -   $\sigma_\psi$ is a scalar for the variance of random effects
 -   $\hat\psi_{[i]}\sim \text {Normal}(0,1)$, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if $C$ is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with:  $\kappa_{[5]}C_{[i]}$, to give the effects of coloration on censoring probability.
 
-::: callout-note
 ## Note(s)
+::: callout-note
 -   One major limitation of this model is the necessity of having an estimation of the censoring bias for each individual.
 :::
 

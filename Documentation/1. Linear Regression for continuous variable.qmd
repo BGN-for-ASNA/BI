@@ -8,9 +8,8 @@ To study relationships between two continuous variables (e.g., height and weight
 
 ![](https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg)
 
-
-::: callout-caution 
 ## Considerations
+::: callout-caution 
 -   Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to declare prior distributions for $\alpha$, $\beta$, and $\sigma^2$.
 
 -   Usually, we use a *Normal* distribution for $\alpha$ and $\beta$, and an *exponential* or *Gamma* distribution for $\sigma$ (basically any distribution that is positively defined).
@@ -26,6 +25,7 @@ To study relationships between two continuous variables (e.g., height and weight
 
 Below is an example code snippet demonstrating Bayesian linear regression using the Bayesian Inference (BI) package:
 
+### Python
 ``` python
 from .bi.main import*
 # Setup device------------------------------------------------
@@ -51,6 +51,7 @@ m.run(model)
 m.sampler.print_summary(0.89)
 ```
 
+### R
 ``` R
 library(reticulate)
 setwd(paste0(getwd(), '/bi'))

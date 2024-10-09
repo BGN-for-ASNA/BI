@@ -1,6 +1,7 @@
 # Network with block model
 Within networks, nodes can belong to different categories, and these categories can potentially affect the propensity for node interactions. For example, nodes can have different sex categories, and the propensity to interact with nodes of the same sex can be higher than with nodes of different sexes. To model the propensity for interaction between nodes based on the categories they belong to, we can use a stochastic block model approach.
 
+## Considerations
 ::: callout-caution
 - We consider predefined groups here, with the goal of evaluating the propensity for interaction between nodes within each group.
 - In addition to the block(s) model being tested, we need to include a block where all individuals are considered as belonging to the same group (```Any``` in the example). This allows us to assess whether interaction tendencies differ between groups or if the propensity to interact is uniform across all individuals.
@@ -103,10 +104,8 @@ where :
 -   $k \rightarrow k$ indicates a diagonal element.
 -   $k \rightarrow \tilde{k}$ indicates an off-diagonal element.
 
-
-::: callout-note
-
 ## Note(s)
+::: callout-note
 - By defining this block model within our network model, we are estimating [assortativity 🛈](# "The tendency of nodes to connect with similar nodes") and [disassortativity 🛈](# "The tendency of nodes to connect with dissimilar nodes.") for categorical variables.
   
 - Similarly, for continuous variables, we can generate a block model that includes all continuous variables.

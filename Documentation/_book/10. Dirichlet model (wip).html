@@ -151,6 +151,43 @@ div.csl-indent {
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">BI documentation</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/BGN-for-ASNA/ASNA_reliability" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Download" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Download"><i class="bi bi-download"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.pdf">
+              <i class="bi bi-file-pdf pe-1"></i>
+            Download PDF
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="./BI-documentation.epub">
+              <i class="bi bi-journal pe-1"></i>
+            Download ePub
+            </a>
+          </li>
+      </ul>
+    </div>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-1" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-1">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+              <i class="bi bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -327,13 +364,14 @@ div.csl-indent {
    
   <ul>
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">12.1</span> General Principles</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">12.2</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">12.3</span> Mathematical Details</a>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">12.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">12.3</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">12.4</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">12.3.1</span> <em>Formula</em></a></li>
-  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">12.3.2</span> <em>Bayesian model</em></a></li>
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">12.4.1</span> <em>Formula</em></a></li>
+  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">12.4.2</span> <em>Bayesian model</em></a></li>
   </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">12.4</span> Reference(s)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">12.5</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -363,13 +401,16 @@ div.csl-indent {
 <h2 data-number="12.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">12.1</span> General Principles</h2>
 <p>To model the relationship between a categorical outcome variable with more than two categories and one or more independent variables with <a href="./7. Poisson model.html" title="Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the Multinomial distribution.">overdispersion 🛈</a>, we can use a <em>Dirichlet</em> distribution.</p>
 <p><img src="https://statstest.b-cdn.net/wp-content/uploads/2020/05/Multinomial-Logistic-Regression-1.jpg" class="img-fluid"></p>
+</section>
+<section id="considerations" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">12.2</span> Considerations</h2>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Considerations
+Caution
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -380,8 +421,8 @@ Considerations
 </div>
 </div>
 </section>
-<section id="example" class="level2" data-number="12.2">
-<h2 data-number="12.2" class="anchored" data-anchor-id="example"><span class="header-section-number">12.2</span> Example</h2>
+<section id="example" class="level2" data-number="12.3">
+<h2 data-number="12.3" class="anchored" data-anchor-id="example"><span class="header-section-number">12.3</span> Example</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Simulated data ------------------------------</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -473,18 +514,18 @@ Considerations
 <span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="12.3">
-<h2 data-number="12.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">12.3</span> Mathematical Details</h2>
-<section id="formula" class="level3" data-number="12.3.1">
-<h3 data-number="12.3.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">12.3.1</span> <em>Formula</em></h3>
+<section id="mathematical-details" class="level2" data-number="12.4">
+<h2 data-number="12.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">12.4</span> Mathematical Details</h2>
+<section id="formula" class="level3" data-number="12.4.1">
+<h3 data-number="12.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">12.4.1</span> <em>Formula</em></h3>
 </section>
-<section id="bayesian-model" class="level3" data-number="12.3.2">
-<h3 data-number="12.3.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">12.3.2</span> <em>Bayesian model</em></h3>
+<section id="bayesian-model" class="level3" data-number="12.4.2">
+<h3 data-number="12.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">12.4.2</span> <em>Bayesian model</em></h3>
 <p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
 </section>
 </section>
-<section id="references" class="level2" data-number="12.4">
-<h2 data-number="12.4" class="anchored" data-anchor-id="references"><span class="header-section-number">12.4</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="12.5">
+<h2 data-number="12.5" class="anchored" data-anchor-id="references"><span class="header-section-number">12.5</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 

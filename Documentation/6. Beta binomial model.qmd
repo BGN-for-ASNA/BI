@@ -15,8 +15,9 @@ We model the relationship between the predictor variables (X1, X2, ..., Xn) and 
 ## Example
 Below is an example code snippet demonstrating Bayesian Beta-Binomial regression:
 
+### Python
 ```python
-from .bi.main import*#
+from main import*#
 # Setup device------------------------------------------------
 m = bi()
 
@@ -49,7 +50,37 @@ m.run(model)
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
+### R
+``` R
+library(reticulate)
+bi <- import("main")
 
+# Setup device------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('../data/UCBadmit.csv', sep=';') 
+m$df["gid"] = as.integer(ifelse(m$df["applicant.gender"] == "male", 0, 1))
+m$data_to_model(list('gid', 'applications', 'admit' ))
+
+# Define model ------------------------------------------------
+model <- function(gid, applications, admit){
+  phi = bi$dist$exponential(1, name = 'phi')
+  alpha = bi$dist$normal(0., 1.5, shape= tuple(as.integer(2)), name='alpha')
+  theta = phi + 2
+  pbar = bi$jax$nn$sigmoid(alpha[gid])
+  concentration1 = pbar * theta
+  concentration0 = (1 - pbar) * theta
+  bi$lk("y", bi$BetaBinomial(total_count=applications, concentration1=concentration1, concentration0=concentration0), obs=admit)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+
+```
 ## Mathematical Details
 ### *Formula*
 
