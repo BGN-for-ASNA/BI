@@ -1,12 +1,12 @@
-#  Gamma-Poisson model
+# Gamma-Poisson model
 ## General Principles
-To model the relationship between a count outcome variable and one or more independent variables with [overdispersion 🛈](7.&#32;Poisson&#32;model.qmd "Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the Poisson distribution."), we can use _Negative Binomial model_. 
+To model the relationship between a count outcome variable and one or more independent variables with [overdispersion 🛈](7.&#32;Poisson&#32;model.qmd "Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the Poisson distribution."), we can use the _Negative Binomial model_. 
 
-::: callout-caution 
 ## Considerations
-- We have the same considerations as for [Poisson model](7.&#32;Poisson&#32;model.qmd).
+::: callout-caution 
+- We have the same considerations as for the [Poisson model](7.&#32;Poisson&#32;model.qmd).
   
--  Overdispersion is handled because the Negative-binomial model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is `_log_days_`).
+- Overdispersion is handled because the Negative Binomial model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is `_log_days_`).
 :::
 
 ## Example
@@ -17,92 +17,104 @@ import tensorflow_probability.substrates.jax.distributions as tfd
 init_key, sample_key = random.split(random.PRNGKey(int(r.randint(0, 10000000))))
 init_key = jnp.array(init_key)
 num_days = 30
-y = tfd.Poisson(rate=1.5).sample(seed = init_key, sample_shape=(num_days,))
+y = tfd.Poisson(rate=1.5).sample(seed=init_key, sample_shape=(num_days,))
 num_weeks = 4
-y_new = tfd.Poisson(rate=0.5 * 7).sample(seed = init_key, sample_shape=(num_weeks,))
+y_new = tfd.Poisson(rate=0.5 * 7).sample(seed=init_key, sample_shape=(num_weeks,))
 y_all = np.concatenate([y, y_new])
 exposure = np.concatenate([np.repeat(1, 30), np.repeat(7, 4)])
 monastery = np.concatenate([np.repeat(0, 30), np.repeat(1, 4)])
 d = pd.DataFrame.from_dict(dict(y=y_all, days=exposure, monastery=monastery))
 d["log_days"] = d.days.pipe(np.log)
 
-from main import*
-# Setup device------------------------------------------------
+from main import *
+# Setup device ------------------------------------------------
 m = bi()
 
-# import data ------------------------------------------------
+# Import data ------------------------------------------------
 m.data_on_model = dict(
-    log_days = jnp.array(d.log_days.values), # rate of each counts data
-    monastery = jnp.array(d.monastery.values),
-    output = jnp.array(d.y.values)
+    log_days=jnp.array(d.log_days.values),  # rate of each count data
+    monastery=jnp.array(d.monastery.values),
+    output=jnp.array(d.y.values)
 )
 
 # Define model ------------------------------------------------
 def model(log_days, monastery, output):
-    a = dist.normal(0, 1, shape=[1], name = 'a')
-    b = dist.normal(0, 1, shape=[1], name = 'b')
-    l = log_days + a +  b * monastery
-    lk("y", Poisson(rate = l), obs=output)
+    a = dist.normal(0, 1, shape=[1], name='a')
+    b = dist.normal(0, 1, shape=[1], name='b')
+    l = log_days + a + b * monastery
+    lk("y", Poisson(rate=l), obs=output)
 
-# Run mcmc ------------------------------------------------
+# Run MCMC ------------------------------------------------
 m.run(model) 
 
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
 
-
 ## Mathematical Details
 ### *Formula*
-We model the relationship between the independent variable $X$ and the count outcome variable $Y$ using the following equation:
+We model the relationship between the independent variable \(X\) and the count outcome variable \(Y\) using the following equation:
 
 $$
-log⁡(\lambda)= exp(rates + \alpha + \beta 𝑋)
+\log(\lambda_i) = \exp(\text{rates_i} + \alpha + \beta X_i)
 $$
 
 Where:
 
-- $\lambda$ is the mean rate parameter of the negative binomial distribution (expected count).
-- $X$ is the predictor variables.
-- $\beta$ is the regression coefficients.
+- $\lambda_i$ is the mean rate parameter of the negative binomial distribution (expected count) for observation *i*.
+  
+- $\log(\lambda_i)$ is the log of the mean rate parameter, ensuring it is positive for observation *i*.
+  
 - $\alpha$ is the intercept term.
-- $\log(\lambda)$ is the log of the mean rate parameter, ensuring it is positive.
+  
+- $\beta$ is the regression coefficients.
+  
+- $X_i$ is the value of the predictor variable  for observation *i*.
 
 ### *Bayesian model*
 We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
-𝑝(𝑌∣\alpha, \beta, X) \sim Poisson(λ)
+Y_i \sim \text{Poisson}(\lambda)
 $$
 
 $$
-log(λ) \sim rates + \alpha + \beta X
+\log(\lambda_i) \sim \text{rates_i} + \alpha + \beta X
 $$
 
 $$
-𝑝(\alpha)\sim Normal(0,1)
+\alpha \sim \text{Normal}(0,1)
 $$
 
 $$
-𝑝(\beta) \sim Normal(0,1)
+\beta \sim \text{Normal}(0,1)
 $$
-
 
 Where:
 
-- $p(Y | \alpha, \beta, X)$ is the likelihood function.
-- $p(\beta)$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept.
-- $\lambda = rates +\alpha + \beta X$ is the mean rate parameter of the Poisson distribution assuming that each Poisson count observation has its own rate.
+- $Y_i$  is dependent variable for observation *i*. 
+  
+- $\lambda_i$ is the mean rate parameter of the Poisson distribution for observation *i*, assuming that each Poisson count observation has its own rate.
+  
+- $\log(\lambda_i)$ is the log of the mean rate parameterfor observation *i*, ensuring it is positive.
+  
+- $\alpha$ is the intercept term.
+  
+- $\beta$ is the regression coefficients.
+  
+- $X_i$ is the value of the predictor variable  for observation *i*.
 
-::: callout-note 
+
 ## Notes
 
-- We can apply multiple variables similarly as [chapter 2](2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
+::: callout-note 
+- We can apply multiple variables similarly as in [chapter 2](2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
 
-- We can apply interaction terms  similarly as [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+- We can apply interaction terms similarly as in [chapter 3](3.&#32;Interaction&#32;between&#32;Continuous&#32;Variables.qmd).
 
-- We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.md).
+- We can apply categorical variables similarly as in [chapter 4](4.&#32;Categorical&#32;variable.md).
 :::
 
 ## Reference(s)
 @mcelreath2018statistical
+

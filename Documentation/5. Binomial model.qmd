@@ -1,18 +1,18 @@
-# Binomial model
+# Binomial Model
 ## General Principles
-To model the relationship between a binary outcome -e.g. such as success/failure, yes/no, or 1/0.- variable and one or more independent variables, we can use Binomial model. 
+To model the relationship between a binary outcome —e.g., success/failure, yes/no, or 1/0—and one or more independent variables, we can use a Binomial model. 
 
 ![](https://i.sstatic.net/xHlvv.png)
 
+## Considerations
 ::: callout-caution 
-##  Considerations
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- We have the firs [link function](5.&#32;Binomial&#32;regression.qmd "A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.") _logit_. The  _logit_ link function in Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution. 
+- We have the first [link function](5.&#32;Binomial&#32;regression.qmd "A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.") _logit_. The _logit_ link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution. 
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian binomial regression
+Below is an example code snippet demonstrating Bayesian binomial regression:
 
 ```python
 from main import*
@@ -26,11 +26,11 @@ m.data_to_model(['pulled_left'])
 
 # Define model ------------------------------------------------
 def model(pulled_left):
-    alpha = dist.normal( 0, 10)
-    lk("y", Binomial(logits= alpha[actor] + beta1[side] + beta2[cond]), obs=pulled_left)
+    alpha = dist.normal(0, 10)
+    lk("y", Binomial(logits=alpha[actor] + beta1[side] + beta2[cond]), obs=pulled_left)
 
-# Run mcmc ------------------------------------------------
-m.run(model, init_strategy = numpyro.infer.initialization.init_to_mean()) 
+# Run MCMC ------------------------------------------------
+m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) 
 
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
@@ -38,56 +38,63 @@ m.sampler.print_summary(0.89)
 ```
 
 ## Mathematical Details
-### *Formula*
-We model the relationship between the independent variable ($X$) and the binary outcome variable ($Y$) using the following equation:
+### *Frequentist formulation*
+We model the relationship between the independent variable ($X_i$) and the binary dependent variable ($Y_i$) using the following equation:
 $$
-logit(Y)=\alpha + \beta   𝑋 
+logit(Y_i) = \alpha + \beta X 
 $$
 
 Where:
 
-- $Y$ is the probability of success (or the probability of the binary outcome being 1).
-- $X$, is an independent variables.
-- $\beta$ is the regression coefficients.
+- $Y_i$ is the probability of success (or the probability of the binary outcome being 1) for observation *i*.
+  
 - $\alpha$ is the intercept term.
-- $\sigma$ is the error term.
-- $logit(Y)$ is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variables on the log-odds of success.
+  
+- $\beta$ is the regression coefficient.
+  
+- $X_i$ is the value of the independent variable for observation *i*.
+  
+- $logit(Y_i)$ is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation *i*.
 
-### *Bayesian model (WIP)*
+### *Bayesian formulation*
 We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$ 
-Y \sim Binomial(𝑛 = 1, 𝑝)
+Y \sim Binomial(n = 1, p)
 $$
 
 $$
 logit(p) \sim \alpha + \beta X
 $$
+
 $$
-𝑝(\alpha) \sim Normal(0,1)
-$$
-$$
-𝑝(\beta) \sim Normal(0,1)
+\alpha \sim Normal(0,1)
 $$
 
-
+$$
+\beta \sim Normal(0,1)
+$$
 
 Where:
 
-- $p(Y | 𝑌∣\alpha, \beta, 𝑋)$ is the likelihood function.
-- $p(\beta)$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept, respectivelly.
-- $n=1$ represents the number of trials in the binomial distribution (binary outcome).
-- $logit(\alpha + \beta  𝑋 )$ is the _logit_ link function that is equal to sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.
+- $Y$ is the likelihood function.
+  
+- $\beta$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept, respectively.
+  
+- $n = 1$ represents the number of trials in the binomial distribution (binary outcome).
+  
+- $logit(\alpha + \beta X)$ is the _logit_ link function that is equal to the sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.
 
 ## Notes
+::: callout-note
 
-- We can apply multiple variables similarly as [chapter 2](/2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
+- We can apply multiple variables similarly as in [chapter 2](/2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
   
-- We can apply interaction terms  similarly as [chapter 3](\3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+- We can apply interaction terms similarly as in [chapter 3](\3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
 
-- We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
+- We can apply categorical variables similarly as in [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
   
-- Below is an example code snippet demonstrating Bayesian binomial model for multiple caterogical variables :
+- Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables:
 
 ```python
 from main import*
@@ -103,16 +110,19 @@ m.data_to_model(['pulled_left', "actor", "side", "cond"])
 
 # Define model ------------------------------------------------
 def model(pulled_left):
-    alpha = bi.dist.normal(0, 10, shape = (7,), "alpha") # generating k intercept  #(one for each actor)
-    beta1 = bi.dist.normal(0, 10, shape = (2,), "beta") # generating k regression coefficient  for each k prosoc_left)
-    beta2 = bi.dist.normal(0, 10, shape = (2,), "alpha") # generating k regression coefficient for each k condition)
-    lk("y", Binomial(logits= alpha[actor] + beta1[side] + beta2[cond]), obs=pulled_left)
+    alpha = bi.dist.normal(0, 10, shape=(7,), name="alpha")  # generating k intercepts (one for each actor)
+    beta1 = bi.dist.normal(0, 10, shape=(2,), name="beta")  # generating k regression coefficients for each k prosoc_left
+    beta2 = bi.dist.normal(0, 10, shape=(2,), name="beta")  # generating k regression coefficients for each k condition
+    lk("y", Binomial(logits=alpha[actor] + beta1[side] + beta2[cond]), obs=pulled_left)
 
-# Run mcmc ------------------------------------------------
-m.run(model, init_strategy = numpyro.infer.initialization.init_to_mean()) 
+# Run MCMC ------------------------------------------------
+m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) 
 
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
+:::
+
 ## Reference(s)
 @mcelreath2018statistical
+
