@@ -164,7 +164,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./11. Zero inflated (wip).html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./11. Zero inflated.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -295,12 +295,12 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Dirichlet model</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Dirichlet Model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./11. Zero inflated (wip).html" class="sidebar-item-text sidebar-link active">
+  <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
   </div>
 </li>
@@ -366,8 +366,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./22. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
+  <a href="./22. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">22. Multiplex network model (wip).html</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -378,8 +378,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./24. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">24. Multiplex network model (wip).html</span></span></a>
+  <a href="./24. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -395,12 +395,12 @@ window.Quarto = {
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">13.1</span> General Principles</a></li>
   <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">13.2</span> Considerations</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">13.3</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">13.4</span> Mathematical Details</a></li>
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">13.5</span> <em>Formula</em></a>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">14</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">13.5.1</span> <em>Bayesian model</em></a></li>
+  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">14.0.1</span> <em>Frequentist formulation</em></a></li>
+  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">14.0.2</span> <em>Bayesian formulation</em></a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">14.1</span> Reference(s)</a></li>
   </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">13.6</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -448,16 +448,20 @@ Caution
 </section>
 <section id="example" class="level2" data-number="13.3">
 <h2 data-number="13.3" class="anchored" data-anchor-id="example"><span class="header-section-number">13.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson regression using TensorFlow Probability:</p>
+<p>Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson regression using the Bayesian Inference (BI) package:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax.scipy.special <span class="im">import</span> expit</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>r.seed(<span class="dv">42</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span> <span class="op">*</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data------------------------------------------------</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>prob_drink <span class="op">=</span> <span class="fl">0.2</span>  <span class="co"># 20% of days</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>rate_work <span class="op">=</span> <span class="dv">1</span>     <span class="co"># average 1 manuscript per day</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># sample one year of production</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample one year of production</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">365</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">365</span>)</span>
@@ -467,28 +471,33 @@ Caution
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> jnp.array(y)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>jnp.array(y)</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(y):</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    al <span class="op">=</span> dist.normal( <span class="dv">1</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'al'</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    ap <span class="op">=</span> dist.normal( <span class="op">-</span><span class="fl">1.5</span>, <span class="dv">1</span>,name <span class="op">=</span> <span class="st">'ap'</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    al <span class="op">=</span> dist.normal(<span class="dv">1</span>, <span class="fl">0.5</span>, name<span class="op">=</span><span class="st">'al'</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    ap <span class="op">=</span> dist.normal(<span class="op">-</span><span class="fl">1.5</span>, <span class="dv">1</span>, name<span class="op">=</span><span class="st">'ap'</span>)</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> expit(ap)</span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> jnp.exp(al)</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, ZeroInflatedPoisson(p, lambda_), obs<span class="op">=</span>y)</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </section>
-<section id="mathematical-details" class="level2" data-number="13.4">
-<h2 data-number="13.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">13.4</span> Mathematical Details</h2>
-</section>
-<section id="formula" class="level2" data-number="13.5">
-<h2 data-number="13.5" class="anchored" data-anchor-id="formula"><span class="header-section-number">13.5</span> <em>Formula</em></h2>
+<section id="mathematical-details" class="level1" data-number="14">
+<h1 data-number="14"><span class="header-section-number">14</span> Mathematical Details</h1>
+<section id="frequentist-formulation" class="level3" data-number="14.0.1">
+<h3 data-number="14.0.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">14.0.1</span> <em>Frequentist formulation</em></h3>
 <p>We model the relationship between the predictor variables <em>X</em> and the count outcome variable <em>Y</em> using two components: 1. A logistic regression model to predict the probability of an excess zero. 2. A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.</p>
 <p>The overall model can be represented as follows:</p>
 <p><span class="math display">\[
@@ -501,36 +510,50 @@ Caution
 \end{cases}
 \end{aligned}
 \]</span></p>
-<p>Where: - <span class="math inline">\(\pi\)</span> is the probability of an excess zero. - <span class="math inline">\(\lambda\)</span> is the mean rate parameter of the count model. - <span class="math inline">\(\alpha_\pi\)</span> and <span class="math inline">\(\beta_\pi\)</span> are respectivelly, the intercept and the regression coefficient for the logistic model. - <span class="math inline">\(\alpha_\lambda\)</span> and <span class="math inline">\(\beta_\lambda\)</span> are respectivelly, the regression coefficient for the the count model. - <span class="math inline">\(X\)</span> is the independent variables.</p>
-<section id="bayesian-model" class="level3" data-number="13.5.1">
-<h3 data-number="13.5.1" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">13.5.1</span> <em>Bayesian model</em></h3>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\(\pi\)</span> is the probability of an excess zero.</p></li>
+<li><p><span class="math inline">\(\lambda\)</span> is the mean rate parameter of the count model.</p></li>
+<li><p><span class="math inline">\(\alpha_\pi\)</span> and <span class="math inline">\(\beta_\pi\)</span> are respectively the intercept and the regression coefficient for the logistic model.</p></li>
+<li><p><span class="math inline">\(\alpha_\lambda\)</span> and <span class="math inline">\(\beta_\lambda\)</span> are respectively the regression coefficients for the count model.</p></li>
+<li><p><span class="math inline">\(X\)</span> are the independent variables.</p></li>
+</ul>
+</section>
+<section id="bayesian-formulation" class="level3" data-number="14.0.2">
+<h3 data-number="14.0.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">14.0.2</span> <em>Bayesian formulation</em></h3>
 <p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
 <p><span class="math display">\[
-𝑝(𝑌∣\lambda) \sim  ZIPoisson(\pi,\lambda)
+𝑌\sim ZIPoisson(\pi,\lambda)
 \]</span></p>
 <p><span class="math display">\[
-logit(\pi) = \alpha_\pi + \beta_\pi X
+\text{logit}(\pi) = \alpha_\pi + \beta_\pi X
 \]</span></p>
 <p><span class="math display">\[
-log(\lambda) = \alpha_\lambda + \beta_\lambda X
+\text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X
 \]</span></p>
 <p><span class="math display">\[
-p(\alpha_\pi) \sim Normal(0,1)
+\alpha_\pi \sim \text{Normal}(0,1)
 \]</span></p>
 <p><span class="math display">\[
-p(\beta_\pi) \sim Normal(0,1)
+\beta_\pi \sim \text{Normal}(0,1)
 \]</span></p>
 <p><span class="math display">\[
-p(\alpha_\lambda) \sim Normal(0,1)
+\alpha_\lambda \sim \text{Normal}(0,1)
 \]</span></p>
 <p><span class="math display">\[
-p(\beta_\lambda) \sim Normal(0,1)
+\beta_\lambda \sim \text{Normal}(0,1)
 \]</span></p>
-<p>Where: - <span class="math inline">\(\pi\)</span> is the probability of an excess zero. - <span class="math inline">\(\lambda\)</span> is the mean rate parameter of the count model. - <span class="math inline">\(\alpha_\pi\)</span> and <span class="math inline">\(\beta_\pi\)</span> are respectivelly, the intercept and the regression coefficient for the logistic model. - <span class="math inline">\(\alpha_\lambda\)</span> and <span class="math inline">\(\beta_\lambda\)</span> are respectivelly, the regression coefficient for the the count model. - <span class="math inline">\(X\)</span> is the independent variables.</p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\(\pi\)</span> is the probability of an excess zero.</p></li>
+<li><p><span class="math inline">\(\lambda\)</span> is the mean rate parameter of the count model.</p></li>
+<li><p><span class="math inline">\(\alpha_\pi\)</span> and <span class="math inline">\(\beta_\pi\)</span> are respectively the intercept and the regression coefficient for the logistic model.</p></li>
+<li><p><span class="math inline">\(\alpha_\lambda\)</span> and <span class="math inline">\(\beta_\lambda\)</span> are respectively the regression coefficients for the count model.</p></li>
+<li><p><span class="math inline">\(X\)</span> are the independent variables.</p></li>
+</ul>
 </section>
-</section>
-<section id="references" class="level2" data-number="13.6">
-<h2 data-number="13.6" class="anchored" data-anchor-id="references"><span class="header-section-number">13.6</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="14.1">
+<h2 data-number="14.1" class="anchored" data-anchor-id="references"><span class="header-section-number">14.1</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
@@ -539,6 +562,7 @@ p(\beta_\lambda) \sim Normal(0,1)
 McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
 </div>
 </div>
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -964,8 +988,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./10. Dirichlet model (wip).html" class="pagination-link" aria-label="Dirichlet model">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Dirichlet model</span></span>
+      <a href="./10. Dirichlet model (wip).html" class="pagination-link" aria-label="Dirichlet Model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Dirichlet Model</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
