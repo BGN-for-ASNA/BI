@@ -25,7 +25,9 @@ To study relationships between two continuous variables (e.g., height and weight
 
 Below is an example code snippet demonstrating Bayesian linear regression using the Bayesian Inference (BI) package:
 
-### Python
+
+::: {.panel-tabset group="language"}
+## Python
 ``` python
 from .bi.main import*
 # Setup device------------------------------------------------
@@ -50,8 +52,8 @@ m.run(model)
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
+## R
 
-### R
 ``` R
 library(reticulate)
 setwd(paste0(getwd(), '/bi'))
@@ -81,6 +83,10 @@ m$run(model)
 # Summary ------------------------------------------------
 m$sampler$print_summary(0.89)
 ```
+
+:::
+
+
 
 ## Mathematical Details
 
