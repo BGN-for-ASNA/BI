@@ -1,19 +1,20 @@
-# Dirichlet model
+
+# Dirichlet Model
 ## General Principles
-To model the relationship between a categorical outcome variable with more than two categories and one or more independent variables with [overdispersion 🛈](# "Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the Multinomial distribution."), we can use a _Dirichlet_ distribution. 
+To model the relationship between a categorical outcome variable with more than two categories and one or more independent variables with [overdispersion 🛈](# "Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the Multinomial distribution."), we can use a _Dirichlet_ distribution.
 
 ![](https://statstest.b-cdn.net/wp-content/uploads/2020/05/Multinomial-Logistic-Regression-1.jpg)
 
 ## Considerations
 ::: callout-caution 
-- We have the same considerations as for [Multinomial model](7.&#32;Multinomial&#32;model.qmd).
+- We have the same considerations as for the [Multinomial model](7.&#32;Multinomial&#32;model.qmd).
 
 - One major difference from the multinomial model is that the Dirichlet model doesn’t require a simplex.
 :::
 
 ## Example
 ```python
-#Simulated data ------------------------------
+# Simulated data ------------------------------
 import seaborn as sns
 import numpy as np
 from jax import random
@@ -34,12 +35,10 @@ N = 100
 N_obs = 2
 sigma_random = 0.6
 
-
 ########################################################
-################### Fixed effect Sim ###################
-#a = np.random.normal(0, 1, K)
-a = np.array([3,1,1]) # Forcing a values
-
+################### Fixed Effect Sim ###################
+# a = np.random.normal(0, 1, K)
+a = np.array([3, 1, 1])  # Forcing a values
 
 # Factors--------------------------
 NY = 4
@@ -49,15 +48,13 @@ Y2 = np.full((NV, NY), np.nan)
 means = np.random.normal(0, 1, NY)
 offsets = np.random.normal(0, 1, NV)
 for i in range(NV):
-  for k in range(NY):
-    Y2[i,k] = means[k] + offsets[i]
+    for k in range(NY):
+        Y2[i, k] = means[k] + offsets[i]
 
-    
 b_individual = np.random.normal(0, 1, (N, K))
 mu = b_individual + a
 
-
-# Declare an empty Matrix to fill with data
+# Declare an empty matrix to fill with data
 Y = np.empty((N * N_obs, K))
 
 # Declare an empty vector to fill with IDs
@@ -66,36 +63,33 @@ id = []
 # Loop over each individual
 for i in range(N):
     # Simulate N_obs draws from the multinomial
-    Y[i*N_obs:(i+1)*N_obs, :] = np.apply_along_axis(lambda x: np.random.multinomial(100, nn.softmax(x)), 0, mu[i])
+    Y[i*N_obs:(i+1)*N_obs, :] = np.apply_along_axis(lambda x: np.random.multinomial(100, softmax(x)), 0, mu[i])
     # Assign ID vector
     id += [i] * N_obs
 
-
-N = N*N_obs
+N = N * N_obs
 K = K
 ni = N
 y = jnp.array(Y, dtype=jnp.int32).reshape(N, K)
 i_ID = jnp.array(id)
 
-
-
-# Deifne model ----------------------------
-from main import*
+# Define model ----------------------------
+from main import *
 m = bi()
 def model(K, ni, y, i_ID):
-    a = normal('a', [K], 0,1)
-    Sigma_individual = exponential('Sigma_individual', [ni], 1 )
-    L_individual = lkjcholesky('L_individual', [], ni, 1) # Implies a uniform distribution over correlation matrices
-    z_individual = normal('z_individual', [ni,K], 0, 1)
+    a = normal('a', [K], 0, 1)
+    Sigma_individual = exponential('Sigma_individual', [ni], 1)
+    L_individual = lkjcholesky('L_individual', [], ni, 1)  # Implies a uniform distribution over correlation matrices
+    z_individual = normal('z_individual', [ni, K], 0, 1)
     alpha = random_centered(Sigma_individual, L_individual, z_individual)
     lk = jnp.exp(a + alpha[i_ID])
     sample("y", DirichletMultinomial(lk, int(100)), obs=y)
 
 m.data_on_model = dict(
-    K = K,
-    ni = ni,
-    y = y,
-    i_ID = i_ID
+    K=K,
+    ni=ni,
+    y=y,
+    i_ID=i_ID
 )
 
 # Run sampler ------------------------------------------------ 
@@ -105,12 +99,10 @@ m.run(model)
 m.sampler.print_summary(0.89)
 ```
 
-
 ## Mathematical Details
 ### *Formula*
 
-
-### *Bayesian model*
+### *Bayesian Model*
 We can express the Bayesian regression model accounting for prior distribution as follows:
 
 ## Reference(s)
