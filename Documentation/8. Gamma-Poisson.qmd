@@ -10,7 +10,10 @@ To model the relationship between a count outcome variable and one or more indep
 :::
 
 ## Example
+Below is an example code snippet demonstrating Bayesian Gamma-Poisson model using the Bayesian Inference (BI) package:
 
+::: {.panel-tabset group="language"}
+### Python
 ```python
 # Simulate data -------------------------------------------------------------
 import tensorflow_probability.substrates.jax.distributions as tfd
@@ -51,6 +54,7 @@ m.run(model)
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
+
 ### R
 ```R
 library(reticulate)
@@ -76,6 +80,8 @@ m$run(model)
 # Summary ------------------------------------------------
 m$sampler$print_summary(0.89)
 ```
+:::
+
 ## Mathematical Details
 ### *Formula*
 We model the relationship between the independent variable \(X\) and the count outcome variable \(Y\) using the following equation:
