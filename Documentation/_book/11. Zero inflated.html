@@ -489,7 +489,38 @@ Caution
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>bi <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"main"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device ------------------------------------------------</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> bi<span class="sc">$</span><span class="fu">bi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Define parameters</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>prob_drink <span class="ot">=</span> <span class="fl">0.2</span>  <span class="co"># 20% of days</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>rate_work <span class="ot">=</span> <span class="dv">1</span>     <span class="co"># average 1 manuscript per day</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># sample one year of production</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>N <span class="ot">=</span> <span class="fu">as.integer</span>(<span class="dv">365</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>drink <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">binomial</span>(<span class="at">total_count =</span> <span class="fu">as.integer</span>(<span class="dv">1</span>), <span class="at">probs =</span> prob_drink, <span class="at">shape =</span> <span class="fu">tuple</span>(N), <span class="at">sample =</span> T ) <span class="co"># An example of sampling a distribution with BI</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>y <span class="ot">=</span> (<span class="dv">1</span> <span class="sc">-</span> drink) <span class="sc">*</span>  bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">poisson</span>(rate_work, <span class="at">shape =</span> <span class="fu">tuple</span>(N), <span class="at">sample =</span> T)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>y <span class="ot">=</span> y </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model <span class="ot">=</span> data</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(y){</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  al <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="at">name=</span><span class="st">'al'</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  ap <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'ap'</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">=</span> bi<span class="sc">$</span>jax<span class="sc">$</span>scipy<span class="sc">$</span>special<span class="sc">$</span><span class="fu">expit</span>(al)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  lambda_ <span class="ot">=</span> bi<span class="sc">$</span>jnp<span class="sc">$</span><span class="fu">exp</span>(al)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">ZeroInflatedPoisson</span>(p, lambda_), <span class="at">obs=</span>y)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
