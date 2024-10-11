@@ -52,6 +52,38 @@ m.sampler.print_summary(0.89)
 
 ### R
 ```R
+library(reticulate)
+bi <- import("main")
+
+# Setup device ------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Define parameters
+prob_drink = 0.2  # 20% of days
+rate_work = 1     # average 1 manuscript per day
+# sample one year of production
+N = as.integer(365)
+drink = bi$dist$binomial(total_count = as.integer(1), probs = prob_drink, shape = tuple(N), sample = T ) # An example of sampling a distribution with BI
+y = (1 - drink) *  bi$dist$poisson(rate_work, shape = tuple(N), sample = T)
+data = list()
+data$y = y 
+m$data_on_model = data
+# Import data ------------------------------------------------
+
+# Define model ------------------------------------------------
+model <- function(y){
+  al = bi$dist$normal(1, 0.5, name='al')
+  ap = bi$dist$normal(-1, 1, name='ap')
+  p = bi$jax$scipy$special$expit(al)
+  lambda_ = bi$jnp$exp(al)
+  bi$lk("y", bi$ZeroInflatedPoisson(p, lambda_), obs=y)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
 
 ```
 :::
