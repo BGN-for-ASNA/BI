@@ -13,8 +13,10 @@ To model the relationship between predictor variables and an independent variabl
 
 ## Example
 
-Below is an example code snippet demonstrating Bayesian regression with varying intercepts:
+Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package:
 
+::: {.panel-tabset group="language"}
+## Python
 ```python
 from main import*
 
@@ -37,7 +39,7 @@ def model(tank, surv):
     sigma = dist.exponential( 1,  name = 'sigma')
     a_bar = dist.normal( 0., 1.5, name = 'a_bar')
     alpha = dist.normal( a_bar, sigma, shape= [48], name = 'alpha')
-    p = jnp.squeeze(alpha[tank])[0]
+    p = jnp.squeeze(alpha[tank])
     lk("y", Binomial(total_count = density, logits = p), obs=surv)
 
 # Run mcmc ------------------------------------------------
@@ -46,6 +48,37 @@ m.run(model)
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)
 ```
+## R
+
+```R
+library(reticulate)
+bi <- import("main")
+
+# Setup device ------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('../data/reedfrogs.csv', sep=';') 
+m$df$tank = c(0:(nrow(m$df)-1))
+m$data_to_model(list('tank', 'surv', 'density'))
+m$data_on_model$tank = m$data_on_model$tank$astype(bi$jnp$int32)
+m$data_on_model$surv = m$data_on_model$surv$astype(bi$jnp$int32)
+# Define model ------------------------------------------------
+model <- function(tank, surv, density){
+  sigma = bi$dist$exponential( 1,  name = 'sigma')
+  a_bar = bi$dist$normal(0, 1.5, name='a_bar')
+  alpha = bi$dist$normal(a_bar, sigma, name='alpha', shape = tuple(as.integer(48)))
+  p = alpha[tank]
+  bi$lk("y", bi$Binomial(total_count = density, logits = p), obs=surv)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+```
+:::
 
 ## Mathematical Details
 ### *Formula*
