@@ -4,7 +4,7 @@ A network represents the relationships (links) between entities (nodes). These l
 
 ## Considerations
 ::: callout-caution
--   The particularity here is that varying intercepts and slopes are generated for both [nodal effects 🛈](# "nodal categorical (e.g., sex) or continuous (e.g., age) characteristics") and [dyadic effects 🛈](# " link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes"). Those the varying intercepts and slopes are identical to those described in previous chapters and will therefore not be detailed further and only the random centered version of the varying slopes will be described here.
+-   The particularity here is that varying intercepts and slopes are generated for both [<span style="color:#0D6EFD">nodal effects 🛈</span>]{#NodeF} and [<span style="color:#0D6EFD">dyadic effects 🛈</span>]{#DyadicF}. Those the varying intercepts and slopes are identical to those described in previous chapters and will therefore not be detailed further and only the random centered version of the varying slopes will be described here.
 :::
 
 ## Example
@@ -64,10 +64,13 @@ $$
 where:
 
 -   $Y\_{ij}$ is the weight of links between *i* and *j*.
--   $\lambda_i$ is the [sender effect 🛈](# "node *i*'s propensity to emit a link.")
--   $\pi_j$ is the [receiver effect 🛈](# "node *j*'s propensity to receive a link.")
--   $\delta_{ij}$ is the [dyadic effect 🛈](# "Propesnity of node *i* and *j* to receive from each other.").
-
+  
+-   $\lambda_i$ is the [<span style="color:#0D6EFD">sender effect 🛈</span>]{#senderF}.
+  
+-   $\pi_j$ is the [<span style="color:#0D6EFD">receiver effect 🛈</span>]{#receiverF}.
+  
+-   $\delta_{ij}$ is the  [<span style="color:#0D6EFD">dyadic effect 🛈</span>]{#DyadicF2}.
+- 
 ### *Defining formula sub-equations and prior distributions*
 
 $\lambda_i$ and $\pi_j$ are varying [intercepts](12.%20Varying%20intercepts.qmd) and [slopes](13.%20Varying%20slopes.qmd) identical to those described in previous chapters and are define through the following equations:
@@ -184,7 +187,7 @@ summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 
 -   Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of link — i.e., model binary networks.
 
--   If the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms $\lambda_i$, $\pi_j$ , and $\delta{ij}$ are no longer required. (Is it correct?)
+-   If the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms $\lambda_i$, $\pi_j$ , and $\delta_{ij}$ are no longer required. (Is it correct?)
 
 -   In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).
 :::
