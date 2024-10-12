@@ -10,8 +10,8 @@ To model the relationship between a categorical outcome variable with more than 
 ::: callout-caution 
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
   
-- One way to interpret a multinomial model is to consider that we need to build \( K - 1 \) linear models, where \( K \) is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a [simplex 🛈](# "A simplex is a vector of k−1 probabilities that sum to one."). To do this, we convert the regression outputs using the softmax function (see the "nn.softmax" line in the code). 
-  
+- One way to interpret a multinomial model is to consider that we need to build $K - 1$ linear models, where $K$ is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a [<span style="color:#0D6EFD">simplex 🛈</span>]{#simplex}. To do this, we convert the regression outputs using the softmax function (see the "nn.softmax" line in the code). 
+   
 - The intercept captures the difference in the log-odds of the outcome categories; thus, different categories need different intercepts.
   
 - On the other hand, as we assume that the effect of each predictor on the outcome is consistent across all categories, the regression coefficients are shared across categories.
@@ -100,7 +100,7 @@ m$sampler$print_summary(0.89)
 
 ## Mathematical Details
 ### *Formula*
-We model the relationship between the predictor variables (X1, X2, ..., Xn) and the categorical outcome variable ($Y_i$) using the following equation:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We model the relationship between the predictor variables (X1, X2, ..., Xn) and the categorical outcome variable ($Y_i$) using the following equation:
 
 $$
 logit(p_ik) = log(\frac{p_ik}{p_iK})  = β_k^T X_i + α_k
@@ -143,4 +143,3 @@ Where:
 - 
 ## Reference(s)
 @mcelreath2018statistical
-

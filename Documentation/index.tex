@@ -381,7 +381,7 @@ and \(\sigma\) as the varrance around the prediction.
 
 \section{Considerations}\label{considerations}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -505,8 +505,10 @@ Where:
 formulation}}{Bayesian formulation}}\label{bayesian-formulation}
 
 In the Bayesian formulation, we define each parameter with
-\hyperref[]{priors}. We can express a Bayesian version of this
-regression model using the following model: \[
+\phantomsection\label{prior}{{priors 🛈}}. We can express a Bayesian
+version of this regression model using the following model:
+
+\[
 Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 \]
 
@@ -561,7 +563,7 @@ Regression for continuous variable} by adding a regression coefficient
 
 \section{Considerations}\label{considerations-1}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -569,8 +571,8 @@ Regression for continuous variable} by adding a regression coefficient
   \href{1.\%20Linear\%20Regression\%20for\%20continuous\%20variable.qmd}{Regression
   for continuous variable}.
 \item
-  We need a regression coefficient \(\beta\) for each
-  \hyperref[]{independent variable 🛈}.
+  We need a regression coefficient \(\beta\) for each independent
+  variable.
 \item
   Model interpretation of the regression coefficients \(\beta\) is
   considered for a fixed value of the other dependent variables'
@@ -684,7 +686,8 @@ Where:
 formulation}}{Bayesian formulation}}\label{bayesian-formulation-1}
 
 In the Bayesian formulation, we define each parameter with
-\hyperref[]{priors}. We can express the Bayesian model as follows:
+\phantomsection\label{prior}{{priors 🛈}}. We can express the Bayesian
+model as follows:
 
 \[
 𝑌 \sim Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
@@ -726,8 +729,7 @@ McElreath (2018)
 
 \bookmarksetup{startatroot}
 
-\chapter{Interaction Term between Two Continuous
-Variables}\label{interaction-term-between-two-continuous-variables}
+\chapter{Interaction terms}\label{interaction-terms}
 
 \section{General Principles}\label{general-principles-2}
 
@@ -752,7 +754,7 @@ won't be happy!
 
 \section{Considerations}\label{considerations-2}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -775,8 +777,8 @@ won't be happy!
   on Y when increasing R by one unit and the expected change in the
   influence of R on Y when increasing A by one unit.
 \item
-  \hyperref[]{Triptych 🛈} plots are very handy for understanding the
-  impact of interactions.
+  \phantomsection\label{triptych}{{Triptych 🛈}} plots are very handy for
+  understanding the impact of interactions.
 \end{itemize}
 
 \end{tcolorbox}
@@ -888,8 +890,9 @@ joint effect of \(X_{1i}\) and \(X_{2i}\) on the target variable
 \subsection{\texorpdfstring{\emph{Bayesian
 formulation}}{Bayesian formulation}}\label{bayesian-formulation-2}
 
-We can express the Bayesian regression model accounting for prior
-distribution as follows:
+In the Bayesian formulation, we define each parameter with
+\phantomsection\label{prior}{{priors 🛈}}. We can express the Bayesian
+regression model accounting for prior distribution as follows:
 
 \[
 Y \sim Normal(\alpha +  \beta_1  X_{1i}​ + \beta_2  X_{2i}​​ + \beta_{interaction}  X_1{1i} X_{2i}​ ,  \sigma)
@@ -959,7 +962,7 @@ converting categories to indices.
 
 \section{Considerations}\label{considerations-3}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1082,8 +1085,9 @@ intercept).
 \subsection{\texorpdfstring{\emph{Bayesian
 formulation}}{Bayesian formulation}}\label{bayesian-formulation-3}
 
-We can express the Bayesian regression model accounting for prior
-distribution as follows:
+In the Bayesian formulation, we define each parameter with
+\phantomsection\label{prior}{{priors 🛈}}. We can express the Bayesian
+regression model accounting for prior distribution as follows:
 
 \[
 Y \sim Normal(\alpha +  \beta_k X, \sigma)
@@ -1121,7 +1125,7 @@ Where:
 
 \section{Notes}\label{notes}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1154,7 +1158,7 @@ we can use a Binomial model.
 
 \section{Considerations}\label{considerations-4}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1162,12 +1166,13 @@ we can use a Binomial model.
   \href{1.\%20Linear\%20Regression\%20for\%20continuous\%20variable.qmd}{Regression
   for continuous variable}.
 \item
-  We have the first \hyperref[]{link function} \emph{logit}. The
-  \emph{logit} link function in the Bayesian binomial model converts the
-  linear combination of predictor variables into probabilities, making
-  it suitable for modeling binary outcomes. It helps estimate the
-  relationship between predictors and the probability of success,
-  ensuring results fall within the bounds of the binomial distribution.
+  We have the first \phantomsection\label{linkF}{{link function 🛈}}
+  \emph{logit}. The \emph{logit} link function in the Bayesian binomial
+  model converts the linear combination of predictor variables into
+  probabilities, making it suitable for modeling binary outcomes. It
+  helps estimate the relationship between predictors and the probability
+  of success, ensuring results fall within the bounds of the binomial
+  distribution.
 \end{itemize}
 
 \end{tcolorbox}
@@ -1265,8 +1270,8 @@ Where:
 \subsection{\texorpdfstring{\emph{Bayesian
 formulation}}{Bayesian formulation}}\label{bayesian-formulation-4}
 
-We can express the Bayesian regression model accounting for prior
-distribution as follows:
+\phantomsection\label{prior}{{priors 🛈}}. We can express the Bayesian
+regression model accounting for prior distribution as follows:
 
 \[ 
 Y \sim Binomial(n = 1, p)
@@ -1303,7 +1308,7 @@ Where:
 
 \section{Notes}\label{notes-1}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1364,7 +1369,8 @@ McElreath (2018)
 
 To model the relationship between a binary outcome variable representing
 success counts and one or more independent variables with
-\hyperref[]{overdispersion 🛈}, we can use the Beta-Binomial model.
+\phantomsection\label{overdispersion}{{overdispersion 🛈}}, we can use
+the Beta-Binomial model.
 
 We model the relationship between the predictor variables (X1, X2,
 \ldots, Xn) and the probability of success (p) using the following
@@ -1372,7 +1378,7 @@ equation:
 
 \section{Considerations}\label{considerations-5}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1496,8 +1502,9 @@ Where:
 \subsection{\texorpdfstring{\emph{Bayesian
 Model}}{Bayesian Model}}\label{bayesian-model}
 
-We can express the Bayesian regression model accounting for prior
-distribution as follows:
+In the Bayesian formulation, we define each parameter with
+\phantomsection\label{prior}{{priors 🛈}}. We can express the Bayesian
+regression model accounting for prior distribution as follows:
 
 \[
 Y_i \sim BetaBinomial(n_i, p_i, \theta)
@@ -1557,7 +1564,7 @@ is unknown or uncountably large.
 
 \section{Considerations}\label{considerations-6}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1565,9 +1572,9 @@ is unknown or uncountably large.
   \href{1.\%20Linear\%20Regression\%20for\%20continuous\%20variable.qmd}{Regression
   for continuous variable}.
 \item
-  We have the second \hyperref[]{link function}. The conventional link
-  function for a Poisson model is the \emph{log} link (it ensures that
-  \emph{λ} is always positive).
+  We have the second \phantomsection\label{linkF}{{link function 🛈}}.
+  The conventional link function for a Poisson model is the \emph{log}
+  link (it ensures that \emph{λ} is always positive).
 \item
   To invert the log link function and model linearly the relationship
   between the predictor variables and the log of the mean rate
@@ -1690,8 +1697,9 @@ Where:
 \subsection{\texorpdfstring{\emph{Bayesian
 formulation}}{Bayesian formulation}}\label{bayesian-formulation-5}
 
-We can express the Bayesian regression model accounting for prior
-distribution as follows:
+In the Bayesian formulation, we define each parameter with
+\phantomsection\label{prior}{{priors 🛈}}. We can express the Bayesian
+regression model accounting for prior distribution as follows:
 
 \[
 Y \sim Poisson(\lambda_i)
@@ -1735,7 +1743,7 @@ Where:
 
 \section{Notes}\label{notes-2}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1764,12 +1772,13 @@ McElreath (2018)
 \section{General Principles}\label{general-principles-7}
 
 To model the relationship between a count outcome variable and one or
-more independent variables with \hyperref[]{overdispersion 🛈}, we can
-use the \emph{Negative Binomial model}.
+more independent variables with
+\phantomsection\label{overdispersion}{{overdispersion 🛈}}, we can use
+the \emph{Negative Binomial model}.
 
 \section{Considerations}\label{considerations-7}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1779,7 +1788,7 @@ use the \emph{Negative Binomial model}.
   Overdispersion is handled because the Negative Binomial model assumes
   that each Poisson count observation has its own rate. This is an
   additional parameter specified in the model (in the code, it is
-  \texttt{\_log\_days\_}).
+  \texttt{log\_days}).
 \end{itemize}
 
 \end{tcolorbox}
@@ -1867,11 +1876,11 @@ model using the Bayesian Inference (BI) package:
 
 \subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-1}
 
-We model the relationship between the independent variable (X) and the
-count outcome variable (Y) using the following equation:
+We model the relationship between the independent variable \(X\) and the
+count outcome variable \(Y\) using the following equation:
 
 \[
-\log(\lambda_i) = \exp(\text{rates_i} + \alpha + \beta X_i)
+\log(\lambda_i) = \exp(\text{rates}_i + \alpha + \beta X_i)
 \]
 
 Where:
@@ -1895,15 +1904,16 @@ Where:
 \subsection{\texorpdfstring{\emph{Bayesian
 model}}{Bayesian model}}\label{bayesian-model-1}
 
-We can express the Bayesian regression model accounting for prior
-distribution as follows:
+In the Bayesian formulation, we define each parameter with
+\phantomsection\label{prior}{{priors 🛈}}. We can express the Bayesian
+regression model accounting for prior distribution as follows:
 
 \[
 Y_i \sim \text{Poisson}(\lambda)
 \]
 
 \[
-\log(\lambda_i) \sim \text{rates_i} + \alpha + \beta X
+\log(\lambda_i) \sim \text{rates}_i + \alpha + \beta X_i
 \]
 
 \[
@@ -1922,7 +1932,7 @@ Where:
 \item
   \(\lambda_i\) is the mean rate parameter of the Poisson distribution
   for observation \emph{i}, assuming that each Poisson count observation
-  has its own rate.
+  has its own \(rate_i\).
 \item
   \(\log(\lambda_i)\) is the log of the mean rate parameterfor
   observation \emph{i}, ensuring it is positive.
@@ -1937,7 +1947,7 @@ Where:
 
 \section{Notes}\label{notes-3}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1973,7 +1983,7 @@ use a \emph{Multinomial} distribution.
 
 \section{Considerations}\label{considerations-8}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -1982,11 +1992,12 @@ use a \emph{Multinomial} distribution.
   for continuous variable}.
 \item
   One way to interpret a multinomial model is to consider that we need
-  to build ( K - 1 ) linear models, where ( K ) is the number of
+  to build \(K - 1\) linear models, where \(K\) is the number of
   categories. Once we get the linear prediction for each category, we
   can convert these predictions to probabilities by building a
-  \hyperref[]{simplex 🛈}. To do this, we convert the regression outputs
-  using the softmax function (see the ``nn.softmax'' line in the code).
+  \phantomsection\label{simplex}{{simplex 🛈}}. To do this, we convert
+  the regression outputs using the softmax function (see the
+  ``nn.softmax'' line in the code).
 \item
   The intercept captures the difference in the log-odds of the outcome
   categories; thus, different categories need different intercepts.
@@ -2091,9 +2102,10 @@ model using the Bayesian Inference (BI) package:
 
 \subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-2}
 
-We model the relationship between the predictor variables (X1, X2,
-\ldots, Xn) and the categorical outcome variable (\(Y_i\)) using the
-following equation:
+In the Bayesian formulation, we define each parameter with
+\phantomsection\label{prior}{{priors 🛈}}. We model the relationship
+between the predictor variables (X1, X2, \ldots, Xn) and the categorical
+outcome variable (\(Y_i\)) using the following equation:
 
 \[
 logit(p_ik) = log(\frac{p_ik}{p_iK})  = β_k^T X_i + α_k
@@ -2163,14 +2175,14 @@ Where:
 
 To model the relationship between a categorical outcome variable with
 more than two categories and one or more independent variables with
-\hyperref[]{overdispersion 🛈}, we can use a \emph{Dirichlet}
-distribution.
+\phantomsection\label{overdispersion}{{overdispersion 🛈}}, we can use a
+\emph{Dirichlet} distribution.
 
 \includegraphics{index_files/mediabag/Multinomial-Logistic.jpg}
 
 \section{Considerations}\label{considerations-9}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -2280,8 +2292,9 @@ distribution.
 \subsection{\texorpdfstring{\emph{Bayesian
 Model}}{Bayesian Model}}\label{bayesian-model-3}
 
-We can express the Bayesian regression model accounting for prior
-distribution as follows:
+In the Bayesian formulation, we define each parameter with
+\phantomsection\label{prior}{{priors 🛈}}. We can express the Bayesian
+regression model accounting for prior distribution as follows:
 
 \section{Reference(s)}\label{references-9}
 
@@ -2300,13 +2313,14 @@ for predicting the probability of excess zeros.
 
 \section{Considerations}\label{considerations-10}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 In Bayesian Zero-Inflated regression, we consider uncertainty in the
 model parameters and provide a full posterior distribution over them. We
-need to declare prior distributions for \emph{W}\{1\pi\}, W\_\{2\pi\},
-\ldots, W\_\{n\pi\}\emph{, \emph{W}\{1\lambda\}, W}\{2\lambda\}, \ldots,
-W\_\{n\lambda\}\emph{, \emph{b}\pi}, and \emph{b}\lambda\_.
+need to declare prior distributions for
+\(W_{1\pi}, W_{2\pi}, ..., W_{n\pi}\),
+\(W_{1\lambda}, W_{2\lambda}, ..., W_{n\lambda}\), \(b_\pi\), and
+\(b_\lambda\).
 
 \end{tcolorbox}
 
@@ -2402,8 +2416,8 @@ Poisson regression using the Bayesian Inference (BI) package:
 \subsection{\texorpdfstring{\emph{Frequentist
 formulation}}{Frequentist formulation}}\label{frequentist-formulation-6}
 
-We model the relationship between the predictor variables \emph{X} and
-the count outcome variable \emph{Y} using two components: 1. A logistic
+We model the relationship between the predictor variables \(X\) and the
+count outcome variable \(Y\) using two components: 1. A logistic
 regression model to predict the probability of an excess zero. 2. A
 count model (e.g., Poisson or Negative Binomial) to predict the count
 outcome.
@@ -2441,8 +2455,9 @@ Where:
 \subsection{\texorpdfstring{\emph{Bayesian
 formulation}}{Bayesian formulation}}\label{bayesian-formulation-6}
 
-We can express the Bayesian regression model accounting for prior
-distribution as follows:
+In the Bayesian formulation, we define each parameter with
+\phantomsection\label{prior}{{priors 🛈}}. We can express the Bayesian
+regression model accounting for prior distribution as follows:
 
 \[
 𝑌\sim ZIPoisson(\pi,\lambda)
@@ -2508,7 +2523,7 @@ across these groups.
 
 \section{Considerations}\label{considerations-11}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -2518,13 +2533,13 @@ across these groups.
 \item
   The main idea of varying intercepts is to generate an intercept for
   each group, allowing each group to start at different levels. Thus,
-  the intercept \$ \beta\$ is defined based on the \(k\) declared
-  groups.
+  the intercept \(\beta\) is defined based on the \(k\) declared groups.
 \item
   Each intercept have is own \emph{Normal distribution} -i.e.~a
-  \hyperref[]{hyper-prior 🛈}-. In the code below, the \emph{hyper-prior}
-  is \texttt{\_a\_bar\_}.
+  \phantomsection\label{hyperP}{{hyper-prior 🛈}}
 \end{itemize}
+
+-In the code below, the \emph{hyper-prior} is \texttt{a\_bar}.
 
 \end{tcolorbox}
 
@@ -2614,12 +2629,23 @@ each group \emph{k} using the following equation:
 Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
 \]
 
-Where: - \(Y_{ik}\) is the outcome variable for observation \emph{i} in
-group \emph{k}. - \(\alpha_k\) is the varying intercept for group
-\emph{k}. - \(X_{ik}\) is the independent variables for observation
-\emph{i} in group \emph{k}. - \(\beta\) is the regression coefficients
-term. - \(\sigma\) is the error term, typically assumed to be normally
-distributed and positive.
+Where:
+
+\begin{itemize}
+\item
+  \(Y_{ik}\) is the outcome variable for observation \emph{i} in group
+  \emph{k}.
+\item
+  \(\alpha_k\) is the varying intercept for group \emph{k}.
+\item
+  \(X_{ik}\) is the independent variables for observation \emph{i} in
+  group \emph{k}.
+\item
+  \(\beta\) is the regression coefficients term.
+\item
+  \(\sigma\) is the error term, typically assumed to be normally
+  distributed and positive.
+\end{itemize}
 
 \subsection{\texorpdfstring{\emph{Bayesian
 model}}{Bayesian model}}\label{bayesian-model-4}
@@ -2628,29 +2654,41 @@ We can express the Bayesian regression model accounting for prior
 distribution as follows:
 
 \[
-p(Y_{ik} | \mu_{ik}, \sigma) = Normal(\mu_{ik}, \sigma)
+Y_{ik} = Normal(\mu_{ik}, \sigma)
 \] \[
 \mu_{ik} = \alpha_j + \beta X_{ik} + \sigma 
 \] \[
-\alpha_k \sim \text{Normal}(\mu_{alpha_k}, \sigma_{alpha_k}) 
+\alpha_k \sim \text{Normal}(\mu_{\alpha_k}, \sigma_{\alpha_k}) 
 \] \[
-p(\beta) \sim \text{Normal}(0, 1)
+\beta \sim \text{Normal}(0, 1)
 \] \[
-p(\sigma) \sim \text{Exponential}(1)
+\sigma \sim \text{Exponential}(1)
 \] \[
-p(\mu_{alpha_k}) \sim \text{Normal}(0, 1)
+\mu_{\alpha_k} \sim \text{Normal}(0, 1)
 \] \[
-p(\sigma_{alpha_k}) \sim \text{Exponential}(1)
+\sigma_{\alpha_k} \sim \text{Exponential}(1)
 \]
 
-Where: - \(p(Y_{ij} | \mu_{ij}, \sigma)\) is the likelihood function for
-the outcome variable. - \(\alpha_k\) is the varying intercepts across
-groups. - \(\mu_alpha_k\) is the overall mean intercept. -
-\(\sigma_alpha_k\) is the variance of the intercepts across groups. -
-\(p(\beta)\) is the prior distributions for the regression coefficients.
-- \(p(\sigma)\) is the prior distributions for the error term.
+Where:
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Notes}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{itemize}
+\item
+  \(Y_{ij}\) is the likelihood function for the outcome variable.
+\item
+  \(\alpha_k\) is the varying intercepts across groups.
+\item
+  \(\mu_{\alpha_k}\) is the overall mean intercept.
+\item
+  \(\sigma_{\alpha_k}\) is the variance of the intercepts across groups.
+\item
+  \(\beta\) is the prior distributions for the regression coefficients.
+\item
+  \(\sigma\) is the prior distributions for the error term.
+\end{itemize}
+
+\section{Notes}\label{notes-4}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -2694,7 +2732,7 @@ estimates via pooling.
 
 \section{Considerations}\label{considerations-12}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
@@ -2705,7 +2743,7 @@ estimates via pooling.
   specified for each category. However, here, we also estimate
   relationships between different groups. This leads to a different
   mathematical approach, as to model these relationships between groups,
-  we model a \hyperref[]{matrix of covariance 🛈}.
+  we model a \phantomsection\label{cov}{{ matrix of covariance 🛈}}.
 \item
   The covariance matrix requiere a correlation matris distribution which
   is modeleld using a \(LKJcorr\) distribution that hold a parameter
@@ -2729,49 +2767,16 @@ varying effects:
 
 \subsection{Simulated data}\label{simulated-data}
 
+\section{Python}
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \ImportTok{from}\NormalTok{ main }\ImportTok{import}\OperatorTok{*}
 \CommentTok{\# Setup device{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m }\OperatorTok{=}\NormalTok{ bi(platform}\OperatorTok{=}\StringTok{\textquotesingle{}cpu\textquotesingle{}}\NormalTok{)}
+\NormalTok{m.data(}\StringTok{\textquotesingle{}Sim data multivariatenormal.csv\textquotesingle{}}\NormalTok{, sep}\OperatorTok{=}\StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{) }
+\NormalTok{m.data.to\_model([}\StringTok{\textquotesingle{}cafe\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}wait\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}N\_cafes\textquotesingle{}}\NormalTok{])}
 
-\NormalTok{a }\OperatorTok{=} \FloatTok{3.5}  \CommentTok{\# average morning wait time}
-\NormalTok{b }\OperatorTok{=} \OperatorTok{{-}}\DecValTok{1}  \CommentTok{\# average difference afternoon wait time}
-\NormalTok{sigma\_a }\OperatorTok{=} \DecValTok{1}  \CommentTok{\# std dev in intercepts}
-\NormalTok{sigma\_b }\OperatorTok{=} \FloatTok{0.5}  \CommentTok{\# std dev in slopes}
-\NormalTok{rho }\OperatorTok{=} \OperatorTok{{-}}\FloatTok{0.7}  \CommentTok{\# correlation between intercepts and slopes}
-\NormalTok{Mu }\OperatorTok{=}\NormalTok{ jnp.array([a, b])}
-\NormalTok{cov\_ab }\OperatorTok{=}\NormalTok{ sigma\_a }\OperatorTok{*}\NormalTok{ sigma\_b }\OperatorTok{*}\NormalTok{ rho}
-\NormalTok{Sigma }\OperatorTok{=}\NormalTok{ jnp.array([[sigma\_a}\OperatorTok{**}\DecValTok{2}\NormalTok{, cov\_ab], [cov\_ab, sigma\_b}\OperatorTok{**}\DecValTok{2}\NormalTok{]])}
-\NormalTok{jnp.array([}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{4}\NormalTok{]).reshape(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{).T}
-\NormalTok{sigmas }\OperatorTok{=}\NormalTok{ jnp.array([sigma\_a, sigma\_b])  }\CommentTok{\# standard deviations}
-\NormalTok{Rho }\OperatorTok{=}\NormalTok{ jnp.array([[}\DecValTok{1}\NormalTok{, rho], [rho, }\DecValTok{1}\NormalTok{]])  }\CommentTok{\# correlation matrix}
-
-\CommentTok{\# now matrix multiply to get covariance matrix}
-\NormalTok{Sigma }\OperatorTok{=}\NormalTok{ jnp.diag(sigmas) }\OperatorTok{@}\NormalTok{ Rho }\OperatorTok{@}\NormalTok{ jnp.diag(sigmas)}
-
-\NormalTok{N\_cafes }\OperatorTok{=} \DecValTok{20}
-\NormalTok{seed }\OperatorTok{=}\NormalTok{ random.PRNGKey(}\DecValTok{5}\NormalTok{)  }\CommentTok{\# used to replicate example}
-\NormalTok{vary\_effects }\OperatorTok{=}\NormalTok{ bi.dist.multivariatenormal(Mu, Sigma, shape}\OperatorTok{=}\NormalTok{(N\_cafes,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
-\NormalTok{a\_cafe }\OperatorTok{=}\NormalTok{ vary\_effects[:, }\DecValTok{0}\NormalTok{]}
-\NormalTok{b\_cafe }\OperatorTok{=}\NormalTok{ vary\_effects[:, }\DecValTok{1}\NormalTok{]}
-
-\NormalTok{seed }\OperatorTok{=}\NormalTok{ random.PRNGKey(}\DecValTok{22}\NormalTok{)}
-\NormalTok{N\_visits }\OperatorTok{=} \DecValTok{10}
-\NormalTok{afternoon }\OperatorTok{=}\NormalTok{ jnp.tile(jnp.arange(}\DecValTok{2}\NormalTok{), N\_visits }\OperatorTok{*}\NormalTok{ N\_cafes }\OperatorTok{//} \DecValTok{2}\NormalTok{)}
-\NormalTok{cafe\_id }\OperatorTok{=}\NormalTok{ jnp.repeat(jnp.arange(N\_cafes), N\_visits)}
-\NormalTok{mu }\OperatorTok{=}\NormalTok{ a\_cafe[cafe\_id] }\OperatorTok{+}\NormalTok{ b\_cafe[cafe\_id] }\OperatorTok{*}\NormalTok{ afternoon}
-\NormalTok{sigma }\OperatorTok{=} \FloatTok{0.5}  \CommentTok{\# std dev within cafes}
-\NormalTok{wait }\OperatorTok{=}\NormalTok{ dist.normal(mu, sigma, sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
-\NormalTok{d }\OperatorTok{=}\NormalTok{ pd.DataFrame(}\BuiltInTok{dict}\NormalTok{(cafe}\OperatorTok{=}\NormalTok{cafe\_id, afternoon}\OperatorTok{=}\NormalTok{afternoon, wait}\OperatorTok{=}\NormalTok{wait))}
-\NormalTok{m.data\_to\_model([}\StringTok{\textquotesingle{}cafe\_id\textquotesingle{}}\NormalTok{, }\StringTok{"afternoon"}\NormalTok{, }\StringTok{"wait"}\NormalTok{])}
-\end{Highlighting}
-\end{Shaded}
-
-\subsubsection{Model definition}\label{model-definition}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ model(cafe, wait, N\_cafes):}
 \NormalTok{    a }\OperatorTok{=}\NormalTok{ dist.normal(}\DecValTok{5}\NormalTok{, }\DecValTok{2}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
 \NormalTok{    b }\OperatorTok{=}\NormalTok{ dist.normal(}\OperatorTok{{-}}\DecValTok{1}\NormalTok{, }\FloatTok{0.5}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
@@ -2790,6 +2795,14 @@ varying effects:
 
 \CommentTok{\# Summary {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m.sampler.print\_summary(}\FloatTok{0.89}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{R}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
 \end{Highlighting}
 \end{Shaded}
 
@@ -2877,8 +2890,8 @@ variance of \(\alpha_k\). - \(\sigma_\pi^2\) The variance of
 and \(\beta_k\)
 
 For computational reasons, it is often better to implement a
-\href{12.\%20Varying\%20intercepts.qmd}{centered version of the varying
-intercept 🛈} that is equivalent to the \emph{Multivariate Normal
+\phantomsection\label{centerRF}{{centered version of the varying
+intercept 🛈}} that is equivalent to the \emph{Multivariate Normal
 distribution} approach:
 
 \[
@@ -2950,7 +2963,7 @@ L \sim LKJcorr(2)
 
 \section{Notes}\label{notes-5}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \tightlist
@@ -3226,22 +3239,156 @@ McElreath (2018)
 
 \bookmarksetup{startatroot}
 
-\chapter{}\label{section-1}
-
-\bookmarksetup{startatroot}
-
-\chapter{}\label{section-2}
-
-\bookmarksetup{startatroot}
-
-\chapter{}\label{section-3}
-
-\bookmarksetup{startatroot}
-
-\chapter{Bayesian Regression with Latent
-Variables}\label{bayesian-regression-with-latent-variables}
+\chapter{Gaussian processes}\label{gaussian-processes}
 
 \section{General Principles}\label{general-principles-13}
+
+\section{Considerations}\label{considerations-13}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Example}\label{example-13}
+
+Below is an example code snippet demonstrating Bayesian Gaussian
+processes model using the Bayesian Inference (BI) package:
+
+\section{Python}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\section{Mathematical Details}\label{mathematical-details-14}
+
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-7}
+
+\subsection{\texorpdfstring{\emph{Bayesian
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-7}
+
+\section{Notes}\label{notes-6}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Reference(s)}\label{references-13}
+
+McElreath (2018)
+
+\bookmarksetup{startatroot}
+
+\chapter{Measuring error}\label{measuring-error}
+
+\section{General Principles}\label{general-principles-14}
+
+\section{Considerations}\label{considerations-14}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Example}\label{example-14}
+
+Below is an example code snippet demonstrating Bayesian Measuring error
+model using the Bayesian Inference (BI) package:
+
+\section{Python}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\section{Mathematical Details}\label{mathematical-details-15}
+
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-8}
+
+\subsection{\texorpdfstring{\emph{Bayesian
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-8}
+
+\section{Notes}\label{notes-7}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Reference(s)}\label{references-14}
+
+McElreath (2018)
+
+\bookmarksetup{startatroot}
+
+\chapter{Missing data}\label{missing-data}
+
+\section{General Principles}\label{general-principles-15}
+
+\section{Considerations}\label{considerations-15}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Example}\label{example-15}
+
+Below is an example code snippet demonstrating Bayesian Missing data
+model using the Bayesian Inference (BI) package:
+
+\section{Python}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\section{Mathematical Details}\label{mathematical-details-16}
+
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-9}
+
+\subsection{\texorpdfstring{\emph{Bayesian
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-9}
+
+\section{Notes}\label{notes-8}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Reference(s)}\label{references-15}
+
+McElreath (2018)
+
+\bookmarksetup{startatroot}
+
+\chapter{Latent Variables}\label{latent-variables}
+
+\section{General Principles}\label{general-principles-16}
 
 In some scenarios, the observed data does not directly reflect the
 underlying structure or factors influencing the outcome. Instead,
@@ -3269,7 +3416,7 @@ The latent variable \emph{Z} can represent various phenomena, such as
 group-level effects, time-varying trends, or individual-level factors,
 that are not captured by the observed predictors alone.
 
-\section{Considerations}\label{considerations-13}
+\section{Considerations}\label{considerations-16}
 
 In Bayesian regression with latent variables, we consider the
 uncertainty in both the observed and latent variables. We declare prior
@@ -3282,7 +3429,7 @@ correlations among the latent variables.
 The goal is to infer the posterior distribution over both the parameters
 and the latent variables, given the observed data.
 
-\section{Example}\label{example-13}
+\section{Example}\label{example-16}
 
 Below is an example code snippet demonstrating Bayesian regression with
 latent variables using TensorFlow Probability:
@@ -3349,7 +3496,7 @@ latent variables using TensorFlow Probability:
 \end{Highlighting}
 \end{Shaded}
 
-\section{Mathematical Details}\label{mathematical-details-14}
+\section{Mathematical Details}\label{mathematical-details-17}
 
 We can express the Bayesian latent variable model using probability
 distributions as follows:
@@ -3422,26 +3569,24 @@ proposed solution is to model network links with random
 to the model, we can account for the correlations between node link
 relationships.
 
-\section{Considerations}\label{considerations-14}
+\section{Considerations}\label{considerations-17}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \tightlist
 \item
   The particularity here is that varying intercepts and slopes are
-  generated for both \hyperref[]{nodal effects 🛈} and {[}dyadic effects
-  🛈{]}(\# '' link-related categorical (e.g., same group membership) or
-  continuous (e.g., genetic distances) characteristics between nodes'').
-  Those the varying intercepts and slopes are identical to those
-  described in previous chapters and will therefore not be detailed
-  further and only the random centered version of the varying slopes
-  will be described here.
+  generated for both \phantomsection\label{NodeF}{{nodal effects 🛈}} and
+  \phantomsection\label{DyadicF}{{dyadic effects 🛈}}. Those the varying
+  intercepts and slopes are identical to those described in previous
+  chapters and will therefore not be detailed further and only the
+  random centered version of the varying slopes will be described here.
 \end{itemize}
 
 \end{tcolorbox}
 
-\section{Example}\label{example-14}
+\section{Example}\label{example-17}
 
 Below is an example code snippet demonstrating Bayesian network model
 with send-receiver effect:
@@ -3485,7 +3630,7 @@ with send-receiver effect:
 \end{Highlighting}
 \end{Shaded}
 
-\section{Mathematical Details}\label{mathematical-details-15}
+\section{Mathematical Details}\label{mathematical-details-18}
 
 \subsection{\texorpdfstring{\emph{Main
 Formula}}{Main Formula}}\label{main-formula}
@@ -3504,20 +3649,22 @@ log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
 where:
 
 \begin{itemize}
-\tightlist
 \item
   \(Y\_{ij}\) is the weight of links between \emph{i} and \emph{j}.
 \item
-  \(\lambda_i\) is the \hyperref[]{sender effect 🛈}
+  \(\lambda_i\) is the \phantomsection\label{senderF}{{sender effect
+  🛈}}.
 \item
-  \(\pi_j\) is the \hyperref[]{receiver effect 🛈}
+  \(\pi_j\) is the \phantomsection\label{receiverF}{{receiver effect
+  🛈}}.
 \item
-  \(\delta_{ij}\) is the \hyperref[]{dyadic effect 🛈}.
+  \(\delta_{ij}\) is the \phantomsection\label{DyadicF2}{{dyadic effect
+  🛈}}.
+\item ~
+  \subsection{\texorpdfstring{\emph{Defining formula sub-equations and
+  prior
+  distributions}}{Defining formula sub-equations and prior distributions}}\label{defining-formula-sub-equations-and-prior-distributions}
 \end{itemize}
-
-\subsection{\texorpdfstring{\emph{Defining formula sub-equations and
-prior
-distributions}}{Defining formula sub-equations and prior distributions}}\label{defining-formula-sub-equations-and-prior-distributions}
 
 \(\lambda_i\) and \(\pi_j\) are varying
 \href{12.\%20Varying\%20intercepts.qmd}{intercepts} and
@@ -3592,9 +3739,9 @@ L_\delta *
 L \sim LKJ(2)
 \]
 
-\section{Note(s)}\label{notes-6}
+\section{Note(s)}\label{notes-9}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \tightlist
@@ -3666,7 +3813,7 @@ L \sim LKJ(2)
 \item
   If the network is undirected, then accounting for correlation between
   propensity to emit and receive links is not necessary, and the terms
-  \(\lambda_i\), \(\pi_j\) , and \(\delta{ij}\) are no longer required.
+  \(\lambda_i\), \(\pi_j\) , and \(\delta_{ij}\) are no longer required.
   (Is it correct?)
 \item
   In the following chapters, we will see how to incorporate additional
@@ -3688,9 +3835,9 @@ different sexes. To model the propensity for interaction between nodes
 based on the categories they belong to, we can use a stochastic block
 model approach.
 
-\section{Considerations}\label{considerations-15}
+\section{Considerations}\label{considerations-18}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \tightlist
@@ -3707,7 +3854,7 @@ model approach.
 
 \end{tcolorbox}
 
-\section{Example}\label{example-15}
+\section{Example}\label{example-18}
 
 Below is an example code snippet demonstrating a Bayesian network model
 using the stochastic block model approach. The data is identical to the
@@ -3757,7 +3904,7 @@ representing the block membership of each node.
 \end{Highlighting}
 \end{Shaded}
 
-\section{Mathematical Details}\label{mathematical-details-16}
+\section{Mathematical Details}\label{mathematical-details-19}
 
 \subsection{\texorpdfstring{\emph{Main
 Formula}}{Main Formula}}\label{main-formula-1}
@@ -3841,15 +3988,16 @@ where :
   \(k \rightarrow \tilde{k}\) indicates an off-diagonal element.
 \end{itemize}
 
-\section{Note(s)}\label{notes-7}
+\section{Note(s)}\label{notes-10}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \item
   By defining this block model within our network model, we are
-  estimating \hyperref[]{assortativity 🛈} and
-  \hyperref[]{disassortativity 🛈} for categorical variables.
+  estimating \phantomsection\label{assor}{{assortativity 🛈}} and
+  \phantomsection\label{disassor}{{disassortativity 🛈}} for categorical
+  variables.
 \item
   Similarly, for continuous variables, we can generate a block model
   that includes all continuous variables.
@@ -3859,11 +4007,13 @@ where :
 
 \bookmarksetup{startatroot}
 
-\chapter{Modeling Network}\label{modeling-network-1}
+\chapter{Modeling Network with control for data collection
+biases}\label{modeling-network-with-control-for-data-collection-biases}
 
 Data collection biases are a persistent issue in studies of social
 networks. Two main types of biases can be considered:
-\hyperref[]{exposure biases 🛈} and \hyperref[]{censoring biases 🛈}.
+\phantomsection\label{expoB}{{exposure biases 🛈}} and
+\phantomsection\label{censoB}{{censoring biases 🛈}} .
 
 To account for exposure biases, we can switch the network link
 probability model from a \emph{Poisson} distribution to a
@@ -3874,9 +4024,9 @@ To address censoring biases, we need to add an additional equation to
 account for the probability of missing an interaction during observation
 when modeling interaction between individual \emph{i} and \emph{j}.
 
-\section{Considerations}\label{considerations-16}
+\section{Considerations}\label{considerations-19}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-caution-color!10!white, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \end{tcolorbox}
 
@@ -3904,7 +4054,7 @@ accounting for exposure biases and cesnsoring biases:
 \end{Highlighting}
 \end{Shaded}
 
-\section{Mathematical Details}\label{mathematical-details-17}
+\section{Mathematical Details}\label{mathematical-details-20}
 
 \subsection{\texorpdfstring{\emph{Main
 Formula}}{Main Formula}}\label{main-formula-2}
@@ -3968,9 +4118,9 @@ for cryptic coloration, then the ellipsis may be replaced with:
 \(\kappa_{[5]}C_{[i]}\), to give the effects of coloration on censoring
 probability.
 
-\section{Note(s)}\label{notes-8}
+\section{Note(s)}\label{notes-11}
 
-\begin{tcolorbox}[enhanced jigsaw, coltitle=black, breakable, left=2mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, opacitybacktitle=0.6, toptitle=1mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, leftrule=.75mm, toprule=.15mm, rightrule=.15mm, bottomtitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
 \begin{itemize}
 \tightlist
@@ -3983,21 +4133,157 @@ probability.
 
 \bookmarksetup{startatroot}
 
-\chapter{}\label{section-4}
+\chapter{Network metrics}\label{network-metrics}
+
+\section{General Principles}\label{general-principles-17}
+
+\section{Considerations}\label{considerations-20}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Example}\label{example-19}
+
+Below is an example code snippet demonstrating Bayesian Network metrics
+model using the Bayesian Inference (BI) package:
+
+\section{Python}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\section{Mathematical Details}\label{mathematical-details-21}
+
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-10}
+
+\subsection{\texorpdfstring{\emph{Bayesian
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-10}
+
+\section{Notes}\label{notes-12}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Reference(s)}\label{references-16}
+
+McElreath (2018)
 
 \bookmarksetup{startatroot}
 
-\chapter{}\label{section-5}
+\chapter{Multiplex network model}\label{multiplex-network-model}
+
+\section{General Principles}\label{general-principles-18}
+
+\section{Considerations}\label{considerations-21}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Example}\label{example-20}
+
+Below is an example code snippet demonstrating Bayesian Multiplex
+network model using the Bayesian Inference (BI) package:
+
+\section{Python}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\section{Mathematical Details}\label{mathematical-details-22}
+
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-11}
+
+\subsection{\texorpdfstring{\emph{Bayesian
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-11}
+
+\section{Notes}\label{notes-13}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Reference(s)}\label{references-17}
+
+McElreath (2018)
 
 \bookmarksetup{startatroot}
 
-\chapter{}\label{section-6}
+\chapter{Multiplex temporal network
+model}\label{multiplex-temporal-network-model}
+
+\section{General Principles}\label{general-principles-19}
+
+\section{Considerations}\label{considerations-22}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Example}\label{example-21}
+
+Below is an example code snippet demonstrating Bayesian Multiplex
+temporal network model using the Bayesian Inference (BI) package:
+
+\section{Python}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\section{Mathematical Details}\label{mathematical-details-23}
+
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-12}
+
+\subsection{\texorpdfstring{\emph{Bayesian
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-12}
+
+\section{Notes}\label{notes-14}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Reference(s)}\label{references-18}
+
+McElreath (2018)
 
 \bookmarksetup{startatroot}
 
 \chapter{Multilayer Networks}\label{multilayer-networks}
 
-\section{General Principles}\label{general-principles-14}
+\section{General Principles}\label{general-principles-20}
 
 A multilayer network is a broader term that refers to networks composed
 of multiple layers, where each layer may have its own set of nodes and
@@ -4005,36 +4291,48 @@ edges, potentially representing different types of entities and
 interactions. This means the nodes can be the same or different across
 layers.
 
-\section{Considerations}\label{considerations-17}
+\section{Considerations}\label{considerations-23}
 
-\begin{itemize}
-\tightlist
-\item
-  We have the same considerations as for
-  \href{19.\%20Network\%20model.qmd}{Network model}. \#\# Example
-\end{itemize}
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-caution-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-caution-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
 
-\section{Mathematical Details}\label{mathematical-details-18}
+\end{tcolorbox}
 
-\subsection{\texorpdfstring{\emph{Formula}}{Formula}}\label{formula-7}
+\section{Example}\label{example-22}
 
-\subsection{\texorpdfstring{\emph{Bayesian model
-(WIP)}}{Bayesian model (WIP)}}\label{bayesian-model-wip}
+Below is an example code snippet demonstrating Bayesian Multilayer
+Networks model using the Bayesian Inference (BI) package:
 
-\bookmarksetup{startatroot}
+\section{Python}
 
-\chapter{Notes}\label{notes-9}
+\begin{Shaded}
+\begin{Highlighting}[]
 
-\begin{itemize}
-\item
-  We can apply sender-receiver model
-  \href{19.1.\%20Sender\%20receiver\%20network\%20model.qmd}{19.1.
-  Sender receiver network model.}.
-\item
-  We can apply block model
-  \href{3.\%20Block\%20model\%20network.qmd}{19.2. Block model
-  network.qmd}.
-\end{itemize}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\section{Mathematical Details}\label{mathematical-details-24}
+
+\subsection{\texorpdfstring{\emph{Frequentist
+formulation}}{Frequentist formulation}}\label{frequentist-formulation-13}
+
+\subsection{\texorpdfstring{\emph{Bayesian
+formulation}}{Bayesian formulation}}\label{bayesian-formulation-13}
+
+\section{Notes}\label{notes-15}
+
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, rightrule=.15mm, left=2mm, colbacktitle=quarto-callout-note-color!10!white, leftrule=.75mm, colback=white, breakable, arc=.35mm, bottomrule=.15mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, opacityback=0, coltitle=black, bottomtitle=1mm, colframe=quarto-callout-note-color-frame, toptitle=1mm, titlerule=0mm, opacitybacktitle=0.6]
+
+\end{tcolorbox}
+
+\section{Reference(s)}\label{references-19}
+
+McElreath (2018)
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}

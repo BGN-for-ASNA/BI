@@ -253,7 +253,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interaction Term between Two Continuous Variables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interaction terms</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -319,25 +319,25 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14. Gaussian processes (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">14. Gaussian processes (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian processes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./15. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">15. Measuring error (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./16. Missing data (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">16. Missing data (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Missing data</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./17. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Bayesian Regression with Latent Variables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Latent Variables</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -355,25 +355,25 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./20. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network with control for data collection biases</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Network Metrics (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./22. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">22. Multiplex network model (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./23. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">23. Multiplex temporal network model (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -400,7 +400,8 @@ window.Quarto = {
   <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">14.4.1</span> <em>Formula</em></a></li>
   <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">14.4.2</span> <em>Bayesian model</em></a></li>
   </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">14.5</span> Reference(s)</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">14.5</span> Notes</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">14.6</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -444,9 +445,10 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $ $ is defined based on the <span class="math inline">\(k\)</span> declared groups.</p></li>
-<li><p>Each intercept have is own <em>Normal distribution</em> -i.e.&nbsp;a <a href="#" title="A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.">hyper-prior 🛈</a>-. In the code below, the <em>hyper-prior</em> is <code>_a_bar_</code>.</p></li>
+<li><p>The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept <span class="math inline">\(\beta\)</span> is defined based on the <span class="math inline">\(k\)</span> declared groups.</p></li>
+<li><p>Each intercept have is own <em>Normal distribution</em> -i.e.&nbsp;a <span id="hyperP"><span style="color:#0D6EFD">hyper-prior 🛈</span></span></p></li>
 </ul>
+<p>-In the code below, the <em>hyper-prior</em> is <code>a_bar</code>.</p>
 </div>
 </div>
 </section>
@@ -526,34 +528,53 @@ Caution
 <p><span class="math display">\[
 Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
 \]</span></p>
-<p>Where: - <span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <em>i</em> in group <em>k</em>. - <span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <em>k</em>. - <span class="math inline">\(X_{ik}\)</span> is the independent variables for observation <em>i</em> in group <em>k</em>. - <span class="math inline">\(\beta\)</span> is the regression coefficients term. - <span class="math inline">\(\sigma\)</span> is the error term, typically assumed to be normally distributed and positive.</p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <em>i</em> in group <em>k</em>.</p></li>
+<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <em>k</em>.</p></li>
+<li><p><span class="math inline">\(X_{ik}\)</span> is the independent variables for observation <em>i</em> in group <em>k</em>.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the regression coefficients term.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is the error term, typically assumed to be normally distributed and positive.</p></li>
+</ul>
 </section>
 <section id="bayesian-model" class="level3" data-number="14.4.2">
 <h3 data-number="14.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">14.4.2</span> <em>Bayesian model</em></h3>
 <p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
 <p><span class="math display">\[
-p(Y_{ik} | \mu_{ik}, \sigma) = Normal(\mu_{ik}, \sigma)
+Y_{ik} = Normal(\mu_{ik}, \sigma)
 \]</span> <span class="math display">\[
 \mu_{ik} = \alpha_j + \beta X_{ik} + \sigma
 \]</span> <span class="math display">\[
-\alpha_k \sim \text{Normal}(\mu_{alpha_k}, \sigma_{alpha_k})
+\alpha_k \sim \text{Normal}(\mu_{\alpha_k}, \sigma_{\alpha_k})
 \]</span> <span class="math display">\[
-p(\beta) \sim \text{Normal}(0, 1)
+\beta \sim \text{Normal}(0, 1)
 \]</span> <span class="math display">\[
-p(\sigma) \sim \text{Exponential}(1)
+\sigma \sim \text{Exponential}(1)
 \]</span> <span class="math display">\[
-p(\mu_{alpha_k}) \sim \text{Normal}(0, 1)
+\mu_{\alpha_k} \sim \text{Normal}(0, 1)
 \]</span> <span class="math display">\[
-p(\sigma_{alpha_k}) \sim \text{Exponential}(1)
+\sigma_{\alpha_k} \sim \text{Exponential}(1)
 \]</span></p>
-<p>Where: - <span class="math inline">\(p(Y_{ij} | \mu_{ij}, \sigma)\)</span> is the likelihood function for the outcome variable. - <span class="math inline">\(\alpha_k\)</span> is the varying intercepts across groups. - <span class="math inline">\(\mu_alpha_k\)</span> is the overall mean intercept. - <span class="math inline">\(\sigma_alpha_k\)</span> is the variance of the intercepts across groups. - <span class="math inline">\(p(\beta)\)</span> is the prior distributions for the regression coefficients. - <span class="math inline">\(p(\sigma)\)</span> is the prior distributions for the error term.</p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\(Y_{ij}\)</span> is the likelihood function for the outcome variable.</p></li>
+<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercepts across groups.</p></li>
+<li><p><span class="math inline">\(\mu_{\alpha_k}\)</span> is the overall mean intercept.</p></li>
+<li><p><span class="math inline">\(\sigma_{\alpha_k}\)</span> is the variance of the intercepts across groups.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the prior distributions for the regression coefficients.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is the prior distributions for the error term.</p></li>
+</ul>
+</section>
+</section>
+<section id="notes" class="level2" data-number="14.5">
+<h2 data-number="14.5" class="anchored" data-anchor-id="notes"><span class="header-section-number">14.5</span> Notes</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Notes
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -566,9 +587,8 @@ Notes
 </div>
 </div>
 </section>
-</section>
-<section id="references" class="level2" data-number="14.5">
-<h2 data-number="14.5" class="anchored" data-anchor-id="references"><span class="header-section-number">14.5</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="14.6">
+<h2 data-number="14.6" class="anchored" data-anchor-id="references"><span class="header-section-number">14.6</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
@@ -580,6 +600,128 @@ McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Exa
 </section>
 
 </main> <!-- /main -->
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<script>
+tippy('#prior', {
+  content: '<span style="color: white;">Priors are distributions that represent the value of the parameter before conditioning it on the data.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#overdispersion', {
+  content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#linkF', {
+    content: '<span style="color: white;">A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+  });
+
+tippy('#simplex', {
+  content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+  
+tippy('#triptych', {
+    content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+    
+tippy('#hyperP', {
+  content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#cov', {
+    content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#centerRF', {
+  content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#NodeF', {
+    content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#DyadicF', {
+    content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#senderF', {
+    content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#receiverF', {
+    content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#DyadicF2', {
+    content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#expoB', {
+    content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#censoB', {
+    content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#assor', {
+    content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#disassor', {
+    content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
