@@ -1,8 +1,6 @@
-# Interaction Term between Two Continuous Variables
+# Interaction terms
 ## General Principles
 To study relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables.
-
-[comment]: <> (Example to change)
 
 Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for Food x Condiment. The crossed lines on the graph suggest that there is an interaction effect, which the significant p-value for the Food*Condiment term confirms. The graph shows that enjoyment levels are higher for chocolate sauce when the food is ice cream. Conversely, satisfaction levels are higher for mustard when the food is a hot dog. If you put mustard on ice cream or chocolate sauce on hot dogs, you won’t be happy!
 
@@ -18,7 +16,8 @@ Parallel lines indicate that there is no interaction effect, while different slo
 
 - The interpretation of estimates is more difficult, as the estimate of non-interaction terms becomes the expected change in Y when R increases by one unit and A is at its average value. The estimate of interaction terms represents the expected change in the influence of A on Y when increasing R by one unit and the expected change in the influence of R on Y when increasing A by one unit.
 
-- [Triptych 🛈](# "Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.
+- [<span style="color:#0D6EFD">Triptych 🛈</span>]{#triptych} plots are very handy for understanding the impact of interactions.
+  
 :::
 
 ## Example
@@ -109,7 +108,7 @@ Where:
 In this context, the interaction term $X_{1i} * X_{2i}$ captures the joint effect of $X_{1i}$ and $X_{2i}$ on the target variable $Y_i$.
 
 ### *Bayesian formulation*
-We can express the Bayesian regression model accounting for prior distribution as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
 Y \sim Normal(\alpha +  \beta_1  X_{1i}​ + \beta_2  X_{2i}​​ + \beta_{interaction}  X_1{1i} X_{2i}​ ,  \sigma)
@@ -149,4 +148,3 @@ Where:
 
 ## Reference(s)
 @mcelreath2018statistical
-

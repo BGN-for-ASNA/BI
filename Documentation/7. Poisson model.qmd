@@ -10,7 +10,9 @@ This is a special shape of the binomial distribution; it is useful because it mo
 ::: callout-caution 
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- We have the second [link function](# "A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity."). The conventional link function for a Poisson model is the _log_ link (it ensures that _λ_ is always positive).
+- We have the second [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}. The conventional link function for a Poisson model is the _log_ link (it ensures that _λ_ is always positive).
+
+
 
 - To invert the log link function and model linearly the relationship between the predictor variables and the log of the mean rate parameter, we can apply the exponential function (see comment in code).
 
@@ -110,7 +112,7 @@ Where:
 
 
 ### *Bayesian formulation*
-We can express the Bayesian regression model accounting for prior distribution as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
 Y \sim Poisson(\lambda_i)

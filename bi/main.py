@@ -105,6 +105,12 @@ class bi(dist, gaussian, factors):
         self.data_modification['data_on_model'] = cols # store info of data used in the model
         self.data_on_model = jax_dict
 
+    # link functions ----------------------------------------------------------------
+    @staticmethod
+    @jit
+    def logit(x):
+        return jnp.log(x / (1 - x))
+
     # Sampler ----------------------------------------------------------------------------
     def run(self, 
             model = None, 

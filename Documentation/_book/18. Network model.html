@@ -233,7 +233,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interaction Term between Two Continuous Variables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Interaction terms</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -299,25 +299,25 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14. Gaussian processes (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">14. Gaussian processes (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian processes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./15. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">15. Measuring error (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./16. Missing data (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">16. Missing data (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Missing data</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./17. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Bayesian Regression with Latent Variables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Latent Variables</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -335,25 +335,25 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./20. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network with control for data collection biases</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">21. Network Metrics (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./22. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">22. Multiplex network model (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./23. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">23. Multiplex temporal network model (wip).html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -377,7 +377,6 @@ window.Quarto = {
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">20.3</span> Mathematical Details</a>
   <ul class="collapse">
   <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">20.3.1</span> <em>Main Formula</em></a></li>
-  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">20.3.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">20.4</span> Note(s)</a></li>
   </ul>
@@ -419,7 +418,7 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li>The particularity here is that varying intercepts and slopes are generated for both <a href="#" title="nodal categorical (e.g., sex) or continuous (e.g., age) characteristics">nodal effects 🛈</a> and [dyadic effects 🛈](# ” link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes”). Those the varying intercepts and slopes are identical to those described in previous chapters and will therefore not be detailed further and only the random centered version of the varying slopes will be described here.</li>
+<li>The particularity here is that varying intercepts and slopes are generated for both <span id="NodeF"><span style="color:#0D6EFD">nodal effects 🛈</span></span> and <span id="DyadicF"><span style="color:#0D6EFD">dyadic effects 🛈</span></span>. Those the varying intercepts and slopes are identical to those described in previous chapters and will therefore not be detailed further and only the random centered version of the varying slopes will be described here.</li>
 </ul>
 </div>
 </div>
@@ -475,14 +474,12 @@ log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
 \]</span></p>
 <p>where:</p>
 <ul>
-<li><span class="math inline">\(Y\_{ij}\)</span> is the weight of links between <em>i</em> and <em>j</em>.</li>
-<li><span class="math inline">\(\lambda_i\)</span> is the <a href="#" title="node *i*'s propensity to emit a link.">sender effect 🛈</a></li>
-<li><span class="math inline">\(\pi_j\)</span> is the <a href="#" title="node *j*'s propensity to receive a link.">receiver effect 🛈</a></li>
-<li><span class="math inline">\(\delta_{ij}\)</span> is the <a href="#" title="Propesnity of node *i* and *j* to receive from each other.">dyadic effect 🛈</a>.</li>
+<li><p><span class="math inline">\(Y\_{ij}\)</span> is the weight of links between <em>i</em> and <em>j</em>.</p></li>
+<li><p><span class="math inline">\(\lambda_i\)</span> is the <span id="senderF"><span style="color:#0D6EFD">sender effect 🛈</span></span>.</p></li>
+<li><p><span class="math inline">\(\pi_j\)</span> is the <span id="receiverF"><span style="color:#0D6EFD">receiver effect 🛈</span></span>.</p></li>
+<li><p><span class="math inline">\(\delta_{ij}\)</span> is the <span id="DyadicF2"><span style="color:#0D6EFD">dyadic effect 🛈</span></span>.</p></li>
+<li><h3 id="defining-formula-sub-equations-and-prior-distributions" data-number="20.3.2" class="anchored"><span class="header-section-number">20.3.2</span> <em>Defining formula sub-equations and prior distributions</em></h3></li>
 </ul>
-</section>
-<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="20.3.2">
-<h3 data-number="20.3.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">20.3.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
 <p><span class="math inline">\(\lambda_i\)</span> and <span class="math inline">\(\pi_j\)</span> are varying <a href="./12. Varying intercepts.html">intercepts</a> and <a href="./13. Varying slopes.html">slopes</a> identical to those described in previous chapters and are define through the following equations:</p>
 <p><span class="math display">\[
 \left(\begin{array}{cc}
@@ -595,7 +592,7 @@ Note
 <li><p>We can apply multiple variables similarly as <a href="./2. Multiple continuous Variables.html">chapter 2: Multiple continuous Variables</a>.</p></li>
 <li><p>We can apply interaction terms similarly as <a href="./3. Interaction between continuous variables.html">chapter 3: Interaction between continuous variables</a>.</p></li>
 <li><p>Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of link — i.e., model binary networks.</p></li>
-<li><p>If the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms <span class="math inline">\(\lambda_i\)</span>, <span class="math inline">\(\pi_j\)</span> , and <span class="math inline">\(\delta{ij}\)</span> are no longer required. (Is it correct?)</p></li>
+<li><p>If the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms <span class="math inline">\(\lambda_i\)</span>, <span class="math inline">\(\pi_j\)</span> , and <span class="math inline">\(\delta_{ij}\)</span> are no longer required. (Is it correct?)</p></li>
 <li><p>In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).</p></li>
 </ul>
 </div>
@@ -605,6 +602,128 @@ Note
 </section>
 
 </main> <!-- /main -->
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<script>
+tippy('#prior', {
+  content: '<span style="color: white;">Priors are distributions that represent the value of the parameter before conditioning it on the data.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#overdispersion', {
+  content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#linkF', {
+    content: '<span style="color: white;">A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+  });
+
+tippy('#simplex', {
+  content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+  
+tippy('#triptych', {
+    content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+    
+tippy('#hyperP', {
+  content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#cov', {
+    content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#centerRF', {
+  content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#NodeF', {
+    content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#DyadicF', {
+    content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#senderF', {
+    content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#receiverF', {
+    content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#DyadicF2', {
+    content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#expoB', {
+    content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#censoB', {
+    content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#assor', {
+    content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#disassor', {
+    content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -1027,8 +1146,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./17. Latent variable (wip).html" class="pagination-link" aria-label="Bayesian Regression with Latent Variables">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Bayesian Regression with Latent Variables</span></span>
+      <a href="./17. Latent variable (wip).html" class="pagination-link" aria-label="Latent Variables">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Latent Variables</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
