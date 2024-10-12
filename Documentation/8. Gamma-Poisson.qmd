@@ -1,12 +1,12 @@
 # Gamma-Poisson model
 ## General Principles
-To model the relationship between a count outcome variable and one or more independent variables with [overdispersion 🛈](# "Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the Poisson distribution."), we can use the _Negative Binomial model_. 
+To model the relationship between a count outcome variable and one or more independent variables with [<span style="color:#0D6EFD">overdispersion 🛈</span>]{#overdispersion}, we can use the _Negative Binomial model_. 
 
 ## Considerations
 ::: callout-caution 
 - We have the same considerations as for the [Poisson model](7.&#32;Poisson&#32;model.qmd).
   
-- Overdispersion is handled because the Negative Binomial model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is `_log_days_`).
+- Overdispersion is handled because the Negative Binomial model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is `log_days`).
 :::
 
 ## Example
@@ -84,10 +84,10 @@ m$sampler$print_summary(0.89)
 
 ## Mathematical Details
 ### *Formula*
-We model the relationship between the independent variable \(X\) and the count outcome variable \(Y\) using the following equation:
+We model the relationship between the independent variable $X$ and the count outcome variable $Y$ using the following equation:
 
 $$
-\log(\lambda_i) = \exp(\text{rates_i} + \alpha + \beta X_i)
+\log(\lambda_i) = \exp(\text{rates}_i + \alpha + \beta X_i)
 $$
 
 Where:
@@ -103,14 +103,14 @@ Where:
 - $X_i$ is the value of the predictor variable  for observation *i*.
 
 ### *Bayesian model*
-We can express the Bayesian regression model accounting for prior distribution as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
 Y_i \sim \text{Poisson}(\lambda)
 $$
 
 $$
-\log(\lambda_i) \sim \text{rates_i} + \alpha + \beta X
+\log(\lambda_i) \sim \text{rates}_i + \alpha + \beta X_i
 $$
 
 $$
@@ -125,7 +125,7 @@ Where:
 
 - $Y_i$  is dependent variable for observation *i*. 
   
-- $\lambda_i$ is the mean rate parameter of the Poisson distribution for observation *i*, assuming that each Poisson count observation has its own rate.
+- $\lambda_i$ is the mean rate parameter of the Poisson distribution for observation *i*, assuming that each Poisson count observation has its own $rate_i$.
   
 - $\log(\lambda_i)$ is the log of the mean rate parameterfor observation *i*, ensuring it is positive.
   
@@ -148,4 +148,3 @@ Where:
 
 ## Reference(s)
 @mcelreath2018statistical
-

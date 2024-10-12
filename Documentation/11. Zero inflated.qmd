@@ -4,7 +4,7 @@ Zero-Inflated Regression models are used when the outcome variable is a count va
 
 ## Considerations
 ::: callout-caution 
-In Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for _W_{1\pi}, W_{2\pi}, ..., W_{n\pi}_, _W_{1\lambda}, W_{2\lambda}, ..., W_{n\lambda}_, _b_\pi_, and _b_\lambda_.
+In Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for $W_{1\pi}, W_{2\pi}, ..., W_{n\pi}$, $W_{1\lambda}, W_{2\lambda}, ..., W_{n\lambda}$, $b_\pi$, and $b_\lambda$.
 :::
 
 ## Example
@@ -91,7 +91,7 @@ m$sampler$print_summary(0.89)
 
 # Mathematical Details
 ### *Frequentist formulation*
-We model the relationship between the predictor variables _X_ and the count outcome variable _Y_ using two components:
+We model the relationship between the predictor variables $X$ and the count outcome variable $Y$ using two components:
 1. A logistic regression model to predict the probability of an excess zero.
 2. A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.
 
@@ -121,7 +121,7 @@ Where:
 - $X$ are the independent variables.
 
 ### *Bayesian formulation*
-We can express the Bayesian regression model accounting for prior distribution as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
 𝑌\sim ZIPoisson(\pi,\lambda)

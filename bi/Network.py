@@ -257,15 +257,15 @@ class Net(met):
             rf = dyad_effects * dyadic_predictors
             return rf, dyad_effects
         else:
-            rf = jax.vmap(lambda x, y : x * y)(dyad_effects, dyadic_predictors)
+            rf = dyadic_predictors * dyad_effects[:,None, None]
             return jnp.sum(rf, axis=0), dyad_effects
 
 
     @staticmethod 
     def dyadic_terms2(d_s, d_r, d_m = 0, d_sd = 1, shape = (1,), sample = False): # old
         dyad_effects = dist.normal(d_m, d_sd, name='dyad_effects',  shape = shape, sample = sample)
-        terms1 = dyad_effects @ d_s.reshape(1,d_s.shape[0])
-        terms2 = dyad_effects @ d_r.reshape(1,d_r.shape[0])
+        terms1 = dyad_effects * d_s.reshape(1,d_s.shape[0])
+        terms2 = dyad_effects * d_r.reshape(1,d_r.shape[0])
         rf = jnp.stack([terms1, terms2], axis = 1)
         return rf, dyad_effects
              
