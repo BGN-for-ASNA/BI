@@ -33,12 +33,15 @@ m.data('Sim data multivariatenormal.csv', sep=',')
 m.data.to_model(['cafe', 'wait', 'N_cafes'])
 
 def model(cafe, wait, N_cafes):
-    a = dist.normal(5, 2, name = 'a')
-    b = dist.normal(-1, 0.5, name = 'b')
+    a = dist.normal(5, 2, name = 'a') #Standard Normal Vector 
+    b = dist.normal(-1, 0.5, name = 'b') # Standard Normal Vector 
     sigma_cafe = dist.exponential(1, shape=[2], name = 'sigma_cafe')
     sigma = dist.exponential( 1, name = 'sigma')
-    Rho = dist.lkj(2, 2, name = 'Rho')
-    cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho
+    Rho = dist.lkj(2, 2, name = 'Rho') # Cholesky Factor
+    # Applies the correlation structure between the variables.
+    # Scaling the Cholesky Factor by the standard deviations.
+    cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho # In a multivariate normal distribution, we not only have correlations (from sr_L), but also individual standard deviations for each variable (from sr_sigma). The diag_pre_multiply operation ensures that each variable's correlation structure is properly scaled by its standard deviation. This makes it possible to account for both correlations and individual variability when generating samples.
+    #This operation applies the correlation and standard deviation structure (encoded in scaled_sr_L) to the standard normal variables sr_raw. The result is a sample from a multivariate normal distribution that respects both the correlations between variables and the individual standard deviations.
     a_cafe_b_cafe = dist.multivariatenormal(jnp.stack([a, b]), cov, shape = [N_cafes], name = 'a_cafe')    
 
     a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
