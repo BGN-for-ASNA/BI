@@ -58,18 +58,6 @@ m.sampler.print_summary(0.89)
 :::
 
 ## Mathematical Details
-
-### *Formula*
-
-$$
-\left(\begin{array}{cc} 
-\sigma_\alpha^2 & \sigma_\alpha \sigma_{\beta \rho }\\
-\sigma_\alpha \sigma_{\beta \rho } & \sigma_\beta^2
-\end{array}\right)
-$$
-
-where : - $\sigma_\alpha^2$ is the variance of intercepts. - $\sigma_\beta^2$ is the covariance of intercepts & slopes. - $\sigma_\alpha \sigma_{\beta \rho }$ is the covariance between intercepts and slopes -i.e. the product of the two standard deviations-.
-
 ## Mathematical Details
 
 ### *Formula*
@@ -80,14 +68,23 @@ $$
 Y_{ik} = \alpha_k + \beta_k X_{ik} + \sigma
 $$
 
-Where: - $Y_{ik}$ is the outcome variable for observation *i* in group *k*. - $X_{ik}$ is the independent variables for observation *i* in group *k*. - $\alpha_k$ is the varying intercept for group *k*. - $\beta_k$ is the varying regression coefficients for group *k*. - \$\sigma \$ is the error term, assumed to be strictly positive.
+Where: 
+- $Y_{ik}$ is the outcome variable for observation *i* in group *k*. 
+  
+-  $X_{ik}$ is the independent variables for observation *i* in group *k*. 
+  
+-  $\alpha_k$ is the varying intercept for group *k*.
+  
+-  $\beta_k$ is the varying regression coefficients for group *k*. 
+
+- $\sigma$ is the error term, assumed to be strictly positive.
 
 ### *Bayesian model*
 
 We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$
-p(Y_{ik} |\mu_{ik} , \sigma) \sim \text{Normal}(\mu_{ik} , \sigma)
+Y_{ik} \sim \text{Normal}(\mu_{ik} , \sigma)
 $$
 $$
 \mu_{ik} = \alpha_k + \beta_k X_{ik} + \sigma 
@@ -120,7 +117,17 @@ $$
 \right) 
 $$
 
-Where: - $\left(\begin{array}{cc} 0 \\0\end{array}\right)$, is the prior for average intercept. - $\left(\begin{array}{cc} \sigma_\alpha^2 & \sigma_\pi\sigma_{\alpha\rho} \\ \sigma_\alpha\sigma_{\pi\rho} & \sigma_\pi \end{array}\right)$ is is the covariance matrix which specifies the variance and covariance of $\alpha_k$ and $\beta_k$, where: - $\sigma_\alpha^2$ The variance of $\alpha_k$. - $\sigma_\pi^2$ The variance of $\beta_k$. - $\sigma_\pi\sigma_{\alpha\rho}$ and $\sigma_\alpha\sigma_{\pi\rho}$ The covariance between $\alpha_k$ and $\beta_k$
+Where: 
+
+- $\left(\begin{array}{cc} 0 \\0\end{array}\right)$, is the prior for average intercept.
+
+-  $\left(\begin{array}{cc} \sigma_\alpha^2 & \sigma_\pi\sigma_{\alpha\rho} \\ \sigma_\alpha\sigma_{\pi\rho} & \sigma_\pi \end{array}\right)$ is is the covariance matrix which specifies the variance and covariance of $\alpha_k$ and $\beta_k$, 
+  
+-  where: - $\sigma_\alpha^2$ The variance of $\alpha_k$. 
+  
+- $\sigma_\pi^2$ The variance of $\beta_k$. 
+  
+-  $\sigma_\pi\sigma_{\alpha\rho}$ and $\sigma_\alpha\sigma_{\pi\rho}$ The covariance between $\alpha_k$ and $\beta_k$
 
 For computational reasons, it is often better to implement a [<span style="color:#0D6EFD">centered version of the varying intercept 🛈</span>]{#centerRF}
 that is equivalent to the *Multivariate Normal distribution* approach:
@@ -142,13 +149,15 @@ $$
 -   Where:
 
     -   $\sigma_\alpha \sim Exponential(1)$ bewing the prior standard deviation among intercepts.
+  
     -   $\sigma_\beta \sim Exponential(1)$ bewing the prior standard deviation among slopes.
-    -   $L \sim LKJcorr(η)$ bewing the prior for the correlation matrix.
+  
+    -   $L \sim LKJcorr(η)$ bewing the prior for the correlation matrix using the [<span style="color:#0D6EFD">Cholesky Factor 🛈</span>]{#chol}.
 
 The full cetered version of the model is thus :
 
 $$
-p(Y_{i} |\mu_k , \sigma) \sim \text{Normal}(\mu_k , \sigma) \\
+Y_{i} \sim \text{Normal}(\mu_k , \sigma) \\
 $$
 
 $$
