@@ -171,6 +171,30 @@ class bi(dist, gaussian, factors):
         print(f"BI took: {end - start:.4f} seconds")
         self.trace = az.from_numpyro(self.sampler)
 
+
+    # Log probability ----------------------------------------------------------------------------
+    @staticmethod
+    def log_prob(model, seed = 0, **kwargs):
+        """Compute the log probability of a model, the Transforms parameters to constrained space, the gradient of the negative log probability. 
+
+        Args:
+            model (_type_): _description_
+            seed (int, optional): _description_. Defaults to 0.
+            **kwargs: 
+
+        Returns:
+            _type_: _description_
+        """
+        # getting log porbability
+        rng_key = jax.random.PRNGKey(int(seed))
+        init_params, potential_fn, constrain_fn, model_trace = numpyro.infer.util.initialize_model(rng_key, model, 
+        model_args=(**kwargs))
+        print('init_params:  ', init_params)
+        print('constrain_fn: ', constrain_fn(init_params.z))
+        print('potential_fn: ', -potential_fn(init_params.z)) #log prob
+        print('grad:         ', jax.grad(potential_fn)(init_params.z))
+        return init_params, potential_fn, constrain_fn, model_trace 
+        
     # Diagnostic with ARVIZ ----------------------------------------------------------------------------
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
         self.tab_summary = az.summary(self.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
