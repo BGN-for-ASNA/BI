@@ -22,6 +22,7 @@ class bi(dist, gaussian, factors):
         setup.setup(platform, cores, dealocate) 
         import numpyro
         self.numpypro = numpyro
+        self.trace = None
         
 
     def setup(self, platform='cpu', cores=None, dealocate = False):
@@ -165,12 +166,14 @@ class bi(dist, gaussian, factors):
                                 chain_method=chain_method,
                                 progress_bar=progress_bar,
                                 jit_model_args=jit_model_args)
-        start = tm.time()  
-        self.sampler.run(jax.random.PRNGKey(0), **self.data_on_model)
-        end = tm.time()    
-        print(f"BI took: {end - start:.4f} seconds")
-        self.trace = az.from_numpyro(self.sampler)
 
+        self.sampler.run(jax.random.PRNGKey(0), **self.data_on_model)
+
+
+    # Get posteriors ----------------------------------------------------------------------------
+    @staticmethod
+    def get_posteriors(trace, group_by_chain=False):
+        trace.get_samples(group_by_chain=group_by_chain)
 
     # Log probability ----------------------------------------------------------------------------
     @staticmethod
@@ -188,7 +191,7 @@ class bi(dist, gaussian, factors):
         # getting log porbability
         rng_key = jax.random.PRNGKey(int(seed))
         init_params, potential_fn, constrain_fn, model_trace = numpyro.infer.util.initialize_model(rng_key, model, 
-        model_args=(**kwargs))
+        model_args=(kwargs))
         print('init_params:  ', init_params)
         print('constrain_fn: ', constrain_fn(init_params.z))
         print('potential_fn: ', -potential_fn(init_params.z)) #log prob
@@ -196,7 +199,12 @@ class bi(dist, gaussian, factors):
         return init_params, potential_fn, constrain_fn, model_trace 
         
     # Diagnostic with ARVIZ ----------------------------------------------------------------------------
+    def to_az(self):
+        self.trace = az.from_numpyro(self.sampler)
+
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
+        if self.trace is None:
+            self.to_az()
         self.tab_summary = az.summary(self.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
         return self.tab_summary 
    

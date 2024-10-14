@@ -242,11 +242,11 @@ class Net(met):
             return  jax.vmap(Net.mat_to_edgl)(jnp.stack(dyadic_effect_mat))
 
     @staticmethod 
-    def dyadic_random_effects( N_id, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False):
-        dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2, N_id), name = 'dr_raw', sample = sample)
+    def dyadic_random_effects(N_dyads, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False):
+        dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2,N_dyads), name = 'dr_raw', sample = sample)
         dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample )
         dr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
-        rf = deterministic('dr_rf', ((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2)))
+        rf = deterministic('dr_rf', (((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2))))
         return rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
