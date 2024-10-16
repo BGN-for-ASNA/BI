@@ -190,23 +190,36 @@ class Net(met):
         tf = sr[ucols,1]
         return jnp.stack([ft, tf], axis = -1)
     
+    
     # Sender receiver  ----------------------
-    def nodes_random_effects( N_id, sr_mu = 0, sr_sd = 1, sr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False ):
+    @staticmethod 
+    def nodes_random_effects(N_id, sr_mu = 0, sr_sd = 1, sr_sigma_rate = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False ):
         sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
-        sr_sigma =  dist.exponential( sr_sigma, shape= (2,), name = 'sr_sigma', sample = sample)
+        sr_sigma =  dist.exponential( sr_sigma_rate, shape= (2,), name = 'sr_sigma', sample = sample)
         sr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
         rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
-
-        ids = jnp.arange(0,N_id)
-        edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
-        sender_random = rf[edgl_idx[:,0],0] + rf[edgl_idx[:,1],1]
-        receiver_random = rf[edgl_idx[:,1],0] + rf[edgl_idx[:,0],1]
-        random_effects = jnp.stack([sender_random, receiver_random], axis = 1)
-        return random_effects, sr_raw, sr_sigma, sr_L # we return everything to get posterior distributions for each parameters
-
-    
+        #rf = deterministic('sr_rf', jax.vmap(lambda x: factors.random_centered(sr_sigma, sr_L, x))(sr_raw.T))
+        #ids = jnp.arange(0,N_id)
+        #edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+        #sender_random = rf[edgl_idx[:,0],0] + rf[edgl_idx[:,1],1]
+        #receiver_random = rf[edgl_idx[:,1],0] + rf[edgl_idx[:,0],1]
+        #random_effects = jnp.stack([sender_random, receiver_random], axis = 1)
+        if diag:
+            print("sr_raw--------------------------------------------------------------------------------")
+            print(sr_raw)
+            print("sr_sigma--------------------------------------------------------------------------------")
+            print(sr_sigma)
+            print("sr_L--------------------------------------------------------------------------------")
+            print(sr_L)
+            print("rf--------------------------------------------------------------------------------")
+            print(rf)
+            #print("sr_rf--------------------------------------------------------------------------------")
+            #print(random_effects)
+        #return random_effects, sr_raw, sr_sigma, sr_L # we return everything to get posterior distributions for each parameters
+        return rf, sr_raw, sr_sigma, sr_L
+   
     def nodes_terms(focal_individual_predictors, target_individual_predictors,
-                    N_var = 1, s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False ):
+                    N_var = 1, s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False, diag = False  ):
         """_summary_
 
         Args:
@@ -225,13 +238,45 @@ class Net(met):
         target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
         terms = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  target_individual_predictors], axis = -1)
 
-        #return terms, focal_effects, target_effects
-        ids = jnp.arange(0,focal_individual_predictors[0].shape[0])
-        edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
-        sender_receiver_ij = terms[edgl_idx[:,0],0] + terms[edgl_idx[:,1],1] # Sender effect between i and j is the sum of sender effects of i and j 
-        receiver_sender_ji = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
-        return jnp.stack([sender_receiver_ij, receiver_sender_ji], axis = 1), focal_effects, target_effects # we return everything to get posterior distributions for each parameters
         
+        #ids = jnp.arange(0,focal_individual_predictors[0].shape[0])
+        #edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+        #sender_receiver_ij = terms[edgl_idx[:,0],0] + terms[edgl_idx[:,1],1] # Sender effect between i and j is the sum of sender effects of i and j 
+        #receiver_sender_ji = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
+        if diag:
+            print("focal_effects--------------------------------------------------------------------------------")
+            print(focal_effects)
+            print("target_effects--------------------------------------------------------------------------------")
+            print(target_effects)
+            print("terms--------------------------------------------------------------------------------")
+            print(terms)
+            #print("sr_ff--------------------------------------------------------------------------------")
+            #print( jnp.stack([sender_receiver_ij, receiver_sender_ji], axis = 1))
+            return terms, focal_effects, target_effects
+        #return jnp.stack([sender_receiver_ij, receiver_sender_ji], axis = 1), focal_effects, target_effects # we return everything to get posterior distributions for each parameters
+        return terms, focal_effects, target_effects
+    
+    @staticmethod 
+    @jit
+    def node_effects_to_dyadic_format(sr_effects):
+        ids = jnp.arange(0,sr_effects.shape[0])
+        edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+        sender = sr_effects[edgl_idx[:,0],0] + sr_effects[edgl_idx[:,1],1]
+        receiver = sr_effects[edgl_idx[:,1],0] + sr_effects[edgl_idx[:,0],1]
+        return jnp.stack([sender, receiver], axis = 1)
+
+    @staticmethod 
+    def sender_receiver(focal_individual_predictors, target_individual_predictors,  s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, #Fixed effect parameters
+                        sr_mu = 0, sr_sd = 1, sr_sigma_rate = 1, cholesky_dim = 2, cholesky_density = 2, #Random effect parameters
+                        sample = False, diag = False ):    
+        N_var = focal_individual_predictors.shape[0]
+        N_id = focal_individual_predictors.shape[1]            
+
+        sr_ff, focal_effects, target_effects = Net.nodes_terms(focal_individual_predictors, target_individual_predictors, N_var = N_var, s_mu = s_mu, s_sd = s_sd, r_mu = r_mu, r_sd = r_sd, sample = sample, diag = diag )
+        sr_rf, sr_raw, sr_sigma, sr_L = Net.nodes_random_effects(N_id, sr_mu = r_mu, sr_sd = sr_sd, sr_sigma_rate = sr_sigma_rate, cholesky_dim = cholesky_dim, cholesky_density = cholesky_density,  sample = sample, diag = diag ) # shape = N_id
+        sr_to_dyads = Net.node_effects_to_dyadic_format(sr_ff + sr_rf) # sr_ff and sr_rf are nodal values that need to be converted to dyadic values
+        return sr_to_dyads
+
     # dyadic effects ------------------------------------------
     @staticmethod 
     @jit
@@ -242,33 +287,52 @@ class Net(met):
             return  jax.vmap(Net.mat_to_edgl)(jnp.stack(dyadic_effect_mat))
 
     @staticmethod 
-    def dyadic_random_effects(N_dyads, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False):
+    def dyadic_random_effects(N_dyads, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False):
         dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2,N_dyads), name = 'dr_raw', sample = sample)
         dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample )
         dr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
-        rf = deterministic('dr_rf', (((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2))))
-        return rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
+        dr_rf = deterministic('dr_rf', (((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2))))
+        if diag :
+            print("dr_raw--------------------------------------------------------------------------------")
+            print(dr_raw)
+            print("dr_sigma--------------------------------------------------------------------------------")
+            print(dr_sigma)
+            print("dr_L--------------------------------------------------------------------------------")
+            print(dr_L)
+            print("rf--------------------------------------------------------------------------------")
+            print(dr_rf)
+        return dr_rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
-    def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, sample = False):
+    def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, sample = False, diag = False):
         dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.ndim - 1,), sample = sample)
         
         if dyadic_predictors.ndim == 2:
-            rf = dyad_effects * dyadic_predictors
-            return rf, dyad_effects
+            dr_ff = dyad_effects * dyadic_predictors
+            if diag :
+                print("dyad_effects--------------------------------------------------------------------------------")
+                print(dyad_effects)
+                print("rf--------------------------------------------------------------------------------")
+                print(rf)
+            return dr_ff, dyad_effects
         else:
-            rf = dyadic_predictors * dyad_effects[:,None, None]
-            return jnp.sum(rf, axis=0), dyad_effects
-
+            if diag :
+                print("dyad_effects--------------------------------------------------------------------------------")
+                print(dyad_effects)
+                print("rf--------------------------------------------------------------------------------")
+                print(rf)
+            dr_ff = dyadic_predictors * dyad_effects[:,None, None]
+            return jnp.sum(dr_ff, axis=0), dyad_effects
 
     @staticmethod 
-    def dyadic_terms2(d_s, d_r, d_m = 0, d_sd = 1, shape = (1,), sample = False): # old
-        dyad_effects = dist.normal(d_m, d_sd, name='dyad_effects',  shape = shape, sample = sample)
-        terms1 = dyad_effects * d_s.reshape(1,d_s.shape[0])
-        terms2 = dyad_effects * d_r.reshape(1,d_r.shape[0])
-        rf = jnp.stack([terms1, terms2], axis = 1)
-        return rf, dyad_effects
-             
+    def dyadic_effect(dyadic_predictors, d_m = 0, d_sd = 1, # Fixed effect arguments
+                     dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2,
+                     sample = False, diag = False):
+        dr_ff, dyad_effects = Net.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample, diag = diag)
+        dr_rf, dr_raw, dr_sigma, dr_L =  Net.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
+        cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample, diag = diag)
+        return dr_ff + dr_rf
+  
     @staticmethod 
     def block_model_prior(N_grp, 
                           b_ij_mean = 0.01, b_ij_sd = 2.5, 
