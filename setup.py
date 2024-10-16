@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 VERSION = '0.0.1' 
-DESCRIPTION = 'Bayesian inferences'
-LONG_DESCRIPTION = 'Run Bayesian inferences models with tensorflow probability'
+DESCRIPTION = 'Bayesian Inferences'
+LONG_DESCRIPTION = 'Run Bayesian inferences models'
 
 # Setting up
 setup(
