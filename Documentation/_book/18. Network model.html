@@ -575,7 +575,7 @@ Note
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> bi.net.dyadic_random_effects(sender_receiver.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span> dr_terms <span class="op">+</span> rf</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">'Y'</span>, Poisson(jnp.exp( sender_receiver <span class="op">+</span> dr )), obs<span class="op">=</span>result_outcomes)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">'Y'</span>, Poisson(jnp.exp( sender_receiver <span class="op">+</span> dr ), is_sparse <span class="op">=</span> <span class="va">False</span>), obs<span class="op">=</span>result_outcomes) <span class="co"># is_sparse = True, if matrix have a lot of zeros, it can help to speed up computation.</span></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> idx,</span>
@@ -722,6 +722,14 @@ tippy('#disassor', {
     allowHTML: true,
     interactive: true,
     delay: 100,
+});
+
+
+tippy('#chol', {
+  content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
 });
 </script>
 <script id="quarto-html-after-body" type="application/javascript">
