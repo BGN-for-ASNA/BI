@@ -13,23 +13,87 @@ library(STRAND)
 ```{python}
 r_sesssion = r
 from main import*
+N_id = 3
+N_var = 1
+s_mu = 0
+s_sd = 1
+r_mu = 0
+r_sd = 1
+sample = True
+focal_individual_predictors = jnp.array([1,0,1]).reshape((1,3))
+target_individual_predictors = jnp.array([1,0,1]).reshape((1,3))
+# Sender receiver fixed effect -------------------------------------------------------------------------------------------------------------------------------
+focal_effects = bi.dist.normal(s_mu, s_sd, shape=(N_var,), sample = sample, name = 'focal_effects')
+target_effects =  bi.dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
+print('focal_effects --------------------')
+print(focal_effects)
+print('\n')
+print('target_effects --------------------')
+print(target_effects)
+print('\n')
+terms = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  target_individual_predictors], axis = -1)
+print('terms --------------------')
+print(terms)
+print('\n')
+
+ids = jnp.arange(0,3)
+edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+sender_random = terms[edgl_idx[:,0],0] + terms[edgl_idx[:,1],1]
+receiver_random = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
+sr_terms = jnp.stack([sender_random, receiver_random], axis = 1)
+print('sr_terms --------------------')
+print(sr_terms)
+print('\n')
+
+# Sender receiver varying effect -------------------------------------------------------------------------------------------------------------------------------
+sr_mu = 0
+sr_sd = 1
+sr_sigma_rate = 1
+cholesky_dim = 2
+cholesky_density = 2
+
+sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
+sr_sigma =  dist.exponential(sr_sigma_rate, shape= (2,), name = 'rr', sample = sample)
+sr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
+rf =((sr_L @ sr_raw).T * sr_sigma)
+
+print('sr_raw --------------------')
+print(sr_raw)
+print('\n')
+
+print('sr_sigma --------------------')
+print(sr_sigma)
+print('\n')
+
+print('sr_L --------------------')
+print(sr_L)
+print('\n')
+
+print('rf --------------------')
+print(rf)
+print('\n')
+
+print('ff + rf --------------------')
+sr_terms + rf
 ```
 
 
 # Step by Step
 ## Sender receiver effect
 ```{R}
-focal_effects = target_effects = 10
-focal_individual_predictors = c(1,2,3)
-target_individual_predictors = c(4,5,6)
+N_id = 3
+N_var = 1
+s_mu = 0
+s_sd = 1
+r_mu = 0
+r_sd = 1
+sample = TRUE
+focal_individual_predictors = c(1,0,1)
+target_individual_predictors = c(1,0,1)
+focal_effects = -0.20584226
+target_effects = -0.20584226
 
-sr_sigma = c(0.5, 1.5)
-
-sr_L = matrix(0, nrow = 2, ncol = 2)
-sr_L[1,1] = 1
-sr_L[1,2] = 0
-sr_L[2,1] = -0.16010582
-sr_L[2,2] = 0.9870999
+sr_sigma = c(0.24372306, 1.630274)
 
 sr_raw = matrix(0, ncol = 2, nrow = 3)
 sr_raw[1,1] = 0.18784384 
@@ -39,22 +103,58 @@ sr_raw[2,2] =  0.24447003
 sr_raw[3,1] =  0.6494181
 sr_raw[3,2] =  -0.11744965
 
-sr_terms = c(0,0)
+sr_L = matrix(0, ncol = 2, nrow = 2)
+sr_L[1,1] = 1. 
+sr_L[1,2] = 0
+sr_L[2,1] = -0.16010582
+sr_L[2,2] =  0.9870999
 
+
+sr_termsSTRAND_result = NULL
+sr_rf = NULL
 sr = NULL
 for (i in 1:N_id) {
-  sr_terms <- numeric(2)  # Initialize a vector of size 2
+  tmp <- numeric(2)  # Initialize a vector of size 2
 
   # Compute the dot product for the focal and target predictors
-  sr_terms[1] <- sum(focal_effects %*% focal_individual_predictors[i])
-  sr_terms[2] <- sum(target_effects %*%  target_individual_predictors[i])
-
-  # Update sr with the transformed sr_raw and added sr_terms
-  sr[[i]] <- t(diag(sr_sigma) %*%  sr_L %*% sr_raw[i, ] + sr_terms)
+  tmp[1] <- sum(focal_effects %*% focal_individual_predictors[i])
+  tmp[2] <- sum(target_effects %*% target_individual_predictors[i])
+  
+  sr_termsSTRAND_result = rbind(sr_termsSTRAND_result, tmp)
+  sr_rf = rbind(sr_rf,  sr_sigma %*%  (sr_L* sr_raw[i, ]))
+  sr[[i]] <-sr_sigma %*%  (sr_L* sr_raw[i, ]) + sr_termsSTRAND
 }
+print('sr_terms--------------------------------')
+print(sr_termsSTRAND_result)
+print('sr_rf-result--------------------------------')
+print(sr_rf)
+print('sr-result--------------------------------')
+print(do.call('rbind',sr))
 
-do.call('rbind',sr)
+i = 1
+tmp <- numeric(2)  # Initialize a vector of size 2
+# Compute the dot product for the focal and target predictors
+tmp[1] <- sum(focal_effects %*% focal_individual_predictors[i])
+tmp[2] <- sum(target_effects %*% target_individual_predictors[i])
+
+sr_termsSTRAND_result = rbind(sr_termsSTRAND_result, tmp)
+sr_rf = rbind(sr_rf,  sr_sigma %*%  (sr_L* sr_raw[i, ]))
+
+sr_L
+sr_raw[i, ]
+(sr_L* sr_raw[i, ])
+c(sr_sigma, sr_sigma) %*%  (sr_L* sr_raw[i, ])
 ```
+
+```{python}
+sr_sigma
+sr_raw[:, 0]
+sr_L
+(sr_L * sr_raw[:, 0]) 
+(sr_L * sr_raw[:, 0]) @ sr_sigma
+```
+
+
 ```{python}
 focal_effects = jnp.array(r_sesssion.focal_effects).reshape((1,))
 target_effects = jnp.array(r_sesssion.target_effects).reshape((1,))
@@ -70,20 +170,6 @@ ff = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  t
 
 rf = (sr_L @ sr_raw.T).T * sr_sigma
 ff + rf
-```
-
-
-```{python}
-sr_raw =  dist.normal(0, 1, shape=(2, 3), name = 'sr_raw', sample = True)
-sr_sigma =  dist.exponential( 1, shape= (2,), name = 'sr_sigma', sample = True)
-sr_L = dist.lkjcholesky(2, 2, name = "sr_L", sample = True)
-rf = numpyro.deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
-
-ids = jnp.arange(0,N_id)
-edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1)).astype('int32')
-sender_random = rf[edgl_idx[:,0],0] + rf[edgl_idx[:,1],1]
-receiver_random = rf[edgl_idx[:,1],0] + rf[edgl_idx[:,0],1]
-random_effects = jnp.stack([sender_random, receiver_random], axis = 1)
 ```
 
 ## Dyadic effect
@@ -138,7 +224,6 @@ dr_sigma = r_sesssion.dr_sigma
 dr_L = jnp.array(r_sesssion.dr_L)
 dyad_effects = r_sesssion.dyad_effects
 
-bi = bi(platform='cpu')
 dr = ((dr_L @ dr_raw.T).T * jnp.repeat(dr_sigma, 2))
 dr + dyad_effects * dyad_individual_predictors 
 ```
