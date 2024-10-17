@@ -18,15 +18,6 @@ setup(
         # needs to be installed along with your package. Eg: 'caer'
         keywords=['python', 'Bayesian inferences'],
         include_package_data=True,
-        package_data={
-            'bi': [
-                'resources/data/*.csv',
-                'resources/documentation/**/*.html',
-                'resources/documentation/**/*.css',
-                'resources/documentation/**/*.png',
-                'resources/documentation/**/*.yml',
-            ],
-        },
         classifiers= [
             "Development Status :: 3 - Alpha",
             "Intended Audience :: Education",
