@@ -77,9 +77,10 @@ print('ff + rf --------------------')
 sr_terms + rf
 ```
 
-
 # Step by Step
+
 ## Sender receiver effect
+
 ```{R}
 N_id = 3
 N_var = 1
@@ -122,7 +123,7 @@ for (i in 1:N_id) {
   
   sr_termsSTRAND_result = rbind(sr_termsSTRAND_result, tmp)
   sr_rf = rbind(sr_rf,  sr_sigma %*%  (sr_L* sr_raw[i, ]))
-  sr[[i]] <-sr_sigma %*%  (sr_L* sr_raw[i, ]) + sr_termsSTRAND
+  sr[[i]] <-sr_sigma %*%  (sr_L* sr_raw[i, ]) + tmp
 }
 print('sr_terms--------------------------------')
 print(sr_termsSTRAND_result)
@@ -154,7 +155,6 @@ sr_L
 (sr_L * sr_raw[:, 0]) @ sr_sigma
 ```
 
-
 ```{python}
 focal_effects = jnp.array(r_sesssion.focal_effects).reshape((1,))
 target_effects = jnp.array(r_sesssion.target_effects).reshape((1,))
@@ -173,6 +173,7 @@ ff + rf
 ```
 
 ## Dyadic effect
+
 ```{r}
 dr_raw = matrix(0, nrow = 3, ncol = 3)
 dr_raw[1,2] = 1
@@ -213,7 +214,6 @@ for (i in 1:(N_id - 1)) {
 dr
 ```
 
-
 ```{python}
 dyad_individual_predictors = r_sesssion.dyad_individual_predictors
 dyad_individual_predictors = bi.net.mat_to_edgl(dyad_individual_predictors)
@@ -227,8 +227,6 @@ dyad_effects = r_sesssion.dyad_effects
 dr = ((dr_L @ dr_raw.T).T * jnp.repeat(dr_sigma, 2))
 dr + dyad_effects * dyad_individual_predictors 
 ```
-
-
 
 # Testing models with sr effects
 
