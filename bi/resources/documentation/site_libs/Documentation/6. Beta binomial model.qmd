@@ -1,0 +1,143 @@
+# Beta-Binomial Model
+## General Principles
+To model the relationship between a binary outcome variable representing success counts and one or more independent variables with [<span style="color:#0D6EFD">overdispersion 🛈</span>]{#overdispersion}, we can use the Beta-Binomial model.
+
+We model the relationship between the predictor variables (X1, X2, ..., Xn) and the probability of success (p) using the following equation:
+
+## Considerations
+::: callout-caution 
+- We have the same considerations as for [Binomial regression](5.&#32;Binomial&#32;model.qmd).
+
+- A Beta-Binomial model assumes that each binomial count observation has its own probability of success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.
+- A Beta distribution has two parameters: an average probability _p_ and a shape parameter θ.
+:::
+
+## Example
+Below is an example code snippet demonstrating Bayesian Beta-Binomial regression using the Bayesian Inference (BI) package:
+
+::: {.panel-tabset group="language"}
+### Python
+```python
+from main import*#
+# Setup device------------------------------------------------
+m = bi()
+
+# Import data ------------------------------------------------
+m.data('../data/UCBadmit.csv', sep=';') 
+m.df["gid"] = (m.df["applicant.gender"] != "male").astype(int)
+gid = jnp.array(m.df["gid"].astype('int32').values)
+applications = jnp.array(m.df["applications"].astype('float32').values)
+admit = jnp.array(m.df["admit"].astype('float32').values)
+
+m.data_on_model = dict(
+    gid=gid,
+    applications=applications,
+    admit=admit
+)
+
+# Define model ------------------------------------------------
+def model(gid, applications, admit):
+    phi = dist.exponential(1, shape=[1], name='phi')
+    alpha = dist.normal(0., 1.5, shape=[2], name='alpha')
+    theta = phi + 2
+    pbar = jax.nn.sigmoid(alpha[gid])
+    concentration1 = pbar * theta
+    concentration0 = (1 - pbar) * theta
+    lk("y", BetaBinomial(total_count=applications, concentration1=concentration1, concentration0=concentration0), obs=admit)
+
+# Run MCMC ------------------------------------------------
+m.run(model) 
+
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89)
+```
+### R
+``` R
+library(reticulate)
+bi <- import("main")
+
+# Setup device------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('../data/UCBadmit.csv', sep=';') 
+m$df["gid"] = as.integer(ifelse(m$df["applicant.gender"] == "male", 0, 1))
+m$data_to_model(list('gid', 'applications', 'admit' ))
+
+# Define model ------------------------------------------------
+model <- function(gid, applications, admit){
+  phi = bi$dist$exponential(1, name = 'phi')
+  alpha = bi$dist$normal(0., 1.5, shape= tuple(as.integer(2)), name='alpha')
+  theta = phi + 2
+  pbar = bi$jax$nn$sigmoid(alpha[gid])
+  concentration1 = pbar * theta
+  concentration0 = (1 - pbar) * theta
+  bi$lk("y", bi$BetaBinomial(total_count=applications, concentration1=concentration1, concentration0=concentration0), obs=admit)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+```
+
+:::
+## Mathematical Details
+### *Formula*
+
+$$
+logit(p_i) = \alpha + \beta X_i
+$$
+
+Where:
+
+- $p_i$ is the probability of success for observation *i*.
+  
+- $\alpha$ is the intercept term.
+  
+- $\beta$ is the regression term.
+  
+- $X_i$ is the value of the independent variable for observation *i*.
+  
+- $\text{logit}(p_i)$ is the log-odds of success for observation *i*.
+
+### *Bayesian Model*
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
+
+$$
+Y_i \sim BetaBinomial(n_i, p_i, \theta)
+$$
+
+$$
+logit(p_i) \sim \alpha + \beta X
+$$
+
+$$
+\alpha \sim Normal(0,1)
+$$
+
+$$
+\theta \sim HalfCauchy(0,1)
+$$
+
+Where:
+
+- $Y_i$ is the dependent variable for observation *i*.
+   
+- $n_i$ is the total count of trials for observation *i*. 
+  
+- $p_i$ is the probability of success for observation *i*.
+  
+- $\theta$ is the shape distribution term.
+  
+- $\alpha$ is the intercept term.
+  
+- $\beta$ is the regression coefficient term.
+  
+- $X_i$ is the value of the independent variable for observation *i*.
+
+## Reference(s)
+@mcelreath2018statistical
+
+
