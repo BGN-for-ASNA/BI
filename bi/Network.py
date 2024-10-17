@@ -394,7 +394,8 @@ class Net(met):
                          b_ii_mean = b_ii_mean, b_ii_sd = b_ii_sd,
                          name_b_ij = name_b_ij, name_b_ii = name_b_ii, sample = sample)
         edgl_block = Net.block_prior_to_edglelist(grp, b)
-        edgl_block = jnp.sum(edgl_block, axis = 1)
-        edgl_block = jnp.stack([edgl_block, edgl_block], axis = 1)
-        return edgl_block, b, b_ij, b_ii
+        #edgl_block = jnp.sum(edgl_block, axis = 1)
+        #edgl_block = jnp.stack([edgl_block, edgl_block], axis = 1)
+        #return edgl_block, b, b_ij, b_ii
+        return edgl_block
 
