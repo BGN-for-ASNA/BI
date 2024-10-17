@@ -1,0 +1,631 @@
+---
+title: "Strand"
+format: html
+editor: visual
+filters:
+  - critic-markup
+---
+
+```{r}
+library(STRAND)
+```
+
+```{python}
+r_sesssion = r
+from main import*
+N_id = 3
+N_var = 1
+s_mu = 0
+s_sd = 1
+r_mu = 0
+r_sd = 1
+sample = True
+focal_individual_predictors = jnp.array([1,0,1]).reshape((1,3))
+target_individual_predictors = jnp.array([1,0,1]).reshape((1,3))
+# Sender receiver fixed effect -------------------------------------------------------------------------------------------------------------------------------
+focal_effects = bi.dist.normal(s_mu, s_sd, shape=(N_var,), sample = sample, name = 'focal_effects')
+target_effects =  bi.dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
+print('focal_effects --------------------')
+print(focal_effects)
+print('\n')
+print('target_effects --------------------')
+print(target_effects)
+print('\n')
+terms = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  target_individual_predictors], axis = -1)
+print('terms --------------------')
+print(terms)
+print('\n')
+
+ids = jnp.arange(0,3)
+edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+sender_random = terms[edgl_idx[:,0],0] + terms[edgl_idx[:,1],1]
+receiver_random = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
+sr_terms = jnp.stack([sender_random, receiver_random], axis = 1)
+print('sr_terms --------------------')
+print(sr_terms)
+print('\n')
+
+# Sender receiver varying effect -------------------------------------------------------------------------------------------------------------------------------
+sr_mu = 0
+sr_sd = 1
+sr_sigma_rate = 1
+cholesky_dim = 2
+cholesky_density = 2
+
+sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
+sr_sigma =  dist.exponential(sr_sigma_rate, shape= (2,), name = 'rr', sample = sample)
+sr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
+rf =((sr_L @ sr_raw).T * sr_sigma)
+
+print('sr_raw --------------------')
+print(sr_raw)
+print('\n')
+
+print('sr_sigma --------------------')
+print(sr_sigma)
+print('\n')
+
+print('sr_L --------------------')
+print(sr_L)
+print('\n')
+
+print('rf --------------------')
+print(rf)
+print('\n')
+
+print('ff + rf --------------------')
+sr_terms + rf
+```
+
+# Step by Step
+
+## Sender receiver effect
+
+```{R}
+N_id = 3
+N_var = 1
+s_mu = 0
+s_sd = 1
+r_mu = 0
+r_sd = 1
+sample = TRUE
+focal_individual_predictors = c(1,0,1)
+target_individual_predictors = c(1,0,1)
+focal_effects = -0.20584226
+target_effects = -0.20584226
+
+sr_sigma = c(0.24372306, 1.630274)
+
+sr_raw = matrix(0, ncol = 2, nrow = 3)
+sr_raw[1,1] = 0.18784384 
+sr_raw[1,2] = 1.2490594
+sr_raw[2,1] = -1.2833426
+sr_raw[2,2] =  0.24447003
+sr_raw[3,1] =  0.6494181
+sr_raw[3,2] =  -0.11744965
+
+sr_L = matrix(0, ncol = 2, nrow = 2)
+sr_L[1,1] = 1. 
+sr_L[1,2] = 0
+sr_L[2,1] = -0.16010582
+sr_L[2,2] =  0.9870999
+
+
+sr_termsSTRAND_result = NULL
+sr_rf = NULL
+sr = NULL
+for (i in 1:N_id) {
+  tmp <- numeric(2)  # Initialize a vector of size 2
+
+  # Compute the dot product for the focal and target predictors
+  tmp[1] <- sum(focal_effects %*% focal_individual_predictors[i])
+  tmp[2] <- sum(target_effects %*% target_individual_predictors[i])
+  
+  sr_termsSTRAND_result = rbind(sr_termsSTRAND_result, tmp)
+  sr_rf = rbind(sr_rf,  sr_sigma %*%  (sr_L* sr_raw[i, ]))
+  sr[[i]] <-sr_sigma %*%  (sr_L* sr_raw[i, ]) + tmp
+}
+print('sr_terms--------------------------------')
+print(sr_termsSTRAND_result)
+print('sr_rf-result--------------------------------')
+print(sr_rf)
+print('sr-result--------------------------------')
+print(do.call('rbind',sr))
+
+i = 1
+tmp <- numeric(2)  # Initialize a vector of size 2
+# Compute the dot product for the focal and target predictors
+tmp[1] <- sum(focal_effects %*% focal_individual_predictors[i])
+tmp[2] <- sum(target_effects %*% target_individual_predictors[i])
+
+sr_termsSTRAND_result = rbind(sr_termsSTRAND_result, tmp)
+sr_rf = rbind(sr_rf,  sr_sigma %*%  (sr_L* sr_raw[i, ]))
+
+sr_L
+sr_raw[i, ]
+(sr_L* sr_raw[i, ])
+c(sr_sigma, sr_sigma) %*%  (sr_L* sr_raw[i, ])
+```
+
+```{python}
+sr_sigma
+sr_raw[:, 0]
+sr_L
+(sr_L * sr_raw[:, 0]) 
+(sr_L * sr_raw[:, 0]) @ sr_sigma
+```
+
+```{python}
+focal_effects = jnp.array(r_sesssion.focal_effects).reshape((1,))
+target_effects = jnp.array(r_sesssion.target_effects).reshape((1,))
+focal_individual_predictors = jnp.array(r_sesssion.focal_individual_predictors).reshape((1,3))
+target_individual_predictors = jnp.array(r_sesssion.target_individual_predictors).reshape((1,3))
+sr_sigma = jnp.array(r_sesssion.sr_sigma)
+sr_L = jnp.array(r_sesssion.sr_L)
+sr_raw = jnp.array(r_sesssion.sr_raw)
+sr_terms = jnp.array(r_sesssion.sr_terms)
+
+
+ff = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  target_individual_predictors], axis = -1)
+
+rf = (sr_L @ sr_raw.T).T * sr_sigma
+ff + rf
+```
+
+## Dyadic effect
+
+```{r}
+dr_raw = matrix(0, nrow = 3, ncol = 3)
+dr_raw[1,2] = 1
+dr_raw[1,3] = 2
+dr_raw[2,1] = 3
+dr_raw[2,3] = 4
+dr_raw[3,1] = 5
+dr_raw[3,2] = 6
+  
+dyad_effects = c(10)
+
+
+dr_L = matrix(0, nrow = 2, ncol = 2)
+dr_L[1,1] = 1
+dr_L[1,2] = 0
+dr_L[2,1] = -0.16010582
+dr_L[2,2] = 0.9870999
+
+dyad_individual_predictors = matrix(0, nrow = 3, ncol = 3)
+dyad_individual_predictors[1,2] = 1
+dyad_individual_predictors[1,3] = 2
+dyad_individual_predictors[2,1] = 3
+dyad_individual_predictors[2,3] = 4
+dyad_individual_predictors[3,1] = 5
+dyad_individual_predictors[3,2] = 6
+
+dr = matrix(0, nrow = 3, ncol = 3)
+dr_sigma = 0.5
+N_id = 3
+for (i in 1:(N_id - 1)) {
+  for (j in (i + 1):N_id) {
+    scrap <- c(dr_raw[i, j], dr_raw[j, i])
+    scrap <- rep(dr_sigma, 2) * (dr_L %*% scrap)
+    dr[i, j] <- scrap[1] + sum(dyad_effects %*% as.vector(dyad_individual_predictors[i, j]))
+    dr[j, i] <- scrap[2] + sum(dyad_effects %*%  as.vector(dyad_individual_predictors[j, i]))
+  }
+}
+dr
+```
+
+```{python}
+dyad_individual_predictors = r_sesssion.dyad_individual_predictors
+dyad_individual_predictors = bi.net.mat_to_edgl(dyad_individual_predictors)
+dr_raw = jnp.array(r_sesssion.dr_raw)
+dr_raw =bi.net.mat_to_edgl(dr_raw)
+N_id = r_sesssion.N_id
+dr_sigma = r_sesssion.dr_sigma
+dr_L = jnp.array(r_sesssion.dr_L)
+dyad_effects = r_sesssion.dyad_effects
+
+dr = ((dr_L @ dr_raw.T).T * jnp.repeat(dr_sigma, 2))
+dr + dyad_effects * dyad_individual_predictors 
+```
+
+# Testing models with sr effects
+
+```{r}
+load('STRAND sim sr only.Rdata')
+res = summarize_strand_results(fit)
+```
+
+```{python}
+import jax.numpy as jnp
+data = r_sesssion.model_dat
+for k in data.keys():
+  if k == "dyadic_predictors":
+    for k2 in data[k].keys():
+      data[k][k2] = jnp.array(data[k][k2])
+  else:
+    data[k] =  jnp.array(data[k])
+
+```
+
+```{python}
+from jax import jit
+from main import *
+
+
+m = bi(platform='cpu')
+ids = jnp.arange(0,data['N_id'])
+idx = bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+@jit
+def logit(x):
+    return jnp.log(x / (1 - x))
+
+def model(idx, result_outcomes,focal_individual_predictors, target_individual_predictors):
+    N_id = ids.shape[0]
+
+    ## Block ---------------------------------------
+    B = bi.dist.normal(logit(0.1/jnp.sqrt(N_id)), 2.5, shape=(1,), name = 'block')
+
+    #SR ---------------------------------------
+    sr_terms, focal_effects, target_effects = bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors)# shape = N_id
+    sr_rf, sr_raw, sr_sigma, sr_L = bi.net.nodes_random_effects(N_id, cholesky_density = 2) # shape = N_id
+    sender_receiver = sr_terms + sr_rf
+    
+    ### Dyadic--------------------------------------  
+    dr, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)# shape = n dyads
+
+    ## SR ---------------------------------------                                                      
+    lk('Y', Poisson(jnp.exp(B[0] + sender_receiver + dr)), obs=result_outcomes)  
+
+    ## NBDA -----------------------------     
+
+m.data_on_model = dict(
+    idx = idx,
+    result_outcomes = bi.net.mat_to_edgl(data['outcomes'][:,:,0]), 
+    focal_individual_predictors = data['individual_predictors'].reshape(1,50),
+    target_individual_predictors = data['individual_predictors'].reshape(1,50),
+)
+
+m.run(model) 
+summary = m.summary()
+summary.loc[['focal_effects[0]', 'target_effects[0]', 'block[0]',]]
+# focal_effects = -1.9,
+# target_effects =  1.3
+# block =  -4
+```
+
+# Testing models with sr and dyadic effects
+
+```{r}
+load('STRAND sim sr dyad.Rdata')
+res = summarize_strand_results(fit)
+```
+
+```{python}
+data = r_sesssion.model_dat
+for k in data.keys():
+  if k == "dyadic_predictors":
+    for k2 in data[k].keys():
+      data[k][k2] = jnp.array(data[k][k2])
+  else:
+    data[k] =  jnp.array(data[k])
+    
+data['outcomes'] = data['outcomes'].reshape(data['N_id'], data['N_id']).T.astype(int)
+kinship = data['dyadic_predictors']["Kinship"].reshape(data['N_id'],data['N_id']).T
+exposure = data['exposure'].reshape(data['N_id'],data['N_id']).T
+```
+
+```{python}
+m = bi(platform='cpu')
+# Building model and sampling it ------------------
+ids = jnp.arange(0,data['N_id'])
+idx = bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+
+@jit
+def logit(x):
+    return jnp.log(x / (1 - x))
+
+def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):
+    N_id = ids.shape[0]
+
+    # Block ---------------------------------------
+    B = bi.dist.normal(logit(0.1/jnp.sqrt(N_id)), 2.5, shape=(1,), name = 'block')
+
+    ## SR ---------------------------------------
+    sr_terms, focal_effects, target_effects = bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors)# shape = N_id
+    sr_rf, sr_raw, sr_sigma, sr_L = bi.net.nodes_random_effects(N_id, cholesky_density = 2) # shape = N_id
+    sender_receiver = sr_terms + sr_rf
+
+    # Dyadic--------------------------------------  
+    dr_terms, dyad_effects = bi.net.dyadic_terms(dyad_effects)
+    rf, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(sender_receiver.shape[0], cholesky_density = 2)
+    dr = dr_terms + rf
+
+    lk('Y', Poisson(jnp.exp(B[0] + sender_receiver + dr )), obs=result_outcomes)
+
+m.data_on_model = dict(
+    idx = idx,
+    result_outcomes = bi.net.mat_to_edgl(data['outcomes']), 
+    dyad_effects = bi.net.prepare_dyadic_effect(kinship), # Can be a jax array of multiple dimensions
+    focal_individual_predictors = data['individual_predictors'].reshape(1,50),
+    target_individual_predictors = data['individual_predictors'].reshape(1,50)
+)
+
+m.run(model2) 
+summary = m.summary()
+summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]', 'block[0]']]
+# focal_effects = 1.9,
+# target_effects =  1.3
+# dr_effects = 1.2, 1.7, -2.2
+# block =  -4
+```
+
+# Testing model with SR, dyadic effect and block model
+
+## A block example
+
+```{r}
+
+# Make data
+set.seed(1)
+N_id = 10
+V = 3
+groups_1 = rep("Any",N_id)                                                                                  # Block Variable 1, Intercept
+groups_2 = sample( c("Red","White","Blue") , size=N_id , replace=TRUE , prob=c(0.5, 0.25, 0.25) )           # Block Variable 2, Color
+groups_3 = sample( c("Strangeness", "Charm") , size=N_id , replace=TRUE , prob=c(0.5,0.5) )                 # Block Variable 3, Flavor 
+
+groups = data.frame(Intercept=as.numeric(factor(groups_1)), Color=as.numeric(factor(groups_2)), Flavor=as.numeric(factor(groups_3)))
+
+# Block parameter structure
+B_1 = matrix(-10,nrow=1,ncol=1)
+B_2 = matrix(rnorm(9,0,3),nrow=3,ncol=3)
+B_3 = matrix(rnorm(4,0,3),nrow=2,ncol=2)
+
+diag(B_2) = diag(B_2) + 2
+diag(B_3) = diag(B_3) + 3.5
+
+B = list(B_1, B_2, B_3)
+
+# Build offset matrix
+block_offsets = matrix(NA, N_id, N_id)
+
+# Loop over upper triangle and create ties from i to j, and j to i
+for ( i in 1:(N_id-1) ){
+    for ( j in (i+1):N_id){
+
+ # Loop over block variables
+   B_i_j = B_j_i = c()
+  for(v in 1:V){
+    B_i_j[v] =  B[[v]][groups[i,v] , groups[j,v] ]
+    B_j_i[v] =  B[[v]][groups[j,v] , groups[i,v] ]
+  }
+
+ block_offsets[i,j] =  sum(B_i_j)
+ block_offsets[j,i] =  sum(B_j_i)
+
+ }}
+
+# Now reshape into N_dydads X 2 matrix
+melted = cbind(block_offsets[lower.tri(block_offsets,diag=FALSE)],
+               block_offsets[upper.tri(block_offsets,diag=FALSE)])
+
+block_offsets
+melted
+
+# quick check is the same both column 1 and column 2 becuase ind_1 and ind_2 are in the same block for both color and flavor
+melted[1,]
+groups[1:2,]
+melted
+
+```
+
+```{python}
+grp = r_sesssion.groups
+grp_1 = jnp.array(grp['Intercept'].values) - 1
+grp_2 = jnp.array(grp['Color'].values) - 1
+grp_3 = jnp.array(grp['Flavor'].values) - 1
+
+B = r_sesssion.B
+B1 = B[0]
+B2 = B[1]
+B3 = B[2]
+
+
+#b, b_ij, b_ii = bi.net.block_model_prior(len(groups_2), sample = True)
+#print(b)
+B1_edgl = Net.block_prior_to_edglelist(grp_1, B1)
+B2_edgl = Net.block_prior_to_edglelist(grp_2, B2)
+B3_edgl = Net.block_prior_to_edglelist(grp_3, B3)
+res = B1_edgl + B2_edgl + B3_edgl
+res
+```
+
+## On simulated data
+
+```{r}
+library(STRAND)
+load('STRAND sim sr dr block.Rdata')
+res = summarize_strand_results(fit)
+```
+
+```{python}
+data = r_sesssion.model_dat
+for k in data.keys():
+  if k == "dyadic_predictors":
+    for k2 in data[k].keys():
+      data[k][k2] = jnp.array(data[k][k2])
+  else:
+    data[k] =  jnp.array(data[k])
+    
+data['outcomes'] = data['outcomes'].reshape(data['N_id'], data['N_id']).T.astype(int)
+kinship = data['dyadic_predictors']["Kinship"].reshape(data['N_id'],data['N_id']).T
+exposure = data['exposure'].reshape(data['N_id'],data['N_id']).T
+Any = data['block_predictors'][:,0]-1 # Blocks are vectors of group belonging, index start at 1 so we substract 1
+Merica  = data['block_predictors'][:,1]-1 # Blocks are vectors of group belonging, index start at 1 so we substract 1
+Quantum  = data['block_predictors'][:, 2]-1 # Blocks are vectors of group belonging, index start at 1 so we substract 1
+```
+
+```{python}
+# Building model and sampling it ------------------
+m = bi(platform='cpu')
+ids = jnp.arange(0,data['N_id'])
+idx = bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+
+@jit
+def logit(x):
+    return jnp.log(x / (1 - x))
+
+def model3(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors, Any, Merica, Quantum):
+    N_id = ids.shape[0]
+
+    # Block ---------------------------------------
+    B_any, b_any, b_ij_any, b_ii_any = bi.net.block_model(Any,1, name_b_ij = 'b_ij_Any', name_b_ii = 'b_ii_Any' )
+    B_Merica, b_Merica, b_ij_Merica, b_ii_Merica = bi.net.block_model(Merica,  3, name_b_ij = 'b_ij_Merica', name_b_ii = 'b_ii_Merica' )
+    B_Quantum, b_Quantum, b_ij_Quantum, b_ii_Quantum = bi.net.block_model(Quantum, 2, name_b_ij = 'b_ij_Quantum', name_b_ii = 'b_ii_Quantum' )
+
+    ## SR ---------------------------------------
+    sr_terms, focal_effects, target_effects = bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors)# shape = N_id
+    sr_rf, sr_raw, sr_sigma, sr_L = bi.net.nodes_random_effects(N_id, cholesky_density = 2) # shape = N_id
+    sender_receiver = sr_terms + sr_rf
+
+    # Dyadic--------------------------------------  
+    dr_terms, dyad_effects = bi.net.dyadic_terms(dyad_effects)
+    rf, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(sender_receiver.shape[0], cholesky_density = 2)
+    dr = dr_terms + rf
+
+    lk('Y', Poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr )), obs=result_outcomes)
+
+m.data_on_model = dict(
+    idx = idx,
+    Any = Any, 
+    Merica = Merica, 
+    Quantum = Quantum,
+    result_outcomes = bi.net.mat_to_edgl(data['outcomes']), 
+    dyad_effects = bi.net.mat_to_edgl(kinship),
+    focal_individual_predictors = data['individual_predictors'].reshape(1,50),
+    target_individual_predictors = data['individual_predictors'].reshape(1,50)
+)
+
+m.run(model3) 
+summary = m.summary()
+summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]',
+'b_ii_Any[0]',
+'b_ii_Merica[0]',
+'b_ii_Merica[1]',
+'b_ii_Merica[2]',
+'b_ii_Quantum[0]',
+'b_ii_Quantum[1]',
+'b_ij_Merica[0, 0]',
+'b_ij_Merica[0, 1]',
+'b_ij_Merica[1, 0]',
+'b_ij_Merica[1, 1]',
+'b_ij_Merica[2, 0]',
+'b_ij_Merica[2, 1]',
+'b_ij_Quantum[0, 0]',
+'b_ij_Quantum[0, 1]']]
+
+# focal_effects = 1.9,
+# target_effects =  1.3
+# dr_effects = 1.2, 1.7, -2.2
+```
+
+# Testing model with SR, dyadic effect, block model and exposure control
+
+# Testing model with SR, dyadic effect, block model and censoring control
+
+```{r}
+#######################################
+#
+#   Binomial Analyses with sampling biases  
+#
+########################################
+
+# Clear working space
+rm(list = ls())
+
+# Load libraries
+library(STRAND)
+library(ggplot2)
+library(igraph)
+
+# Create data
+set.seed(420)
+
+V = 1            # One blocking variable
+G = 3            # Three categories in this variable
+N_id = 85        # Number of bonobos
+
+Group = sample(1:3, N_id, replace=TRUE)
+B = matrix(-13, nrow=G, ncol=G)
+diag(B) = -9.2  # Block matrix
+
+B[1,3] = -10.1
+B[3,2] = -11.9
+
+Coloration = matrix(rnorm(N_id, 0, 1), nrow=N_id, ncol=1)
+SizeDiff = array(rnorm(N_id*N_id, 0, 1), c(N_id, N_id, 1))
+                                                               
+A = simulate_sbm_plus_srm_network_with_measurement_bias(N_id = N_id, 
+                                                   B=list(B=B),
+                                                   V=V,
+                                                   groups=data.frame(Group=factor(Group)),
+                                                   individual_predictors=Coloration,
+                                                   individual_effects=matrix(c(1.9, 0.5),ncol=1, nrow=2),
+                                                   dyadic_predictors = SizeDiff,
+                                                   dyadic_effects = c(-1.5),
+                                                   sr_mu = c(0,0),
+                                                   sr_sigma = c(1.4, 0.8),
+                                                   sr_rho = 0.6,
+                                                   dr_mu = c(0,0),
+                                                   dr_sigma = 1.0,
+                                                   dr_rho = 0.75,
+                                                   exposure_mu = 4.5,
+                                                   exposure_sigma = 1.9,
+                                                   exposure_max = 20,
+                                                   censoring_mu = -4.5,
+                                                   censoring_sigma = 0.5,
+                                                   exposure_predictors = Coloration,
+                                                   censoring_predictors = Coloration,
+                                                   exposure_effects = c(-2.7),
+                                                   censoring_effects = c(2.1)
+                                                   )
+
+# Prep data
+grooming = list(Grooming = A$net)
+exposure = list(Exposure = A$true_samps)
+dyad = list(SizeDiff = SizeDiff)
+block = data.frame(Group = as.factor(Group))
+indiv =  data.frame(Coloration = Coloration)
+
+model_dat = make_strand_data(outcome = grooming,
+                             individual_covariates = indiv, 
+                             block_covariates = block,
+                             dyadic_covariates = dyad,
+                             outcome_mode = "binomial",
+                             exposure = exposure
+                             )
+
+# Add in data needed for measurement model supplements
+model_dat$sampled = A$true_exposure
+model_dat$sampled_exposure = rep(20, N_id)
+
+model_dat$detected = A$detected
+model_dat$detected_exposure = A$trials 
+
+# Censoring model with correct specification                                                                
+fit =  fit_block_plus_social_relations_model_with_measurement_bias(data=model_dat,
+                              block_regression = ~ Group,
+                              focal_regression = ~ Coloration,
+                              target_regression = ~ Coloration,
+                              sampling_regression = ~ Coloration,
+                              censoring_regression = ~ Coloration,
+                              dyad_regression = ~  SizeDiff,
+                              mode="mcmc",
+                              stan_mcmc_parameters = list(chains = 1, refresh = 1,
+                                                          iter_warmup = 600, iter_sampling = 600,
+                                                          max_treedepth = NULL, adapt_delta = .98)
+)
+
+res = summarize_bsrm_results_with_measurement_bias(fit)
+
+
+```

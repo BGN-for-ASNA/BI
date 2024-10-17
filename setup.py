@@ -14,10 +14,19 @@ setup(
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         packages=find_packages(),
-        install_requires=[numpyro, tensorflow_probability], # add any additional packages that 
+        install_requires=[], # add any additional packages that 
         # needs to be installed along with your package. Eg: 'caer'
-        package_data={'my_pkg/resources/nltk_data/*'}
-        keywords=['python', 'first package'],
+        keywords=['python', 'Bayesian inferences'],
+        include_package_data=True,
+        package_data={
+            'bi': [
+                'resources/data/*.csv',
+                'resources/documentation/**/*.html',
+                'resources/documentation/**/*.css',
+                'resources/documentation/**/*.png',
+                'resources/documentation/**/*.yml',
+            ],
+        },
         classifiers= [
             "Development Status :: 3 - Alpha",
             "Intended Audience :: Education",
