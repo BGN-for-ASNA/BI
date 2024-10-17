@@ -341,7 +341,7 @@ class Net(met):
         """Build block model prior matrix for within and between group links probabilities
 
         Args:
-            grp (int): vector of group id
+            N_grp (int): Number of groups to build
             b_ij_mean (float, optional): mean prior for between groups. Defaults to 0.01.
             b_ij_sd (float, optional): sd prior for between groups. Defaults to 2.5.
             b_ii_mean (float, optional): mean prior for within groups. Defaults to 0.01.
@@ -372,7 +372,6 @@ class Net(met):
         v = Net.vec_node_to_edgle(jnp.stack([v, v], axis= 1)).astype(int)
         return jnp.stack([b[v[:,1],v[:,0]], b[v[:,0],v[:,1]]], axis = 1)
 
-
     @staticmethod 
     def block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 2.5, b_ii_mean = 0.1, b_ii_sd = 2.5, name_b_ij = 'b_ij', name_b_ii = 'b_ii', sample = False):
         """Generate block model model matrix.
@@ -399,6 +398,3 @@ class Net(met):
         edgl_block = jnp.stack([edgl_block, edgl_block], axis = 1)
         return edgl_block, b, b_ij, b_ii
 
-
-    def mat_row_wise_multiplication(M, v):
-        return jnp.dot(M, v)
