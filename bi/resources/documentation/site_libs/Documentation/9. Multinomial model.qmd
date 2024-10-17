@@ -1,0 +1,145 @@
+# Multinomial model
+
+## General Principles
+To model the relationship between a categorical outcome variable with more than two categories and one or more independent variables, we can use a _Multinomial_ distribution. 
+
+![](https://statstest.b-cdn.net/wp-content/uploads/2020/05/Multinomial-Logistic-Regression-1.jpg)
+
+## Considerations
+
+::: callout-caution 
+- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+  
+- One way to interpret a multinomial model is to consider that we need to build $K - 1$ linear models, where $K$ is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a [<span style="color:#0D6EFD">simplex 🛈</span>]{#simplex}. To do this, we convert the regression outputs using the softmax function (see the "nn.softmax" line in the code). 
+   
+- The intercept captures the difference in the log-odds of the outcome categories; thus, different categories need different intercepts.
+  
+- On the other hand, as we assume that the effect of each predictor on the outcome is consistent across all categories, the regression coefficients are shared across categories.
+
+- The relationship between the predictor variables and the log-odds of each category is modeled linearly, allowing us to interpret the effect of each predictor on the log-odds of each category. 
+:::
+
+## Example
+Below is an example code snippet demonstrating Bayesian multinomial model using the Bayesian Inference (BI) package:
+
+::: {.panel-tabset group="language"}
+### Python
+```python
+from main import*
+# Simulated data--------------------------------------------------------------------------
+# simulate career choices among 500 individuals
+N = 500  # number of individuals
+income = jnp.array([1, 2, 5])  # expected income of each career
+score = 0.5 * income  # scores for each career, based on income
+
+# next line converts scores to probabilities
+p = jnp.array(jax.nn.softmax(score))
+
+# now simulate choice
+# outcome career holds event type values, not counts
+career = bi.dist.categorical(p, shape=N, sample=True)
+m.data_on_model = dict(
+    income=income,
+    career=career
+)
+d.to_csv('Sim data multinomial.csv')
+
+# Define model ------------------------------------------------
+def model(income, career):
+    a = dist.normal(0, 1, shape=[2], name='a')
+    b = dist.halfnormal(0.5, shape=[1], name='b')
+    s_1 = a[0] + b * income[0]
+    s_2 = a[1] + b * income[1]
+    s_3 = a[0] + b * income[0]
+    p = jax.nn.softmax(jnp.stack([s_1[0], s_2[0], s_3[0]]))
+    lk("y", Categorical(probs=p[career]), obs=career)
+
+# Run sampler ------------------------------------------------ 
+m.run(model)  
+
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89)
+```
+
+### R
+```R
+library(reticulate)
+bi <- import("main")
+
+# Setup device ------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('Sim data multinomial.csv', sep=',') 
+
+keys <- c("income", "career")
+income = unique(m$df$income)
+income = income[order(income)]
+values <- list(as.integer(income), as.integer(m$df$career))
+m.data_on_model = py_dict(keys, values, convert = TRUE)
+m.data_on_model
+
+# Define model ------------------------------------------------
+model <- function(income, career){
+  alpha = bi$dist$normal(0, 1, name='alpha', shape = tuple(as.integer(2)))
+  beta = bi$dist$halfnormal(0.5, name='beta', shape = tuple(as.integer(1)))
+  s_1 = alpha[0] + beta * income[1]
+  s_2 = alpha[1] + beta * income[1]
+  s_3 = alpha[0] + beta * income[0]
+  p = bi$jax$nn$softmax(bi$jnp$stack(list(s_1[0], s_2[0], s_3[0])))
+  bi$lk("y", bi$Categorical(probs=p[career]), obs=career)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+```
+:::
+
+## Mathematical Details
+### *Formula*
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We model the relationship between the predictor variables (X1, X2, ..., Xn) and the categorical outcome variable ($Y_i$) using the following equation:
+
+$$
+logit(p_ik) = log(\frac{p_ik}{p_iK})  = β_k^T X_i + α_k
+$$
+
+Where:
+
+
+- $p_ik$ is the probability of the 𝑖-th observation being in category 𝑘.
+  
+- $β_k$ is the regression coefficients for category 𝑘.
+  
+- $α_k$ is the intercept for category 𝑘.
+  
+- $X_i$ is the vector of predictor variables for the 𝑖-th observation.
+  
+- The reference category 𝐾 is often chosen to simplify the model (Note that we did not do this in the code).
+
+We can express the Bayesian Multinomial model as follows:
+
+If  $K∈N ,  N∈N , and  θ∈K$-simplex , then for  $y∈NK$  such that  $∑Kk=1yk=N$:
+
+
+### *Bayesian model*
+In Bayesian multinomial modeling, the likelihood function of the data is specified using a multinomial distribution. The multinomial distribution models the counts of outcomes falling into different categories. For an outcome variable 
+𝑦 with 𝐾 categories, the multinomial likelihood function is:
+$$
+Multinomial(y|θ)=\frac{N!}{∏^K_{k=1}yk!} ∏_{k=1}^{K} θ_{k}^{y_k}
+$$
+
+Where:
+
+- $y=(y_1, y_2,…,y_K)$ represents the counts of observations in each of the 𝐾 categories.
+  
+- $N$ is the total number of observations or trials.
+  
+- $θ=(θ_1,θ_2,…,θ_K)$  is a simplex of category probabilities, with $θ_k$ representing the probability of category 𝑘.
+  
+- $\frac{N!}{∏^K_{k=1}yk!}$ is the multinomial coefficient that accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.
+- 
+## Reference(s)
+@mcelreath2018statistical
