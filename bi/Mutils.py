@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from jax import jit
 from jax import vmap
 import numpyro
-from unified_dists import UnifiedDist as dist
+from utils.unified_dists import UnifiedDist as dist
 
 # Random factors related functions --------------------------------------------
 @jit
