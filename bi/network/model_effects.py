@@ -1,197 +1,11 @@
-import inspect
-from numpyro import sample as lk
-from numpyro import deterministic
-from unified_dists import UnifiedDist as dist
-from Mutils import Mgaussian
-from Mutils import factors
-from Metrics import metrics as met
-gaussian = Mgaussian()
-factor = factors()
-
-from jax import vmap
-#' Test
-#region
-#from Darray import *
-from functools import partial
-import jax as jax
-import jax.numpy as jnp
+from network.util import manip
+import jax 
 from jax import jit
 
-# vector related functions -----------------------------------
-@partial(jit, static_argnums=(1, 2,))
-def vec_to_mat_jax(arr, N, K):
-    return jnp.tile(arr, (N, K))
-
-# Matrices related functions ------------------------------------------------------------------
-def upper_tri(array, diag=1):
-    """Extracts the upper triangle elements of a 2D JAX array.
-
-    Args:
-        array (2D array): A JAX 2D array.
-        diag (int): Integer indicating if diagonal must be kept or not.
-                    diag=1 excludes the diagonal, diag=0 includes it.
-    """
-    upper_triangle_indices = jnp.triu_indices(array.shape[0], k=diag)
-    upper_triangle_elements = array[upper_triangle_indices]
-    return upper_triangle_elements
-# JIT compile the function with static_argnums
-get_upper_tri = jit(upper_tri, static_argnums=(1,))
-
-
-def lower_tri(array, diag=-1):
-    """Extracts the lower triangle elements of a 2D JAX array.
-
-    Args:
-        array (2D array): A JAX 2D array.
-        diag (int): Integer indicating if diagonal must be kept or not.
-                    diag=0 includes the diagonal, diag=-1 excludes it.
-    """
-    lower_triangle_indices = jnp.tril_indices(array.shape[0], k=diag)
-    lower_triangle_elements = array[lower_triangle_indices]
-    return lower_triangle_elements
-# JIT compile the function with static_argnums
-get_lower_tri = jit(lower_tri, static_argnums=(1,))
-
-def get_tri(array, type='upper', diag=0):
-    """Extracts the upper, lower, or both triangle elements of a 2D JAX array.
-
-    Args:
-        array (2D array): A JAX 2D array.
-        type (str): A string indicating which part of the triangle to extract.
-                    It can be 'upper', 'lower', or 'both'.
-        diag (int): Integer indicating if diagonal must be kept or not.
-                    diag=1 excludes the diagonal, diag=0 includes it.
-
-    Returns:
-        If argument type is 'upper', 'lower', it return a 1D JAX array containing the requested triangle elements.
-        If argument type is 'both', it return a 2D JAX array containing the the first column the lower triangle and in the second ecolumn the upper triangle
-    """
-    if type == 'upper':
-        upper_triangle_indices = jnp.triu_indices(array.shape[0], k=diag)
-        triangle_elements = array[upper_triangle_indices]
-    elif type == 'lower':
-        lower_triangle_indices = jnp.tril_indices(array.shape[0], k=-diag)
-        triangle_elements = array[lower_triangle_indices]
-    elif type == 'both':
-        upper_triangle_indices = jnp.triu_indices(array.shape[0], k=diag)
-        lower_triangle_indices = jnp.tril_indices(array.shape[0], k=-diag)
-        upper_triangle_elements = array[upper_triangle_indices]
-        lower_triangle_elements = array[lower_triangle_indices]
-        triangle_elements = jnp.stack((upper_triangle_elements,lower_triangle_elements), axis = 1)
-    else:
-        raise ValueError("type must be 'upper', 'lower', or 'both'")
-
-    return triangle_elements
-
-    
-@jit
-def mat_to_edgl_jax(mat):
-    N = mat.shape[0]
-    # From to 
-    urows, ucols   = jnp.triu_indices(N, k=1)
-    ft = mat[(urows,ucols)]
-    m2 = jnp.transpose(mat)
-    tf = m2[(urows,ucols)]
-    return jnp.stack([tf, ft], axis = -1)
-
-# Eigenvector ------------------------------------------
-# Not working with @jit
-@jax.jit
-def power_iteration(A, max_iter=100, tol=1e-10):
-    n = A.shape[0]
-    x = jnp.ones(n) / jnp.sqrt(n)
-    diff = 1.0  # initialize to a value greater than tol
-
-    def body_fun(carry):
-        x, i = carry
-        Ax = jnp.dot(A, x)
-        norm_Ax = jnp.linalg.norm(Ax)
-        x_new = Ax / norm_Ax
-        diff = jnp.linalg.norm(x_new - x)
-        print(diff)
-        return (x_new, i + 1), diff < tol
-
-    carry = (x, 0)
-    _, converged = jax.lax.while_loop(cond_fun = lambda carry: jnp.logical_not(converged),
-                                  body_fun = body_fun,
-                                  init_val = carry)
-
-    return x
-
-class Net(met):
+class Neteffect(manip):
     def __init__(self) -> None:
         pass
-
-    @staticmethod 
-    @jit
-    def logit(x):
-        return jnp.log(x / (1 - x))
-
-    # Matrix manipulations -------------------------------------
-    @staticmethod 
-    @partial(jit, static_argnums=(1, ))
-    def vec_to_mat(vec, shape = ()):
-        return jnp.tile(vec, shape)
-
-    def get_tri(self, array, type='upper', diag=0):
-        return get_tri(array, type=type, diag=diag)
-    
-    @staticmethod 
-    @jit
-    def mat_to_edgl(mat):
-        N = mat.shape[0]
-        # From to 
-        urows, ucols   = jnp.triu_indices(N, k=1)
-        ft = mat[(urows,ucols)]
-
-        m2 = jnp.transpose(mat)
-        tf = m2[(urows,ucols)]
-        return jnp.stack([ft, tf], axis = -1)
-
-    @staticmethod 
-    @partial(jit, static_argnums=(1, ))
-    def edgl_to_mat(edgl, N_id):
-        m = jnp.zeros((N_id,N_id))
-        urows, ucols   = jnp.triu_indices(N_id, 1)
-        m = m.at[(ucols, urows)].set(edgl[:,1])
-        m = m.at[(urows, ucols)].set(edgl[:,0])
-        return m
-    
-    @staticmethod 
-    @jit
-    def remove_diagonal(arr):
-        n = arr.shape[0]
-        if arr.shape[0] != arr.shape[1]:
-            raise ValueError("Array must be square to remove the diagonal.")
-
-        # Create a mask for non-diagonal elements
-        mask = ~jnp.eye(n, dtype=bool)
-
-        # Apply the mask to the array to get non-diagonal elements
-        non_diag_elements = arr[mask]  # Reshape as needed, here to an example shape
-    
-        return non_diag_elements
-    
-    @staticmethod 
-    @jit    
-    def vec_node_to_edgle(sr):
-        """_summary_
-
-        Args:
-            sr (2D array): Each column represent an characteristic or effect and  each row represent the value of i for the characteristic of the given column
-
-        Returns:
-            (2D array): return and edgelist of all dyads combination (excluding diagonal).
-            First column represent the value fo individual i  in the first column of argument sr, the second column the value of j in the second column of argument sr
-        """
-        N = sr.shape[0]
-        lrows, lcols = jnp.tril_indices(N, k=-1)
-        urows, ucols = jnp.triu_indices(N, k=1)
-        ft = sr[urows,0]
-        tf = sr[ucols,1]
-        return jnp.stack([ft, tf], axis = -1)
-    
-    
+   
     # Sender receiver  ----------------------
     @staticmethod 
     def nodes_random_effects(N_id, sr_mu = 0, sr_sd = 1, sr_sigma_rate = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False ):
@@ -201,7 +15,7 @@ class Net(met):
         rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
         #rf = deterministic('sr_rf', jax.vmap(lambda x: factors.random_centered(sr_sigma, sr_L, x))(sr_raw.T))
         #ids = jnp.arange(0,N_id)
-        #edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+        #edgl_idx = Neteffect.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
         #sender_random = rf[edgl_idx[:,0],0] + rf[edgl_idx[:,1],1]
         #receiver_random = rf[edgl_idx[:,1],0] + rf[edgl_idx[:,0],1]
         #random_effects = jnp.stack([sender_random, receiver_random], axis = 1)
@@ -241,7 +55,7 @@ class Net(met):
 
         
         #ids = jnp.arange(0,focal_individual_predictors[0].shape[0])
-        #edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+        #edgl_idx = Neteffect.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
         #sender_receiver_ij = terms[edgl_idx[:,0],0] + terms[edgl_idx[:,1],1] # Sender effect between i and j is the sum of sender effects of i and j 
         #receiver_sender_ji = terms[edgl_idx[:,1],0] + terms[edgl_idx[:,0],1]
         if diag:
@@ -261,7 +75,7 @@ class Net(met):
     @jit
     def node_effects_to_dyadic_format(sr_effects):
         ids = jnp.arange(0,sr_effects.shape[0])
-        edgl_idx = Net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+        edgl_idx = Neteffect.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
         sender = sr_effects[edgl_idx[:,0],0] + sr_effects[edgl_idx[:,1],1]
         receiver = sr_effects[edgl_idx[:,1],0] + sr_effects[edgl_idx[:,0],1]
         return jnp.stack([sender, receiver], axis = 1)
@@ -273,9 +87,9 @@ class Net(met):
         N_var = focal_individual_predictors.shape[0]
         N_id = focal_individual_predictors.shape[1]            
 
-        sr_ff, focal_effects, target_effects = Net.nodes_terms(focal_individual_predictors, target_individual_predictors, N_var = N_var, s_mu = s_mu, s_sd = s_sd, r_mu = r_mu, r_sd = r_sd, sample = sample, diag = diag )
-        sr_rf, sr_raw, sr_sigma, sr_L = Net.nodes_random_effects(N_id, sr_mu = r_mu, sr_sd = sr_sd, sr_sigma_rate = sr_sigma_rate, cholesky_dim = cholesky_dim, cholesky_density = cholesky_density,  sample = sample, diag = diag ) # shape = N_id
-        sr_to_dyads = Net.node_effects_to_dyadic_format(sr_ff + sr_rf) # sr_ff and sr_rf are nodal values that need to be converted to dyadic values
+        sr_ff, focal_effects, target_effects = Neteffect.nodes_terms(focal_individual_predictors, target_individual_predictors, N_var = N_var, s_mu = s_mu, s_sd = s_sd, r_mu = r_mu, r_sd = r_sd, sample = sample, diag = diag )
+        sr_rf, sr_raw, sr_sigma, sr_L = Neteffect.nodes_random_effects(N_id, sr_mu = r_mu, sr_sd = sr_sd, sr_sigma_rate = sr_sigma_rate, cholesky_dim = cholesky_dim, cholesky_density = cholesky_density,  sample = sample, diag = diag ) # shape = N_id
+        sr_to_dyads = Neteffect.node_effects_to_dyadic_format(sr_ff + sr_rf) # sr_ff and sr_rf are nodal values that need to be converted to dyadic values
         return sr_to_dyads
 
     # dyadic effects ------------------------------------------
@@ -283,9 +97,9 @@ class Net(met):
     @jit
     def prepare_dyadic_effect(dyadic_effect_mat):
         if dyadic_effect_mat.ndim == 2:
-            return Net.mat_to_edgl(dyadic_effect_mat)
+            return Neteffect.mat_to_edgl(dyadic_effect_mat)
         else:
-            return  jax.vmap(Net.mat_to_edgl)(jnp.stack(dyadic_effect_mat))
+            return  jax.vmap(Neteffect.mat_to_edgl)(jnp.stack(dyadic_effect_mat))
 
     @staticmethod 
     def dyadic_random_effects(N_dyads, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False):
@@ -329,8 +143,8 @@ class Net(met):
     def dyadic_effect(dyadic_predictors, d_m = 0, d_sd = 1, # Fixed effect arguments
                      dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2,
                      sample = False):
-        dr_ff, dyad_effects = Net.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample)
-        dr_rf, dr_raw, dr_sigma, dr_L =  Net.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
+        dr_ff, dyad_effects = Neteffect.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample)
+        dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
         cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
         return dr_ff + dr_rf
   
@@ -352,9 +166,9 @@ class Net(met):
             _type_: _description_
         """
         N_dyads = int(((N_grp*(N_grp-1))/2))
-        b_ij = dist.normal(Net.logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_dyads, 2), name = name_b_ij, sample = sample) # transfers more likely within groups
-        b_ii = dist.normal(Net.logit(b_ii_mean/jnp.sqrt(N_grp)), b_ii_sd, shape=(N_grp, ), name = name_b_ii, sample = sample) # transfers less likely between groups
-        b = Net.edgl_to_mat(b_ij, N_grp)
+        b_ij = dist.normal(Neteffect.logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_dyads, 2), name = name_b_ij, sample = sample) # transfers more likely within groups
+        b_ii = dist.normal(Neteffect.logit(b_ii_mean/jnp.sqrt(N_grp)), b_ii_sd, shape=(N_grp, ), name = name_b_ii, sample = sample) # transfers less likely between groups
+        b = Neteffect.edgl_to_mat(b_ij, N_grp)
         b = b.at[jnp.diag_indices_from(b)].set(b_ii)
         return b, b_ij, b_ii
 
@@ -371,7 +185,7 @@ class Net(met):
             _type_: 1D array representing the probability of links from i-> j 
         """
 
-        v = Net.vec_node_to_edgle(jnp.stack([v, v], axis= 1)).astype(int)
+        v = Neteffect.vec_node_to_edgle(jnp.stack([v, v], axis= 1)).astype(int)
         return jnp.stack([b[v[:,0],v[:,1]], b[v[:,1],v[:,0]]], axis = 1)
 
     @staticmethod 
@@ -400,11 +214,11 @@ class Net(met):
         name_b_ii = 'b_ii_' + str(name) 
 
         #N_grp = len(jnp.unique(grp))
-        b, b_ij, b_ii = Net.block_model_prior(N_grp, 
+        b, b_ij, b_ii = Neteffect.block_model_prior(N_grp, 
                          b_ij_mean = b_ij_mean, b_ij_sd = b_ij_sd, 
                          b_ii_mean = b_ii_mean, b_ii_sd = b_ii_sd,
                          name_b_ij = name_b_ij, name_b_ii = name_b_ii, sample = sample)
-        edgl_block = Net.block_prior_to_edglelist(grp, b)
+        edgl_block = Neteffect.block_prior_to_edglelist(grp, b)
         #edgl_block = jnp.sum(edgl_block, axis = 1)
         #edgl_block = jnp.stack([edgl_block, edgl_block], axis = 1)
         #return edgl_block, b, b_ij, b_ii
