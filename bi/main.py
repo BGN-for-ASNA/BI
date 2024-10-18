@@ -12,12 +12,12 @@ import jax.numpy as jnp
 import jax as jax
 import numpy as np
 import jax.random as random
-from Network import Net
+from network.net import net
 from Mutils import Mgaussian as gaussian
 from Mutils import factors 
 from unified_dists import UnifiedDist as dist
 
-class bi(dist, gaussian, factors):
+class bi(dist, gaussian, factors,net):
     def __init__(self, platform='cpu', cores=None, dealocate = False):
         setup.setup(platform, cores, dealocate) 
         import numpyro
@@ -33,7 +33,7 @@ class bi(dist, gaussian, factors):
         pass
 
     # Network functions--------------------------
-    class net(Net):
+    class net(net):
         pass
 
     # Import data----------------------------
