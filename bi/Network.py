@@ -1,3 +1,4 @@
+import inspect
 from numpyro import sample as lk
 from numpyro import deterministic
 from unified_dists import UnifiedDist as dist
@@ -373,7 +374,7 @@ class Net(met):
         return jnp.stack([b[v[:,1],v[:,0]], b[v[:,0],v[:,1]]], axis = 1)
 
     @staticmethod 
-    def block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 2.5, b_ii_mean = 0.1, b_ii_sd = 2.5, name_b_ij = 'b_ij', name_b_ii = 'b_ii', sample = False):
+    def block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 2.5, b_ii_mean = 0.1, b_ii_sd = 2.5, sample = False):
         """Generate block model model matrix.
 
         Args:
@@ -389,6 +390,14 @@ class Net(met):
         Returns:
             _type_: _description_
         """
+        # Get grp name from user
+        frame = inspect.currentframe()
+        frame = inspect.getouterframes(frame)[1]
+        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
+        name = string[string.find('(') + 1:-1].split(',')[0]
+        name_b_ij = 'b_ij_' + str(name)
+        name_b_ii = 'b_ii_' + str(name) 
+
         b, b_ij, b_ii = Net.block_model_prior(N_grp, 
                          b_ij_mean = b_ij_mean, b_ij_sd = b_ij_sd, 
                          b_ii_mean = b_ii_mean, b_ii_sd = b_ii_sd,
