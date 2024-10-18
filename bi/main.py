@@ -12,14 +12,15 @@ import jax.numpy as jnp
 import jax as jax
 import numpy as np
 import jax.random as random
-from network.net import net
 from Mutils import Mgaussian as gaussian
 from Mutils import factors 
-from unified_dists import UnifiedDist as dist
+from network.net import net
+from setup.device import setup
+from utils.unified_dists import UnifiedDist as dist
 
-class bi(dist, gaussian, factors,net):
+class bi(dist, gaussian, factors, net):
     def __init__(self, platform='cpu', cores=None, dealocate = False):
-        setup.setup(platform, cores, dealocate) 
+        setup(platform, cores, dealocate) 
         import numpyro
         self.numpypro = numpyro
         self.trace = None
@@ -326,21 +327,8 @@ class bi(dist, gaussian, factors,net):
         self.rank = rank
         self.forest = forest
 
-#from Darray import*
-#from numpyproLigth import*
-# Importing modified Numpyro functions
-from numpyro import sample as lk
-#from samplers import sampler
-#sample = sampler()
-#from dists import Dist
-#dist = Dist()
-#from Network import Net
-#net = Net()
-#from Mutils import Mgaussian
-#from Mutils import factors
-#gaussian = Mgaussian()
-#factor = factors()
 
+from numpyro import sample as lk
 from jax.experimental import mesh_utils
 from jax.sharding import PositionalSharding
 #from jax import random
