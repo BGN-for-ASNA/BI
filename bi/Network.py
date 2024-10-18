@@ -328,10 +328,10 @@ class Net(met):
     @staticmethod 
     def dyadic_effect(dyadic_predictors, d_m = 0, d_sd = 1, # Fixed effect arguments
                      dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2,
-                     sample = False, diag = False):
-        dr_ff, dyad_effects = Net.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample, diag = diag)
+                     sample = False):
+        dr_ff, dyad_effects = Net.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample)
         dr_rf, dr_raw, dr_sigma, dr_L =  Net.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
-        cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample, diag = diag)
+        cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
         return dr_ff + dr_rf
   
     @staticmethod 
@@ -359,19 +359,20 @@ class Net(met):
         return b, b_ij, b_ii
 
     @staticmethod 
+    @jit
     def block_prior_to_edglelist(v, b):
         """Convert block vector id group belonging to edgelist of i->j group values
 
         Args:
             v (1D array):  Vector of id group belonging
-            b (2D array): Matrix of block model prior matrix
+            b (2D array): Matrix of block model prior matrix (squared)
 
         Returns:
             _type_: 1D array representing the probability of links from i-> j 
         """
 
         v = Net.vec_node_to_edgle(jnp.stack([v, v], axis= 1)).astype(int)
-        return jnp.stack([b[v[:,1],v[:,0]], b[v[:,0],v[:,1]]], axis = 1)
+        return jnp.stack([b[v[:,0],v[:,1]], b[v[:,1],v[:,0]]], axis = 1)
 
     @staticmethod 
     def block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 2.5, b_ii_mean = 0.1, b_ii_sd = 2.5, sample = False):
@@ -390,7 +391,7 @@ class Net(met):
         Returns:
             _type_: _description_
         """
-        # Get grp name from user
+        # Get grp name from user. This seems to slower down the code operations, but from user perspective it is more convenient.....
         frame = inspect.currentframe()
         frame = inspect.getouterframes(frame)[1]
         string = inspect.getframeinfo(frame[0]).code_context[0].strip()
@@ -398,6 +399,7 @@ class Net(met):
         name_b_ij = 'b_ij_' + str(name)
         name_b_ii = 'b_ii_' + str(name) 
 
+        #N_grp = len(jnp.unique(grp))
         b, b_ij, b_ii = Net.block_model_prior(N_grp, 
                          b_ij_mean = b_ij_mean, b_ij_sd = b_ij_sd, 
                          b_ii_mean = b_ii_mean, b_ii_sd = b_ii_sd,
