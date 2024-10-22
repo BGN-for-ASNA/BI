@@ -397,7 +397,7 @@ window.Quarto = {
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">10.3</span> Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">10.4</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">10.4.1</span> <em>Formula</em></a></li>
+  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">10.4.1</span> <em>Frequentist formulation</em></a></li>
   <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">10.4.2</span> <em>Bayesian model</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">10.5</span> Notes</a></li>
@@ -457,44 +457,28 @@ Caution
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data -------------------------------------------------------------</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow_probability.substrates.jax.distributions <span class="im">as</span> tfd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>init_key, sample_key <span class="op">=</span> random.split(random.PRNGKey(<span class="bu">int</span>(r.randint(<span class="dv">0</span>, <span class="dv">10000000</span>))))</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>init_key <span class="op">=</span> jnp.array(init_key)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>num_days <span class="op">=</span> <span class="dv">30</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> tfd.Poisson(rate<span class="op">=</span><span class="fl">1.5</span>).sample(seed<span class="op">=</span>init_key, sample_shape<span class="op">=</span>(num_days,))</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>num_weeks <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>y_new <span class="op">=</span> tfd.Poisson(rate<span class="op">=</span><span class="fl">0.5</span> <span class="op">*</span> <span class="dv">7</span>).sample(seed<span class="op">=</span>init_key, sample_shape<span class="op">=</span>(num_weeks,))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>y_all <span class="op">=</span> np.concatenate([y, y_new])</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>exposure <span class="op">=</span> np.concatenate([np.repeat(<span class="dv">1</span>, <span class="dv">30</span>), np.repeat(<span class="dv">7</span>, <span class="dv">4</span>)])</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>monastery <span class="op">=</span> np.concatenate([np.repeat(<span class="dv">0</span>, <span class="dv">30</span>), np.repeat(<span class="dv">1</span>, <span class="dv">4</span>)])</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> pd.DataFrame.from_dict(<span class="bu">dict</span>(y<span class="op">=</span>y_all, days<span class="op">=</span>exposure, monastery<span class="op">=</span>monastery))</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>d[<span class="st">"log_days"</span>] <span class="op">=</span> d.days.pipe(np.log)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>d.to_csv(<span class="st">'Sim dat Gamma poisson.csv'</span>, index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span> <span class="op">*</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device ------------------------------------------------</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    log_days<span class="op">=</span>jnp.array(d.log_days.values),  <span class="co"># rate of each count data</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    monastery<span class="op">=</span>jnp.array(d.monastery.values),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    output<span class="op">=</span>jnp.array(d.y.values)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(log_days, monastery, output):</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name<span class="op">=</span><span class="st">'a'</span>)</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name<span class="op">=</span><span class="st">'b'</span>)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> log_days <span class="op">+</span> a <span class="op">+</span> b <span class="op">*</span> monastery</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Poisson(rate<span class="op">=</span>l), obs<span class="op">=</span>output)</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device ------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu)# Import</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="er"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/Sim dat Gamma poisson.csv'</span>, sep<span class="op">=</span><span class="st">','</span>)  <span class="co"># Import</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'log_days'</span>, <span class="st">'monastery'</span>, <span class="st">'y'</span>]) <span class="co"># Send to model (convert to jax array)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(log_days, monastery, output):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameters priors distributions</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name<span class="op">=</span><span class="st">'a'</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name<span class="op">=</span><span class="st">'b'</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> log_days <span class="op">+</span> a <span class="op">+</span> b <span class="op">*</span> monastery</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Poisson(rate<span class="op">=</span>l), obs<span class="op">=</span>output)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
@@ -504,29 +488,32 @@ Caution
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> bi<span class="sc">$</span><span class="fu">bi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'Sim dat Gamma poisson.csv'</span>, <span class="at">sep=</span><span class="st">','</span>) </span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'log_days'</span>, <span class="st">'monastery'</span>, <span class="st">'y'</span> ))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'Sim dat Gamma poisson.csv'</span>, <span class="at">sep=</span><span class="st">','</span>) <span class="co"># Import</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'log_days'</span>, <span class="st">'monastery'</span>, <span class="st">'y'</span> )) <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(log_days, monastery, y){</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'alpha'</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">name=</span><span class="st">'beta'</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">=</span> log_days <span class="sc">+</span> alpha <span class="sc">+</span> beta <span class="sc">*</span> monastery</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">Poisson</span>(<span class="at">rate=</span>l), <span class="at">obs=</span>y)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) </span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'alpha'</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">name=</span><span class="st">'beta'</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">=</span> log_days <span class="sc">+</span> alpha <span class="sc">+</span> beta <span class="sc">*</span> monastery</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">Poisson</span>(<span class="at">rate=</span>l), <span class="at">obs=</span>y)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
 </section>
 <section id="mathematical-details" class="level2" data-number="10.4">
 <h2 data-number="10.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">10.4</span> Mathematical Details</h2>
-<section id="formula" class="level3" data-number="10.4.1">
-<h3 data-number="10.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">10.4.1</span> <em>Formula</em></h3>
+<section id="frequentist-formulation" class="level3" data-number="10.4.1">
+<h3 data-number="10.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">10.4.1</span> <em>Frequentist formulation</em></h3>
 <p>We model the relationship between the independent variable <span class="math inline">\(X\)</span> and the count outcome variable <span class="math inline">\(Y\)</span> using the following equation:</p>
 <p><span class="math display">\[
 \log(\lambda_i) = \exp(\text{rates}_i + \alpha + \beta X_i)
@@ -600,135 +587,387 @@ McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Exa
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
+
 <script src="https://unpkg.com/tippy.js@6"></script>
+
 <script>
+
 tippy('#prior', {
+
   content: '<span style="color: white;">Priors are distributions that represent the value of the parameter before conditioning it on the data.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#overdispersion', {
+
   content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#linkF', {
+
     content: '<span style="color: white;">A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
   });
 
+
+
 tippy('#simplex', {
+
   content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
   
+
 tippy('#triptych', {
+
     content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
     
+
 tippy('#hyperP', {
+
   content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#cov', {
+
     content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#centerRF', {
+
   content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#NodeF', {
+
     content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF', {
+
     content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#senderF', {
+
     content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#receiverF', {
+
     content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF2', {
+
     content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#expoB', {
+
     content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#censoB', {
+
     content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#assor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
 
+
+
 tippy('#disassor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
+
 
 
 tippy('#chol', {
+
   content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
+
+tippy('#uncertainty', {
+
+  content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#posterior', {
+
+  content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#scaled', {
+
+  content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#grandMean', {
+
+  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their reference or mean levels. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#ohe', {
+
+  content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#indices', {
+
+  content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#softmax', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
+
+    then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
+
+    The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
+
+    <strong>Formula:</strong><br>
+
+    $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
 </script>
+
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

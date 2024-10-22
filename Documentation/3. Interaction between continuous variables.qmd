@@ -2,7 +2,7 @@
 ## General Principles
 To study relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables.
 
-Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for Food x Condiment. The crossed lines on the graph suggest that there is an interaction effect, which the significant p-value for the Food*Condiment term confirms. The graph shows that enjoyment levels are higher for chocolate sauce when the food is ice cream. Conversely, satisfaction levels are higher for mustard when the food is a hot dog. If you put mustard on ice cream or chocolate sauce on hot dogs, you won’t be happy!
+Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for temperature x humidity. The crossed lines on the graph suggest that there is an interaction effect. The graph shows that energy consumption levels are higher for humidity when the temperature is high. Conversely, energy consumption levels are higher for temperature when humidity is low. 
 
 ![](https://i0.wp.com/statisticsbyjim.com/wp-content/uploads/2017/10/interactions_plot_categorical.png?w=576&ssl=1)
 
@@ -10,18 +10,18 @@ Parallel lines indicate that there is no interaction effect, while different slo
 ::: callout-caution 
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- Model the relationship between Y and R to vary as a function of A. You explicitly model the hypothesis that the slope between Y and R depends—is conditional—upon A.
+- Model the relationship between independent variable *Y* and dependent variable $X_1$ to vary as a function of dependent variable $X_2$. You explicitly model the hypothesis that the slope between *Y* and $X_1$ depends—is conditional—upon $X_2$.
 
-- For continuous interactions, the intercept becomes the grand mean of the outcome variable. This ease of interpretation alone is a good reason to center predictor variables.
+- For continuous interactions with scaled data, the intercept becomes the [<span style="color:#0D6EFD">grand mean 🛈</span>]{#grandMean} of the outcome variable. 
 
-- The interpretation of estimates is more difficult, as the estimate of non-interaction terms becomes the expected change in Y when R increases by one unit and A is at its average value. The estimate of interaction terms represents the expected change in the influence of A on Y when increasing R by one unit and the expected change in the influence of R on Y when increasing A by one unit.
+- The interpretation of estimates is more complex. The estimate of non-interaction terms reflects the expected change in *Y* when $X_1$ increases by one unit, holding $X_2$ constant at its average value. The estimate of interaction terms represents how the effect of $X_1$ on *Y* changes depending on the value of $X_2$, and vice versa, showing how the relationship between the two variables influences the outcome *Y*.
 
-- [<span style="color:#0D6EFD">Triptych 🛈</span>]{#triptych} plots are very handy for understanding the impact of interactions.
+- [<span style="color:#0D6EFD">Triptych 🛈</span>]{#triptych} plots are very handy for understanding the impact of interactions, specially when more than two interactions are present.
   
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian regression with an interaction term between two continuous variables with the Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating Bayesian regression with an interaction term between two continuous variables with the Bayesian Inference (BI) package. Data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of interaction between temperature and humidity on energy consumption.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -31,25 +31,27 @@ from main import*
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m.data('../data/tulips.csv', sep=';') 
-m.scale(['blooms', 'water', 'shade'])
-m.data_to_model(['blooms', 'water', 'shade'])
+# Import Data & Data Manipulation ------------------------------------------------
+m.data('../data/tulips.csv', sep=';') # Import
+m.scale(['blooms', 'water', 'shade']) # Scale
+m.data_to_model(['blooms', 'water', 'shade']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 def model(blooms, shade, water):
+    # Parameters priors distributions
     alpha = dist.normal(0.5, 0.25, name='alpha')
     sigma = dist.exponential(1, name='sigma')
     beta1 = dist.normal(0, 0.25, name='beta1')
     beta2 = dist.normal(0, 0.25, name='beta2')
     beta_interaction_ = dist.normal(0, 0.25, name='beta_interaction_')    
+    # Likelihood
     lk("y", Normal(alpha + beta1 * water + beta2 * shade + beta_interaction_ * water * shade, sigma), obs=blooms)
 
 # Run mcmc ------------------------------------------------
-m.run(model) 
+m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.sampler.print_summary(0.89) # Get posterior distributions
 
 ```
 
@@ -61,34 +63,36 @@ bi <- import("main")
 # Setup device------------------------------------------------
 m = bi$bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m$data('../data/tulips.csv', sep=';') 
-m$scale(list('blooms', 'water', 'shade'))
-m$data_to_model(list('blooms', 'water', 'shade'))
+# Import Data & Data Manipulation ------------------------------------------------
+m$data('../data/tulips.csv', sep=';') # Import
+m$scale(list('blooms', 'water', 'shade')) # Scale
+m$data_to_model(list('blooms', 'water', 'shade')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(blooms, water,shade){
+  # Parameters priors distributions
   alpha = bi$dist$normal( 0.5, 0.25, name = 'a',shape= tuple(as.integer(1)))
   beta1 = bi$dist$normal( 0,  0.25, name = 'b1',shape= tuple(as.integer(1)))
   beta2 = bi$dist$normal(  0,  0.25, name = 'b2',shape= tuple(as.integer(1)))   
   beta_interaction_ = bi$dist$normal(  0, 0.25, name = 'bint',shape= tuple(as.integer(1))) 
   sigma = bi$dist$uniform(0, 50, name = 's',shape = tuple(as.integer(1)))
+  # Likelihood
   bi$lk("y", bi$Normal(alpha + beta1*water + beta2*shade + beta_interaction_*water*shade, sigma), obs=blooms)
 }
 
 # Run mcmc ------------------------------------------------
-m$run(model) 
+m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89)
+m$sampler$print_summary(0.89) # Get posterior distributions
 ```
 :::
 
 ## Mathematical Details
 ## *Frequentist formulation*
-We model the relationship between the input features (X1 and X2) and the target variable (Y) using the following equation:
+We model the relationship between the input features ($X_1$ and $X_2$) and the target variable ($Y$) using the following equation:
 $$
-𝑌_i = \alpha + \beta_1𝑋_{1i} + \beta_2𝑋_{2i} + \beta_{interaction}𝑋_{1i}𝑋_{2i} + \sigma
+𝑌_i = \alpha + \beta_1 𝑋_{1i} + \beta_2 𝑋_{2i} + \beta_{interaction} 𝑋_{1i} 𝑋_{2i} + \sigma
 $$
 
 Where:
@@ -99,9 +103,9 @@ Where:
   
 - $X_{1i}$ and $X_{2i}$ are the two values of the independent continuous variables for observation *i*.
   
-- $\beta_1$ and $\beta_2$ are the regression coefficients for $X_{1i}$ and $X_{2i}$, respectively.
+- $\beta_1$ and $\beta_2$ are the regression coefficients for $X_{1}$ and $X_{2}$, respectively.
   
-- $\beta_{interaction}$ is the regression coefficient for the interaction term $(X_{1i}  X_{2i})$.
+- $\beta_{interaction}$ is the regression coefficient for the interaction term $(X_{1}  X_{2})$.
   
 - $\sigma$ is the error term assumed to be normally distributed.
 

@@ -401,7 +401,7 @@ window.Quarto = {
   <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">7.4.2</span> <em>Bayesian formulation</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">7.5</span> Notes</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">7.6</span> Reference(s)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">12.1</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -429,7 +429,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">7.1</span> General Principles</h2>
-<p>To model the relationship between a binary outcome —e.g., success/failure, yes/no, or 1/0—and one or more independent variables, we can use a Binomial model.</p>
+<p>To model the relationship between a binary dependent variable —e.g., success/failure, yes/no, or 1/0— and one or more independent variables, we can use a <em>Binomial model</em>.</p>
 <p><img src="https://i.sstatic.net/xHlvv.png" class="img-fluid"></p>
 </section>
 <section id="considerations" class="level2" data-number="7.2">
@@ -453,7 +453,7 @@ Caution
 </section>
 <section id="example" class="level2" data-number="7.3">
 <h2 data-number="7.3" class="anchored" data-anchor-id="example"><span class="header-section-number">7.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian binomial regression using the Bayesian Inference (BI) package:</p>
+<p>Below is an example code snippet demonstrating Bayesian binomial regression using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents the side individuals pulled. The goal is to evaluate the probability of pulling the left side.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -463,20 +463,22 @@ Caution
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>])</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) <span class="co"># Import</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>, <span class="st">'actor'</span>, <span class="st">'side'</span>, <span class="st">'cond'</span>]) <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left):</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">10</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Binomial(logits<span class="op">=</span>alpha[actor] <span class="op">+</span> beta1[side] <span class="op">+</span> beta2[cond]), obs<span class="op">=</span>pulled_left)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>m.run(model, init_strategy<span class="op">=</span>numpyro.infer.initialization.init_to_mean()) </span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left, actor, side, cond):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameters priors distributions</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Binomial(logits<span class="op">=</span>alpha), obs<span class="op">=</span>pulled_left)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m.run(model, init_strategy<span class="op">=</span>numpyro.infer.initialization.init_to_mean()) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
@@ -484,21 +486,23 @@ Caution
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> bi<span class="sc">$</span><span class="fu">bi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'../data/chimpanzees.csv'</span>, <span class="at">sep=</span><span class="st">';'</span>) </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'pulled_left'</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'../data/chimpanzees.csv'</span>, <span class="at">sep=</span><span class="st">';'</span>) <span class="co"># Import</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'pulled_left'</span>)) <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(pulled_left){</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>( <span class="dv">0</span>, <span class="dv">10</span>, <span class="at">name =</span> <span class="st">'alpha'</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"Y"</span>, bi<span class="sc">$</span><span class="fu">Binomial</span>(<span class="at">logits =</span> alpha), <span class="at">obs=</span>pulled_left)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) </span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>( <span class="dv">0</span>, <span class="dv">10</span>, <span class="at">name =</span> <span class="st">'alpha'</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"Y"</span>, bi<span class="sc">$</span><span class="fu">Binomial</span>(<span class="at">logits =</span> alpha), <span class="at">obs=</span>pulled_left)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -508,11 +512,11 @@ Caution
 <section id="frequentist-formulation" class="level3" data-number="7.4.1">
 <h3 data-number="7.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">7.4.1</span> <em>Frequentist formulation</em></h3>
 <p>We model the relationship between the independent variable (<span class="math inline">\(X_i\)</span>) and the binary dependent variable (<span class="math inline">\(Y_i\)</span>) using the following equation: <span class="math display">\[
-logit(Y_i) = \alpha + \beta X
+logit(Y_i) = \alpha + \beta X_i
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the probability of success (or the probability of the binary outcome being 1) for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\(Y_i\)</span> is the probability of success (i.e., the probability of the binary outcome being 1) for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
 <li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
 <li><p><span class="math inline">\(X_i\)</span> is the value of the independent variable for observation <em>i</em>.</p></li>
@@ -523,7 +527,7 @@ logit(Y_i) = \alpha + \beta X
 <h3 data-number="7.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">7.4.2</span> <em>Bayesian formulation</em></h3>
 <p><span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distribution as follows:</p>
 <p><span class="math display">\[
-Y \sim Binomial(n = 1, p)
+Y_i \sim Binomial(n = 1, p)
 \]</span></p>
 <p><span class="math display">\[
 logit(p) \sim \alpha + \beta X_i
@@ -536,10 +540,10 @@ logit(p) \sim \alpha + \beta X_i
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y\)</span> is the likelihood function.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> and <span class="math inline">\(p(\alpha)\)</span> are the prior distributions for the regression coefficients and intercept, respectively.</p></li>
+<li><p><span class="math inline">\(Y\)</span> is the probability of success (i.e., the probability of the binary outcome being 1) for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(n = 1\)</span> represents the number of trials in the binomial distribution (binary outcome).</p></li>
-<li><p><span class="math inline">\(logit(\alpha + \beta X)\)</span> is the <em>logit</em> link function that is equal to the sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span> are the prior distributions for the regression coefficients and intercept, respectively.</p></li>
+<li><p><span class="math inline">\(logit\)</span> is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation <em>i</em>.</p></li>
 </ul>
 </section>
 </section>
@@ -556,39 +560,37 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We can apply multiple variables similarly as in <a href="./2. Multiple Regression for Continuous Variables.qmd">chapter 2</a>.</p></li>
-<li><p>We can apply interaction terms similarly as in <a href=".//3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
+<li><p>We can apply multiple variables similarly as in <a href=".\2. Multiple Regression for Continuous Variables.qmd">chapter 2</a>.</p></li>
+<li><p>We can apply interaction terms similarly as in <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
 <li><p>We can apply categorical variables similarly as in <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
-<li><p>Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables:</p></li>
+<li><p>Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents the side individuals pulled, and three independent variables (<em>actor</em>, <em>side</em>, <em>cond</em>). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as the different conditions.</p></li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"side"</span>] <span class="op">=</span> m.df.prosoc_left  <span class="co"># right 0, left 1</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"cond"</span>] <span class="op">=</span> m.df.condition  <span class="co"># no partner 0, partner 1</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>, <span class="st">"actor"</span>, <span class="st">"side"</span>, <span class="st">"cond"</span>])</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left):</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">10</span>, shape<span class="op">=</span>(<span class="dv">7</span>,), name<span class="op">=</span><span class="st">"alpha"</span>)  <span class="co"># generating k intercepts (one for each actor)</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">10</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name<span class="op">=</span><span class="st">"beta"</span>)  <span class="co"># generating k regression coefficients for each k prosoc_left</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    beta2 <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">10</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name<span class="op">=</span><span class="st">"beta"</span>)  <span class="co"># generating k regression coefficients for each k condition</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Binomial(logits<span class="op">=</span>alpha[actor] <span class="op">+</span> beta1[side] <span class="op">+</span> beta2[cond]), obs<span class="op">=</span>pulled_left)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>m.run(model, init_strategy<span class="op">=</span>numpyro.infer.initialization.init_to_mean()) </span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>```python from main import*</p>
+<section id="setup-device" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Setup device————————————————</h1>
+<p>m = bi(platform=‘cpu’)</p>
+</section>
+<section id="import-data" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Import data ————————————————</h1>
+<p>m.data(‘../data/chimpanzees.csv’, sep=‘;’) m.df[“side”] = m.df.prosoc_left # right 0, left 1 m.df[“cond”] = m.df.condition # no partner 0, partner 1 m.data_to_model([‘pulled_left’, “actor”, “side”, “cond”])</p>
+</section>
+<section id="define-model" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Define model ————————————————</h1>
+<p>def model(pulled_left): alpha = bi.dist.normal(0, 10, shape=(7,), name=“alpha”) # generating k intercepts (one for each actor) beta1 = bi.dist.normal(0, 10, shape=(2,), name=“beta”) # generating k regression coefficients for each k prosoc_left beta2 = bi.dist.normal(0, 10, shape=(2,), name=“beta”) # generating k regression coefficients for each k condition lk(“y”, Binomial(logits=alpha[actor] + beta1[side] + beta2[cond]), obs=pulled_left)</p>
+</section>
+<section id="run-mcmc" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Run MCMC ————————————————</h1>
+<p>m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) # Optimize model parameters through MCMC sampling</p>
+</section>
+<section id="summary" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> Summary ————————————————</h1>
+<p>m.sampler.print_summary(0.89) # Get posterior distributions</p>
+</section>
 </div>
 </div>
 </section>
-<section id="references" class="level2" data-number="7.6">
-<h2 data-number="7.6" class="anchored" data-anchor-id="references"><span class="header-section-number">7.6</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="references"><span class="header-section-number">12.1</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
@@ -601,135 +603,387 @@ McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Exa
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
+
 <script src="https://unpkg.com/tippy.js@6"></script>
+
 <script>
+
 tippy('#prior', {
+
   content: '<span style="color: white;">Priors are distributions that represent the value of the parameter before conditioning it on the data.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#overdispersion', {
+
   content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#linkF', {
+
     content: '<span style="color: white;">A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
   });
 
+
+
 tippy('#simplex', {
+
   content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
   
+
 tippy('#triptych', {
+
     content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
     
+
 tippy('#hyperP', {
+
   content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#cov', {
+
     content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#centerRF', {
+
   content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#NodeF', {
+
     content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF', {
+
     content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#senderF', {
+
     content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#receiverF', {
+
     content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF2', {
+
     content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#expoB', {
+
     content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#censoB', {
+
     content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#assor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
 
+
+
 tippy('#disassor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
+
 
 
 tippy('#chol', {
+
   content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
+
+tippy('#uncertainty', {
+
+  content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#posterior', {
+
+  content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#scaled', {
+
+  content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#grandMean', {
+
+  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their reference or mean levels. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#ohe', {
+
+  content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#indices', {
+
+  content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#softmax', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
+
+    then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
+
+    The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
+
+    <strong>Formula:</strong><br>
+
+    $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
 </script>
+
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

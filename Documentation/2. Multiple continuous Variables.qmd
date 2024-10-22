@@ -1,20 +1,19 @@
 # Multiple continuous variables model
 ## General Principles
-To study relationships between multiple continuous variables (e.g., the effect of height and age on weight), we can use a Multiple Regression approach. Essentially, we extend the [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd) by adding a regression coefficient $\beta$ for each continuous variable. 
+To study relationships between multiple continuous variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend the [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd) by adding a regression coefficient $\beta_x$ for each continuous variable (e.g., $\beta_{weight}$ and $\beta_{age}$).
 
 ![](https://miro.medium.com/v2/resize:fit:786/format:webp/0*dJqdzk1aMo2OQR7O)
 
 ## Considerations
 ::: callout-caution 
-- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+- We have the same considerations as for the [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- We need a regression coefficient $\beta$ for each independent variable.
+- The model interpretation of the regression coefficients $\beta_x$  is considered for fixed values of the other independent variable(s)' regression coefficients —i.e., for a given age, $\beta_{weight}$ represents the expected change in the dependent variable variation (height) for each one-unit increase in weight, holding all other variable(s) constant (age).
 
-- Model interpretation of the regression coefficients $\beta$ is considered for a fixed value of the other dependent variables' regression coefficients—i.e., for a given age, a variation of 1 unit in height reflects the value of the regression coefficient $\beta$ for height.
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian multiple regression using the Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating Bayesian multiple regression using the Bayesian Inference (BI) package. Data consist of three continuous variables (*height*, *weight*, *age*), and the goal is to estimate the effect of *weight* and *age* on *height*.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -24,26 +23,27 @@ from main import*
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m.data('../data/Howell1.csv', sep=';') 
-m.df = m.df[m.df.age > 18]
-m.scale(['weight', 'age'])
-m.data_to_model(['weight', 'height', 'age'])
+# Import Data & Data Manipulation ------------------------------------------------
+m.data('../data/Howell1.csv', sep=';')  # Import
+m.df = m.df[m.df.age > 18] # Manipulate
+m.scale(['weight', 'age']) # Scale
+m.data_to_model(['weight', 'height', 'age']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 def model(height, weight, age):
+    # Parameters priors distributions
     alpha = bi.dist.normal(0, 0.5, name = 'alpha')    
     beta1 = bi.dist.normal(0, 0.5, name = 'beta1')
     beta2 = bi.dist.normal(0, 0.5, name = 'beta2')
     sigma = bi.dist.uniform(0,50, name = 'sigma')
-
-    lk("y", Normal(alpha + beta1 * weight + beta2 * age, sigma), obs=height)
+    # Likelihood
+    lk("y", Normal(alpha + beta1 * weight + beta2 * age, sigma), obs = height)
 
 # Run mcmc ------------------------------------------------
-m.run(model) 
+m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.sampler.print_summary(0.89) # Get posterior distributions
 ```
 
 ### R
@@ -53,36 +53,38 @@ library(reticulate)
 bi <- import("main")
 m = bi$bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m$data('../data/Howell1.csv', sep=';') 
-m$df = m$df[m$df$age > 18,]
-m$scale(list('weight', 'age'))
-m$data_to_model(list('weight', 'height', 'age'))
+# Import Data & Data Manipulation ------------------------------------------------
+m$data('../data/Howell1.csv', sep=';') # Import
+m$df = m$df[m$df$age > 18,] # Manipulate
+m$scale(list('weight', 'age')) # Scale
+m$data_to_model(list('weight', 'height', 'age')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(height, weight, age){
+  # Parameters priors distributions
   alpha = bi$dist$normal( 0, 0.5, name = 'a', shape = tuple(as.integer(1)))
   beta1 = bi$dist$normal( 0, 0.5, name = 'b1', shape = tuple(as.integer(1)))
   beta2 = bi$dist$normal(  0, 0.5, name = 'b2', shape = tuple(as.integer(1)))   
   sigma = bi$dist$uniform(0, 50, name = 's', shape = tuple(as.integer(1)))
+  # Likelihood
   bi$lk("y", bi$Normal(alpha + beta1 * weight + beta2 * age, sigma), obs=height)
 }
 
 # Run mcmc ------------------------------------------------
-m$run(model) 
+m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89)
+m$sampler$print_summary(0.89) # Get posterior distributions
 ```
 :::
 
 
 ## Mathematical Details
 ### *Frequentist formulation*
-We model the relationship between the independent variables $(X_1, X_2, ..., X_n)$ and the dependent variable _Y_ using the following equation:
+We model the relationship between the independent variables $(X_{1i}, X_{2i}, ..., X_{ni})$ and the dependent variable _Y_ using the following equation:
 
 $$
-𝑌_i = \alpha +\beta_1  𝑋_{1i} + \beta_2  𝑋_{2i} + ... + \beta_n  𝑋_{1n} + \sigma
+𝑌_i = \alpha +\beta_1  𝑋_{1i} + \beta_2  𝑋_{2i} + ... + \beta_n  𝑋_{ni} + \sigma_i
 $$
 
 Where:
@@ -91,11 +93,11 @@ Where:
   
 - $\alpha$ is the intercept term.
   
-- $X_{1i}$, $X_{2i}$, ..., $X_{1n}$ are the values of the independent variables for observation *i*.
+- $X_{1i}$, $X_{2i}$, ..., $X_{ni}$ are the values of the independent variables for observation *i*.
   
 - $\beta_1$, $\beta_2$, ..., $\beta_n$ are the regression coefficients.
   
-- $\sigma$ is the error term.
+- $\sigma_i$ is a vector of error terms for observation *i*.
   
 
 ### *Bayesian formulation*
@@ -110,7 +112,7 @@ $$
 $$
 
 $$
-\beta_i \sim Normal(0,1)
+\beta_k \sim Normal(0,1)
 $$
 
 $$
@@ -125,7 +127,7 @@ Where:
   
 - $\beta_k$ are the prior distributions for the regression coefficients _k_ distinct regression coefficients.
   
-- $X_{1i}$, $X_{2i}$, ..., $X_{1n}$ are the values of the independent variables for observation *i*.
+- $X_{1i}$, $X_{2i}$, ..., $X_{ni}$ are the values of the independent variables for observation *i*.
   
 - $\sigma$ is the prior distribution for the standard deviation, ensuring it is positive.
 

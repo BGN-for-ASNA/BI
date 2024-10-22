@@ -2,21 +2,23 @@
 ## General Principles
 To study the relationship between a categorical independent variable and a continuous dependent variable, we use a _Categorical model_ which applies _stratification_.
 
-_Stratification_ consists of modeling how the different categories of the independent variable affect the target continuous variable by performing a regression for each category and assigning a regression coefficient for each category. To realize the _stratification_, categorical variables are often encoded using one-hot encoding or converting categories to indices.
+_Stratification_ involves modeling how the *k* different categories of the independent variable affect the target continuous variable by performing a regression for each *k* category and assigning a regression coefficient for each category. To implement stratification, categorical variables are often encoded using [<span style="color:#0D6EFD">one-hot encoding 🛈</span>]{#ohe} or by converting categories to [<span style="color:#0D6EFD">indices 🛈</span>]{#indices}.
 
 ![](https://i0.wp.com/67.media.tumblr.com/e8ec86a7dd863cfccb64fd40e55c0e90/tumblr_inline_o8j406qB4V1qa0hyw_540.png?resize=450%2C354)
 
 ## Considerations
 ::: callout-caution
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+ 
+- As we generate regression coefficients for each *k* category, we need to specify a prior with a shape equal to the number of categories *k* in the code (see comments in the code).
+  
+- To compare differences between categories, we need to compute the distribution of the differences between categories, known as the contrast distribution. **Never compare confidence intervals or p-values directly**.
 
-- As we generate regression coefficients for each *k* category in the code, we need to specify a prior with a shape equal to the number of categories (see comments in the code).
 
-- To compare differences between categories, we need to compute the distribution of the differences between categories, known as the contrast distribution. **Never compare the confidence intervals or p-values directly.**
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (*kcal_per_g*) representing the caloric value of milk per gram, and a categorical independent variable representing species clade membership. The goal is to estimate the differences in milk calories between clades.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -26,24 +28,26 @@ from main import*
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m.data('../data/milk.csv', sep=';') 
-m.index(["clade"])
-m.scale(['kcal_per_g'])
-m.data_to_model(['kcal_per_g', "index_clade"])
+# Import Data & Data Manipulation ------------------------------------------------
+m.data('../data/milk.csv', sep=';') # Import
+m.index(["clade"]) # Manipulate
+m.scale(['kcal_per_g']) # Scale
+m.data_to_model(['kcal_per_g', "index_clade"]) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 def model(kcal_per_g, index_clade):    
+    # Parameters priors distributions
     beta = bi.dist.normal(0, 0.5, shape=(4,), name='beta')  # we specify a vector of length 4 as we have 4 categories
     sigma = bi.dist.exponential(1, name='sigma')
+    # Likelihood
     lk("y", Normal(beta[index_clade], sigma), obs=kcal_per_g)
 
 
 # Run mcmc ------------------------------------------------
-m.run(model) 
+m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.sampler.print_summary(0.89) # Get posterior distributions
 ```
 
 ### R
@@ -54,24 +58,26 @@ bi <- import("main")
 # Setup device------------------------------------------------
 m = bi$bi(platform='cpu')
 
-# Import data ------------------------------------------------
+# Import Data & Data Manipulation ------------------------------------------------
 m$data('../data/milk.csv', sep=';') 
-m$scale(list('kcal_per_g'))
-m$index(list('clade'))
-m$data_to_model(list('kcal_per_g', 'index_clade'))
+m$scale(list('kcal_per_g')) # Manipulate
+m$index(list('clade')) # Scale
+m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(kcal_per_g, index_clade){
+  # Parameters priors distributions
   beta = bi$dist$normal( 0, 0.5, name = 'beta',shape= tuple(as.integer(1)))
   sigma = bi$dist$exponential(1, name = 's',shape = tuple(as.integer(1)))
+  # Likelihood
   bi$lk("Y", bi$Normal(beta[index_clade], sigma), obs=kcal_per_g)
 }
 
 # Run mcmc ------------------------------------------------
-m$run(model) 
+m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89)
+m$sampler$print_summary(0.89) # Get posterior distributions
 ```
 :::
 

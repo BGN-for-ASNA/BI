@@ -15,44 +15,28 @@ Below is an example code snippet demonstrating Bayesian Gamma-Poisson model usin
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-# Simulate data -------------------------------------------------------------
-import tensorflow_probability.substrates.jax.distributions as tfd
-init_key, sample_key = random.split(random.PRNGKey(int(r.randint(0, 10000000))))
-init_key = jnp.array(init_key)
-num_days = 30
-y = tfd.Poisson(rate=1.5).sample(seed=init_key, sample_shape=(num_days,))
-num_weeks = 4
-y_new = tfd.Poisson(rate=0.5 * 7).sample(seed=init_key, sample_shape=(num_weeks,))
-y_all = np.concatenate([y, y_new])
-exposure = np.concatenate([np.repeat(1, 30), np.repeat(7, 4)])
-monastery = np.concatenate([np.repeat(0, 30), np.repeat(1, 4)])
-d = pd.DataFrame.from_dict(dict(y=y_all, days=exposure, monastery=monastery))
-d["log_days"] = d.days.pipe(np.log)
-d.to_csv('Sim dat Gamma poisson.csv', index=False)
-
 from main import *
 # Setup device ------------------------------------------------
-m = bi()
+m = bi(platform='cpu)# Import
 
-# Import data ------------------------------------------------
-m.data_on_model = dict(
-    log_days=jnp.array(d.log_days.values),  # rate of each count data
-    monastery=jnp.array(d.monastery.values),
-    output=jnp.array(d.y.values)
-)
+# Import Data & Data Manipulation ------------------------------------------------
+m.data('../data/Sim dat Gamma poisson.csv', sep=',')  # Import
+m.data_to_model(['log_days', 'monastery', 'y']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 def model(log_days, monastery, output):
+    # Parameters priors distributions
     a = dist.normal(0, 1, shape=[1], name='a')
     b = dist.normal(0, 1, shape=[1], name='b')
     l = log_days + a + b * monastery
+    # Likelihood
     lk("y", Poisson(rate=l), obs=output)
 
 # Run MCMC ------------------------------------------------
-m.run(model) 
+m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.sampler.print_summary(0.89) # Get posterior distributions
 ```
 
 ### R
@@ -64,26 +48,29 @@ bi <- import("main")
 m = bi$bi(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data('Sim dat Gamma poisson.csv', sep=',') 
-m$data_to_model(list('log_days', 'monastery', 'y' ))
+m$data('Sim dat Gamma poisson.csv', sep=',') # Import
+m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(log_days, monastery, y){
+  # Parameters priors distributions
   alpha = bi$dist$normal(0, 1, name='alpha')
   beta = bi$dist$normal(0, 0.2, name='beta')
   l = log_days + alpha + beta * monastery
+  # Likelihood
   bi$lk("y", bi$Poisson(rate=l), obs=y)
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) 
+m$run(model) # Optimize model parameters through MCMC sampling
+
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89)
+m$sampler$print_summary(0.89) # Get posterior distributions
 ```
 :::
 
 ## Mathematical Details
-### *Formula*
+### *Frequentist formulation*
 We model the relationship between the independent variable $X$ and the count outcome variable $Y$ using the following equation:
 
 $$
