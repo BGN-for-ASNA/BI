@@ -1,4 +1,5 @@
 import setup
+import inspect
 import warnings
 import arviz as az
 import seaborn as sns
@@ -24,6 +25,14 @@ class bi(dist, gaussian, factors, net):
         import numpyro
         self.numpypro = numpyro
         self.trace = None
+        self.pandas_to_jax_dtype_map = {
+            'int64': jnp.int64,
+            'int32': jnp.int32,
+            'int16': jnp.int32,
+            'float64': jnp.float64,
+            'float32': jnp.float32,
+            'float16': jnp.float16,
+        }
         
 
     def setup(self, platform='cpu', cores=None, dealocate = False):
@@ -100,6 +109,57 @@ class bi(dist, gaussian, factors, net):
         
         return self.df
     
+    def to_float(self, cols = 'all', type = 'float32'):
+        if cols == 'all':
+            for col in self.df.columns:                
+                self.df.iloc[:, cols] = self.df.iloc[:,col].astype(type)
+
+        else:
+            for a in range(len(cols)):
+                self.df.loc[:, cols[a]] = self.df.iloc[:,cols[a]].astype(type)
+
+
+        self.data_modification['float'] = cols # store info of scaled columns
+        
+        return self.df
+
+    def to_int(self, cols = 'all', type = 'int32'):
+        if cols == 'all':
+            for col in self.df.columns:                
+                self.df.iloc[:, cols] = self.df.iloc[:,col].astype(type)
+
+        else:
+            for a in range(len(cols)):
+                self.df.loc[:, cols[a]] = self.df.iloc[:,cols[a]].astype(type)
+
+
+        self.data_modification['int'] = cols # store info of scaled columns
+
+    def pd_to_jax(self, model, bit = '32'):
+        params = inspect.signature(model).parameters
+        args_without_defaults = []
+        args_with_defaults = {}
+        for param_name, param in params.items():
+            if param.default == inspect.Parameter.empty:
+                args_without_defaults.append(param_name)
+            else:
+                args_with_defaults[param_name] = (param.default, type(param.default).__name__)
+
+        test = all(elem in self.df.columns for elem in args_without_defaults)
+        result = dict()
+        if test:
+            for arg in args_without_defaults:
+                varType = str(self.df[arg].dtype)
+                result[arg] = jnp.array(self.df[arg], dtype = self.pandas_to_jax_dtype_map.get(varType))
+        else:
+            return "Error, no"
+
+        for k in args_with_defaults.keys():
+            print(args_with_defaults[k][1])
+            result[k] = jnp.array(args_with_defaults[k][0], dtype =self.pandas_to_jax_dtype_map.get(str(args_with_defaults[k][1]) + bit))
+
+        return result     
+
     def data_to_model(self, cols):
         jax_dict = {}
         for col in cols:
@@ -139,10 +199,12 @@ class bi(dist, gaussian, factors, net):
             chain_method="parallel",
             progress_bar=True,
             jit_model_args=False):
+            
         if model is None:
             raise CustomError("Argument model can't be None")
          
         self.model = model
+        self.data_on_model = self.pd_to_jax(self.model)
 
         self.sampler = MCMC(NUTS(self.model,
                                 potential_fn=potential_fn,
