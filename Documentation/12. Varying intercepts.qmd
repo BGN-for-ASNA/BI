@@ -1,6 +1,6 @@
 # Varying intercepts
 ## General Principles
-To model the relationship between predictor variables and an independent variable while allowing for different intercepts across groups or clusters, we can use a _Varying Intercepts_ model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.
+To model the relationship between dependent variables and an independent variable while allowing for different intercepts across groups or clusters, we can use a _Varying Intercepts_ model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.
 
 ## Considerations
 ::: callout-caution 
@@ -8,14 +8,15 @@ To model the relationship between predictor variables and an independent variabl
 
 - The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $\beta$ is defined based on the $k$ declared groups.
   
-- Each intercept have is own _Normal distribution_ -i.e. a [<span style="color:#0D6EFD">hyper-prior 🛈</span>]{#hyperP}
+- Each intercept have is own prior -i.e. a [<span style="color:#0D6EFD">hyper-prior 🛈</span>]{#hyperP}
 
 -In the code below, the _hyper-prior_ is ```a_bar```.
+
 :::
 
 ## Example
 
-Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consist of a dependent variable representing individuals' survival (*surv*) and an independent categorical variable (*tank*), which indicates the tank where the individual was born, with a total of 48 tanks.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -25,30 +26,32 @@ from main import*
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m.data('../data/reedfrogs.csv', sep=';') 
-m.df["tank"] = np.arange(m.df.shape[0])
-tank = jnp.array(m.df["tank"].astype('int32').values)
-density = jnp.array(m.df["density"].astype('float32').values)
-surv = jnp.array(m.df["surv"].astype('int32').values)
+# Import Data & Data Manipulation ------------------------------------------------
+m.data('../data/reedfrogs.csv', sep=';') # Import
+m.df["tank"] = np.arange(m.df.shape[0]) # Manipulate
+tank = jnp.array(m.df["tank"].astype('int32').values) # Manipulate
+density = jnp.array(m.df["density"].astype('float32').values) # Manipulate
+surv = jnp.array(m.df["surv"].astype('int32').values) # Manipulate
 m.data_on_model = dict(
     tank = tank,
     surv = surv
-)
+) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 def model(tank, surv):
+  # Parameters priors distributions
     sigma = dist.exponential( 1,  name = 'sigma')
     a_bar = dist.normal( 0., 1.5, name = 'a_bar')
     alpha = dist.normal( a_bar, sigma, shape= [48], name = 'alpha')
     p = jnp.squeeze(alpha[tank])
+    # Likelihood
     lk("y", Binomial(total_count = density, logits = p), obs=surv)
 
 # Run mcmc ------------------------------------------------
-m.run(model) 
+m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.sampler.print_summary(0.89) # Get posterior distributions
 ```
 ## R
 
@@ -59,31 +62,34 @@ bi <- import("main")
 # Setup device ------------------------------------------------
 m = bi$bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m$data('../data/reedfrogs.csv', sep=';') 
-m$df$tank = c(0:(nrow(m$df)-1))
-m$data_to_model(list('tank', 'surv', 'density'))
-m$data_on_model$tank = m$data_on_model$tank$astype(bi$jnp$int32)
-m$data_on_model$surv = m$data_on_model$surv$astype(bi$jnp$int32)
+# Import Data & Data Manipulation ------------------------------------------------
+m$data('../data/reedfrogs.csv', sep=';')  # Import
+m$df$tank = c(0:(nrow(m$df)-1)) # Manipulate
+m$data_to_model(list('tank', 'surv', 'density')) # Manipulate
+m$data_on_model$tank = m$data_on_model$tank$astype(bi$jnp$int32) # Manipulate
+m$data_on_model$surv = m$data_on_model$surv$astype(bi$jnp$int32) # Manipulate
+
 # Define model ------------------------------------------------
 model <- function(tank, surv, density){
+  # Parameters priors distributions
   sigma = bi$dist$exponential( 1,  name = 'sigma')
   a_bar = bi$dist$normal(0, 1.5, name='a_bar')
   alpha = bi$dist$normal(a_bar, sigma, name='alpha', shape = tuple(as.integer(48)))
   p = alpha[tank]
+  # Likelihood
   bi$lk("y", bi$Binomial(total_count = density, logits = p), obs=surv)
-}
+} 
 
 # Run MCMC ------------------------------------------------
-m$run(model) 
+m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89)
+m$sampler$print_summary(0.89) # Get posterior distributions
 ```
 :::
 
 ## Mathematical Details
-### *Formula*
+### *Frequentist formulation*
 We model the relationship between the independent variables _X_ and the outcome variable _Y_ with varying intercepts $\alpha$ for each group _k_ using the following equation:
 
 $$
@@ -148,9 +154,9 @@ Where:
 
 - We can apply interaction terms  similarly as [chapter 3](\3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
 
-- We can apply  caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
+- We can apply caterogical variables similarly as [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
 
-- We can apply  varying intercepts with any distribution developped in previous chapters. 
+- We can apply varying intercepts with any distribution developped in previous chapters. 
 :::
 
 ## Reference(s)

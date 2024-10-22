@@ -6,29 +6,37 @@
 
 ## General Principles
 
-To study relationships between two continuous variables (e.g., height and weight), we can use a *Linear regression approach*. Basically, we draw a line that crosses the point cloud of the two tested variables. For this, we need to have: 1) an intercept $\alpha$, which represents origin of the line, 2) a coefficient $\beta$, which informs us about the slope of the line, and 3) an variance term $\sigma$, which informs us about the spread of points around the line. We can interpret the intercept $\alpha$ as the expected value of the dependent variable when all independent variables are equal to zero, the coefficient $\beta$ as how much *Y* increases for each increment of *X*, and $\sigma$ as the varrance around the prediction.
+To study relationships between two continuous variables (e.g., height and weight), we can use a linear regression approach. Essentially, we draw a line that passes through the point cloud of the two variables being tested. For this, we need to have:
 
-<!-- def alpha (when factor = 0), sigma is an estimate of the unexplained variance -->
+1) An intercept $\alpha$, which represents the origin of the line—the expected value of the dependent variable (height) when the independent variable (weight) is equal to zero.
+
+2) A coefficient $\beta$, which informs us about the slope of the line. In other words, it tells us how much Y (height) increases for each increment of the independent variable (weight).
+
+3) A variance term $\sigma$, which informs us about the spread of points around the line, i.e., the variance around the prediction.
+
+
 
 ![](https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg)
 
 ## Considerations 
 
 ::: callout-caution
--   Bayesian linear regression considers uncertainty in the model parameters and provides a full posterior distribution over them. We thus need to declare prior distributions for $\alpha$, $\beta$, and $\sigma^2$.
+-   Bayesian models consider [<span style="color:#0D6EFD">model parameter uncertainty 🛈</span>]{#uncertainty}, allowing for the quantification of confidence or uncertainty through the parameters'  [<span style="color:#0D6EFD">posterior distribution 🛈</span>]{#posterior}. Therefore, we need to declare [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for each model parameter, in your case for: $\alpha$, $\beta$, and $\sigma^2$.
 
--   Usually, we use a *Normal* distribution for $\alpha$ and $\beta$, and an *exponential* or *Gamma* distribution for $\sigma$ (basically any distribution that is positively defined).
+- Prior distributions are built following these considerations:
 
--   As we consider that data is standardized (see introduction), we use a distribution with a mean of 0 and a standard deviation of 1.
+  - As the data is [<span style="color:#0D6EFD">scaled 🛈</span>]{#scaled} (see introduction), we can use a Normal distribution for $\alpha$ and $\beta$, with a mean of 0 and a standard deviation of 1.
 
--   $\sigma$ is assumed to be strictly positive.
+  - Since $\sigma$ is strictly positive, we can use any distribution that is positively defined, such as the Exponential or Gamma distribution.
 
--   Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a link function. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
+- Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
+
+
 :::
 
 ## Example
 
-Below is an example code snippet demonstrating Bayesian linear regression using the Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating Bayesian linear regression using the Bayesian Inference (BI) package. Data consist of two continuous variables (height and weight), and the goal is to estimate the effect of weight on height.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -38,24 +46,26 @@ from .bi.main import*
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m.data('../data/Howell1.csv', sep=';') 
-m.df = m.df[m.df.age > 18]
-m.scale(['weight'])
-m.data_to_model(['weight', 'height'])
+# Import Data & Data Manipulation ------------------------------------------------
+m.data('../data/Howell1.csv', sep=';') # Import
+m.df = m.df[m.df.age > 18] # Manipulate
+m.scale(['weight']) # Scale
+m.data_to_model(['weight', 'height']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
-def model(height, weight):    
+def model(height, weight): 
+    # Parameters priors distributions   
     alpha = dist.normal(178, 20, name = 'alpha')
     beta = dist.normal(0, 1, name = 'beta')   
     sigma = dist.uniform(0, 50, name = 'sigma')
+    # Likelihood
     lk("height", Normal(alpha + beta * weight, sigma), obs = height)
 
 # Run mcmc ------------------------------------------------
-m.run(model) 
+m.run(model)  # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.sampler.print_summary(0.89) # Get posterior distributions
 ```
 
 ## R
@@ -69,25 +79,27 @@ bi <- import("main")
 load('STRAND sim sr dyad.Rdata')
 m = bi$bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m$data('../data/Howell1.csv', sep=';') 
-m$df = m$df[m$df$age > 18,]
-m$scale(list('weight'))
-m$data_to_model(list('weight', 'height'))
+# Import Data & Data Manipulation ------------------------------------------------
+m$data('../data/Howell1.csv', sep=';')  # Import
+m$df = m$df[m$df$age > 18,] # Manipulate
+m$scale(list('weight')) # Scale
+m$data_to_model(list('weight', 'height')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(height, weight){
+  # Parameters priors distributions
   s = bi$dist$uniform(0, 50, name = 's', shape = tuple(as.integer(1)))
   a = bi$dist$normal(178, 20, name = 'a', shape = tuple(as.integer(1)))
   b = bi$dist$normal(0, 1, name = 'b', shape = tuple(as.integer(1)))   
+  # Likelihood
   bi$lk("y", bi$Normal(a + b * weight, s), obs = height)
 }
 
 # Run mcmc ------------------------------------------------
-m$run(model) 
+m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89)
+m$sampler$print_summary(0.89) # Get posterior distributions
 ```
 :::
 
@@ -97,7 +109,7 @@ m$sampler$print_summary(0.89)
 
 The following equation allows us to draw a line and is the one that is most used in statistics classes: 
 $$
-Y_i = \alpha + \beta  X_i + \epsilon_i
+Y_i = \alpha + \beta  X_i + \sigma_i
 $$
 
 Where:
@@ -110,7 +122,7 @@ Where:
 
 -   $X_i$ is the input variable for observation *i*.
 
--   $\epsilon_i$ is a vector of error terms, independently distributed.
+-   $\sigma_i$ is a vector of error terms for observation *i*.
 
 ### *Bayesian formulation*
 
@@ -136,11 +148,17 @@ Where:
 
 -   $Y_i$ is dependent variable for observation *i*.
 
--   $\beta$ and $\alpha$ are the regression coefficients and intercept parameters, respectively.
+-   $\alpha$ and $\beta$ are the regression coefficients and intercept parameters, respectively.
 
 -   $X_i$ is the input variable for observation *i*.
 
 -   $\sigma$ is a prior for the vairance term standard deviation of the normal distribution that describes the variance in the relationship between the dependent variable $Y$ and the independent variable $X$.
+
+
+## Notes
+::: callout-note
+We can observe a difference between the *Frequentist* and the *Bayesian* formulation regarding the error term. Indeed, *Frequentist* formulation, the error term $\sigma_i$ represents random fluctuations around the predicted values. This assumption leads to point estimates for $\alpha$ and $\beta$, without accounting for uncertainty in these estimates. In contrast, the *Bayesian* formulation treats $\sigma$ as a parameter with its own prior distribution. This allows us to incorporate our uncertainty about the error term into the model.
+:::
 
 ## Reference(s)
 
