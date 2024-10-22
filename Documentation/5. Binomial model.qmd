@@ -1,6 +1,6 @@
 # Binomial Model
 ## General Principles
-To model the relationship between a binary outcome —e.g., success/failure, yes/no, or 1/0—and one or more independent variables, we can use a Binomial model. 
+To model the relationship between a binary dependent variable —e.g., success/failure, yes/no, or 1/0— and one or more independent variables, we can use a _Binomial model_. 
 
 ![](https://i.sstatic.net/xHlvv.png)
 
@@ -9,10 +9,11 @@ To model the relationship between a binary outcome —e.g., success/failure, yes
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
 - We have the first [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF} _logit_. The _logit_ link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution. 
+  
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian binomial regression using the Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating Bayesian binomial regression using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (*pulled_left*), which represents the side individuals pulled. The goal is to evaluate the probability of pulling the left side.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -22,20 +23,22 @@ from main import*
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m.data('../data/chimpanzees.csv', sep=';') 
-m.data_to_model(['pulled_left'])
+# Import Data & Data Manipulation ------------------------------------------------
+m.data('../data/chimpanzees.csv', sep=';') # Import
+m.data_to_model(['pulled_left', 'actor', 'side', 'cond']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
-def model(pulled_left):
+def model(pulled_left, actor, side, cond):
+    # Parameters priors distributions
     alpha = dist.normal(0, 10)
-    lk("y", Binomial(logits=alpha[actor] + beta1[side] + beta2[cond]), obs=pulled_left)
+    # Likelihood
+    lk("y", Binomial(logits=alpha), obs=pulled_left)
 
 # Run MCMC ------------------------------------------------
-m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) 
+m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.sampler.print_summary(0.89) # Get posterior distributions
 
 ```
 
@@ -46,21 +49,23 @@ bi <- import("main")
 # Setup device------------------------------------------------
 m = bi$bi(platform='cpu')
 
-# Import data ------------------------------------------------
-m$data('../data/chimpanzees.csv', sep=';') 
-m$data_to_model(list('pulled_left'))
+# Import Data & Data Manipulation ------------------------------------------------
+m$data('../data/chimpanzees.csv', sep=';') # Import
+m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(pulled_left){
+   # Parameters priors distributions
   alpha = bi$dist$normal( 0, 10, name = 'alpha')
+  # Likelihood
   bi$lk("Y", bi$Binomial(logits = alpha), obs=pulled_left)
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) 
+m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89)
+m$sampler$print_summary(0.89) # Get posterior distributions
 
 ```
 :::
@@ -69,12 +74,12 @@ m$sampler$print_summary(0.89)
 ### *Frequentist formulation*
 We model the relationship between the independent variable ($X_i$) and the binary dependent variable ($Y_i$) using the following equation:
 $$
-logit(Y_i) = \alpha + \beta X 
+logit(Y_i) = \alpha + \beta X_i 
 $$
 
 Where:
 
-- $Y_i$ is the probability of success (or the probability of the binary outcome being 1) for observation *i*.
+- $Y_i$ is the probability of success (i.e., the probability of the binary outcome being 1) for observation *i*.
   
 - $\alpha$ is the intercept term.
   
@@ -88,7 +93,7 @@ Where:
 [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
 
 $$ 
-Y \sim Binomial(n = 1, p)
+Y_i \sim Binomial(n = 1, p)
 $$
 
 $$
@@ -105,13 +110,14 @@ $$
 
 Where:
 
-- $Y$ is the likelihood function.
-  
-- $\beta$ and $p(\alpha)$ are the prior distributions for the regression coefficients and intercept, respectively.
+- $Y$ is the probability of success (i.e., the probability of the binary outcome being 1) for observation *i*.
   
 - $n = 1$ represents the number of trials in the binomial distribution (binary outcome).
   
-- $logit(\alpha + \beta X)$ is the _logit_ link function that is equal to the sigmoid function applied to the linear combination of predictors, mapping the log-odds to probabilities.
+- $\beta$ and $\alpha$ are the prior distributions for the regression coefficients and intercept, respectively.
+  
+
+- $logit$ is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation *i*.
 
 ## Notes
 ::: callout-note
@@ -122,7 +128,8 @@ Where:
 
 - We can apply categorical variables similarly as in [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
   
-- Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables:
+- Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (*pulled_left*), which represents the side individuals pulled, and three independent variables (*actor*, *side*, *cond*). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as the different conditions.
+
 
 ```python
 from main import*
@@ -144,11 +151,11 @@ def model(pulled_left):
     lk("y", Binomial(logits=alpha[actor] + beta1[side] + beta2[cond]), obs=pulled_left)
 
 # Run MCMC ------------------------------------------------
-m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) 
+m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
-```
+m.sampler.print_summary(0.89) # Get posterior distributions
+
 :::
 
 ## Reference(s)

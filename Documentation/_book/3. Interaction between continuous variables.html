@@ -429,7 +429,7 @@ window.Quarto = {
 <section id="general-principles" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">5.1</span> General Principles</h2>
 <p>To study relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables.</p>
-<p>Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for Food x Condiment. The crossed lines on the graph suggest that there is an interaction effect, which the significant p-value for the Food*Condiment term confirms. The graph shows that enjoyment levels are higher for chocolate sauce when the food is ice cream. Conversely, satisfaction levels are higher for mustard when the food is a hot dog. If you put mustard on ice cream or chocolate sauce on hot dogs, you won’t be happy!</p>
+<p>Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for temperature x humidity. The crossed lines on the graph suggest that there is an interaction effect. The graph shows that energy consumption levels are higher for humidity when the temperature is high. Conversely, energy consumption levels are higher for temperature when humidity is low.</p>
 <p><img src="https://i0.wp.com/statisticsbyjim.com/wp-content/uploads/2017/10/interactions_plot_categorical.png?w=576&amp;ssl=1" class="img-fluid"></p>
 </section>
 <section id="considerations" class="level2" data-number="5.2">
@@ -446,17 +446,17 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>Model the relationship between Y and R to vary as a function of A. You explicitly model the hypothesis that the slope between Y and R depends—is conditional—upon A.</p></li>
-<li><p>For continuous interactions, the intercept becomes the grand mean of the outcome variable. This ease of interpretation alone is a good reason to center predictor variables.</p></li>
-<li><p>The interpretation of estimates is more difficult, as the estimate of non-interaction terms becomes the expected change in Y when R increases by one unit and A is at its average value. The estimate of interaction terms represents the expected change in the influence of A on Y when increasing R by one unit and the expected change in the influence of R on Y when increasing A by one unit.</p></li>
-<li><p><span id="triptych"><span style="color:#0D6EFD">Triptych 🛈</span></span> plots are very handy for understanding the impact of interactions.</p></li>
+<li><p>Model the relationship between independent variable <em>Y</em> and dependent variable <span class="math inline">\(X_1\)</span> to vary as a function of dependent variable <span class="math inline">\(X_2\)</span>. You explicitly model the hypothesis that the slope between <em>Y</em> and <span class="math inline">\(X_1\)</span> depends—is conditional—upon <span class="math inline">\(X_2\)</span>.</p></li>
+<li><p>For continuous interactions with scaled data, the intercept becomes the <span id="grandMean"><span style="color:#0D6EFD">grand mean 🛈</span></span> of the outcome variable.</p></li>
+<li><p>The interpretation of estimates is more complex. The estimate of non-interaction terms reflects the expected change in <em>Y</em> when <span class="math inline">\(X_1\)</span> increases by one unit, holding <span class="math inline">\(X_2\)</span> constant at its average value. The estimate of interaction terms represents how the effect of <span class="math inline">\(X_1\)</span> on <em>Y</em> changes depending on the value of <span class="math inline">\(X_2\)</span>, and vice versa, showing how the relationship between the two variables influences the outcome <em>Y</em>.</p></li>
+<li><p><span id="triptych"><span style="color:#0D6EFD">Triptych 🛈</span></span> plots are very handy for understanding the impact of interactions, specially when more than two interactions are present.</p></li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2" data-number="5.3">
 <h2 data-number="5.3" class="anchored" data-anchor-id="example"><span class="header-section-number">5.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian regression with an interaction term between two continuous variables with the Bayesian Inference (BI) package:</p>
+<p>Below is an example code snippet demonstrating Bayesian regression with an interaction term between two continuous variables with the Bayesian Inference (BI) package. Data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of interaction between temperature and humidity on energy consumption.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -466,25 +466,27 @@ Caution
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/tulips.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>])</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>])</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/tulips.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) <span class="co"># Import</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>]) <span class="co"># Scale</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>]) <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(blooms, shade, water):</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal(<span class="fl">0.5</span>, <span class="fl">0.25</span>, name<span class="op">=</span><span class="st">'alpha'</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">'sigma'</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name<span class="op">=</span><span class="st">'beta1'</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    beta2 <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name<span class="op">=</span><span class="st">'beta2'</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    beta_interaction_ <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name<span class="op">=</span><span class="st">'beta_interaction_'</span>)    </span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Normal(alpha <span class="op">+</span> beta1 <span class="op">*</span> water <span class="op">+</span> beta2 <span class="op">*</span> shade <span class="op">+</span> beta_interaction_ <span class="op">*</span> water <span class="op">*</span> shade, sigma), obs<span class="op">=</span>blooms)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameters priors distributions</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal(<span class="fl">0.5</span>, <span class="fl">0.25</span>, name<span class="op">=</span><span class="st">'alpha'</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">'sigma'</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name<span class="op">=</span><span class="st">'beta1'</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    beta2 <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name<span class="op">=</span><span class="st">'beta2'</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    beta_interaction_ <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name<span class="op">=</span><span class="st">'beta_interaction_'</span>)    </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Normal(alpha <span class="op">+</span> beta1 <span class="op">*</span> water <span class="op">+</span> beta2 <span class="op">*</span> shade <span class="op">+</span> beta_interaction_ <span class="op">*</span> water <span class="op">*</span> shade, sigma), obs<span class="op">=</span>blooms)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
@@ -493,26 +495,28 @@ Caution
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> bi<span class="sc">$</span><span class="fu">bi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'../data/tulips.csv'</span>, <span class="at">sep=</span><span class="st">';'</span>) </span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>))</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'../data/tulips.csv'</span>, <span class="at">sep=</span><span class="st">';'</span>) <span class="co"># Import</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>)) <span class="co"># Scale</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>)) <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(blooms, water,shade){</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>( <span class="fl">0.5</span>, <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'a'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  beta1 <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>( <span class="dv">0</span>,  <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'b1'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  beta2 <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(  <span class="dv">0</span>,  <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'b2'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))   </span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  beta_interaction_ <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(  <span class="dv">0</span>, <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'bint'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>))) </span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>,<span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">Normal</span>(alpha <span class="sc">+</span> beta1<span class="sc">*</span>water <span class="sc">+</span> beta2<span class="sc">*</span>shade <span class="sc">+</span> beta_interaction_<span class="sc">*</span>water<span class="sc">*</span>shade, sigma), <span class="at">obs=</span>blooms)</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) </span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>( <span class="fl">0.5</span>, <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'a'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  beta1 <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>( <span class="dv">0</span>,  <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'b1'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  beta2 <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(  <span class="dv">0</span>,  <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'b2'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))   </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  beta_interaction_ <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(  <span class="dv">0</span>, <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'bint'</span>,<span class="at">shape=</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>))) </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>,<span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">Normal</span>(alpha <span class="sc">+</span> beta1<span class="sc">*</span>water <span class="sc">+</span> beta2<span class="sc">*</span>shade <span class="sc">+</span> beta_interaction_<span class="sc">*</span>water<span class="sc">*</span>shade, sigma), <span class="at">obs=</span>blooms)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -522,16 +526,16 @@ Caution
 </section>
 <section id="frequentist-formulation" class="level2" data-number="5.5">
 <h2 data-number="5.5" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">5.5</span> <em>Frequentist formulation</em></h2>
-<p>We model the relationship between the input features (X1 and X2) and the target variable (Y) using the following equation: <span class="math display">\[
-𝑌_i = \alpha + \beta_1𝑋_{1i} + \beta_2𝑋_{2i} + \beta_{interaction}𝑋_{1i}𝑋_{2i} + \sigma
+<p>We model the relationship between the input features (<span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>) and the target variable (<span class="math inline">\(Y\)</span>) using the following equation: <span class="math display">\[
+𝑌_i = \alpha + \beta_1 𝑋_{1i} + \beta_2 𝑋_{2i} + \beta_{interaction} 𝑋_{1i} 𝑋_{2i} + \sigma
 \]</span></p>
 <p>Where:</p>
 <ul>
 <li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
 <li><p><span class="math inline">\(X_{1i}\)</span> and <span class="math inline">\(X_{2i}\)</span> are the two values of the independent continuous variables for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> are the regression coefficients for <span class="math inline">\(X_{1i}\)</span> and <span class="math inline">\(X_{2i}\)</span>, respectively.</p></li>
-<li><p><span class="math inline">\(\beta_{interaction}\)</span> is the regression coefficient for the interaction term <span class="math inline">\((X_{1i}  X_{2i})\)</span>.</p></li>
+<li><p><span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> are the regression coefficients for <span class="math inline">\(X_{1}\)</span> and <span class="math inline">\(X_{2}\)</span>, respectively.</p></li>
+<li><p><span class="math inline">\(\beta_{interaction}\)</span> is the regression coefficient for the interaction term <span class="math inline">\((X_{1}  X_{2})\)</span>.</p></li>
 <li><p><span class="math inline">\(\sigma\)</span> is the error term assumed to be normally distributed.</p></li>
 </ul>
 <p>In this context, the interaction term <span class="math inline">\(X_{1i} * X_{2i}\)</span> captures the joint effect of <span class="math inline">\(X_{1i}\)</span> and <span class="math inline">\(X_{2i}\)</span> on the target variable <span class="math inline">\(Y_i\)</span>.</p>
@@ -580,135 +584,387 @@ McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Exa
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
+
 <script src="https://unpkg.com/tippy.js@6"></script>
+
 <script>
+
 tippy('#prior', {
+
   content: '<span style="color: white;">Priors are distributions that represent the value of the parameter before conditioning it on the data.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#overdispersion', {
+
   content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#linkF', {
+
     content: '<span style="color: white;">A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
   });
 
+
+
 tippy('#simplex', {
+
   content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
   
+
 tippy('#triptych', {
+
     content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
     
+
 tippy('#hyperP', {
+
   content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#cov', {
+
     content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#centerRF', {
+
   content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#NodeF', {
+
     content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF', {
+
     content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#senderF', {
+
     content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#receiverF', {
+
     content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF2', {
+
     content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#expoB', {
+
     content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#censoB', {
+
     content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#assor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
 
+
+
 tippy('#disassor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
+
 
 
 tippy('#chol', {
+
   content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
+
+tippy('#uncertainty', {
+
+  content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#posterior', {
+
+  content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#scaled', {
+
+  content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#grandMean', {
+
+  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their reference or mean levels. </span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#ohe', {
+
+  content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#indices', {
+
+  content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#softmax', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
+
+    then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
+
+    The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
+
+    <strong>Formula:</strong><br>
+
+    $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
 </script>
+
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
