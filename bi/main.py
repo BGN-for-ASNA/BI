@@ -23,8 +23,11 @@ class bi(dist, gaussian, factors, net):
     def __init__(self, platform='cpu', cores=None, dealocate = False):
         setup(platform, cores, dealocate) 
         import numpyro
+        jax.config.update("jax_enable_x64", True)
         self.numpypro = numpyro
         self.trace = None
+        self.data_on_model = None
+        self.data_modification = {}
         self.pandas_to_jax_dtype_map = {
             'int64': jnp.int64,
             'int32': jnp.int32,
@@ -98,7 +101,7 @@ class bi(dist, gaussian, factors, net):
     def scale(self, cols = 'all'):
         if cols == 'all':
             for col in self.df.columns:                
-                self.df.iloc[:, cols] = (self.df.iloc[:,col] - self.df.iloc[:,col].mean())/self.df.iloc[:,col].sd()
+                self.df.loc[:, col] = (self.df.loc[:,col] - self.df.loc[:,col].mean())/self.df.loc[:,col].sd()
 
         else:
             for a in range(len(cols)):
@@ -112,11 +115,11 @@ class bi(dist, gaussian, factors, net):
     def to_float(self, cols = 'all', type = 'float32'):
         if cols == 'all':
             for col in self.df.columns:                
-                self.df.iloc[:, cols] = self.df.iloc[:,col].astype(type)
+                self.df.loc[:, col] = self.df.iloc[:,col].astype(type)
 
         else:
             for a in range(len(cols)):
-                self.df.loc[:, cols[a]] = self.df.iloc[:,cols[a]].astype(type)
+                self.df.loc[:, cols[a]] = self.df.loc[:,cols[a]].astype(type)
 
 
         self.data_modification['float'] = cols # store info of scaled columns
@@ -204,7 +207,8 @@ class bi(dist, gaussian, factors, net):
             raise CustomError("Argument model can't be None")
          
         self.model = model
-        self.data_on_model = self.pd_to_jax(self.model)
+        if self.data_on_model is None:
+            self.data_on_model = self.pd_to_jax(self.model)
 
         self.sampler = MCMC(NUTS(self.model,
                                 potential_fn=potential_fn,
