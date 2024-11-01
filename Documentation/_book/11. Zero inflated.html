@@ -319,7 +319,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14. Gaussian processes (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian processes</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -442,13 +442,15 @@ Caution
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>In Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for <span class="math inline">\(W_{1\pi}, W_{2\pi}, ..., W_{n\pi}\)</span>, <span class="math inline">\(W_{1\lambda}, W_{2\lambda}, ..., W_{n\lambda}\)</span>, <span class="math inline">\(b_\pi\)</span>, and <span class="math inline">\(b_\lambda\)</span>.</p>
+<ul>
+<li>In Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for <span class="math inline">\(W_{1\pi}, W_{2\pi}, ..., W_{n\pi}\)</span>, <span class="math inline">\(W_{1\lambda}, W_{2\lambda}, ..., W_{n\lambda}\)</span>, <span class="math inline">\(b_\pi\)</span>, and <span class="math inline">\(b_\lambda\)</span>.</li>
+</ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2" data-number="13.3">
 <h2 data-number="13.3" class="anchored" data-anchor-id="example"><span class="header-section-number">13.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson regression using the Bayesian Inference (BI) package:</p>
+<p>Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson regression using the Bayesian Inference (BI) package. The data represent the production of books in a monastery (y), which is affected by the number of days that individuals work, as well as the number of days individuals drink.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -529,13 +531,17 @@ Caution
 <h1 data-number="14"><span class="header-section-number">14</span> Mathematical Details</h1>
 <section id="frequentist-formulation" class="level3" data-number="14.0.1">
 <h3 data-number="14.0.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">14.0.1</span> <em>Frequentist formulation</em></h3>
-<p>We model the relationship between the predictor variables <span class="math inline">\(X\)</span> and the count outcome variable <span class="math inline">\(Y\)</span> using two components: 1. A logistic regression model to predict the probability of an excess zero. 2. A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.</p>
+<p>We model the relationship between the independent variable <span class="math inline">\(X\)</span> and the count outcome variable <span class="math inline">\(Y\)</span> using two components:</p>
+<ol type="1">
+<li>A logistic regression model to predict the probability of an excess zero.</li>
+<li>A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.</li>
+</ol>
 <p>The overall model can be represented as follows:</p>
 <p><span class="math display">\[
 \begin{aligned}
-&amp; \text{logit}(\pi) = \alpha_\pi + \beta_\pi X \\
-&amp; \text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X\\
-&amp; Y \sim \begin{cases}
+&amp; \text{logit}(\pi) = \alpha_\pi + \beta_\pi X_i \\
+&amp; \text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X_i\\
+&amp; Y_i \sim \begin{cases}
 0 &amp; \text{with probability } \pi \\
 \text{CountModel}(\lambda) &amp; \text{with probability } (1 - \pi)
 \end{cases}
@@ -546,8 +552,8 @@ Caution
 <li><p><span class="math inline">\(\pi\)</span> is the probability of an excess zero.</p></li>
 <li><p><span class="math inline">\(\lambda\)</span> is the mean rate parameter of the count model.</p></li>
 <li><p><span class="math inline">\(\alpha_\pi\)</span> and <span class="math inline">\(\beta_\pi\)</span> are respectively the intercept and the regression coefficient for the logistic model.</p></li>
-<li><p><span class="math inline">\(\alpha_\lambda\)</span> and <span class="math inline">\(\beta_\lambda\)</span> are respectively the regression coefficients for the count model.</p></li>
-<li><p><span class="math inline">\(X\)</span> are the independent variables.</p></li>
+<li><p><span class="math inline">\(\alpha_\lambda\)</span> and <span class="math inline">\(\beta_\lambda\)</span> are respectively the intercept and the regression coefficient for the count model.</p></li>
+<li><p><span class="math inline">\(X_i\)</span> is the independent variables value for observation <em>i</em>.</p></li>
 </ul>
 </section>
 <section id="bayesian-formulation" class="level3" data-number="14.0.2">
@@ -579,8 +585,8 @@ Caution
 <li><p><span class="math inline">\(\pi\)</span> is the probability of an excess zero.</p></li>
 <li><p><span class="math inline">\(\lambda\)</span> is the mean rate parameter of the count model.</p></li>
 <li><p><span class="math inline">\(\alpha_\pi\)</span> and <span class="math inline">\(\beta_\pi\)</span> are respectively the intercept and the regression coefficient for the logistic model.</p></li>
-<li><p><span class="math inline">\(\alpha_\lambda\)</span> and <span class="math inline">\(\beta_\lambda\)</span> are respectively the regression coefficients for the count model.</p></li>
-<li><p><span class="math inline">\(X\)</span> are the independent variables.</p></li>
+<li><p><span class="math inline">\(\alpha_\lambda\)</span> and <span class="math inline">\(\beta_\lambda\)</span> are respectively the intercept and the regression coefficient for the count model.</p></li>
+<li><p><span class="math inline">\(X_i\)</span> is the independent variables value for observation <em>i</em>.</p></li>
 </ul>
 </section>
 <section id="references" class="level2" data-number="14.1">
@@ -956,6 +962,80 @@ tippy('#softmax', {
     <strong>Formula:</strong><br>
 
     $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
+
+
+tippy('#kernel', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
+
+    in a higher-dimensional feature space without explicitly transforming them. 
+
+    The kernel function allows for non-linear relationships by mapping input space to feature space, 
+
+    where linear techniques can then be applied. 
+
+    Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
+
+
+tippy('#kernelMean0', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    GP mean is usually set to zero as by setting the mean to zero, 
+
+    we center the distribution around the origin. 
+
+    This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
+
+    can be thought of as deviations from this mean.
 
   </span>
 
