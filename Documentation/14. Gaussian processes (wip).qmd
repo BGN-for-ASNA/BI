@@ -1,35 +1,234 @@
-# Gaussian processes
-
+# Gaussian Processes
 ## General Principles
+Through varying intercepts and slopes we have seen how quantify some of the unique features that generate variation across clusters and covariance among the observations within each cluster. But through the covariance matrix that is used to account for correlation between clusters, we are assuming inherently linear relationships between clusters. What if we want to model the relationship between two variables that are not linearly related? In this case, we can use a Gaussian Process (GP) to model the relationship between two variables. Basically, a GP is a a varying slope model with a covariance matrix where each element of the matrix is a  [<span style="color:#0D6EFD">kernel function 🛈</span>]{#kernel}. 
+
 
 ## Considerations
-::: callout-caution 
+::: callout-caution
+- To capture complex, non-linear relationships in data where the underlying function is smooth but has an unknown functional form, GPs use a [<span style="color:#0D6EFD">kernel 🛈</span>]{#kernel}
+- GPs assume normally distributed errors and may not be appropriate for all types of noise
+- The choice of kernel hyperparameters can significantly impact results, thus GPs require choosing an appropriate kernel function that captures the expected behavior of your data.
+- Though kernel definition we can incorporate domain knowledge.
+- They scale poorly with dataset size (O(n³) complexity) due to matrix operations, thus memory requirements can be substantial for large datasets which as lead neural networks to be used instead to resolve large non linear problems.
+
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian Gaussian processes model using the Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating Gaussian Process regression:
 
 ::: {.panel-tabset group="language"}
 ## Python
-``` python
+```Python
+import time as tm
+from main import*
+
+Kline2 = pd.read_csv('resources/data/Kline2.csv', sep=";")
+islandsDistMatrix = pd.read_csv('resources/data/islandsDistMatrix.csv'"", index_col=0)
+d = Kline2
+d["society"] = range(1, 11)  # index observations
+
+
+dat_list = dict(
+    T=d.total_tools.values,
+    P=d.population.values,
+    society=d.society.values - 1,
+    Dmat=islandsDistMatrix.values,
+)
+
+# setup platform------------------------------------------------
+from main import*
+m = bi(platform='cpu')
+
+
+def model(Dmat, P, society, T):
+    a = bi.dsit.exponential(1, name = 'a')
+    b = bi.dsit.exponential(1, name = 'b')
+    g = bi.dsit.exponential(1, name = 'g')
+    etasq = bi.dsit.exponential(2, 'etasq')
+    rhosq = bi.dsit.exponential(0.5 'rhosq')
+
+    # non-centered Gaussian Process prior
+    SIGMA = cov_GPL2(Dmat, etasq, rhosq, 0.01)
+    L_SIGMA = jnp.linalg.cholesky(SIGMA)
+    z = normal('z', [10], 0, 1)
+    k = (L_SIGMA @ z[..., None])[..., 0]
+    lambda_ = a * P**b / g * jnp.exp(k[society])
+    sample("T", Poisson(lambda_), obs=T)
+
+# Run sampler ------------------------------------------------
+  
+m14_8.run(model) 
+
+m14_8.sampler.print_summary(0.89)
 ```
 
-``` R
+## R
+```r
+R implementation would go here#
 ```
 :::
 
 ## Mathematical Details
-
-### *Frequentist formulation*
-
-### *Bayesian formulation*
+### *Formula*
 
 
-## Notes
+The following equation allows us to evaluate the relationship between dependent variable $Y$ and independent variable $X$ while incorporating a GP for variable $Z$ : 
+
+$$
+Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
+$$
+
+where:
+- $Y_i$ is the i-th value for the dependent variable $Y$.
+
+- $\alpha$ is the intercept term.
+
+- $\beta$ is the regression coefficient term.
+
+- $X_i$ is the i-th value for independent variable $X$.
+
+- $\gamma_{Z_i}$ is the gaussian process i-th value for independent variable $Z$.
+
+The GP $\gamma_{Z_i}$ follow a multivariate normal distribution:
+
+$$
+\begin{pmatrix}
+    Z_1 \\
+    \vdots \\
+    Z_{n}
+\end{pmatrix}
+\sim MVNormal \left(
+\begin{pmatrix}
+    0 \\
+    \vdots \\
+    0
+\end{pmatrix},
+K
+\right)
+$$
+
+where:
+
+- $(Z_1, ..., Z_n)$ represents a collection of all values of the random variable $Z$.
+
+- $(0, ..., 0)$ represents the mean vector of the multivariate normal distribution of the same size as the number of random variable and set to [<span style="color:#0D6EFD">zero 🛈</span>]{#kernelMean0}. 
+
+- $K$ is the covariance matrix of the random variable $Z$. Each element 
+$K{ij}$ of the matrix is given by the kernel function evaluated at the corresponding points: $K_{ij} = k(Z_i,Z_j)$
+
+$$
+K = \begin{pmatrix}
+    k(Z_1, Z_1) & k(Z_1, Z_2) & \cdots & k(Z_1, Z_{n}) \\
+    k(Z_2, Z_1) & k(Z_2, Z_2) & \cdots & k(Z_2, Z_{n}) \\
+    \vdots & \vdots & \ddots & \vdots \\
+    k(Z_{n}, Z_1) & k(Z_{n}, Z_2) & \cdots & k(Z_{n}, Z_{n})
+\end{pmatrix}
+$$
+
+- Multiple kernel function exist and will be discussed in the [Note(s)](#notes) section. But the most common one is the quadratic kernel:
+
+$$
+K_{ij} = \eta^2 exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2 
+$$
+
+Where:
+
+- $\eta$ is the signal variance, representing the overall variance of the outputs of the Gaussian process. It scales the influence of the kernel function. A larger $\eta^2$ indicates a wider range of values the function can take.
+  
+- $p$ determines the rate of decline.
+  
+- $D_{ij}$ is the distance between the $i$-th and $j$-th points.
+  
+- $\delta_{ij}$ is the Kronecker delta taking a value of zero when $i = j$, allowing to included in the calculation the self-covariance.
+  
+- $\sigma^2$ is the noise variance, which accounts for the observation noise in the data. It represents the uncertainty or variability in the measurements or outputs at each point. The term effectively adds this noise variance only when $i = 𝑗$, ensuring that the diagonal elements of the covariance matrix represent the total variance at each input point.
+
+
+
+## *Bayesian model*
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express a Bayesian version of this GP using the following model: 
+
+$$
+Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
+$$
+
+$$
+\gamma \sim MVNormal \left(
+\begin{pmatrix}
+    0 \\
+    \vdots \\
+    0
+\end{pmatrix},
+K
+\right)
+$$
+
+$$
+K_{ij} = \eta^2 exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2 
+$$
+
+$$
+\alpha \sim Normal(0,1)
+$$
+
+$$
+\eta^2 \sim HalfCauchy(0,1)
+$$
+
+$$
+p^2 \sim HalfCauchy(0,1)
+$$
+
+where:
+
+- $Y_i$ is the i-th value for the dependent variable $Y$.
+
+- $\alpha$ is the intercept term with prior $Normal(0,1)$.
+
+- $\beta$ is the regression coefficient term with prior $Normal(0,1)$.
+
+- $X_i$ is the i-th value for independent variable $X$.
+
+- $\gamma_{Z_i}$ is the gaussian process i-th value for independent variable $Z$.
+
+- $\gamma$ is the latent function modeled by the GP.
+
+- $K_{ij}$ is the kernel function evaluated at the corresponding points: $K_{ij} = k(Z_i,Z_j)$ with priors HalfCauchy(0,1) for $\eta^2$ and $p^2$ to ensure positive values.
+
+
+## Notes{#notes}
 ::: callout-note
+
+Common kernel functions include:
+
+- *Radial Basis Function* (RBF) or Squared Exponential Kernel:
+$$k(x,x') = \sigma^2 \exp\left(-\frac{||x-x'||^2}{2l^2}\right)$$
+
+
+- *Rational Quadratic Kernel*, this kernel is equivalent to adding together many RBF kernels with different length scales:
+$$k(x,x') = \sigma^2 \left(1 + \frac{||x-x'||^2}{2l^2}\right)^{-\alpha}$$
+
+- *Periodic kernel* allows to model functions which repeat themselves exactly:
+$$k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right)$$
+
+- *Locally Periodic Kernel*:
+
+$$k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right) \exp\left(-\frac{||x-x'||^2}{2l^2}\right)$$ 
+
+- GPs can be extended to classification problems using link functions
+Multi-output problems using matrix-valued kernels Deep learning through Deep Kernel Learning
+
+
+- Computational tricks for large datasets include:
+    - Sparse approximations (e.g., FITC, VFE)
+    - Inducing points methods
+    - Random Fourier features
 
 :::
 
-## Reference(s)
 
+
+## Reference(s)
 @mcelreath2018statistical
+
+https://www.cs.toronto.edu/~duvenaud/cookbook/

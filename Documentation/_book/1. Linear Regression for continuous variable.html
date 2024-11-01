@@ -319,7 +319,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14. Gaussian processes (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian processes</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -473,7 +473,7 @@ Caution
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/Howell1.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) <span class="co"># Import</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>] <span class="co"># Manipulate</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>]) <span class="co"># Scale</span></span>
@@ -532,7 +532,7 @@ Caution
 <h2 data-number="3.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">3.4</span> Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3" data-number="3.4.1">
 <h3 data-number="3.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">3.4.1</span> <em>Frequentist formulation</em></h3>
-<p>The following equation allows us to draw a line and is the one that is most used in statistics classes: <span class="math display">\[
+<p>The following equation allows us to draw a line: <span class="math display">\[
 Y_i = \alpha + \beta  X_i + \sigma_i
 \]</span></p>
 <p>Where:</p>
@@ -956,6 +956,80 @@ tippy('#softmax', {
     <strong>Formula:</strong><br>
 
     $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
+
+
+tippy('#kernel', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
+
+    in a higher-dimensional feature space without explicitly transforming them. 
+
+    The kernel function allows for non-linear relationships by mapping input space to feature space, 
+
+    where linear techniques can then be applied. 
+
+    Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
+
+
+tippy('#kernelMean0', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    GP mean is usually set to zero as by setting the mean to zero, 
+
+    we center the distribution around the origin. 
+
+    This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
+
+    can be thought of as deviations from this mean.
 
   </span>
 
