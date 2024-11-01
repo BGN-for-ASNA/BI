@@ -290,7 +290,7 @@ div.csl-indent {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14. Gaussian processes (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian processes</span></span></a>
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -848,6 +848,80 @@ tippy('#softmax', {
 
 });
 
+
+
+tippy('#kernel', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
+
+    in a higher-dimensional feature space without explicitly transforming them. 
+
+    The kernel function allows for non-linear relationships by mapping input space to feature space, 
+
+    where linear techniques can then be applied. 
+
+    Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
+
+
+tippy('#kernelMean0', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    GP mean is usually set to zero as by setting the mean to zero, 
+
+    we center the distribution around the origin. 
+
+    This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
+
+    can be thought of as deviations from this mean.
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">
@@ -1272,8 +1346,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./14. Gaussian processes (wip).html" class="pagination-link" aria-label="Gaussian processes">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian processes</span></span>
+      <a href="./14. Gaussian processes (wip).html" class="pagination-link" aria-label="Gaussian Processes">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
