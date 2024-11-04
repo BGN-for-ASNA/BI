@@ -264,7 +264,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./14. Gaussian processes (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./14. Gaussian processes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
   </div>
 </li>
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./20. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network with control for data collection biases</span></span></a>
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Network with data collection biases</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -411,461 +411,233 @@ window.Quarto = {
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
-
 <script src="https://unpkg.com/tippy.js@6"></script>
-
 <script>
-
 tippy('#prior', {
-
   content: '<span style="color: white;">Priors are distributions that represent the value of the parameter before conditioning it on the data.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#overdispersion', {
-
   content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#linkF', {
-
     content: '<span style="color: white;">A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
 
-
-
 tippy('#simplex', {
-
   content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
   
-
 tippy('#triptych', {
-
     content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
     
-
 tippy('#hyperP', {
-
   content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#cov', {
-
     content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#centerRF', {
-
   content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#NodeF', {
-
     content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#DyadicF', {
-
     content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#senderF', {
-
     content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#receiverF', {
-
     content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#DyadicF2', {
-
     content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#expoB', {
-
     content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#censoB', {
-
     content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#assor', {
-
     content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#disassor', {
-
     content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
-
 
 
 tippy('#chol', {
-
   content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#uncertainty', {
-
   content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#posterior', {
-
   content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#scaled', {
-
   content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#grandMean', {
-
   content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their reference or mean levels. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#ohe', {
-
   content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#indices', {
-
   content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#softmax', {
-
   content: `
-
   <span style='color: white;'>
-
     takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
-
     then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
-
     The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
-
     <strong>Formula:</strong><br>
-
     $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#kernel', {
-
   content: `
-
   <span style='color: white;'>
-
     A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
-
     in a higher-dimensional feature space without explicitly transforming them. 
-
     The kernel function allows for non-linear relationships by mapping input space to feature space, 
-
     where linear techniques can then be applied. 
-
     Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#kernelMean0', {
-
   content: `
-
   <span style='color: white;'>
-
     GP mean is usually set to zero as by setting the mean to zero, 
-
     we center the distribution around the origin. 
-
     This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
-
     can be thought of as deviations from this mean.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
 </script>
-
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
