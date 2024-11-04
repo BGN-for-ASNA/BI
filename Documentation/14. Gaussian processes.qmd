@@ -14,57 +14,81 @@ Through varying intercepts and slopes we have seen how quantify some of the uniq
 :::
 
 ## Example
-Below is an example code snippet demonstrating Gaussian Process regression:
+Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist in a  continuous dependet variable (*total_tools*) representing the number of tools inveted in the islands, and a continuous independent variable (*population*) representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance amtrix of the islands  for the kernel function in order to capture the spatial dependence of the relationship.
 
 ::: {.panel-tabset group="language"}
 ## Python
 ```Python
-import time as tm
-from main import*
-
-Kline2 = pd.read_csv('resources/data/Kline2.csv', sep=";")
-islandsDistMatrix = pd.read_csv('resources/data/islandsDistMatrix.csv'"", index_col=0)
-d = Kline2
-d["society"] = range(1, 11)  # index observations
-
-
-dat_list = dict(
-    T=d.total_tools.values,
-    P=d.population.values,
-    society=d.society.values - 1,
-    Dmat=islandsDistMatrix.values,
-)
-
-# setup platform------------------------------------------------
-from main import*
+from main import *
 m = bi(platform='cpu')
+m.data('resources/data/Kline2.csv', sep=";")
+islandsDistMatrix = pd.read_csv('resources/data/islandsDistMatrix.csv'"", index_col=0)
+m.data_to_model(['total_tools', 'population'])
+m.data_on_model["society"] = jnp.arange(0,10)# index observations
+m.data_on_model["Dmat"] = islandsDistMatrix.values # Distance matrix
 
 
-def model(Dmat, P, society, T):
-    a = bi.dsit.exponential(1, name = 'a')
-    b = bi.dsit.exponential(1, name = 'b')
-    g = bi.dsit.exponential(1, name = 'g')
-    etasq = bi.dsit.exponential(2, 'etasq')
-    rhosq = bi.dsit.exponential(0.5 'rhosq')
+def model(Dmat, population, society, total_tools):
+    a = bi.dist.exponential(1, name = 'a')
+    b = bi.dist.exponential(1, name = 'b')
+    g = bi.dist.exponential(1, name = 'g')
 
     # non-centered Gaussian Process prior
-    SIGMA = cov_GPL2(Dmat, etasq, rhosq, 0.01)
-    L_SIGMA = jnp.linalg.cholesky(SIGMA)
-    z = normal('z', [10], 0, 1)
-    k = (L_SIGMA @ z[..., None])[..., 0]
-    lambda_ = a * P**b / g * jnp.exp(k[society])
-    sample("T", Poisson(lambda_), obs=T)
+    etasq = bi.dist.exponential(2, name = 'etasq')
+    rhosq = bi.dist.exponential(0.5, name = 'rhosq')
+    z = bi.dist.normal(0,1, name = 'z', shape = (10,))
+    SIGMA, L_SIGMA, k = bi.kernel_sq_exp(Dmat, z, etasq, rhosq, 0.01)
+ 
+    lambda_ = a * population**b / g * jnp.exp(k[society])
+
+    lk("T", Poisson(lambda_), obs=total_tools)
 
 # Run sampler ------------------------------------------------
-  
-m14_8.run(model) 
-
-m14_8.sampler.print_summary(0.89)
+m.run(model, num_samples=500) 
+m.summary()
 ```
 
 ## R
 ```r
-R implementation would go here#
+library(reticulate)
+bi <- import("main")
+
+# Setup device ------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('resources/data/Kline2.csv', sep=";")
+islandsDistMatrix = bi$pd$read_csv('resources/data/islandsDistMatrix.csv', index_col=as.integer(0))
+m$data_to_model(list('total_tools', 'population'))
+m$data_on_model$society = bi$jnp$arange(0,10, dtype='int64')
+m$data_on_model$Dmat = bi$jnp$array(islandsDistMatrix)
+
+
+# Define model ------------------------------------------------
+model <- function(Dmat, population, society, total_tools){
+
+  a = bi$dist$exponential(1, name = 'a')
+  b = bi$dist$exponential(1, name = 'b')
+  g = bi$dist$exponential(1, name = 'g')
+  
+  # non-centered Gaussian Process prior
+  etasq = bi$dist$exponential(2, name = 'etasq')
+  rhosq = bi$dist$exponential(0.5, name = 'rhosq')
+  z = bi$dist$normal(0,1, name = 'z', shape = tuple(as.integer(10)))
+  r = bi$gaussian$kernel_sq_exp(Dmat, z, etasq, rhosq, 0.01)
+  SIGMA = r[[1]]
+  L_SIGMA = r[[2]]
+  k = r[[3]]
+  lambda_ = a * population**b / g * bi$jnp$exp(k[society])
+  bi$lk("T", bi$Poisson(lambda_), obs=total_tools)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+
 ```
 :::
 
@@ -145,7 +169,7 @@ Where:
 
 
 
-## *Bayesian model*
+### *Bayesian model*
 In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express a Bayesian version of this GP using the following model: 
 
 $$

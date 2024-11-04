@@ -5,7 +5,7 @@ import arviz as az
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpyro as numpyro
+import numpyro
 import time as tm
 from jax import jit
 from jax import vmap
