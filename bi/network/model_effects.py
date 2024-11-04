@@ -1,6 +1,18 @@
 from network.util import manip
 import jax 
 from jax import jit
+import jax.numpy as jnp
+from numpyro import deterministic
+import os
+import sys
+# Get the directory of the current file
+current_file_directory = os.path.dirname(os.path.abspath(__file__))
+directory_to_add = os.path.join(current_file_directory, '..', 'utils')
+directory_to_add = os.path.normpath(directory_to_add)
+if directory_to_add not in sys.path:
+    sys.path.append(directory_to_add)
+
+from utils.unified_dists import UnifiedDist as dist
 
 class Neteffect(manip):
     def __init__(self) -> None:
@@ -140,13 +152,22 @@ class Neteffect(manip):
             return jnp.sum(dr_ff, axis=0), dyad_effects
 
     @staticmethod 
-    def dyadic_effect(dyadic_predictors, d_m = 0, d_sd = 1, # Fixed effect arguments
+    def dyadic_effect(dyadic_predictors = None, shape = None, d_m = 0, d_sd = 1, # Fixed effect arguments
                      dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2,
                      sample = False):
-        dr_ff, dyad_effects = Neteffect.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample)
-        dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
-        cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
-        return dr_ff + dr_rf
+        if dyadic_predictors is not None and shape is None:
+            print('Error: Argument shape must be defined if argument dyadic_predictors is not define')
+            return 'Argument shape must be defined if argument dyadic_predictors is not define'
+        if dyadic_predictors is not None :
+            dr_ff, dyad_effects = Neteffect.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample)
+            dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
+            cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
+            return dr_ff + dr_rf
+        else:
+            dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(shape, dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
+            cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
+        return  dr_rf
+  
   
     @staticmethod 
     def block_model_prior(N_grp, 
