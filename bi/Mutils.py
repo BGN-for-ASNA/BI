@@ -154,21 +154,23 @@ class Mgaussian:
     
     @staticmethod
     @jit
-    def kernel_sq_exp(m, sq_alpha=0.5, sq_rho=0.1, delta=0):
+    def kernel_sq_exp(m,z, sq_alpha=0.5, sq_rho=0.1, delta=0):
         """Squared Exponential Kernel.
 
         The SE kernel is a widely used kernel in Gaussian processes (GPs) and support vector machines (SVMs). It has some desirable properties, such as universality and infinite differentiability. This function computes the covariance matrix using the squared exponential kernel.
 
         Args:
             m (array): Input array representing the absolute distances between data points.
+            z (array): Input array representing the random effect.
             sq_alpha (float, optional): Scale parameter of the squared exponential kernel. Defaults to 0.5.
             sq_rho (float, optional): Length-scale parameter of the squared exponential kernel. Defaults to 0.1.
             delta (int, optional): Delta value to be added to the diagonal of the covariance matrix. Defaults to 0.
-            only_K (bool, , optional): Return only the covariance matrix
+
         Returns:
             tuple: A tuple containing:
                 - K (array): The covariance matrix computed using the squared exponential kernel.
-                - cov (array): A masked covariance matrix with the upper triangular part set to zero.
+                - L_SIGMA (array): Cholesky decomposition of K.
+                - k: Kernel function
         """
         # Get the number of data points
         N = m.shape[0]
@@ -179,7 +181,13 @@ class Mgaussian:
         # Set the diagonal elements of the kernel matrix
         K = K.at[jnp.diag_indices(N)].set(sq_alpha + delta)
 
-        return K
+        # Compute the Cholesky decomposition of the kernel matrix
+        L_SIGMA = jnp.linalg.cholesky(K)
+
+        # Compute the kernel function
+        k = (L_SIGMA @ z[..., None])[..., 0]
+
+        return K, L_SIGMA, k
         
     @staticmethod
     @jit

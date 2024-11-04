@@ -57,6 +57,41 @@ m.sampler.print_summary(0.89)
 
 ## R
 ``` R
+library(reticulate)
+bi <- import("main")
+
+# Setup device ------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('resources/data/Sim data multivariatenormal.csv', sep=',') 
+m$data_to_model(list('cafe', 'wait', 'afternoon'))
+
+# Define model ------------------------------------------------
+model <- function(cafe, afternoon, wait, N_cafes = as.integer(20) ){
+  a = bi$dist$normal(5, 2, name = 'a', shape= tuple(as.integer(1)))
+  b = bi$dist$normal(-1, 0.5, name = 'b', shape= tuple(as.integer(1)))
+  sigma_cafe = bi$dist$exponential(1, shape= tuple(as.integer(2)), name = 'sigma_cafe')
+  sigma = bi$dist$exponential( 1, name = 'sigma')
+  Rho = bi$dist$lkj(as.integer(2), as.integer(2), name = 'Rho')
+  cov = bi$jnp$outer(sigma_cafe, sigma_cafe) * Rho
+
+  a_cafe_b_cafe = bi$dist$multivariatenormal(bi$jnp$squeeze(bi$jnp$stack(list(a, b))), cov, shape = tuple(N_cafes), name = 'a_cafe')  
+
+  a_cafe = a_cafe_b_cafe[, 0]
+  b_cafe = a_cafe_b_cafe[, 1]
+
+  mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
+
+  bi$lk("y", bi$Normal(mu, sigma), obs=wait)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+
 ```
 :::
 
