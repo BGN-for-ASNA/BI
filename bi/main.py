@@ -18,6 +18,10 @@ from Mutils import factors
 from network.net import net
 from setup.device import setup
 from utils.unified_dists import UnifiedDist as dist
+from numpyro.infer import Predictive
+from numpyro.handlers import condition, seed
+import inspect
+
 
 class bi(dist, gaussian, factors, net):
     def __init__(self, platform='cpu', cores=None, dealocate = False):
@@ -26,6 +30,7 @@ class bi(dist, gaussian, factors, net):
         jax.config.update("jax_enable_x64", True)
         self.numpypro = numpyro
         self.trace = None
+        self.priors_name = None
         self.data_on_model = None
         self.data_modification = {}
         self.pandas_to_jax_dtype_map = {
@@ -236,15 +241,115 @@ class bi(dist, gaussian, factors, net):
 
         self.sampler.run(jax.random.PRNGKey(0), **self.data_on_model)
 
+    # Sample model--------------------------
+    @staticmethod
+    def sample_from_model(model, observed=None, model_args=(), model_kwargs={}, num_samples=1000, params=None,  rng_key=None):
+        """
+        Generic sampling function for NumPyro models that allows conditioning on
+        parameters and observed values.
+
+        Parameters:
+        -----------
+        model : callable
+            NumPyro model function
+        num_samples : int
+            Number of samples to draw
+        params : dict, optional
+            Dictionary of parameter values to condition on, e.g., {'a': 1.0, 'b': 2.0}
+        observed : dict, optional
+            Dictionary of observed values to condition on. Can also contain model arguments.
+        rng_key : jax.random.PRNGKey, optional
+            Random number generator key
+        model_args : tuple
+            Additional positional arguments to pass to the model
+        model_kwargs : dict
+            Additional keyword arguments to pass to the model
+
+        Returns:
+        --------
+        dict : Dictionary of samples for all random variables in the model
+
+        Example:
+        --------
+        from main import* 
+        def model(weight, height = None):    
+            a = dist.normal( 178, 20, name = 'a',shape= [1])
+            b = dist.lognormal(  0, 1, name = 'b',shape= [1])   
+            s = dist.uniform( 0, 50, name = 's',shape = [1])
+            lk("y", Normal(a + b * weight , s), obs=height)
+
+        m.sample_from_model(model, model_kwargs = {'weight': m.data_on_model['weight']},  params = {'a': 10}, num_samples = 1)
+        """
+
+        if rng_key is None:
+            rng_key = jax.random.PRNGKey(0)
+
+        # Get model's required arguments
+        sig = inspect.signature(model)
+        required_params = {
+            name: param 
+            for name, param in sig.parameters.items() 
+            if param.default == inspect.Parameter.empty
+        }
+
+        # Extract model arguments from observed data if present
+        if observed is not None:
+            model_kwargs.update({
+                name: observed[name]
+                for name in required_params
+                if name in observed
+            })
+
+        # Separate conditioning values from model arguments in observed
+        if observed is not None:
+            conditioning_vars = {
+                k: v for k, v in observed.items() 
+                if k not in required_params
+            }
+        else:
+            conditioning_vars = {}
+
+        # Combine parameter and observation conditions
+        conditions = {}
+        if params is not None:
+            conditions.update(params)
+        conditions.update(conditioning_vars)
+
+        # Check if all required arguments are provided
+        missing_args = [
+            name for name in required_params 
+            if name not in model_kwargs
+        ]
+        if missing_args:
+            raise ValueError(
+                f"Missing required model arguments: {missing_args}. "
+                "Please provide these in the observed dictionary or model_kwargs."
+            )
+
+        # If we have conditions, wrap the model
+        if conditions:
+            model = condition(model, conditions)
+
+        # Create the predictive object and sample
+        predictive = Predictive(model, num_samples=num_samples)
+        samples = predictive(rng_key, **model_kwargs)
+
+        return samples
+
+    def sample(self, model_kwargs={}, params=None, samples = 1000,   rng_key=None):
+        """Sample model with within data
+
+        See sample_from_model for further informations
+        """
+        return bi.sample_from_model(self.model, model_kwargs = self.data_on_model, observed=None, model_args=(),  num_samples=samples, params=params,  rng_key=rng_key)
 
     # Get posteriors ----------------------------------------------------------------------------
     @staticmethod
-    def get_posteriors(trace, group_by_chain=False):
-        trace.get_samples(group_by_chain=group_by_chain)
+    def get_posteriors(group_by_chain=False):
+        self.sampler.get_samples()
 
     # Log probability ----------------------------------------------------------------------------
-    @staticmethod
-    def log_prob(model, seed = 0, **kwargs):
+    def log_prob(self, model, seed = 0, **kwargs):
         """Compute the log probability of a model, the Transforms parameters to constrained space, the gradient of the negative log probability. 
 
         Args:
@@ -268,6 +373,8 @@ class bi(dist, gaussian, factors, net):
     # Diagnostic with ARVIZ ----------------------------------------------------------------------------
     def to_az(self):
         self.trace = az.from_numpyro(self.sampler)
+        self.priors_name = list(self.trace['posterior'].data_vars.keys())
+        return self.trace
 
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
         if self.trace is None:
