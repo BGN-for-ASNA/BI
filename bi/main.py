@@ -19,7 +19,7 @@ from network.net import net
 from setup.device import setup
 from utils.unified_dists import UnifiedDist as dist
 from numpyro.infer import Predictive
-from numpyro.handlers import condition, seed
+from numpyro.handlers import condition
 import inspect
 
 
@@ -32,6 +32,8 @@ class bi(dist, gaussian, factors, net):
         self.trace = None
         self.priors_name = None
         self.data_on_model = None
+        self.tab_summary = None
+        self.model2 = None # Model with NONE as default
         self.data_modification = {}
         self.pandas_to_jax_dtype_map = {
             'int64': jnp.int64,
@@ -241,9 +243,23 @@ class bi(dist, gaussian, factors, net):
 
         self.sampler.run(jax.random.PRNGKey(0), **self.data_on_model)
 
+    # Convert arguments ----------------------------
+    def convert_args_to_None(self):
+        sig = inspect.signature(self.model)
+        parameters = []
+        for name, param in sig.parameters.items():
+            if param.default == inspect.Parameter.empty:
+                parameters.append(inspect.Parameter(name, inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None))
+            else:
+                parameters.append(param)
+        model = self.model
+        model.__signature__ = sig.replace(parameters=parameters)
+        self.model2 = model
+        return model
+
     # Sample model--------------------------
     @staticmethod
-    def sample_from_model(model, observed=None, model_args=(), model_kwargs={}, num_samples=1000, params=None,  rng_key=None):
+    def sample_from_model(model, observed=None, model_args=(), model_kwargs={}, num_samples=1000, params=None,  seed=None):
         """
         Generic sampling function for NumPyro models that allows conditioning on
         parameters and observed values.
@@ -258,7 +274,7 @@ class bi(dist, gaussian, factors, net):
             Dictionary of parameter values to condition on, e.g., {'a': 1.0, 'b': 2.0}
         observed : dict, optional
             Dictionary of observed values to condition on. Can also contain model arguments.
-        rng_key : jax.random.PRNGKey, optional
+        seed : int, optional
             Random number generator key
         model_args : tuple
             Additional positional arguments to pass to the model
@@ -281,8 +297,8 @@ class bi(dist, gaussian, factors, net):
         m.sample_from_model(model, model_kwargs = {'weight': m.data_on_model['weight']},  params = {'a': 10}, num_samples = 1)
         """
 
-        if rng_key is None:
-            rng_key = jax.random.PRNGKey(0)
+        if seed is None:
+            seed = jax.random.PRNGKey(0)
 
         # Get model's required arguments
         sig = inspect.signature(model)
@@ -332,21 +348,27 @@ class bi(dist, gaussian, factors, net):
 
         # Create the predictive object and sample
         predictive = Predictive(model, num_samples=num_samples)
-        samples = predictive(rng_key, **model_kwargs)
+        samples = predictive(seed, **model_kwargs)
 
         return samples
 
-    def sample(self, model_kwargs={}, params=None, samples = 1000,   rng_key=None):
+    def sample(self, model_kwargs = None, params=None, samples = 1000,   seed=None):
         """Sample model with within data
 
-        See sample_from_model for further informations
+        See sample_from_model for further informations.
+        Example: m.sample(model_kwargs =   params = {'a': 10}, samples = 10)
         """
-        return bi.sample_from_model(self.model, model_kwargs = self.data_on_model, observed=None, model_args=(),  num_samples=samples, params=params,  rng_key=rng_key)
+        if self.model2 is None:
+            self.convert_args_to_None()
 
+        if model_kwargs is None:
+            return bi.sample_from_model(self.model2, model_kwargs = self.data_on_model, observed=None, model_args=(),  num_samples=samples, params=params,  seed=seed)
+        else:
+            return bi.sample_from_model(self.model2, model_kwargs = model_kwargs, observed=None, model_args=(),  num_samples=samples, params=params,  seed=seed)
+    
     # Get posteriors ----------------------------------------------------------------------------
-    @staticmethod
-    def get_posteriors(group_by_chain=False):
-        self.sampler.get_samples()
+    def get_posteriors(self, group_by_chain=False):
+        return self.sampler.get_samples()
 
     # Log probability ----------------------------------------------------------------------------
     def log_prob(self, model, seed = 0, **kwargs):
