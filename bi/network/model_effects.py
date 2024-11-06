@@ -1,4 +1,4 @@
-from network.util import manip
+from network.util import array_manip
 import jax 
 from jax import jit
 import jax.numpy as jnp
@@ -14,7 +14,7 @@ if directory_to_add not in sys.path:
 
 from utils.unified_dists import UnifiedDist as dist
 
-class Neteffect(manip):
+class Neteffect(array_manip):
     def __init__(self) -> None:
         pass
    
