@@ -18,10 +18,10 @@ from data.manip import manip
 from utils.array import Mgaussian as gaussian
 from utils.array import factors 
 from network.net import net
-
+import numpyro
 from setup.device import setup
 from utils.unified_dists import UnifiedDist as dist
-from numpyro.infer import Predictive
+from numpyro.infer import MCMC, NUTS, Predictive
 from numpyro.handlers import condition
 
 
@@ -29,7 +29,6 @@ from numpyro.handlers import condition
 class bi(manip, dist, gaussian, factors, net):
     def __init__(self, platform='cpu', cores=None, dealocate = False):
         setup(platform, cores, dealocate) 
-        
         jax.config.update("jax_enable_x64", True)
         self.trace = None
         self.priors_name = None
@@ -41,8 +40,6 @@ class bi(manip, dist, gaussian, factors, net):
 
     def setup(self, platform='cpu', cores=None, dealocate = False):
         setup.setup(platform, cores, dealocate) 
-
-    # Data manipulation functions--------------------------
 
     # Dist functions (sampling and model)--------------------------
     class dist(dist):
@@ -381,9 +378,6 @@ class bi(manip, dist, gaussian, factors, net):
 
 
 from numpyro import sample as lk
-from jax.experimental import mesh_utils
-from jax.sharding import PositionalSharding
-#from jax import random
 import random as r
-from numpyro.infer import MCMC, NUTS, Predictive
+#from numpyro.infer import MCMC, NUTS, Predictive
 from numpyro.distributions import*
