@@ -1,9 +1,9 @@
 import setup
 import inspect
+import ast
 import warnings
 import arviz as az
 import seaborn as sns
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpyro
 import time as tm
@@ -13,40 +13,36 @@ import jax.numpy as jnp
 import jax as jax
 import numpy as np
 import jax.random as random
-from Mutils import Mgaussian as gaussian
-from Mutils import factors 
+
+from data.manip import manip
+from utils.array import Mgaussian as gaussian
+from utils.array import factors 
 from network.net import net
+
 from setup.device import setup
 from utils.unified_dists import UnifiedDist as dist
 from numpyro.infer import Predictive
 from numpyro.handlers import condition
-import inspect
 
 
-class bi(dist, gaussian, factors, net):
+
+class bi(manip, dist, gaussian, factors, net):
     def __init__(self, platform='cpu', cores=None, dealocate = False):
         setup(platform, cores, dealocate) 
-        import numpyro
+        
         jax.config.update("jax_enable_x64", True)
-        self.numpypro = numpyro
         self.trace = None
         self.priors_name = None
         self.data_on_model = None
         self.tab_summary = None
+        self.obs_args = None
         self.model2 = None # Model with NONE as default
-        self.data_modification = {}
-        self.pandas_to_jax_dtype_map = {
-            'int64': jnp.int64,
-            'int32': jnp.int32,
-            'int16': jnp.int32,
-            'float64': jnp.float64,
-            'float32': jnp.float32,
-            'float16': jnp.float16,
-        }
-        
+        super().__init__()
 
     def setup(self, platform='cpu', cores=None, dealocate = False):
         setup.setup(platform, cores, dealocate) 
+
+    # Data manipulation functions--------------------------
 
     # Dist functions (sampling and model)--------------------------
     class dist(dist):
@@ -56,134 +52,13 @@ class bi(dist, gaussian, factors, net):
     class net(net):
         pass
 
-    # Import data----------------------------
-    def data(self, path, **kwargs):
-        self.data_original_path = path
-        self.data_args = kwargs
-        self.df = pd.read_csv(path, **kwargs)
-        self.data_modification = {}
-        return self.df
-   
-    def OHE(self, cols = 'all'):
-        if cols == 'all':
-            colCat = list(self.df.select_dtypes(['object']).columns)    
-            OHE = pd.get_dummies(self.df, columns=colCat, dtype=int)
-        else:
-            if isinstance(cols, list) == False:
-                cols = [cols]
-            OHE = pd.get_dummies(self.df, columns=cols, dtype=int)
-
-        OHE.columns = OHE.columns.str.replace('.', '_')
-        OHE.columns = OHE.columns.str.replace(' ', '_')
-
-
-        self.df = pd.concat([self.df , OHE], axis=1)
-        self.data_modification['OHE'] = cols
-        return OHE
-
-    def index(self, cols = 'all'):
-        self.index_map = {}
-        if cols == 'all':
-            colCat = list(self.df.select_dtypes(['object']).columns)    
-            for a in range(len(colCat)):                
-                self.df["index_"+ colCat[a]] =  self.df.loc[:,colCat[a]].astype("category").cat.codes
-                self.df["index_"+ colCat[a]] = self.df["index_"+ colCat[a]].astype(np.int64)
-                self.index_map[colCat[a]] = dict(enumerate(self.df[colCat[a]].astype("category").cat.categories ) )
-        else:
-            if isinstance(cols, list) == False:
-                cols = [cols]
-            for a in range(len(cols)):
-                self.df["index_"+ cols[a]] =  self.df.loc[:,cols[a]].astype("category").cat.codes
-                self.df["index_"+ cols[a]] = self.df["index_"+ cols[a]].astype(np.int64)
-
-                self.index_map[cols[a]] = dict(enumerate(self.df[cols[a]].astype("category").cat.categories ) )
-
-        self.df.columns = self.df.columns.str.replace('.', '_')
-        self.df.columns = self.df.columns.str.replace(' ', '_')
-
-        self.data_modification['index'] = cols # store info of indexed columns
-        
-        return self.df
-
-    def scale(self, cols = 'all'):
-        if cols == 'all':
-            for col in self.df.columns:                
-                self.df.loc[:, col] = (self.df.loc[:,col] - self.df.loc[:,col].mean())/self.df.loc[:,col].sd()
-
-        else:
-            for a in range(len(cols)):
-                self.df.loc[:, cols[a]] = (self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean()) / self.df.loc[:, cols[a]].std()
-
-
-        self.data_modification['scale'] = cols # store info of scaled columns
-        
-        return self.df
-    
-    def to_float(self, cols = 'all', type = 'float32'):
-        if cols == 'all':
-            for col in self.df.columns:                
-                self.df.loc[:, col] = self.df.iloc[:,col].astype(type)
-
-        else:
-            for a in range(len(cols)):
-                self.df.loc[:, cols[a]] = self.df.loc[:,cols[a]].astype(type)
-
-
-        self.data_modification['float'] = cols # store info of scaled columns
-        
-        return self.df
-
-    def to_int(self, cols = 'all', type = 'int32'):
-        if cols == 'all':
-            for col in self.df.columns:                
-                self.df.iloc[:, cols] = self.df.iloc[:,col].astype(type)
-
-        else:
-            for a in range(len(cols)):
-                self.df.loc[:, cols[a]] = self.df.iloc[:,cols[a]].astype(type)
-
-
-        self.data_modification['int'] = cols # store info of scaled columns
-
-    def pd_to_jax(self, model, bit = '32'):
-        params = inspect.signature(model).parameters
-        args_without_defaults = []
-        args_with_defaults = {}
-        for param_name, param in params.items():
-            if param.default == inspect.Parameter.empty:
-                args_without_defaults.append(param_name)
-            else:
-                args_with_defaults[param_name] = (param.default, type(param.default).__name__)
-
-        test = all(elem in self.df.columns for elem in args_without_defaults)
-        result = dict()
-        if test:
-            for arg in args_without_defaults:
-                varType = str(self.df[arg].dtype)
-                result[arg] = jnp.array(self.df[arg], dtype = self.pandas_to_jax_dtype_map.get(varType))
-        else:
-            return "Error, no"
-
-        for k in args_with_defaults.keys():
-            print(args_with_defaults[k][1])
-            result[k] = jnp.array(args_with_defaults[k][0], dtype =self.pandas_to_jax_dtype_map.get(str(args_with_defaults[k][1]) + bit))
-
-        return result     
-
-    def data_to_model(self, cols):
-        jax_dict = {}
-        for col in cols:
-            jax_dict[col] = jnp.array(self.df.loc[:,col].values)
-        self.data_modification['data_on_model'] = cols # store info of data used in the model
-        self.data_on_model = jax_dict
-
     # link functions ----------------------------------------------------------------
     @staticmethod
     @jit
     def logit(x):
         return jnp.log(x / (1 - x))
 
-    # Sampler ----------------------------------------------------------------------------
+    # MCMC ----------------------------------------------------------------------------
     def run(self, 
             model = None, 
             potential_fn=None,
@@ -242,134 +117,116 @@ class bi(dist, gaussian, factors, net):
                                 jit_model_args=jit_model_args)
 
         self.sampler.run(jax.random.PRNGKey(0), **self.data_on_model)
+        self.posteriors = self.sampler.get_samples()
 
-    # Convert arguments ----------------------------
-    def convert_args_to_None(self):
-        sig = inspect.signature(self.model)
+    # Get posteriors ----------------------------------------------------------------------------
+    def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
+        if self.trace is None:
+            self.to_az()
+        self.tab_summary = az.summary(self.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
+        return self.tab_summary 
+
+    def get_posterior_means(self):
+        d = self.summary()
+        posterior_means = d['mean'].values
+        posterior_names = d.index.tolist()
+        return {var: mean for var, mean in zip(posterior_names, posterior_means)}
+
+    # Sample model ----------------------------------------------------------------------------
+    def visit_call(self, node, obs_args):
+        """
+        Parse a function call node to find `lk` calls with `obs` arguments
+        and add those argument names to the `obs_args` list.
+        """
+        # Check if the function called is `lk`
+        if isinstance(node.func, ast.Name) and node.func.id == "lk":
+            # Check for keyword arguments in the `lk` function
+            for kw in node.keywords:
+                if kw.arg == "obs":  # Look for `obs=`
+                    # Add the variable name (if available) to obs_args
+                    if isinstance(kw.value, ast.Name):
+                        obs_args.append(kw.value.id)
+
+    def find_obs_in_model(self, model_func):
+        """
+        Extract observed argument names from `obs` in `lk` calls in `model_func`.
+        """
+        # Get the source code of the function
+        source_code = inspect.getsource(model_func)
+        # Parse the source code into an AST
+        tree = ast.parse(source_code)
+        # Prepare a list to collect observed arguments
+        obs_args = []
+        # Traverse nodes in the AST
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):  # Only process function calls
+                self.visit_call(node, obs_args)
+        self.obs_args = obs_args
+        return obs_args
+
+    # Create a new model function with the modified signature
+    def build_model2(self, model):
+        # Extract `obs` argument names
+        obs = self.find_obs_in_model(model)
+        # Modify the function's signature to make the observed argument optional
+        sig = inspect.signature(model)
         parameters = []
         for name, param in sig.parameters.items():
-            if param.default == inspect.Parameter.empty:
+            if name in obs:
                 parameters.append(inspect.Parameter(name, inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None))
             else:
                 parameters.append(param)
-        model = self.model
-        model.__signature__ = sig.replace(parameters=parameters)
-        self.model2 = model
-        return model
 
-    # Sample model--------------------------
-    @staticmethod
-    def sample_from_model(model, observed=None, model_args=(), model_kwargs={}, num_samples=1000, params=None,  seed=None):
-        """
-        Generic sampling function for NumPyro models that allows conditioning on
-        parameters and observed values.
 
-        Parameters:
-        -----------
-        model : callable
-            NumPyro model function
-        num_samples : int
-            Number of samples to draw
-        params : dict, optional
-            Dictionary of parameter values to condition on, e.g., {'a': 1.0, 'b': 2.0}
-        observed : dict, optional
-            Dictionary of observed values to condition on. Can also contain model arguments.
-        seed : int, optional
-            Random number generator key
-        model_args : tuple
-            Additional positional arguments to pass to the model
-        model_kwargs : dict
-            Additional keyword arguments to pass to the model
+        def model_with_None(*args, **kwargs):
+            # Default values for obs arguments if not passed
+            for obs_name in obs:
+                if obs_name not in kwargs:
+                    kwargs[obs_name] = None
+            # Call the original model function with the modified arguments
+            return model(*args, **kwargs)
+
+        # Update the signature of the new model
+        model_with_None.__signature__ = sig.replace(parameters=parameters)
+        self.model2 = model_with_None
+        return model_with_None
+
+    def sample(self,  data = None, remove_obs = True, posterior = True,  samples = 1,  seed = 0):
+        """_summary_
+
+        Args:
+            data (_type_, optional): _description_. Defaults to None.
+            remove_obs (bool, optional): _description_. Defaults to True.
+            posterior (bool, optional): If true use posterior obtained from run function. If false it dones't use posterior. Defaults to True.
+            samples (int, optional): _description_. Defaults to 1.
+            seed (int, optional): _description_. Defaults to 0.
 
         Returns:
-        --------
-        dict : Dictionary of samples for all random variables in the model
-
-        Example:
-        --------
-        from main import* 
-        def model(weight, height = None):    
-            a = dist.normal( 178, 20, name = 'a',shape= [1])
-            b = dist.lognormal(  0, 1, name = 'b',shape= [1])   
-            s = dist.uniform( 0, 50, name = 's',shape = [1])
-            lk("y", Normal(a + b * weight , s), obs=height)
-
-        m.sample_from_model(model, model_kwargs = {'weight': m.data_on_model['weight']},  params = {'a': 10}, num_samples = 1)
+            _type_: _description_
         """
+        rng_key = jax.random.PRNGKey(int(seed))
+        self.build_model2(self.model)
 
-        if seed is None:
-            seed = jax.random.PRNGKey(0)
+        if data is None:
+            data = self.data_on_model.copy() 
+        
+        if remove_obs:
+            for intem in self.obs_args:            
+                del data[intem]
 
-        # Get model's required arguments
-        sig = inspect.signature(model)
-        required_params = {
-            name: param 
-            for name, param in sig.parameters.items() 
-            if param.default == inspect.Parameter.empty
-        }
+        if posterior == False:
+            posterior = None
 
-        # Extract model arguments from observed data if present
-        if observed is not None:
-            model_kwargs.update({
-                name: observed[name]
-                for name in required_params
-                if name in observed
-            })
+        if posterior == True and samples > 1 :
+            tmp = self.get_posterior_means()
+            posterior = {key: jnp.repeat(value, samples) for key, value in tmp.items()}
 
-        # Separate conditioning values from model arguments in observed
-        if observed is not None:
-            conditioning_vars = {
-                k: v for k, v in observed.items() 
-                if k not in required_params
-            }
-        else:
-            conditioning_vars = {}
+        else: 
+            posterior = self.get_posterior_means()
 
-        # Combine parameter and observation conditions
-        conditions = {}
-        if params is not None:
-            conditions.update(params)
-        conditions.update(conditioning_vars)
-
-        # Check if all required arguments are provided
-        missing_args = [
-            name for name in required_params 
-            if name not in model_kwargs
-        ]
-        if missing_args:
-            raise ValueError(
-                f"Missing required model arguments: {missing_args}. "
-                "Please provide these in the observed dictionary or model_kwargs."
-            )
-
-        # If we have conditions, wrap the model
-        if conditions:
-            model = condition(model, conditions)
-
-        # Create the predictive object and sample
-        predictive = Predictive(model, num_samples=num_samples)
-        samples = predictive(seed, **model_kwargs)
-
-        return samples
-
-    def sample(self, model_kwargs = None, params=None, samples = 1000,   seed=None):
-        """Sample model with within data
-
-        See sample_from_model for further informations.
-        Example: m.sample(model_kwargs =   params = {'a': 10}, samples = 10)
-        """
-        if self.model2 is None:
-            self.convert_args_to_None()
-
-        if model_kwargs is None:
-            return bi.sample_from_model(self.model2, model_kwargs = self.data_on_model, observed=None, model_args=(),  num_samples=samples, params=params,  seed=seed)
-        else:
-            return bi.sample_from_model(self.model2, model_kwargs = model_kwargs, observed=None, model_args=(),  num_samples=samples, params=params,  seed=seed)
+        predictive = Predictive(self.model2, posterior_samples=posterior, num_samples=samples)
+        return predictive(rng_key, **data)
     
-    # Get posteriors ----------------------------------------------------------------------------
-    def get_posteriors(self, group_by_chain=False):
-        return self.sampler.get_samples()
-
     # Log probability ----------------------------------------------------------------------------
     def log_prob(self, model, seed = 0, **kwargs):
         """Compute the log probability of a model, the Transforms parameters to constrained space, the gradient of the negative log probability. 
