@@ -2,8 +2,8 @@ import inspect
 from numpyro import sample as lk
 from numpyro import deterministic
 from utils.unified_dists import UnifiedDist as dist
-from Mutils import Mgaussian
-from Mutils import factors
+from utils.array import Mgaussian
+from utils.array import factors
 import jax 
 from jax import jit
 import jax.numpy as jnp
@@ -98,7 +98,7 @@ def mat_to_edgl_jax(mat):
     return jnp.stack([tf, ft], axis = -1)
 
 
-class manip():
+class array_manip():
     def __init__(self) -> None:
         pass
 
