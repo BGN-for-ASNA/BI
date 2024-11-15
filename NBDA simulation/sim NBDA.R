@@ -1,3 +1,5 @@
+source(normalizePath('wsl.localhost\Ubuntu-22.04\home\sosa\work\BI\NBDA simulation\NBDA code 1.2.15.R'))
+
 simulateNBDA<-function(m, s = 5, BNoise = 0.1 , baseRate=1/100,asocialLP=rep(1,N)){
   # Generate social transmission coefficients with noise from a normal distribution
   BVect <- exp(rnorm(N, log(2), sd = BNoise))
@@ -38,7 +40,7 @@ simulateNBDA<-function(m, s = 5, BNoise = 0.1 , baseRate=1/100,asocialLP=rep(1,N
 N = 10
 network = matrix(runif(N*N,0.7,1)*rbinom(N*N,1,0.3), nrow=N)
 resultR = simulateNBDA(network, s = 5)
-```
+
 
 ## Testing simulation with NBDA library
 
