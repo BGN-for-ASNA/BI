@@ -1,4 +1,35 @@
+source('//wsl.localhost/Ubuntu-22.04/home/sosa/work/BI/NBDA simulation/NBDA code 1.2.15.R')
+noSims<-1000
+noInd<-100
+baseRate<-1/100
+l = k = j = 1
+BNoise<-0
+s<-5
+asocialLP<-rep(1,noInd)
+asoc<-cbind(rep(0,noInd))
+# Sim data-------------------------------------------------------------------------
+socialNet<-matrix(0, ncol=noInd, nrow=noInd)
+for(i in 0:9){socialNet[i*10+(1:10),i*10+(1:10)]<-runif(100,0.5,1)}
 
+BVect<-exp(rnorm(noInd,log(2),sd=BNoise))
+z<-rep(0,noInd)
+orderAcq<-timeAcq <-rep(NA,noInd)
+runningTime<-0
+
+for(i in 1:noInd){
+  rate<-baseRate*(exp(asocialLP)+s*z%*%t(t(socialNet)*BVect))*(1-z)
+  times<-rexp(noInd,rate)
+  times[is.nan(times)]<-Inf
+  orderAcq [i]<-which(times==min(times))[1]
+  runningTime<-runningTime+min(times)
+  timeAcq[i]<-runningTime
+  z[which(times==min(times))[1]]<-1
+}
+
+oaDataObject<-oaData(assMatrix= socialNet, taskid="1", groupid="1", asoc=asoc, orderAcq= orderAcq)
+# Data for coxph is in oaDataObject@coxdata
+model<-addFit(oaDataObject,interval=c(0,9999))
+model@sParam
 
 noSims<-1000
 noInd<-100
