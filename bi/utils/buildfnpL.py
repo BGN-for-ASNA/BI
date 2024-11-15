@@ -137,8 +137,11 @@ class_dict = {name: getattr(numpyro.distributions, name) for name in all_names}
 # Create a Python file and write the import statement and class with methods to it
 with open("unified_dists.py", "w") as file:
     # Write the import statement
+    file.write("from functools import partial\n")
     file.write("from jax import random\n")
+    file.write("from jax import jit\n")
     file.write("import numpyro as numpyro\n\n")
+    
     
     # Write the class definition with __init__ method
     file.write("class UnifiedDist:\n\n")
@@ -159,8 +162,9 @@ with open("unified_dists.py", "w") as file:
                 
                 # Create the method definition string with dynamic arguments
                 method_name = key.lower()
-                method_str = f"    @staticmethod"
-                method_str = f"    def {method_name}({full_signature}):\n"
+                method_str = f"    @staticmethod\n"
+                #method_str = f"    @partial(jit, static_argnames=['sample'])\n"
+                method_str += f"    def {method_name}({full_signature}):\n"
                 
                 # Create a docstring with the method name and parameters
                 docstring = f"{value.__name__} distribution.\n\n"
@@ -178,9 +182,10 @@ with open("unified_dists.py", "w") as file:
                 arg_str = ", ".join([f"{arg}={arg}" for arg in arg_names])
                 
                 # Add the method body with explicit argument passing                
-                method_str += f"        if sample:\n"
+                method_str += f"        if sample == True:\n"
                 method_str += f"            seed = random.PRNGKey(seed)\n"
-                method_str += f"            return numpyro.distributions.{value.__name__}({arg_str}).sample(seed, shape)\n"
+                method_str += f"            return numpyro.distributions.{value.__name__}({arg_str}).sample(seed, shape)\n"                
+                #method_str += f"            return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}).expand(shape), rng_key = seed)\n"
                 method_str += f"        else: \n"
                 method_str += f"            return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}).expand(shape))\n"
                 
