@@ -21,6 +21,7 @@ from network.net import net
 import numpyro
 from setup.device import setup
 from utils.unified_dists import UnifiedDist as dist
+#from utils.unified_distsOLD import UnifiedDist as dist
 from numpyro.infer import MCMC, NUTS, Predictive
 from numpyro.handlers import condition
 
@@ -54,7 +55,11 @@ class bi(manip, dist, gaussian, factors, net):
     @jit
     def logit(x):
         return jnp.log(x / (1 - x))
-
+    
+    @staticmethod
+    @jit
+    def inv_logit(x):
+        return 1 / (1 + jnp.exp(-x))
     # MCMC ----------------------------------------------------------------------------
     def run(self, 
             model = None, 
@@ -80,7 +85,8 @@ class bi(manip, dist, gaussian, factors, net):
             postprocess_fn=None,
             chain_method="parallel",
             progress_bar=True,
-            jit_model_args=False):
+            jit_model_args=False,
+            seed = 0):
             
         if model is None:
             raise CustomError("Argument model can't be None")
@@ -113,7 +119,7 @@ class bi(manip, dist, gaussian, factors, net):
                                 progress_bar=progress_bar,
                                 jit_model_args=jit_model_args)
 
-        self.sampler.run(jax.random.PRNGKey(0), **self.data_on_model)
+        self.sampler.run(jax.random.PRNGKey(seed), **self.data_on_model)
         self.posteriors = self.sampler.get_samples()
 
     # Get posteriors ----------------------------------------------------------------------------
