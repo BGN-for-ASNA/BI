@@ -41,7 +41,8 @@ simulateNBDA<-function(m, s = 5, BNoise = 0.1 , baseRate=1/100,asocialLP=rep(1,N
 }
 N = 10
 network = matrix(runif(N*N,0.7,1)*rbinom(N*N,1,0.3), nrow=N)
-resultR = simulateNBDA(network, s = 5)
+diag(network) = 0
+resultR = simulateNBDA(network, s = 0)
 ```
 
 ## Testing simulation with NBDA library
@@ -64,11 +65,21 @@ data.frame(Variable=oa.fit_social@varNames,MLE=oa.fit_social@outputPar,SE=oa.fit
 ta.fit_social=tadaFit(diffdat, type="social")
 #ta.fit_social@outputPar
 data.frame(Variable=ta.fit_social@varNames,MLE=round(ta.fit_social@outputPar,3),SE=round(ta.fit_social@se,3))
+print(oa.fit_social@outputPar) # should be close to 5
+print(diffdat@stMetric)
 ```
 
+```{r}
+network[1,]
+orderAcq=resultR$orderAcq
+st = rep(0, nrow(network))
+st[orderAcq[1]] = 1
+sum(st * network[1,])
+orderAcq
+```
 
 ```{r}
-install.packages("jsonlite")
+#install.packages("jsonlite")
 library(jsonlite)
 resultR$m = network
 resultR$N = nrow(network)
@@ -90,9 +101,6 @@ N = int(data['N'][0])
 network= jnp.array(data['m']).reshape(N, N)
 ```
 
-```{python}
-N
-```
 
 - The solve orders of diffusion should be stored in a 1d array each element represents the solve index as shown below. In the array below *SolveOrders*, the first individual that solved the first task is individual 1, the last individual to solve the taskis individual 2. It is the equivalent of $z_j(t)$ in the equation above.
 - 
@@ -103,64 +111,96 @@ def get_status_by_t(Orders):
     z_i = jnp.zeros((N_id, times))
     for i in range(times):
         z_i = z_i.at[Orders[:i+1] - 1, i].set(1)
-    return z_i
+    return z_i.T
 
-z_i = get_status_by_t(orderAcq)
-z_i[:,2]
+def status_t_minus_1(Orders):
+    status = get_status_by_t(Orders)
+    status_t_minus_1 = jnp.vstack([jnp.zeros(status.shape[0]), status])
+    #status_t_minus_1 = jnp.delete(status_t_minus_1, -1, axis=0)
+    return status_t_minus_1
+  
+
+status = status_t_minus_1(orderAcq)
+status
+inverse_status = 1 - status 
 ```
+
 
 - To get $\sum_{j = 1}^{N} a_{ij} z_j (t) + 1$ we:
   - Invert z_i to get z_j. 
   - Row sums of m rows multiplied element-wise by each column of z_j 
   
 ```{python}
-def multiply_by_column(m, z_col):
-    tmp =  m * z_col[:, None] +1 
-    return jnp.sum(tmp, axis=0)
+def multiply_by_column(z_t, m):
+    # Compute the temporary array
+    tmp = jnp.sum(m * z_t, axis=1)
 
-multiply_by_column(network, z_i[:,0])
+    # Create a mask for where z_t is 0
+    mask = z_t == 1
+
+    # Set values to NaN where the mask is True
+    tmp = jnp.where(mask, jnp.nan, tmp)
+
+    return tmp
+  
+def compute_s(status, network):
+  s = vmap(multiply_by_column, in_axes=(0, None))(status[:-1], network) # Status with t-1
+  
+  mask = jnp.isnan(s)
+  new_status = jnp.where(mask, jnp.nan, status[1:status.shape[0], :]) # Status without t-1
+  
+  s = jnp.reshape(s, s.shape[0] * s.shape[1])
+  new_status = jnp.reshape(new_status, new_status.shape[0] * new_status.shape[1])
+  
+  
+  return s[~jnp.isnan(s)], new_status[~jnp.isnan(s)]
+
+
+sMetric, new_status = compute_s(status, network)
+
 ```
 
 ```{python}
-bi.dist.gamma(concentration = 0.5, rate = 1.0, name='asocial rate', shape = (1,), sample = class Inline(admin.TabularInline):
-    '''Tabular Inline View for '''
+lambda_0 = bi.dist.gamma(concentration = 0.5, rate = 1.0, name='asocial rate', shape = (1,), sample = True)
+asocial_rate =   lambda_0
+asocial_rate
 
-    model = 
-    min_num = 3
-    max_num = 20
-    extra = 1
-    raw_id_fields = (,))
+s = bi.dist.normal(0, 1, name='s', sample = True)
+sum_aij_x_z_j_1, new_status = compute_s(status, network)
+soc_rate = sum_aij_x_z_j_1 * s + 1 
+z_j = 1 - new_status
+NBDA = (asocial_rate + soc_rate) * z_j 
+bi.dist.poisson(jnp.exp(NBDA), sample = True)
 ```
 
 ```{python}
-def model(network, z_i, Orders):
-    times = z_i.shape[1]
 
-    # asocial rate--------------------------------------
-    lambda_0 = bi.dist.gamma(concentration = 0.5, rate = 1.0, name='lambda_0', shape = (1,))
-    asocial_rate =   lambda_0 * (1- z_i)
-    asocial_rate
+def model(network, status, Orders):
+     # asocial rate--------------------------------------
+    asocial_rate = bi.dist.gamma(concentration = 0.5, rate = 1.0, name='lambda_0', shape = (1,))
 
     # social rate----------------------------------------
-    s = bi.dist.normal(0, 1, name='s')    
-    z_j = 1 - z_i
-    sum_aij_x_z_j_1 = vmap(multiply_by_column, in_axes=(None, 1))(network, z_j)
-    soc_rate = sum_aij_x_z_j_1 * s
+    s = bi.dist.normal(0, 1, name='s')
+    sum_aij_x_z_j_1, new_status = compute_s(status, network)
+    soc_rate = sum_aij_x_z_j_1 * s + 1 
+    
+    z_j = 1 - new_status
 
-    NBDA = jnp.sum(asocial_rate * soc_rate, axis = 1)
+    NBDA = (asocial_rate + soc_rate) * z_j 
 
-    lk('OADA', Poisson(jnp.exp(NBDA)), obs = Orders)
+    lk('OADA', Poisson(NBDA), obs = vmap(lambda x: x/jnp.sum(x) )(NBDA))
 ```
 
 ```{python}
 m = bi()
 m.data_on_model = dict(
     network = network,
-    z_i = z_i,
+    status = status,
     Orders = orderAcq
 )
 m.run(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1, progress_bar = True)
 m.summary()
+m.sampler.print_summary()
 ```
 
 ```{python}
