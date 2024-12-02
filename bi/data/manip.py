@@ -130,6 +130,6 @@ class manip():
     def data_to_model(self, cols):
         jax_dict = {}
         for col in cols:
-            jax_dict[col] = jnp.array(self.df.loc[:,col].values)
+            jax_dict[col] = jnp.array(self.df.loc[:,col].values, dtype = jnp.float32)
         self.data_modification['data_on_model'] = cols # store info of data used in the model
         self.data_on_model = jax_dict

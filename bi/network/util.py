@@ -1,7 +1,7 @@
 import inspect
 from numpyro import sample as lk
 from numpyro import deterministic
-from utils.unified_dists import UnifiedDist as dist
+from utils.unified_dists import tfpLight as dist
 from utils.array import Mgaussian
 from utils.array import factors
 import jax 

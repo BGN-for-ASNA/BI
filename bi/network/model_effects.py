@@ -12,7 +12,7 @@ directory_to_add = os.path.normpath(directory_to_add)
 if directory_to_add not in sys.path:
     sys.path.append(directory_to_add)
 
-from utils.unified_dists import UnifiedDist as dist
+from utils.unified_dists import tfpLight as dist
 
 class Neteffect(array_manip):
     def __init__(self) -> None:

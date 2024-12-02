@@ -11,208 +11,61 @@ import jax.numpy as jnp
 import jax as jax
 import numpy as np
 import jax.random as random
-from Network import Net
-from Mutils import Mgaussian as gaussian
-from Mutils import factors 
-from unified_dists import tfpLight as dist
-from samplers import NUTS
+
+from setup.device import setup
+from data.manip import manip
+from utils.array import Mgaussian as gaussian
+from utils.array import factors 
+from network.net import net
+from mcmc.Link import link
+from mcmc.Model import model
+from mcmc.Samplers import samplers
+
+from utils.unified_dists import tfpLight as dist
+
 
 import jax.numpy as jnp
 from tensorflow_probability.substrates.jax.distributions import *
+from tensorflow_probability.substrates import jax as tfp
+tfb = tfp.bijectors
 import inspect
 import re
 
-class bi(dist, gaussian, factors):
-    def __init__(self, platform='cpu', cores=None, dealocate = False):
-        setup.setup(platform, cores, dealocate) 
+class bi(manip, dist, gaussian, factors, net, link, samplers ):
+    def __init__(self, platform='cpu', cores=None, deallocate = False, dtype = jnp.float32):
+        setup(platform, cores, deallocate) 
+        jax.config.update("jax_enable_x64", True)
         self.trace = None
-        
-
-    def setup(self, platform='cpu', cores=None, dealocate = False):
-        setup.setup(platform, cores, dealocate) 
+        self.dtype = dtype
+        super().__init__()
 
     # Dist functions (sampling and model)--------------------------
     class dist(dist):
         pass
-
-    # Network functions--------------------------
-    class net(Net):
+    
+    # Links functions--------------------------
+    class link(link):
         pass
 
-    # Import data----------------------------
-    def data(self, path, **kwargs):
-        self.data_original_path = path
-        self.data_args = kwargs
-        self.df = pd.read_csv(path, **kwargs)
-        self.data_modification = {}
-        return self.df
-   
-    def OHE(self, cols = 'all'):
-        if cols == 'all':
-            colCat = list(self.df.select_dtypes(['object']).columns)    
-            OHE = pd.get_dummies(self.df, columns=colCat, dtype=int)
-        else:
-            if isinstance(cols, list) == False:
-                cols = [cols]
-            OHE = pd.get_dummies(self.df, columns=cols, dtype=int)
+    # Network functions--------------------------
+    class net(net):
+        pass
 
-        OHE.columns = OHE.columns.str.replace('.', '_')
-        OHE.columns = OHE.columns.str.replace(' ', '_')
+    # Model building functions--------------------------
+    class model(model):
+        pass
 
-
-        self.df = pd.concat([self.df , OHE], axis=1)
-        self.data_modification['OHE'] = cols
-        return OHE
-
-    def index(self, cols = 'all'):
-        self.index_map = {}
-        if cols == 'all':
-            colCat = list(self.df.select_dtypes(['object']).columns)    
-            for a in range(len(colCat)):                
-                self.df["index_"+ colCat[a]] =  self.df.loc[:,colCat[a]].astype("category").cat.codes
-                self.df["index_"+ colCat[a]] = self.df["index_"+ colCat[a]].astype(np.int64)
-                self.index_map[colCat[a]] = dict(enumerate(self.df[colCat[a]].astype("category").cat.categories ) )
-        else:
-            if isinstance(cols, list) == False:
-                cols = [cols]
-            for a in range(len(cols)):
-                self.df["index_"+ cols[a]] =  self.df.loc[:,cols[a]].astype("category").cat.codes
-                self.df["index_"+ cols[a]] = self.df["index_"+ cols[a]].astype(np.int64)
-
-                self.index_map[cols[a]] = dict(enumerate(self.df[cols[a]].astype("category").cat.categories ) )
-
-        self.df.columns = self.df.columns.str.replace('.', '_')
-        self.df.columns = self.df.columns.str.replace(' ', '_')
-
-        self.data_modification['index'] = cols # store info of indexed columns
-        
-        return self.df
-
-    def scale(self, cols = 'all'):
-        if cols == 'all':
-            for col in self.df.columns:                
-                self.df.iloc[:, cols] = (self.df.iloc[:,col] - self.df.iloc[:,col].mean())/self.df.iloc[:,col].sd()
-
-        else:
-            for a in range(len(cols)):
-                self.df.loc[:, cols[a]] = (self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean()) / self.df.loc[:, cols[a]].std()
-
-
-        self.data_modification['scale'] = cols # store info of scaled columns
-        
-        return self.df
-    
-    def data_to_model(self, cols):
-        jax_dict = {}
-        for col in cols:
-            jax_dict[col] = jnp.array(self.df.loc[:,col].values)
-        self.data_modification['data_on_model'] = cols # store info of data used in the model
-        self.data_on_model = jax_dict
-
-    # link functions ----------------------------------------------------------------
-    @staticmethod
-    @jit
-    def logit(x):
-        return jnp.log(x / (1 - x))
-
-    # Sampler ----------------------------------------------------------------------------
-    def get_model_args(self, model):
-        # Get the signature of the function
-        signature = inspect.signature(model)
-
-        # Extract argument names
-        return [param.name for param in signature.parameters.values()]
-
-
-    def get_model_var(self):
-        arguments = self.get_model_args(self.model)
-        var_model = [item for item in self.data_on_model.keys() if item in arguments]
-        var_model = {key: self.data_on_model[key] for key in arguments if key in self.data_on_model}
-        self.var_model = var_model
-        self.model_to_send = self.model(**var_model)
-
-    def get_model_distributions(self, model):
-        source_code = inspect.getsource(model)
-        lines = source_code.split('\n')
-        variables = {}
-        for line in lines:
-            if not line or line.startswith('def') or 'independent' in line.lower() or not 'yield' in line:
-                continue
-            # Split the line into key and value
-            key, value = line.split('=', 1)
-            # Remove leading and trailing whitespace
-            key = key.strip()
-            # Find all words before the brackets
-            words = re.findall(r'\b\w+\b(?=\()', value)
-            # Create a dictionary with 'distribution' as the key and words as the value
-            distribution = {
-                'distribution': words[0]
-            }
-            # Add the key-value pair to the dictionary
-            variables[key] = distribution
-        self.model_info = variables
-
-    def initialise(self, infos, init_params):
-        init_params2 = []
-        bijectors = []
-        i = 0
-        for key in infos.keys():  
-            tmp = infos[key]['distribution'].lower()
-            if 'lkj' in tmp:
-                infos[key]['shape'] = int(init_params[i].shape[0])
-                init_params2.append(jnp.array(jnp.eye(infos[key]['shape'])))            
-                bijectors.append(tfb.CorrelationCholesky())
-            elif 'exponential' in tmp:
-                 init_params2.append(jnp.array(jnp.ones_like(init_params[i])))
-                 infos[key]['shape'] = init_params[i].shape
-                 bijectors.append(tfb.Exp())
-            else:
-                init_params2.append(jnp.array(jnp.ones_like(init_params[i])))
-                infos[key]['shape'] = init_params[i].shape
-                bijectors.append(tfb.Identity())
-            i+=1
-        return init_params2, bijectors
-
-    def run(self, model, obs, 
-            n_chains = 1, init = None, target_log_prob_fn = None,
-            num_results = 500,
-            num_burnin_steps=500,
-            num_steps_between_results=0,
-            parallel_iterations = 10,
-            seed=0,
-            name=None):
-
-        if model is None:
-            raise CustomError("Argument model can't be None")
-
-        init_key, key = jax.random.split(jax.random.PRNGKey(int(seed)))
-        init_key = jnp.array(init_key)
-        self.model = model
-        self.get_model_distributions(model)        
-        self.obs = self.data_on_model[obs]
-        self.get_model_var()
-
-        self.tensor = JointDistributionCoroutine(model(**self.var_model))
-        init_params = self.tensor.sample(seed = init_key)    
-        _, bijectors = initialise(infos, init_params)
-
-
-        sampler = NUTS(model = self.model_to_send, obs = self.obs, infos = self.model_info, n_chains = n_chains, init = init, target_log_prob_fn = target_log_prob_fn,
-        num_results = num_results, num_burnin_steps=num_burnin_steps, num_steps_between_results=num_steps_between_results,
-        parallel_iterations = parallel_iterations, seed=seed,name=name)
-
-        return sampler
-
+    # MCMC samplers --------------------------
+    class samplers(samplers):
+        pass
 
     # Get posteriors ----------------------------------------------------------------------------
-    @staticmethod
-    def trace_to_az(posterior, 
-                       sample_stats,
-                       var_names=None, 
-                       sample_stats_name=['target_log_prob','log_accept_ratio','has_divergence','energy']):
-        sample_stats = {k:jnp.transpose(v) for k, v in zip(sample_stats_name, sample_stats)}
+    def trace_to_az(self, sample_stats_name=['target_log_prob','log_accept_ratio','has_divergence','energy']):
+
+        var_names= list(self.model_info.keys())
+        sample_stats = {k:jnp.transpose(v) for k, v in zip(sample_stats_name, self.sample_stats)}
         trace = {}
-        for name, samp in zip(var_names, posterior):
+        for name, samp in zip(var_names, self.posterior):
             if len(samp.shape) == 2:
                 transposed_shape = [1, 0]
             elif len(samp.shape) == 3:
@@ -220,13 +73,14 @@ class bi(dist, gaussian, factors):
             else:
                 transposed_shape = [1, 0, 2, 3]
             trace[name] = jnp.transpose(samp, transposed_shape)
-        trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
-        return trace
+        self.trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
+        self.priors_name = var_names
+        return self.trace
 
     # Diagnostic with ARVIZ ----------------------------------------------------------------------------
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
         if self.trace is None:
-            self.to_az()
+            self.trace_to_az()
         self.tab_summary = az.summary(self.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
         return self.tab_summary 
    

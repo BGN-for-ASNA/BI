@@ -68,12 +68,13 @@ with open("unified_dists.py", "w") as file:
                 
                 # Build the method signature string
                 param_str = ", ".join([str(param) for param in parameters.values()])
-                full_signature = merge_function_signature(param_str)
+                full_signature = f"{param_str}, shape=(), sample = False, seed = 0, name = 'x'"
                 
                 # Create the method definition string with dynamic arguments
                 method_name = key.lower()
-                method_str = f"    @staticmethod"
-                method_str = f"    def {method_name}({full_signature}):\n"
+                method_str = f"    @staticmethod\n"
+                #method_str = f"    @partial(jit, static_argnames=['sample'])\n"
+                method_str += f"    def {method_name}({full_signature}):\n"
                 
                 # Create a docstring with the method name and parameters
                 docstring = f"{value.__name__} distribution.\n\n"
@@ -90,6 +91,7 @@ with open("unified_dists.py", "w") as file:
                 arg_names = [param.name for param in parameters.values()]
                 arg_str = ", ".join([f"{arg}={arg}" for arg in arg_names])
                 
+                
                 # Add the method body with explicit argument passing                
                 method_str += f"        if sample:\n"
                 method_str += f"            seed = jax.random.PRNGKey(seed)\n"
@@ -104,7 +106,7 @@ with open("unified_dists.py", "w") as file:
         else:
             print(f"Ignoring non-callable object for key {key}: {value}")
 
-from unified_dists import tfpLight
+
 
 
 # %%
