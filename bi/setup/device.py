@@ -1,10 +1,10 @@
 import os 
 import re
-def dealocate():
+def deallocate():
     os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"]="false"
     os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"]="platform"
     
-def setup(platform='cpu', cores=None, dealocate = False):
+def setup(platform='cpu', cores=None, deallocate = False):
     """
     Configures JAX for distributed computation.
 
@@ -17,8 +17,8 @@ def setup(platform='cpu', cores=None, dealocate = False):
     """
     if cores is None:
         cores = os.cpu_count()
-    if dealocate:
-        dealocate()
+    if deallocate:
+        deallocate()
 
     # Set the XLA flags before importing jax
     xla_flags = os.getenv("XLA_FLAGS", "")

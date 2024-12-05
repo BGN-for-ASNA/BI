@@ -182,7 +182,7 @@ with open("unified_dists.py", "w") as file:
                 arg_str = ", ".join([f"{arg}={arg}" for arg in arg_names])
                 
                 # Add the method body with explicit argument passing                
-                method_str += f"        if sample == True:\n"
+                method_str += f"        if sample:\n"
                 method_str += f"            seed = random.PRNGKey(seed)\n"
                 method_str += f"            return numpyro.distributions.{value.__name__}({arg_str}).sample(seed, shape)\n"                
                 #method_str += f"            return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}).expand(shape), rng_key = seed)\n"
