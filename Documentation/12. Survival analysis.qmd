@@ -1,0 +1,116 @@
+# Survival Analysis
+
+## General Principles
+
+Survival analysis studies the time until an event of interest (e.g., death, recovery) occurs. When analyzing binary survival outcomes (e.g., alive or dead), we can use models such as Cox proportional hazards to evaluate the effect of predictors on survival probabilities.
+
+Key concepts include:
+
+1. **Hazard Function**: The instantaneous risk of the event occurring at a given time.
+2. **Survival Function**: The probability of surviving beyond a given time.
+3. **Covariates**: Variables (e.g., age, treatment) that may affect survival probabilities.
+4. **Baseline Hazard**: The hazard when all covariates are zero, which forms the reference for comparing different conditions.
+
+## Considerations
+
+::: callout-caution
+- Bayesian models provide a framework to account for [<span style="color:#0D6EFD">uncertainty 🛈</span>]{#uncertainty} in parameter estimates through posterior distributions. You will need to define [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for all model parameters, such as baseline hazard, covariate effects, and variance terms.
+
+- In survival analysis:
+
+  - The **baseline hazard** can follow distributions like Exponential, Weibull, or Gompertz, depending on the data.
+  - Censoring (when the event is not observed for some subjects) must be accounted for in the likelihood function.
+
+- Bayesian survival models allow flexible handling of time-dependent covariates and incorporate uncertainty more naturally than Frequentist methods.
+:::
+
+## Example
+
+Here’s an example Bayesian survival analysis using the **Bayesian Inference (BI)** package. The data consist of binary survival outcomes (`surv`) and categorical tank identifiers (`tank`) with censoring information.
+
+::: {.panel-tabset group="language"}
+
+### Python
+```python
+
+```
+
+### R
+```r
+
+```
+
+:::
+
+## Mathematical Details
+
+### *Frequentist formulation*
+
+The Cox proportional hazards model can be expressed as:
+$$
+h(t | X) = h_0(t) \exp(\beta^T X)
+$$
+
+Where:
+
+- \( h(t | X) \) is the hazard at time \( t \) for covariates \( X \).
+- \( h_0(t) \) is the baseline hazard.
+- \( \beta \) is the vector of coefficients.
+
+### *Bayesian formulation*
+
+In Bayesian survival analysis, we define priors for each parameter:
+
+1. **Hazard Function**:
+   The hazard rate at time \( t \) for an individual is given by:
+    $$Y_i(t) = Poisson(\lambda(t) * censoring(t))$$
+    $$\lambda(t) = \lambda_0(t)\exp(x\beta)$$
+
+    $$ \beta \sim N(\mu_\beta, \sigma^2_\beta) $$
+
+    $$\mu_\beta \sim N(0, 10^2)$$
+
+    $$\sigma^2_\beta \sim U(0, 10)$$
+
+   Where:
+   - $Y_i(t)$ is the status of the $i$-th subject at time $t$ coded as a binary variable:
+   $$
+   Y_i(t) = 
+   \begin{cases} 
+   1 & \text{if subject } i \text{ died at time $t$  }, \\ 
+   0 & \text{otherwise.}
+   \end{cases}
+   $$
+   - $\lambda(t)$: Hazard function at time $t$.
+   - $\lambda_0(t)$: Baseline hazard function (e.g., exponential or Weibull).
+   - $x$: Covariates (e.g., age, treatment).
+   - $\beta$: Regression coefficients capturing the effect of $x$ on the hazard have an assigned a normal prior.
+    - $\mu_\beta$: Mean of the normal distribution.
+    - $\sigma^2_\beta$: Variance of the normal distribution.
+
+
+
+---
+
+### **Bayesian Approach**
+
+In this Bayesian framework:
+- The **likelihood** of the observed data is modeled as a function of the hazard $\lambda(t)$ and survival time distributions.
+- The **posterior distribution** is computed by combining the likelihood with the priors on $\beta$, $\mu_\beta$, and $\sigma^2_\beta$.
+
+This approach provides:
+1. **Posterior estimates** of the regression coefficients $\beta$, which quantify the impact of covariates $x$ on the hazard.
+2. **Uncertainty quantification** via posterior credible intervals for all parameters.
+
+
+
+
+## Notes
+
+::: callout-note
+- Bayesian models naturally incorporate uncertainty in all parameters, providing posterior distributions instead of point estimates.
+- Survival analysis must consider censored data, where events are not observed within the study period. Proper handling is essential for unbiased results.
+:::
+
+## Reference(s)
+

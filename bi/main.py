@@ -18,8 +18,9 @@ from data.manip import manip
 from utils.array import Mgaussian as gaussian
 from utils.array import factors 
 from network.net import net
-import numpyro
 from setup.device import setup
+from Surv.surv import survival
+
 from utils.unified_dists import UnifiedDist as dist
 #from utils.unified_distsOLD import UnifiedDist as dist
 from numpyro.infer import MCMC, NUTS, Predictive
@@ -27,9 +28,9 @@ from numpyro.handlers import condition
 
 
 
-class bi(manip, dist, gaussian, factors, net):
-    def __init__(self, platform='cpu', cores=None, dealocate = False):
-        setup(platform, cores, dealocate) 
+class bi(manip, dist, gaussian, factors, net, survival):
+    def __init__(self, platform='cpu', cores=None, deallocate = False):
+        setup(platform, cores, deallocate) 
         jax.config.update("jax_enable_x64", True)
         self.trace = None
         self.priors_name = None
@@ -39,8 +40,8 @@ class bi(manip, dist, gaussian, factors, net):
         self.model2 = None # Model with NONE as default
         super().__init__()
 
-    def setup(self, platform='cpu', cores=None, dealocate = False):
-        setup.setup(platform, cores, dealocate) 
+    def setup(self, platform='cpu', cores=None, deallocate = False):
+        setup.setup(platform, cores, deallocate) 
 
     # Dist functions (sampling and model)--------------------------
     class dist(dist):
@@ -48,6 +49,10 @@ class bi(manip, dist, gaussian, factors, net):
 
     # Network functions--------------------------
     class net(net):
+        pass
+
+    # Survival functions--------------------------
+    class surv(survival):
         pass
 
     # link functions ----------------------------------------------------------------
