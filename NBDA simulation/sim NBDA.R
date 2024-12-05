@@ -1,4 +1,4 @@
-simulateNBDA<-function(m, s = 5, BNoise = 0.1 , baseRate=1/100,asocialLP=rep(1,N)){
+simulateNBDA<-function(m, s = 5, BNoise = 0.1 , baseRate=1/100, asocialLP=rep(1,N)){
   # Generate social transmission coefficients with noise from a normal distribution
   BVect <- exp(rnorm(N, log(2), sd = BNoise))
   N = nrow(m)
