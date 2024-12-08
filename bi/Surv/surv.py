@@ -115,8 +115,6 @@ class survival:
 
         Parameters:
         -----------
-        df : pandas.DataFrame
-            A DataFrame containing the time-to-event data.
         time : str, optional
             The name of the column in `df` representing the continuous time variable (default is 'time').
         event : str, optional
@@ -165,10 +163,12 @@ class survival:
         exposure = np.greater_equal.outer(self.time, interval_bounds[:-1]) * interval_length
         exposure[self.patients, last_period] = self.time - interval_bounds[last_period]
 
-        self.interval_bounds = interval_bounds
-        self.intervals = intervals
-        self.death = death
-        self.exposure = exposure
+        self.interval_bounds = interval_bounds # Array of boundaries for discrete time intervals.
+        self.intervals = intervals # Array of interval indices.
+        self.death = death # Binary matrix (n_patients x n_intervals) indicating whether each subject experienced the event in each interval (1 if the event occurred, 0 otherwise).
+        self.exposure = exposure # Matrix (n_patients x n_intervals) indicating the time each subject was exposed in each interval.
+
+        # data for the model
         if self.data_on_model is None:
             self.data_on_model = {}
         self.data_on_model['intervals'] = jnp.array(intervals)
