@@ -56,10 +56,10 @@ def model(intervals, death, metastasized, exposure):
     lambda0 = bi.dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
     ## Covariate effect distribution
     beta = bi.dist.normal(0, 1000, shape = (1,),  name='beta')
-    ## Likelihood
-    ### Compute hazard rate based on covariate effect
+    ### Likelihood
+    #### Compute hazard rate based on covariate effect
     lambda_ = m.hazard_rate(cov = metastasized, beta = beta, lambda0 = lambda0)
-    ### Compute exposure rates
+    #### Compute exposure rates
     mu = exposure * lambda_
 
     # Likelihood calculation
@@ -94,11 +94,15 @@ $$
 - Where:
 
   - $h(t | X)$ is the hazard at time $t$ for covariates $X$.
+  
   - $h_0(t)$ is the baseline hazard function (e.g., exponential, Weibull).
+  
   - $X$ represents the covariates (such as age, treatment).
+  
   - $\beta$ are the regression coefficients to be estimated.
 
 - Censoring is accounted for by multiplying the hazard function by a factor that depends on the censoring distribution, usually modeled as independent censoring with a rate δ(t): 
+  
   - $Y_i(t) = Poisson(h(t | X) * δ(t))$
 
 
@@ -126,27 +130,18 @@ In Bayesian survival analysis, we define priors for each parameter:
    0 & \text{otherwise.}
    \end{cases}
    $$
+
    - $\lambda(t)$: Hazard function at time $t$.
+  
    - $\lambda_0(t)$: Baseline hazard function (e.g., exponential or Weibull).
+  
    - $x$: Covariates (e.g., age, treatment).
+  
    - $\beta$: Regression coefficients capturing the effect of $x$ on the hazard have an assigned a normal prior.
-    - $\mu_\beta$: Mean of the normal distribution.
-    - $\sigma^2_\beta$: Variance of the normal distribution.
-
-
-
----
-
-### **Bayesian Approach**
-
-In this Bayesian framework:
-- The **likelihood** of the observed data is modeled as a function of the hazard $\lambda(t)$ and survival time distributions.
-- The **posterior distribution** is computed by combining the likelihood with the priors on $\beta$, $\mu_\beta$, and $\sigma^2_\beta$.
-
-This approach provides:
-1. **Posterior estimates** of the regression coefficients $\beta$, which quantify the impact of covariates $x$ on the hazard.
-2. **Uncertainty quantification** via posterior credible intervals for all parameters.
-
+  
+   - $\mu_\beta$: Mean of the normal distribution.
+  
+   - $\sigma^2_\beta$: Variance of the normal distribution.
 
 
 

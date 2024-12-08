@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>14&nbsp; Varying intercepts – BI documentation</title>
+<title>23&nbsp; Network with block model – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -54,27 +54,7 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -84,8 +64,8 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./13. Varying slopes.html" rel="next">
-<link href="./11. Zero inflated.html" rel="prev">
+<link href="./22. Network control for data collection biases (wip).html" rel="next">
+<link href="./20. Network model.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -164,7 +144,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./12. Varying intercepts.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying intercepts</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./21. Network with block model.html"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network with block model</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -306,80 +286,92 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./12. Varying intercepts.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
+  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Survival Analysis</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./13. Varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying slopes</span></span></a>
+  <a href="./13. Varying intercepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./14. Gaussian processes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
+  <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Varying slopes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./15. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
+  <a href="./15. Gaussian processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Missing data (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Missing data</span></span></a>
+  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Latent Variables</span></span></a>
+  <a href="./17. Missing data (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Missing data</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
+  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Latent Variables</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19. Network with block model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
+  <a href="./19. PCA (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis (PCA)</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Network with data collection biases</span></span></a>
+  <a href="./20. Network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./21. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
+  <a href="./21. Network with block model.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./22. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
+  <a href="./22. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Network with data collection biases</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./23. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
+  <a href="./23. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./24. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
+  <a href="./24. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -392,16 +384,14 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">14.1</span> General Principles</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">14.2</span> Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">14.3</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">14.4</span> Mathematical Details</a>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link active" data-scroll-target="#considerations"><span class="header-section-number">23.1</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">23.2</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">23.3</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">14.4.1</span> <em>Frequentist formulation</em></a></li>
-  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">14.4.2</span> <em>Bayesian model</em></a></li>
+  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><span class="header-section-number">23.3.1</span> <em>Main Formula</em></a></li>
+  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">23.3.2</span> <em>Defining formula sub-equations and prior distributions</em></a></li>
   </ul></li>
-  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">14.5</span> Notes</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">14.6</span> Reference(s)</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">23.4</span> Note(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -410,7 +400,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying intercepts</span></h1>
+<h1 class="title"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network with block model</span></h1>
 </div>
 
 
@@ -427,12 +417,9 @@ window.Quarto = {
 </header>
 
 
-<section id="general-principles" class="level2" data-number="14.1">
-<h2 data-number="14.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">14.1</span> General Principles</h2>
-<p>To model the relationship between dependent variables and an independent variable while allowing for different intercepts across groups or clusters, we can use a <em>Varying Intercepts</em> model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.</p>
-</section>
-<section id="considerations" class="level2" data-number="14.2">
-<h2 data-number="14.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">14.2</span> Considerations</h2>
+<p>Within networks, nodes can belong to different categories, and these categories can potentially affect the propensity for node interactions. For example, nodes can have different sex categories, and the propensity to interact with nodes of the same sex can be higher than with nodes of different sexes. To model the propensity for interaction between nodes based on the categories they belong to, we can use a stochastic block model approach.</p>
+<section id="considerations" class="level2" data-number="23.1">
+<h2 data-number="23.1" class="anchored" data-anchor-id="considerations"><span class="header-section-number">23.1</span> Considerations</h2>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -444,135 +431,103 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept <span class="math inline">\(\beta\)</span> is defined based on the <span class="math inline">\(k\)</span> declared groups.</p></li>
-<li><p>Each intercept have is own prior -i.e.&nbsp;a <span id="hyperP"><span style="color:#0D6EFD">hyper-prior 🛈</span></span></p></li>
+<li>We consider predefined groups here, with the goal of evaluating the propensity for interaction between nodes within each group.</li>
+<li>In addition to the block(s) model being tested, we need to include a block where all individuals are considered as belonging to the same group (<code>Any</code> in the example). This allows us to assess whether interaction tendencies differ between groups or if the propensity to interact is uniform across all individuals.</li>
 </ul>
-<p>-In the code below, the <em>hyper-prior</em> is <code>a_bar</code>.</p>
 </div>
 </div>
 </section>
-<section id="example" class="level2" data-number="14.3">
-<h2 data-number="14.3" class="anchored" data-anchor-id="example"><span class="header-section-number">14.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consist of a dependent variable representing individuals’ survival (<em>surv</em>) and an independent categorical variable (<em>tank</em>), which indicates the tank where the individual was born, with a total of 48 tanks.</p>
-<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
-<div class="tab-content" data-group="language">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/reedfrogs.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) <span class="co"># Import</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"tank"</span>] <span class="op">=</span> np.arange(m.df.shape[<span class="dv">0</span>]) <span class="co"># Manipulate</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>tank <span class="op">=</span> jnp.array(m.df[<span class="st">"tank"</span>].astype(<span class="st">'int32'</span>).values) <span class="co"># Manipulate</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>density <span class="op">=</span> jnp.array(m.df[<span class="st">"density"</span>].astype(<span class="st">'float32'</span>).values) <span class="co"># Manipulate</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>surv <span class="op">=</span> jnp.array(m.df[<span class="st">"surv"</span>].astype(<span class="st">'int32'</span>).values) <span class="co"># Manipulate</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    tank <span class="op">=</span> tank,</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    surv <span class="op">=</span> surv</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>) <span class="co"># Send to model (convert to jax array)</span></span>
+<section id="example" class="level2" data-number="23.2">
+<h2 data-number="23.2" class="anchored" data-anchor-id="example"><span class="header-section-number">23.2</span> Example</h2>
+<p>Below is an example code snippet demonstrating a Bayesian network model using the stochastic block model approach. The data is identical to the <a href="18. Network model.qmd">Network model</a> example, with the addition of covariates <em>Any</em>, <em>Merica</em>, and <em>Quantum</em>, representing the block membership of each node.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model3(idx, result_outcomes, kinship, focal_individual_predictors, target_individual_predictors, Any, Merica, Quantum):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> ids.shape[<span class="dv">0</span>]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Block ---------------------------------------</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    B_any, b_any, b_ij_any, b_ii_any <span class="op">=</span> bi.net.block_model(Any,<span class="dv">1</span>, name_b_ij <span class="op">=</span> <span class="st">'b_ij_Any'</span>, name_b_ii <span class="op">=</span> <span class="st">'b_ii_Any'</span> )</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    B_Merica, b_Merica, b_ij_Merica, b_ii_Merica <span class="op">=</span> bi.net.block_model(Merica,  <span class="dv">3</span>, name_b_ij <span class="op">=</span> <span class="st">'b_ij_Merica'</span>, name_b_ii <span class="op">=</span> <span class="st">'b_ii_Merica'</span> )</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    B_Quantum, b_Quantum, b_ij_Quantum, b_ii_Quantum <span class="op">=</span> bi.net.block_model(Quantum, <span class="dv">2</span>, name_b_ij <span class="op">=</span> <span class="st">'b_ij_Quantum'</span>, name_b_ii <span class="op">=</span> <span class="st">'b_ii_Quantum'</span> )</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">## SR ---------------------------------------</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    sr_terms, focal_effects, target_effects <span class="op">=</span> bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    sr_rf, sr_raw, sr_sigma, sr_L <span class="op">=</span> bi.net.nodes_random_effects(sr_terms.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    sender <span class="op">=</span> sr_terms[idx[:,<span class="dv">0</span>],<span class="dv">0</span>] <span class="op">+</span> sr_terms[idx[:,<span class="dv">1</span>],<span class="dv">1</span>] <span class="op">+</span> sr_rf[idx[:,<span class="dv">0</span>],<span class="dv">0</span>]</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    receiver <span class="op">=</span>  sr_terms[idx[:,<span class="dv">1</span>],<span class="dv">0</span>] <span class="op">+</span> sr_terms[idx[:,<span class="dv">0</span>],<span class="dv">1</span>] <span class="op">+</span> sr_rf[idx[:,<span class="dv">1</span>],<span class="dv">1</span>]</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    sender_receiver <span class="op">=</span> jnp.stack([sender, receiver], axis <span class="op">=</span> <span class="dv">1</span>)</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(tank, surv):</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> dist.exponential( <span class="dv">1</span>,  name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    a_bar <span class="op">=</span> dist.normal( <span class="fl">0.</span>, <span class="fl">1.5</span>, name <span class="op">=</span> <span class="st">'a_bar'</span>)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal( a_bar, sigma, shape<span class="op">=</span> [<span class="dv">48</span>], name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> jnp.squeeze(alpha[tank])</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Binomial(total_count <span class="op">=</span> density, logits <span class="op">=</span> p), obs<span class="op">=</span>surv)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>bi <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"main"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device ------------------------------------------------</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> bi<span class="sc">$</span><span class="fu">bi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'../data/reedfrogs.csv'</span>, <span class="at">sep=</span><span class="st">';'</span>)  <span class="co"># Import</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df<span class="sc">$</span>tank <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">0</span><span class="sc">:</span>(<span class="fu">nrow</span>(m<span class="sc">$</span>df)<span class="sc">-</span><span class="dv">1</span>)) <span class="co"># Manipulate</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'tank'</span>, <span class="st">'surv'</span>, <span class="st">'density'</span>)) <span class="co"># Manipulate</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>tank <span class="ot">=</span> m<span class="sc">$</span>data_on_model<span class="sc">$</span>tank<span class="sc">$</span><span class="fu">astype</span>(bi<span class="sc">$</span>jnp<span class="sc">$</span>int32) <span class="co"># Manipulate</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>surv <span class="ot">=</span> m<span class="sc">$</span>data_on_model<span class="sc">$</span>surv<span class="sc">$</span><span class="fu">astype</span>(bi<span class="sc">$</span>jnp<span class="sc">$</span>int32) <span class="co"># Manipulate</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(tank, surv, density){</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>( <span class="dv">1</span>,  <span class="at">name =</span> <span class="st">'sigma'</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  a_bar <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="fl">1.5</span>, <span class="at">name=</span><span class="st">'a_bar'</span>)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(a_bar, sigma, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">48</span>)))</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">=</span> alpha[tank]</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">Binomial</span>(<span class="at">total_count =</span> density, <span class="at">logits =</span> p), <span class="at">obs=</span>surv)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>} </span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-</div>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic--------------------------------------  </span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    dr_terms, dyad_effects <span class="op">=</span> bi.net.dyadic_terms(kinship[:,<span class="dv">0</span>], kinship[:,<span class="dv">1</span>])</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> bi.net.dyadic_random_effects(idx.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span> dr_terms <span class="op">+</span> rf</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">'Y'</span>, Poisson(jnp.exp(B_any <span class="op">+</span> B_Merica <span class="op">+</span> B_Quantum <span class="op">+</span> sender_receiver <span class="op">+</span> dr )), obs<span class="op">=</span>result_outcomes)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> idx,</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    Any <span class="op">=</span> Any<span class="op">-</span><span class="dv">1</span>, </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    Merica <span class="op">=</span> Merica<span class="op">-</span><span class="dv">1</span>, </span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    Quantum <span class="op">=</span> Quantum<span class="op">-</span><span class="dv">1</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> bi.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    kinship <span class="op">=</span> bi.net.mat_to_edgl(kinship),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>],</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>]</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>m.run(model3) </span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>summary.loc[[<span class="st">'focal_effects[0]'</span>, <span class="st">'target_effects[0]'</span>, <span class="st">'dyad_effects[0]'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="mathematical-details" class="level2" data-number="14.4">
-<h2 data-number="14.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">14.4</span> Mathematical Details</h2>
-<section id="frequentist-formulation" class="level3" data-number="14.4.1">
-<h3 data-number="14.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">14.4.1</span> <em>Frequentist formulation</em></h3>
-<p>We model the relationship between the independent variables <em>X</em> and the outcome variable <em>Y</em> with varying intercepts <span class="math inline">\(\alpha\)</span> for each group <em>k</em> using the following equation:</p>
+<section id="mathematical-details" class="level2" data-number="23.3">
+<h2 data-number="23.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">23.3</span> Mathematical Details</h2>
+<section id="main-formula" class="level3" data-number="23.3.1">
+<h3 data-number="23.3.1" class="anchored" data-anchor-id="main-formula"><span class="header-section-number">23.3.1</span> <em>Main Formula</em></h3>
+<p>The model’s block structure can be represented by the following formula. Note that the sender-receiver and dyadic effects are not represented here, as they are already accounted for in the <a href="18. Network model.qmd">Network model</a> chapter:</p>
 <p><span class="math display">\[
-Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
+G_{ij} \sim Poisson(Y_{ij})
+\]</span></p>
+<p><span class="math display">\[
+log(Y_{ij}) =  B_{ij} + B_{ji}
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(B_{ij}\)</span> is the link probability between category <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>.</li>
+<li><span class="math inline">\(B_{ji}\)</span> is the link probability between category j to i.</li>
+</ul>
+</section>
+<section id="defining-formula-sub-equations-and-prior-distributions" class="level3" data-number="23.3.2">
+<h3 data-number="23.3.2" class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><span class="header-section-number">23.3.2</span> <em>Defining formula sub-equations and prior distributions</em></h3>
+<p>To account for all link probabilities between categories, we can define a square matrix <span class="math inline">\(B\)</span> as follows: the off-diagonal elements represent the link probabilities between categories <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, while the diagonal elements represent the link probabilities between categories <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>.</p>
+<p><span class="math display">\[
+B_{i,j} =
+\begin{bmatrix}
+a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,j} \\
+a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,j} \\
+\vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
+a_{i,1} &amp; a_{i,2} &amp; \cdots &amp; a_{i,j}
+\end{bmatrix}
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <em>i</em> in group <em>k</em>.</p></li>
-<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <em>k</em>.</p></li>
-<li><p><span class="math inline">\(X_{ik}\)</span> is the independent variables for observation <em>i</em> in group <em>k</em>.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficients term.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the error term, typically assumed to be normally distributed and positive.</p></li>
+<li><span class="math inline">\(B[i,j]\)</span> is the link probability between category <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> when <span class="math inline">\(i \neq j\)</span>.</li>
+<li><span class="math inline">\(B[i,j]\)</span> is the link probability within category <span class="math inline">\(i\)</span> when <span class="math inline">\(i = j\)</span>.</li>
 </ul>
-</section>
-<section id="bayesian-model" class="level3" data-number="14.4.2">
-<h3 data-number="14.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">14.4.2</span> <em>Bayesian model</em></h3>
-<p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<p>As we concider link probability within categorioes to be higher to links probabilites between categories we define different priors for the diagonal and the off-diagonal. Priors should also depend on sample size, N, so that the resultant network density approximates empirical networks. Basic priors could be:</p>
 <p><span class="math display">\[
-Y_{ik} = Normal(\mu_{ik}, \sigma)
-\]</span> <span class="math display">\[
-\mu_{ik} = \alpha_j + \beta X_{ik} + \sigma
-\]</span> <span class="math display">\[
-\alpha_k \sim \text{Normal}(\mu_{\alpha_k}, \sigma_{\alpha_k})
-\]</span> <span class="math display">\[
-\beta \sim \text{Normal}(0, 1)
-\]</span> <span class="math display">\[
-\sigma \sim \text{Exponential}(1)
-\]</span> <span class="math display">\[
-\mu_{\alpha_k} \sim \text{Normal}(0, 1)
-\]</span> <span class="math display">\[
-\sigma_{\alpha_k} \sim \text{Exponential}(1)
+\beta_{k \rightarrow k} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.1}{\sqrt{N_k}}\right), 1.5\right)
 \]</span></p>
-<p>Where:</p>
+<p><span class="math display">\[
+\beta_{k \rightarrow \tilde{k}} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.01}{0.5 \sqrt{N_k} + 0.5 \sqrt{N_{\tilde{k}}}}\right), 1.5\right)
+\]</span></p>
+<p>where :</p>
 <ul>
-<li><p><span class="math inline">\(Y_{ij}\)</span> is the likelihood function for the outcome variable.</p></li>
-<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercepts across groups.</p></li>
-<li><p><span class="math inline">\(\mu_{\alpha_k}\)</span> is the overall mean intercept.</p></li>
-<li><p><span class="math inline">\(\sigma_{\alpha_k}\)</span> is the variance of the intercepts across groups.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the prior distributions for the regression coefficients.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the prior distributions for the error term.</p></li>
+<li><span class="math inline">\(k \rightarrow k\)</span> indicates a diagonal element.</li>
+<li><span class="math inline">\(k \rightarrow \tilde{k}\)</span> indicates an off-diagonal element.</li>
 </ul>
 </section>
 </section>
-<section id="notes" class="level2" data-number="14.5">
-<h2 data-number="14.5" class="anchored" data-anchor-id="notes"><span class="header-section-number">14.5</span> Notes</h2>
+<section id="notes" class="level2" data-number="23.4">
+<h2 data-number="23.4" class="anchored" data-anchor-id="notes"><span class="header-section-number">23.4</span> Note(s)</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -584,24 +539,13 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We can apply multiple variables similarly as <a href="./2. Multiple Regression for Continuous Variables.qmd">chapter 2</a>.</p></li>
-<li><p>We can apply interaction terms similarly as <a href=".//3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
-<li><p>We can apply caterogical variables similarly as <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
-<li><p>We can apply varying intercepts with any distribution developped in previous chapters.</p></li>
+<li><p>By defining this block model within our network model, we are estimating <span id="assor"><span style="color:#0D6EFD">assortativity 🛈</span></span> and <span id="disassor"><span style="color:#0D6EFD">disassortativity 🛈</span></span> for categorical variables.</p></li>
+<li><p>Similarly, for continuous variables, we can generate a block model that includes all continuous variables. <!--Correct? --></p></li>
 </ul>
 </div>
 </div>
-</section>
-<section id="references" class="level2" data-number="14.6">
-<h2 data-number="14.6" class="anchored" data-anchor-id="references"><span class="header-section-number">14.6</span> Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div>
 </section>
 
 </main> <!-- /main -->
@@ -1255,13 +1199,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./11. Zero inflated.html" class="pagination-link" aria-label="Zero inflated">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span>
+      <a href="./20. Network model.html" class="pagination-link" aria-label="Modeling Network">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./13. Varying slopes.html" class="pagination-link" aria-label="Varying slopes">
-        <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying slopes</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./22. Network control for data collection biases (wip).html" class="pagination-link" aria-label="Network with data collection biases">
+        <span class="nav-page-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Network with data collection biases</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
