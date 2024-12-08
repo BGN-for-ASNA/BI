@@ -3,6 +3,7 @@ import numpy as np
 import jax.numpy as jnp
 from matplotlib import pyplot as plt
 import arviz as az
+import numpyro
 class survival:
     def __init__(self):
         self.n_patients = None
@@ -17,20 +18,34 @@ class survival:
         self.exposure = None
         self.base_hazard = None
         self.met_hazard = None  
+        self.data_on_model = {}
+        self.cov = None
+        self.df = None
     
-    def get_basic_info(self, df, event='event', time='time', cov=None):
+    def get_basic_info(self, event='event', time='time', cov=None):
         # Number of patients in the dataset
-        self.n_patients = df.shape[0]
+        self.n_patients = self.df.shape[0]
         self.patients = np.arange(self.n_patients)  # Array of patient indices
-        self.time = df.loc[:, 'time'].values
-        self.event = df.loc[:, 'event'].values
+        self.time = self.df.loc[:, time].values
+        self.event = self.df.loc[:, event].values
 
-        # Extract event status and covariate values        
-        if cov is not None:
-            self.cov = df[cov].values
-
-    def plot_censoring(self, df, event='event', time='time', cov='metastasized',
-                       xlabel='Time', ylabel='Subject'):
+        if self.data_on_model is None:
+            self.data_on_model = {}
+        if type(cov) is str:
+            self.cov = cov
+            tmp = jnp.reshape(self.df[cov].values, (1, len(self.df[cov].values)))
+            self.data_on_model[cov] = tmp
+        elif type(cov) is list:
+            self.cov = cov
+            a = 0
+            for item in cov:
+                if a == 0:
+                    self.data_on_model['cov'] = jnp.array(self.df[item].values)
+                    a += 1
+                else:
+                    self.data_on_model['cov'] = jnp.stack([self.data_on_model['cov'] , jnp.array(self.df[item].values)])
+       
+    def plot_censoring(self, event='event', time='time', cov='metastasized', xlabel='Time', ylabel='Subject'):
         """
         Plots the censoring status of subjects in a time-to-event dataset.
 
@@ -58,25 +73,25 @@ class survival:
 
 
         """
-        self.get_basic_info(df, event, time, cov)
+        self.get_basic_info(event, time, cov)
 
         # Create the figure and axis
         fig, ax = plt.subplots(figsize=(8, 6))
 
         # Plot censored subjects (event = 0) as red horizontal lines
         ax.hlines(
-            self.patients[ self.event == 0], 0,  df[ self.event == 0].loc[:, 'time'], color="C3", label="Censored"
+            self.patients[ self.event == 0], 0,  self.df[ self.event == 0].loc[:, 'time'], color="C3", label="Censored"
         )
 
         # Plot uncensored subjects (event = 1) as gray horizontal lines
         ax.hlines(
-             self.patients[ self.event == 1], 0,  df[ self.event == 1].loc[:, 'time'], color="C7", label="Uncensored"
+             self.patients[ self.event == 1], 0,  self.df[ self.event == 1].loc[:, 'time'], color="C7", label="Uncensored"
         )
 
         # Add scatter points for subjects with the specified covariate (e.g., metastasized = 1)
         ax.scatter(
-            df[self.cov == 1].loc[:, 'time'],
-            self.patients[self.cov == 1],
+            self.df[self.df.loc[:,cov] == 1].loc[:, time],
+            self.patients[self.df.loc[:,cov] == 1],
             color="k",
             zorder=10,
             label="Metastasized",
@@ -94,7 +109,7 @@ class survival:
         # Add legend to the plot
         ax.legend(loc="center right")
 
-    def to_discrete_time(self, df, time='time', event='event', interval_length=3):
+    def surv_object(self, time='time', event='event', cov=None, interval_length=3):
         """
         Converts continuous time and event data into discrete time intervals for survival analysis.
 
@@ -129,7 +144,7 @@ class survival:
         - Exposure is capped by the interval bounds, and the last interval reflects the remaining time to the event or censoring.
 
         """
-        self.get_basic_info(df, time, event)
+        self.get_basic_info(time = time, event = event, cov = cov)
         self.interval_length = interval_length
         
         # Define interval bounds and calculate the number of intervals
@@ -154,8 +169,18 @@ class survival:
         self.intervals = intervals
         self.death = death
         self.exposure = exposure
+        if self.data_on_model is None:
+            self.data_on_model = {}
+        self.data_on_model['intervals'] = jnp.array(intervals)
+        self.data_on_model['death'] = jnp.array(death)
+        self.data_on_model['exposure']= jnp.array(exposure)
 
-        return intervals, death, exposure
+        if type(cov) is str:
+            tmp = jnp.reshape(self.df[cov].values, (1, len(self.df[cov].values)))
+            self.data_on_model[cov] = tmp
+        elif type(cov) is list:
+            for item in cov:
+                self.data_on_model[item] = jnp.array(self.df[item].values)
 
     def cum_hazard(self, hazard):
         """
@@ -241,9 +266,8 @@ class survival:
     def plot_surv(self, lambda0 = 'lambda0', beta = 'beta',
                   xlab='Time', ylab='Survival', covlab = 'treated', title = "Bayesian survival model"):
 
-        base_hazard = self.posteriors[lambda0]
-        array_expanded = jnp.expand_dims(np.exp(self.posteriors[beta]), axis=-1)
-        met_hazard =self.posteriors[lambda0] * array_expanded
+        base_hazard = self.posteriors[lambda0]        
+        met_hazard =self.posteriors[lambda0] * self.posteriors[beta]
 
         fig, (hazard_ax, surv_ax) = plt.subplots(ncols=2, sharex=True, sharey=False, figsize=(16, 6))   
 
@@ -289,3 +313,7 @@ class survival:
         lambda_ = numpyro.deterministic('lambda_', jnp.outer(jnp.exp(beta * cov), lambda0)) 
         mu = numpyro.deterministic('mu', exposure * lambda_)
         return lambda_, mu
+
+    def hazard_rate(self, cov, beta, lambda0):
+        lambda_ = numpyro.deterministic('lambda_', jnp.outer(jnp.exp(beta @ cov), lambda0)) 
+        return lambda_
