@@ -26,13 +26,53 @@ Key concepts include:
 
 ## Example
 
-Here’s an example Bayesian survival analysis using the **Bayesian Inference (BI)** package. The data consist of binary survival outcomes (`surv`) and categorical tank identifiers (`tank`) with censoring information.
+Here’s an example Bayesian survival analysis using the **Bayesian Inference (BI)** package. The data come from a clinical trial of mastectomy for breast cancer. The goal is to estimate the effect of treatment `metastasized` coded as 0 (no metastasis) and 1 (metastasis) on the survival probability `event` for each patient. Time is continuous and censoring is indicated by the event variable.
 
 ::: {.panel-tabset group="language"}
 
 ### Python
 ```python
+from main import *
 
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+
+# Import Data & Data Manipulation ------------------------------------------------
+m.data('data/mastectomy.csv', sep=',') # Import
+
+m.df.metastasized = (m.df.metastasized == "yes").astype(np.int64)
+m.df.event = jnp.array(m.df.event.values, dtype=jnp.int32)
+
+## Create survival object
+m.surv_object(time='time', event='event', cov='metastasized', interval_length=3)
+
+# Plot censoring ------------------------------------------------
+m.plot_censoring(cov='metastasized')
+
+# Model ------------------------------------------------
+def model(intervals, death, metastasized, exposure):
+    # Parameters priors distributions-------------------------
+    ## Base hazard distribution
+    lambda0 = bi.dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
+    ## Covariate effect distribution
+    beta = bi.dist.normal(0, 1000, shape = (1,),  name='beta')
+    ## Likelihood
+    ### Compute hazard rate based on covariate effect
+    lambda_ = m.hazard_rate(cov = metastasized, beta = beta, lambda0 = lambda0)
+    ### Compute exposure rates
+    mu = exposure * lambda_
+
+    # Likelihood calculation
+    y = lk('obs', Poisson(mu + jnp.finfo(mu.dtype).tiny), obs = death)
+
+# Run mcmc ------------------------------------------------
+m.run(model, num_samples=500) 
+
+# Summary ------------------------------------------------
+print(m.summary())
+
+# PLot hazards and survival function ------------------------------------------------
+m.plot_surv()
 ```
 
 ### R
@@ -51,11 +91,16 @@ $$
 h(t | X) = h_0(t) \exp(\beta^T X)
 $$
 
-Where:
+- Where:
 
-- \( h(t | X) \) is the hazard at time \( t \) for covariates \( X \).
-- \( h_0(t) \) is the baseline hazard.
-- \( \beta \) is the vector of coefficients.
+  - $h(t | X)$ is the hazard at time $t$ for covariates $X$.
+  - $h_0(t)$ is the baseline hazard function (e.g., exponential, Weibull).
+  - $X$ represents the covariates (such as age, treatment).
+  - $\beta$ are the regression coefficients to be estimated.
+
+- Censoring is accounted for by multiplying the hazard function by a factor that depends on the censoring distribution, usually modeled as independent censoring with a rate δ(t): 
+  - $Y_i(t) = Poisson(h(t | X) * δ(t))$
+
 
 ### *Bayesian formulation*
 
