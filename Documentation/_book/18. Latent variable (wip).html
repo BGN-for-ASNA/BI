@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>23&nbsp; Network metrics – BI documentation</title>
+<title>20&nbsp; Latent Variables – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -54,27 +54,7 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -84,8 +64,8 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./22. Multiplex network model (wip).html" rel="next">
-<link href="./20. Network control for data collection biases (wip).html" rel="prev">
+<link href="./19. PCA (wip).html" rel="next">
+<link href="./17. Missing data (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -123,6 +103,35 @@ div.csl-indent {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -135,7 +144,7 @@ div.csl-indent {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./21. Network Metrics (wip).html"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network metrics</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./18. Latent variable (wip).html"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Latent Variables</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -277,80 +286,92 @@ div.csl-indent {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./12. Varying intercepts.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
+  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Survival Analysis</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./13. Varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying slopes</span></span></a>
+  <a href="./13. Varying intercepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./14. Gaussian processes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
+  <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Varying slopes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./15. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
+  <a href="./15. Gaussian processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Missing data (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Missing data</span></span></a>
+  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Latent Variables</span></span></a>
+  <a href="./17. Missing data (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Missing data</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
+  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Latent Variables</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19. Network with block model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
+  <a href="./19. PCA (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis (PCA)</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Network with data collection biases</span></span></a>
+  <a href="./20. Network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./21. Network Metrics (wip).html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
+  <a href="./21. Network with block model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./22. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
+  <a href="./22. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Network with data collection biases</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./23. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
+  <a href="./23. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./24. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
+  <a href="./24. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -363,16 +384,12 @@ div.csl-indent {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">23.1</span> General Principles</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">23.2</span> Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">23.3</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">23.4</span> Mathematical Details</a>
-  <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">23.4.1</span> <em>Frequentist formulation</em></a></li>
-  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">23.4.2</span> <em>Bayesian formulation</em></a></li>
-  </ul></li>
-  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">23.5</span> Notes</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">23.6</span> Reference(s)</a></li>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">20.1</span> General Principles</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">20.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">20.3</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">20.4</span> Mathematical Details</a></li>
+  <li><a href="#interpretation-of-latent-variables" id="toc-interpretation-of-latent-variables" class="nav-link" data-scroll-target="#interpretation-of-latent-variables"><span class="header-section-number">20.5</span> Interpretation of Latent Variables</a></li>
+  <li><a href="#use-cases" id="toc-use-cases" class="nav-link" data-scroll-target="#use-cases"><span class="header-section-number">20.6</span> Use Cases</a></li>
   </ul>
 </nav>
     </div>
@@ -381,7 +398,7 @@ div.csl-indent {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network metrics</span></h1>
+<h1 class="title"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Latent Variables</span></h1>
 </div>
 
 
@@ -398,73 +415,111 @@ div.csl-indent {
 </header>
 
 
-<section id="general-principles" class="level2" data-number="23.1">
-<h2 data-number="23.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">23.1</span> General Principles</h2>
+<section id="general-principles" class="level2" data-number="20.1">
+<h2 data-number="20.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">20.1</span> General Principles</h2>
+<p>In some scenarios, the observed data does not directly reflect the underlying structure or factors influencing the outcome. Instead, <em>latent variables</em> — variables that are not directly observed but inferred from the data — can help model this hidden structure. These latent variables capture unobserved factors that affect the relationship between predictors (<em>X</em>) and the outcome (<em>Y</em>).</p>
+<p>We model the relationship between the predictor variables (<em>X</em>) and the outcome variable (<em>Y</em>) with a latent variable (<em>Z</em>) as follows:</p>
+<p><span class="math display">\[
+Y = f(X, Z) + \epsilon
+\]</span></p>
+<p>Where: - <em>Y</em> is the observed outcome variable. - <em>X</em> is the observed predictor variable(s). - <em>Z</em> is the latent (unobserved) variable, which we aim to infer. - <em>f(X, Z)</em> is the function that relates <em>X</em> and <em>Z</em> to <em>Y</em>. - <em></em> is the error term, typically assumed to be normally distributed with mean 0 and variance <em>^2</em>.</p>
+<p>The latent variable <em>Z</em> can represent various phenomena, such as group-level effects, time-varying trends, or individual-level factors, that are not captured by the observed predictors alone.</p>
 </section>
-<section id="considerations" class="level2" data-number="23.2">
-<h2 data-number="23.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">23.2</span> Considerations</h2>
-<div class="callout callout-style-default callout-caution callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Caution
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<section id="considerations" class="level2" data-number="20.2">
+<h2 data-number="20.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">20.2</span> Considerations</h2>
+<p>In Bayesian regression with latent variables, we consider the uncertainty in both the observed and latent variables. We declare prior distributions for the latent variables, in addition to the usual priors for regression coefficients and intercepts. These latent variables are often modeled using Gaussian distributions (<em>Normal</em> priors) or more flexible distributions such as <em>Multivariate Normal</em> for correlations among the latent variables.</p>
+<p>The goal is to infer the posterior distribution over both the parameters and the latent variables, given the observed data.</p>
+</section>
+<section id="example" class="level2" data-number="20.3">
+<h2 data-number="20.3" class="anchored" data-anchor-id="example"><span class="header-section-number">20.3</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian regression with latent variables using TensorFlow Probability:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Data Simulation ---------------------</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>NY <span class="op">=</span> <span class="dv">4</span>  <span class="co"># Number of dependent variables or outcomes (e.g., dimensions for latent variables)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>NV <span class="op">=</span> <span class="dv">8</span>  <span class="co"># Number of observations or individual-level data points (e.g., subjects)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the matrix Y2 with shape (NV, NY) filled with NaN values, to be filled later</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>Y2 <span class="op">=</span> np.full((NV, NY), np.nan)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the means and offsets for the data</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># means: Generate random normal means for each of the NY outcomes</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># offsets: Generate random normal offsets for each of the NV observations</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>means <span class="op">=</span> bi.distribution.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,), sample <span class="op">=</span> <span class="va">True</span>, seed <span class="op">=</span> <span class="dv">10</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>offsets <span class="op">=</span> bi.distribution.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NV,<span class="dv">1</span>), sample <span class="op">=</span> <span class="va">True</span>, seed <span class="op">=</span> <span class="dv">20</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Fill the matrix Y2 with simulated data based on the generated means and offsets</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Each observation (i) is the sum of an individual-specific offset and an outcome-specific mean</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(NV):</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(NY):</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        Y2[i, k] <span class="op">=</span> means[k] <span class="op">+</span> offsets[i]</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate individual-level random effects (e.g., random slopes or intercepts)</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># b_individual: A matrix of size (N, K) where N is the number of individuals and K is the number of covariates</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>b_individual <span class="op">=</span> bi.distribution.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>N, K), sample <span class="op">=</span> <span class="va">True</span>, seed <span class="op">=</span> <span class="dv">0</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># mu: Add an additional effect 'a' to the individual-level random effects 'b_individual'</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 'a' could represent a population-level effect or a baseline</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> b_individual <span class="op">+</span> a</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert Y2 to a JAX array for further computation in a JAX-based framework</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>Y2 <span class="op">=</span> jnp.array(Y2)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Set data ------------------------------------------------</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>dat <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    NY <span class="op">=</span> NY,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    NV <span class="op">=</span> NV,</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    Y2 <span class="op">=</span> Y2</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(NY, NV, Y2):</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    means <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,), name <span class="op">=</span> <span class="st">'means'</span>)</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    offset <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,<span class="dv">1</span>), name <span class="op">=</span> <span class="st">'offset'</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> bi.dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>(NY,), name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span>  numpyro.sample(<span class="st">'sigma'</span>, numpyro.distributions.Exponential(<span class="dv">1</span>).expand([NY])) </span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    tmp <span class="op">=</span> jnp.tile(means, (NV, <span class="dv">1</span>)).reshape(NV,NY)  </span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    mu_l <span class="op">=</span> tmp <span class="op">+</span> offset </span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    numpyro.sample(<span class="st">'Y2'</span>, Normal(mu_l, jnp.tile(sigma, [NV, <span class="dv">1</span>])), obs<span class="op">=</span>Y2)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="mathematical-details" class="level2" data-number="20.4">
+<h2 data-number="20.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">20.4</span> Mathematical Details</h2>
+<p>We can express the Bayesian latent variable model using probability distributions as follows:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp; p(Y | X, Z, W, \sigma) = \text{Normal}(X * W + Z, \sigma^2) \\
+&amp; p(Z) = \text{Normal}(0, \tau^2) \\
+&amp; p(W) = \text{Normal}(0, \alpha^2) \\
+\end{aligned}
+\]</span></p>
+<p>Where: - <em>p(Y | X, Z, W, )</em> is the likelihood function for the observed outcome variable, which depends on both the observed predictor <em>X</em> and the latent variable <em>Z</em>. - <em>p(Z)</em> is the prior distribution for the latent variable <em>Z</em>, often modeled as <em>Normal</em> with a mean of 0 and variance <em>^2</em>. - <em>p(W)</em> is the prior distribution for the regression coefficient(s) <em>W</em>, typically assumed to follow a <em>Normal</em> distribution with mean 0 and variance <em>^2</em>.</p>
+<p>The latent variable <em>Z</em> introduces additional flexibility to the model, capturing unobserved influences on the outcome <em>Y</em>.</p>
+</section>
+<section id="interpretation-of-latent-variables" class="level2" data-number="20.5">
+<h2 data-number="20.5" class="anchored" data-anchor-id="interpretation-of-latent-variables"><span class="header-section-number">20.5</span> Interpretation of Latent Variables</h2>
+<ul>
+<li><p><strong>Latent Variable (<em>Z</em>)</strong>: Represents hidden factors not captured by the observed variables, allowing the model to explain more of the variance in the outcome. For instance, in a psychological model, <em>Z</em> might represent a latent trait such as intelligence or anxiety that influences the outcome.</p></li>
+<li><p><strong>Posterior Inference</strong>: The posterior distribution of the latent variable <em>Z</em> can give insights into how much the unobserved factors contribute to the outcome.</p></li>
+</ul>
+</section>
+<section id="use-cases" class="level2" data-number="20.6">
+<h2 data-number="20.6" class="anchored" data-anchor-id="use-cases"><span class="header-section-number">20.6</span> Use Cases</h2>
+<ul>
+<li><strong>Latent Factors in Psychometrics</strong>: In psychometric models, latent variables represent traits or abilities that are not directly observed, such as cognitive ability or personality traits.</li>
+<li><strong>Time-Varying Effects</strong>: Latent variables can represent unobserved time trends or individual-specific effects in time-series or longitudinal models.</li>
+<li><strong>Mixed Models</strong>: In hierarchical or mixed models, latent variables can represent group-specific intercepts or slopes.</li>
+</ul>
 
-</div>
-</div>
-</section>
-<section id="example" class="level2" data-number="23.3">
-<h2 data-number="23.3" class="anchored" data-anchor-id="example"><span class="header-section-number">23.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian Network metrics model using the Bayesian Inference (BI) package:</p>
-<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
-<div class="tab-content" data-group="language">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-</div>
-</section>
-<section id="mathematical-details" class="level2" data-number="23.4">
-<h2 data-number="23.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">23.4</span> Mathematical Details</h2>
-<section id="frequentist-formulation" class="level3" data-number="23.4.1">
-<h3 data-number="23.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">23.4.1</span> <em>Frequentist formulation</em></h3>
-</section>
-<section id="bayesian-formulation" class="level3" data-number="23.4.2">
-<h3 data-number="23.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">23.4.2</span> <em>Bayesian formulation</em></h3>
-</section>
-</section>
-<section id="notes" class="level2" data-number="23.5">
-<h2 data-number="23.5" class="anchored" data-anchor-id="notes"><span class="header-section-number">23.5</span> Notes</h2>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
 
-</div>
-</div>
-</section>
-<section id="references" class="level2" data-number="23.6">
-<h2 data-number="23.6" class="anchored" data-anchor-id="references"><span class="header-section-number">23.6</span> Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
-
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div>
 </section>
 
 </main> <!-- /main -->
@@ -1118,13 +1173,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./20. Network control for data collection biases (wip).html" class="pagination-link" aria-label="Network with data collection biases">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Network with data collection biases</span></span>
+      <a href="./17. Missing data (wip).html" class="pagination-link" aria-label="Missing data">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Missing data</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./22. Multiplex network model (wip).html" class="pagination-link" aria-label="Multiplex network model">
-        <span class="nav-page-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./19. PCA (wip).html" class="pagination-link" aria-label="Principal Component Analysis (PCA)">
+        <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis (PCA)</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

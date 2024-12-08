@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>16&nbsp; Gaussian Processes – BI documentation</title>
+<title>28&nbsp; Multilayer Networks – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -84,8 +84,7 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./15. Measuring error (wip).html" rel="next">
-<link href="./13. Varying slopes.html" rel="prev">
+<link href="./25. Multiplex temporal network model (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -123,35 +122,6 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
@@ -164,7 +134,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./14. Gaussian processes.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./26. Multilayer network model (wip).html"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -306,80 +276,92 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./12. Varying intercepts.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
+  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Survival Analysis</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./13. Varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying slopes</span></span></a>
+  <a href="./13. Varying intercepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./14. Gaussian processes.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
+  <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Varying slopes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./15. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
+  <a href="./15. Gaussian processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Missing data (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Missing data</span></span></a>
+  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Latent Variables</span></span></a>
+  <a href="./17. Missing data (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Missing data</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Network model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
+  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Latent Variables</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19. Network with block model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
+  <a href="./19. PCA (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis (PCA)</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Network with data collection biases</span></span></a>
+  <a href="./20. Network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Network</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./21. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
+  <a href="./21. Network with block model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Network with block model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./22. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
+  <a href="./22. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Network with data collection biases</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./23. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
+  <a href="./23. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./24. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
+  <a href="./24. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -392,16 +374,16 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">16.1</span> General Principles</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">16.2</span> Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">16.3</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">16.4</span> Mathematical Details</a>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">28.1</span> General Principles</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">28.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">28.3</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">28.4</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><span class="header-section-number">16.4.1</span> <em>Formula</em></a></li>
-  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">16.4.2</span> <em>Bayesian model</em></a></li>
+  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">28.4.1</span> <em>Frequentist formulation</em></a></li>
+  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">28.4.2</span> <em>Bayesian formulation</em></a></li>
   </ul></li>
-  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">16.5</span> Notes</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">16.6</span> Reference(s)</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">28.5</span> Notes</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">28.6</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -410,7 +392,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Gaussian Processes</span></h1>
+<h1 class="title"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></h1>
 </div>
 
 
@@ -427,12 +409,12 @@ window.Quarto = {
 </header>
 
 
-<section id="general-principles" class="level2" data-number="16.1">
-<h2 data-number="16.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">16.1</span> General Principles</h2>
-<p>Through varying intercepts and slopes we have seen how quantify some of the unique features that generate variation across clusters and covariance among the observations within each cluster. But through the covariance matrix that is used to account for correlation between clusters, we are assuming inherently linear relationships between clusters. What if we want to model the relationship between two variables that are not linearly related? In this case, we can use a Gaussian Process (GP) to model the relationship between two variables. Basically, a GP is a a varying slope model with a covariance matrix where each element of the matrix is a <span id="kernel"><span style="color:#0D6EFD">kernel function 🛈</span></span>.</p>
+<section id="general-principles" class="level2" data-number="28.1">
+<h2 data-number="28.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">28.1</span> General Principles</h2>
+<p>A multilayer network is a broader term that refers to networks composed of multiple layers, where each layer may have its own set of nodes and edges, potentially representing different types of entities and interactions. This means the nodes can be the same or different across layers.</p>
 </section>
-<section id="considerations" class="level2" data-number="16.2">
-<h2 data-number="16.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">16.2</span> Considerations</h2>
+<section id="considerations" class="level2" data-number="28.2">
+<h2 data-number="28.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">28.2</span> Considerations</h2>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -443,196 +425,34 @@ Caution
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ul>
-<li>To capture complex, non-linear relationships in data where the underlying function is smooth but has an unknown functional form, GPs use a <span id="kernel"><span style="color:#0D6EFD">kernel 🛈</span></span></li>
-<li>GPs assume normally distributed errors and may not be appropriate for all types of noise</li>
-<li>The choice of kernel hyperparameters can significantly impact results, thus GPs require choosing an appropriate kernel function that captures the expected behavior of your data.</li>
-<li>Though kernel definition we can incorporate domain knowledge.</li>
-<li>They scale poorly with dataset size (O(n³) complexity) due to matrix operations, thus memory requirements can be substantial for large datasets which as lead neural networks to be used instead to resolve large non linear problems.</li>
-</ul>
+
 </div>
 </div>
 </section>
-<section id="example" class="level2" data-number="16.3">
-<h2 data-number="16.3" class="anchored" data-anchor-id="example"><span class="header-section-number">16.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist in a continuous dependet variable (<em>total_tools</em>) representing the number of tools inveted in the islands, and a continuous independent variable (<em>population</em>) representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance amtrix of the islands for the kernel function in order to capture the spatial dependence of the relationship.</p>
+<section id="example" class="level2" data-number="28.3">
+<h2 data-number="28.3" class="anchored" data-anchor-id="example"><span class="header-section-number">28.3</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian Multilayer Networks model using the Bayesian Inference (BI) package:</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span> <span class="op">*</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'resources/data/Kline2.csv'</span>, sep<span class="op">=</span><span class="st">";"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> pd.read_csv(<span class="st">'resources/data/islandsDistMatrix.csv'""</span>, index_col<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>])</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"society"</span>] <span class="op">=</span> jnp.arange(<span class="dv">0</span>,<span class="dv">10</span>)<span class="co"># index observations</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"Dmat"</span>] <span class="op">=</span> islandsDistMatrix.values <span class="co"># Distance matrix</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(Dmat, population, society, total_tools):</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> bi.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> bi.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> bi.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'g'</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># non-centered Gaussian Process prior</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    etasq <span class="op">=</span> bi.dist.exponential(<span class="dv">2</span>, name <span class="op">=</span> <span class="st">'etasq'</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    rhosq <span class="op">=</span> bi.dist.exponential(<span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'rhosq'</span>)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>,<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'z'</span>, shape <span class="op">=</span> (<span class="dv">10</span>,))</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    SIGMA, L_SIGMA, k <span class="op">=</span> bi.kernel_sq_exp(Dmat, z, etasq, rhosq, <span class="fl">0.01</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">**</span>b <span class="op">/</span> g <span class="op">*</span> jnp.exp(k[society])</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"T"</span>, Poisson(lambda_), obs<span class="op">=</span>total_tools)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>m.run(model, num_samples<span class="op">=</span><span class="dv">500</span>) </span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>bi <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"main"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device ------------------------------------------------</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> bi<span class="sc">$</span><span class="fu">bi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'resources/data/Kline2.csv'</span>, <span class="at">sep=</span><span class="st">";"</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="ot">=</span> bi<span class="sc">$</span>pd<span class="sc">$</span><span class="fu">read_csv</span>(<span class="st">'resources/data/islandsDistMatrix.csv'</span>, <span class="at">index_col=</span><span class="fu">as.integer</span>(<span class="dv">0</span>))</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'total_tools'</span>, <span class="st">'population'</span>))</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>society <span class="ot">=</span> bi<span class="sc">$</span>jnp<span class="sc">$</span><span class="fu">arange</span>(<span class="dv">0</span>,<span class="dv">10</span>, <span class="at">dtype=</span><span class="st">'int64'</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>Dmat <span class="ot">=</span> bi<span class="sc">$</span>jnp<span class="sc">$</span><span class="fu">array</span>(islandsDistMatrix)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(Dmat, population, society, total_tools){</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'g'</span>)</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># non-centered Gaussian Process prior</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  etasq <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(<span class="dv">2</span>, <span class="at">name =</span> <span class="st">'etasq'</span>)</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  rhosq <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(<span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'rhosq'</span>)</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>,<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'z'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">10</span>)))</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">=</span> bi<span class="sc">$</span>gaussian<span class="sc">$</span><span class="fu">kernel_sq_exp</span>(Dmat, z, etasq, rhosq, <span class="fl">0.01</span>)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  SIGMA <span class="ot">=</span> r[[<span class="dv">1</span>]]</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  L_SIGMA <span class="ot">=</span> r[[<span class="dv">2</span>]]</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  k <span class="ot">=</span> r[[<span class="dv">3</span>]]</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  lambda_ <span class="ot">=</span> a <span class="sc">*</span> population<span class="sc">**</span>b <span class="sc">/</span> g <span class="sc">*</span> bi<span class="sc">$</span>jnp<span class="sc">$</span><span class="fu">exp</span>(k[society])</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"T"</span>, bi<span class="sc">$</span><span class="fu">Poisson</span>(lambda_), <span class="at">obs=</span>total_tools)</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) </span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
 </section>
-<section id="mathematical-details" class="level2" data-number="16.4">
-<h2 data-number="16.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">16.4</span> Mathematical Details</h2>
-<section id="formula" class="level3" data-number="16.4.1">
-<h3 data-number="16.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">16.4.1</span> <em>Formula</em></h3>
-<p>The following equation allows us to evaluate the relationship between dependent variable <span class="math inline">\(Y\)</span> and independent variable <span class="math inline">\(X\)</span> while incorporating a GP for variable <span class="math inline">\(Z\)</span> :</p>
-<p><span class="math display">\[
-Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
-\]</span></p>
-<p>where: - <span class="math inline">\(Y_i\)</span> is the i-th value for the dependent variable <span class="math inline">\(Y\)</span>.</p>
-<ul>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the i-th value for independent variable <span class="math inline">\(X\)</span>.</p></li>
-<li><p><span class="math inline">\(\gamma_{Z_i}\)</span> is the gaussian process i-th value for independent variable <span class="math inline">\(Z\)</span>.</p></li>
-</ul>
-<p>The GP <span class="math inline">\(\gamma_{Z_i}\)</span> follow a multivariate normal distribution:</p>
-<p><span class="math display">\[
-\begin{pmatrix}
-    Z_1 \\
-    \vdots \\
-    Z_{n}
-\end{pmatrix}
-\sim MVNormal \left(
-\begin{pmatrix}
-    0 \\
-    \vdots \\
-    0
-\end{pmatrix},
-K
-\right)
-\]</span></p>
-<p>where:</p>
-<ul>
-<li><p><span class="math inline">\((Z_1, ..., Z_n)\)</span> represents a collection of all values of the random variable <span class="math inline">\(Z\)</span>.</p></li>
-<li><p><span class="math inline">\((0, ..., 0)\)</span> represents the mean vector of the multivariate normal distribution of the same size as the number of random variable and set to <span id="kernelMean0"><span style="color:#0D6EFD">zero 🛈</span></span>.</p></li>
-<li><p><span class="math inline">\(K\)</span> is the covariance matrix of the random variable <span class="math inline">\(Z\)</span>. Each element <span class="math inline">\(K{ij}\)</span> of the matrix is given by the kernel function evaluated at the corresponding points: <span class="math inline">\(K_{ij} = k(Z_i,Z_j)\)</span></p></li>
-</ul>
-<p><span class="math display">\[
-K = \begin{pmatrix}
-    k(Z_1, Z_1) &amp; k(Z_1, Z_2) &amp; \cdots &amp; k(Z_1, Z_{n}) \\
-    k(Z_2, Z_1) &amp; k(Z_2, Z_2) &amp; \cdots &amp; k(Z_2, Z_{n}) \\
-    \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
-    k(Z_{n}, Z_1) &amp; k(Z_{n}, Z_2) &amp; \cdots &amp; k(Z_{n}, Z_{n})
-\end{pmatrix}
-\]</span></p>
-<ul>
-<li>Multiple kernel function exist and will be discussed in the <a href="#notes">Note(s)</a> section. But the most common one is the quadratic kernel:</li>
-</ul>
-<p><span class="math display">\[
-K_{ij} = \eta^2 exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
-\]</span></p>
-<p>Where:</p>
-<ul>
-<li><p><span class="math inline">\(\eta\)</span> is the signal variance, representing the overall variance of the outputs of the Gaussian process. It scales the influence of the kernel function. A larger <span class="math inline">\(\eta^2\)</span> indicates a wider range of values the function can take.</p></li>
-<li><p><span class="math inline">\(p\)</span> determines the rate of decline.</p></li>
-<li><p><span class="math inline">\(D_{ij}\)</span> is the distance between the <span class="math inline">\(i\)</span>-th and <span class="math inline">\(j\)</span>-th points.</p></li>
-<li><p><span class="math inline">\(\delta_{ij}\)</span> is the Kronecker delta taking a value of zero when <span class="math inline">\(i = j\)</span>, allowing to included in the calculation the self-covariance.</p></li>
-<li><p><span class="math inline">\(\sigma^2\)</span> is the noise variance, which accounts for the observation noise in the data. It represents the uncertainty or variability in the measurements or outputs at each point. The term effectively adds this noise variance only when <span class="math inline">\(i = 𝑗\)</span>, ensuring that the diagonal elements of the covariance matrix represent the total variance at each input point.</p></li>
-</ul>
+<section id="mathematical-details" class="level2" data-number="28.4">
+<h2 data-number="28.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">28.4</span> Mathematical Details</h2>
+<section id="frequentist-formulation" class="level3" data-number="28.4.1">
+<h3 data-number="28.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">28.4.1</span> <em>Frequentist formulation</em></h3>
 </section>
-<section id="bayesian-model" class="level3" data-number="16.4.2">
-<h3 data-number="16.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">16.4.2</span> <em>Bayesian model</em></h3>
-<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express a Bayesian version of this GP using the following model:</p>
-<p><span class="math display">\[
-Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
-\]</span></p>
-<p><span class="math display">\[
-\gamma \sim MVNormal \left(
-\begin{pmatrix}
-    0 \\
-    \vdots \\
-    0
-\end{pmatrix},
-K
-\right)
-\]</span></p>
-<p><span class="math display">\[
-K_{ij} = \eta^2 exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
-\]</span></p>
-<p><span class="math display">\[
-\alpha \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
-\eta^2 \sim HalfCauchy(0,1)
-\]</span></p>
-<p><span class="math display">\[
-p^2 \sim HalfCauchy(0,1)
-\]</span></p>
-<p>where:</p>
-<ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the i-th value for the dependent variable <span class="math inline">\(Y\)</span>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term with prior <span class="math inline">\(Normal(0,1)\)</span>.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term with prior <span class="math inline">\(Normal(0,1)\)</span>.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the i-th value for independent variable <span class="math inline">\(X\)</span>.</p></li>
-<li><p><span class="math inline">\(\gamma_{Z_i}\)</span> is the gaussian process i-th value for independent variable <span class="math inline">\(Z\)</span>.</p></li>
-<li><p><span class="math inline">\(\gamma\)</span> is the latent function modeled by the GP.</p></li>
-<li><p><span class="math inline">\(K_{ij}\)</span> is the kernel function evaluated at the corresponding points: <span class="math inline">\(K_{ij} = k(Z_i,Z_j)\)</span> with priors HalfCauchy(0,1) for <span class="math inline">\(\eta^2\)</span> and <span class="math inline">\(p^2\)</span> to ensure positive values.</p></li>
-</ul>
+<section id="bayesian-formulation" class="level3" data-number="28.4.2">
+<h3 data-number="28.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">28.4.2</span> <em>Bayesian formulation</em></h3>
 </section>
 </section>
-<section id="notes" class="level2" data-number="16.5">
-<h2 data-number="16.5" class="anchored" data-anchor-id="notes"><span class="header-section-number">16.5</span> Notes</h2>
+<section id="notes" class="level2" data-number="28.5">
+<h2 data-number="28.5" class="anchored" data-anchor-id="notes"><span class="header-section-number">28.5</span> Notes</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -643,30 +463,13 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Common kernel functions include:</p>
-<ul>
-<li><p><em>Radial Basis Function</em> (RBF) or Squared Exponential Kernel: <span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{||x-x'||^2}{2l^2}\right)\]</span></p></li>
-<li><p><em>Rational Quadratic Kernel</em>, this kernel is equivalent to adding together many RBF kernels with different length scales: <span class="math display">\[k(x,x') = \sigma^2 \left(1 + \frac{||x-x'||^2}{2l^2}\right)^{-\alpha}\]</span></p></li>
-<li><p><em>Periodic kernel</em> allows to model functions which repeat themselves exactly: <span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right)\]</span></p></li>
-<li><p><em>Locally Periodic Kernel</em>:</p></li>
-</ul>
-<p><span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right) \exp\left(-\frac{||x-x'||^2}{2l^2}\right)\]</span></p>
-<ul>
-<li><p>GPs can be extended to classification problems using link functions Multi-output problems using matrix-valued kernels Deep learning through Deep Kernel Learning</p></li>
-<li><p>Computational tricks for large datasets include:</p>
-<ul>
-<li>Sparse approximations (e.g., FITC, VFE)</li>
-<li>Inducing points methods</li>
-<li>Random Fourier features</li>
-</ul></li>
-</ul>
+
 </div>
 </div>
 </section>
-<section id="references" class="level2" data-number="16.6">
-<h2 data-number="16.6" class="anchored" data-anchor-id="references"><span class="header-section-number">16.6</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="28.6">
+<h2 data-number="28.6" class="anchored" data-anchor-id="references"><span class="header-section-number">28.6</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-<p>https://www.cs.toronto.edu/~duvenaud/cookbook/</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
@@ -1327,14 +1130,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./13. Varying slopes.html" class="pagination-link" aria-label="Varying slopes">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying slopes</span></span>
+      <a href="./25. Multiplex temporal network model (wip).html" class="pagination-link" aria-label="Multiplex temporal network model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./15. Measuring error (wip).html" class="pagination-link" aria-label="Measuring error">
-        <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Measuring error</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
