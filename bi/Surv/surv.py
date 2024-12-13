@@ -94,7 +94,7 @@ class survival:
             self.patients[self.df.loc[:,cov] == 1],
             color="k",
             zorder=10,
-            label="Metastasized",
+            label=cov,
         )
 
         # Set plot limits and labels
