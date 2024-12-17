@@ -1,0 +1,169 @@
+# Poisson model
+## General Principles
+To model the relationship between a count outcome variable—e.g., counts of events occurring in a fixed interval of time or space—and one or more independent variables, we can use the _Poisson model_.
+
+This is a special shape of the binomial distribution; it is useful because it models binomial events for which the number of trials $n$ is unknown or uncountably large.
+
+![](https://www.researchgate.net/publication/349989811/figure/fig1/AS:1024685147947009@1621315385285/Comparison-of-linear-model-and-Poisson-model-Note-The-red-line-shows-how-expected-y.png)
+
+## Considerations
+::: callout-caution 
+- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+
+- We have the second [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}. The conventional link function for a Poisson model is the _log_ link (it ensures that _λ_ is always positive).
+
+- To invert the log link function and model linearly the relationship between the predictor variables and the log of the mean rate parameter, we can apply the exponential function (see comment in code).
+
+<!--
+- The parameter $λ$ is the expected value, but it’s also commonly thought of as a rate. $λ$ is equal to an expected number of events, $µ$, per unit time or distance, $\tau$. This implies that $λ = µ/τ$, which lets us redefine the link
+
+
+$$
+log(\lambda_i) = log(\tau_i) + \alpha + \beta x_i
+$$
+
+- The offset $τ_i$ scales the expected number of events for each case $i$.
+-->
+:::
+
+## Example
+Below is an example code snippet demonstrating a Bayesian Poisson model using the Bayesian Inference (BI) package. Data consist of:
+
+1) A continuous dependent variable *total_tools*, which represents the number of tools produced by a civilization.
+
+2) A continuous independent variable *population* representing population size.
+
+3) A categorical independent variable *cid* representing different civilizations.
+
+The goal is to estimate the production of tools based on population size, accounting for each civilization.
+
+
+::: {.panel-tabset group="language"}
+### Python
+```python
+from main import*
+
+# Setup device------------------------------------------------
+m = bi()
+
+# Import Data & Data Manipulation ------------------------------------------------
+m.data('../data/Kline.csv', sep=';') # Import
+m.sale(["population"])  # Scale
+m.df["cid"] = (m.df.contact == "high").astype(int) # Manipulate
+m.data_to_model(['total_tools', 'population', 'cid']) # Send to model 
+
+
+# Define model ------------------------------------------------
+def model(cid, P, total_tools):
+    # Parameters priors distributions
+    alpha = dist.normal(3, 0.5, name='alpha')
+    beta = dist.normal(0, 0.2, name='beta')
+    # Likelihood
+    lk("y", Poisson(jnp.exp(alpha[cid] + beta[cid]*P)), obs=total_tools)  # Exponential ensures non-negative values and inverts the log link function
+
+# Run mcmc ------------------------------------------------
+m.run(model) # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89) # Get posterior distributions
+```
+
+### R
+```R
+library(reticulate)
+bi <- import("main")
+# Setup device------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Import Data & Data Manipulation ------------------------------------------------
+m$data('../data/Kline.csv', sep=';') # Import
+m$scale(list('population'))# Scale
+m$df["cid"] =  as.integer(ifelse(m$df$contact == "high", 1, 0)) # Manipulate
+m$data_to_model(list('total_tools', 'population', 'cid' )) # Send to model (convert to jax array)
+
+
+# Define model ------------------------------------------------
+model <- function(total_tools, population, cid){
+  # Parameters priors distributions
+  alpha = bi$dist$normal(3, 0.5, name='alpha', shape = tuple(as.integer(1)))
+  beta = bi$dist$normal(0, 0.2, name='beta', shape = tuple(as.integer(1)))
+  l = bi$jnp$exp(alpha[cid] + beta[cid]*population)
+  # Likelihood
+  bi$lk("y", bi$Poisson(l), obs=total_tools)
+}
+
+# Run mcmc ------------------------------------------------
+m$run(model) # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89) # Get posterior distributions
+```
+:::
+
+## Mathematical Details
+### *Frequentist formulation*
+We model the relationship between the predictor variable ($X_i$) and the count outcome variable ($Y_i$) using the following equation:
+
+$$
+\log(\lambda_i) = \alpha + \beta  X_i 
+$$
+
+Where:
+
+- $\lambda_i$ is the mean rate parameter of the Poisson distribution (expected count) for observation *i*, modeled as the exponential function of the linear combination of predictors.
+  
+- $\log(\lambda_i)$ is the log of the mean rate parameter for observation *i*, ensuring it is positive.
+  
+- $\beta$ is the regression coefficient.
+  
+- $\alpha$ is the intercept term.
+  
+- $X_i$ is the value for the independent variables for observation *i*.
+
+
+### *Bayesian formulation*
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
+
+$$
+Y \sim Poisson(\lambda_i)
+$$
+
+$$
+\log(\lambda_i) \sim \alpha + \beta X_i
+$$
+
+$$
+\alpha \sim Normal(0, 1)
+$$
+
+$$
+\beta \sim Normal(0, 1)
+$$
+
+Where:
+
+- $Y_i$ is the dependent variable for observation *i*. 
+  
+- $\lambda_i$ is the mean rate parameter of the Poisson distribution for observation *i*, modeled as the exponential function of the linear combination of predictors.
+  
+- $\log(\lambda_i)$ is the log of the mean rate parameter for observation *i*.
+  
+- $\alpha$ and $\beta$ are the prior distributions for the intercept and the regression coefficients, respectivelly .
+  
+- $\lambda$ is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.
+  
+- $X_i$ is the value for the independent variables for observation *i*.
+
+## Notes
+::: callout-note
+
+- We can apply multiple variables similarly as in [chapter 2](2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
+
+- We can apply interaction terms similarly as in [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+
+- We can apply categorical variables similarly as in [chapter 4](4.&#32;Categorical&#32;variable.md).
+:::
+
+## Reference(s)
+@mcelreath2018statistical
+
