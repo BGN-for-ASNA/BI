@@ -3,6 +3,8 @@ import jax.numpy as jnp
 from jax.scipy.stats import norm
 
 class link:
+    def __init__(self):
+        pass
     """
     A class to store and manage various mathematical link functions and their inverses.
     """
