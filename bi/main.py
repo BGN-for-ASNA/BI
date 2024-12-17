@@ -65,14 +65,12 @@ class bi(manip, dist, gaussian, factors, net, link, samplers ):
         var_names= list(self.model_info.keys())
         sample_stats = {k:jnp.transpose(v) for k, v in zip(sample_stats_name, self.sample_stats)}
         trace = {}
+        #First dim is the number of chains
+        #Second dim is the number of sampling
+        #The rest is the shape of the object
         for name, samp in zip(var_names, self.posterior):
-            if len(samp.shape) == 2:
-                transposed_shape = [1, 0]
-            elif len(samp.shape) == 3:
-                transposed_shape = [1, 0, 2]
-            else:
-                transposed_shape = [1, 0, 2, 3]
-            trace[name] = jnp.transpose(samp, transposed_shape)
+            print(samp.shape)
+            trace[name] = samp
         self.trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
         self.priors_name = var_names
         return self.trace
@@ -102,18 +100,26 @@ class bi(manip, dist, gaussian, factors, net, link, samplers ):
         return fig
 
     def diag_posterior(self):
+        if self.trace is None:
+            self.trace_to_az()        
         posterior, axes = plt.subplots(1, len(self.priors_name), figsize=(8, 4))
         axes = az.plot_posterior(self.trace , var_names=self.priors_name, ax=axes)
         axes.flatten()[0].get_figure() 
         self.plot_posterior = posterior
 
     def diag_autocor(self, *args, **kwargs):
+        if self.trace is None:
+            self.trace_to_az()
         self.autocor = az.plot_autocorr(self.trace , var_names=self.priors_name, *args, **kwargs)
 
     def diag_traces(self, *args, **kwargs):
+        if self.trace is None:
+            self.trace_to_az()
         self.traces =  az.plot_trace(self.trace, compact=False, *args, **kwargs)
 
     def diag_rank(self, *args, **kwargs):
+        if self.trace is None:
+            self.trace_to_az()
         rank, axes = plt.subplots(1, len( self.priors_name))
         az.plot_rank(self.trace , var_names= self.priors_name, ax=axes, *args, **kwargs)
         self.rank = rank
@@ -127,6 +133,8 @@ class bi(manip, dist, gaussian, factors, net, link, samplers ):
         return self.forest
     
     def diag_waic(self, *args, **kwargs):
+        if self.trace is None:
+            self.trace_to_az()        
         self.waic = az.waic(self.trace, *args, **kwargs)
         return self.waic
     
@@ -135,10 +143,14 @@ class bi(manip, dist, gaussian, factors, net, link, samplers ):
         return self.comparaison 
 
     def diag_rhat(self, *args, **kwargs):
+        if self.trace is None:
+            self.trace_to_az()        
         self.rhat = az.rhat(self.trace, *args, **kwargs)
         return self.rhat 
 
     def  diag_ess(self, *args, **kwargs):
+        if self.trace is None:
+            self.trace_to_az()        
         self.ess = az.ess(self.trace, *args, **kwargs)
         return self.ess 
 
@@ -151,6 +163,8 @@ class bi(manip, dist, gaussian, factors, net, link, samplers ):
                   *args, **kwargs):
         if var_names is None:
             var_names = self.priors_name
+        if self.trace is None:
+            self.trace_to_az()            
         self.pair_plot = az.plot_pair(self.trace, var_names = var_names,                   
                                       kind=kind,
                                       kde_kwargs=kde_kwargs,
@@ -163,7 +177,8 @@ class bi(manip, dist, gaussian, factors, net, link, samplers ):
     def diag_density(self, var_names=None, shade=0.2, *args, **kwargs):
         if var_names is None:
             var_names = self.priors_name
-
+        if self.trace is None:
+            self.trace_to_az()
         self.density = az.plot_density(
                             self.trace,
                             var_names=var_names,
@@ -173,6 +188,9 @@ class bi(manip, dist, gaussian, factors, net, link, samplers ):
         return self.density
     
     def diag_plot_ess(self,):
+        if self.trace is None:
+            self.trace_to_az()
+
         self.ess_plot = az.plot_ess(self.trace, var_names=self.priors_name, kind="evolution")
         return self.ess_plot
     
