@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
 VERSION = '0.0.1' 
-DESCRIPTION = 'Bayesian inferences'
-LONG_DESCRIPTION = 'Run Bayesian inferences models with tensorflow probability'
+DESCRIPTION = 'Bayesian Inferences'
+LONG_DESCRIPTION = 'Run Bayesian inferences models'
 
 # Setting up
 setup(
        # the name must match the folder name 'verysimplemodule'
-        name="BY", 
+        name="BI", 
         version=VERSION,
         author="Sebastian Sosa",
         author_email="<s.sosa@live.fr>",
@@ -16,8 +16,8 @@ setup(
         packages=find_packages(),
         install_requires=[], # add any additional packages that 
         # needs to be installed along with your package. Eg: 'caer'
-        
-        keywords=['python', 'first package'],
+        keywords=['python', 'Bayesian inferences'],
+        include_package_data=True,
         classifiers= [
             "Development Status :: 3 - Alpha",
             "Intended Audience :: Education",
