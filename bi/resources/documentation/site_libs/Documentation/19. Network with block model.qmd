@@ -1,0 +1,114 @@
+# Network with block model
+Within networks, nodes can belong to different categories, and these categories can potentially affect the propensity for node interactions. For example, nodes can have different sex categories, and the propensity to interact with nodes of the same sex can be higher than with nodes of different sexes. To model the propensity for interaction between nodes based on the categories they belong to, we can use a stochastic block model approach.
+
+## Considerations
+::: callout-caution
+- We consider predefined groups here, with the goal of evaluating the propensity for interaction between nodes within each group.
+- In addition to the block(s) model being tested, we need to include a block where all individuals are considered as belonging to the same group (```Any``` in the example). This allows us to assess whether interaction tendencies differ between groups or if the propensity to interact is uniform across all individuals.
+:::
+
+## Example
+Below is an example code snippet demonstrating a Bayesian network model using the stochastic block model approach. The data is identical to the [Network model](18.&#32;Network&#32;model.qmd) example, with the addition of covariates *Any*, *Merica*, and *Quantum*, representing the block membership of each node. 
+
+``` python
+def model3(idx, result_outcomes, kinship, focal_individual_predictors, target_individual_predictors, Any, Merica, Quantum):
+    N_id = ids.shape[0]
+
+    # Block ---------------------------------------
+    B_any, b_any, b_ij_any, b_ii_any = bi.net.block_model(Any,1, name_b_ij = 'b_ij_Any', name_b_ii = 'b_ii_Any' )
+    B_Merica, b_Merica, b_ij_Merica, b_ii_Merica = bi.net.block_model(Merica,  3, name_b_ij = 'b_ij_Merica', name_b_ii = 'b_ii_Merica' )
+    B_Quantum, b_Quantum, b_ij_Quantum, b_ii_Quantum = bi.net.block_model(Quantum, 2, name_b_ij = 'b_ij_Quantum', name_b_ii = 'b_ii_Quantum' )
+
+    ## SR ---------------------------------------
+    sr_terms, focal_effects, target_effects = bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors)
+    sr_rf, sr_raw, sr_sigma, sr_L = bi.net.nodes_random_effects(sr_terms.shape[0], cholesky_density = 2)
+
+    sender = sr_terms[idx[:,0],0] + sr_terms[idx[:,1],1] + sr_rf[idx[:,0],0]
+    receiver =  sr_terms[idx[:,1],0] + sr_terms[idx[:,0],1] + sr_rf[idx[:,1],1]
+    sender_receiver = jnp.stack([sender, receiver], axis = 1)
+
+    # Dyadic--------------------------------------  
+    dr_terms, dyad_effects = bi.net.dyadic_terms(kinship[:,0], kinship[:,1])
+    rf, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)
+    dr = dr_terms + rf
+
+    lk('Y', Poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr )), obs=result_outcomes)
+
+m.data_on_model = dict(
+    idx = idx,
+    Any = Any-1, 
+    Merica = Merica-1, 
+    Quantum = Quantum-1,
+    result_outcomes = bi.net.mat_to_edgl(data['outcomes']), 
+    kinship = bi.net.mat_to_edgl(kinship),
+    focal_individual_predictors = data['individual_predictors'],
+    target_individual_predictors = data['individual_predictors']
+)
+
+m.run(model3) 
+summary = m.summary()
+summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
+```
+
+## Mathematical Details
+
+### *Main Formula*
+The model's block structure can be represented by the following formula. Note that the sender-receiver and dyadic effects are not represented here, as they are already accounted for in the [Network model](18.&#32;Network&#32;model.qmd) chapter:
+
+$$
+G_{ij} \sim Poisson(Y_{ij})
+$$ 
+
+$$
+log(Y_{ij}) =  B_{ij} + B_{ji}
+$$
+
+
+where:
+
+-   $B_{ij}$ is the link probability between category $i$ and $j$.
+-   $B_{ji}$ is the link probability between category j to i.
+
+### *Defining formula sub-equations and prior distributions*
+To account for all link probabilities between categories, we can define a square matrix $B$ as follows: the off-diagonal elements represent the link probabilities between categories $i$ and $j$, while the diagonal elements represent the link probabilities between categories $i$ and $j$.
+
+$$
+B_{i,j} = 
+\begin{bmatrix}
+a_{1,1} & a_{1,2} & \cdots & a_{1,j} \\
+a_{2,1} & a_{2,2} & \cdots & a_{2,j} \\
+\vdots  & \vdots  & \ddots & \vdots  \\
+a_{i,1} & a_{i,2} & \cdots & a_{i,j} 
+\end{bmatrix}
+$$
+
+Where:
+
+-   $B[i,j]$ is the link probability between category $i$ and $j$ when $i \neq j$.
+-   $B[i,j]$ is the link probability within category $i$ when $i = j$.
+
+As we concider link probability within categorioes to be higher to links probabilites between categories we define different priors for the diagonal and the off-diagonal. Priors should also depend on sample size, N, so that the resultant network density approximates empirical networks.
+Basic priors could be:
+
+
+$$
+\beta_{k \rightarrow k} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.1}{\sqrt{N_k}}\right), 1.5\right)
+$$
+
+$$
+\beta_{k \rightarrow \tilde{k}} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.01}{0.5 \sqrt{N_k} + 0.5 \sqrt{N_{\tilde{k}}}}\right), 1.5\right)
+$$
+
+where :
+
+-   $k \rightarrow k$ indicates a diagonal element.
+-   $k \rightarrow \tilde{k}$ indicates an off-diagonal element.
+
+## Note(s)
+::: callout-note
+- By defining this block model within our network model, we are estimating [<span style="color:#0D6EFD">assortativity 🛈</span>]{#assor} and  [<span style="color:#0D6EFD">disassortativity 🛈</span>]{#disassor} for categorical variables.
+  
+- Similarly, for continuous variables, we can generate a block model that includes all continuous variables.
+<!--Correct? -->
+:::
+

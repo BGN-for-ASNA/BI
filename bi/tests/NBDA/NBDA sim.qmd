@@ -1,0 +1,208 @@
+# R simulation of NBDA
+## Simulation function
+
+```{r}
+simulateNBDA<-function(m, s = 5, BNoise = 0.1 , baseRate=1/100,asocialLP=rep(1,N)){
+    # Generate social transmission coefficients with noise from a normal distribution
+    BVect <- exp(rnorm(N, log(2), sd = BNoise))
+    N = nrow(m)
+    # Initialize vectors for acquisition status, order, and time for each individual
+    z = orderAcq = timeAcq = rep(0, N)
+
+    # Set initial running time to zero
+    runningTime <- 0
+
+    # Loop through each individual to simulate the transmission process
+    for (i in 1:N) {
+        # Calculate the rate of acquisition for each individual, taking asocial learning, social influence, and acquisition status into account
+        rate <- baseRate * (exp(asocialLP) + s * z %*% t(t(m) * BVect)) * (1 - z)
+
+        # Generate times to the next acquisition event using an exponential distribution
+        times <- rexp(N, rate)
+
+        # Replace NaN values in `times` (where rate might be zero) with Inf, so they are ignored in finding the minimum time
+        times[is.nan(times)] <- Inf
+
+        # Find the individual with the shortest time to the next acquisition event and update acquisition order
+        orderAcq[i] <- which(times == min(times))[1]
+
+        # Add the minimum time to the running time to track cumulative acquisition time
+        runningTime <- runningTime + min(times)
+
+        # Record the cumulative time of acquisition for this individual
+        timeAcq[i] <- runningTime
+
+        # Update the acquisition status of the individual who acquired the trait
+        z[which(times == min(times))[1]] <- 1
+    }
+
+    # Return a list containing acquisition times and order of acquisition
+    return(list(timeAcq = timeAcq, orderAcq = orderAcq))
+}
+N = 10
+network = matrix(runif(N*N,0.7,1)*rbinom(N*N,1,0.3), nrow=N)
+diag(network) = 0
+resultR = simulateNBDA(network, s = 0)
+```
+
+## Testing simulation with NBDA library
+```{r}
+library(NBDA)
+adj.array=array(dim=c(nrow(network), ncol(network), 1))
+adj.array[,,1]= network
+diffdat=nbdaData("try1", 
+ assMatrix=adj.array,
+ orderAcq=resultR$orderAcq, 
+ timeAcq=resultR$timeAcq)
+
+oa.fit_social=oadaFit(diffdat, type="social")
+
+oa.fit_social=oadaFit(diffdat, type="social")
+oa.fit_social@outputPar
+oa.fit_social@aic
+data.frame(Variable=oa.fit_social@varNames,MLE=oa.fit_social@outputPar,SE=oa.fit_social@se)
+
+ta.fit_social=tadaFit(diffdat, type="social")
+#ta.fit_social@outputPar
+data.frame(Variable=ta.fit_social@varNames,MLE=round(ta.fit_social@outputPar,3),SE=round(ta.fit_social@se,3))
+print(oa.fit_social@outputPar) # should be close to 5
+print(diffdat@stMetric)
+```
+
+```{r}
+network[1,]
+orderAcq=resultR$orderAcq
+st = rep(0, nrow(network))
+st[orderAcq[1]] = 1
+sum(st * network[1,])
+orderAcq
+```
+
+```{r}
+#install.packages("jsonlite")
+library(jsonlite)
+resultR$m = network
+resultR$N = nrow(network)
+json_data <- toJSON(resultR, pretty = TRUE)
+write(json_data, file = "NBDAsim.json")
+```
+
+## Testing with BI
+```{python}
+import json
+from main import*
+# Open and read the JSON file
+with open('NBDAsim.json', 'r') as file:
+    data = json.load(file)
+
+timeAcq= jnp.array(data['timeAcq'] )
+orderAcq= jnp.array(data['orderAcq'] )
+N = int(data['N'][0])
+network= jnp.array(data['m']).reshape(N, N)
+```
+
+
+- The solve orders of diffusion should be stored in a 1d array each element represents the solve index as shown below. In the array below *SolveOrders*, the first individual that solved the first task is individual 1, the last individual to solve the taskis individual 2. It is the equivalent of $z_j(t)$ in the equation above.
+- 
+```{python}
+def get_status_by_t(Orders): 
+    times = len(Orders)
+    N_id = len(Orders)
+    z_i = jnp.zeros((N_id, times))
+    for i in range(times):
+        z_i = z_i.at[Orders[:i+1] - 1, i].set(1)
+    return z_i.T
+
+def status_t_minus_1(Orders):
+    status = get_status_by_t(Orders)
+    status_t_minus_1 = jnp.vstack([jnp.zeros(status.shape[0]), status])
+    #status_t_minus_1 = jnp.delete(status_t_minus_1, -1, axis=0)
+    return status_t_minus_1
+  
+
+status = status_t_minus_1(orderAcq)
+status
+inverse_status = 1 - status 
+```
+
+
+- To get $\sum_{j = 1}^{N} a_{ij} z_j (t) + 1$ we:
+  - Invert z_i to get z_j. 
+  - Row sums of m rows multiplied element-wise by each column of z_j 
+  
+```{python}
+def multiply_by_column(z_t, m):
+    # Compute the temporary array
+    tmp = jnp.sum(m * z_t, axis=1)
+
+    # Create a mask for where z_t is 0
+    mask = z_t == 1
+
+    # Set values to NaN where the mask is True
+    tmp = jnp.where(mask, jnp.nan, tmp)
+
+    return tmp
+  
+def compute_s(status, network):
+  s = vmap(multiply_by_column, in_axes=(0, None))(status[:-1], network) # Status with t-1
+  
+  mask = jnp.isnan(s)
+  new_status = jnp.where(mask, jnp.nan, status[1:status.shape[0], :]) # Status without t-1
+  
+  s = jnp.reshape(s, s.shape[0] * s.shape[1])
+  new_status = jnp.reshape(new_status, new_status.shape[0] * new_status.shape[1])
+  
+  
+  return s[~jnp.isnan(s)], new_status[~jnp.isnan(s)]
+
+
+sMetric, new_status = compute_s(status, network)
+
+```
+
+```{python}
+lambda_0 = bi.dist.gamma(concentration = 0.5, rate = 1.0, name='asocial rate', shape = (1,), sample = True)
+asocial_rate =   lambda_0
+asocial_rate
+
+s = bi.dist.normal(0, 1, name='s', sample = True)
+sum_aij_x_z_j_1, new_status = compute_s(status, network)
+soc_rate = sum_aij_x_z_j_1 * s + 1 
+z_j = 1 - new_status
+NBDA = (asocial_rate + soc_rate) * z_j 
+bi.dist.poisson(jnp.exp(NBDA), sample = True)
+```
+
+```{python}
+
+def model(network, status, Orders):
+     # asocial rate--------------------------------------
+    asocial_rate = bi.dist.gamma(concentration = 0.5, rate = 1.0, name='lambda_0', shape = (1,))
+
+    # social rate----------------------------------------
+    s = bi.dist.normal(0, 1, name='s')
+    sum_aij_x_z_j_1, new_status = compute_s(status, network)
+    soc_rate = sum_aij_x_z_j_1 * s + 1 
+    
+    z_j = 1 - new_status
+
+    NBDA = (asocial_rate + soc_rate) * z_j 
+
+    lk('OADA', Poisson(NBDA), obs = vmap(lambda x: x/jnp.sum(x) )(NBDA))
+```
+
+```{python}
+m = bi()
+m.data_on_model = dict(
+    network = network,
+    status = status,
+    Orders = orderAcq
+)
+m.run(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1, progress_bar = True)
+m.summary()
+m.sampler.print_summary()
+```
+
+```{python}
+orderAcq
+```
