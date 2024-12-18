@@ -12,7 +12,7 @@ class met:
     # Network utils
     # Nodal measures----------------------------------------------------------------------------------
     @staticmethod 
-    def clustering_coefficient(adjacency_matrix):
+    def clustering_coefficient(m):
         """ Compute the clustering coefficient for each nodes of a graph.
             For each node v, the clustering coefficient is calculated as:
 
@@ -23,67 +23,77 @@ class met:
             The degree of a node is the number of direct neighbors.
 
         Args:
-            adjacency_matrix (Squared 2D jax array): Adjacency matrix of the graph.
+            m (Squared 2D jax array): Adjacency matrix of the graph.
 
         Returns:
             _type_: jax 1D array of clustering coefficient for each node.
         """
 
-        degrees = jnp.sum(adjacency_matrix, axis=1)
-        triangles = jnp.einsum('ij,jk,ki->i', adjacency_matrix, adjacency_matrix, adjacency_matrix) / 2
+        degrees = jnp.sum(m, axis=1)
+        triangles = jnp.einsum('ij,jk,ki->i', m, m, m) / 2
         possible_triangles = degrees * (degrees - 1)
         clustering = jnp.where(possible_triangles > 0, triangles / possible_triangles, 0)
         return clustering * 2
 
     @staticmethod 
     @jit
-    def eigenvector_centrality(adjacency_matrix, tol=1e-6, max_iter=100):
+    def power_iteration(m, num_iter=100, tol=1e-6):
         """
-        Compute the eigenvector centrality of a network using power iteration.
+        Compute the dominant eigenvector of a matrix A  using the power iteration algorithm.
 
-        Eigenvector centrality is a measure of the influence of a node in a network. Nodes
-        that are connected to many highly connected nodes will have higher centrality.
-
-        Parameters:
-        -----------
-        adjacency_matrix : jax.numpy.ndarray
-            A square (n x n) adjacency matrix representing the graph. The element at (i, j)
-            represents the weight of the edge from node i to node j.
-
-        tol : float, optional, default=1e-6
-            The tolerance for convergence. The iteration will stop when the difference between
-            successive iterations is smaller than this threshold.
-
-        max_iter : int, optional, default=100
-            The maximum number of iterations allowed to achieve convergence.
+        Args:
+            m (jax.numpy.ndarray): Input square matrix.
+            num_iter (int): Maximum number of   iterations.
+            tol (float): Tolerance for convergence.
 
         Returns:
-        --------
-        jax.numpy.ndarray
-            A 1D array of length n representing the eigenvector centrality of each node.
-            The values are normalized to unit length.
+            eigenvector (jax.numpy.ndarray): Dominant   eigenvector.
+            eigenvalue (float): Dominant eigenvalue.
         """
+        def cond_fn(state):
+            # Condition to continue iterating
+            i, b_k, b_k1, _ = state
+            return (i < num_iter) & (jnp.linalg.norm(b_k1 - b_k) >= tol)
 
-        x = jnp.ones(adjacency_matrix.shape[0])
+        def body_fn(state):
+            # Perform one step of the power iteration
+            i, b_k, b_k1, m = state
+            b_k = b_k1
+            b_k1 = jnp.dot(m, b_k)
+            b_k1 = b_k1 / jnp.linalg.norm(b_k1)
+            return (i + 1, b_k, b_k1, m)
 
-        def body_fn(carry):
-            x, _ = carry
-            # Matrix-vector multiplication
-            x_new = jnp.dot(adjacency_matrix, x)
-            # Normalize
-            x_new = x_new / jnp.linalg.norm(x_new)
-            return x_new, x
+        # Initialize the state
+        n = m.shape[0]
+        b_k = jnp.ones(n)
+        b_k1 = jnp.dot(m, b_k)
+        b_k1 = b_k1 / jnp.linalg.norm(b_k1)
+        state = (0, b_k, b_k1, m)
 
-        # Check for convergence
-        def cond_fn(carry):
-            x_new, x = carry
-            diff = jnp.linalg.norm(x_new - x)
-            return diff >= tol
+        # Run the while loop
+        final_state = lax.while_loop(cond_fn, body_fn,  state)
+        _, _, b_k1, _ = final_state
 
-        # Initialize the loop with x and a dummy previous x (e.g., zeros)
-        x_final, _ = lax.while_loop(cond_fn, body_fn, (x, x + tol + 1))
+        # Compute the dominant eigenvalue
+        eigenvalue = jnp.dot(b_k1, jnp.dot(m, b_k1)) /  jnp.dot(b_k1, b_k1)
+        return b_k1, eigenvalue
 
-        return x_final
+    @staticmethod
+    @jit
+    def eigenvector(m, num_iter=300, tol=1e-6):
+        """
+        Compute the eigenvector centrality of a graph using the power iteration algorithm.
+
+        Args:
+            m (jax.numpy.ndarray): Input square matrix.
+            max_iter (int): Maximum number of iterations.
+            tol (float): Tolerance for convergence.
+
+        Returns:
+            eigenvector_centrality (jax.numpy.ndarray): Eigenvector centrality of each node.
+        """
+        eigenvector, eigenvalue = met.power_iteration(m, num_iter=num_iter, tol=tol)
+        return eigenvector
 
     @staticmethod 
     @jit
@@ -214,6 +224,25 @@ class met:
         return met.instrength_jit(m)
 
     # Global measures----------------------------------------------------------------------------------
+    @staticmethod
+    def density(m):
+        """
+        Compute the network density from the weighted adjacency matrix.
+
+        Args:
+            adj_matrix: JAX array representing the weighted adjacency matrix of a graph.
+
+        Returns:
+            Network density as a float.
+        """
+        n_nodes = m.shape[0]
+        n_possible_edges = n_nodes * (n_nodes - 1) / 2
+        n_actual_edges = jnp.count_nonzero(m) / 2  # Since the matrix is symmetric
+
+        # Density formula
+        density = n_actual_edges / n_possible_edges
+        return density
+
     @staticmethod
     def geodesic_distance(adj_matrix):
         """
