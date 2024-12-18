@@ -102,12 +102,38 @@ class array_manip():
     def __init__(self) -> None:
         pass
 
-    @staticmethod 
-    @jit
-    def logit(x):
-        return jnp.log(x / (1 - x))
 
-    # Matrix manipulations -------------------------------------
+    @staticmethod 
+    @jax.jit
+    def is_symmetric(arr, rtol=1e-5, atol=1e-8):
+        """
+        Efficiently check if a 2D array is symmetric using JIT  compilation.
+        
+        Parameters:
+        -----------
+        arr : jax.numpy.ndarray
+            Input 2D array to check for symmetry
+        rtol : float, optional
+            Relative tolerance for comparison (default: 1e-5)
+        atol : float, optional
+            Absolute tolerance for comparison (default: 1e-8)
+        
+        Returns:
+        --------
+        bool
+            True if the array is symmetric, False otherwise
+        """
+        # Check if array is 2D
+        if arr.ndim != 2:
+            return False
+        
+        # Check if square matrix
+        if arr.shape[0] != arr.shape[1]:
+            return False
+        
+        # Compare array with its transpose
+        return jnp.allclose(arr, arr.T, rtol=rtol, atol=atol)
+        # Matrix manipulations -------------------------------------
     @staticmethod 
     @partial(jit, static_argnums=(1, ))
     def vec_to_mat(vec, shape = ()):
