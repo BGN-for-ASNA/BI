@@ -11,30 +11,42 @@ class met:
 
     # Network utils
     # Nodal measures----------------------------------------------------------------------------------
+    ## Clustering_coefficient----------------------------------------------------------------------------------
     @staticmethod 
-    def clustering_coefficient(m):
-        """ Compute the clustering coefficient for each nodes of a graph.
-            For each node v, the clustering coefficient is calculated as:
+    def triangles_and_degree_iter(adj_matrix, nodes=None):
+        """Compute triangles and degrees for nodes in the graph."""
+        num_nodes = adj_matrix.shape[0]
+        if nodes is None:
+            nodes = jnp.arange(num_nodes)
+        results = []
 
-            𝐶(𝑣)=2× number of triangles connected to v / degree(𝑣) × (degree(𝑣)−1)
-            Where:
+        for v in nodes:
+            v_nbrs = jnp.where(adj_matrix[v] > 0)[0]
+            vs = jnp.setdiff1d(v_nbrs, jnp.array([v]))
+            gen_degree = jnp.array([
+                jnp.sum(jnp.logical_and(adj_matrix[w], adj_matrix[v])) for w in vs
+            ])
+            ntriangles = jnp.sum(gen_degree)
+            results.append((v, len(vs), ntriangles, gen_degree))
+        return results
 
-            A triangle is formed when a node's neighbors are also connected to each other.
-            The degree of a node is the number of direct neighbors.
+    @staticmethod 
+    def clustering(adj_matrix, nodes=None):
+        """Compute unweighted clustering coefficient for nodes in the graph."""
+        td_iter = met.triangles_and_degree_iter(adj_matrix, nodes)
+        num_nodes = adj_matrix.shape[0]
+        clusterc = jnp.zeros(num_nodes)
 
-        Args:
-            m (Squared 2D jax array): Adjacency matrix of the graph.
+        for v, d, t, _ in td_iter:
+            clusterc = clusterc.at[v].set(0 if t == 0 else t / (d * (d - 1)))
+        return clusterc
 
-        Returns:
-            _type_: jax 1D array of clustering coefficient for each node.
-        """
 
-        degrees = jnp.sum(m, axis=1)
-        triangles = jnp.einsum('ij,jk,ki->i', m, m, m) / 2
-        possible_triangles = degrees * (degrees - 1)
-        clustering = jnp.where(possible_triangles > 0, triangles / possible_triangles, 0)
-        return clustering * 2
+    @staticmethod 
+    def cc(m, nodes=None):
+        return met.clustering(m, nodes=nodes) 
 
+    ## eigenvector----------------------------------------------------------------------------------
     @staticmethod 
     @jit
     def power_iteration(m, num_iter=100, tol=1e-6):
@@ -95,6 +107,7 @@ class met:
         eigenvector, eigenvalue = met.power_iteration(m, num_iter=num_iter, tol=tol)
         return eigenvector
 
+    ## Dijkstra----------------------------------------------------------------------------------
     @staticmethod 
     @jit
     def dijkstra(adjacency_matrix, source):
@@ -156,6 +169,12 @@ class met:
         return dist_final
 
     @staticmethod 
+    def dijkstra(m,  source):
+        return met.dijkstra(m, source)
+    
+
+    ## Strength----------------------------------------------------------------------------------
+    @staticmethod 
     @jit    
     def outstrength_jit(x):
         return jnp.sum(x, axis=1)
@@ -170,6 +189,19 @@ class met:
     def strength_jit(x):
         return met.outstrength_jit(x) +  met.instrength_jit(x)
 
+    @staticmethod 
+    def strength(m):
+        return met.strength_jit(m)
+    
+    @staticmethod 
+    def outstrength(m):
+        return met.outstrength_jit(m)
+    
+    @staticmethod 
+    def instrength(m):
+        return met.instrength_jit(m)
+
+    ## Degree----------------------------------------------------------------------------------
     @staticmethod 
     @jit
     def outdegree_jit(x):
@@ -188,18 +220,6 @@ class met:
         return met.indegree_jit(x) +met.outdegree_jit(x)
 
     @staticmethod 
-    def eigen(m, max_iter=300):
-        return met.eigenvector_centrality(m)
-    
-    @staticmethod 
-    def dijkstra(m,  source):
-        return met.dijkstra(m, source)
-    
-    @staticmethod 
-    def cc(m):
-        return met.clustering_coefficient(m) 
-    
-    @staticmethod 
     def degree(m):
         return met.degree_jit(m)
     
@@ -211,18 +231,6 @@ class met:
     def outdegree(m):
         return met.outdegree_jit(m)
     
-    @staticmethod 
-    def strength(m):
-        return met.strength_jit(m)
-    
-    @staticmethod 
-    def outstrength(m):
-        return met.outstrength_jit(m)
-    
-    @staticmethod 
-    def instrength(m):
-        return met.instrength_jit(m)
-
     # Global measures----------------------------------------------------------------------------------
     @staticmethod
     def density(m):
