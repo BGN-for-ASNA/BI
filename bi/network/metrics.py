@@ -285,7 +285,6 @@ class met:
 
 
     @staticmethod
-    @jit
     def diameter(m):
         """
         Compute the diameter of a graph using the geodesic distance.
