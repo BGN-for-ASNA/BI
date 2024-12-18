@@ -1,13 +1,16 @@
 import jax
 import jax.numpy as jnp
 from jax import jit, lax
-
+from jax import vmap
 
 #region Class <comment>
 class met:
     def __init__(self):
         pass
     
+
+    # Network utils
+    # Nodal measures----------------------------------------------------------------------------------
     @staticmethod 
     def clustering_coefficient(adjacency_matrix):
         """ Compute the clustering coefficient for each nodes of a graph.
@@ -155,7 +158,7 @@ class met:
     @staticmethod 
     @jit
     def strength_jit(x):
-        return outstrength_jit(x) +  instrength_jit(x)
+        return met.outstrength_jit(x) +  met.instrength_jit(x)
 
     @staticmethod 
     @jit
@@ -172,14 +175,16 @@ class met:
     @staticmethod 
     @jit
     def degree_jit(x):
-        return indegree_jit(x) +outdegree_jit(x)
+        return met.indegree_jit(x) +met.outdegree_jit(x)
 
     @staticmethod 
-    def eigen(m):
+    def eigen(m, max_iter=300):
         return met.eigenvector_centrality(m)
+    
     @staticmethod 
     def dijkstra(m,  source):
         return met.dijkstra(m, source)
+    
     @staticmethod 
     def cc(m):
         return met.clustering_coefficient(m) 
@@ -208,5 +213,56 @@ class met:
     def instrength(m):
         return met.instrength_jit(m)
 
+    # Global measures----------------------------------------------------------------------------------
+    @staticmethod
+    def geodesic_distance(adj_matrix):
+        """
+        Compute the geodesic distance in a weighted graph using Dijkstra's algorithm in JAX.
+        Args:
+            adj_matrix: 2D JAX array representing the weighted adjacency matrix of a graph.
 
+        Returns:
+            A 2D JAX array containing the shortest path distances between all pairs of nodes.
+        """
+        n_nodes = adj_matrix.shape[0]
+        adj_matrix=jnp.where(adj_matrix == 0, jnp.inf, adj_matrix)
+        @jit
+        def single_source_dijkstra(src):
+            # Initialize distances and visited status
+            dist = jnp.full((n_nodes,), jnp.inf)
+            dist = dist.at[src].set(0)
+            visited = jnp.zeros((n_nodes,), dtype=bool)
 
+            def relax_step(carry, _):
+                dist, visited = carry
+                # Find the closest unvisited node
+                unvisited_dist = jnp.where(visited, jnp.inf, dist)
+                u = jnp.argmin(unvisited_dist)
+                visited = visited.at[u].set(True)
+
+                # Relax distances for neighbors of the selected node
+                new_dist = jnp.where(
+                    ~visited,
+                    jnp.minimum(dist, dist[u] + adj_matrix[u]),
+                    dist
+                )
+                return (new_dist, visited), None
+
+            (dist, _), _ = jax.lax.scan(relax_step, (dist, visited), None, length=n_nodes)
+            return dist
+
+        distances = jax.vmap(single_source_dijkstra)(jnp.arange(n_nodes))
+        return distances
+
+    @staticmethod
+    @jit
+    def diameter(adj_matrix):
+        """
+        Compute the diameter of a graph using the geodesic distance.
+        Args:
+            adj_matrix: 2D JAX array representing the weighted adjacency matrix of a graph. 
+            
+        Returns:
+            The diameter of the graph.
+        """
+        return jnp.max(met.geodesic_distance(adj_matrix))
