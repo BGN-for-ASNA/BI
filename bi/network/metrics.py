@@ -244,18 +244,18 @@ class met:
         return density
 
     @staticmethod
-    def geodesic_distance(adj_matrix):
+    def geodesic_distance(m):
         """
         Compute the geodesic distance in a weighted graph using Dijkstra's algorithm in JAX.
         Args:
             adj_matrix: 2D JAX array representing the weighted adjacency matrix of a graph.
 
         Returns:
-            A 2D JAX array containing the shortest path distances between all pairs of nodes.
+            A 2D JAX array containing the shortest path distances between all pairs of  nodes.
         """
-        n_nodes = adj_matrix.shape[0]
-        adj_matrix=jnp.where(adj_matrix == 0, jnp.inf, adj_matrix)
-        @jit
+        m=m.at[jnp.where(m == 0)].set(jnp.inf)
+        n_nodes = m.shape[0]
+
         def single_source_dijkstra(src):
             # Initialize distances and visited status
             dist = jnp.full((n_nodes,), jnp.inf)
@@ -272,7 +272,7 @@ class met:
                 # Relax distances for neighbors of the selected node
                 new_dist = jnp.where(
                     ~visited,
-                    jnp.minimum(dist, dist[u] + adj_matrix[u]),
+                    jnp.minimum(dist, dist[u] + m[u]),
                     dist
                 )
                 return (new_dist, visited), None
@@ -283,9 +283,10 @@ class met:
         distances = jax.vmap(single_source_dijkstra)(jnp.arange(n_nodes))
         return distances
 
+
     @staticmethod
     @jit
-    def diameter(adj_matrix):
+    def diameter(m):
         """
         Compute the diameter of a graph using the geodesic distance.
         Args:
@@ -294,4 +295,4 @@ class met:
         Returns:
             The diameter of the graph.
         """
-        return jnp.max(met.geodesic_distance(adj_matrix))
+        return jnp.max(met.geodesic_distance(m))
