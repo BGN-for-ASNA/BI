@@ -252,6 +252,31 @@ class met:
         return density
 
     @staticmethod
+    def single_source_dijkstra(src):
+        # Initialize distances and visited status
+        dist = jnp.full((n_nodes,), jnp.inf)
+        dist = dist.at[src].set(0)
+        visited = jnp.zeros((n_nodes,), dtype=bool)
+
+        def relax_step(carry, _):
+            dist, visited = carry
+            # Find the closest unvisited node
+            unvisited_dist = jnp.where(visited, jnp.inf, dist)
+            u = jnp.argmin(unvisited_dist)
+            visited = visited.at[u].set(True)
+            # Relax distances for neighbors of the selected node
+            new_dist = jnp.where(
+                ~visited,
+                jnp.minimum(dist, dist[u] + m[u]),
+                dist
+            )
+            return (new_dist, visited), None
+
+        (dist, _), _ = jax.lax.scan(relax_step, (dist, visited), None, length=n_nodes)
+
+        return dist
+
+    @staticmethod
     def geodesic_distance(m):
         """
         Compute the geodesic distance in a weighted graph using Dijkstra's algorithm in JAX.
@@ -264,31 +289,9 @@ class met:
         m=m.at[jnp.where(m == 0)].set(jnp.inf)
         n_nodes = m.shape[0]
 
-        def single_source_dijkstra(src):
-            # Initialize distances and visited status
-            dist = jnp.full((n_nodes,), jnp.inf)
-            dist = dist.at[src].set(0)
-            visited = jnp.zeros((n_nodes,), dtype=bool)
 
-            def relax_step(carry, _):
-                dist, visited = carry
-                # Find the closest unvisited node
-                unvisited_dist = jnp.where(visited, jnp.inf, dist)
-                u = jnp.argmin(unvisited_dist)
-                visited = visited.at[u].set(True)
 
-                # Relax distances for neighbors of the selected node
-                new_dist = jnp.where(
-                    ~visited,
-                    jnp.minimum(dist, dist[u] + m[u]),
-                    dist
-                )
-                return (new_dist, visited), None
-
-            (dist, _), _ = jax.lax.scan(relax_step, (dist, visited), None, length=n_nodes)
-            return dist
-
-        distances = jax.vmap(single_source_dijkstra)(jnp.arange(n_nodes))
+        distances = jax.vmap(met.single_source_dijkstra)(jnp.arange(n_nodes))
         return distances
 
 
