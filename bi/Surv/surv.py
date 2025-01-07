@@ -23,6 +23,41 @@ class survival:
         self.df = None
     
     def get_basic_info(self, event='event', time='time', cov=None):
+        ''' Get basic information about the dataset
+
+            Parameters
+            ----------
+                event : str, optional
+                    Name of the column containing the event status, by default 'event'
+                time : str, optional
+                    Name of the column containing the time, by default 'time'
+                cov : str, optional
+                    Name of the column containing the covariate, by default None
+
+            Returns
+            -------
+                None
+
+            Notes
+            -----
+                The function returns the following attributes:
+                    - n_patients : int
+                        Number of patients in the dataset
+                    - patients : np.array
+                        Array of patient indices
+                    - time : np.array
+                        Array of time points
+                    - event : np.array
+                        Array of event status
+                    - data_on_model : dict
+                        Dictionary containing the data of the model present ib the dataset                        
+                    - cov : str
+                        Name of the covariate
+                    - df : pd.DataFrame
+                        DataFrame containing the dataset
+
+        ''' 
+
         # Number of patients in the dataset
         self.n_patients = self.df.shape[0]
         self.patients = np.arange(self.n_patients)  # Array of patient indices
@@ -31,10 +66,12 @@ class survival:
 
         if self.data_on_model is None:
             self.data_on_model = {}
+            
         if type(cov) is str:
-            self.cov = cov
+            self.cov = cov # covariate
             tmp = jnp.reshape(self.df[cov].values, (1, len(self.df[cov].values)))
             self.data_on_model[cov] = tmp
+
         elif type(cov) is list:
             self.cov = cov
             a = 0
