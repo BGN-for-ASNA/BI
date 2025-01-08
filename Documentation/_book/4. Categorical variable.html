@@ -348,8 +348,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19. PCA (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis (PCA)</span></span></a>
+  <a href="./19. PCA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -1063,6 +1063,38 @@ tippy('#kernelMean0', {
   },
 
 });
+
+
+
+tippy('#signAmbiguity', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    PCA identifies directions (principal components) that capture the maximum variance in the data. However, the orientation of these components is not unique; both a vector and its negation represent the same principal direction. This means that if 𝑤 is a principal component, −𝑤 is equally valid.
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
+
 
 </script>
 

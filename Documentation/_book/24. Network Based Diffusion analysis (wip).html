@@ -328,8 +328,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19. PCA (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis (PCA)</span></span></a>
+  <a href="./19. PCA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -449,6 +449,12 @@ Caution
 <ul>
 <li>There are two main NBDA variants: order-of-acquisition diffusion analysis (OADA), which takes as data the order in which individuals acquired the target behaviour, and time-of-acquisition diffusion analysis (TADA), which uses the times of acquisition of the target behaviour.</li>
 </ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="attachment:image.png" class="img-fluid figure-img"></p>
+<figcaption>image.png</figcaption>
+</figure>
+</div>
 </div>
 </div>
 </section>
@@ -471,26 +477,22 @@ Caution
 <h3 data-number="26.4.1" class="anchored" data-anchor-id="formulation"><span class="header-section-number">26.4.1</span> <em>Formulation</em></h3>
 <p>There are two parameters of interest in the basic time of acquisition diffusion analysis model: the rate of social transmission be-tween individuals per unit of network connection,<em>s</em>, and the baseline rate of trait performance in the absence of social transmission, <span class="math inline">\(λ_0\)</span>.</p>
 <p><span class="math display">\[
-\lambda_i(t) = \lambda_0(t) (1- z_i(t))  \left[ s \sum_{j = 1}^{N} a_{ij} z_j (t) + 1 \right]
+\lambda_i(t) = \lambda_0(t) (1- z_i(t))  \left[ s \sum_{j = 1}^{N} a_{ij} z_j (t_{-1}) + 1 \right]
 \]</span></p>
 <p>Where:</p>
 <ul>
 <li><p><span class="math inline">\(\lambda_i(t)\)</span> is the rate at which individuals <em>i</em> acquire the task solution at time <em>t</em>.</p></li>
-<li><p><span class="math inline">\(\lambda_0(t)\)</span> is a baseline acquisition function determining the distribution of latencies to acquisition in the absence of social transmission (that is, through asocial learning).</p></li>
+<li><p><span class="math inline">\(\lambda_0(t)\)</span> is a baseline acquisition function determining the distribution of latencies to acquisition in the absence of social transmission (that is, through asocial learning). It can be specify by an exponential or Weibull distrbution.</p></li>
 <li><p><span class="math inline">\(z_i(t)\)</span> gives the status (1 = informed, 0 = naïve) of individual <em>i</em> at time <em>t</em>.</p></li>
-<li><p><span class="math inline">\((1- z_i(t))\)</span> and <span class="math inline">\(z_j (t)\)</span> terms ensure that the task solution is only transmitted from informed to uninformed individuals: <span class="math display">\[
+<li><p><span class="math inline">\(s\)</span> is the regression coefficients capturing the effect of <span class="math inline">\(x\)</span> on the hazard have an assigned a normal prior.</p></li>
+<li><p><span class="math inline">\((1- z_i(t))\)</span> and <span class="math inline">\(z_j (-1)\)</span> terms ensure that the task solution is only transmitted from informed to uninformed individuals:</p></li>
+</ul>
+<p><span class="math display">\[
 z_j(t) =  Y_i \sim \begin{cases}
 0, &amp; \text{if j is naive} \\
 1, &amp; \text{if j is informed}
 \end{cases}
-\]</span></p></li>
-</ul>
-<p>like for survival analysis we can specify the priors as followed:</p>
-<ul>
-<li><p><span class="math inline">\(\lambda_0(t)\)</span>: Baseline hazard function (e.g., exponential or Weibull).</p></li>
-<li><p><span class="math inline">\(x\)</span>: Covariates (e.g., age, treatment).</p></li>
-<li><p><span class="math inline">\(\beta\)</span>: Regression coefficients capturing the effect of <span class="math inline">\(x\)</span> on the hazard have an assigned a normal prior.</p></li>
-</ul>
+\]</span></p>
 </section>
 </section>
 <section id="notes" class="level2" data-number="26.5">
@@ -511,6 +513,10 @@ Note
 </section>
 <section id="references" class="level2" data-number="26.6">
 <h2 data-number="26.6" class="anchored" data-anchor-id="references"><span class="header-section-number">26.6</span> Reference(s)</h2>
+<p>https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/1365-2656.13307</p>
+<ol start="17" type="1">
+<li>(PDF) Quantifying diffusion in social networks: a Bayesian approach. Available from: https://www.researchgate.net/publication/270048687_Quantifying_diffusion_in_social_networks_a_Bayesian_approach [accessed Oct 24 2024].</li>
+</ol>
 
 
 </section>
@@ -969,6 +975,38 @@ tippy('#kernelMean0', {
   },
 
 });
+
+
+
+tippy('#signAmbiguity', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    PCA identifies directions (principal components) that capture the maximum variance in the data. However, the orientation of these components is not unique; both a vector and its negation represent the same principal direction. This means that if 𝑤 is a principal component, −𝑤 is equally valid.
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
+
 
 </script>
 

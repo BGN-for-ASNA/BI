@@ -64,7 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./19. PCA (wip).html" rel="next">
+<link href="./19. PCA.html" rel="next">
 <link href="./17. Missing data (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -328,8 +328,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19. PCA (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis (PCA)</span></span></a>
+  <a href="./19. PCA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -983,6 +983,38 @@ tippy('#kernelMean0', {
 
 });
 
+
+
+tippy('#signAmbiguity', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    PCA identifies directions (principal components) that capture the maximum variance in the data. However, the orientation of these components is not unique; both a vector and its negation represent the same principal direction. This means that if 𝑤 is a principal component, −𝑤 is equally valid.
+
+  </span>
+
+  `,  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+  onShow(instance) {
+
+    MathJax.typesetPromise([instance.reference]).then(() => {
+
+      // Optional: if you want to do something after the typesetting
+
+    });
+
+  },
+
+});
+
+
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">
@@ -1412,8 +1444,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./19. PCA (wip).html" class="pagination-link" aria-label="Principal Component Analysis (PCA)">
-        <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis (PCA)</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./19. PCA.html" class="pagination-link" aria-label="Principal Component Analysis">
+        <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
