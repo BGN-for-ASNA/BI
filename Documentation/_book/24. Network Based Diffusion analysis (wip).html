@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>26&nbsp; Multiplex network model – BI documentation</title>
+<title>26&nbsp; Network Based Diffusion analysis – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -54,27 +54,7 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -84,7 +64,7 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./25. Multiplex temporal network model (wip).html" rel="next">
+<link href="./25. Multiplex network model (wip).html" rel="next">
 <link href="./23. Network Metrics (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -123,6 +103,35 @@ div.csl-indent {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -135,7 +144,7 @@ div.csl-indent {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./24. Multiplex network model (wip).html"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multiplex network model</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./24. Network Based Diffusion analysis (wip).html"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -349,20 +358,26 @@ div.csl-indent {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./24. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
+  <a href="./24. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./25. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
+  <a href="./25. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./26. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
+  <a href="./26. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -380,8 +395,7 @@ div.csl-indent {
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">26.3</span> Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">26.4</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">26.4.1</span> <em>Frequentist formulation</em></a></li>
-  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">26.4.2</span> <em>Bayesian formulation</em></a></li>
+  <li><a href="#formulation" id="toc-formulation" class="nav-link" data-scroll-target="#formulation"><span class="header-section-number">26.4.1</span> <em>Formulation</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">26.5</span> Notes</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">26.6</span> Reference(s)</a></li>
@@ -393,7 +407,7 @@ div.csl-indent {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multiplex network model</span></h1>
+<h1 class="title"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></h1>
 </div>
 
 
@@ -412,6 +426,13 @@ div.csl-indent {
 
 <section id="general-principles" class="level2" data-number="26.1">
 <h2 data-number="26.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">26.1</span> General Principles</h2>
+<p>The principle idea behind Network Based Diffusion analysis (NBDA) is that if social transmission is involved in the spread of a novel behavior through a group, then that spread is expected to follow a social network links. The basic model underlying NBDA states that at time <span class="math inline">\(t\)</span> an individual, <span class="math inline">\(i\)</span>, learns the behavior of interest with a specific rate formula.</p>
+<p>In principle NBDA can be consider as a survival analysis, so we have the same concepts as in <a href="./12. Survival analysis.html">chapter 12</a>:</p>
+<ol type="1">
+<li>Where the <strong>baseline hazard</strong> (e.g.&nbsp;the hazard when all covariates are zero) is the asocial hazard.</li>
+<li>Where the <strong>covariate</strong> is the sum of links toward informed individuals (i.e.&nbsp;individuals that acquired the behavior of interest at time <span class="math inline">\(t-1\)</span>).</li>
+<li>Thus the <strong>Hazard Function</strong> which account for the network links weights <strong>covariate</strong> can thus be consider as the social rate of learning the behavior.</li>
+</ol>
 </section>
 <section id="considerations" class="level2" data-number="26.2">
 <h2 data-number="26.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">26.2</span> Considerations</h2>
@@ -425,7 +446,9 @@ Caution
 </div>
 </div>
 <div class="callout-body-container callout-body">
-
+<ul>
+<li>There are two main NBDA variants: order-of-acquisition diffusion analysis (OADA), which takes as data the order in which individuals acquired the target behaviour, and time-of-acquisition diffusion analysis (TADA), which uses the times of acquisition of the target behaviour.</li>
+</ul>
 </div>
 </div>
 </section>
@@ -444,11 +467,30 @@ Caution
 </section>
 <section id="mathematical-details" class="level2" data-number="26.4">
 <h2 data-number="26.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">26.4</span> Mathematical Details</h2>
-<section id="frequentist-formulation" class="level3" data-number="26.4.1">
-<h3 data-number="26.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">26.4.1</span> <em>Frequentist formulation</em></h3>
-</section>
-<section id="bayesian-formulation" class="level3" data-number="26.4.2">
-<h3 data-number="26.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">26.4.2</span> <em>Bayesian formulation</em></h3>
+<section id="formulation" class="level3" data-number="26.4.1">
+<h3 data-number="26.4.1" class="anchored" data-anchor-id="formulation"><span class="header-section-number">26.4.1</span> <em>Formulation</em></h3>
+<p>There are two parameters of interest in the basic time of acquisition diffusion analysis model: the rate of social transmission be-tween individuals per unit of network connection,<em>s</em>, and the baseline rate of trait performance in the absence of social transmission, <span class="math inline">\(λ_0\)</span>.</p>
+<p><span class="math display">\[
+\lambda_i(t) = \lambda_0(t) (1- z_i(t))  \left[ s \sum_{j = 1}^{N} a_{ij} z_j (t) + 1 \right]
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\(\lambda_i(t)\)</span> is the rate at which individuals <em>i</em> acquire the task solution at time <em>t</em>.</p></li>
+<li><p><span class="math inline">\(\lambda_0(t)\)</span> is a baseline acquisition function determining the distribution of latencies to acquisition in the absence of social transmission (that is, through asocial learning).</p></li>
+<li><p><span class="math inline">\(z_i(t)\)</span> gives the status (1 = informed, 0 = naïve) of individual <em>i</em> at time <em>t</em>.</p></li>
+<li><p><span class="math inline">\((1- z_i(t))\)</span> and <span class="math inline">\(z_j (t)\)</span> terms ensure that the task solution is only transmitted from informed to uninformed individuals: <span class="math display">\[
+z_j(t) =  Y_i \sim \begin{cases}
+0, &amp; \text{if j is naive} \\
+1, &amp; \text{if j is informed}
+\end{cases}
+\]</span></p></li>
+</ul>
+<p>like for survival analysis we can specify the priors as followed:</p>
+<ul>
+<li><p><span class="math inline">\(\lambda_0(t)\)</span>: Baseline hazard function (e.g., exponential or Weibull).</p></li>
+<li><p><span class="math inline">\(x\)</span>: Covariates (e.g., age, treatment).</p></li>
+<li><p><span class="math inline">\(\beta\)</span>: Regression coefficients capturing the effect of <span class="math inline">\(x\)</span> on the hazard have an assigned a normal prior.</p></li>
+</ul>
 </section>
 </section>
 <section id="notes" class="level2" data-number="26.5">
@@ -469,245 +511,467 @@ Note
 </section>
 <section id="references" class="level2" data-number="26.6">
 <h2 data-number="26.6" class="anchored" data-anchor-id="references"><span class="header-section-number">26.6</span> Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div>
 </section>
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
+
 <script src="https://unpkg.com/tippy.js@6"></script>
+
 <script>
+
 tippy('#prior', {
+
   content: '<span style="color: white;">Priors are distributions that represent the value of the parameter before conditioning it on the data.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#overdispersion', {
+
   content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#linkF', {
+
     content: '<span style="color: white;">A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
   });
 
+
+
 tippy('#simplex', {
+
   content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
   
+
 tippy('#triptych', {
+
     content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
     
+
 tippy('#hyperP', {
+
   content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#cov', {
+
     content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#centerRF', {
+
   content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#NodeF', {
+
     content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF', {
+
     content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#senderF', {
+
     content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#receiverF', {
+
     content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF2', {
+
     content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#expoB', {
+
     content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#censoB', {
+
     content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#assor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
 
+
+
 tippy('#disassor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
+
 
 
 tippy('#chol', {
+
   content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#uncertainty', {
+
   content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#posterior', {
+
   content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#scaled', {
+
   content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#grandMean', {
+
   content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their reference or mean levels. </span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#ohe', {
+
   content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#indices', {
+
   content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#softmax', {
+
   content: `
+
   <span style='color: white;'>
+
     takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
+
     then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
+
     The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
+
     <strong>Formula:</strong><br>
+
     $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
+
   </span>
+
   `,  allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
   onShow(instance) {
+
     MathJax.typesetPromise([instance.reference]).then(() => {
+
       // Optional: if you want to do something after the typesetting
+
     });
+
   },
+
 });
+
+
 
 tippy('#kernel', {
+
   content: `
+
   <span style='color: white;'>
+
     A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
+
     in a higher-dimensional feature space without explicitly transforming them. 
+
     The kernel function allows for non-linear relationships by mapping input space to feature space, 
+
     where linear techniques can then be applied. 
+
     Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
+
   </span>
+
   `,  allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
   onShow(instance) {
+
     MathJax.typesetPromise([instance.reference]).then(() => {
+
       // Optional: if you want to do something after the typesetting
+
     });
+
   },
+
 });
 
+
+
 tippy('#kernelMean0', {
+
   content: `
+
   <span style='color: white;'>
+
     GP mean is usually set to zero as by setting the mean to zero, 
+
     we center the distribution around the origin. 
+
     This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
+
     can be thought of as deviations from this mean.
+
   </span>
+
   `,  allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
   onShow(instance) {
+
     MathJax.typesetPromise([instance.reference]).then(() => {
+
       // Optional: if you want to do something after the typesetting
+
     });
+
   },
+
 });
+
 </script>
+
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -1135,8 +1399,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./25. Multiplex temporal network model (wip).html" class="pagination-link" aria-label="Multiplex temporal network model">
-        <span class="nav-page-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./25. Multiplex network model (wip).html" class="pagination-link" aria-label="Multiplex network model">
+        <span class="nav-page-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

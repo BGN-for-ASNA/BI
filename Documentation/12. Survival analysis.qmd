@@ -2,7 +2,7 @@
 
 ## General Principles
 
-Survival analysis studies the time until an event of interest (e.g., death, recovery) occurs. When analyzing binary survival outcomes (e.g., alive or dead), we can use models such as Cox proportional hazards to evaluate the effect of predictors on survival probabilities.
+Survival analysis studies the time until an event of interest (e.g., death, recovery, information acquisition) occurs. When analyzing binary survival outcomes (e.g., alive or dead), we can use models such as Cox proportional hazards to evaluate the effect of predictors on survival probabilities.
 
 Key concepts include:
 
@@ -19,9 +19,10 @@ Key concepts include:
 - In survival analysis:
 
   - The **baseline hazard** can follow distributions like Exponential, Weibull, or Gompertz, depending on the data.
-  - Censoring (when the event is not observed for some subjects) must be accounted for in the likelihood function.
 
-- Bayesian survival models allow flexible handling of time-dependent covariates and incorporate uncertainty more naturally than Frequentist methods.
+  - Censoring (when the event is not observed for some subjects) must be accounted for in the likelihood function. Proper handling is essential for unbiased results.
+
+- Bayesian survival models allow flexible handling of time-dependent covariate, random effects, and incorporate uncertainty more naturally than Frequentist methods.
 :::
 
 ## Example
@@ -111,7 +112,7 @@ $$
 In Bayesian survival analysis, we define priors for each parameter:
 
 1. **Hazard Function**:
-   The hazard rate at time \( t \) for an individual is given by:
+   The hazard rate at time \( $t$ \) for an individual is given by:
     $$Y_i(t) = Poisson(\lambda(t) * censoring(t))$$
     $$\lambda(t) = \lambda_0(t)\exp(x\beta)$$
 
@@ -142,15 +143,6 @@ In Bayesian survival analysis, we define priors for each parameter:
    - $\mu_\beta$: Mean of the normal distribution.
   
    - $\sigma^2_\beta$: Variance of the normal distribution.
-
-
-
-## Notes
-
-::: callout-note
-- Bayesian models naturally incorporate uncertainty in all parameters, providing posterior distributions instead of point estimates.
-- Survival analysis must consider censored data, where events are not observed within the study period. Proper handling is essential for unbiased results.
-:::
 
 ## Reference(s)
 

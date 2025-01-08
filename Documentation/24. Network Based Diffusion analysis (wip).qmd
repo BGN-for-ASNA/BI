@@ -1,0 +1,70 @@
+# Network Based Diffusion analysis
+## General Principles
+The principle idea behind Network Based Diffusion analysis (NBDA) is that if social transmission is involved in the spread of a novel behavior through a group, then that spread is expected to follow a social network links. The basic model underlying NBDA states that at time $t$ an individual, $i$, learns the behavior of interest with a specific rate formula. 
+
+In principle NBDA can be consider as a survival analysis, so we have the same concepts as in [chapter 12](12.&#32;Survival&#32;analysis.qmd):
+
+1. Where the **baseline hazard** (e.g. the hazard when all covariates are zero) is the asocial hazard.
+2. Where the **covariate** is the sum of links toward informed individuals (i.e. individuals that acquired the behavior of interest at time $t-1$).
+3. Thus the **Hazard Function** which account for the network links weights **covariate** can thus be consider as the social rate of learning the behavior.
+
+
+## Considerations
+::: callout-caution 
+- There are two main NBDA variants: order-of-acquisition diffusion analysis (OADA), which takes as data the order in which individuals acquired the target behaviour, and time-of-acquisition diffusion analysis (TADA), which uses the times of acquisition of the target behaviour.
+
+![image.png](attachment:image.png)
+
+
+:::
+
+## Example
+Below is an example code snippet demonstrating Bayesian  Multiplex network model using the Bayesian Inference (BI) package:
+
+::: {.panel-tabset group="language"}
+## Python
+``` python
+```
+
+``` R
+```
+:::
+
+## Mathematical Details
+
+### *Formulation*
+There are two parameters of interest in the basic time of acquisition diffusion analysis model: the rate of social transmission be-tween individuals per unit of network connection,*s*, and the baseline rate of trait performance in the absence of social transmission, $λ_0$. 
+
+$$
+\lambda_i(t) = \lambda_0(t) (1- z_i(t))  \left[ s \sum_{j = 1}^{N} a_{ij} z_j (t_{-1}) + 1 \right] 
+$$
+
+Where:
+
+- $\lambda_i(t)$ is the rate at which individuals *i* acquire the task solution at time *t*.
+  
+- $\lambda_0(t)$ is a baseline acquisition function determining the distribution of latencies to acquisition in the absence of social transmission (that is, through asocial learning). It can be specify by an exponential or Weibull distrbution.
+  
+- $z_i(t)$ gives the status (1 = informed, 0 = naïve) of individual *i* at time *t*.
+
+- $s$ is the regression coefficients capturing the effect of $x$ on the hazard have an assigned a normal prior.
+
+- $(1- z_i(t))$ and $z_j (-1)$ terms ensure that the task solution is only transmitted from informed to uninformed individuals:
+
+$$
+z_j(t) =  Y_i \sim \begin{cases} 
+0, & \text{if j is naive} \\
+1, & \text{if j is informed}
+\end{cases}
+$$
+
+
+## Notes
+::: callout-note
+
+:::
+
+## Reference(s)
+https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/1365-2656.13307
+
+(17) (PDF) Quantifying diffusion in social networks: a Bayesian approach. Available from: https://www.researchgate.net/publication/270048687_Quantifying_diffusion_in_social_networks_a_Bayesian_approach [accessed Oct 24 2024].
