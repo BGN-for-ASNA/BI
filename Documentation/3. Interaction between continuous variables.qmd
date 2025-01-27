@@ -8,20 +8,20 @@ Parallel lines indicate that there is no interaction effect, while different slo
 
 ## Considerations
 ::: callout-caution 
-- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+- We have the same assumptions as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- Model the relationship between independent variable *Y* and dependent variable $X_1$ to vary as a function of dependent variable $X_2$. You explicitly model the hypothesis that the slope between *Y* and $X_1$ depends—is conditional—upon $X_2$.
+- We wish to model the relationship between independent variable *Y* and dependent variable $X_1$ to vary as a function of dependent variable $X_2$. To do this, we explicitly model the hypothesis that the slope between *Y* and $X_1$ depends—is conditional—upon $X_2$.
 
 - For continuous interactions with scaled data, the intercept becomes the [<span style="color:#0D6EFD">grand mean 🛈</span>]{#grandMean} of the outcome variable. 
 
 - The interpretation of estimates is more complex. The estimate of non-interaction terms reflects the expected change in *Y* when $X_1$ increases by one unit, holding $X_2$ constant at its average value. The estimate of interaction terms represents how the effect of $X_1$ on *Y* changes depending on the value of $X_2$, and vice versa, showing how the relationship between the two variables influences the outcome *Y*.
 
-- [<span style="color:#0D6EFD">Triptych 🛈</span>]{#triptych} plots are very handy for understanding the impact of interactions, specially when more than two interactions are present.
+- [<span style="color:#0D6EFD">Triptych 🛈</span>]{#triptych} plots are very handy for understanding the impact of interactions, especially when more than two interactions are present.
   
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian regression with an interaction term between two continuous variables with the Bayesian Inference (BI) package. Data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of interaction between temperature and humidity on energy consumption.
+Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the Bayesian Inference (BI) package. Data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -107,7 +107,7 @@ Where:
   
 - $\beta_{interaction}$ is the regression coefficient for the interaction term $(X_{1}  X_{2})$.
   
-- $\sigma$ is the error term assumed to be normally distributed.
+- $\sigma$ is the error term, assumed to be normally distributed.
 
 In this context, the interaction term $X_{1i} * X_{2i}$ captures the joint effect of $X_{1i}$ and $X_{2i}$ on the target variable $Y_i$.
 
@@ -140,7 +140,7 @@ $$
 
 Where:
 
-- $Y_i$ is dependent variable for observation *i*.
+- $Y_i$ is the dependent variable for observation *i*.
   
 - $\alpha$ is the prior distribution for the intercept.
   
