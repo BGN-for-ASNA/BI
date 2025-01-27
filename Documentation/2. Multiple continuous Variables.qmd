@@ -1,6 +1,6 @@
 # Multiple continuous variables model
 ## General Principles
-To study relationships between multiple continuous variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend the [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd) by adding a regression coefficient $\beta_x$ for each continuous variable (e.g., $\beta_{weight}$ and $\beta_{age}$).
+To study relationships between multiple continuous variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd) by adding a regression coefficient $\beta_x$ for each continuous variable (e.g., $\beta_{weight}$ and $\beta_{age}$).
 
 ![](https://miro.medium.com/v2/resize:fit:786/format:webp/0*dJqdzk1aMo2OQR7O)
 
@@ -13,7 +13,7 @@ To study relationships between multiple continuous variables (e.g., the effect o
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian multiple regression using the Bayesian Inference (BI) package. Data consist of three continuous variables (*height*, *weight*, *age*), and the goal is to estimate the effect of *weight* and *age* on *height*.
+Below is example code demonstrating Bayesian multiple linear regression using the Bayesian Inference (BI) package. Data consist of three continuous variables (*height*, *weight*, *age*), and the goal is to estimate the effect of *weight* and *age* on *height*.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -121,7 +121,7 @@ $$
 
 Where:
 
-- $Y_i$ is dependent variable for observation *i*. 
+- $Y_i$ is the dependent variable for observation *i*. 
   
 - $\alpha$ is the prior distribution for the intercept.
   
@@ -129,7 +129,7 @@ Where:
   
 - $X_{1i}$, $X_{2i}$, ..., $X_{ni}$ are the values of the independent variables for observation *i*.
   
-- $\sigma$ is the prior distribution for the standard deviation, ensuring it is positive.
+- $\sigma$ is the prior distribution for the standard deviation, ensuring that it is positive.
 
 ## Reference(s)
 @mcelreath2018statistical
