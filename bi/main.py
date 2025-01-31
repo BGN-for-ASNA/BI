@@ -14,6 +14,8 @@ import jax as jax
 import numpy as np
 import jax.random as random
 import numpy as np
+
+
 from data.manip import manip
 from utils.array import Mgaussian as gaussian
 from utils.array import factors 
