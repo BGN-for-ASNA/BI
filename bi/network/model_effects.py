@@ -5,6 +5,7 @@ import jax.numpy as jnp
 from numpyro import deterministic
 import os
 import sys
+import inspect
 # Get the directory of the current file
 current_file_directory = os.path.dirname(os.path.abspath(__file__))
 directory_to_add = os.path.join(current_file_directory, '..', 'utils')
@@ -17,7 +18,25 @@ from utils.unified_dists import UnifiedDist as dist
 class Neteffect(array_manip):
     def __init__(self) -> None:
         pass
-   
+
+    @staticmethod 
+    @jit
+    def logit(x):
+        """
+        Computes the logit transformation.
+
+        Parameters
+        ----------
+        x : float or array-like
+            Input value(s) in the range (0, 1).
+
+        Returns
+        -------
+        float or array-like
+            The logit-transformed value(s): log(x / (1 - x)).
+        """
+        return jnp.log(x / (1 - x))
+
     # Sender receiver  ----------------------
     @staticmethod 
     def nodes_random_effects(N_id, sr_mu = 0, sr_sd = 1, sr_sigma_rate = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False ):
@@ -214,7 +233,8 @@ class Neteffect(array_manip):
         """Generate block model model matrix.
 
         Args:
-            grp (_type_): _description_
+            grp (array): Array of group belonging
+            N_grp (int): Number of groups to build
             b_ij_mean (float, optional): _description_. Defaults to 0.01.
             b_ij_sd (float, optional): _description_. Defaults to 2.5.
             b_ii_mean (float, optional): _description_. Defaults to 0.1.
