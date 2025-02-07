@@ -12,16 +12,30 @@ class diag:
 
     # Diagnostic with ARVIZ ----------------------------------------------------------------------------
     def to_az(self):
+        """Convert the sampler output to an arviz trace object.
+        
+        This method prepares the trace for use with arviz diagnostic tools.
+        
+        Returns:
+            self.trace: The arviz trace object.
+        """
         self.trace = az.from_numpyro(self.sampler)
         self.priors_name = list(self.trace['posterior'].data_vars.keys())
         return self.trace
 
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
+        
         if self.trace is None:
             self.to_az()
         self.tab_summary = az.summary(self.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
         return self.tab_summary 
-   
+
+    def diag_plot_trace(self, var_names= None, kind="rank_bars", *args, **kwargs): 
+        if self.trace is None:
+            self.to_az()
+        self.plot_trace = az.plot_trace(self.trace, var_names=self.priors_name, kind=kind, *args, **kwargs)
+        return self.plot_trace 
+
     def diag_prior_dist(self, N = 100):
         samples = self.sample.sample(N)
         prob = self.log_prob(samples)
@@ -69,8 +83,8 @@ class diag:
         return self.waic
     
     def diag_compare(self, dict, *args, **kwargs):
-        self.comparaison = az.compare(dict, *args, **kwargs)
-        return self.comparaison 
+        self.comparison = az.compare(dict, *args, **kwargs)
+        return self.comparison 
 
     def diag_rhat(self, *args, **kwargs):
         self.rhat = az.rhat(self.trace, *args, **kwargs)
