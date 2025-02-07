@@ -10,15 +10,37 @@ class UnifiedDist:
 
     @staticmethod
     def asymmetriclaplace(loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
-        """
-        AsymmetricLaplace distribution.
-    
-        Arguments:
-            loc: 0.0
-            scale: 1.0
-            asymmetry: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+    """
+    Interface function for NumPyro's AsymmetricLaplace distribution.
+
+    This function provides a flexible interface to work with the Asymmetric Laplace distribution.
+    It allows for direct sampling or integration into probabilistic models.
+
+    Parameters
+    ----------
+    loc : float, optional
+        Location parameter (mean) of the distribution. Default is 0.0.
+    scale : float, optional
+        Scale parameter (related to standard deviation) of the distribution. Default is 1.0.
+    asymmetry : float, optional
+        Asymmetry parameter controlling the skewness of the distribution. Default is 1.0.
+    validate_args : bool, optional
+        Whether to validate the distribution parameters. Default is None.
+    shape : tuple, optional
+        Shape of the output samples. Default is ().
+    sample : bool, optional
+        Whether to generate samples directly (True) or create a sampling node for a model (False). Default is False.
+    seed : int, optional
+        Seed for random number generation. Default is 0.
+    name : str, optional
+        Name for the sampling node in a model. Default is 'x'.
+
+    Returns
+    -------
+    numpy.ndarray or numpyro.distributions.Distribution
+        If `sample=True`, returns samples from the Asymmetric Laplace distribution.
+        If `sample=False`, returns the NumPyro distribution object.
+
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1365,6 +1387,7 @@ class UnifiedDist:
             validate_args: None
             shape: Shape of samples to be drawn.
         """
+        my_function.__doc__ =
         if sample == True:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args).sample(seed, shape)
