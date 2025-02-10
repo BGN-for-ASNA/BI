@@ -11,14 +11,25 @@ class UnifiedDist:
     @staticmethod
     def asymmetriclaplace(loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        AsymmetricLaplace distribution.
-    
-        Arguments:
-            loc: 0.0
-            scale: 1.0
-            asymmetry: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from or defines the AsymmetricLaplace distribution.
+
+        This function can either return a sample from the AsymmetricLaplace distribution
+        or define the distribution itself, depending on the value of the 'sample'
+        parameter.
+
+        Args:
+            loc (float, optional): Location parameter. Defaults to 0.0.
+            scale (float, optional): Scale parameter. Defaults to 1.0.
+            asymmetry (float, optional): Asymmetry parameter. Defaults to 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Defaults to None.
+            shape (tuple, optional): Shape of the samples to be drawn. Defaults to ().
+            sample (bool, optional): Whether to return a sample. Defaults to False.
+            seed (int, optional): Seed for the random number generator. Defaults to 0.
+            name (str, optional): Name of the sample. Defaults to 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -27,100 +38,162 @@ class UnifiedDist:
             return numpyro.sample(name, numpyro.distributions.AsymmetricLaplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args).expand(shape))
 
     @staticmethod
-    def asymmetriclaplacequantile(loc=0.0, scale=1.0, quantile=0.5, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
+    def asymmetriclaplacequantile(loc=0.0, scale=1.0, quantile=0.5, validate_args=None, shape=(), sample=False, seed=0, name='x'):
         """
-        AsymmetricLaplaceQuantile distribution.
-    
-        Arguments:
-            loc: 0.0
-            scale: 1.0
-            quantile: 0.5
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from or defines the AsymmetricLaplaceQuantile distribution.
+
+        This function can either return a sample from the AsymmetricLaplaceQuantile distribution
+        or define the distribution itself, depending on the value of the 'sample'
+        parameter.
+
+        Args:
+            loc (float, optional): Location parameter. Defaults to 0.0.
+            scale (float, optional): Scale parameter. Defaults to 1.0.
+            quantile (float, optional): Quantile parameter. Defaults to 0.5.
+            validate_args (bool, optional): Whether to validate the arguments. Defaults to None.
+            shape (tuple, optional): Shape of the samples to be drawn. Defaults to ().
+            sample (bool, optional): Whether to return a sample. Defaults to False.
+                seed (int, optional): Seed for the random number generator. Defaults to 0.
+            name (str, optional): Name of the sample. Defaults to 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
-        if sample == True:
+        if sample:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.AsymmetricLaplaceQuantile(loc=loc, scale=scale, quantile=quantile, validate_args=validate_args).sample(seed, shape)
-        else: 
+        else:
             return numpyro.sample(name, numpyro.distributions.AsymmetricLaplaceQuantile(loc=loc, scale=scale, quantile=quantile, validate_args=validate_args).expand(shape))
 
     @staticmethod
-    def bernoulli(probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
+    def bernoulli(probs=None, logits=None, validate_args=None, shape=(), sample=False, seed=0, name='x'):
         """
-        Bernoulli distribution.
-    
-        Arguments:
-            probs: None
-            logits: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from or defines the Bernoulli distribution.
+
+        This function can either return a sample from the Bernoulli distribution
+        or define the distribution itself, depending on the value of the 'sample'
+        parameter.
+
+        Args:
+            probs (float, optional): Probability of success. Defaults to None.
+            logits (float, optional): Logit probability of success. Defaults to None.
+            validate_args (bool, optional): Whether to validate the arguments. Defaults to None.
+            shape (tuple, optional): Shape of the samples to be drawn. Defaults to ().
+            sample (bool, optional): Whether to return a sample. Defaults to False.
+            seed (int, optional): Seed for the random number generator. Defaults to 0.
+            name (str, optional): Name of the sample. Defaults to 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
-        if sample == True:
+        if sample:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.Bernoulli(probs=probs, logits=logits, validate_args=validate_args).sample(seed, shape)
-        else: 
+        else:
             return numpyro.sample(name, numpyro.distributions.Bernoulli(probs=probs, logits=logits, validate_args=validate_args).expand(shape))
 
     @staticmethod
-    def bernoullilogits(logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
+    def bernoullilogits(logits=None, validate_args=None, shape=(), sample=False, seed=0, name='x'):
         """
-        BernoulliLogits distribution.
-    
-        Arguments:
-            logits: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from or defines the BernoulliLogits distribution.
+
+        This function can either return a sample from the BernoulliLogits distribution
+        or define the distribution itself, depending on the value of the 'sample'
+        parameter.
+
+        Args:
+            logits (float, optional): Logit probability of success. Defaults to None.
+            validate_args (bool, optional): Whether to validate the arguments. Defaults to None.
+            shape (tuple, optional): Shape of the samples to be drawn. Defaults to ().
+            sample (bool, optional): Whether to return a sample. Defaults to False.
+            seed (int, optional): Seed for the random number generator. Defaults to 0.
+            name (str, optional): Name of the sample. Defaults to 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
-        if sample == True:
+        if sample:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.BernoulliLogits(logits=logits, validate_args=validate_args).sample(seed, shape)
-        else: 
+        else:
             return numpyro.sample(name, numpyro.distributions.BernoulliLogits(logits=logits, validate_args=validate_args).expand(shape))
 
     @staticmethod
-    def bernoulliprobs(probs, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
+    def bernoulliprobs(probs, validate_args=None, shape=(), sample=False, seed=0, name='x'):
         """
-        BernoulliProbs distribution.
-    
-        Arguments:
-            probs: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from or defines the BernoulliProbs distribution.
+
+        This function can either return a sample from the BernoulliProbs distribution
+        or define the distribution itself, depending on the value of the 'sample'
+        parameter.
+
+        Args:
+            probs (float): Probability of success.
+            validate_args (bool, optional): Whether to validate the arguments. Defaults to None.
+            shape (tuple, optional): Shape of the samples to be drawn. Defaults to ().
+            sample (bool, optional): Whether to return a sample. Defaults to False.
+            seed (int, optional): Seed for the random number generator. Defaults to 0.
+            name (str, optional): Name of the sample. Defaults to 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
-        if sample == True:
+        if sample:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.BernoulliProbs(probs=probs, validate_args=validate_args).sample(seed, shape)
-        else: 
+        else:
             return numpyro.sample(name, numpyro.distributions.BernoulliProbs(probs=probs, validate_args=validate_args).expand(shape))
 
     @staticmethod
-    def beta(concentration1, concentration0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
+    def beta(concentration1, concentration0, validate_args=None, shape=(), sample=False, seed=0, name='x'):
         """
-        Beta distribution.
-    
-        Arguments:
-            concentration1: <class 'inspect._empty'>
-            concentration0: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from or defines the Beta distribution.
+
+        This function can either return a sample from the Beta distribution
+        or define the distribution itself, depending on the value of the 'sample'
+        parameter.
+
+        Args:
+            concentration1 (float): First concentration parameter.
+            concentration0 (float): Second concentration parameter.
+            validate_args (bool, optional): Whether to validate the arguments. Defaults to None.
+            shape (tuple, optional): Shape of the samples to be drawn. Defaults to ().
+            sample (bool, optional): Whether to return a sample. Defaults to False.
+            seed (int, optional): Seed for the random number generator. Defaults to 0.
+            name (str, optional): Name of the sample. Defaults to 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
-        if sample == True:
+        if sample:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args).sample(seed, shape)
-        else: 
+        else:
             return numpyro.sample(name, numpyro.distributions.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args).expand(shape))
-
+    
     @staticmethod
     def betabinomial(concentration1, concentration0, total_count=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        BetaBinomial distribution.
-    
-        Arguments:
-            concentration1: <class 'inspect._empty'>
-            concentration0: <class 'inspect._empty'>
-            total_count: 1
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates a Beta-Binomial distribution.
+
+        Args:
+            concentration1: The first concentration parameter (alpha) of the Beta distribution.
+            concentration0: The second concentration parameter (beta) of the Beta distribution.
+            total_count: The total number of Bernoulli trials.
+            validate_args: Whether to validate the arguments (default: None).
+            shape: The shape of the samples to be drawn.
+            sample: Whether to return samples (True) or the distribution object (False).
+            seed: The seed for random number generation.
+            name: The name of the random variable.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -131,13 +204,20 @@ class UnifiedDist:
     @staticmethod
     def betaproportion(mean, concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        BetaProportion distribution.
-    
-        Arguments:
-            mean: <class 'inspect._empty'>
-            concentration: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates a BetaProportion distribution.
+
+        Args:
+            mean: The mean parameter of the Beta distribution.
+            concentration: The concentration parameter of the Beta distribution.
+            validate_args: Whether to validate the arguments (default: None).
+            shape: The shape of the samples to be drawn.
+            sample: Whether to return samples (True) or the distribution object (False).
+            seed: The seed for random number generation.
+            name: The name of the random variable.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.          
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -148,14 +228,21 @@ class UnifiedDist:
     @staticmethod
     def binomial(total_count=1, probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        Binomial distribution.
-    
-        Arguments:
-            total_count: 1
-            probs: None
-            logits: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates a Binomial distribution.
+
+        Args:
+            total_count: The total number of Bernoulli trials.
+            probs: The probability of success in each trial (mutually exclusive with logits).
+            logits: The log-odds of success in each trial (mutually exclusive with probs).
+            validate_args: Whether to validate the arguments (default: None).
+            shape: The shape of the samples to be drawn.
+            sample: Whether to return samples (True) or the distribution object (False).
+            seed: The seed for random number generation.
+            name: The name of the random variable.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.        
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -166,13 +253,20 @@ class UnifiedDist:
     @staticmethod
     def binomiallogits(logits, total_count=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        BinomialLogits distribution.
-    
-        Arguments:
-            logits: <class 'inspect._empty'>
-            total_count: 1
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates a BinomialLogits distribution.
+
+        Args:
+            logits: The log-odds of success in each trial.
+            total_count: The total number of Bernoulli trials.
+            validate_args: Whether to validate the arguments (default: None).
+            shape: The shape of the samples to be drawn.
+            sample: Whether to return samples (True) or the distribution object (False).
+            seed: The seed for random number generation.
+            name: The name of the random variable.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.            
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -183,13 +277,20 @@ class UnifiedDist:
     @staticmethod
     def binomialprobs(probs, total_count=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        BinomialProbs distribution.
-    
-        Arguments:
-            probs: <class 'inspect._empty'>
-            total_count: 1
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates a BinomialProbs distribution.
+
+        Args:
+            probs: The probability of success in each trial.
+            total_count: The total number of Bernoulli trials.
+            validate_args: Whether to validate the arguments (default: None).
+            shape: The shape of the samples to be drawn.
+            sample: Whether to return samples (True) or the distribution object (False).
+            seed: The seed for random number generation.
+            name: The name of the random variable.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.            
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -200,16 +301,23 @@ class UnifiedDist:
     @staticmethod
     def car(loc, correlation, conditional_precision, adj_matrix, is_sparse=False, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        CAR distribution.
-    
-        Arguments:
-            loc: <class 'inspect._empty'>
-            correlation: <class 'inspect._empty'>
-            conditional_precision: <class 'inspect._empty'>
-            adj_matrix: <class 'inspect._empty'>
-            is_sparse: False
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates a Conditional Autoregressive (CAR) distribution.
+
+        Args:
+            loc: The location parameter.
+            correlation: The correlation parameter.
+            conditional_precision: The conditional precision parameter.
+            adj_matrix: The adjacency matrix defining the graph structure.
+            is_sparse: Whether the adjacency matrix is sparse (default: False).
+            validate_args: Whether to validate the arguments (default: None).
+            shape: The shape of the samples to be drawn.
+            sample: Whether to return samples (True) or the distribution object (False).
+            seed: The seed for random number generation.
+            name: The name of the random variable.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.       
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -220,13 +328,20 @@ class UnifiedDist:
     @staticmethod
     def categorical(probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        Categorical distribution.
-    
-        Arguments:
-            probs: None
-            logits: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates a Categorical distribution.
+
+        Args:
+            probs: The probabilities associated with each category (mutually exclusive with logits).
+            logits: The log-probabilities associated with each category (mutually exclusive with probs).
+            validate_args: Whether to validate the arguments (default: None).
+            shape: The shape of the samples to be drawn.
+            sample: Whether to return samples (True) or the distribution object (False).
+            seed: The seed for random number generation.
+            name: The name of the random variable.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.      
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -237,13 +352,18 @@ class UnifiedDist:
     @staticmethod
     def categoricallogits(logits, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        CategoricalLogits distribution.
+        Generates a CategoricalLogits distribution.
     
-        Arguments:
-            logits: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
-        """
+        Args:
+            logits: The log-probabilities associated with each category.
+            validate_args: Whether to validate the arguments (default: None).
+            shape: The shape of the samples to be drawn.
+            sample: Whether to return samples (True) or the distribution object (False).
+            seed: The seed for random number generation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         if sample == True:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.CategoricalLogits(logits=logits, validate_args=validate_args).sample(seed, shape)
@@ -253,12 +373,19 @@ class UnifiedDist:
     @staticmethod
     def categoricalprobs(probs, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        CategoricalProbs distribution.
-    
-        Arguments:
-            probs: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Categorical distribution with probabilities defined by probabilities.
+        
+        Args:
+            probs: Tensor of probabilities. Must sum to 1 along the last dimension.
+            validate_args: If True, validate the arguments; else, skip validation.
+            shape: Shape of samples to be drawn. If `sample` is True, this is passed to `sample()`. If  `sample` is False, this is passed to `expand()`.
+            sample: If True, samples from the distribution. If False, returns the distribution object.
+            seed: Seed for random number generation.
+            name: Name for the distribution.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -270,12 +397,19 @@ class UnifiedDist:
     def cauchy(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Cauchy distribution.
-    
-        Arguments:
-            loc: 0.0
-            scale: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            loc: Location parameter. Default is 0.0.
+            scale: Scale parameter. Must be positive. Default is 1.0.
+            validate_args: If True, validate the arguments; else, skip validation.
+            shape: Shape of samples to be drawn. If `sample` is True, this is passed to `sample()`. If  `sample` is False, this is passed to `expand()`.
+            sample: If True, samples from the distribution. If False, returns the distribution object.
+            seed: Seed for random number generation.
+            name: Name for the distribution.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -286,12 +420,19 @@ class UnifiedDist:
     @staticmethod
     def chi2(df, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        Chi2 distribution.
-    
-        Arguments:
-            df: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Chi-squared distribution.
+
+        Args:
+            df: Degrees of freedom. Must be positive.
+            validate_args: If True, validate the arguments; else, skip validation.
+            shape: Shape of samples to be drawn. If `sample` is True, this is passed to `sample()`. If  `sample` is False, this is passed to `expand()`.
+            sample: If True, samples from the distribution. If False, returns the distribution object.
+            seed: Seed for random number generation.
+            name: Name for the distribution.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -303,13 +444,20 @@ class UnifiedDist:
     def delta(v=0.0, log_density=0.0, event_dim=0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Delta distribution.
-    
-        Arguments:
-            v: 0.0
-            log_density: 0.0
-            event_dim: 0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            v: Value at which the delta distribution is centered. Must be a scalar or broadcastable with the    batch shape.
+            log_density: Log density at the center. Default is 0.0.
+            event_dim: Number of event dimensions. Default is 0.
+            validate_args: If True, validate the arguments; else, skip validation.
+            shape: Shape of samples to be drawn. If `sample` is True, this is passed to `sample()`. If  `sample` is False, this is passed to `expand()`.
+            sample: If True, samples from the distribution. If False, returns the distribution object.
+            seed: Seed for random number generation.
+            name: Name for the distribution.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -321,11 +469,18 @@ class UnifiedDist:
     def dirichlet(concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Dirichlet distribution.
-    
-        Arguments:
-            concentration: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            concentration: Concentration parameters. Must be positive. Must have shape (K,) where K is the  number of categories.
+            validate_args: If True, validate the arguments; else, skip validation.
+            shape: Shape of samples to be drawn. If `sample` is True, this is passed to `sample()`. If  `sample` is False, this is passed to `expand()`.
+            sample: If True, samples from the distribution. If False, returns the distribution object.
+            seed: Seed for random number generation.
+            name: Name for the distribution.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -337,12 +492,19 @@ class UnifiedDist:
     def dirichletmultinomial(concentration, total_count=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         DirichletMultinomial distribution.
-    
-        Arguments:
-            concentration: <class 'inspect._empty'>
-            total_count: 1
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            concentration: Concentration parameters. Must be positive. Must have shape (K,) where K is the  number of categories.
+            total_count: Total number of trials. Default is 1.
+            validate_args: If True, validate the arguments; else, skip validation.
+            shape: Shape of samples to be drawn. If `sample` is True, this is passed to `sample()`. If  `sample` is False, this is passed to `expand()`.
+            sample: If True, samples from the distribution. If False, returns the distribution object.
+            seed: Seed for random number generation.
+            name: Name for the distribution.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -354,12 +516,19 @@ class UnifiedDist:
     def discreteuniform(low=0, high=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         DiscreteUniform distribution.
-    
-        Arguments:
-            low: 0
-            high: 1
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            low: Lower bound (inclusive). Default is 0.
+            high: Upper bound (inclusive). Default is 1.
+            validate_args: If True, validate the arguments; else, skip validation.
+            shape: Shape of samples to be drawn. If `sample` is True, this is passed to `sample()`. If `sample` is  False, this is passed to `expand()`.
+            sample: If True, samples from the distribution. If False, returns the distribution object.
+            seed: Seed for random number generation.
+            name: Name for the distribution.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -368,33 +537,23 @@ class UnifiedDist:
             return numpyro.sample(name, numpyro.distributions.DiscreteUniform(low=low, high=high, validate_args=validate_args).expand(shape))
 
     @staticmethod
-    def distribution(batch_shape=(), event_shape=(), validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
-        """
-        Distribution distribution.
-    
-        Arguments:
-            batch_shape: ()
-            event_shape: ()
-            validate_args: None
-            shape: Shape of samples to be drawn.
-        """
-        if sample == True:
-            seed = random.PRNGKey(seed)
-            return numpyro.distributions.Distribution(batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args).sample(seed, shape)
-        else: 
-            return numpyro.sample(name, numpyro.distributions.Distribution(batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args).expand(shape))
-
-    @staticmethod
     def eulermaruyama(t, sde_fn, init_dist, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         EulerMaruyama distribution.
-    
-        Arguments:
-            t: <class 'inspect._empty'>
-            sde_fn: <class 'inspect._empty'>
-            init_dist: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            t: Time points to evaluate the SDE.
+            sde_fn: Stochastic differential equation function.
+            init_dist: Initial distribution.
+            validate_args: If True, validate the arguments; else, skip validation.
+            shape: Shape of samples to be drawn. If `sample` is True, this is passed to `sample()`. If `sample` is  False, this is passed to `expand()`.
+            sample: If True, samples from the distribution. If False, returns the distribution object.
+            seed: Seed for random number generation.
+            name: Name for the distribution.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -422,11 +581,20 @@ class UnifiedDist:
     def exponential(rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Exponential distribution.
-    
-        Arguments:
-            rate: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Samples or constructs an Exponential distribution with specified rate.
+
+        Args:
+            rate (float): The rate parameter of the distribution. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -437,12 +605,21 @@ class UnifiedDist:
     @staticmethod
     def foldeddistribution(base_dist, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        FoldedDistribution distribution.
-    
-        Arguments:
-            base_dist: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        FoldedDistribution.
+
+        Constructs a distribution that folds a base distribution to be non-negative.
+
+        Args:
+            base_dist (numpyro.distributions.Distribution): The base distribution to be folded.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -454,12 +631,21 @@ class UnifiedDist:
     def gamma(concentration, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Gamma distribution.
-    
-        Arguments:
-            concentration: <class 'inspect._empty'>
-            rate: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Samples or constructs a Gamma distribution with specified concentration and rate parameters.
+
+        Args:
+            concentration (float): Shape parameter of the Gamma distribution.
+            rate (float, optional): Rate parameter. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -470,13 +656,22 @@ class UnifiedDist:
     @staticmethod
     def gammapoisson(concentration, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        GammaPoisson distribution.
-    
-        Arguments:
-            concentration: <class 'inspect._empty'>
-            rate: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Gamma-Poisson distribution.
+
+        Constructs a Gamma-Poisson distribution, which is a mixture of Gamma and Poisson distributions.
+
+        Args:
+            concentration (float): Shape parameter of the Gamma distribution.
+            rate (float, optional): Rate parameter of the Gamma distribution. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -487,14 +682,23 @@ class UnifiedDist:
     @staticmethod
     def gaussiancopula(marginal_dist, correlation_matrix=None, correlation_cholesky=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        GaussianCopula distribution.
-    
-        Arguments:
-            marginal_dist: <class 'inspect._empty'>
-            correlation_matrix: None
-            correlation_cholesky: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Gaussian Copula distribution.
+
+        Constructs a Gaussian Copula distribution using a specified marginal distribution and correlation   structure.
+
+        Args:
+            marginal_dist (numpyro.distributions.Distribution): Marginal distribution for the copula.
+            correlation_matrix (jax.numpy.ndarray, optional): Correlation matrix. Default is None.
+            correlation_cholesky (jax.numpy.ndarray, optional): Cholesky decomposition of the correlation matrix.   Default is None.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -505,15 +709,24 @@ class UnifiedDist:
     @staticmethod
     def gaussiancopulabeta(concentration1, concentration0, correlation_matrix=None, correlation_cholesky=None, validate_args=False, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        GaussianCopulaBeta distribution.
-    
-        Arguments:
-            concentration1: <class 'inspect._empty'>
-            concentration0: <class 'inspect._empty'>
-            correlation_matrix: None
-            correlation_cholesky: None
-            validate_args: False
-            shape: Shape of samples to be drawn.
+        Gaussian Copula Beta distribution.
+
+        Constructs a Gaussian Copula Beta distribution using Beta marginals.
+
+        Args:
+            concentration1 (float): First concentration parameter of the Beta distribution.
+            concentration0 (float): Second concentration parameter of the Beta distribution.
+            correlation_matrix (jax.numpy.ndarray, optional): Correlation matrix. Default is None.
+            correlation_cholesky (jax.numpy.ndarray, optional): Cholesky decomposition of the correlation matrix.   Default is None.
+            validate_args (bool, optional): Whether to validate the arguments. Default is False.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -524,13 +737,22 @@ class UnifiedDist:
     @staticmethod
     def gaussianrandomwalk(scale=1.0, num_steps=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        GaussianRandomWalk distribution.
-    
-        Arguments:
-            scale: 1.0
-            num_steps: 1
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Gaussian Random Walk distribution.
+
+        Constructs a Gaussian Random Walk distribution, modeling a sequence of steps with Gaussian noise.
+
+        Args:
+            scale (float, optional): Scale parameter of the Gaussian distribution. Default is 1.0.
+            num_steps (int, optional): Number of steps in the random walk. Default is 1.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -542,12 +764,24 @@ class UnifiedDist:
     def geometric(probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Geometric distribution.
-    
-        Arguments:
-            probs: None
-            logits: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Samples or constructs a Geometric distribution modeling the number of trials until the first success.
+
+        Args:
+            probs (float, optional): Probability of success in each trial. Default is None.
+            logits (float, optional): Log-odds of success in each trial. Default is None.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
+
+        Note:
+            Either `probs` or `logits` must be specified, but not both.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -558,13 +792,22 @@ class UnifiedDist:
     @staticmethod
     def geometriclogits(logits, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        GeometricLogits distribution.
-    
-        Arguments:
-            logits: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
-        """
+        Geometric Logits distribution.
+
+        Samples or constructs a Geometric distribution using logits instead of probabilities.
+
+        Args:
+            logits (float): Log-odds of success in each trial.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
+        """ 
         if sample == True:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.GeometricLogits(logits=logits, validate_args=validate_args).sample(seed, shape)
@@ -574,12 +817,21 @@ class UnifiedDist:
     @staticmethod
     def geometricprobs(probs, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        GeometricProbs distribution.
-    
-        Arguments:
-            probs: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Geometric Probs distribution.
+
+        Samples or constructs a Geometric distribution using probabilities.
+
+        Args:
+            probs (float): Probability of success in each trial.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -591,12 +843,21 @@ class UnifiedDist:
     def gompertz(concentration, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Gompertz distribution.
-    
-        Arguments:
-            concentration: <class 'inspect._empty'>
-            rate: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Samples or constructs a Gompertz distribution, often used to model mortality rates.
+
+        Args:
+            concentration (float): Shape parameter of the distribution.
+            rate (float, optional): Rate parameter. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -608,12 +869,21 @@ class UnifiedDist:
     def gumbel(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Gumbel distribution.
-    
-        Arguments:
-            loc: 0.0
-            scale: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Samples or constructs a Gumbel distribution, often used to model extreme values.
+
+        Args:
+            loc (float, optional): Location parameter. Default is 0.0.
+            scale (float, optional): Scale parameter. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -624,12 +894,21 @@ class UnifiedDist:
     @staticmethod
     def halfcauchy(scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        HalfCauchy distribution.
-    
-        Arguments:
-            scale: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Half-Cauchy distribution.
+
+        Samples or constructs a Half-Cauchy distribution, which is the right half of the Cauchy distribution.
+
+        Args:
+            scale (float, optional): Scale parameter. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): Shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample (True) or the distribution (False). Default is  False.
+            seed (int, optional): Seed for random number generation. Default is 0.
+            name (str, optional): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -641,11 +920,18 @@ class UnifiedDist:
     def halfnormal(scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         HalfNormal distribution.
-    
+
         Arguments:
-            scale: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        scale (float): Scale parameter of the distribution. Default is 1.0.
+        validate_args (bool, optional): Whether to validate the arguments. Default is None.
+        shape (tuple): Shape of the samples to be drawn.
+        sample (bool): Whether to sample from the distribution. Default is False.
+        seed (int): Seed for random number generation. Default is 0.
+        name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -657,14 +943,20 @@ class UnifiedDist:
     def improperuniform(support, batch_shape, event_shape, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         ImproperUniform distribution.
-    
+
         Arguments:
-            support: <class 'inspect._empty'>
-            batch_shape: <class 'inspect._empty'>
-            event_shape: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
-        """
+            support: Support of the distribution.
+            batch_shape: Batch shape of the distribution.
+            event_shape: Event shape of the distribution.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         if sample == True:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.ImproperUniform(support=support, batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args).sample(seed, shape)
@@ -675,12 +967,19 @@ class UnifiedDist:
     def independent(base_dist, reinterpreted_batch_ndims, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Independent distribution.
-    
+
         Arguments:
-            base_dist: <class 'inspect._empty'>
-            reinterpreted_batch_ndims: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            base_dist: Base distribution.
+            reinterpreted_batch_ndims (int): Number of batch dimensions to reinterpret.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -692,12 +991,19 @@ class UnifiedDist:
     def inversegamma(concentration, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         InverseGamma distribution.
-    
+
         Arguments:
-            concentration: <class 'inspect._empty'>
-            rate: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            concentration (float): Concentration parameter.
+            rate (float): Rate parameter. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -709,12 +1015,19 @@ class UnifiedDist:
     def kumaraswamy(concentration1, concentration0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Kumaraswamy distribution.
-    
+
         Arguments:
-            concentration1: <class 'inspect._empty'>
-            concentration0: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            concentration1 (float): First concentration parameter.
+            concentration (float): Second concentration parameter. Default is an empty tuple, which should be replaced.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -726,13 +1039,20 @@ class UnifiedDist:
     def lkj(dimension, concentration=1.0, sample_method='onion', validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         LKJ distribution.
-    
+
         Arguments:
-            dimension: <class 'inspect._empty'>
-            concentration: 1.0
-            sample_method: onion
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            dimension (int): Dimension of the distribution.
+            concentration (float): Concentration parameter. Default is 1.0.
+            sample_method (str): Sampling method. Default is 'onion'.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -744,13 +1064,20 @@ class UnifiedDist:
     def lkjcholesky(dimension, concentration=1.0, sample_method='onion', validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         LKJCholesky distribution.
-    
+
         Arguments:
-            dimension: <class 'inspect._empty'>
-            concentration: 1.0
-            sample_method: onion
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            dimension (int): Dimension of the distribution.
+            concentration (float): Concentration parameter. Default is 1.0.
+            sample_method (str): Sampling method. Default is 'onion'.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -762,12 +1089,19 @@ class UnifiedDist:
     def laplace(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Laplace distribution.
-    
+
         Arguments:
-            loc: 0.0
-            scale: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            loc (float): Location parameter. Default is 0.0.
+            scale (float): Scale parameter. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -779,12 +1113,19 @@ class UnifiedDist:
     def lefttruncateddistribution(base_dist, low=0.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         LeftTruncatedDistribution distribution.
-    
+
         Arguments:
-            base_dist: <class 'inspect._empty'>
-            low: 0.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            base_dist: Base distribution to be truncated.
+            low (float): Lower truncation point. Default is 0.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -796,12 +1137,19 @@ class UnifiedDist:
     def lognormal(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         LogNormal distribution.
-    
+
         Arguments:
-            loc: 0.0
-            scale: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            loc (float): Mean of the normal distribution. Default is 0.0.
+            scale (float): Standard deviation of the normal distribution. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -813,12 +1161,19 @@ class UnifiedDist:
     def loguniform(low, high, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         LogUniform distribution.
-    
+
         Arguments:
-            low: <class 'inspect._empty'>
-            high: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            low (float): Lower bound of the distribution.
+            high (float): Upper bound of the distribution.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -830,12 +1185,19 @@ class UnifiedDist:
     def logistic(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Logistic distribution.
-    
+
         Arguments:
-            loc: 0.0
-            scale: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            loc (float): Location parameter. Default is 0.0.
+            scale (float): Scale parameter. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -847,13 +1209,20 @@ class UnifiedDist:
     def lowrankmultivariatenormal(loc, cov_factor, cov_diag, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         LowRankMultivariateNormal distribution.
-    
+
         Arguments:
-            loc: <class 'inspect._empty'>
-            cov_factor: <class 'inspect._empty'>
-            cov_diag: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+            loc: Location vector.
+            cov_factor: Factor for the low-rank covariance matrix.
+            cov_diag: Diagonal part of the covariance matrix.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple): Shape of the samples to be drawn.
+            sample (bool): Whether to sample from the distribution. Default is False.
+            seed (int): Seed for random number generation. Default is 0.
+            name (str): Name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -881,13 +1250,20 @@ class UnifiedDist:
     def matrixnormal(loc, scale_tril_row, scale_tril_column, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         MatrixNormal distribution.
-    
+
         Arguments:
-            loc: <class 'inspect._empty'>
-            scale_tril_row: <class 'inspect._empty'>
-            scale_tril_column: <class 'inspect._empty'>
-            validate_args: None
+            loc: The mean matrix of the distribution.
+            scale_tril_row: The lower triangular matrix A such that covariance matrix is A * A.T.
+            scale_tril_column: The lower triangular matrix B such that covariance matrix is B.T * B.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -899,12 +1275,19 @@ class UnifiedDist:
     def mixture(mixing_distribution, component_distributions, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Mixture distribution.
-    
+
         Arguments:
-            mixing_distribution: <class 'inspect._empty'>
-            component_distributions: <class 'inspect._empty'>
-            validate_args: None
+            mixing_distribution: Distribution over the mixture components.
+            component_distributions: List of distributions for each mixture component.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -916,12 +1299,19 @@ class UnifiedDist:
     def mixturegeneral(mixing_distribution, component_distributions, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         MixtureGeneral distribution.
-    
+
         Arguments:
-            mixing_distribution: <class 'inspect._empty'>
-            component_distributions: <class 'inspect._empty'>
-            validate_args: None
+            mixing_distribution: Distribution over the mixture components.
+            component_distributions: List of distributions for each mixture component.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -933,12 +1323,19 @@ class UnifiedDist:
     def mixturesamefamily(mixing_distribution, component_distribution, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         MixtureSameFamily distribution.
-    
+
         Arguments:
-            mixing_distribution: <class 'inspect._empty'>
-            component_distribution: <class 'inspect._empty'>
-            validate_args: None
+            mixing_distribution: Distribution over the mixture components.
+            component_distribution: Single distribution used for all mixture components.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
+            name: Name for the sample operation.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -950,14 +1347,21 @@ class UnifiedDist:
     def multinomial(total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Multinomial distribution.
-    
+
         Arguments:
-            total_count: 1
-            probs: None
-            logits: None
-            total_count_max: None
-            validate_args: None
+            total_count: Number of trials.
+            probs: Probabilities of each outcome.
+            logits: Logits corresponding to each outcome.
+            total_count_max: Maximum total_count to consider.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -969,13 +1373,20 @@ class UnifiedDist:
     def multinomiallogits(logits, total_count=1, total_count_max=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         MultinomialLogits distribution.
-    
+
         Arguments:
-            logits: <class 'inspect._empty'>
-            total_count: 1
-            total_count_max: None
-            validate_args: None
+            logits: Logits corresponding to each outcome.
+            total_count: Number of trials.
+            total_count_max: Maximum total_count to consider.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -987,13 +1398,20 @@ class UnifiedDist:
     def multinomialprobs(probs, total_count=1, total_count_max=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         MultinomialProbs distribution.
-    
+
         Arguments:
-            probs: <class 'inspect._empty'>
-            total_count: 1
-            total_count_max: None
-            validate_args: None
+            probs: Probabilities of each outcome.
+            total_count: Number of trials.
+            total_count_max: Maximum total_count to consider.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1005,14 +1423,21 @@ class UnifiedDist:
     def multivariatenormal(loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         MultivariateNormal distribution.
-    
+
         Arguments:
-            loc: 0.0
-            covariance_matrix: None
-            precision_matrix: None
-            scale_tril: None
-            validate_args: None
+            loc: Mean vector.
+            covariance_matrix: Covariance matrix.
+            precision_matrix: Precision matrix.
+            scale_tril: Lower triangular matrix such that covariance matrix is scale_tril * scale_tril.T.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1024,13 +1449,20 @@ class UnifiedDist:
     def multivariatestudentt(df, loc=0.0, scale_tril=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         MultivariateStudentT distribution.
-    
+
         Arguments:
-            df: <class 'inspect._empty'>
-            loc: 0.0
-            scale_tril: None
-            validate_args: None
+            df: Degrees of freedom.
+            loc: Mean vector.
+            scale_tril: Lower triangular matrix for the scale.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+        
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1042,12 +1474,19 @@ class UnifiedDist:
     def negativebinomial2(mean, concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         NegativeBinomial2 distribution.
-    
+
         Arguments:
-            mean: <class 'inspect._empty'>
-            concentration: <class 'inspect._empty'>
-            validate_args: None
+            mean: Mean number of successes.
+            concentration: Concentration parameter.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1059,12 +1498,19 @@ class UnifiedDist:
     def negativebinomiallogits(total_count, logits, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         NegativeBinomialLogits distribution.
-    
+
         Arguments:
-            total_count: <class 'inspect._empty'>
-            logits: <class 'inspect._empty'>
-            validate_args: None
+            total_count: Total number of trials.
+            logits: Logits for the probability of success.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1076,12 +1522,19 @@ class UnifiedDist:
     def negativebinomialprobs(total_count, probs, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         NegativeBinomialProbs distribution.
-    
+
         Arguments:
-            total_count: <class 'inspect._empty'>
-            probs: <class 'inspect._empty'>
-            validate_args: None
+            total_count: Total number of trials.
+            probs: Probability of success.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1093,12 +1546,19 @@ class UnifiedDist:
     def normal(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Normal distribution.
-    
+
         Arguments:
-            loc: 0.0
-            scale: 1.0
-            validate_args: None
+            loc: Mean of the distribution.
+            scale: Standard deviation of the distribution.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models. 
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1110,12 +1570,19 @@ class UnifiedDist:
     def orderedlogistic(predictor, cutpoints, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         OrderedLogistic distribution.
-    
+
         Arguments:
-            predictor: <class 'inspect._empty'>
-            cutpoints: <class 'inspect._empty'>
-            validate_args: None
+            predictor: Predictor variable.
+            cutpoints: Cutpoints separating the categories.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.            
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1127,12 +1594,19 @@ class UnifiedDist:
     def pareto(scale, alpha, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Pareto distribution.
-    
+
         Arguments:
-            scale: <class 'inspect._empty'>
-            alpha: <class 'inspect._empty'>
-            validate_args: None
+            scale: Scale parameter.
+            alpha: Shape parameter.
+            validate_args: Whether to validate the arguments.
             shape: Shape of samples to be drawn.
+            sample: Whether to draw samples (True) or return the distribution (False).
+            seed: Seed for random number generation.
+            name: Name for the sample operation.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.            
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1143,13 +1617,20 @@ class UnifiedDist:
     @staticmethod
     def poisson(rate, is_sparse=False, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        Poisson distribution.
-    
-        Arguments:
-            rate: <class 'inspect._empty'>
-            is_sparse: False
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a Poisson distribution.
+
+        Args:
+            rate: The rate parameter of the Poisson distribution. Required.
+            is_sparse: Whether to return a sparse sample. Default: False.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1160,12 +1641,19 @@ class UnifiedDist:
     @staticmethod
     def projectednormal(concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        ProjectedNormal distribution.
-    
-        Arguments:
-            concentration: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a ProjectedNormal distribution.
+
+        Args:
+            concentration: Concentration parameter of the ProjectedNormal distribution. Required.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1176,14 +1664,21 @@ class UnifiedDist:
     @staticmethod
     def relaxedbernoulli(temperature, probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        RelaxedBernoulli distribution.
+        Generates samples from a RelaxedBernoulli distribution.
     
-        Arguments:
-            temperature: <class 'inspect._empty'>
-            probs: None
-            logits: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Args:
+            temperature: Temperature parameter of the RelaxedBernoulli distribution. Required.
+            probs: Probabilities of the success state. Either probs or logits must be specified. Default: None.
+            logits: Logits of the success state. Either probs or logits must be specified. Default: None.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+    
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1194,13 +1689,20 @@ class UnifiedDist:
     @staticmethod
     def relaxedbernoullilogits(temperature, logits, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        RelaxedBernoulliLogits distribution.
-    
-        Arguments:
-            temperature: <class 'inspect._empty'>
-            logits: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a RelaxedBernoulliLogits distribution.
+
+        Args:
+            temperature: Temperature parameter of the RelaxedBernoulliLogits distribution. Required.
+            logits: Logits of the success state. Required.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1211,13 +1713,20 @@ class UnifiedDist:
     @staticmethod
     def righttruncateddistribution(base_dist, high=0.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        RightTruncatedDistribution distribution.
-    
-        Arguments:
-            base_dist: <class 'inspect._empty'>
-            high: 0.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a RightTruncatedDistribution.
+
+        Args:
+            base_dist: Base distribution to be truncated. Required.
+            high: Upper bound for truncation. Default: 0.0.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1228,17 +1737,24 @@ class UnifiedDist:
     @staticmethod
     def sinebivariatevonmises(phi_loc, psi_loc, phi_concentration, psi_concentration, correlation=None, weighted_correlation=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        SineBivariateVonMises distribution.
-    
-        Arguments:
-            phi_loc: <class 'inspect._empty'>
-            psi_loc: <class 'inspect._empty'>
-            phi_concentration: <class 'inspect._empty'>
-            psi_concentration: <class 'inspect._empty'>
-            correlation: None
-            weighted_correlation: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a SineBivariateVonMises distribution.
+
+        Args:
+            phi_loc: Location parameter for the first angle. Required.
+            psi_loc: Location parameter for the second angle. Required.
+            phi_concentration: Concentration parameter for the first angle. Required.
+            psi_concentration: Concentration parameter for the second angle. Required.
+            correlation: Correlation between the two angles. Default: None.
+            weighted_correlation: Weighted correlation between the two angles. Default: None.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1249,13 +1765,20 @@ class UnifiedDist:
     @staticmethod
     def sineskewed(base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        SineSkewed distribution.
-    
-        Arguments:
-            base_dist: <class 'inspect._empty'>
-            skewness: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a SineSkewed distribution.
+
+        Args:
+            base_dist: Base distribution to be skewed. Required.
+            skewness: Skewness parameter. Required.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1266,13 +1789,20 @@ class UnifiedDist:
     @staticmethod
     def softlaplace(loc, scale, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        SoftLaplace distribution.
-    
-        Arguments:
-            loc: <class 'inspect._empty'>
-            scale: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a SoftLaplace distribution.
+
+        Args:
+            loc: Location parameter. Required.
+            scale: Scale parameter. Required.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1283,14 +1813,21 @@ class UnifiedDist:
     @staticmethod
     def studentt(df, loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        StudentT distribution.
-    
-        Arguments:
-            df: <class 'inspect._empty'>
-            loc: 0.0
-            scale: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a StudentT distribution.
+
+        Args:
+            df: Degrees of freedom. Required.
+            loc: Location parameter. Default: 0.0.
+            scale: Scale parameter. Default: 1.0.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1301,13 +1838,20 @@ class UnifiedDist:
     @staticmethod
     def transformeddistribution(base_distribution, transforms, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        TransformedDistribution distribution.
-    
-        Arguments:
-            base_distribution: <class 'inspect._empty'>
-            transforms: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a TransformedDistribution.
+
+        Args:
+            base_distribution: Base distribution to be transformed. Required.
+            transforms: Transforms to be applied. Required.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1318,15 +1862,22 @@ class UnifiedDist:
     @staticmethod
     def truncatedcauchy(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        TruncatedCauchy distribution.
+        Generates samples from a TruncatedCauchy distribution.
     
-        Arguments:
-            loc: 0.0
-            scale: 1.0
-            low: None
-            high: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Args:
+            loc: Location parameter. Default: 0.0.
+            scale: Scale parameter. Default: 1.0.
+            low: Lower bound of truncation. Default: None.
+            high: Upper bound of truncation. Default: None.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+    
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1337,14 +1888,21 @@ class UnifiedDist:
     @staticmethod
     def truncateddistribution(base_dist, low=None, high=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        TruncatedDistribution distribution.
-    
-        Arguments:
-            base_dist: <class 'inspect._empty'>
-            low: None
-            high: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Generates samples from a TruncatedDistribution.
+
+        Args:
+            base_dist: Base distribution to be truncated. Required.
+            low: Lower bound of truncation. Default: None.
+            high: Upper bound of truncation. Default: None.
+            validate_args: Whether to validate the arguments. Default: None.
+            shape: Shape of the samples to be drawn. Default: ().
+            sample: Whether to return a sample (True) or a distribution (False). Default: False.
+            seed: Seed for random number generation. Default: 0.
+            name: Name of the sample. Default: 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1355,15 +1913,24 @@ class UnifiedDist:
     @staticmethod
     def truncatednormal(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        TruncatedNormal distribution.
-    
-        Arguments:
-            loc: 0.0
-            scale: 1.0
-            low: None
-            high: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Truncated Normal distribution.
+
+        This distribution is similar to the Normal distribution but is bounded between `low` and `high`.
+
+        Args:
+            loc (float): The mean of the normal distribution before truncation. Default is 0.0.
+            scale (float): The standard deviation of the normal distribution before truncation. Default is 1.0.
+            low (float, optional): The lower bound of the truncated distribution. Default is None.
+            high (float, optional): The upper bound of the truncated distribution. Default is None.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1374,12 +1941,19 @@ class UnifiedDist:
     @staticmethod
     def truncatedpolyagamma(batch_shape=(), validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        TruncatedPolyaGamma distribution.
-    
-        Arguments:
-            batch_shape: ()
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        Truncated PolyaGamma distribution.
+
+        Args:
+            batch_shape (tuple, optional): The batch shape of the distribution. Default is ().
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1390,14 +1964,21 @@ class UnifiedDist:
     @staticmethod
     def twosidedtruncateddistribution(base_dist, low=0.0, high=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        TwoSidedTruncatedDistribution distribution.
-    
-        Arguments:
-            base_dist: <class 'inspect._empty'>
-            low: 0.0
-            high: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        TwoSidedTruncatedDistribution.
+
+        Args:
+            base_dist: The base distribution to be truncated.
+            low (float, optional): The lower bound of the truncated distribution. Default is 0.0.
+            high (float, optional): The upper bound of the truncated distribution. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1409,12 +1990,19 @@ class UnifiedDist:
     def uniform(low=0.0, high=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Uniform distribution.
-    
-        Arguments:
-            low: 0.0
-            high: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            low (float, optional): The lower bound of the uniform distribution. Default is 0.0.
+            high (float, optional): The upper bound of the uniform distribution. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1426,11 +2014,18 @@ class UnifiedDist:
     def unit(log_factor, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Unit distribution.
-    
-        Arguments:
-            log_factor: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            log_factor: The log factor of the unit distribution.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1442,12 +2037,21 @@ class UnifiedDist:
     def vonmises(loc, concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         VonMises distribution.
-    
-        Arguments:
-            loc: <class 'inspect._empty'>
-            concentration: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        A circular distribution centered at `loc` with concentration parameter.
+
+        Args:
+            loc: The location parameter.
+            concentration: The concentration parameter.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1459,12 +2063,19 @@ class UnifiedDist:
     def weibull(scale, concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         Weibull distribution.
-    
-        Arguments:
-            scale: <class 'inspect._empty'>
-            concentration: <class 'inspect._empty'>
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            scale: The scale parameter.
+            concentration: The concentration parameter.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1475,14 +2086,21 @@ class UnifiedDist:
     @staticmethod
     def zeroinflateddistribution(base_dist, gate=None, gate_logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
-        ZeroInflatedDistribution distribution.
-    
-        Arguments:
-            base_dist: <class 'inspect._empty'>
-            gate: None
-            gate_logits: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+        ZeroInflatedDistribution.
+
+        Args:
+            base_dist: The base distribution.
+            gate (float, optional): The probability of zero. Default is None.
+            gate_logits (float, optional): The logit of the probability of zero. Default is None.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1494,14 +2112,21 @@ class UnifiedDist:
     def zeroinflatednegativebinomial2(mean, concentration, gate=None, gate_logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         ZeroInflatedNegativeBinomial2 distribution.
-    
-        Arguments:
-            mean: <class 'inspect._empty'>
-            concentration: <class 'inspect._empty'>
-            gate: None
-            gate_logits: None
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            mean: The mean parameter of the negative binomial distribution.
+            concentration: The concentration parameter of the negative binomial distribution.
+            gate (float, optional): The probability of zero. Default is None.
+            gate_logits (float, optional): The logit of the probability of zero. Default is None.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1513,12 +2138,19 @@ class UnifiedDist:
     def zeroinflatedpoisson(gate, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x'):
         """
         ZeroInflatedPoisson distribution.
-    
-        Arguments:
-            gate: <class 'inspect._empty'>
-            rate: 1.0
-            validate_args: None
-            shape: Shape of samples to be drawn.
+
+        Args:
+            gate: The probability of zero.
+            rate (float, optional): The rate parameter of the Poisson distribution. Default is 1.0.
+            validate_args (bool, optional): Whether to validate the arguments. Default is None.
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
@@ -1529,12 +2161,21 @@ class UnifiedDist:
     @staticmethod
     def kl_divergence( shape=(), sample = False, seed = 0, name = 'x', *args, **kwargs):
         """
-        kl_divergence distribution.
-    
-        Arguments:
-            args: <class 'inspect._empty'>
-            kwargs: <class 'inspect._empty'>
-            shape: Shape of samples to be drawn.
+        Kullback-Leibler (KL) Divergence distribution.
+
+        Computes the KL divergence between two distributions.
+
+        Args:
+            shape (tuple, optional): The shape of the samples to be drawn. Default is ().
+            sample (bool, optional): Whether to return a sample. Default is False.
+            seed (int, optional): The random seed. Default is 0.
+            name (str, optional): The name of the sample. Default is 'x'.
+            *args: Arguments for the first distribution.
+            **kwargs: Keyword arguments for the second distribution.
+
+        Returns:
+            If sample=True: Tensor of shape `shape` with samples from the distribution.
+            If sample=False: A numpyro distribution object that can be used in probabilistic models.
         """
         if sample == True:
             seed = random.PRNGKey(seed)
