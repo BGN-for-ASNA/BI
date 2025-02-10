@@ -1,0 +1,1 @@
+bi.dist.expandeddistribution=function(base_dist, batch_shape=c(), shape=c(), sample=FALSE, seed=0, name='x') {    shape=do.call(tuple, as.list(as.integer(shape)));    seed=as.integer(seed);    bi$bi$dist$expandeddistribution(base_dist,  batch_shape= batch_shape,  shape= shape,  sample= sample,  seed= seed,  name= name)}

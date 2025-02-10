@@ -364,6 +364,7 @@ class UnifiedDist:
         Returns:
             If sample=True: Tensor of shape `shape` with samples from the distribution.
             If sample=False: A numpyro distribution object that can be used in probabilistic models. 
+        """
         if sample == True:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.CategoricalLogits(logits=logits, validate_args=validate_args).sample(seed, shape)
@@ -957,6 +958,7 @@ class UnifiedDist:
         Returns:
             If sample=True: Tensor of shape `shape` with samples from the distribution.
             If sample=False: A numpyro distribution object that can be used in probabilistic models. 
+        """
         if sample == True:
             seed = random.PRNGKey(seed)
             return numpyro.distributions.ImproperUniform(support=support, batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args).sample(seed, shape)
