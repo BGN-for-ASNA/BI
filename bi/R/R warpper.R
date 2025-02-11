@@ -3,31 +3,13 @@ library(magrittr)
 library(reticulate)
 inspect <- import("inspect")
 bi <- import("main")
-foos = c('setup', 'data', 'OHE', 'index', 'scale', 'data_to_model', 
-         'run',
-         'summary', 
-         'diag_prior_dist', 
-         'diag_posterior', 
-         'diag_traces',
-         'diag_rank',
-         'diag_forest',
-         'diag_waic',
-         'diag_compare',
-         'diag_rhat',
-         'diag_ess',
-         'diag_pair',
-         'diag_density',
-         'diag_plot_ess',
-         'model_checks')
+
 
 extract_values <- function(param) {
   # Convert to string and extract the text within quotes
   as.character(param) %>%
     sub(".*?\"(.*?)\".*", "\\1", .)
 }
-
-
-
 
   
 build_function = function(foo,  
@@ -80,8 +62,9 @@ build_function = function(foo,
   
   # Generate the new R function dynamically
   if(shape_inside){
-    func_body <- paste0("function(", paste(default_paramsR), ") {",
-                        " shape=do.call(tuple, as.list(as.integer(shape)))",
+    func_body <- paste0(func_name,"=function(", paste(default_paramsR), ") {",
+                        "    shape=do.call(tuple, as.list(as.integer(shape)));",
+                        "    seed=as.integer(seed);",
                         "    bi$", foo, "(", 
                         paste(default_paramsP), ")",
                         "}")   
@@ -108,12 +91,6 @@ build_function = function(foo,
   close(file_con)
 }
 
-for( a in 1: length(foos)){
-  build_function(foo=foos[a],
-                 name_file=foos[a],
-                 func_name =paste0('bi.', gsub('_', '.', foos[a])),
-                 signature = inspect$signature(bi$bi[foos[a]]))
-}
 
 # Call distributions----------------------
 attrs <- py_list_attributes(bi$bi$dist)
@@ -164,4 +141,43 @@ for (a in attrs){
   }
 
 }
+files=list.files()
+library(reticulate)
+setwd("G:/OneDrive/Travail/Max Planck/Projects/BI/bi")
+bi <- import("main")
+setwd("G:/OneDrive/Travail/Max Planck/Projects/BI/bi/R")
+source("bernoulli.R")
+source("normal.R")
+source("uniform.R")
+bi.dist.bernoulli(probs=0.5,sample=TRUE,shape=c(10,10))
+
+
+# The main idea is to use r5 object for everything except model building, 
+# because r5 allow for object modification without reassignment
+# and because standard function for model building allow to better handle tuple for shape assignment.
+# Potentially we could also convert all jnp operations.
+
+m$data('./resources/data/Howell1.csv', sep=';') 
+m$df = m$df[m$df$age > 18,] # Manipulate
+m$scale(list('weight')) # Scale
+m$data_to_model(list('weight', 'height')) # Send to model (convert to jax array)
+
+
+# Define model ------------------------------------------------
+model <- function(height, weight){
+  # Parameters priors distributions
+  s = bi.dist.uniform(0, 50, name = 's', shape =c(1))
+  a = bi.dist.normal(178, 20,  name = 'a', shape = c(1))
+  b = bi.dist.normal(0, 1, name = 'b', shape = c(1))   
+  
+  # Likelihood
+  bi$lk("y", bi$Normal(a + b * weight, s), obs = height)
+}
+
+# Run mcmc ------------------------------------------------
+m$run(model) # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89) # Get posterior distributions
+
 
