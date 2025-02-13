@@ -41,31 +41,29 @@ m.sampler.print_summary(0.89) # Get posterior distributions
 
 ### R
 ```R
-library(reticulate)
-bi <- import("main")
+library(BI)
+m=importBI(platform='cpu')
 
-# Setup device ------------------------------------------------
-m = bi$bi(platform='cpu')
-
-# Import data ------------------------------------------------
-m$data('Sim dat Gamma poisson.csv', sep=',') # Import
+# Load csv file
+m$data(paste(system.file(package = "BI"),"/data/Sim dat Gamma poisson.csv", sep = ''), sep=',')
 m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(log_days, monastery, y){
   # Parameters priors distributions
-  alpha = bi$dist$normal(0, 1, name='alpha')
-  beta = bi$dist$normal(0, 0.2, name='beta')
+  alpha = bi.dist.normal(0, 1, name='alpha', shape=c(1))
+  beta = bi.dist.normal(0, 0.2, name='beta', shape=c(1))
   l = log_days + alpha + beta * monastery
   # Likelihood
-  bi$lk("y", bi$Poisson(rate=l), obs=y)
+  m$lk("y", bi.dist.poisson(rate=l), obs=y)
 }
 
 # Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89) # Get posterior distributions
+m$sampler$print_summary() # Get posterior distributions
+
 ```
 :::
 

@@ -57,27 +57,24 @@ m.sampler.print_summary(0.89) # Get posterior distributions
 
 ### R
 ```R
-library(reticulate)
-bi <- import("main")
+library(BI)
+m=importBI(platform='cpu')
 
-# Setup device------------------------------------------------
-m = bi$bi(platform='cpu')
-
-# Import Data & Data Manipulation ------------------------------------------------
-m$data('../data/tulips.csv', sep=';') # Import
+# Load csv file
+m$data(paste(system.file(package = "BI"),"/data/tulips.csv", sep = ''), sep=';')
 m$scale(list('blooms', 'water', 'shade')) # Scale
 m$data_to_model(list('blooms', 'water', 'shade')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(blooms, water,shade){
   # Parameters priors distributions
-  alpha = bi$dist$normal( 0.5, 0.25, name = 'a',shape= tuple(as.integer(1)))
-  beta1 = bi$dist$normal( 0,  0.25, name = 'b1',shape= tuple(as.integer(1)))
-  beta2 = bi$dist$normal(  0,  0.25, name = 'b2',shape= tuple(as.integer(1)))   
-  beta_interaction_ = bi$dist$normal(  0, 0.25, name = 'bint',shape= tuple(as.integer(1))) 
-  sigma = bi$dist$uniform(0, 50, name = 's',shape = tuple(as.integer(1)))
+  alpha = bi.dist.normal( 0.5, 0.25, name = 'a',shape= c(1))
+  beta1 = bi.dist.normal( 0,  0.25, name = 'b1',shape= c(1))
+  beta2 = bi.dist.normal(  0,  0.25, name = 'b2',shape= c(1))   
+  beta_interaction_ = bi.dist.normal(  0, 0.25, name = 'bint',shape= c(1)) 
+  sigma = bi.dist.normal(0, 50, name = 's',shape = c(1))
   # Likelihood
-  bi$lk("y", bi$Normal(alpha + beta1*water + beta2*shade + beta_interaction_*water*shade, sigma), obs=blooms)
+  m$lk("y", bi.dist.normal(alpha + beta1*water + beta2*shade + beta_interaction_*water*shade, sigma), obs=blooms)
 }
 
 # Run mcmc ------------------------------------------------
@@ -85,6 +82,7 @@ m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$sampler$print_summary(0.89) # Get posterior distributions
+
 ```
 :::
 
