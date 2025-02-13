@@ -1,3 +1,4 @@
+
 #%%
 import inspect
 import numpyro
@@ -61,7 +62,10 @@ with open("unified_dists.py", "w") as file:
                 method_str += f"            return numpyro.distributions.{value.__name__}({arg_str}).sample(seed, shape)\n"                
                 #method_str += f"            return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}).expand(shape), rng_key = seed)\n"
                 method_str += f"        else: \n"
-                method_str += f"            return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}).expand(shape))\n"
+                method_str += f"            if shape == ():\n"
+                method_str += f"                return numpyro.distributions.{value.__name__}({arg_str})\n"
+                method_str += f"            else:\n"
+                method_str += f"                return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}).expand(shape))\n"
                 
                 # Write the method string to the file
                 file.write(method_str + "\n")

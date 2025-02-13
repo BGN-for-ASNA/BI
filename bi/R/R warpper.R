@@ -1,4 +1,3 @@
-
 library(magrittr)
 library(reticulate)
 inspect <- import("inspect")
@@ -11,8 +10,8 @@ extract_values <- function(param) {
     sub(".*?\"(.*?)\".*", "\\1", .)
 }
 
-  
-build_function = function(foo,  
+
+build_function = function(foo,
                           func_name,
                           name_file,
                           signature,
@@ -32,24 +31,24 @@ build_function = function(foo,
   extracted_terms <- lapply(extracted_terms, function(x) gsub("True", paste(T), x))
   extracted_terms <- lapply(extracted_terms, function(x) gsub("False", paste(F), x))
   extracted_terms <- lapply(extracted_terms, function(x) gsub("<function\\s+(\\w+)\\s+at\\s+0x[0-9A-Fa-f]+>", "'numpyro.\\1'", x))
-  default_params <- paste(extracted_terms, collapse = ", ")  
+  default_params <- paste(extracted_terms, collapse = ", ")
 
-  
+
   if('kwargs' %in% names(extracted_terms)){
     default_paramsR = gsub("\\*\\*kwargs", '...', default_params)
     default_paramsP = gsub("\\*\\*kwargs", 'list(...)', default_params)
     shape_inside=FALSE
-    
+
     if(grepl('shape',default_params)){
       shape_inside=TRUE
-    }    
-    
+    }
+
   }else{
     shape_inside=FALSE
     if(grepl('shape',default_params)){
       shape_inside=TRUE
     }
-    
+
     default_paramsR = default_params
     tmp=strsplit(default_params,',')
     for (a in 1:length(tmp[[1]])) {
@@ -59,27 +58,30 @@ build_function = function(foo,
 
     default_paramsP = tmp
   }
-  
+
   # Generate the new R function dynamically
   if(shape_inside){
-    func_body <- paste0(func_name,"=function(", paste(default_paramsR), ") {",
-                        "    shape=do.call(tuple, as.list(as.integer(shape)));",
-                        "    seed=as.integer(seed);",
-                        "    bi$", foo, "(", 
+
+    func_body <- paste0(func_name,
+                        "=function(", paste(default_paramsR), ") { \n",
+                        "     bi=importBI(platform='cpu');\n",
+                        "    shape=do.call(tuple, as.list(as.integer(shape)));\n",
+                        "    seed=as.integer(seed);\n",
+                        foo, "(",
                         paste(default_paramsP), ")",
-                        "}")   
+                        "}")
   }else{
     func_body <- paste0("function(", paste(default_paramsR), ") {",
-                      "    bi$", foo, "(", 
+                      "    bi$", foo, "(",
                       paste(default_paramsP), ")",
                       "}")
   }
 
-  
+
   # Assign the function as before
   eval(parse(text = func_body))
   assign(func_name, eval(parse(text = func_body)))
-  
+
   # Write the function to a file in the specified directory
   # Construct the full file path
   file_path <- file.path(output_dir, paste0(name_file, ".R"))
@@ -131,33 +133,34 @@ for (a in attrs){
       func_name = gsub("<function\\s+[\\w\\.]+\\.(\\w+)\\s+at\\s+0x[0-9A-Fa-f]+>", "bi.dist.\\1", as.character(bi$bi$dist[[a]]), perl=TRUE)
       func_name2=gsub("\\.", "\\$",func_name)
       func_name3=gsub("\\.", "",func_name)
-      build_function(foo=func_name2,  
+      build_function(foo=func_name2,
                      name_file=a,
                      func_name = func_name,
                      signature = inspect$signature(bi$bi$dist[[a]]))
     } else {
       FALSE
-    }    
+    }
   }
 
 }
+
 files=list.files()
 library(reticulate)
 setwd("G:/OneDrive/Travail/Max Planck/Projects/BI/bi")
 bi <- import("main")
 setwd("G:/OneDrive/Travail/Max Planck/Projects/BI/bi/R")
-source("bernoulli.R")
+source("G:/OneDrive/Travail/Max Planck/BI/R/binomial.R")
 source("normal.R")
 source("uniform.R")
 bi.dist.bernoulli(probs=0.5,sample=TRUE,shape=c(10,10))
 
 
-# The main idea is to use r5 object for everything except model building, 
+# The main idea is to use r5 object for everything except model building,
 # because r5 allow for object modification without reassignment
 # and because standard function for model building allow to better handle tuple for shape assignment.
 # Potentially we could also convert all jnp operations.
 
-m$data('./resources/data/Howell1.csv', sep=';') 
+m$data('./resources/data/Howell1.csv', sep=';')
 m$df = m$df[m$df$age > 18,] # Manipulate
 m$scale(list('weight')) # Scale
 m$data_to_model(list('weight', 'height')) # Send to model (convert to jax array)
@@ -168,8 +171,8 @@ model <- function(height, weight){
   # Parameters priors distributions
   s = bi.dist.uniform(0, 50, name = 's', shape =c(1))
   a = bi.dist.normal(178, 20,  name = 'a', shape = c(1))
-  b = bi.dist.normal(0, 1, name = 'b', shape = c(1))   
-  
+  b = bi.dist.normal(0, 1, name = 'b', shape = c(1))
+
   # Likelihood
   bi$lk("y", bi$Normal(a + b * weight, s), obs = height)
 }
