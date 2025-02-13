@@ -313,7 +313,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./13. Varying intercepts.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying Intercepts</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -448,7 +448,7 @@ window.Quarto = {
 <!-- Toolpit -->
 <section id="general-principles" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">3.1</span> General Principles</h2>
-<p>To study relationships between two continuous variables (e.g., height and weight), we can use a linear regression approach. Essentially, we draw a line that passes through the point cloud of the two variables being tested. For this, we need to have:</p>
+<p>To study relationships between a continuous independent variable and a continuous dependent variable (e.g., height and weight), we can use linear regression. Essentially, we draw a line that passes through the point cloud of the two variables being tested. For this, we need to have:</p>
 <ol type="1">
 <li><p>An intercept <span class="math inline">\(\alpha\)</span>, which represents the origin of the line—the expected value of the dependent variable (height) when the independent variable (weight) is equal to zero.</p></li>
 <li><p>A coefficient <span class="math inline">\(\beta\)</span>, which informs us about the slope of the line. In other words, it tells us how much Y (height) increases for each increment of the independent variable (weight).</p></li>
@@ -513,35 +513,40 @@ Caution
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="fu">paste0</span>(<span class="fu">getwd</span>(), <span class="st">'/bi'</span>))</span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>bi <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"main"</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">'STRAND sim sr dyad.Rdata'</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> bi<span class="sc">$</span><span class="fu">bi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="st">'../data/Howell1.csv'</span>, <span class="at">sep=</span><span class="st">';'</span>)  <span class="co"># Import</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,] <span class="co"># Manipulate</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'weight'</span>)) <span class="co"># Scale</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'height'</span>)) <span class="co"># Send to model (convert to jax array)</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight){</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">178</span>, <span class="dv">20</span>, <span class="at">name =</span> <span class="st">'a'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))   </span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">Normal</span>(a <span class="sc">+</span> b <span class="sc">*</span> weight, s), <span class="at">obs =</span> height)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load csv file</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Howell1.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># fileter data frame</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'weight'</span>)) </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># convert data to jax arrays</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'height'</span>))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">bi.dist.uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>, <span class="at">shape =</span><span class="fu">c</span>(<span class="dv">1</span>),<span class="at">sample=</span><span class="cn">TRUE</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight){</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">=</span> <span class="fu">bi.dist.uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>, <span class="at">shape =</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">178</span>, <span class="dv">20</span>,  <span class="at">name =</span> <span class="st">'a'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>,  <span class="fu">bi.dist.normal</span>(a <span class="sc">+</span> b <span class="sc">*</span> weight, s), <span class="at">obs =</span> height)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -582,7 +587,7 @@ Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 <li><p><span class="math inline">\(Y_i\)</span> is dependent variable for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are the regression coefficients and intercept parameters, respectively.</p></li>
 <li><p><span class="math inline">\(X_i\)</span> is the input variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is a prior for the vairance term standard deviation of the normal distribution that describes the variance in the relationship between the dependent variable <span class="math inline">\(Y\)</span> and the independent variable <span class="math inline">\(X\)</span>.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is a prior for the variance term standard deviation of the normal distribution that describes the variance in the relationship between the dependent variable <span class="math inline">\(Y\)</span> and the independent variable <span class="math inline">\(X\)</span>.</p></li>
 </ul>
 </section>
 </section>
@@ -598,7 +603,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>We can observe a difference between the <em>Frequentist</em> and the <em>Bayesian</em> formulation regarding the error term. Indeed, <em>Frequentist</em> formulation, the error term <span class="math inline">\(\sigma_i\)</span> represents random fluctuations around the predicted values. This assumption leads to point estimates for <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, without accounting for uncertainty in these estimates. In contrast, the <em>Bayesian</em> formulation treats <span class="math inline">\(\sigma\)</span> as a parameter with its own prior distribution. This allows us to incorporate our uncertainty about the error term into the model.</p>
+<p>We can observe a difference between the <em>Frequentist</em> and the <em>Bayesian</em> formulation regarding the error term. Indeed, in the <em>Frequentist</em> formulation, the error term <span class="math inline">\(\sigma_i\)</span> represents random fluctuations around the predicted values. This assumption leads to point estimates for <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, without accounting for uncertainty in these estimates. In contrast, the <em>Bayesian</em> formulation treats <span class="math inline">\(\sigma\)</span> as a parameter with its own prior distribution. This allows us to incorporate our uncertainty about the error term into the model.</p>
 </div>
 </div>
 </section>

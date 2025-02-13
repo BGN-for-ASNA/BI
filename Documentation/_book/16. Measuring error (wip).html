@@ -123,6 +123,35 @@ div.csl-indent {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -284,7 +313,7 @@ div.csl-indent {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./13. Varying intercepts.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying Intercepts</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -382,15 +411,13 @@ div.csl-indent {
    
   <ul>
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">18.1</span> General Principles</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">18.2</span> Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">18.3</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">18.4</span> Mathematical Details</a>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">18.2</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">18.3</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">18.4.1</span> <em>Frequentist formulation</em></a></li>
-  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">18.4.2</span> <em>Bayesian formulation</em></a></li>
+  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">18.3.1</span> <em>Bayesian formulation</em></a></li>
   </ul></li>
-  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">18.5</span> Notes</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">18.6</span> Reference(s)</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">18.4</span> Notes</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">18.5</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -418,26 +445,14 @@ div.csl-indent {
 
 <section id="general-principles" class="level2" data-number="18.1">
 <h2 data-number="18.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">18.1</span> General Principles</h2>
+<p>Measuring error refers to the variability in the measurement of a variable, which can be caused by various factors such as measurement error, sampling error, or measurement bias. It is an important consideration in many fields, including statistics, economics, and engineering, where accurate measurements are crucial for making informed decisions.</p>
+<p>In order to account for measurement error, we can use a measurement error model. This model assumes that the measurement of a variable is subject to measurement error, which can be modeled using a probability distribution. The model can be used to estimate the parameters of the measurement error distribution, such as the mean and variance, and to make predictions about the measurements based on the estimated parameters.</p>
+<p>Additionally, measurement error can be generated by several factors, such as sampling bias, censoring bias, and group size heterogeneity.</p>
+<p>Measurement error models are composed models (i.e., models with sub-models) that evaluate different generative processes, starting with the measurement error process, which is then used to generate the observed data.</p>
 </section>
-<section id="considerations" class="level2" data-number="18.2">
-<h2 data-number="18.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">18.2</span> Considerations</h2>
-<div class="callout callout-style-default callout-caution callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Caution
-</div>
-</div>
-<div class="callout-body-container callout-body">
-
-</div>
-</div>
-</section>
-<section id="example" class="level2" data-number="18.3">
-<h2 data-number="18.3" class="anchored" data-anchor-id="example"><span class="header-section-number">18.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian Measuring error model using the Bayesian Inference (BI) package:</p>
+<section id="example" class="level2" data-number="18.2">
+<h2 data-number="18.2" class="anchored" data-anchor-id="example"><span class="header-section-number">18.2</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian Measuring error model using the Bayesian Inference (BI) package. The data consist of three continuous variables (marriage rate, divorce rates, age), and the goal is to estimate the effect of age and marriage rate on divorce rates, while considering that your divorce rate is have a measurement error.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -448,17 +463,36 @@ Caution
 </div>
 </div>
 </section>
-<section id="mathematical-details" class="level2" data-number="18.4">
-<h2 data-number="18.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">18.4</span> Mathematical Details</h2>
-<section id="frequentist-formulation" class="level3" data-number="18.4.1">
-<h3 data-number="18.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">18.4.1</span> <em>Frequentist formulation</em></h3>
+<section id="mathematical-details" class="level2" data-number="18.3">
+<h2 data-number="18.3" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">18.3</span> Mathematical Details</h2>
+<section id="bayesian-formulation" class="level3" data-number="18.3.1">
+<h3 data-number="18.3.1" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">18.3.1</span> <em>Bayesian formulation</em></h3>
+<p><span class="math display">\[
+D_i^* \sim Normal(D_i, \sigma_i)
+\]</span></p>
+<p><span class="math display">\[
+D_i \sim Normal(\mu_i, \sigma)
+\]</span></p>
+<p><span class="math display">\[
+\mu_i = \alpha + \beta_A A_i + \beta_M M_i
+\]</span></p>
+<p><span class="math display">\[
+\sigma \sim Normal(1)
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><p><span class="math inline">\(D_i^*\)</span> is the observed divorce rate.</p></li>
+<li><p><span class="math inline">\(D_i\)</span> is the true divorce rate.</p></li>
+<li><p><span class="math inline">\(\mu_i\)</span> is the mean of the true divorce rate.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is the standard deviation of the true divorce rate.</p></li>
+<li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
+<li><p><span class="math inline">\(\beta_A\)</span> is the regression coefficient for age.</p></li>
+<li><p><span class="math inline">\(\beta_M\)</span> is the regression coefficient for marriage rate.</p></li>
+</ul>
 </section>
-<section id="bayesian-formulation" class="level3" data-number="18.4.2">
-<h3 data-number="18.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">18.4.2</span> <em>Bayesian formulation</em></h3>
 </section>
-</section>
-<section id="notes" class="level2" data-number="18.5">
-<h2 data-number="18.5" class="anchored" data-anchor-id="notes"><span class="header-section-number">18.5</span> Notes</h2>
+<section id="notes" class="level2" data-number="18.4">
+<h2 data-number="18.4" class="anchored" data-anchor-id="notes"><span class="header-section-number">18.4</span> Notes</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -469,12 +503,12 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-
+<p>This is am approach that can be extended to any kind of models previously described. For example, one could generate a bernoulli measurement error model by generating the process of probability of success and of failure. We can even go further by potentially having error rate that is present only in one of the two outcomes.</p>
 </div>
 </div>
 </section>
-<section id="references" class="level2" data-number="18.6">
-<h2 data-number="18.6" class="anchored" data-anchor-id="references"><span class="header-section-number">18.6</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="18.5">
+<h2 data-number="18.5" class="anchored" data-anchor-id="references"><span class="header-section-number">18.5</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 

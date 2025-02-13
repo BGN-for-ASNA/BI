@@ -73,35 +73,33 @@ m.sampler.print_summary(0.89)
 ```
 ### R
 ``` R
-library(reticulate)
-bi <- import("main")
+library(BI)
+jax <- import("jax")
+m=importBI(platform='cpu')
 
-# Setup device------------------------------------------------
-m = bi$bi(platform='cpu')
-
-# Import Data & Data Manipulation ------------------------------------------------
-m$data('../data/UCBadmit.csv', sep=';') # Import
+# Load csv file
+m$data(paste(system.file(package = "BI"),"/data/UCBadmit.csv", sep = ''), sep=';')
 m$df["gid"] = as.integer(ifelse(m$df["applicant.gender"] == "male", 0, 1)) # Manipulate
 m$data_to_model(list('gid', 'applications', 'admit' )) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(gid, applications, admit){
   # Parameters priors distributions
-  phi = bi$dist$exponential(1, name = 'phi')
-  alpha = bi$dist$normal(0., 1.5, shape= tuple(as.integer(2)), name='alpha')
+  phi = bi.dist.exponential(1, name = 'phi',shape=c(1))
+  alpha = bi.dist.normal(0., 1.5, shape= c(2), name='alpha')
   t = phi + 2
-  pbar = bi$jax$nn$sigmoid(alpha[gid])
+  pbar = jax$nn$sigmoid(alpha[gid])
   gamma = pbar * t
   eta = (1 - pbar) * t
   # Likelihood
-  bi$lk("y", bi$BetaBinomial(total_count=applications, concentration1=gamma, concentration0=eta), obs=admit)
+  m$lk("y", bi.dist.betabinomial(total_count=applications, concentration1=gamma, concentration0=eta), obs=admit)
 }
 
 # Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89) # Get posterior distributions
+m$sampler$print_summary() # Get posterior distributions
 ```
 
 :::

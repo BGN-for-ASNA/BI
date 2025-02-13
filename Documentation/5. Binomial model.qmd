@@ -44,28 +44,27 @@ m.sampler.print_summary(0.89) # Get posterior distributions
 
 ### R
 ```R
-library(reticulate)
-bi <- import("main")
-# Setup device------------------------------------------------
-m = bi$bi(platform='cpu')
+library(BI)
+m=importBI(platform='cpu')
 
-# Import Data & Data Manipulation ------------------------------------------------
-m$data('../data/chimpanzees.csv', sep=';') # Import
+# Load csv file
+m$data(paste(system.file(package = "BI"),"/data/chimpanzees.csv", sep = ''), sep=';')
 m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(pulled_left){
-   # Parameters priors distributions
-  alpha = bi$dist$normal( 0, 10, name = 'alpha')
+  # Parameters priors distributions
+  alpha = bi.dist.normal( 0, 10, name = 'alpha', shape=c(1))
   # Likelihood
-  bi$lk("Y", bi$Binomial(logits = alpha), obs=pulled_left)
+  m$lk("Y", bi.dist.binomial(logits = alpha), obs=pulled_left)
 }
 
 # Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89) # Get posterior distributions
+m$sampler$print_summary() # Get posterior distributions
+
 
 ```
 :::

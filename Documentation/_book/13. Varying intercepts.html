@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>15&nbsp; Varying intercepts – BI documentation</title>
+<title>15&nbsp; Varying Intercepts – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -164,7 +164,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./13. Varying intercepts.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying intercepts</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./13. Varying intercepts.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying Intercepts</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -313,7 +313,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./13. Varying intercepts.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying Intercepts</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -416,7 +416,7 @@ window.Quarto = {
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">15.4</span> Mathematical Details</a>
   <ul class="collapse">
   <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">15.4.1</span> <em>Frequentist formulation</em></a></li>
-  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">15.4.2</span> <em>Bayesian model</em></a></li>
+  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">15.4.2</span> Bayesian Model</a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">15.5</span> Notes</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">15.6</span> Reference(s)</a></li>
@@ -428,7 +428,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying intercepts</span></h1>
+<h1 class="title"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying Intercepts</span></h1>
 </div>
 
 
@@ -464,9 +464,9 @@ Caution
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
 <li><p>The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept <span class="math inline">\(\beta\)</span> is defined based on the <span class="math inline">\(k\)</span> declared groups.</p></li>
-<li><p>Each intercept have is own prior -i.e.&nbsp;a <span id="hyperP"><span style="color:#0D6EFD">hyper-prior 🛈</span></span></p></li>
+<li><p>Each intercept has its own prior -i.e., a <span id="hyperP"><span style="color:#0D6EFD">hyper-prior 🛈</span></span></p></li>
+<li><p>In the code below, the <em>hyper-prior</em> is <code>a_bar</code>.</p></li>
 </ul>
-<p>-In the code below, the <em>hyper-prior</em> is <code>a_bar</code>.</p>
 </div>
 </div>
 </section>
@@ -547,22 +547,22 @@ Caution
 <h2 data-number="15.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">15.4</span> Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3" data-number="15.4.1">
 <h3 data-number="15.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">15.4.1</span> <em>Frequentist formulation</em></h3>
-<p>We model the relationship between the independent variables <em>X</em> and the outcome variable <em>Y</em> with varying intercepts <span class="math inline">\(\alpha\)</span> for each group <em>k</em> using the following equation:</p>
+<p>We model the relationship between the independent variables <span class="math inline">\(X\)</span> and the outcome variable <span class="math inline">\(Y\)</span> with varying intercepts <span class="math inline">\(\alpha\)</span> for each group <span class="math inline">\(k\)</span> using the following equation:</p>
 <p><span class="math display">\[
 Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <em>i</em> in group <em>k</em>.</p></li>
-<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <em>k</em>.</p></li>
-<li><p><span class="math inline">\(X_{ik}\)</span> is the independent variables for observation <em>i</em> in group <em>k</em>.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficients term.</p></li>
+<li><p><span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <span class="math inline">\(i\)</span> in group <span class="math inline">\(k\)</span>.</p></li>
+<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <span class="math inline">\(k\)</span>.</p></li>
+<li><p><span class="math inline">\(X_{ik}\)</span> is the independent variable for observation <span class="math inline">\(i\)</span> in group <span class="math inline">\(k\)</span>.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term.</p></li>
 <li><p><span class="math inline">\(\sigma\)</span> is the error term, typically assumed to be normally distributed and positive.</p></li>
 </ul>
 </section>
 <section id="bayesian-model" class="level3" data-number="15.4.2">
-<h3 data-number="15.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">15.4.2</span> <em>Bayesian model</em></h3>
-<p>We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<h3 data-number="15.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">15.4.2</span> Bayesian Model</h3>
+<p>We can express the Bayesian regression model accounting for prior distributions as follows:</p>
 <p><span class="math display">\[
 Y_{ik} = Normal(\mu_{ik}, \sigma)
 \]</span> <span class="math display">\[
@@ -579,13 +579,14 @@ Y_{ik} = Normal(\mu_{ik}, \sigma)
 \sigma_{\alpha_k} \sim \text{Exponential}(1)
 \]</span></p>
 <p>Where:</p>
+<p>Where:</p>
 <ul>
 <li><p><span class="math inline">\(Y_{ij}\)</span> is the likelihood function for the outcome variable.</p></li>
-<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercepts across groups.</p></li>
+<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <span class="math inline">\(k\)</span>.</p></li>
 <li><p><span class="math inline">\(\mu_{\alpha_k}\)</span> is the overall mean intercept.</p></li>
 <li><p><span class="math inline">\(\sigma_{\alpha_k}\)</span> is the variance of the intercepts across groups.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the prior distributions for the regression coefficients.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the prior distributions for the error term.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the prior distribution for the regression coefficients.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is the prior distribution for the error term.</p></li>
 </ul>
 </section>
 </section>
@@ -602,10 +603,10 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We can apply multiple variables similarly as <a href=".\2. Multiple Regression for Continuous Variables.qmd">chapter 2</a>.</p></li>
-<li><p>We can apply interaction terms similarly as <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
-<li><p>We can apply caterogical variables similarly as <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
-<li><p>We can apply varying intercepts with any distribution developped in previous chapters.</p></li>
+<li><p>We can apply multiple variables similarly to <a href=".\2. Multiple Regression for Continuous Variables.qmd">Chapter 2</a>.</p></li>
+<li><p>We can apply interaction terms similarly to <a href="./3. Interaction between continuous variables.html">Chapter 3</a>.</p></li>
+<li><p>We can apply categorical variables similarly to <a href="./4. Categorical variable.html">Chapter 4</a>.</p></li>
+<li><p>We can apply varying intercepts with any distribution developed in previous chapters.</p></li>
 </ul>
 </div>
 </div>

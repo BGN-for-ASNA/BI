@@ -86,7 +86,7 @@ m$scale(list('weight'))
 # convert data to jax arrays
 m$data_to_model(list('weight', 'height'))
 
-
+bi.dist.uniform(0, 50, name = 's', shape =c(1),sample=TRUE)
 
 # Define model ------------------------------------------------
 model <- function(height, weight){
@@ -96,7 +96,7 @@ model <- function(height, weight){
   b = bi.dist.normal(0, 1, name = 'b', shape = c(1))
   
   # Likelihood
-  bi$lk("y", bi$Normal(a + b * weight, s), obs = height)
+  m$lk("y",  bi.dist.normal(a + b * weight, s), obs = height)
 }
 
 
@@ -105,6 +105,7 @@ m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary()
+
 ```
 :::
 

@@ -52,14 +52,11 @@ m.sampler.print_summary(0.89) # Get posterior distributions
 
 ### R
 ```R
-library(reticulate)
-bi <- import("main")
+library(BI)
+m=importBI(platform='cpu')
 
-# Setup device------------------------------------------------
-m = bi$bi(platform='cpu')
-
-# Import Data & Data Manipulation ------------------------------------------------
-m$data('../data/milk.csv', sep=';') 
+# Load csv file
+m$data(paste(system.file(package = "BI"),"/data/milk.csv", sep = ''), sep=';')
 m$scale(list('kcal_per_g')) # Manipulate
 m$index(list('clade')) # Scale
 m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to jax array)
@@ -67,17 +64,17 @@ m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to j
 # Define model ------------------------------------------------
 model <- function(kcal_per_g, index_clade){
   # Parameters priors distributions
-  beta = bi$dist$normal( 0, 0.5, name = 'beta',shape= tuple(as.integer(1)))
-  sigma = bi$dist$exponential(1, name = 's',shape = tuple(as.integer(1)))
+  beta = bi.dist.normal( 0, 0.5, name = 'beta',shape= c(1))
+  sigma =bi.dist.exponential(1, name = 's',shape = c(1))
   # Likelihood
-  bi$lk("Y", bi$Normal(beta[index_clade], sigma), obs=kcal_per_g)
+  m$lk("Y", bi.dist.normal(beta[index_clade], sigma), obs=kcal_per_g)
 }
 
 # Run mcmc ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89) # Get posterior distributions
+m$sampler$print_summary() # Get posterior distributions
 ```
 :::
 
