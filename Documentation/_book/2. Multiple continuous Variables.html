@@ -313,7 +313,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./13. Varying intercepts.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying intercepts</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Varying Intercepts</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -446,7 +446,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">4.1</span> General Principles</h2>
-<p>To study relationships between multiple continuous variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend the <a href="./1. Linear Regression for continuous variable.html">Linear Regression for continuous variable</a> by adding a regression coefficient <span class="math inline">\(\beta_x\)</span> for each continuous variable (e.g., <span class="math inline">\(\beta_{weight}\)</span> and <span class="math inline">\(\beta_{age}\)</span>).</p>
+<p>To study relationships between multiple continuous variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend <a href="./1. Linear Regression for continuous variable.html">Linear Regression for continuous variable</a> by adding a regression coefficient <span class="math inline">\(\beta_x\)</span> for each continuous variable (e.g., <span class="math inline">\(\beta_{weight}\)</span> and <span class="math inline">\(\beta_{age}\)</span>).</p>
 <p><img src="https://miro.medium.com/v2/resize:fit:786/format:webp/0*dJqdzk1aMo2OQR7O.png" class="img-fluid"></p>
 </section>
 <section id="considerations" class="level2" data-number="4.2">
@@ -470,7 +470,7 @@ Caution
 </section>
 <section id="example" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="example"><span class="header-section-number">4.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian multiple regression using the Bayesian Inference (BI) package. Data consist of three continuous variables (<em>height</em>, <em>weight</em>, <em>age</em>), and the goal is to estimate the effect of <em>weight</em> and <em>age</em> on <em>height</em>.</p>
+<p>Below is example code demonstrating Bayesian multiple linear regression using the Bayesian Inference (BI) package. Data consist of three continuous variables (<em>height</em>, <em>weight</em>, <em>age</em>), and the goal is to estimate the effect of <em>weight</em> and <em>age</em> on <em>height</em>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -517,12 +517,12 @@ Caution
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight, age){</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'a'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  beta1 <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b1'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  beta2 <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(  <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b2'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))   </span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(<span class="fu">as.integer</span>(<span class="dv">1</span>)))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'a'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  beta1 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b1'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  beta2 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(  <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b2'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">1</span>))   </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bi.dist.uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  bi<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, bi<span class="sc">$</span><span class="fu">Normal</span>(alpha <span class="sc">+</span> beta1 <span class="sc">*</span> weight <span class="sc">+</span> beta2 <span class="sc">*</span> age, sigma), <span class="at">obs=</span>height)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">lk</span>(<span class="st">"y"</span>, <span class="fu">bi.dist.normal</span>(alpha <span class="sc">+</span> beta1 <span class="sc">*</span> weight <span class="sc">+</span> beta2 <span class="sc">*</span> age, sigma), <span class="at">obs=</span>height)</span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
@@ -568,11 +568,11 @@ Caution
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is dependent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\alpha\)</span> is the prior distribution for the intercept.</p></li>
 <li><p><span class="math inline">\(\beta_k\)</span> are the prior distributions for the regression coefficients <em>k</em> distinct regression coefficients.</p></li>
 <li><p><span class="math inline">\(X_{1i}\)</span>, <span class="math inline">\(X_{2i}\)</span>, …, <span class="math inline">\(X_{ni}\)</span> are the values of the independent variables for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the prior distribution for the standard deviation, ensuring it is positive.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is the prior distribution for the standard deviation, ensuring that it is positive.</p></li>
 </ul>
 </section>
 </section>
