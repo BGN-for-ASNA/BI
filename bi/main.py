@@ -14,7 +14,7 @@ import jax as jax
 import numpy as np
 import jax.random as random
 import numpy as np
-
+import random as pyrand
 
 from data.manip import manip
 from utils.array import Mgaussian as gaussian
@@ -45,6 +45,12 @@ class bi(manip, dist, gaussian, factors, net, survival, link, diag):
 
     def setup(self, platform='cpu', cores=None, deallocate = False):
         setup.setup(platform, cores, deallocate) 
+
+    def lk(self,*args, **kwargs):
+        numpyro.sample(*args, **kwargs)
+        
+    def randint(self, low, high, shape):
+        return pyrand.randint(low, high, shape)
 
     # Dist functions (sampling and model)--------------------------
     class dist(dist):
@@ -259,8 +265,8 @@ class bi(manip, dist, gaussian, factors, net, survival, link, diag):
         return init_params, potential_fn, constrain_fn, model_trace 
         
 
-from numpyro import sample as lk
-import random as r
-#from numpyro.infer import MCMC, NUTS, Predictive
-from numpyro.distributions import*
-import numpy as np
+#from numpyro import sample as lk
+#import random as r
+##from numpyro.infer import MCMC, NUTS, Predictive
+#from numpyro.distributions import*
+#import numpy as np

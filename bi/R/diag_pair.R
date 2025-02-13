@@ -1,1 +1,0 @@
-function(var_names=py_none(), kind=c('scatter', 'kde'), kde_kwargs={'fill_last': FALSE}, marginals=TRUE, point_estimate='median', figsize=c(11.5, 5), ...) {    bi$diag_pair(var_names=py_none(), kind=c('scatter', 'kde'), kde_kwargs={'fill_last': FALSE}, marginals=TRUE, point_estimate='median', figsize=c(11.5, 5), list(...))}
