@@ -24,14 +24,11 @@ m.data('../data/Sim dat Gamma poisson.csv', sep=',')  # Import
 m.data_to_model(['log_days', 'monastery', 'y']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
-def model(log_days, monastery, output):
-    # Parameters priors distributions
-    a = dist.normal(0, 1, shape=[1], name='a')
-    b = dist.normal(0, 1, shape=[1], name='b')
-    l = log_days + a + b * monastery
-    # Likelihood
-    lk("y", Poisson(rate=l), obs=output)
-
+def model(log_days, monastery, y):
+    a = dist.normal(0, 1, name = 'a', shape=(1,))
+    b = dist.normal(0, 1, name = 'b', shape=(1,))
+    l = jnp.exp(log_days + a + b * monastery)
+    m.lk("y", dist.poisson(rate = l), obs=y)
 # Run MCMC ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
 

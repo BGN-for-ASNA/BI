@@ -18,27 +18,21 @@ Below is an example code snippet that demonstrates Bayesian binomial regression 
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from main import*
-
-# Setup device------------------------------------------------
+from main import bi
+# setup platform------------------------------------------------
 m = bi(platform='cpu')
+# import data ------------------------------------------------
+m.data('../resources/data//chimpanzees.csv', sep=';') 
+m.data_to_model(['pulled_left'])
+def model(pulled_left):
+    a = m.dist.normal( 0, 10, shape=(1,), name = 'a')
+    m.lk("y", m.dist.binomial(logits=a[0]), obs=pulled_left)
 
-# Import Data & Data Manipulation ------------------------------------------------
-m.data('../data/chimpanzees.csv', sep=';') # Import
-m.data_to_model(['pulled_left', 'actor', 'side', 'cond']) # Send to model (convert to jax array)
+# Run sampler ------------------------------------------------
+m.run(model, num_samples=500) 
 
-# Define model ------------------------------------------------
-def model(pulled_left, actor, side, cond):
-    # Parameters priors distributions
-    alpha = dist.normal(0, 10)
-    # Likelihood
-    lk("y", Binomial(logits=alpha), obs=pulled_left)
-
-# Run MCMC ------------------------------------------------
-m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) # Optimize model parameters through MCMC sampling
-
-# Summary ------------------------------------------------
-m.sampler.print_summary(0.89) # Get posterior distributions
+# Diagnostic ------------------------------------------------
+m.summary()
 
 ```
 
@@ -63,7 +57,7 @@ model <- function(pulled_left){
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary() # Get posterior distributions
+m$summary() # Get posterior distributions
 
 
 ```
@@ -131,29 +125,24 @@ Where:
 
 
 ```python
-from main import*
-
-# Setup device------------------------------------------------
+from main import bi
 m = bi(platform='cpu')
+m.data('../resources/data/chimpanzees.csv', sep=';') 
+m.df['treatment'] =  m.df.prosoc_left + 2 * m.df.condition
+m.df['actor'] = m.df['actor'] - 1
 
-# Import data ------------------------------------------------
-m.data('../data/chimpanzees.csv', sep=';') 
-m.df["side"] = m.df.prosoc_left  # right 0, left 1
-m.df["cond"] = m.df.condition  # no partner 0, partner 1
-m.data_to_model(['pulled_left', "actor", "side", "cond"])
+m.data_to_model(['actor', 'treatment', 'pulled_left'])
 
-# Define model ------------------------------------------------
-def model(pulled_left):
-    alpha = bi.dist.normal(0, 10, shape=(7,), name="alpha")  # generating k intercepts (one for each actor)
-    beta1 = bi.dist.normal(0, 10, shape=(2,), name="beta")  # generating k regression coefficients for each k prosoc_left
-    beta2 = bi.dist.normal(0, 10, shape=(2,), name="beta")  # generating k regression coefficients for each k condition
-    lk("y", Binomial(logits=alpha[actor] + beta1[side] + beta2[cond]), obs=pulled_left)
+def model(actor, treatment, pulled_left):
+    a = dist.normal(0, 1.5, shape = (7,), name='a')
+    b = dist.normal(0, 0.5, shape = (4,), name='b')
+    p = a[actor] + b[treatment]
+    m.lk("y", dist.binomial(1, logits=p), obs=pulled_left)
 
-# Run MCMC ------------------------------------------------
-m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) # Optimize model parameters through MCMC sampling
-
-# Summary ------------------------------------------------
-m.sampler.print_summary(0.89) # Get posterior distributions
+# Run sampler ------------------------------------------------
+m.run(model) 
+# Diagnostic ------------------------------------------------
+m.summary()
 
 :::
 

@@ -41,7 +41,7 @@ def model(y):
     ap = dist.normal(-1.5, 1, name='ap')
     p = expit(ap)
     lambda_ = jnp.exp(al)
-    lk("y", ZeroInflatedPoisson(p, lambda_), obs=y)
+    m.lk("y", dist.zeroinflatedpoisson(p, lambda_), obs=y)
 
 # Run MCMC ------------------------------------------------
 m.run(model) 

@@ -44,28 +44,25 @@ The goal is to estimate the production of tools based on population size, accoun
 from main import*
 
 # Setup device------------------------------------------------
+from main import *
+# setup platform------------------------------------------------
 m = bi()
+# import data ------------------------------------------------
+m.data('../resources/data/Kline.csv', sep=';') 
+m.scale(['population'])
+m.df["cid"] = (m.df.contact == "high").astype(int)
+#m.data_to_model(['total_tools', 'population', 'cid'])
+def model(cid, population, total_tools):
+    a = dist.normal(3, 0.5, shape= (2,), name='a')
+    b = dist.normal(0, 0.2, shape=(2,), name='b')
+    l = jnp.exp(a[cid] + b[cid]*population)
+    m.lk("y", dist.poisson(l), obs=total_tools)
 
-# Import Data & Data Manipulation ------------------------------------------------
-m.data('../data/Kline.csv', sep=';') # Import
-m.sale(["population"])  # Scale
-m.df["cid"] = (m.df.contact == "high").astype(int) # Manipulate
-m.data_to_model(['total_tools', 'population', 'cid']) # Send to model 
+# Run sampler ------------------------------------------------
+m.run(model) 
 
-
-# Define model ------------------------------------------------
-def model(cid, P, total_tools):
-    # Parameters priors distributions
-    alpha = dist.normal(3, 0.5, name='alpha')
-    beta = dist.normal(0, 0.2, name='beta')
-    # Likelihood
-    lk("y", Poisson(jnp.exp(alpha[cid] + beta[cid]*P)), obs=total_tools)  # Exponential ensures non-negative values and inverts the log link function
-
-# Run mcmc ------------------------------------------------
-m.run(model) # Optimize model parameters through MCMC sampling
-
-# Summary ------------------------------------------------
-m.sampler.print_summary(0.89) # Get posterior distributions
+# Diagnostic ------------------------------------------------
+m.summary()
 ```
 
 ### R
