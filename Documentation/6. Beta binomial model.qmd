@@ -55,21 +55,20 @@ m.data_on_model = dict(
 
 # Define model ------------------------------------------------
 def model(gid, applications, admit):
-    # Parameters priors distributions
-    phi = dist.exponential(1, shape=[1], name='phi')
-    alpha = dist.normal(0., 1.5, shape=[2], name='alpha')
-    t = phi + 2
+    phi = dist.exponential(1, shape=(1,), name = 'phi')
+    alpha = dist.normal( 0., 1.5, shape=(2,), name = 'alpha')
+    theta = phi + 2
     pbar = jax.nn.sigmoid(alpha[gid])
-    gamma = pbar * t
-    eta = (1 - pbar) * t
-    # Likelihood
-    lk("y", BetaBinomial(total_count=applications, concentration1=gamma, concentration0=eta), obs=admit)
+    concentration1 = pbar*theta
+    concentration0 = (1 - pbar) * theta
+
+    m.lk("y", dist.betabinomial(total_count = applications, concentration1 = concentration1, concentration0 = concentration0), obs=admit)
 
 # Run MCMC ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.summary()
 ```
 ### R
 ``` R

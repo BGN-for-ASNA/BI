@@ -48,17 +48,15 @@ def model(cafe, wait, N_cafes):
     cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho # In a multivariate normal distribution, we not only have correlations (from sr_L), but also individual standard deviations for each variable (from sr_sigma). The diag_pre_multiply operation ensures that each variable's correlation structure is properly scaled by its standard deviation. This makes it possible to account for both correlations and individual variability when generating samples.
     # This operation applies the correlation and standard deviation structure (encoded in scaled_sr_L) to the standard normal variables sr_raw. The result is a sample from a multivariate normal distribution that respects both the correlations between variables and the individual standard deviations.
 
-    a_cafe_b_cafe = dist.multivariatenormal(jnp.stack([a, b]), cov, shape = [N_cafes], name = 'a_cafe')    
-
     a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
     mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
-    lk("y", Normal(mu, sigma), obs=wait)
+    m.lk("y", dist.normal(mu, sigma), obs=wait)
 
 # Run mcmc ------------------------------------------------
 m.run(model) 
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.summary()
 ```
 
 ## R

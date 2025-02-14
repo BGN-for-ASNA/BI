@@ -37,16 +37,15 @@ m.scale(['blooms', 'water', 'shade']) # Scale
 m.data_to_model(['blooms', 'water', 'shade']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
-def model(blooms, shade, water):
-    # Parameters priors distributions
-    alpha = dist.normal(0.5, 0.25, name='alpha')
-    sigma = dist.exponential(1, name='sigma')
-    beta1 = dist.normal(0, 0.25, name='beta1')
-    beta2 = dist.normal(0, 0.25, name='beta2')
-    beta_interaction_ = dist.normal(0, 0.25, name='beta_interaction_')    
-    # Likelihood
-    lk("y", Normal(alpha + beta1 * water + beta2 * shade + beta_interaction_ * water * shade, sigma), obs=blooms)
-
+def model(blooms,shade, water):
+    sigma = dist.exponential(1, name = 'sigma', shape = (1,))
+    bws = dist.normal(0, 0.25, name = 'bws', shape = (1,))
+    bs = dist.normal(0, 0.25, name = 'bs', shape = (1,))
+    bw = dist.normal(0, 0.25, name = 'bw', shape = (1,))
+    a = dist.normal(0.5, 0.25, name = 'a', shape = (1,))
+    mu = a + bw*water + bs*shade + bws*water*shade
+    m.lk("y", dist.normal(mu, sigma), obs=blooms)
+    
 # Run mcmc ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
 
@@ -81,7 +80,7 @@ model <- function(blooms, water,shade){
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89) # Get posterior distributions
+m$summary() # Get posterior distributions
 
 ```
 :::
