@@ -1,5 +1,6 @@
 # BI
-Bayesian Inference using TensorFlow Probability
+Bayesian Inference using numpyro.
+
 Currently, the package provides:
 
 + Data manipulation:
