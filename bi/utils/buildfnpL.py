@@ -1,5 +1,4 @@
-
-#%%
+# %%
 import inspect
 import numpyro
 
@@ -33,7 +32,7 @@ with open("unified_dists.py", "w") as file:
                 
                 # Build the method signature string
                 param_str = ", ".join([str(param) for param in parameters.values()])
-                full_signature = f"{param_str}, shape=(), sample = False, seed = 0, name = 'x'"
+                full_signature = f"{param_str}, shape=(), sample = False, seed = 0, name = 'x',lk=True"
                 
                 # Create the method definition string with dynamic arguments
                 method_name = key.lower()
@@ -56,16 +55,15 @@ with open("unified_dists.py", "w") as file:
                 arg_names = [param.name for param in parameters.values()]
                 arg_str = ", ".join([f"{arg}={arg}" for arg in arg_names])
                 
-                # Add the method body with explicit argument passing                
-                method_str += f"        if sample:\n"
-                method_str += f"            seed = random.PRNGKey(seed)\n"
-                method_str += f"            return numpyro.distributions.{value.__name__}({arg_str}).sample(seed, shape)\n"                
-                #method_str += f"            return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}).expand(shape), rng_key = seed)\n"
-                method_str += f"        else: \n"
-                method_str += f"            if shape == ():\n"
-                method_str += f"                return numpyro.distributions.{value.__name__}({arg_str})\n"
-                method_str += f"            else:\n"
-                method_str += f"                return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}).expand(shape))\n"
+                # Add the method body with explicit argument passing   
+                method_str += f"        if lk== True:\n"      
+                method_str += f"                return numpyro.distributions.{value.__name__}({arg_str})\n"  
+                method_str += f"        else: \n"  
+                method_str += f"                if sample== True:\n"
+                method_str += f"                        seed = random.PRNGKey(seed)\n"
+                method_str += f"                        return numpyro.distributions.{value.__name__}({arg_str}).sample(seed, shape)\n"                
+                method_str += f"                else: \n"
+                method_str += f"                        return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}).expand(shape))\n"
                 
                 # Write the method string to the file
                 file.write(method_str + "\n")
@@ -74,4 +72,3 @@ with open("unified_dists.py", "w") as file:
         else:
             print(f"Ignoring non-callable object for key {key}: {value}")
 
-# %%

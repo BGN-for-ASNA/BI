@@ -46,16 +46,14 @@ m.data_on_model = dict(
 d.to_csv('Sim data multinomial.csv')
 
 # Define model ------------------------------------------------
-def model(income, career):
-    # Parameters priors distributions
-    alpha = dist.normal(0, 1, shape=[2], name='a')
-    beta = dist.halfnormal(0.5, shape=[1], name='b')
-    s_1 = alpha[0] + beta * income[0]
-    s_2 = alpha[1] + beta * income[1]
-    s_3 = alpha[0] + beta * income[0]
+def model(career, income ):
+    a = dist.normal(0, 1, shape= (2,), name = 'a')
+    b = bi.dist.halfnormal(0.5,  shape= (1,),name = 'b')
+    s_1 = a[0] + b * income[0]
+    s_2 = a[1] + b * income[1]
+    s_3 = [0] #pivot
     p = jax.nn.softmax(jnp.stack([s_1[0], s_2[0], s_3[0]]))
-    # Likelihood
-    lk("y", Categorical(probs=p[career]), obs=career)
+    m.lk("y", dist.categorical(probs =  p), obs=career)
 
 # Run sampler ------------------------------------------------ 
 m.run(model)  # Optimize model parameters through MCMC sampling

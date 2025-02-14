@@ -53,19 +53,17 @@ m.scale(['weight']) # Scale
 m.data_to_model(['weight', 'height']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
-def model(height, weight): 
-    # Parameters priors distributions   
-    alpha = dist.normal(178, 20, name = 'alpha')
-    beta = dist.normal(0, 1, name = 'beta')   
-    sigma = dist.uniform(0, 50, name = 'sigma')
-    # Likelihood
-    lk("height", Normal(alpha + beta * weight, sigma), obs = height)
+def model(weight, height):    
+    a = dist.normal( 178, 20, name = 'a',shape= (1,))
+    b = dist.lognormal(  0, 1, name = 'b',shape= (1,))   
+    s = dist.uniform( 0, 50, name = 's',shape = (1,))
+    m.lk("y", dist.normal(a + b * weight , s), obs=height)
 
 # Run mcmc ------------------------------------------------
 m.run(model)  # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89) # Get posterior distributions
+m$summary() # Get posterior distributions
 ```
 
 ## R
