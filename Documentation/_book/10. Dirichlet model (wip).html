@@ -986,6 +986,96 @@ tippy('#signAmbiguity', {
 
 
 
+tippy('#MatCov', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#RFcentered', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#LKJcorr', {
+
+      content: `
+
+  <span style='color: white;'>
+
+    The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
+
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">
