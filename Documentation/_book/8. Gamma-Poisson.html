@@ -484,19 +484,16 @@ Caution
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'log_days'</span>, <span class="st">'monastery'</span>, <span class="st">'y'</span>]) <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(log_days, monastery, output):</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameters priors distributions</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name<span class="op">=</span><span class="st">'a'</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name<span class="op">=</span><span class="st">'b'</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> log_days <span class="op">+</span> a <span class="op">+</span> b <span class="op">*</span> monastery</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Poisson(rate<span class="op">=</span>l), obs<span class="op">=</span>output)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(log_days, monastery, y):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'b'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> jnp.exp(log_days <span class="op">+</span> a <span class="op">+</span> b <span class="op">*</span> monastery)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    m.lk(<span class="st">"y"</span>, dist.poisson(rate <span class="op">=</span> l), obs<span class="op">=</span>y)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
@@ -1084,6 +1081,96 @@ tippy('#signAmbiguity', {
   },
 
 });
+
+
+
+tippy('#MatCov', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#RFcentered', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#LKJcorr', {
+
+      content: `
+
+  <span style='color: white;'>
+
+    The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
 
 
 
