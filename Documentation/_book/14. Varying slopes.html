@@ -470,7 +470,7 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for <a href="12. Varying intercepts.qmd">12. Varying intercepts</a>.</p></li>
-<li><p>The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a <span style="color:#0D6EFD">matrix of covariance 🛈</span>.</p></li>
+<li><p>The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a <span id="MatCov"><span style="color:#0D6EFD">matrix of covariance 🛈</span></span>.</p></li>
 <li><p>The covariance matrix requires a correlation matrix distribution which is modeled using a <span class="math inline">\(LKJcorr\)</span> distribution that holds a parameter <span class="math inline">\(η\)</span>. <span class="math inline">\(η\)</span> is usually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use <span class="math inline">\(LKJcorr(1)\)</span>, the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.</p></li>
 <li><p>The Half-Cauchy distribution is used when modeling the covariance matrix to specify strictly positive values for the diagonal of the covariance matrix, ensuring positive variances.</p></li>
 </ul>
@@ -504,17 +504,15 @@ Caution
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> jnp.outer(sigma_cafe, sigma_cafe) <span class="op">*</span> Rho <span class="co"># In a multivariate normal distribution, we not only have correlations (from sr_L), but also individual standard deviations for each variable (from sr_sigma). The diag_pre_multiply operation ensures that each variable's correlation structure is properly scaled by its standard deviation. This makes it possible to account for both correlations and individual variability when generating samples.</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This operation applies the correlation and standard deviation structure (encoded in scaled_sr_L) to the standard normal variables sr_raw. The result is a sample from a multivariate normal distribution that respects both the correlations between variables and the individual standard deviations.</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    a_cafe_b_cafe <span class="op">=</span> dist.multivariatenormal(jnp.stack([a, b]), cov, shape <span class="op">=</span> [N_cafes], name <span class="op">=</span> <span class="st">'a_cafe'</span>)    </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    a_cafe, b_cafe <span class="op">=</span> a_cafe_b_cafe[:, <span class="dv">0</span>], a_cafe_b_cafe[:, <span class="dv">1</span>]</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a_cafe[cafe] <span class="op">+</span> b_cafe[cafe] <span class="op">*</span> afternoon</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Normal(mu, sigma), obs<span class="op">=</span>wait)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    a_cafe, b_cafe <span class="op">=</span> a_cafe_b_cafe[:, <span class="dv">0</span>], a_cafe_b_cafe[:, <span class="dv">1</span>]</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a_cafe[cafe] <span class="op">+</span> b_cafe[cafe] <span class="op">*</span> afternoon</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    m.lk(<span class="st">"y"</span>, dist.normal(mu, sigma), obs<span class="op">=</span>wait)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
@@ -610,10 +608,9 @@ Y_{ik} \sim \text{Normal}(\mu_{ik} , \sigma)
 <ul>
 <li><span class="math inline">\(\sigma_\alpha^2\)</span> is the variance of <span class="math inline">\(\alpha_k\)</span>.</li>
 <li><span class="math inline">\(\sigma_\pi^2\)</span> is the variance of <span class="math inline">\(\beta_k\)</span>.</li>
-<li><span class="math inline">\(\sigma_\alpha \sigma_{\pi \rho}\)</span> is the covariance between <span class="math inline">\(\alpha_k\)</span> and <span class="math inline">\(\beta_k\)</span>.</li>
+<li><span class="math inline">\(\sigma_\alpha \sigma_{\pi \rho}\)</span> is the covariance between <span class="math inline">\(\alpha_k\)</span> and <span class="math inline">\(\beta_k\)</span>. For computational reasons, it is often better to implement a <span id="RFcentered"><span style="color:#0D6EFD">centered version of the varying intercept 🛈</span></span> that is equivalent to the <em>Multivariate Normal distribution</em> approach:</li>
 </ul></li>
 </ul>
-<p>For computational reasons, it is often better to implement a <span style="color:#0D6EFD">centered version of the varying intercept 🛈</span> that is equivalent to the <em>Multivariate Normal distribution</em> approach:</p>
 <p><span class="math display">\[
 \left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
 \sim
@@ -632,7 +629,7 @@ L *
 <ul>
 <li><p><span class="math inline">\(\sigma_\alpha \sim \text{Exponential}(1)\)</span> is the prior standard deviation among intercepts.</p></li>
 <li><p><span class="math inline">\(\sigma_\beta \sim \text{Exponential}(1)\)</span> is the prior standard deviation among slopes.</p></li>
-<li><p><span class="math inline">\(L \sim \text{LKJcorr}(\eta)\)</span> is the prior for the correlation matrix using the <span style="color:#0D6EFD">Cholesky Factor 🛈</span>.</p></li>
+<li><p><span class="math inline">\(L \sim \text{LKJcorr}(\eta)\)</span> is the prior for the correlation matrix using the <span id="LKJcorr"><span style="color:#0D6EFD">Cholesky Factor 🛈</span></span></p></li>
 </ul></li>
 </ul>
 <p>The full centered version of the model is thus:</p>
@@ -1397,6 +1394,96 @@ tippy('#signAmbiguity', {
   },
 
 });
+
+
+
+tippy('#MatCov', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#RFcentered', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#LKJcorr', {
+
+      content: `
+
+  <span style='color: white;'>
+
+    The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
 
 
 

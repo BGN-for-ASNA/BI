@@ -497,22 +497,20 @@ Caution
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>d.to_csv(<span class="st">'Sim data multinomial.csv'</span>)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(income, career):</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameters priors distributions</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">2</span>], name<span class="op">=</span><span class="st">'a'</span>)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> dist.halfnormal(<span class="fl">0.5</span>, shape<span class="op">=</span>[<span class="dv">1</span>], name<span class="op">=</span><span class="st">'b'</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    s_1 <span class="op">=</span> alpha[<span class="dv">0</span>] <span class="op">+</span> beta <span class="op">*</span> income[<span class="dv">0</span>]</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    s_2 <span class="op">=</span> alpha[<span class="dv">1</span>] <span class="op">+</span> beta <span class="op">*</span> income[<span class="dv">1</span>]</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    s_3 <span class="op">=</span> alpha[<span class="dv">0</span>] <span class="op">+</span> beta <span class="op">*</span> income[<span class="dv">0</span>]</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> jax.nn.softmax(jnp.stack([s_1[<span class="dv">0</span>], s_2[<span class="dv">0</span>], s_3[<span class="dv">0</span>]]))</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Categorical(probs<span class="op">=</span>p[career]), obs<span class="op">=</span>career)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------ </span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>m.run(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(career, income ):</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span> (<span class="dv">2</span>,), name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> bi.dist.halfnormal(<span class="fl">0.5</span>,  shape<span class="op">=</span> (<span class="dv">1</span>,),name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    s_1 <span class="op">=</span> a[<span class="dv">0</span>] <span class="op">+</span> b <span class="op">*</span> income[<span class="dv">0</span>]</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    s_2 <span class="op">=</span> a[<span class="dv">1</span>] <span class="op">+</span> b <span class="op">*</span> income[<span class="dv">1</span>]</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    s_3 <span class="op">=</span> [<span class="dv">0</span>] <span class="co">#pivot</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> jax.nn.softmax(jnp.stack([s_1[<span class="dv">0</span>], s_2[<span class="dv">0</span>], s_3[<span class="dv">0</span>]]))</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    m.lk(<span class="st">"y"</span>, dist.categorical(probs <span class="op">=</span>  p), obs<span class="op">=</span>career)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------ </span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>m.run(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
@@ -1078,6 +1076,96 @@ tippy('#signAmbiguity', {
   },
 
 });
+
+
+
+tippy('#MatCov', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#RFcentered', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#LKJcorr', {
+
+      content: `
+
+  <span style='color: white;'>
+
+    The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
 
 
 

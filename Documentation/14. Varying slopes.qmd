@@ -12,7 +12,7 @@ This approach is useful when we expect the relationship between predictors and t
 ::: callout-caution
 -   We have the same considerations as for [12. Varying intercepts](12.%20Varying%20intercepts.qmd).
 
--   The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [matrix of covariance 🛈]{style="color:#0D6EFD"}.
+-   The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [<span style="color:#0D6EFD">matrix of covariance 🛈</span>]{#MatCov}.
 
 -   The covariance matrix requires a correlation matrix distribution which is modeled using a $LKJcorr$ distribution that holds a parameter $η$. $η$ is usually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use $LKJcorr(1)$, the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.
 
@@ -168,8 +168,7 @@ Where:
   - $\sigma_\alpha^2$ is the variance of $\alpha_k$.
   - $\sigma_\pi^2$ is the variance of $\beta_k$.
   - $\sigma_\alpha \sigma_{\pi \rho}$ is the covariance between $\alpha_k$ and $\beta_k$.
-
-For computational reasons, it is often better to implement a [centered version of the varying intercept 🛈]{style="color:#0D6EFD"} that is equivalent to the *Multivariate Normal distribution* approach:
+For computational reasons, it is often better to implement a [<span style="color:#0D6EFD">centered version of the varying intercept 🛈</span>]{#RFcentered} that is equivalent to the *Multivariate Normal distribution* approach:
 
 $$
 \left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
@@ -191,7 +190,7 @@ $$
 
   - $\sigma_\beta \sim \text{Exponential}(1)$ is the prior standard deviation among slopes.
 
-  - $L \sim \text{LKJcorr}(\eta)$ is the prior for the correlation matrix using the [Cholesky Factor 🛈]{style="color:#0D6EFD"}.
+  - $L \sim \text{LKJcorr}(\eta)$ is the prior for the correlation matrix using the [<span style="color:#0D6EFD">Cholesky Factor 🛈</span>]{#LKJcorr}
 
 The full centered version of the model is thus:
 

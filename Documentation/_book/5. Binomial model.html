@@ -419,7 +419,7 @@ window.Quarto = {
   <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">7.4.2</span> <em>Bayesian formulation</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">7.5</span> Notes</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">12.1</span> Reference(s)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">8.1</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -476,27 +476,21 @@ Caution
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../data/chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) <span class="co"># Import</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>, <span class="st">'actor'</span>, <span class="st">'side'</span>, <span class="st">'cond'</span>]) <span class="co"># Send to model (convert to jax array)</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left, actor, side, cond):</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameters priors distributions</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="dv">10</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">"y"</span>, Binomial(logits<span class="op">=</span>alpha), obs<span class="op">=</span>pulled_left)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m.run(model, init_strategy<span class="op">=</span>numpyro.infer.initialization.init_to_mean()) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>m.sampler.print_summary(<span class="fl">0.89</span>) <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span> bi</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># import data ------------------------------------------------</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../resources/data//chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>])</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal( <span class="dv">0</span>, <span class="dv">10</span>, shape<span class="op">=</span>(<span class="dv">1</span>,), name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    m.lk(<span class="st">"y"</span>, m.dist.binomial(logits<span class="op">=</span>a[<span class="dv">0</span>]), obs<span class="op">=</span>pulled_left)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.run(model, num_samples<span class="op">=</span><span class="dv">500</span>) </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
@@ -518,7 +512,7 @@ Caution
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>sampler<span class="sc">$</span><span class="fu">print_summary</span>() <span class="co"># Get posterior distributions</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
@@ -582,32 +576,18 @@ Note
 <li><p>We can apply categorical variables similarly as in <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
 <li><p>Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents the side individuals pulled, and three independent variables (<em>actor</em>, <em>side</em>, <em>cond</em>). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as the different conditions.</p></li>
 </ul>
-<p>```python from main import*</p>
-<section id="setup-device" class="level1" data-number="8">
-<h1 data-number="8"><span class="header-section-number">8</span> Setup device————————————————</h1>
-<p>m = bi(platform=‘cpu’)</p>
-</section>
-<section id="import-data" class="level1" data-number="9">
-<h1 data-number="9"><span class="header-section-number">9</span> Import data ————————————————</h1>
-<p>m.data(‘../data/chimpanzees.csv’, sep=‘;’) m.df[“side”] = m.df.prosoc_left # right 0, left 1 m.df[“cond”] = m.df.condition # no partner 0, partner 1 m.data_to_model([‘pulled_left’, “actor”, “side”, “cond”])</p>
-</section>
-<section id="define-model" class="level1" data-number="10">
-<h1 data-number="10"><span class="header-section-number">10</span> Define model ————————————————</h1>
-<p>def model(pulled_left): alpha = bi.dist.normal(0, 10, shape=(7,), name=“alpha”) # generating k intercepts (one for each actor) beta1 = bi.dist.normal(0, 10, shape=(2,), name=“beta”) # generating k regression coefficients for each k prosoc_left beta2 = bi.dist.normal(0, 10, shape=(2,), name=“beta”) # generating k regression coefficients for each k condition lk(“y”, Binomial(logits=alpha[actor] + beta1[side] + beta2[cond]), obs=pulled_left)</p>
-</section>
-<section id="run-mcmc" class="level1" data-number="11">
-<h1 data-number="11"><span class="header-section-number">11</span> Run MCMC ————————————————</h1>
-<p>m.run(model, init_strategy=numpyro.infer.initialization.init_to_mean()) # Optimize model parameters through MCMC sampling</p>
-</section>
-<section id="summary" class="level1" data-number="12">
-<h1 data-number="12"><span class="header-section-number">12</span> Summary ————————————————</h1>
-<p>m.sampler.print_summary(0.89) # Get posterior distributions</p>
+<p>```python from main import bi m = bi(platform=‘cpu’) m.data(‘../resources/data/chimpanzees.csv’, sep=‘;’) m.df[‘treatment’] = m.df.prosoc_left + 2 * m.df.condition m.df[‘actor’] = m.df[‘actor’] - 1</p>
+<p>m.data_to_model([‘actor’, ‘treatment’, ‘pulled_left’])</p>
+<p>def model(actor, treatment, pulled_left): a = dist.normal(0, 1.5, shape = (7,), name=‘a’) b = dist.normal(0, 0.5, shape = (4,), name=‘b’) p = a[actor] + b[treatment] m.lk(“y”, dist.binomial(1, logits=p), obs=pulled_left)</p>
+<section id="run-sampler" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Run sampler ————————————————</h1>
+<p>m.run(model) # Diagnostic ———————————————— m.summary()</p>
 </section>
 </div>
 </div>
 </section>
-<section id="references" class="level2" data-number="12.1">
-<h2 data-number="12.1" class="anchored" data-anchor-id="references"><span class="header-section-number">12.1</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="references"><span class="header-section-number">8.1</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
@@ -1102,6 +1082,96 @@ tippy('#signAmbiguity', {
   },
 
 });
+
+
+
+tippy('#MatCov', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#RFcentered', {
+
+  content: `
+
+  <span style='color: white;'>
+
+    The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
+
+  </span>
+
+  `, allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+    onShow(instance) {
+
+      MathJax.typesetPromise([instance.reference]).then(() => {
+
+        // Optional: if you want to do something after the typesetting
+
+      });
+
+    },
+
+});
+
+
+
+tippy('#LKJcorr', {
+
+      content: `
+
+  <span style='color: white;'>
+
+    The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
 
 
 
