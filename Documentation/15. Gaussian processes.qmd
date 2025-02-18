@@ -41,7 +41,7 @@ def model(Dmat, population, society, total_tools):
  
     lambda_ = a * population**b / g * jnp.exp(k[society])
 
-    lk("T", Poisson(lambda_), obs=total_tools)
+    m.lk.oisson(lambda_, obs=total_tools)
 
 # Run sampler ------------------------------------------------
 m.run(model, num_samples=500) 
@@ -50,44 +50,42 @@ m.summary()
 
 ## R
 ```r
-library(reticulate)
-bi <- import("main")
-
-# Setup device ------------------------------------------------
-m = bi$bi(platform='cpu')
+library(BI)
+pd=import('pandas')
+# setup platform------------------------------------------------
+m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data('resources/data/Kline2.csv', sep=";")
-islandsDistMatrix = bi$pd$read_csv('resources/data/islandsDistMatrix.csv', index_col=as.integer(0))
+m$data(paste(system.file(package = "BI"),"/data/Kline2.csv", sep = ''), sep=';')
+islandsDistMatrix = pd$read_csv(paste(system.file(package = "BI"),"/data/islandsDistMatrix.csv", sep = ''), index_col=as.integer(0))
 m$data_to_model(list('total_tools', 'population'))
-m$data_on_model$society = bi$jnp$arange(0,10, dtype='int64')
-m$data_on_model$Dmat = bi$jnp$array(islandsDistMatrix)
+m$data_on_model$society = jnp$arange(0,10, dtype='int64')
+m$data_on_model$Dmat = jnp$array(islandsDistMatrix)
 
 
 # Define model ------------------------------------------------
 model <- function(Dmat, population, society, total_tools){
-
-  a = bi$dist$exponential(1, name = 'a')
-  b = bi$dist$exponential(1, name = 'b')
-  g = bi$dist$exponential(1, name = 'g')
+  a = bi.dist.exponential(1, name = 'a')
+  b = bi.dist.exponential(1, name = 'b')
+  g = bi.dist.exponential(1, name = 'g')
   
   # non-centered Gaussian Process prior
-  etasq = bi$dist$exponential(2, name = 'etasq')
-  rhosq = bi$dist$exponential(0.5, name = 'rhosq')
-  z = bi$dist$normal(0,1, name = 'z', shape = tuple(as.integer(10)))
-  r = bi$gaussian$kernel_sq_exp(Dmat, z, etasq, rhosq, 0.01)
+  etasq = bi.dist.exponential(2, name = 'etasq')
+  rhosq = bi.dist.exponential(0.5, name = 'rhosq')
+  z = bi.dist.normal(0,1, name = 'z', shape = c(10))
+  r = m$kernel_sq_exp(Dmat, z, etasq, rhosq, 0.01)
   SIGMA = r[[1]]
   L_SIGMA = r[[2]]
   k = r[[3]]
-  lambda_ = a * population**b / g * bi$jnp$exp(k[society])
-  bi$lk("T", bi$Poisson(lambda_), obs=total_tools)
+  lambda_ = a * population**b / g * jnp$exp(k[society])
+  m$lk$poisson(lambda_, obs=total_tools)
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) 
+m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89)
+m$summary() # Get posterior distribution
 
 ```
 :::

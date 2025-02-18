@@ -47,7 +47,7 @@ def model(tank, surv, density):
     alpha = dist.normal( a_bar, sigma, shape= tank.shape, name = 'alpha')
     p = alpha[tank]
     print(p.shape)
-    m.lk("y", m.binomial(total_count = density, logits = p), obs=surv)
+    m.lk.binomial(total_count = density, logits = p, obs=surv)
 
 
 # Run mcmc ------------------------------------------------
@@ -59,35 +59,36 @@ m.summary(0.89) # Get posterior distributions
 ## R
 
 ```R
-library(reticulate)
-bi <- import("main")
+library(BI)
 
-# Setup device ------------------------------------------------
-m = bi$bi(platform='cpu')
+# setup platform------------------------------------------------
+m=importBI(platform='cpu')
 
-# Import Data & Data Manipulation ------------------------------------------------
-m$data('../data/reedfrogs.csv', sep=';')  # Import
+# Import data ------------------------------------------------
+m$data(paste(system.file(package = "BI"),"/data/reedfrogs.csv", sep = ''), sep=';')
 m$df$tank = c(0:(nrow(m$df)-1)) # Manipulate
 m$data_to_model(list('tank', 'surv', 'density')) # Manipulate
-m$data_on_model$tank = m$data_on_model$tank$astype(bi$jnp$int32) # Manipulate
-m$data_on_model$surv = m$data_on_model$surv$astype(bi$jnp$int32) # Manipulate
+m$data_on_model$tank = m$data_on_model$tank$astype(jnp$int32) # Manipulate
+m$data_on_model$surv = m$data_on_model$surv$astype(jnp$int32) # Manipulate
+
 
 # Define model ------------------------------------------------
 model <- function(tank, surv, density){
   # Parameters priors distributions
-  sigma = bi$dist$exponential( 1,  name = 'sigma')
-  a_bar = bi$dist$normal(0, 1.5, name='a_bar')
-  alpha = bi$dist$normal(a_bar, sigma, name='alpha', shape = tuple(as.integer(48)))
+  sigma = bi.dist.exponential( 1,  name = 'sigma',shape=c(1))
+  a_bar =  bi.dist.normal(0, 1.5, name='a_bar',shape=c(1))
+  alpha = bi.dist.normal(a_bar, sigma, name='alpha', shape =c(48))
   p = alpha[tank]
   # Likelihood
-  bi$lk("y", bi$Binomial(total_count = density, logits = p), obs=surv)
+  m$lk$binomial(total_count = density, logits = p, obs=surv)
 } 
 
 # Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89) # Get posterior distributions
+m$summary() # Get posterior distribution
+
 ```
 :::
 

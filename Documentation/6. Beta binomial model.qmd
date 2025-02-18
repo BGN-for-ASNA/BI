@@ -62,7 +62,7 @@ def model(gid, applications, admit):
     concentration1 = pbar*theta
     concentration0 = (1 - pbar) * theta
 
-    m.lk("y", dist.betabinomial(total_count = applications, concentration1 = concentration1, concentration0 = concentration0), obs=admit)
+    m.lk.betabinomial(total_count = applications, concentration1 = concentration1, concentration0 = concentration0, obs=admit)
 
 # Run MCMC ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
@@ -73,10 +73,11 @@ m.summary()
 ### R
 ``` R
 library(BI)
-jax <- import("jax")
+
+# setup platform------------------------------------------------
 m=importBI(platform='cpu')
 
-# Load csv file
+# import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/UCBadmit.csv", sep = ''), sep=';')
 m$df["gid"] = as.integer(ifelse(m$df["applicant.gender"] == "male", 0, 1)) # Manipulate
 m$data_to_model(list('gid', 'applications', 'admit' )) # Send to model (convert to jax array)
@@ -91,14 +92,15 @@ model <- function(gid, applications, admit){
   gamma = pbar * t
   eta = (1 - pbar) * t
   # Likelihood
-  m$lk("y", bi.dist.betabinomial(total_count=applications, concentration1=gamma, concentration0=eta), obs=admit)
+  m$lk$betabinomial(total_count=applications, concentration1=gamma, concentration0=eta, obs=admit)
 }
 
 # Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary() # Get posterior distributions
+m$summary() # Get posterior distribution
+
 ```
 
 :::

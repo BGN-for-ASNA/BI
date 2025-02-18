@@ -10,14 +10,11 @@ A network represents the relationships (links) between entities (nodes). These l
 ## Example
 Below is an example code snippet demonstrating Bayesian network model with send-receiver effect:
 
-``` python
+## Python
+```Python
 # Building model and sampling it ------------------
 ids = jnp.arange(0,data['N_id'][0])
 idx = bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
-
-@jit
-def logit(x):
-    return jnp.log(x / (1 - x))
 
 def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):
     N_id = ids.shape[0]
@@ -32,7 +29,7 @@ def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, targ
     rf, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(sender_receiver.shape[0], cholesky_density = 2)
     dr =  rf
 
-    lk('Y', Poisson(jnp.exp( sender_receiver + dr )), obs=result_outcomes)
+    m.lk.poisson(jnp.exp( sender_receiver + dr ), obs=result_outcomes)
 
 m.data_on_model = dict(
     idx = idx,
@@ -45,6 +42,10 @@ m.data_on_model = dict(
 m.run(model2) 
 summary = m.summary()
 summary
+```
+## R
+```r
+
 ```
 
 ## Mathematical Details

@@ -47,13 +47,13 @@ d.to_csv('Sim data multinomial.csv')
 
 # Define model ------------------------------------------------
 def model(career, income ):
-    a = dist.normal(0, 1, shape= (2,), name = 'a')
-    b = bi.dist.halfnormal(0.5,  shape= (1,),name = 'b')
+    a = dist.normal(0, 1, name = 'a', shape= (2,))
+    b = bi.dist.halfnormal(0.5,  name = 'b')
     s_1 = a[0] + b * income[0]
     s_2 = a[1] + b * income[1]
     s_3 = [0] #pivot
     p = jax.nn.softmax(jnp.stack([s_1[0], s_2[0], s_3[0]]))
-    m.lk("y", dist.categorical(probs =  p), obs=career)
+    m.lk.categorical(probs =  p, obs=career)
 
 # Run sampler ------------------------------------------------ 
 m.run(model)  # Optimize model parameters through MCMC sampling
@@ -64,40 +64,41 @@ m.sampler.print_summary(0.89) # Get posterior distributions
 
 ### R
 ```R
-library(reticulate)
-bi <- import("main")
+library(BI)
 
-# Setup device ------------------------------------------------
-m = bi$bi(platform='cpu')
+# setup platform------------------------------------------------
+m=importBI(platform='cpu')
 
-# Import Data & Data Manipulation ------------------------------------------------
-m$data('Sim data multinomial.csv', sep=',') # Import
-
+# import data ------------------------------------------------
+m$data(paste(system.file(package = "BI"),"/data/Sim data multinomial.csv", sep = ''), sep=',')
 keys <- c("income", "career")
 income = unique(m$df$income)
 income = income[order(income)]
-values <- list(as.integer(income), as.integer(m$df$career))
-m.data_on_model = py_dict(keys, values, convert = TRUE)
-m.data_on_model
+values <- list(jnp$array(as.integer(income)),jnp$array( as.integer(m$df$career)))
+m$data_on_model = py_dict(keys, values, convert = TRUE)
 
 # Define model ------------------------------------------------
 model <- function(income, career){
   # Parameters priors distributions
-  alpha = bi$dist$normal(0, 1, name='alpha', shape = tuple(as.integer(2)))
-  beta = bi$dist$halfnormal(0.5, name='beta', shape = tuple(as.integer(1)))
-  s_1 = alpha[0] + beta * income[1]
+  alpha = bi.dist.normal(0, 1, name='alpha', shape = c(2))
+  beta = bi.dist.halfnormal(0.5, name='beta')
+  
+  s_1 = alpha[0] + beta * income[0]
   s_2 = alpha[1] + beta * income[1]
   s_3 = 0 # reference category
-  p = bi$jax$nn$softmax(bi$jnp$stack(list(s_1[0], s_2[0], s_3[0])))
+
+  p = jax$nn$softmax(jnp$stack(list(s_1, s_2, s_3)))
+
   # Likelihood
-  bi$lk("y", bi$Categorical(probs=p[career]), obs=career)
+  m$lk$categorical(probs=p[career], obs=career)
 }
 
 # Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary(0.89)# Get posterior distributions
+m$summary() # Get posterior distribution
+
 ```
 :::
 
