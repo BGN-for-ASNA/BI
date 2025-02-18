@@ -62,7 +62,7 @@ def model(gid, applications, admit):
     concentration1 = pbar*theta
     concentration0 = (1 - pbar) * theta
 
-    m.lk.betabinomial(total_count = applications, concentration1 = concentration1, concentration0 = concentration0, obs=admit)
+    m.betabinomial(total_count = applications, concentration1 = concentration1, concentration0 = concentration0, obs=admit)
 
 # Run MCMC ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
@@ -92,7 +92,7 @@ model <- function(gid, applications, admit){
   gamma = pbar * t
   eta = (1 - pbar) * t
   # Likelihood
-  m$lk$betabinomial(total_count=applications, concentration1=gamma, concentration0=eta, obs=admit)
+  m$betabinomial(total_count=applications, concentration1=gamma, concentration0=eta, obs=admit)
 }
 
 # Run MCMC ------------------------------------------------

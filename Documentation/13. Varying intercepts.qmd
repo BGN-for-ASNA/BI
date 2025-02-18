@@ -47,7 +47,7 @@ def model(tank, surv, density):
     alpha = dist.normal( a_bar, sigma, shape= tank.shape, name = 'alpha')
     p = alpha[tank]
     print(p.shape)
-    m.lk.binomial(total_count = density, logits = p, obs=surv)
+    m.binomial(total_count = density, logits = p, obs=surv)
 
 
 # Run mcmc ------------------------------------------------
@@ -80,7 +80,7 @@ model <- function(tank, surv, density){
   alpha = bi.dist.normal(a_bar, sigma, name='alpha', shape =c(48))
   p = alpha[tank]
   # Likelihood
-  m$lk$binomial(total_count = density, logits = p, obs=surv)
+  m$binomial(total_count = density, logits = p, obs=surv)
 } 
 
 # Run MCMC ------------------------------------------------

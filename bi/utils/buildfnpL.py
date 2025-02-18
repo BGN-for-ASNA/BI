@@ -32,7 +32,7 @@ with open("unified_dists.py", "w") as file:
                 
                 # Build the method signature string
                 param_str = ", ".join([str(param) for param in parameters.values()])
-                full_signature = f"{param_str}, shape=(), sample = False, seed = 0, name = 'x',lk=True"
+                full_signature = f"{param_str}, shape=(), sample = False, seed = 0, name = 'x',obs=None"
                 
                 # Create the method definition string with dynamic arguments
                 method_name = key.lower()
@@ -56,8 +56,8 @@ with open("unified_dists.py", "w") as file:
                 arg_str = ", ".join([f"{arg}={arg}" for arg in arg_names])
                 
                 # Add the method body with explicit argument passing   
-                method_str += f"        if lk== True:\n"      
-                method_str += f"                return numpyro.distributions.{value.__name__}({arg_str})\n"  
+                method_str += f"        if obs != None:\n"      
+                method_str += f"                return numpyro.sample(name, numpyro.distributions.{value.__name__}({arg_str}),obs)\n"  
                 method_str += f"        else: \n"  
                 method_str += f"                if sample== True:\n"
                 method_str += f"                        seed = random.PRNGKey(seed)\n"
@@ -72,3 +72,5 @@ with open("unified_dists.py", "w") as file:
         else:
             print(f"Ignoring non-callable object for key {key}: {value}")
 
+
+# %%
