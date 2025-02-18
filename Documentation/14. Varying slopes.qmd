@@ -50,7 +50,7 @@ def model(cafe, wait, N_cafes):
 
     a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
     mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
-    m.lk.normal(mu, sigma, obs=wait)
+    m.normal(mu, sigma, obs=wait)
 
 # Run mcmc ------------------------------------------------
 m.run(model) 
@@ -89,7 +89,7 @@ model <- function(cafe, afternoon, wait, N_cafes = as.integer(20) ){
   
   mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
   
-  m$lk$normal(mu, sigma, obs=wait)
+  m$normal(mu, sigma, obs=wait)
 }
 
 # Run MCMC ------------------------------------------------

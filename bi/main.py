@@ -26,7 +26,6 @@ from utils.link import link
 from diagnostic.Diag import diag
 
 from utils.unified_dists import UnifiedDist as dist
-from utils.lk import lk 
 from numpyro.infer import MCMC, NUTS, Predictive
 from numpyro.handlers import condition
 
@@ -53,9 +52,6 @@ class bi(manip, dist, gaussian, factors, net, survival, link, diag):
     def randint(self, low, high, shape):
         return pyrand.randint(low, high, shape)
 
-        # Dist functions (sampling and model)--------------------------
-    class lk(lk):
-        pass
 
     # Dist functions (sampling and model)--------------------------
     class dist(dist):

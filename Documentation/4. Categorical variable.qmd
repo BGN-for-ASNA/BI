@@ -39,7 +39,7 @@ def model(kcal_per_g, index_clade):
     a = bi.dist.normal(0, 0.5, shape=(4,), name = 'a')
     s = bi.dist.exponential( 1, shape = (1,), name = 's')    
     mu = a[index_clade]
-    m.lk.normal(mu, s, obs=kcal_per_g)
+    m.normal(mu, s, obs=kcal_per_g)
 
 
 # Run mcmc ------------------------------------------------
@@ -66,7 +66,7 @@ model <- function(kcal_per_g, index_clade){
   beta = bi.dist.normal( 0, 0.5, name = 'beta')
   sigma =bi.dist.exponential(1, name = 's')
   # Likelihood
-  m$lk$normal(beta[index_clade], sigma, obs=kcal_per_g)
+  m$normal(beta[index_clade], sigma, obs=kcal_per_g)
 }
 
 # Run mcmc ------------------------------------------------

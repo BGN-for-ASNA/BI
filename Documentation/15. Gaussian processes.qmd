@@ -41,7 +41,7 @@ def model(Dmat, population, society, total_tools):
  
     lambda_ = a * population**b / g * jnp.exp(k[society])
 
-    m.lk.oisson(lambda_, obs=total_tools)
+    m.oisson(lambda_, obs=total_tools)
 
 # Run sampler ------------------------------------------------
 m.run(model, num_samples=500) 
@@ -78,7 +78,7 @@ model <- function(Dmat, population, society, total_tools){
   L_SIGMA = r[[2]]
   k = r[[3]]
   lambda_ = a * population**b / g * jnp$exp(k[society])
-  m$lk$poisson(lambda_, obs=total_tools)
+  m$poisson(lambda_, obs=total_tools)
 }
 
 # Run MCMC ------------------------------------------------

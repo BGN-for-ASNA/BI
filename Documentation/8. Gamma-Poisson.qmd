@@ -28,7 +28,7 @@ def model(log_days, monastery, y):
     a = dist.normal(0, 1, name = 'a', shape=(1,))
     b = dist.normal(0, 1, name = 'b', shape=(1,))
     l = jnp.exp(log_days + a + b * monastery)
-    m.lk.poisson(rate = l, obs=y)
+    m.poisson(rate = l, obs=y)
 # Run MCMC ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
 
@@ -54,7 +54,7 @@ model <- function(log_days, monastery, y){
   beta = bi.dist.normal(0, 0.2, name='beta', shape=c(1))
   l = log_days + alpha + beta * monastery
   # Likelihood
-  m$lk$poisson(rate=l, obs=y)
+  m$poisson(rate=l, obs=y)
 }
 
 # Run MCMC ------------------------------------------------

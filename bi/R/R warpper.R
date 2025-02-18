@@ -1,6 +1,7 @@
 library(magrittr)
 library(reticulate)
 inspect <- import("inspect")
+setwd("G:/OneDrive/Travail/Max Planck/Projects/BI/bi")
 bi <- import("main")
 
 
@@ -64,11 +65,10 @@ build_function = function(foo,
 
     func_body <- paste0(func_name,
                         "=function(", paste(default_paramsR), ") { \n",
-                        "     bi=importBI(platform='cpu');\n",
-                        "    shape=do.call(tuple, as.list(as.integer(shape)));\n",
-                        "    seed=as.integer(seed);\n",
-                        foo, "(",
-                        paste(default_paramsP), ")",
+                        #"     bi=importBI(platform='cpu')\n",
+                        "     shape=do.call(tuple, as.list(as.integer(shape)))\n",
+                        "     seed=as.integer(seed);\n",
+                        "     ", foo, "(",paste(default_paramsP), ")\n",
                         "}")
   }else{
     func_body <- paste0("function(", paste(default_paramsR), ") {",
@@ -131,7 +131,7 @@ for (a in attrs){
     if (!is.null(obj)) {
       py_has_attr(bi$bi$dist[[a]], "__call__")
       func_name = gsub("<function\\s+[\\w\\.]+\\.(\\w+)\\s+at\\s+0x[0-9A-Fa-f]+>", "bi.dist.\\1", as.character(bi$bi$dist[[a]]), perl=TRUE)
-      func_name2=gsub("\\.", "\\$",func_name)
+      func_name2=paste(".",gsub("\\.", "\\$",func_name),sep='')
       func_name3=gsub("\\.", "",func_name)
       build_function(foo=func_name2,
                      name_file=a,
@@ -144,43 +144,6 @@ for (a in attrs){
 
 }
 
-files=list.files()
-library(reticulate)
-setwd("G:/OneDrive/Travail/Max Planck/Projects/BI/bi")
-bi <- import("main")
-setwd("G:/OneDrive/Travail/Max Planck/Projects/BI/bi/R")
-source("G:/OneDrive/Travail/Max Planck/BI/R/binomial.R")
-source("normal.R")
-source("uniform.R")
-bi.dist.bernoulli(probs=0.5,sample=TRUE,shape=c(10,10))
 
-
-# The main idea is to use r5 object for everything except model building,
-# because r5 allow for object modification without reassignment
-# and because standard function for model building allow to better handle tuple for shape assignment.
-# Potentially we could also convert all jnp operations.
-
-m$data('./resources/data/Howell1.csv', sep=';')
-m$df = m$df[m$df$age > 18,] # Manipulate
-m$scale(list('weight')) # Scale
-m$data_to_model(list('weight', 'height')) # Send to model (convert to jax array)
-
-
-# Define model ------------------------------------------------
-model <- function(height, weight){
-  # Parameters priors distributions
-  s = bi.dist.uniform(0, 50, name = 's', shape =c(1))
-  a = bi.dist.normal(178, 20,  name = 'a', shape = c(1))
-  b = bi.dist.normal(0, 1, name = 'b', shape = c(1))
-
-  # Likelihood
-  bi$lk("y", bi$Normal(a + b * weight, s), obs = height)
-}
-
-# Run mcmc ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
-
-# Summary ------------------------------------------------
-m$sampler$print_summary(0.89) # Get posterior distributions
 
 
