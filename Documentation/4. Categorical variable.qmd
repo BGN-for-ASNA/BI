@@ -39,7 +39,7 @@ def model(kcal_per_g, index_clade):
     a = bi.dist.normal(0, 0.5, shape=(4,), name = 'a')
     s = bi.dist.exponential( 1, shape = (1,), name = 's')    
     mu = a[index_clade]
-    m.lk("y", bi.dist.normal(mu, s), obs=kcal_per_g)
+    m.lk.normal(mu, s, obs=kcal_per_g)
 
 
 # Run mcmc ------------------------------------------------
@@ -56,17 +56,17 @@ m=importBI(platform='cpu')
 
 # Load csv file
 m$data(paste(system.file(package = "BI"),"/data/milk.csv", sep = ''), sep=';')
-m$scale(list('kcal_per_g')) # Manipulate
+m$scale(list('kcal.per.g')) # Manipulate
 m$index(list('clade')) # Scale
 m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(kcal_per_g, index_clade){
   # Parameters priors distributions
-  beta = bi.dist.normal( 0, 0.5, name = 'beta',shape= c(1))
-  sigma =bi.dist.exponential(1, name = 's',shape = c(1))
+  beta = bi.dist.normal( 0, 0.5, name = 'beta')
+  sigma =bi.dist.exponential(1, name = 's')
   # Likelihood
-  m$lk("Y", bi.dist.normal(beta[index_clade], sigma), obs=kcal_per_g)
+  m$lk$normal(beta[index_clade], sigma, obs=kcal_per_g)
 }
 
 # Run mcmc ------------------------------------------------

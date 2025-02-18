@@ -37,7 +37,7 @@ def model(height, weight, age):
     beta2 = bi.dist.normal(0, 0.5, name = 'beta2')
     sigma = bi.dist.uniform(0,50, name = 'sigma')
     # Likelihood
-    m.lk("y", dist.normal(alpha + beta1 * weight + beta2 * age, sigma), obs = height)
+    m.lk.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
 
 # Run mcmc ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
@@ -48,13 +48,11 @@ m.sampler.print_summary(0.89) # Get posterior distributions
 
 ### R
 ```R
-library(reticulate)
-# Setup device------------------------------------------------
-bi <- import("main")
-m = bi$bi(platform='cpu')
+library(BI)
+m=importBI(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
-m$data('../data/Howell1.csv', sep=';') # Import
+m$data(paste(system.file(package = "BI"),"/data/Howell1.csv", sep = ''), sep=';')# Import
 m$df = m$df[m$df$age > 18,] # Manipulate
 m$scale(list('weight', 'age')) # Scale
 m$data_to_model(list('weight', 'height', 'age')) # Send to model (convert to jax array)
@@ -62,12 +60,12 @@ m$data_to_model(list('weight', 'height', 'age')) # Send to model (convert to jax
 # Define model ------------------------------------------------
 model <- function(height, weight, age){
   # Parameters priors distributions
-  alpha = bi.dist.normal( 0, 0.5, name = 'a', shape = c(1))
-  beta1 = bi.dist.normal( 0, 0.5, name = 'b1', shape = c(1))
-  beta2 = bi.dist.normal(  0, 0.5, name = 'b2', shape = c(1))   
-  sigma = bi.dist.uniform(0, 50, name = 's', shape = c(1))
+  alpha = bi.dist.normal( 0, 0.5, name = 'a')
+  beta1 = bi.dist.normal( 0, 0.5, name = 'b1')
+  beta2 = bi.dist.normal(  0, 0.5, name = 'b2')   
+  sigma = bi.dist.uniform(0, 50, name = 's')
   # Likelihood
-  m$lk("y", bi.dist.normal(alpha + beta1 * weight + beta2 * age, sigma), obs=height)
+  m$lk$normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)
 }
 
 # Run mcmc ------------------------------------------------

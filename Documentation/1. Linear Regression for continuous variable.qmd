@@ -57,7 +57,7 @@ def model(weight, height):
     a = dist.normal( 178, 20, name = 'a',shape= (1,))
     b = dist.lognormal(  0, 1, name = 'b',shape= (1,))   
     s = dist.uniform( 0, 50, name = 's',shape = (1,))
-    m.lk("y", dist.normal(a + b * weight , s), obs=height)
+    m.lk.normal(a + b * weight , s, obs=height)
 
 # Run mcmc ------------------------------------------------
 m.run(model)  # Optimize model parameters through MCMC sampling
@@ -84,19 +84,16 @@ m$scale(list('weight'))
 # convert data to jax arrays
 m$data_to_model(list('weight', 'height'))
 
-bi.dist.uniform(0, 50, name = 's', shape =c(1),sample=TRUE)
-
 # Define model ------------------------------------------------
 model <- function(height, weight){
   # Parameters priors distributions
-  s = bi.dist.uniform(0, 50, name = 's', shape =c(1))
-  a = bi.dist.normal(178, 20,  name = 'a', shape = c(1))
-  b = bi.dist.normal(0, 1, name = 'b', shape = c(1))
+  s = bi.dist.uniform(0, 50, name = 's')
+  a = bi.dist.normal(178, 20,  name = 'a')
+  b = bi.dist.normal(0, 1, name = 'b')
   
   # Likelihood
-  m$lk("y",  bi.dist.normal(a + b * weight, s), obs = height)
+  m$lk$normal(a + b * weight, s, obs = height)
 }
-
 
 # Run mcmc ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
