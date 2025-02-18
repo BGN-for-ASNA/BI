@@ -37,7 +37,7 @@ def model(height, weight, age):
     beta2 = bi.dist.normal(0, 0.5, name = 'beta2')
     sigma = bi.dist.uniform(0,50, name = 'sigma')
     # Likelihood
-    m.lk.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
+    m.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
 
 # Run mcmc ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
@@ -65,7 +65,7 @@ model <- function(height, weight, age){
   beta2 = bi.dist.normal(  0, 0.5, name = 'b2')   
   sigma = bi.dist.uniform(0, 50, name = 's')
   # Likelihood
-  m$lk$normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)
+  m$normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)
 }
 
 # Run mcmc ------------------------------------------------

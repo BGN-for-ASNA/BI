@@ -41,7 +41,7 @@ def model(y):
     ap = dist.normal(-1.5, 1, name='ap')
     p = expit(ap)
     lambda_ = jnp.exp(al)
-    m.lk.zeroinflatedpoisson(p, lambda_, obs=y)
+    m.zeroinflatedpoisson(p, lambda_, obs=y)
 
 # Run MCMC ------------------------------------------------
 m.run(model) 
@@ -74,7 +74,7 @@ model <- function(y){
   ap = bi.dist.normal(-1, 1, name='ap', shape=c(1))
   p = jax$scipy$special$expit(al)
   lambda_ = jnp$exp(al)
-  m$lk$zeroinflatedpoisson(p, lambda_, obs=y)
+  m$zeroinflatedpoisson(p, lambda_, obs=y)
 }
 
 # Run MCMC ------------------------------------------------

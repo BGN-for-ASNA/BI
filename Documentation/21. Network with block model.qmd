@@ -32,7 +32,7 @@ def model3(idx, result_outcomes, kinship, focal_individual_predictors, target_in
     rf, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)
     dr = dr_terms + rf
 
-    m.lk.poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr )), obs=result_outcomes)
+    m.poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr )), obs=result_outcomes)
 
 m.data_on_model = dict(
     idx = idx,

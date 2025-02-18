@@ -64,7 +64,7 @@ def model(intervals, death, metastasized, exposure):
     mu = exposure * lambda_
 
     # Likelihood calculation
-    y = m.lk.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
+    y = m.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
 
 # Run mcmc ------------------------------------------------
 m.run(model, num_samples=500) 

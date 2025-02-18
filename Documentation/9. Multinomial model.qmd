@@ -53,7 +53,7 @@ def model(career, income ):
     s_2 = a[1] + b * income[1]
     s_3 = [0] #pivot
     p = jax.nn.softmax(jnp.stack([s_1[0], s_2[0], s_3[0]]))
-    m.lk.categorical(probs =  p, obs=career)
+    m.categorical(probs =  p, obs=career)
 
 # Run sampler ------------------------------------------------ 
 m.run(model)  # Optimize model parameters through MCMC sampling
@@ -90,7 +90,7 @@ model <- function(income, career){
   p = jax$nn$softmax(jnp$stack(list(s_1, s_2, s_3)))
 
   # Likelihood
-  m$lk$categorical(probs=p[career], obs=career)
+  m$categorical(probs=p[career], obs=career)
 }
 
 # Run MCMC ------------------------------------------------

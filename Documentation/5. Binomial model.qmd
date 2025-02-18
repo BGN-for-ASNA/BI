@@ -28,7 +28,7 @@ m.data_to_model(['pulled_left'])
 # Define model ------------------------------------------------
 def model(pulled_left):
     a = m.dist.normal( 0, 10, shape=(1,), name = 'a')
-    m.lk.binomial(logits=a[0], obs=pulled_left)
+    m.binomial(logits=a[0], obs=pulled_left)
 
 # Run sampler ------------------------------------------------
 m.run(model, num_samples=500) 
@@ -54,7 +54,7 @@ model <- function(pulled_left){
   # Parameters priors distributions
   alpha = bi.dist.normal( 0, 10, name = 'alpha', shape=c(1))
   # Likelihood
-  m$lk$binomial(logits = alpha, obs=pulled_left)
+  m$binomial(logits = alpha, obs=pulled_left)
 }
 
 

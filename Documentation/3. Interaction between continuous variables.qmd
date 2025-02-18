@@ -44,7 +44,7 @@ def model(blooms,shade, water):
     bw = dist.normal(0, 0.25, name = 'bw', shape = (1,))
     a = dist.normal(0.5, 0.25, name = 'a', shape = (1,))
     mu = a + bw*water + bs*shade + bws*water*shade
-    m.lk.normal(mu, sigma, obs=blooms)
+    m.normal(mu, sigma, obs=blooms)
     
 # Run mcmc ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
@@ -73,7 +73,7 @@ model <- function(blooms, water,shade){
   beta_interaction_ = bi.dist.normal(  0, 0.25, name = 'bint') 
   sigma = bi.dist.normal(0, 50, name = 's')
   # Likelihood
-  m$lk$normal(alpha + beta1*water + beta2*shade + beta_interaction_*water*shade, sigma, obs=blooms)
+  m$normal(alpha + beta1*water + beta2*shade + beta_interaction_*water*shade, sigma, obs=blooms)
 }
 
 # Run mcmc ------------------------------------------------
