@@ -28,7 +28,7 @@ def model(log_days, monastery, y):
     a = dist.normal(0, 1, name = 'a', shape=(1,))
     b = dist.normal(0, 1, name = 'b', shape=(1,))
     l = jnp.exp(log_days + a + b * monastery)
-    m.lk("y", dist.poisson(rate = l), obs=y)
+    m.lk.poisson(rate = l, obs=y)
 # Run MCMC ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
 
@@ -39,9 +39,11 @@ m.sampler.print_summary(0.89) # Get posterior distributions
 ### R
 ```R
 library(BI)
+
+# setup platform------------------------------------------------
 m=importBI(platform='cpu')
 
-# Load csv file
+# import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/Sim dat Gamma poisson.csv", sep = ''), sep=',')
 m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to jax array)
 
@@ -52,14 +54,16 @@ model <- function(log_days, monastery, y){
   beta = bi.dist.normal(0, 0.2, name='beta', shape=c(1))
   l = log_days + alpha + beta * monastery
   # Likelihood
-  m$lk("y", bi.dist.poisson(rate=l), obs=y)
+  m$lk$poisson(rate=l, obs=y)
 }
 
 # Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$sampler$print_summary() # Get posterior distributions
+m$summary() # Get posterior distribution
+
+
 
 ```
 :::

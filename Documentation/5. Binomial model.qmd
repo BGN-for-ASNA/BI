@@ -24,9 +24,11 @@ m = bi(platform='cpu')
 # import data ------------------------------------------------
 m.data('../resources/data//chimpanzees.csv', sep=';') 
 m.data_to_model(['pulled_left'])
+
+# Define model ------------------------------------------------
 def model(pulled_left):
     a = m.dist.normal( 0, 10, shape=(1,), name = 'a')
-    m.lk("y", m.dist.binomial(logits=a[0]), obs=pulled_left)
+    m.lk.binomial(logits=a[0], obs=pulled_left)
 
 # Run sampler ------------------------------------------------
 m.run(model, num_samples=500) 
@@ -39,9 +41,11 @@ m.summary()
 ### R
 ```R
 library(BI)
+
+# setup platform------------------------------------------------
 m=importBI(platform='cpu')
 
-# Load csv file
+# import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/chimpanzees.csv", sep = ''), sep=';')
 m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 
@@ -50,14 +54,15 @@ model <- function(pulled_left){
   # Parameters priors distributions
   alpha = bi.dist.normal( 0, 10, name = 'alpha', shape=c(1))
   # Likelihood
-  m$lk("Y", bi.dist.binomial(logits = alpha), obs=pulled_left)
+  m$lk$binomial(logits = alpha, obs=pulled_left)
 }
+
 
 # Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$summary() # Get posterior distributions
+m$summary() # Get posterior distribution
 
 
 ```
