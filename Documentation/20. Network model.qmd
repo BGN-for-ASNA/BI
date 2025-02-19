@@ -12,6 +12,18 @@ Below is an example code snippet demonstrating Bayesian network model with send-
 
 ## Python
 ```Python
+from .bi.main import*
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+
+m.data_on_model = dict(
+    idx = idx,
+    result_outcomes = bi.net.mat_to_edgl(data['outcomes']), 
+    dyad_effects = bi.net.prepare_dyadic_effect(kinship), # Can be a jax array of multiple dimensions
+    focal_individual_predictors = data['individual_predictors'],
+    target_individual_predictors = data['individual_predictors']
+)
+
 # Building model and sampling it ------------------
 ids = jnp.arange(0,data['N_id'][0])
 idx = bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
@@ -31,13 +43,7 @@ def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, targ
 
     m.poisson(jnp.exp( sender_receiver + dr ), obs=result_outcomes)
 
-m.data_on_model = dict(
-    idx = idx,
-    result_outcomes = bi.net.mat_to_edgl(data['outcomes']), 
-    dyad_effects = bi.net.prepare_dyadic_effect(kinship), # Can be a jax array of multiple dimensions
-    focal_individual_predictors = data['individual_predictors'],
-    target_individual_predictors = data['individual_predictors']
-)
+
 
 m.run(model2) 
 summary = m.summary()
@@ -45,6 +51,60 @@ summary
 ```
 ## R
 ```r
+library(BI)
+# setup platform------------------------------------------------
+m=importBI(platform='cpu')
+
+# Import data ------------------------------------------------
+
+load(paste(system.file(package = "BI"),'/data/STRAND sim sr only.Rdata', sep = ''))
+
+ids = 0:(model_dat$N_id-1)
+idx = m$net$vec_node_to_edgle(jnp$stack(jnp$array(list(ids, ids)), axis = -as.integer(1)))
+
+keys <- c("idx",
+          'idxShape',
+          "result_outcomes",
+          'focal_individual_predictors',
+          'target_individual_predictors')
+
+values <- list(
+  idx,
+  idx$shape[[1]],
+  m$net$mat_to_edgl(model_dat$outcomes[,,1]),
+  jnp$array(model_dat$individual_predictors)$reshape(as.integer(1),as.integer(50)),
+  jnp$array(model_dat$individual_predictors)$reshape(as.integer(1),as.integer(50))
+)
+data = py_dict(keys, values, convert = TRUE)
+m$data_on_model=data
+
+# Define model ------------------------------------------------
+model <- function(idx, idxShape, result_outcomes,focal_individual_predictors, target_individual_predictors){
+  N_id = 50
+  x=0.1/jnp$sqrt(N_id)
+  tmp=jnp$log(x / (1 - x))
+  
+  ## Block ---------------------------------------
+  B = bi.dist.normal(tmp, 2.5, shape=c(1), name = 'block')
+  
+  #SR ---------------------------------------
+  sr =  m$net$sender_receiver(focal_individual_predictors,target_individual_predictors)
+  
+  ### Dyadic--------------------------------------  
+  #dr, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)# shape = n dyads
+  dr = m$net$dyadic_effect(shape = c(idxShape))
+
+  ## SR ---------------------------------------                                                      
+  m$poisson(jnp$exp(B + sr + dr), obs=result_outcomes)  
+}
+
+# Run mcmc ------------------------------------------------
+m$run(model) # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+summary =m$summary()
+
+summary[rownames(summary) %in% c('focal_effects[0]', 'target_effects[0]', 'block[0]'),]
 
 ```
 
