@@ -356,12 +356,16 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#model-set-up" id="toc-model-set-up" class="nav-link active" data-scroll-target="#model-set-up"><span class="header-section-number">2.1</span> 1.1 Model set-up</a></li>
-  <li><a href="#model-fitting" id="toc-model-fitting" class="nav-link" data-scroll-target="#model-fitting"><span class="header-section-number">2.2</span> 1.2 Model fitting</a></li>
-  <li><a href="#model-diagnostic" id="toc-model-diagnostic" class="nav-link" data-scroll-target="#model-diagnostic"><span class="header-section-number">2.3</span> 1.3 Model ‘diagnostic’</a></li>
-  <li><a href="#link-functions" id="toc-link-functions" class="nav-link" data-scroll-target="#link-functions"><span class="header-section-number">2.4</span> 1.4 Link functions</a></li>
-  <li><a href="#vocabulary" id="toc-vocabulary" class="nav-link" data-scroll-target="#vocabulary"><span class="header-section-number">2.5</span> Vocabulary</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">2.6</span> Considerations</a></li>
+  <li><a href="#bayesian-analysis" id="toc-bayesian-analysis" class="nav-link active" data-scroll-target="#bayesian-analysis"><span class="header-section-number">2.1</span> Bayesian analysis</a></li>
+  <li><a href="#model-set-up-bayesian-linear-regression-example" id="toc-model-set-up-bayesian-linear-regression-example" class="nav-link" data-scroll-target="#model-set-up-bayesian-linear-regression-example"><span class="header-section-number">2.2</span> Model set-up, Bayesian Linear Regression example</a>
+  <ul class="collapse">
+  <li><a href="#the-likelihood" id="toc-the-likelihood" class="nav-link" data-scroll-target="#the-likelihood"><span class="header-section-number">2.2.1</span> The Likelihood</a></li>
+  <li><a href="#modeling-likelihood" id="toc-modeling-likelihood" class="nav-link" data-scroll-target="#modeling-likelihood"><span class="header-section-number">2.2.2</span> Modeling Likelihood</a></li>
+  <li><a href="#link-functions-link" id="toc-link-functions-link" class="nav-link" data-scroll-target="#link-functions-link"><span class="header-section-number">2.2.3</span> Link functions Link</a></li>
+  <li><a href="#the-prior-distributions" id="toc-the-prior-distributions" class="nav-link" data-scroll-target="#the-prior-distributions"><span class="header-section-number">2.2.4</span> The Prior Distributions</a></li>
+  <li><a href="#the-posterior-distribution" id="toc-the-posterior-distribution" class="nav-link" data-scroll-target="#the-posterior-distribution"><span class="header-section-number">2.2.5</span> The Posterior Distribution</a></li>
+  <li><a href="#model-diagnostic" id="toc-model-diagnostic" class="nav-link" data-scroll-target="#model-diagnostic"><span class="header-section-number">2.2.6</span> Model ‘diagnostic’</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -387,44 +391,199 @@ window.Quarto = {
 </header>
 
 
-<section id="model-set-up" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="model-set-up"><span class="header-section-number">2.1</span> 1.1 Model set-up</h2>
-<p>We define a likelihood (e.g., a mathematical formula that specifies the plausibility of the data). The likelihood has parameters (e.g., adjustable inputs) for which we define priors (e.g., initial plausibility assignment for each possible value of the parameter). Considering a linear regression with an intercept (e.g., <span class="math inline">\(μ\)</span> value when <span class="math inline">\(x\)</span> is at zero, or at the mean if the data is centered), a slope (e.g., <span class="math inline">\(μ\)</span> change value when <span class="math inline">\(x\)</span> is incremented by one unit), and assuming the data is centered (<span style="color:red"> as we will always consider in the next sections</span>):</p>
-<p><span style="font-size:0.7em;"> <i> * Toolpit available for each lines of equation </i> </span></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the 'main' equation, which uses a specific distribution to account for uncertainty in the model."><span class="math display">\[y \sim  Normal(μ,σ)
-\]</span></a></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the 'likelihood' that combines the different terms of the model"><span class="math display">\[ μ \sim α + βx
-\]</span></a></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the prior for the intercept"><span class="math display">\[ α \sim Normal(0,1)
-\]</span></a></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the prior for the slope or regression coefficient"><span class="math display">\[ β \sim Normal(0,1)
-\]</span></a></p>
-<p><a href="bi\doc\0.%20%Introduction.md" title="This is the prior"><span class="math display">\[ σ \sim Uniform(0,1)
-\]</span></a></p>
+<p>This document is a guide to Bayesian analysis and the implementation of Bayesian inference (BI). It is intended for users ranging from those with little or no experience to advanced practitioners. In this introduction, we outline the main steps of Bayesian analysis. Subsequent chapters present increasingly complex models in a step‐by‐step manner. Each following chapters will all have the same structure in order to allow users to easily find the information they are looking for. The structure is the following:</p>
+<ol type="1">
+<li><p><em>Introduction to the model with non mathematical explanations.</em></p></li>
+<li><p><em>Specific conciderations for the model.</em></p></li>
+<li><p><em>Code to run the model.</em></p></li>
+<li><p><em>Mathematical formulas of the model.</em></p></li>
+<li><p><em>Notes related to the model.</em></p></li>
+</ol>
+<p>We recommend reading the introduction first since some key concepts here will not be revisited in later chapters.</p>
+<section id="bayesian-analysis" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="bayesian-analysis"><span class="header-section-number">2.1</span> Bayesian analysis</h2>
+<p>Bayesian analysis is a statistical approach that uses probability theory to update beliefs about the parameters of a model as new data becomes available. Bayesian methods have several key advantages as they allow <span id="Uncertainty"><span style="color:#0D6EFD">direct Uncertainty Quantification 🛈</span></span>, <span id="Uncertainty"><span style="color:#0D6EFD">incorporation of prior knowledge 🛈</span></span> and<span id="Uncertainty"><span style="color:#0D6EFD">flexibility for complex models 🛈</span></span>.</p>
 </section>
-<section id="model-fitting" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="model-fitting"><span class="header-section-number">2.2</span> 1.2 Model fitting</h2>
-<p>By using probability distributions for parameters, we can better tune the model by describing parameters with ‘<em>subequations</em>’ and accounting for <em>correlated varying effects</em>, <em>Gaussian processes</em>, <em>measurement error</em>, and <em>missing data</em>.</p>
-<p>In addition, we can use <em>Bayesian updating</em> using the <em>Bayesian theorem</em> to ‘reshape’ the prior distributions by considering every possible combination of values for µ and σ and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of values µ and σ: the <em>posterior distributions</em>. Various techniques can be used to approximate the mathematical definition of Bayes’ theorem: grid approximation, quadratic approximation, and Markov chain Monte Carlo (<em>MCMC</em>).</p>
-<p><a href="#" title="This is the Bayesian theorem"><span class="math display">\[\frac{likelihood*Priors}{average likelihood}\]</span></a></p>
+<section id="model-set-up-bayesian-linear-regression-example" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="model-set-up-bayesian-linear-regression-example"><span class="header-section-number">2.2</span> Model set-up, Bayesian Linear Regression example</h2>
+<p>To illustrate the basics of setting up a Bayesian model, let’s consider a simple linear regression example. In this example, we build a simple model where we predict a <span id="DP"><span style="color:#0D6EFD">dependent variable 🛈</span></span> (<span class="math inline">\(y\)</span>) from a single <span id="IP"><span style="color:#0D6EFD">independent variable 🛈</span></span> (<span class="math inline">\(x\)</span>). We will present some equations and basic modeling will be discuss in further details in <a href="./1. Linear Regression for continuous variable.html">Chapter 1: Multiple Continuous Variables</a>. Where we will not focus on the equations and their details but rather used them to describe the different components of a Bayesian model, how parameters optimization algorithm works in Bayesian analysis, and provide basic technical vocabulary related to Bayesian methods.</p>
+<section id="the-likelihood" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="the-likelihood"><span class="header-section-number">2.2.1</span> The Likelihood</h3>
+<p>The <span id="lk"><span style="color:#0D6EFD"><em>likelihood</em> 🛈</span></span> can be consider as your main equation that combines the different terms of the model. Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.), the likelihood will be different. Additionally, a model can have multiple likelihoods (e.g., network models). <span class="math display">\[
+y \sim \text{Normal}(\mu, \sigma)
+\]</span></p>
+<p>Where as both in the <em>dependent variable</em> (<span class="math inline">\(y\)</span>) and the <em>independent variable</em> (<span class="math inline">\(x\)</span>) are continuous variables, we can use a linear model to describe the relationship between these two variables. As we are using Bayesian methods, we are describing this relationship using a <span id="pdist"><span style="color:#0D6EFD"><em>probability distribution</em> 🛈</span></span> .</p>
 </section>
-<section id="model-diagnostic" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="model-diagnostic"><span class="header-section-number">2.3</span> 1.3 Model ‘diagnostic’</h2>
-<p>The posterior distribution can be described using percentile intervals (<em>PI</em>), the highest posterior density interval (<em>HPDI</em>), and point estimates. We can also sample the posterior distribution and generate <em>dummy data</em>, which can help us to check and validate the model through <em>observations and p uncertainty propagation on the samples</em>. In some aspects, it is the opposite of a null model as it represents an expected model.</p>
+<section id="modeling-likelihood" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="modeling-likelihood"><span class="header-section-number">2.2.2</span> Modeling Likelihood</h3>
+<p>Once the <em>likelihood</em> is defined, we can know define the mathematical equation that describe our parameters and their relationship with the <em>dependent variable</em> (<span class="math inline">\(y\)</span>). We can express this relationship in the form of a linear function: <span class="math display">\[
+\mu = \alpha + \beta x
+\]</span></p>
+<p>Where <span class="math inline">\(\alpha\)</span> is the <span id="pdist"><span style="color:#0D6EFD"><em>intercept</em> 🛈</span></span> and <span class="math inline">\(\beta\)</span> is the <span id="slope"><span style="color:#0D6EFD"><em>slope</em> 🛈</span></span> of the line. These parameters are the <em>unknowns</em> that we want to estimate to evaluate the strength and direction of the relationship between the <em>independent variable</em> (<span class="math inline">\(x\)</span>) and the <em>dependent variable</em> (<span class="math inline">\(y\)</span>).</p>
 </section>
-<section id="link-functions" class="level2" data-number="2.4">
-<h2 data-number="2.4" class="anchored" data-anchor-id="link-functions"><span class="header-section-number">2.4</span> 1.4 Link functions</h2>
-<p>We will see different families of regressions that have different distribtions. For the moment, we just need to know that those different distribtions required _link function (for each specific family we will discuss the corresponding link function):</p>
+<section id="link-functions-link" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="link-functions-link"><span class="header-section-number">2.2.3</span> Link functions Link</h3>
+<p>Depending on the type of problem you are trying to solve, the likelihood will be different (continuous, discrete, binomial, etc.) and you will need to choose the appropriate distribution to describe the relationship between the parameters and the data. By using a different distribution, you will need to use a different <span id="slope"><span style="color:#0D6EFD"><em>link function</em> 🛈</span></span>.</p>
+<p>For the moment, we just need to know that those different distributions required <em>link function</em> (for each specific family we will discuss the corresponding link function). however, below is a table summarizing some of the most common link functions, the mathematical form of each, their typical applications, and how to interpret them.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 30%">
+<col style="width: 23%">
+<col style="width: 31%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Link Function</strong></th>
+<th><strong>Mathematical Form</strong></th>
+<th><strong>Typical Use / Model</strong></th>
+<th><strong>Interpretation &amp; Range</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Identity</strong></td>
+<td><span class="math inline">\(g(\mu) = \mu\)</span></td>
+<td>Linear regression (Normal)</td>
+<td>Directly models <span class="math inline">\(\mu\)</span>; <span class="math inline">\(\mu\)</span> can be any real number.</td>
+</tr>
+<tr class="even">
+<td><strong>Logit</strong></td>
+<td><span class="math inline">\(g(\mu) = \log\left(\frac{\mu}{1-\mu}\right)\)</span></td>
+<td>Logistic regression (Binomial)</td>
+<td>Models probabilities (0, 1); coefficients reflect log-odds.</td>
+</tr>
+<tr class="odd">
+<td><strong>Probit</strong></td>
+<td><span class="math inline">\(g(\mu) = \Phi^{-1}(\mu)\)</span></td>
+<td>Probit regression (Binomial)</td>
+<td>Similar to logit; uses the inverse standard normal CDF.</td>
+</tr>
+<tr class="even">
+<td><strong>Log</strong></td>
+<td><span class="math inline">\(g(\mu) = \log(\mu)\)</span></td>
+<td>Poisson, Gamma regression (Count data)</td>
+<td>Ensures <span class="math inline">\(\mu &gt; 0\)</span>; coefficients represent multiplicative effects.</td>
+</tr>
+<tr class="odd">
+<td><strong>Inverse</strong></td>
+<td><span class="math inline">\(g(\mu) = \frac{1}{\mu}\)</span></td>
+<td>Gamma regression</td>
+<td>Models positive <span class="math inline">\(\mu\)</span>; relates changes inversely to <span class="math inline">\(\mu\)</span>.</td>
+</tr>
+</tbody>
+</table>
 </section>
-<section id="vocabulary" class="level2" data-number="2.5">
-<h2 data-number="2.5" class="anchored" data-anchor-id="vocabulary"><span class="header-section-number">2.5</span> Vocabulary</h2>
-<p>This method evaluates if the variable that we want to predict -the dependent variable (<em>Y</em>)- and the variable(s) that may affect-independent variables (<em>Xs</em>)- this dependent variable is</p>
+<section id="the-prior-distributions" class="level3" data-number="2.2.4">
+<h3 data-number="2.2.4" class="anchored" data-anchor-id="the-prior-distributions"><span class="header-section-number">2.2.4</span> The Prior Distributions</h3>
+<p>For each parameters of our equation, we need to define a <span id="prior"><span style="color:#0D6EFD"><em>prior distribution</em> 🛈</span></span> that encodes our initial beliefs about the parameter. In the case of the linear regression model, we need to specify <em>prior distributions</em> for (<span class="math inline">\(\alpha\)</span>), slope (<span class="math inline">\(\beta\)</span>), and standard deviation (<span class="math inline">\(\sigma\)</span>):</p>
+<p><span class="math display">\[
+\alpha \sim \text{Normal}(0, 1)
+\]</span></p>
+<p><span class="math display">\[
+\beta \sim \text{Normal}(0, 1)
+\]</span></p>
+<p><span class="math display">\[
+\sigma \sim \text{Uniform}(0, 1)
+\]</span></p>
+<section id="which-prior-distribution-range-to-use" class="level4" data-number="2.2.4.1">
+<h4 data-number="2.2.4.1" class="anchored" data-anchor-id="which-prior-distribution-range-to-use"><span class="header-section-number">2.2.4.1</span> Which prior distribution range to use?</h4>
+<p>The choice of prior ranges can significantly affect Bayesian analysis results. There are several approaches to selecting them:</p>
+<ul>
+<li><p><strong>Expert Knowledge</strong>: The prior distributions can be based on expert knowledge or historical data. This approach is useful when there is a lot of information available about the parameters.</p></li>
+<li><p><strong>Noninformative Priors</strong>: When there is little or no information about the parameters, noninformative priors can be used. These priors are designed to have minimal influence on the posterior distribution, allowing the data to dominate the inference process.</p></li>
+<li><p><strong>Scaled data</strong>: If the data is <span id="scaled"><span style="color:#0D6EFD"><em>scaled</em> 🛈</span></span>, the prior distributions can be chosen to reflect this. For example, if the data are scaled, the prior distributions for the intercept and slope can be centered around 0 and 1, respectively. By scaling the independent variable, we obtain a unit of change based on variance; that is, the effect represents a one–standard–deviation change in <span class="math inline">\(x\)</span> on <span class="math inline">\(y\)</span>. Scaling the data improves both numerical stability and interpretability. When all data are scaled to the same range, it leads to more stable numerical behavior during estimation. Additionally, it facilitates setting priors that are both meaningful and relatively uninformative. By aligning the scale of the data with the scale assumed in the priors, we ensure that the posterior distributions exhibit reasonable spread and that our uncertainty quantification is consistent with the data’s scale. For the remainder of this document, we will assume that the data are scaled.</p></li>
+</ul>
 </section>
-<section id="considerations" class="level2" data-number="2.6">
-<h2 data-number="2.6" class="anchored" data-anchor-id="considerations"><span class="header-section-number">2.6</span> Considerations</h2>
-<p>When implementing Bayesian linear regression with TensorFlow Probability, it’s important to consider the following: - Specifying appropriate prior distributions for the model parameters. - Choosing an appropriate likelihood function that captures the relationship between the inputs and outputs. - Selecting an inference method to approximate the posterior distribution over parameters, such as Markov chain Monte Carlo (MCMC) or variational inference.</p>
+</section>
+<section id="the-posterior-distribution" class="level3" data-number="2.2.5">
+<h3 data-number="2.2.5" class="anchored" data-anchor-id="the-posterior-distribution"><span class="header-section-number">2.2.5</span> The Posterior Distribution</h3>
+<p>Once data are observed, Bayes’ Theorem is used to update our beliefs about the parameters. Bayes’ theorem, which states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use of Bayesian updating to improve the accuracy of the model.We express what we know (or don’t know) using probability distributions, and we update these beliefs as evidence accumulates.</p>
+<p><span class="math display">\[
+P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P(\text{data})}
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\(\theta\)</span> represents the unknown parameters we are interested in.</p></li>
+<li><p><span class="math inline">\(P(\theta)\)</span> is the <strong>prior distribution</strong>, representing our beliefs about <span class="math inline">\(\theta\)</span> before seeing the data.</p></li>
+<li><p><span class="math inline">\(P(\text{data} \mid \theta)\)</span> is the <strong>likelihood</strong>, representing the model of how the data are generated given <span class="math inline">\(\theta\)</span>.</p></li>
+<li><p><span class="math inline">\(P(\theta \mid \text{data})\)</span> is the <strong>posterior distribution</strong>, representing our updated beliefs after observing the data.</p></li>
+</ul>
+<p>This distribution reflects our updated beliefs about the parameters after observing the data. It tells us not only the most likely values of <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\sigma\)</span> but also quantifies the uncertainty in these estimates.</p>
+<p>We can use <em>Bayesian updating</em> using the <em>Bayesian theorem</em> to ‘reshape’ the prior distributions by considering every possible combination of values for µ and σ and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of values µ and σ: the <em>posterior distributions</em>. Various techniques can be used to approximate the mathematical definition of Bayes’ theorem: <em>grid approximation</em>, <em>quadratic approximation</em>, and Markov chain Monte Carlo (<em>MCMC</em>). In BI, we use MCMC.Description of this algorithms are out of the scope of this document. For more information, please refer to the <a href="">Bayesian Inference</a>.</p>
+</section>
+<section id="model-diagnostic" class="level3" data-number="2.2.6">
+<h3 data-number="2.2.6" class="anchored" data-anchor-id="model-diagnostic"><span class="header-section-number">2.2.6</span> Model ‘diagnostic’</h3>
+<p>Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Mulitple diagnostics approaches can be used to assess the model’s performance. Below are some key diagnostic tools and techniques available in BI.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 32%">
+<col style="width: 18%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Diagnostic Tool</strong></th>
+<th><strong>Purpose</strong></th>
+<th><strong>Key Indicator</strong></th>
+<th><strong>Interpretation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span id="PPCs"><span style="color:#0D6EFD"><em>posterior predictive checks</em> (PPCs) 🛈</span></span></td>
+<td>Assess if model can reproduce observed data</td>
+<td>Graphs, p-values, summary stats</td>
+<td>Good fit if simulated data resemble observed data</td>
+</tr>
+<tr class="even">
+<td>Credible Interval (CI)</td>
+<td>Quantify uncertainty in parameter estimates</td>
+<td>95% CI or other percentage</td>
+<td>95% probability the parameter lies within the interval</td>
+</tr>
+<tr class="odd">
+<td><span id="HPDI"><span style="color:#0D6EFD"><em>highest posterior density intervals</em> (HPDI) 🛈</span></span></td>
+<td>Identify the narrowest interval containing a given probability mass</td>
+<td>95% HPDI</td>
+<td>Smallest interval capturing 95% of the posterior density</td>
+</tr>
+<tr class="even">
+<td><span id="ESS"><span style="color:#0D6EFD"><em>effective sample size</em> (ESS) 🛈</span></span></td>
+<td>Measure independent information in the chain</td>
+<td>ESS value (ideally high)</td>
+<td>Low ESS indicates high autocorrelation (poor mixing)</td>
+</tr>
+<tr class="odd">
+<td><span id="Rhat"><span style="color:#0D6EFD"><em>potential scale reduction factor</em> (Rhat) 🛈</span></span></td>
+<td>Check convergence across multiple chains</td>
+<td>Rhat ≈ 1 (typically &lt;1.1)</td>
+<td>Values near 1 indicate convergence; &gt;&gt;1 suggests non-convergence</td>
+</tr>
+<tr class="even">
+<td><span id="TP"><span style="color:#0D6EFD"><em>Trace plots</em> 🛈</span></span></td>
+<td>Visualize the sampling path to check convergence and mixing</td>
+<td>Plot showing parameter values over iterations</td>
+<td>Stationary, ‘hairy caterpillar’ pattern suggests convergence</td>
+</tr>
+<tr class="odd">
+<td><span id="AutoCor"><span style="color:#0D6EFD"><em>autocorrelation plots</em> 🛈</span></span></td>
+<td>Assess dependency between samples over lags</td>
+<td>Autocorrelation values across lags</td>
+<td>Rapid decay to zero suggests good mixing; slow decay indicates poor mixing</td>
+</tr>
+<tr class="even">
+<td><span id="DesPlot"><span style="color:#0D6EFD"><em>density plots</em> 🛈</span></span></td>
+<td>Visualize the posterior distribution of a parameter</td>
+<td>Smoothness and shape of the curve</td>
+<td>Unimodal and smooth suggests convergence; multimodal or irregular may suggest poor mixing</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -432,11 +591,39 @@ window.Quarto = {
 
 <script src="https://unpkg.com/tippy.js@6"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+<script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+
 <script>
 
-tippy('#prior', {
+function convertMarkdownToHTML(markdown) {
 
-  content: '<span style="color: white;">Priors are distributions that represent the value of the parameter before conditioning it on the data.</span>',
+  const options = {
+
+    breaks: true,
+
+    gfm: true,
+
+  };
+
+  const htmlContent = marked.parse(markdown, options);
+
+  return htmlContent;
+
+}
+
+
+
+tippy('#Uncertainty', {
+
+  content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),
 
   allowHTML: true,
 
@@ -445,6 +632,252 @@ tippy('#prior', {
   delay: 100,
 
 });
+
+
+
+tippy('#priorKnowledge', {
+
+  content: convertMarkdownToHTML('When data are sparse or noisy, incorporating prior knowledge through the priordistribution can improve the model’s performance. This is especially useful in fields where previous research orexpert opinion is available.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#Flexibility', {
+
+  content: convertMarkdownToHTML('Bayesian approaches naturally extend to complex settings such as hierarchical models, models with latent variables, or situations with missing data. Their ability to blend different sources of information makes them ideal for modern, data-rich applications.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#PPCs', {
+
+  content: convertMarkdownToHTML('PPCs involve generating *dummy data* (or simulated observations) from the posterior predictive distribution and comparing these simulated datasets with the actual observed data.By comparing summary statistics (e.g., means, variances) or visualizations (e.g., histograms, scatter plots) between \( y^{\text{rep}} \) and the observed data, we can assess if our model is capable of reproducing key features of the data.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#HPDI', {
+
+  content: convertMarkdownToHTML('HPDI is a metric that describe the distribution of a parameter. The Highest Posterior Density Interval is the narrowest interval that contains a specified proportion (e.g., 95%) of the posterior probability. HPDIs are especially useful when the posterior distribution is skewed or multimodal as it help in understanding the uncertainty of parameter estimates and in communicating the degree of uncertainty in predictions.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#convDiag', {
+
+  content: convertMarkdownToHTML('Convergence diagnostics are statistical toolsand methods used to assess whether a Markov Chain Monte Carlo (MCMC) algorithmhas sufficiently explored the target posterior distribution in Bayesiananalysis. They help ensure that the chain has stabilized and that samples arereliable for inference.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#ESS', {
+
+  content: convertMarkdownToHTML('ESS estimates how many independent samples ourMCMC chain is equivalent to. Low ESS values indicate that samples are highlycorrelated, which might affect the reliability of posterior summaries.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#Rhat', {
+
+  content: convertMarkdownToHTML('Rhat compares the variance between multiple chains to the variance within each chain. Values close to 1 (typically below 1.1) indicate good convergence.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+  tippy('#TP', {
+
+    content: convertMarkdownToHTML('Trace plots are graphical tools used in MCMC diagnostics to visualize the sampled values of a parameter over iterations. They help assess the convergence and mixing behavior of the Markov chain.'),
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+  tippy('#AutoCor', {
+
+    content: convertMarkdownToHTML('Autocorrelation plots visualize the correlation between samples in an MCMC chain as a function of the lag (distance between samples). They help assess how dependent the samples are and whether the chain is mixing efficiently.'),
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+  tippy('#DesPlot', {
+
+    content: convertMarkdownToHTML('Density plots visualize the estimated posterior distribution of a parameter based on MCMC samples. They provide a smoothed representation of the distribution, helping assess central tendency, spread, and shape.'),
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+
+
+
+
+tippy('#DP', {
+
+  content: convertMarkdownToHTML('A dependent variable is the variable being measured or observed inan analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#IP', {
+
+  content: convertMarkdownToHTML('An independent variable is the variable that is manipulated or controlled in an analysis to observe its effect on a dependent variable. It represents the input or cause in a cause-and-effect relationship and is often denoted as X in statistical models.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#lk', {
+
+  content: convertMarkdownToHTML('Likelihood is a statistical concept representing the probability of observing a given set of data, assuming specific values of the *parameters* in a model.It is not the same as probability; instead, it measures how well a model with certain parameters explains the observed data.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#pdist', {
+
+  content: convertMarkdownToHTML('A probability distribution is a mathematical function thatdescribes the likelihood of different outcomes in a random process. It specifies how probabilitiesare assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variabletakes finite or infinite values.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#intercept ', {
+
+  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as β in linear models.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#slope ', {
+
+  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β₁ in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+
+
+tippy('#prior', {
+
+  content: convertMarkdownToHTML('Priors are distributions that represent the value of the parameter before conditioning it on the data.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
 
 
 
@@ -464,7 +897,7 @@ tippy('#overdispersion', {
 
 tippy('#linkF', {
 
-    content: '<span style="color: white;">A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.</span>',
+    content: '<span style="color: white;">The *link function* is a key component of the *generalized linear model* (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges.The link function ensures that the modeled mean stays within a valid range.For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link(commonly used in logistic regression), the coefficients relate to the log - odds of the outcome.With an identity link(as in standard linear regression), the coefficients represent direct changes in the response variable.</span>',
 
     allowHTML: true,
 
@@ -472,7 +905,7 @@ tippy('#linkF', {
 
     delay: 100,
 
-  });
+});
 
 
 

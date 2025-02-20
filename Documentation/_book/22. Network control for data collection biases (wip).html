@@ -446,7 +446,53 @@ Caution
 <section id="example-1" class="level2" data-number="24.2">
 <h2 data-number="24.2" class="anchored" data-anchor-id="example-1"><span class="header-section-number">24.2</span> Example 1</h2>
 <p>Below is an example code snippet demonstrating Bayesian network model with send-receiver effect, dyadic effect and block model effect while accounting for exposure biases:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> .bi.main <span class="im">import</span><span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> idx,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    Any <span class="op">=</span> Any<span class="op">-</span><span class="dv">1</span>, </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    Merica <span class="op">=</span> Merica<span class="op">-</span><span class="dv">1</span>, </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    Quantum <span class="op">=</span> Quantum<span class="op">-</span><span class="dv">1</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> bi.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    kinship <span class="op">=</span> bi.net.mat_to_edgl(kinship),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>],</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>]</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(idx, result_outcomes, </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    exposure,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    kinship, </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors, target_individual_predictors, </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    Any, Merica, Quantum):</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> ids.shape[<span class="dv">0</span>]</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Block ---------------------------------------</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    B_any, b_any, b_ij_any, b_ii_any <span class="op">=</span> bi.net.block_model(Any,<span class="dv">1</span>, name_b_ij <span class="op">=</span> <span class="st">'b_ij_Any'</span>, name_b_ii <span class="op">=</span> <span class="st">'b_ii_Any'</span> )</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    B_Merica, b_Merica, b_ij_Merica, b_ii_Merica <span class="op">=</span> bi.net.block_model(Merica,  <span class="dv">3</span>, name_b_ij <span class="op">=</span> <span class="st">'b_ij_Merica'</span>, name_b_ii <span class="op">=</span> <span class="st">'b_ii_Merica'</span> )</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    B_Quantum, b_Quantum, b_ij_Quantum, b_ii_Quantum <span class="op">=</span> bi.net.block_model(Quantum, <span class="dv">2</span>, name_b_ij <span class="op">=</span> <span class="st">'b_ij_Quantum'</span>, name_b_ii <span class="op">=</span> <span class="st">'b_ii_Quantum'</span> )</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">## SR ---------------------------------------</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    sr_terms, focal_effects, target_effects <span class="op">=</span> bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    sr_rf, sr_raw, sr_sigma, sr_L <span class="op">=</span> bi.net.nodes_random_effects(sr_terms.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    sender <span class="op">=</span> sr_terms[idx[:,<span class="dv">0</span>],<span class="dv">0</span>] <span class="op">+</span> sr_terms[idx[:,<span class="dv">1</span>],<span class="dv">1</span>] <span class="op">+</span> sr_rf[idx[:,<span class="dv">0</span>],<span class="dv">0</span>]</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    receiver <span class="op">=</span>  sr_terms[idx[:,<span class="dv">1</span>],<span class="dv">0</span>] <span class="op">+</span> sr_terms[idx[:,<span class="dv">0</span>],<span class="dv">1</span>] <span class="op">+</span> sr_rf[idx[:,<span class="dv">1</span>],<span class="dv">1</span>]</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    sender_receiver <span class="op">=</span> jnp.stack([sender, receiver], axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic--------------------------------------  </span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    dr_terms, dyad_effects <span class="op">=</span> bi.net.dyadic_terms(kinship[:,<span class="dv">0</span>], kinship[:,<span class="dv">1</span>])</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> bi.net.dyadic_random_effects(idx.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span> dr_terms <span class="op">+</span> rf</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    m.binomial(exposure,jnp.exp(B_any <span class="op">+</span> B_Merica <span class="op">+</span> B_Quantum <span class="op">+</span> sender_receiver <span class="op">+</span> dr )), obs<span class="op">=</span>result_outcomes)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>summary.loc[[<span class="st">'focal_effects[0]'</span>, <span class="st">'target_effects[0]'</span>, <span class="st">'dyad_effects[0]'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="example2" class="level2" data-number="24.3">
 <h2 data-number="24.3" class="anchored" data-anchor-id="example2"><span class="header-section-number">24.3</span> Example2</h2>
@@ -519,11 +565,39 @@ Note
 
 <script src="https://unpkg.com/tippy.js@6"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+<script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+
 <script>
 
-tippy('#prior', {
+function convertMarkdownToHTML(markdown) {
 
-  content: '<span style="color: white;">Priors are distributions that represent the value of the parameter before conditioning it on the data.</span>',
+  const options = {
+
+    breaks: true,
+
+    gfm: true,
+
+  };
+
+  const htmlContent = marked.parse(markdown, options);
+
+  return htmlContent;
+
+}
+
+
+
+tippy('#Uncertainty', {
+
+  content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),
 
   allowHTML: true,
 
@@ -532,6 +606,252 @@ tippy('#prior', {
   delay: 100,
 
 });
+
+
+
+tippy('#priorKnowledge', {
+
+  content: convertMarkdownToHTML('When data are sparse or noisy, incorporating prior knowledge through the priordistribution can improve the model’s performance. This is especially useful in fields where previous research orexpert opinion is available.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#Flexibility', {
+
+  content: convertMarkdownToHTML('Bayesian approaches naturally extend to complex settings such as hierarchical models, models with latent variables, or situations with missing data. Their ability to blend different sources of information makes them ideal for modern, data-rich applications.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#PPCs', {
+
+  content: convertMarkdownToHTML('PPCs involve generating *dummy data* (or simulated observations) from the posterior predictive distribution and comparing these simulated datasets with the actual observed data.By comparing summary statistics (e.g., means, variances) or visualizations (e.g., histograms, scatter plots) between \( y^{\text{rep}} \) and the observed data, we can assess if our model is capable of reproducing key features of the data.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#HPDI', {
+
+  content: convertMarkdownToHTML('HPDI is a metric that describe the distribution of a parameter. The Highest Posterior Density Interval is the narrowest interval that contains a specified proportion (e.g., 95%) of the posterior probability. HPDIs are especially useful when the posterior distribution is skewed or multimodal as it help in understanding the uncertainty of parameter estimates and in communicating the degree of uncertainty in predictions.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#convDiag', {
+
+  content: convertMarkdownToHTML('Convergence diagnostics are statistical toolsand methods used to assess whether a Markov Chain Monte Carlo (MCMC) algorithmhas sufficiently explored the target posterior distribution in Bayesiananalysis. They help ensure that the chain has stabilized and that samples arereliable for inference.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#ESS', {
+
+  content: convertMarkdownToHTML('ESS estimates how many independent samples ourMCMC chain is equivalent to. Low ESS values indicate that samples are highlycorrelated, which might affect the reliability of posterior summaries.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#Rhat', {
+
+  content: convertMarkdownToHTML('Rhat compares the variance between multiple chains to the variance within each chain. Values close to 1 (typically below 1.1) indicate good convergence.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+  tippy('#TP', {
+
+    content: convertMarkdownToHTML('Trace plots are graphical tools used in MCMC diagnostics to visualize the sampled values of a parameter over iterations. They help assess the convergence and mixing behavior of the Markov chain.'),
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+  tippy('#AutoCor', {
+
+    content: convertMarkdownToHTML('Autocorrelation plots visualize the correlation between samples in an MCMC chain as a function of the lag (distance between samples). They help assess how dependent the samples are and whether the chain is mixing efficiently.'),
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+  tippy('#DesPlot', {
+
+    content: convertMarkdownToHTML('Density plots visualize the estimated posterior distribution of a parameter based on MCMC samples. They provide a smoothed representation of the distribution, helping assess central tendency, spread, and shape.'),
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+
+
+
+
+tippy('#DP', {
+
+  content: convertMarkdownToHTML('A dependent variable is the variable being measured or observed inan analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#IP', {
+
+  content: convertMarkdownToHTML('An independent variable is the variable that is manipulated or controlled in an analysis to observe its effect on a dependent variable. It represents the input or cause in a cause-and-effect relationship and is often denoted as X in statistical models.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#lk', {
+
+  content: convertMarkdownToHTML('Likelihood is a statistical concept representing the probability of observing a given set of data, assuming specific values of the *parameters* in a model.It is not the same as probability; instead, it measures how well a model with certain parameters explains the observed data.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#pdist', {
+
+  content: convertMarkdownToHTML('A probability distribution is a mathematical function thatdescribes the likelihood of different outcomes in a random process. It specifies how probabilitiesare assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variabletakes finite or infinite values.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#intercept ', {
+
+  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as β in linear models.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#slope ', {
+
+  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β₁ in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+
+
+tippy('#prior', {
+
+  content: convertMarkdownToHTML('Priors are distributions that represent the value of the parameter before conditioning it on the data.'),
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
 
 
 
@@ -551,7 +871,7 @@ tippy('#overdispersion', {
 
 tippy('#linkF', {
 
-    content: '<span style="color: white;">A link function is a mathematical tool used in statistics to connect the outcome (dependent variable) with the predictors (independent variables) in models like Binomial regression. It transforms the predicted values into a form that makes them easier to model. For example, in Binomial regression, the link function converts probabilities (which range from 0 to 1) into values that can range from negative to positive infinity.</span>',
+    content: '<span style="color: white;">The *link function* is a key component of the *generalized linear model* (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges.The link function ensures that the modeled mean stays within a valid range.For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link(commonly used in logistic regression), the coefficients relate to the log - odds of the outcome.With an identity link(as in standard linear regression), the coefficients represent direct changes in the response variable.</span>',
 
     allowHTML: true,
 
@@ -559,7 +879,7 @@ tippy('#linkF', {
 
     delay: 100,
 
-  });
+});
 
 
 
