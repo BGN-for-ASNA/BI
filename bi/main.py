@@ -168,20 +168,29 @@ class bi(manip, dist, gaussian, factors, net, survival, link, diag):
         Extract observed argument names from `obs` in `lk` calls in `model_func`.
         """
         # Get the source code of the function
-        source_code = inspect.getsource(model_func)
-        # Parse the source code into an AST
+        source_code = inspect.getsource(self.model)
+        # Parse the source code into an Abstract Syntax Tree
         tree = ast.parse(source_code)
-        # Prepare a list to collect observed arguments
-        obs_args = []
-        # Traverse nodes in the AST
+        # List to hold the 'obs' values
+        obs_values = []
+
+        # Traverse the AST to find all function calls with 'obs' keyword argument
         for node in ast.walk(tree):
-            if isinstance(node, ast.Call):  # Only process function calls
-                self.visit_call(node, obs_args)
-        self.obs_args = obs_args
-        return obs_args
+            if isinstance(node, ast.Call):
+                for keyword in node.keywords:
+                    if keyword.arg == 'obs':
+                        # Extract the value passed to 'obs'
+                        value = ast.unparse(keyword.value)
+                        obs_values.append(value)
+
+        self.obs_args = obs_values
+        return obs_values
 
     # Create a new model function with the modified signature
-    def build_model2(self, model):
+    def build_model_with_Y_None(self, model):
+        '''
+        This function modifies the original model function to make the observed arguments optional. This is useful for scenarios where you want to use the model for prediction without providing the observed data (e.g., when generating posterior predictions).
+        '''
         # Extract `obs` argument names
         obs = self.find_obs_in_model(model)
         # Modify the function's signature to make the observed argument optional
@@ -192,8 +201,6 @@ class bi(manip, dist, gaussian, factors, net, survival, link, diag):
                 parameters.append(inspect.Parameter(name, inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None))
             else:
                 parameters.append(param)
-
-
         def model_with_None(*args, **kwargs):
             # Default values for obs arguments if not passed
             for obs_name in obs:
@@ -201,7 +208,6 @@ class bi(manip, dist, gaussian, factors, net, survival, link, diag):
                     kwargs[obs_name] = None
             # Call the original model function with the modified arguments
             return model(*args, **kwargs)
-
         # Update the signature of the new model
         model_with_None.__signature__ = sig.replace(parameters=parameters)
         self.model2 = model_with_None
@@ -221,7 +227,7 @@ class bi(manip, dist, gaussian, factors, net, survival, link, diag):
             _type_: _description_
         """
         rng_key = jax.random.PRNGKey(int(seed))
-        self.build_model2(self.model)
+        self.build_model_with_Y_None(self.model)
 
         if data is None:
             data = self.data_on_model.copy() 
