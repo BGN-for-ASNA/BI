@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -356,15 +390,19 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#bayesian-analysis" id="toc-bayesian-analysis" class="nav-link active" data-scroll-target="#bayesian-analysis"><span class="header-section-number">2.1</span> Bayesian analysis</a></li>
-  <li><a href="#model-set-up-bayesian-linear-regression-example" id="toc-model-set-up-bayesian-linear-regression-example" class="nav-link" data-scroll-target="#model-set-up-bayesian-linear-regression-example"><span class="header-section-number">2.2</span> Model set-up, Bayesian Linear Regression example</a>
+  <li><a href="#bayesian-analysis" id="toc-bayesian-analysis" class="nav-link active" data-scroll-target="#bayesian-analysis"><span class="header-section-number">3</span> Bayesian analysis</a></li>
+  <li><a href="#model-set-up-bayesian-linear-regression-example" id="toc-model-set-up-bayesian-linear-regression-example" class="nav-link" data-scroll-target="#model-set-up-bayesian-linear-regression-example"><span class="header-section-number">4</span> Model set-up, Bayesian linear regression example</a>
   <ul class="collapse">
-  <li><a href="#the-likelihood" id="toc-the-likelihood" class="nav-link" data-scroll-target="#the-likelihood"><span class="header-section-number">2.2.1</span> The Likelihood</a></li>
-  <li><a href="#modeling-likelihood" id="toc-modeling-likelihood" class="nav-link" data-scroll-target="#modeling-likelihood"><span class="header-section-number">2.2.2</span> Modeling Likelihood</a></li>
-  <li><a href="#link-functions-link" id="toc-link-functions-link" class="nav-link" data-scroll-target="#link-functions-link"><span class="header-section-number">2.2.3</span> Link functions Link</a></li>
-  <li><a href="#the-prior-distributions" id="toc-the-prior-distributions" class="nav-link" data-scroll-target="#the-prior-distributions"><span class="header-section-number">2.2.4</span> The Prior Distributions</a></li>
-  <li><a href="#the-posterior-distribution" id="toc-the-posterior-distribution" class="nav-link" data-scroll-target="#the-posterior-distribution"><span class="header-section-number">2.2.5</span> The Posterior Distribution</a></li>
-  <li><a href="#model-diagnostic" id="toc-model-diagnostic" class="nav-link" data-scroll-target="#model-diagnostic"><span class="header-section-number">2.2.6</span> Model ‘diagnostic’</a></li>
+  <li><a href="#the-likelihood" id="toc-the-likelihood" class="nav-link" data-scroll-target="#the-likelihood"><span class="header-section-number">4.0.1</span> The Likelihood</a></li>
+  <li><a href="#modeling-likelihood" id="toc-modeling-likelihood" class="nav-link" data-scroll-target="#modeling-likelihood"><span class="header-section-number">4.1</span> Modeling Likelihood</a></li>
+  <li><a href="#link-functions-link" id="toc-link-functions-link" class="nav-link" data-scroll-target="#link-functions-link"><span class="header-section-number">4.2</span> Link functions Link</a></li>
+  <li><a href="#the-prior-distributions" id="toc-the-prior-distributions" class="nav-link" data-scroll-target="#the-prior-distributions"><span class="header-section-number">4.3</span> The Prior Distributions</a>
+  <ul class="collapse">
+  <li><a href="#which-prior-distribution-range-to-use" id="toc-which-prior-distribution-range-to-use" class="nav-link" data-scroll-target="#which-prior-distribution-range-to-use"><span class="header-section-number">4.3.1</span> Which prior distribution range to use?</a></li>
+  </ul></li>
+  <li><a href="#model-fit-and-posterior-distribution" id="toc-model-fit-and-posterior-distribution" class="nav-link" data-scroll-target="#model-fit-and-posterior-distribution"><span class="header-section-number">4.4</span> Model fit and posterior distribution</a></li>
+  <li><a href="#model-diagnostic" id="toc-model-diagnostic" class="nav-link" data-scroll-target="#model-diagnostic"><span class="header-section-number">4.5</span> Model ‘diagnostic’</a></li>
+  <li><a href="#model-comparison" id="toc-model-comparison" class="nav-link" data-scroll-target="#model-comparison"><span class="header-section-number">4.6</span> Model comparison</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -391,40 +429,43 @@ window.Quarto = {
 </header>
 
 
-<p>This document is a guide to Bayesian analysis and the implementation of Bayesian inference (BI). It is intended for users ranging from those with little or no experience to advanced practitioners. In this introduction, we outline the main steps of Bayesian analysis. Subsequent chapters present increasingly complex models in a step‐by‐step manner. Each following chapters will all have the same structure in order to allow users to easily find the information they are looking for. The structure is the following:</p>
+<p>This document is a guide to Bayesian analysis and the implementation of Bayesian inference (BI). It is intended for users ranging from those with little or no experience to advanced practitioners. In this introduction, we outline the main steps of Bayesian analysis. Subsequent chapters present increasingly complex models. Each following chapters will all have the same structure in order to allow users to easily find the information they are looking for. The structure is the following:</p>
 <ol type="1">
 <li><p><em>Introduction to the model with non mathematical explanations.</em></p></li>
-<li><p><em>Specific conciderations for the model.</em></p></li>
+<li><p><em>Specific considerations for the model.</em></p></li>
 <li><p><em>Code to run the model.</em></p></li>
 <li><p><em>Mathematical formulas of the model.</em></p></li>
 <li><p><em>Notes related to the model.</em></p></li>
 </ol>
 <p>We recommend reading the introduction first since some key concepts here will not be revisited in later chapters.</p>
-<section id="bayesian-analysis" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="bayesian-analysis"><span class="header-section-number">2.1</span> Bayesian analysis</h2>
-<p>Bayesian analysis is a statistical approach that uses probability theory to update beliefs about the parameters of a model as new data becomes available. Bayesian methods have several key advantages as they allow <span id="Uncertainty"><span style="color:#0D6EFD">direct Uncertainty Quantification 🛈</span></span>, <span id="Uncertainty"><span style="color:#0D6EFD">incorporation of prior knowledge 🛈</span></span> and<span id="Uncertainty"><span style="color:#0D6EFD">flexibility for complex models 🛈</span></span>.</p>
+<section id="bayesian-analysis" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Bayesian analysis</h1>
+<p>Bayesian analysis is a statistical approach that uses probability theory to update beliefs about the parameters of a model as new data becomes available. Bayesian methods have several key advantages as they allow <span id="Uncertainty"><span style="color:#0D6EFD">direct uncertainty quantification 🛈</span></span>, <span id="Uncertainty"><span style="color:#0D6EFD">incorporation of prior knowledge 🛈</span></span> and <span id="Uncertainty"><span style="color:#0D6EFD">flexibility for complex models 🛈</span></span>.</p>
 </section>
-<section id="model-set-up-bayesian-linear-regression-example" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="model-set-up-bayesian-linear-regression-example"><span class="header-section-number">2.2</span> Model set-up, Bayesian Linear Regression example</h2>
-<p>To illustrate the basics of setting up a Bayesian model, let’s consider a simple linear regression example. In this example, we build a simple model where we predict a <span id="DP"><span style="color:#0D6EFD">dependent variable 🛈</span></span> (<span class="math inline">\(y\)</span>) from a single <span id="IP"><span style="color:#0D6EFD">independent variable 🛈</span></span> (<span class="math inline">\(x\)</span>). We will present some equations and basic modeling will be discuss in further details in <a href="./1. Linear Regression for continuous variable.html">Chapter 1: Multiple Continuous Variables</a>. Where we will not focus on the equations and their details but rather used them to describe the different components of a Bayesian model, how parameters optimization algorithm works in Bayesian analysis, and provide basic technical vocabulary related to Bayesian methods.</p>
-<section id="the-likelihood" class="level3" data-number="2.2.1">
-<h3 data-number="2.2.1" class="anchored" data-anchor-id="the-likelihood"><span class="header-section-number">2.2.1</span> The Likelihood</h3>
-<p>The <span id="lk"><span style="color:#0D6EFD"><em>likelihood</em> 🛈</span></span> can be consider as your main equation that combines the different terms of the model. Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.), the likelihood will be different. Additionally, a model can have multiple likelihoods (e.g., network models). <span class="math display">\[
+<section id="model-set-up-bayesian-linear-regression-example" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Model set-up, Bayesian linear regression example</h1>
+<p>To illustrate the basics of setting up a Bayesian model, let’s consider a simple linear regression example. In this example, we build a simple model where we predict a <span id="DP"><span style="color:#0D6EFD">dependent variable 🛈</span></span> <span class="math inline">\(y\)</span> from a single <span id="IP"><span style="color:#0D6EFD">independent variable 🛈</span></span> <span class="math inline">\(x\)</span>. Where we will not focus on the equations and their details but rather used them to describe the different components of a Bayesian model, how parameters optimization algorithm works in Bayesian analysis, and provide basic technical vocabulary related to Bayesian methods. For further details on the mathematical formulas of the model, please refer to <a href="./1. Linear Regression for continuous variable.html">Chapter 1: Multiple Continuous Variables</a>.</p>
+<section id="the-likelihood" class="level3" data-number="4.0.1">
+<h3 data-number="4.0.1" class="anchored" data-anchor-id="the-likelihood"><span class="header-section-number">4.0.1</span> The Likelihood</h3>
+<p>The <span id="lk"><span style="color:#0D6EFD"><em>likelihood</em> 🛈</span></span> can be consider as your main equation that combines the different terms of the model. Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.), the likelihood will be different. Additionally, a model can have multiple likelihoods (e.g., network models).</p>
+<p>Where as both in the <em>dependent variable</em> <span class="math inline">\(y\)</span> and the <em>independent variable</em> <span class="math inline">\(x\)</span> are continuous variables, we can use a <em>Gaussian model</em> to describe the relationship between these two variables. As we are using Bayesian methods, we are describing this relationship using a <span id="pdist"><span style="color:#0D6EFD"><em>probability distribution</em> 🛈</span></span> :</p>
+<p><span class="math display">\[
 y \sim \text{Normal}(\mu, \sigma)
 \]</span></p>
-<p>Where as both in the <em>dependent variable</em> (<span class="math inline">\(y\)</span>) and the <em>independent variable</em> (<span class="math inline">\(x\)</span>) are continuous variables, we can use a linear model to describe the relationship between these two variables. As we are using Bayesian methods, we are describing this relationship using a <span id="pdist"><span style="color:#0D6EFD"><em>probability distribution</em> 🛈</span></span> .</p>
+<p>Basically, where our likelihood is saying that the <em>dependent variable</em> <span class="math inline">\(y\)</span> is normally distributed with a mean <span class="math inline">\(\mu\)</span> and a standard deviation <span class="math inline">\(\sigma\)</span>. <em>Probability distribution</em> are available in BI through the class <code>bi.dist.XXX</code> where <code>XXX</code> is the name of the distribution you want to use. Within any <code>bi.dist.XXX</code> class, you can define which of the distribution need to be used as a likelihood by adding an argument <code>obs</code>, e.g., <code>m.normal(alpha + beta * x, s, obs=y)</code>.</p>
 </section>
-<section id="modeling-likelihood" class="level3" data-number="2.2.2">
-<h3 data-number="2.2.2" class="anchored" data-anchor-id="modeling-likelihood"><span class="header-section-number">2.2.2</span> Modeling Likelihood</h3>
-<p>Once the <em>likelihood</em> is defined, we can know define the mathematical equation that describe our parameters and their relationship with the <em>dependent variable</em> (<span class="math inline">\(y\)</span>). We can express this relationship in the form of a linear function: <span class="math display">\[
+<section id="modeling-likelihood" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="modeling-likelihood"><span class="header-section-number">4.1</span> Modeling Likelihood</h2>
+<p>Once the <em>likelihood</em> is defined, we can know define the mathematical equations that describe our parameters (<span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>) and their relationship with the <em>dependent variable</em> <span class="math inline">\(y\)</span>. We can express this relationship in the form of a linear function:</p>
+<p><span class="math display">\[
 \mu = \alpha + \beta x
 \]</span></p>
-<p>Where <span class="math inline">\(\alpha\)</span> is the <span id="pdist"><span style="color:#0D6EFD"><em>intercept</em> 🛈</span></span> and <span class="math inline">\(\beta\)</span> is the <span id="slope"><span style="color:#0D6EFD"><em>slope</em> 🛈</span></span> of the line. These parameters are the <em>unknowns</em> that we want to estimate to evaluate the strength and direction of the relationship between the <em>independent variable</em> (<span class="math inline">\(x\)</span>) and the <em>dependent variable</em> (<span class="math inline">\(y\)</span>).</p>
+<p>Where <span class="math inline">\(\alpha\)</span> is the <span id="intercept"><span style="color:#0D6EFD"><em>intercept</em> 🛈</span></span> and <span class="math inline">\(\beta\)</span> is the <span id="slope"><span style="color:#0D6EFD"><em>slope</em> 🛈</span></span> of the line. These parameters are the <em>unknowns</em> that we want to estimate to evaluate the strength and direction of the relationship between the <em>independent variable</em> <span class="math inline">\(x\)</span> and the <em>dependent variable</em> <span class="math inline">\(y\)</span>.</p>
 </section>
-<section id="link-functions-link" class="level3" data-number="2.2.3">
-<h3 data-number="2.2.3" class="anchored" data-anchor-id="link-functions-link"><span class="header-section-number">2.2.3</span> Link functions Link</h3>
-<p>Depending on the type of problem you are trying to solve, the likelihood will be different (continuous, discrete, binomial, etc.) and you will need to choose the appropriate distribution to describe the relationship between the parameters and the data. By using a different distribution, you will need to use a different <span id="slope"><span style="color:#0D6EFD"><em>link function</em> 🛈</span></span>.</p>
-<p>For the moment, we just need to know that those different distributions required <em>link function</em> (for each specific family we will discuss the corresponding link function). however, below is a table summarizing some of the most common link functions, the mathematical form of each, their typical applications, and how to interpret them.</p>
+<section id="link-functions-link" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="link-functions-link"><span class="header-section-number">4.2</span> Link functions Link</h2>
+<p>Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.) you will need to choose the appropriate distribution to describe the relationship between the data. By using a different distribution, you will need to use a different <span id="linkF"><span style="color:#0D6EFD"><em>link function</em> 🛈</span></span>.</p>
+<p>For the moment, we just need to know that those different distributions required <em>link function</em> (for each specific family we will discuss the corresponding link function). however, below is a table summarizing some of the most common link functions, the mathematical form of each, their typical applications, and how to interpret them. <em>Link functions</em> in BI can be aces through the class <code>bi.link.XXX</code> where <code>XXX</code> is the name of the link function.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 13%">
@@ -474,9 +515,9 @@ y \sim \text{Normal}(\mu, \sigma)
 </tbody>
 </table>
 </section>
-<section id="the-prior-distributions" class="level3" data-number="2.2.4">
-<h3 data-number="2.2.4" class="anchored" data-anchor-id="the-prior-distributions"><span class="header-section-number">2.2.4</span> The Prior Distributions</h3>
-<p>For each parameters of our equation, we need to define a <span id="prior"><span style="color:#0D6EFD"><em>prior distribution</em> 🛈</span></span> that encodes our initial beliefs about the parameter. In the case of the linear regression model, we need to specify <em>prior distributions</em> for (<span class="math inline">\(\alpha\)</span>), slope (<span class="math inline">\(\beta\)</span>), and standard deviation (<span class="math inline">\(\sigma\)</span>):</p>
+<section id="the-prior-distributions" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="the-prior-distributions"><span class="header-section-number">4.3</span> The Prior Distributions</h2>
+<p>For each parameters of our equation that describe <span class="math inline">\(\mu\)</span> , we need to define a <span id="prior"><span style="color:#0D6EFD"><em>prior distribution</em> 🛈</span></span> that encodes our initial beliefs about the parameter. In the case of the linear regression model, we need to specify <em>prior distributions</em> for (<span class="math inline">\(\alpha\)</span>), slope (<span class="math inline">\(\beta\)</span>), and standard deviation (<span class="math inline">\(\sigma\)</span>):</p>
 <p><span class="math display">\[
 \alpha \sim \text{Normal}(0, 1)
 \]</span></p>
@@ -486,8 +527,28 @@ y \sim \text{Normal}(\mu, \sigma)
 <p><span class="math display">\[
 \sigma \sim \text{Uniform}(0, 1)
 \]</span></p>
-<section id="which-prior-distribution-range-to-use" class="level4" data-number="2.2.4.1">
-<h4 data-number="2.2.4.1" class="anchored" data-anchor-id="which-prior-distribution-range-to-use"><span class="header-section-number">2.2.4.1</span> Which prior distribution range to use?</h4>
+<p>And with this we can write our entire model as:</p>
+<p><span class="math display">\[
+y \sim \text{Normal}(\mu, \sigma)
+\]</span> <span class="math display">\[
+\mu = \alpha + \beta x
+\]</span> <span class="math display">\[
+\alpha \sim \text{Normal}(0, 1)
+\]</span> <span class="math display">\[
+\beta \sim \text{Normal}(0, 1)
+\]</span> <span class="math display">\[
+\sigma \sim \text{Uniform}(0, 1)
+\]</span></p>
+<p>In BI you will need to define this model within a function in which you will be able to use any probability distributions, ink functions and declare any mathematical operations required for your model. BI have been designed to allow you to declare your model as close as possible to the mathematical notation. For example, the model above can be written in BI as:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>bi <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(x, y):    </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bi.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'alpha'</span>,shape<span class="op">=</span> (<span class="dv">1</span>,))</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> bi.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'beta'</span>,shape<span class="op">=</span> (<span class="dv">1</span>,))   </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> bi.dist.uniform( <span class="dv">0</span>, <span class="dv">50</span>, name <span class="op">=</span> <span class="st">'sigma'</span>,shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    m.normal(alpha <span class="op">+</span> beta <span class="op">*</span> x , , obs<span class="op">=</span>y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Notice that for eah parameter declared in the model you will need to give it a unique name as well as a shale. The shape is the number of parameters you want to estimate. For example, if you want to estimate a different <span class="math inline">\(\beta\)</span> for each predictor, you would need to declare <span class="math inline">\(\beta\)</span> with a shape equal to the number of predictors. By default, the shape is one those technically you don’t need to specify it. In this example we only wanted to highlight this feature.</p>
+<section id="which-prior-distribution-range-to-use" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="which-prior-distribution-range-to-use"><span class="header-section-number">4.3.1</span> Which prior distribution range to use?</h3>
 <p>The choice of prior ranges can significantly affect Bayesian analysis results. There are several approaches to selecting them:</p>
 <ul>
 <li><p><strong>Expert Knowledge</strong>: The prior distributions can be based on expert knowledge or historical data. This approach is useful when there is a lot of information available about the parameters.</p></li>
@@ -496,9 +557,9 @@ y \sim \text{Normal}(\mu, \sigma)
 </ul>
 </section>
 </section>
-<section id="the-posterior-distribution" class="level3" data-number="2.2.5">
-<h3 data-number="2.2.5" class="anchored" data-anchor-id="the-posterior-distribution"><span class="header-section-number">2.2.5</span> The Posterior Distribution</h3>
-<p>Once data are observed, Bayes’ Theorem is used to update our beliefs about the parameters. Bayes’ theorem, which states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use of Bayesian updating to improve the accuracy of the model.We express what we know (or don’t know) using probability distributions, and we update these beliefs as evidence accumulates.</p>
+<section id="model-fit-and-posterior-distribution" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="model-fit-and-posterior-distribution"><span class="header-section-number">4.4</span> Model fit and posterior distribution</h2>
+<p>Once data are observed, <span id="BT"><span style="color:#0D6EFD"><em>Bayes’ Theorem</em> 🛈</span></span> to evaluate how well a given set of parameters value fits the data:</p>
 <p><span class="math display">\[
 P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P(\text{data})}
 \]</span></p>
@@ -509,12 +570,12 @@ P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P
 <li><p><span class="math inline">\(P(\text{data} \mid \theta)\)</span> is the <strong>likelihood</strong>, representing the model of how the data are generated given <span class="math inline">\(\theta\)</span>.</p></li>
 <li><p><span class="math inline">\(P(\theta \mid \text{data})\)</span> is the <strong>posterior distribution</strong>, representing our updated beliefs after observing the data.</p></li>
 </ul>
-<p>This distribution reflects our updated beliefs about the parameters after observing the data. It tells us not only the most likely values of <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\sigma\)</span> but also quantifies the uncertainty in these estimates.</p>
-<p>We can use <em>Bayesian updating</em> using the <em>Bayesian theorem</em> to ‘reshape’ the prior distributions by considering every possible combination of values for µ and σ and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of values µ and σ: the <em>posterior distributions</em>. Various techniques can be used to approximate the mathematical definition of Bayes’ theorem: <em>grid approximation</em>, <em>quadratic approximation</em>, and Markov chain Monte Carlo (<em>MCMC</em>). In BI, we use MCMC.Description of this algorithms are out of the scope of this document. For more information, please refer to the <a href="">Bayesian Inference</a>.</p>
+<p>This distribution reflects our updated beliefs about the parameters after observing the data. It tells us not only the most likely value of <span class="math inline">\(\theta\)</span>,(e.g., <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\sigma\)</span> in our case) but also quantifies the uncertainty in these estimates.</p>
+<p>We can use <span id="BUpdating"><span style="color:#0D6EFD"><em>Bayesian updating</em> 🛈</span></span> using the <em>Bayesian theorem</em> to ‘reshape’ the prior distributions by considering every possible combination of values for our parameters, and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of our parameters: the <em>posterior distributions</em>. Various techniques can be used to approximate the mathematical definition of Bayes’ theorem: <em>grid approximation</em>, <em>quadratic approximation</em>, and Markov chain Monte Carlo (<em>MCMC</em>). Description of this algorithms are out of the scope of this document. For more information, please refer to the <a href="">Bayesian Inference</a>. In BI, we use MCMC and it can be call as <code>m.run(model)</code> where <code>model</code> is the function that describe the model.</p>
 </section>
-<section id="model-diagnostic" class="level3" data-number="2.2.6">
-<h3 data-number="2.2.6" class="anchored" data-anchor-id="model-diagnostic"><span class="header-section-number">2.2.6</span> Model ‘diagnostic’</h3>
-<p>Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Mulitple diagnostics approaches can be used to assess the model’s performance. Below are some key diagnostic tools and techniques available in BI.</p>
+<section id="model-diagnostic" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="model-diagnostic"><span class="header-section-number">4.5</span> Model ‘diagnostic’</h2>
+<p>Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Mulitple diagnostics approaches can be used to assess the model’s performance. Below are some key diagnostic tools and techniques available in BI within the class <code>bi.diagnostics.XXX</code> where <code>XXX</code> is the name of the diagnostic tool.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 16%">
@@ -581,6 +642,51 @@ P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P
 </tr>
 </tbody>
 </table>
+</section>
+<section id="model-comparison" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="model-comparison"><span class="header-section-number">4.6</span> Model comparison</h2>
+<p>Model comparison is performed by evaluating how well different models explain the observed data while accounting for model complexity. Multiple criteria can be used to compare models, and are summarized in the table below. In BI, wwe can compare models using <em>Watanabe-Akaike Information Criterion (WAIC)</em> with the function <code>m.aic(model1,model2)</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 16%">
+<col style="width: 26%">
+<col style="width: 18%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Criterion</strong></th>
+<th><strong>Purpose</strong></th>
+<th><strong>Interpretation</strong></th>
+<th><strong>Strengths</strong></th>
+<th><strong>Weaknesses</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>DIC (Deviance Information Criterion)</strong></td>
+<td>Measures model fit while penalizing complexity</td>
+<td>Lower values indicate better model fit</td>
+<td>Simple to compute, useful for hierarchical models</td>
+<td>Sensitive to the number of parameters, not always reliable in complex models</td>
+</tr>
+<tr class="even">
+<td><strong>WAIC (Watanabe-Akaike Information Criterion)</strong></td>
+<td>Estimates out-of-sample predictive accuracy while penalizing complexity</td>
+<td>Lower values indicate better models</td>
+<td>More robust than DIC, accounts for overfitting</td>
+<td>Computationally intensive for large models</td>
+</tr>
+<tr class="odd">
+<td><strong>Bayes Factor (BF)</strong></td>
+<td>Quantifies relative support for two models based on marginal likelihoods</td>
+<td><code>BF &gt; 1</code> favors the numerator model, <code>BF &lt; 1</code> favors the denominator</td>
+<td>Provides direct evidence comparison, works with different model types</td>
+<td>Sensitive to prior choices, requires good model specification</td>
+</tr>
+</tbody>
+</table>
 
 
 </section>
@@ -637,7 +743,7 @@ tippy('#Uncertainty', {
 
 tippy('#priorKnowledge', {
 
-  content: convertMarkdownToHTML('When data are sparse or noisy, incorporating prior knowledge through the priordistribution can improve the model’s performance. This is especially useful in fields where previous research orexpert opinion is available.'),
+  content: convertMarkdownToHTML('When data are sparse or noisy, incorporating prior knowledge through the prior distribution can improve the model’s performance. This is especially useful in fields where previous research or expert opinion is available.'),
 
   allowHTML: true,
 
@@ -693,7 +799,7 @@ tippy('#HPDI', {
 
 tippy('#convDiag', {
 
-  content: convertMarkdownToHTML('Convergence diagnostics are statistical toolsand methods used to assess whether a Markov Chain Monte Carlo (MCMC) algorithmhas sufficiently explored the target posterior distribution in Bayesiananalysis. They help ensure that the chain has stabilized and that samples arereliable for inference.'),
+  content: convertMarkdownToHTML('Convergence diagnostics are statistical tools and methods used to assess whether a Markov Chain Monte Carlo (MCMC) algorithm has sufficiently explored the target posterior distribution in Bayesian analysis. They help ensure that the chain has stabilized and that samples are reliable for inference.'),
 
   allowHTML: true,
 
@@ -707,7 +813,7 @@ tippy('#convDiag', {
 
 tippy('#ESS', {
 
-  content: convertMarkdownToHTML('ESS estimates how many independent samples ourMCMC chain is equivalent to. Low ESS values indicate that samples are highlycorrelated, which might affect the reliability of posterior summaries.'),
+  content: convertMarkdownToHTML('ESS estimates how many independent samples our MCMC chain is equivalent to. Low ESS values indicate that samples are highly correlated, which might affect the reliability of posterior summaries.'),
 
   allowHTML: true,
 
@@ -781,7 +887,7 @@ tippy('#Rhat', {
 
 tippy('#DP', {
 
-  content: convertMarkdownToHTML('A dependent variable is the variable being measured or observed inan analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
+  content: convertMarkdownToHTML('A dependent variable is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
 
   allowHTML: true,
 
@@ -823,7 +929,7 @@ tippy('#lk', {
 
 tippy('#pdist', {
 
-  content: convertMarkdownToHTML('A probability distribution is a mathematical function thatdescribes the likelihood of different outcomes in a random process. It specifies how probabilitiesare assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variabletakes finite or infinite values.'),
+  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilitiesare assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variabletakes finite or infinite values.'),
 
   allowHTML: true,
 
