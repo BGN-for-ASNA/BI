@@ -271,17 +271,16 @@ This document is a guide to Bayesian analysis and the implementation of
 Bayesian inference (BI). It is intended for users ranging from those
 with little or no experience to advanced practitioners. In this
 introduction, we outline the main steps of Bayesian analysis. Subsequent
-chapters present increasingly complex models in a step‐by‐step manner.
-Each following chapters will all have the same structure in order to
-allow users to easily find the information they are looking for. The
-structure is the following:
+chapters present increasingly complex models. Each following chapters
+will all have the same structure in order to allow users to easily find
+the information they are looking for. The structure is the following:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
   \emph{Introduction to the model with non mathematical explanations.}
 \item
-  \emph{Specific conciderations for the model.}
+  \emph{Specific considerations for the model.}
 \item
   \emph{Code to run the model.}
 \item
@@ -293,31 +292,35 @@ structure is the following:
 We recommend reading the introduction first since some key concepts here
 will not be revisited in later chapters.
 
-\section{Bayesian analysis}\label{bayesian-analysis}
+\bookmarksetup{startatroot}
+
+\chapter{Bayesian analysis}\label{bayesian-analysis}
 
 Bayesian analysis is a statistical approach that uses probability theory
 to update beliefs about the parameters of a model as new data becomes
 available. Bayesian methods have several key advantages as they allow
-\phantomsection\label{Uncertainty}{{direct Uncertainty Quantification
+\phantomsection\label{Uncertainty}{{direct uncertainty quantification
 🛈}}, \phantomsection\label{Uncertainty}{{incorporation of prior
-knowledge 🛈}} and\phantomsection\label{Uncertainty}{{flexibility for
+knowledge 🛈}} and \phantomsection\label{Uncertainty}{{flexibility for
 complex models 🛈}}.
 
-\section{Model set-up, Bayesian Linear Regression
+\bookmarksetup{startatroot}
+
+\chapter{Model set-up, Bayesian linear regression
 example}\label{model-set-up-bayesian-linear-regression-example}
 
 To illustrate the basics of setting up a Bayesian model, let's consider
 a simple linear regression example. In this example, we build a simple
 model where we predict a \phantomsection\label{DP}{{dependent variable
-🛈}} (\(y\)) from a single \phantomsection\label{IP}{{independent
-variable 🛈}} (\(x\)). We will present some equations and basic modeling
-will be discuss in further details in
+🛈}} \(y\) from a single \phantomsection\label{IP}{{independent variable
+🛈}} \(x\). Where we will not focus on the equations and their details
+but rather used them to describe the different components of a Bayesian
+model, how parameters optimization algorithm works in Bayesian analysis,
+and provide basic technical vocabulary related to Bayesian methods. For
+further details on the mathematical formulas of the model, please refer
+to
 \href{1.\%20Linear\%20Regression\%20for\%20continuous\%20variable.qmd}{Chapter
-1: Multiple Continuous Variables}. Where we will not focus on the
-equations and their details but rather used them to describe the
-different components of a Bayesian model, how parameters optimization
-algorithm works in Bayesian analysis, and provide basic technical
-vocabulary related to Bayesian methods.
+1: Multiple Continuous Variables}.
 
 \subsection{The Likelihood}\label{the-likelihood}
 
@@ -327,47 +330,64 @@ Depending on the type of problem you are trying to solve
 (classification, regression, etc.) and the type of data you are working
 with (continuous, discrete, binomial, etc.), the likelihood will be
 different. Additionally, a model can have multiple likelihoods (e.g.,
-network models). \[
+network models).
+
+Where as both in the \emph{dependent variable} \(y\) and the
+\emph{independent variable} \(x\) are continuous variables, we can use a
+\emph{Gaussian model} to describe the relationship between these two
+variables. As we are using Bayesian methods, we are describing this
+relationship using a \phantomsection\label{pdist}{{\emph{probability
+distribution} 🛈}} :
+
+\[
 y \sim \text{Normal}(\mu, \sigma)
 \]
 
-Where as both in the \emph{dependent variable} (\(y\)) and the
-\emph{independent variable} (\(x\)) are continuous variables, we can use
-a linear model to describe the relationship between these two variables.
-As we are using Bayesian methods, we are describing this relationship
-using a \phantomsection\label{pdist}{{\emph{probability distribution}
-🛈}} .
+Basically, where our likelihood is saying that the \emph{dependent
+variable} \(y\) is normally distributed with a mean \(\mu\) and a
+standard deviation \(\sigma\). \emph{Probability distribution} are
+available in BI through the class \texttt{bi.dist.XXX} where
+\texttt{XXX} is the name of the distribution you want to use. Within any
+\texttt{bi.dist.XXX} class, you can define which of the distribution
+need to be used as a likelihood by adding an argument \texttt{obs},
+e.g., \texttt{m.normal(alpha\ +\ beta\ *\ x,\ s,\ obs=y)}.
 
-\subsection{Modeling Likelihood}\label{modeling-likelihood}
+\section{Modeling Likelihood}\label{modeling-likelihood}
 
 Once the \emph{likelihood} is defined, we can know define the
-mathematical equation that describe our parameters and their
-relationship with the \emph{dependent variable} (\(y\)). We can express
-this relationship in the form of a linear function: \[
+mathematical equations that describe our parameters (\(\mu\) and
+\(\sigma\)) and their relationship with the \emph{dependent variable}
+\(y\). We can express this relationship in the form of a linear
+function:
+
+\[
 \mu = \alpha + \beta x
 \]
 
-Where \(\alpha\) is the \phantomsection\label{pdist}{{\emph{intercept}
-🛈}} and \(\beta\) is the \phantomsection\label{slope}{{\emph{slope} 🛈}}
-of the line. These parameters are the \emph{unknowns} that we want to
-estimate to evaluate the strength and direction of the relationship
-between the \emph{independent variable} (\(x\)) and the \emph{dependent
-variable} (\(y\)).
+Where \(\alpha\) is the
+\phantomsection\label{intercept}{{\emph{intercept} 🛈}} and \(\beta\) is
+the \phantomsection\label{slope}{{\emph{slope} 🛈}} of the line. These
+parameters are the \emph{unknowns} that we want to estimate to evaluate
+the strength and direction of the relationship between the
+\emph{independent variable} \(x\) and the \emph{dependent variable}
+\(y\).
 
-\subsection{Link functions Link}\label{link-functions-link}
+\section{Link functions Link}\label{link-functions-link}
 
-Depending on the type of problem you are trying to solve, the likelihood
-will be different (continuous, discrete, binomial, etc.) and you will
-need to choose the appropriate distribution to describe the relationship
-between the parameters and the data. By using a different distribution,
-you will need to use a different
-\phantomsection\label{slope}{{\emph{link function} 🛈}}.
+Depending on the type of problem you are trying to solve
+(classification, regression, etc.) and the type of data you are working
+with (continuous, discrete, binomial, etc.) you will need to choose the
+appropriate distribution to describe the relationship between the data.
+By using a different distribution, you will need to use a different
+\phantomsection\label{linkF}{{\emph{link function} 🛈}}.
 
 For the moment, we just need to know that those different distributions
 required \emph{link function} (for each specific family we will discuss
 the corresponding link function). however, below is a table summarizing
 some of the most common link functions, the mathematical form of each,
-their typical applications, and how to interpret them.
+their typical applications, and how to interpret them. \emph{Link
+functions} in BI can be aces through the class \texttt{bi.link.XXX}
+where \texttt{XXX} is the name of the link function.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1392}}
@@ -402,13 +422,14 @@ effects. \\
 Models positive \(\mu\); relates changes inversely to \(\mu\). \\
 \end{longtable}
 
-\subsection{The Prior Distributions}\label{the-prior-distributions}
+\section{The Prior Distributions}\label{the-prior-distributions}
 
-For each parameters of our equation, we need to define a
-\phantomsection\label{prior}{{\emph{prior distribution} 🛈}} that encodes
-our initial beliefs about the parameter. In the case of the linear
-regression model, we need to specify \emph{prior distributions} for
-(\(\alpha\)), slope (\(\beta\)), and standard deviation (\(\sigma\)):
+For each parameters of our equation that describe \(\mu\) , we need to
+define a \phantomsection\label{prior}{{\emph{prior distribution} 🛈}}
+that encodes our initial beliefs about the parameter. In the case of the
+linear regression model, we need to specify \emph{prior distributions}
+for (\(\alpha\)), slope (\(\beta\)), and standard deviation
+(\(\sigma\)):
 
 \[
 \alpha \sim \text{Normal}(0, 1)
@@ -422,7 +443,47 @@ regression model, we need to specify \emph{prior distributions} for
 \sigma \sim \text{Uniform}(0, 1)
 \]
 
-\subsubsection{Which prior distribution range to
+And with this we can write our entire model as:
+
+\[
+y \sim \text{Normal}(\mu, \sigma)
+\] \[
+\mu = \alpha + \beta x
+\] \[
+\alpha \sim \text{Normal}(0, 1)
+\] \[
+\beta \sim \text{Normal}(0, 1)
+\] \[
+\sigma \sim \text{Uniform}(0, 1)
+\]
+
+In BI you will need to define this model within a function in which you
+will be able to use any probability distributions, ink functions and
+declare any mathematical operations required for your model. BI have
+been designed to allow you to declare your model as close as possible to
+the mathematical notation. For example, the model above can be written
+in BI as:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bi }\OperatorTok{=}\NormalTok{ bi(platform}\OperatorTok{=}\StringTok{\textquotesingle{}cpu\textquotesingle{}}\NormalTok{)}
+\KeywordTok{def}\NormalTok{ model(x, y):    }
+\NormalTok{    alpha }\OperatorTok{=}\NormalTok{ bi.dist.normal( }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{,shape}\OperatorTok{=}\NormalTok{ (}\DecValTok{1}\NormalTok{,))}
+\NormalTok{    beta }\OperatorTok{=}\NormalTok{ bi.dist.normal( }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{,shape}\OperatorTok{=}\NormalTok{ (}\DecValTok{1}\NormalTok{,))   }
+\NormalTok{    sigma }\OperatorTok{=}\NormalTok{ bi.dist.uniform( }\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{,shape }\OperatorTok{=}\NormalTok{ (}\DecValTok{1}\NormalTok{,))}
+\NormalTok{    m.normal(alpha }\OperatorTok{+}\NormalTok{ beta }\OperatorTok{*}\NormalTok{ x , , obs}\OperatorTok{=}\NormalTok{y)}
+\end{Highlighting}
+\end{Shaded}
+
+Notice that for eah parameter declared in the model you will need to
+give it a unique name as well as a shale. The shape is the number of
+parameters you want to estimate. For example, if you want to estimate a
+different \(\beta\) for each predictor, you would need to declare
+\(\beta\) with a shape equal to the number of predictors. By default,
+the shape is one those technically you don't need to specify it. In this
+example we only wanted to highlight this feature.
+
+\subsection{Which prior distribution range to
 use?}\label{which-prior-distribution-range-to-use}
 
 The choice of prior ranges can significantly affect Bayesian analysis
@@ -457,17 +518,11 @@ results. There are several approaches to selecting them:
   we will assume that the data are scaled.
 \end{itemize}
 
-\subsection{The Posterior
-Distribution}\label{the-posterior-distribution}
+\section{Model fit and posterior
+distribution}\label{model-fit-and-posterior-distribution}
 
-Once data are observed, Bayes' Theorem is used to update our beliefs
-about the parameters. Bayes' theorem, which states that the posterior
-probability of a parameter is proportional to the product of the prior
-probability and the likelihood of the data given the parameter. This
-approach allows for the incorporation of prior knowledge and the use of
-Bayesian updating to improve the accuracy of the model.We express what
-we know (or don't know) using probability distributions, and we update
-these beliefs as evidence accumulates.
+Once data are observed, \phantomsection\label{BT}{{\emph{Bayes' Theorem}
+🛈}} to evaluate how well a given set of parameters value fits the data:
 
 \[
 P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P(\text{data})}
@@ -490,23 +545,26 @@ Where:
 \end{itemize}
 
 This distribution reflects our updated beliefs about the parameters
-after observing the data. It tells us not only the most likely values of
-\(\alpha\), \(\beta\), and \(\sigma\) but also quantifies the
-uncertainty in these estimates.
+after observing the data. It tells us not only the most likely value of
+\(\theta\),(e.g., \(\alpha\), \(\beta\), and \(\sigma\) in our case) but
+also quantifies the uncertainty in these estimates.
 
-We can use \emph{Bayesian updating} using the \emph{Bayesian theorem} to
-`reshape' the prior distributions by considering every possible
-combination of values for µ and σ and scoring each combination by its
-relative plausibility in light of the data. These relative
-plausibilities are the posterior probabilities of each combination of
-values µ and σ: the \emph{posterior distributions}. Various techniques
-can be used to approximate the mathematical definition of Bayes'
-theorem: \emph{grid approximation}, \emph{quadratic approximation}, and
-Markov chain Monte Carlo (\emph{MCMC}). In BI, we use MCMC.Description
-of this algorithms are out of the scope of this document. For more
-information, please refer to the \href{}{Bayesian Inference}.
+We can use \phantomsection\label{BUpdating}{{\emph{Bayesian updating}
+🛈}} using the \emph{Bayesian theorem} to `reshape' the prior
+distributions by considering every possible combination of values for
+our parameters, and scoring each combination by its relative
+plausibility in light of the data. These relative plausibilities are the
+posterior probabilities of each combination of our parameters: the
+\emph{posterior distributions}. Various techniques can be used to
+approximate the mathematical definition of Bayes' theorem: \emph{grid
+approximation}, \emph{quadratic approximation}, and Markov chain Monte
+Carlo (\emph{MCMC}). Description of this algorithms are out of the scope
+of this document. For more information, please refer to the
+\href{}{Bayesian Inference}. In BI, we use MCMC and it can be call as
+\texttt{m.run(model)} where \texttt{model} is the function that describe
+the model.
 
-\subsection{Model `diagnostic'}\label{model-diagnostic}
+\section{Model `diagnostic'}\label{model-diagnostic}
 
 Once a Bayesian model has been fit, it is crucial to evaluate how well
 it captures the observed data and to assess whether the Markov chain
@@ -515,7 +573,9 @@ help us answer questions like: ``Are our uncertainty estimates
 reliable?'', ``Does the model generate data similar to what we
 observed?'', and ``Have the chains mixed well?'' Mulitple diagnostics
 approaches can be used to assess the model's performance. Below are some
-key diagnostic tools and techniques available in BI.
+key diagnostic tools and techniques available in BI within the class
+\texttt{bi.diagnostics.XXX} where \texttt{XXX} is the name of the
+diagnostic tool.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1667}}
@@ -567,6 +627,52 @@ curve & Unimodal and smooth suggests convergence; multimodal or
 irregular may suggest poor mixing \\
 \end{longtable}
 
+\section{Model comparison}\label{model-comparison}
+
+Model comparison is performed by evaluating how well different models
+explain the observed data while accounting for model complexity.
+Multiple criteria can be used to compare models, and are summarized in
+the table below. In BI, wwe can compare models using
+\emph{Watanabe-Akaike Information Criterion (WAIC)} with the function
+\texttt{m.aic(model1,model2)}.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1867}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1600}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1867}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Criterion}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Purpose}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Interpretation}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Strengths}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Weaknesses}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{DIC (Deviance Information Criterion)} & Measures model fit while
+penalizing complexity & Lower values indicate better model fit & Simple
+to compute, useful for hierarchical models & Sensitive to the number of
+parameters, not always reliable in complex models \\
+\textbf{WAIC (Watanabe-Akaike Information Criterion)} & Estimates
+out-of-sample predictive accuracy while penalizing complexity & Lower
+values indicate better models & More robust than DIC, accounts for
+overfitting & Computationally intensive for large models \\
+\textbf{Bayes Factor (BF)} & Quantifies relative support for two models
+based on marginal likelihoods & \texttt{BF\ \textgreater{}\ 1} favors
+the numerator model, \texttt{BF\ \textless{}\ 1} favors the denominator
+& Provides direct evidence comparison, works with different model types
+& Sensitive to prior choices, requires good model specification \\
+\end{longtable}
+
 \bookmarksetup{startatroot}
 
 \chapter{Linear Regression for continuous
@@ -599,7 +705,7 @@ have:
 
 \section{Considerations}\label{considerations}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -773,7 +879,7 @@ Where:
 
 \section{Notes}\label{notes}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 We can observe a difference between the \emph{Frequentist} and the
 \emph{Bayesian} formulation regarding the error term. Indeed, in the
@@ -810,7 +916,7 @@ Regression for continuous variable} by adding a regression coefficient
 
 \section{Considerations}\label{considerations-1}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -1001,7 +1107,7 @@ low.
 
 \section{Considerations}\label{considerations-2}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -1219,7 +1325,7 @@ categories to \phantomsection\label{indices}{{indices 🛈}}.
 
 \section{Considerations}\label{considerations-3}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -1386,7 +1492,7 @@ Where:
 
 \section{Notes}\label{notes-1}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -1419,7 +1525,7 @@ variables, we can use a \emph{Binomial model}.
 
 \section{Considerations}\label{considerations-4}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -1578,7 +1684,7 @@ Where:
 
 \section{Notes}\label{notes-2}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -1652,7 +1758,7 @@ the \emph{Beta-Binomial model}.
 
 \section{Considerations}\label{considerations-5}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -1884,7 +1990,7 @@ is unknown or uncountably large.
 
 \section{Considerations}\label{considerations-6}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -2067,7 +2173,7 @@ Where:
 
 \section{Notes}\label{notes-3}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -2102,7 +2208,7 @@ the \emph{Negative Binomial model}.
 
 \section{Considerations}\label{considerations-7}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -2257,7 +2363,7 @@ Where:
 
 \section{Notes}\label{notes-4}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -2293,7 +2399,7 @@ use a \emph{Multinomial} model.
 
 \section{Considerations}\label{considerations-8}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -2491,7 +2597,7 @@ more than two categories and one or more independent variables with
 
 \section{Considerations}\label{considerations-9}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -2576,7 +2682,7 @@ for predicting the probability of excess zeros.
 
 \section{Considerations}\label{considerations-10}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \tightlist
@@ -2818,7 +2924,7 @@ Key concepts include:
 
 \section{Considerations}\label{considerations-11}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -3015,7 +3121,7 @@ across these groups.
 
 \section{Considerations}\label{considerations-12}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -3191,7 +3297,7 @@ Where:
 
 \section{Notes}\label{notes-5}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -3235,7 +3341,7 @@ pooling.
 
 \section{Considerations}\label{considerations-13}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -3634,7 +3740,7 @@ L_{g} \sim LKJcorr(2)
 
 \section{Notes}\label{notes-6}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -3805,7 +3911,7 @@ where each element of the matrix is a
 
 \section{Considerations}\label{considerations-14}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \tightlist
@@ -4088,7 +4194,7 @@ where:
 
 \section{Notes}\label{notes}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 Common kernel functions include:
 
@@ -4231,7 +4337,7 @@ where:
 
 \section{Notes}\label{notes-7}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 This is am approach that can be extended to any kind of models
 previously described. For example, one could generate a bernoulli
@@ -4253,7 +4359,7 @@ McElreath (2018)
 
 \section{Considerations}\label{considerations-15}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
@@ -4286,7 +4392,7 @@ formulation}}{Bayesian formulation}}\label{bayesian-formulation-9}
 
 \section{Notes}\label{notes-8}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
@@ -4694,7 +4800,7 @@ relationships.
 
 \section{Considerations}\label{considerations-18}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \tightlist
@@ -4929,7 +5035,7 @@ L \sim LKJ(2)
 
 \section{Note(s)}\label{notes-9}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \tightlist
@@ -5025,7 +5131,7 @@ model approach.
 
 \section{Considerations}\label{considerations-19}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \tightlist
@@ -5178,7 +5284,7 @@ where :
 
 \section{Note(s)}\label{notes-10}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \item
@@ -5214,7 +5320,7 @@ when modeling interaction between individual \emph{i} and \emph{j}.
 
 \section{Considerations}\label{considerations-20}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
@@ -5354,7 +5460,7 @@ probability.
 
 \section{Note(s)}\label{notes-11}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \tightlist
@@ -5736,7 +5842,7 @@ same concepts as in \href{12.\%20Survival\%20analysis.qmd}{chapter 12}:
 
 \section{Considerations}\label{considerations-21}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \begin{itemize}
 \tightlist
@@ -5824,7 +5930,7 @@ z_j(t) =  Y_i \sim \begin{cases}
 
 \section{Notes}\label{notes-12}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
@@ -5851,7 +5957,7 @@ https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/1365-2656.13307
 
 \section{Considerations}\label{considerations-22}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
@@ -5884,7 +5990,7 @@ formulation}}{Bayesian formulation}}\label{bayesian-formulation-10}
 
 \section{Notes}\label{notes-13}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
@@ -5899,7 +6005,7 @@ model}\label{multiplex-temporal-network-model}
 
 \section{Considerations}\label{considerations-23}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
@@ -5932,7 +6038,7 @@ formulation}}{Bayesian formulation}}\label{bayesian-formulation-11}
 
 \section{Notes}\label{notes-14}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
@@ -5952,7 +6058,7 @@ layers.
 
 \section{Considerations}\label{considerations-24}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-caution-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-caution-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-caution-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-caution-color}{\faFire}\hspace{0.5em}{Caution}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-caution-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
@@ -5985,7 +6091,7 @@ formulation}}{Bayesian formulation}}\label{bayesian-formulation-12}
 
 \section{Notes}\label{notes-15}
 
-\begin{tcolorbox}[enhanced jigsaw, opacitybacktitle=0.6, left=2mm, colframe=quarto-callout-note-color-frame, breakable, coltitle=black, arc=.35mm, opacityback=0, bottomrule=.15mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, colback=white, rightrule=.15mm, colbacktitle=quarto-callout-note-color!10!white, toptitle=1mm, titlerule=0mm, toprule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, titlerule=0mm, left=2mm, colback=white, breakable, opacityback=0, colframe=quarto-callout-note-color-frame, arc=.35mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}, toptitle=1mm, rightrule=.15mm, bottomrule=.15mm, opacitybacktitle=0.6, coltitle=black, colbacktitle=quarto-callout-note-color!10!white, toprule=.15mm]
 
 \end{tcolorbox}
 
