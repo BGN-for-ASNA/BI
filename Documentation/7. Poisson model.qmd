@@ -81,8 +81,8 @@ m$data_to_model(list('total_tools', 'population', 'cid' )) # Send to model (conv
 # Define model ------------------------------------------------
 model <- function(total_tools, population, cid){
   # Parameters priors distributions
-  alpha = bi.dist.normal(3, 0.5, name='alpha', shape = c(1))
-  beta = bi.dist.normal(0, 0.2, name='beta', shape = c(1))
+  alpha = bi.dist.normal(3, 0.5, name='alpha', shape = c(2))
+  beta = bi.dist.normal(0, 0.2, name='beta', shape = c(2))
   l = jnp$exp(alpha[cid] + beta[cid]*population)
   # Likelihood
   m$poisson(l, obs=total_tools)
