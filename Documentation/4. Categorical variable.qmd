@@ -63,7 +63,7 @@ m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to j
 # Define model ------------------------------------------------
 model <- function(kcal_per_g, index_clade){
   # Parameters priors distributions
-  beta = bi.dist.normal( 0, 0.5, name = 'beta')
+  beta = bi.dist.normal( 0, 0.5, name = 'beta', shape = c(4))
   sigma =bi.dist.exponential(1, name = 's')
   # Likelihood
   m$normal(beta[index_clade], sigma, obs=kcal_per_g)
