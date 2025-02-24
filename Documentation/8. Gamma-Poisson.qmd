@@ -51,8 +51,8 @@ m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to
 model <- function(log_days, monastery, y){
   # Parameters priors distributions
   alpha = bi.dist.normal(0, 1, name='alpha', shape=c(1))
-  beta = bi.dist.normal(0, 0.2, name='beta', shape=c(1))
-  l = log_days + alpha + beta * monastery
+  beta = bi.dist.normal(0, 1, name='beta', shape=c(1))
+  l = jnp$exp(log_days + alpha + beta * monastery)
   # Likelihood
   m$poisson(rate=l, obs=y)
 }

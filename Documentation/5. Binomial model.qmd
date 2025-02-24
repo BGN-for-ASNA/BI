@@ -52,7 +52,7 @@ m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 # Define model ------------------------------------------------
 model <- function(pulled_left){
   # Parameters priors distributions
-  alpha = bi.dist.normal( 0, 10, name = 'alpha', shape=c(1))
+  alpha = bi.dist.normal( 0, 10, name = 'alpha')
   # Likelihood
   m$binomial(logits = alpha, obs=pulled_left)
 }
