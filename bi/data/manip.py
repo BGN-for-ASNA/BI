@@ -2,6 +2,7 @@ import pandas as pd
 import jax.numpy as jnp
 import numpy as np
 import inspect
+import jax
 
 class manip():
     def __init__(self):
@@ -62,20 +63,27 @@ class manip():
         self.data_modification['index'] = cols # store info of indexed columns
         
         return self.df
+    
+    @jax.jit
+    def scale_var(self, x):
+        return (x - x.mean()) / x.std()
 
-    def scale(self, cols = 'all'):
-        if cols == 'all':
-            for col in self.df.columns:                
-                self.df.loc[:, col] = (self.df.loc[:,col] - self.df.loc[:,col].mean())/self.df.loc[:,col].sd()
-
+    def scale(self, x = None, cols = 'all'):
+        if x is not None:
+            return self.scale_var(x)
         else:
-            for a in range(len(cols)):
-                self.df.loc[:, cols[a]] = (self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean()) / self.df.loc[:, cols[a]].std()
+            if cols == 'all':
+                for col in self.df.columns:                
+                    self.df.loc[:, col] = (self.df.loc[:,col] - self.df.loc[:,col].mean())/self.df.loc[:,col].sd()
+
+            else:
+                for a in range(len(cols)):
+                    self.df.loc[:, cols[a]] = (self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean()) / self.df.loc[:, cols[a]].std()
 
 
-        self.data_modification['scale'] = cols # store info of scaled columns
-        
-        return self.df
+            self.data_modification['scale'] = cols # store info of scaled columns
+
+            return self.df
     
     def to_float(self, cols = 'all', type = 'float32'):
         if cols == 'all':
