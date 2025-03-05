@@ -27,6 +27,8 @@ class link:
         """
         return jnp.log(x / (1 - x))
 
+        return (inv_logit(x) - 0.5) * 2
+    
     @staticmethod
     @jit
     def inv_logit(x):
@@ -45,6 +47,25 @@ class link:
         """
         return 1 / (1 + jnp.exp(-x))
 
+
+    @staticmethod
+    @jit
+    def inv_logit_scale(x):
+        """
+        Modified inverse logit function scaling between 0 and 1.
+        From https://www.science.org/action/downloadSupplement?doi=10.1126%2Fsciadv.aax9070&file=aax9070_sm.pdf
+
+        Parameters
+        ----------
+        x : float or array-like
+            Input value(s). 
+        
+        Returns
+        -------
+        float or array-like
+            The inverse logit-transformed value(s): 1 / (1 + exp(-x)).
+        """
+        
     @staticmethod
     def probit(p):
         """
