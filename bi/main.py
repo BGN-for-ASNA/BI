@@ -23,7 +23,7 @@ from setup.device import setup
 from Surv.surv import survival
 from utils.link import link
 from diagnostic.Diag import diag
-from bi.network.Net import net
+from network.Net import net
 from nbda.NBDA import NBDA
 
 from utils.unified_dists import UnifiedDist as dist
