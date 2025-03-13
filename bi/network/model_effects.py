@@ -1,4 +1,4 @@
-from BI.network.util import array_manip
+from network.util import array_manip
 import jax 
 from jax import jit
 import jax.numpy as jnp
@@ -13,7 +13,7 @@ directory_to_add = os.path.normpath(directory_to_add)
 if directory_to_add not in sys.path:
     sys.path.append(directory_to_add)
 
-from BI.utils.unified_dists import UnifiedDist as dist
+from utils.unified_dists import UnifiedDist as dist
 
 class Neteffect(array_manip):
     def __init__(self) -> None:
