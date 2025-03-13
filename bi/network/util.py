@@ -1,9 +1,9 @@
 import inspect
 from numpyro import sample as lk
 from numpyro import deterministic
-from BI.utils.unified_dists import UnifiedDist as dist
-from BI.utils.array import Mgaussian
-from BI.utils.array import factors
+from utils.unified_dists import UnifiedDist as dist
+from utils.array import Mgaussian
+from utils.array import factors
 import jax 
 from jax import jit
 import jax.numpy as jnp
