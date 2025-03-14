@@ -24,7 +24,7 @@ from Surv.surv import survival
 from utils.link import link
 from diagnostic.Diag import diag
 from network.Net import net
-from nbda.NBDA import NBDA
+
 
 from utils.unified_dists import UnifiedDist as dist
 from numpyro.infer import MCMC, NUTS, Predictive
@@ -62,9 +62,6 @@ class bi(manip, dist, gaussian, factors, net, survival, link, diag):
     class net(net):
         pass
 
-    # Network functions--------------------------
-    class nbda(NBDA):
-        pass
     # Survival functions--------------------------
     class surv(survival):
         pass
