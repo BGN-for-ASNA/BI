@@ -109,7 +109,7 @@ class bi(manip, NBDA, dist, gaussian, factors, net, survival, link, diag, sample
             raise CustomError("Argument model can't be None")
          
         self.model = model
-        print(self.nbdaModel)
+
         if self.data_on_model is None and not self.nbdaModel == False:
             self.data_on_model = self.pd_to_jax(self.model)
         if self.nbdaModel:
