@@ -1,13 +1,22 @@
 import pandas as pd
 import jax
 import jax.numpy as jnp
-from functools import partial
 from jax import vmap
+from ..utils.unified_dists import UnifiedDist as dist
+from ..utils.link import link
 
+@jax.jit
+def scale(x):
+    return (x - x.mean()) / x.std()
+
+@staticmethod
+@jax.jit
+def scale_along_time(covNV):
+    return vmap(scale, in_axes = 2, out_axes=2)(covNV)
 
 class NBDA:
 
-    def __init__(self,network,status):
+    def __init__(self,network=None,status=None,names_network=None,names_status=None):
         """
         Initialize an NBDA object with network and status arrays.
 
@@ -19,48 +28,78 @@ class NBDA:
         Returns:
             None
         """
-        # Status 
-        self.status=status
-        self.n=status.shape[0]
-        self.t=status.shape[1]
+        if network is None or status is None:
+            pass
+        else:
+            # Names of the networks and status
+            self.names ={}
+            self.nbdaModel = True
+            # Covariates locations
+            self.covNF_location = "both"
+            self.covNV_location = "both"
 
-        ## Status at t-1
-        self.status_i, self.status_j = self.convert_status(status)
 
-        # Network
-        self.network=None
-        if len(network.shape)==2:
-            self.convert_network(network)
-        elif (len(network.shape)==4):
-            self.network=network
-        elif (len(network.shape)!=4):
-            raise ValueError("Network must be a 2 (n, n) or 4 dimensional array (n, n, t, num_networks)")
+            # Status 
+            self.status=status
+            self.n=status.shape[0]
+            self.t=status.shape[1]
 
-        # Intercetps for the network
-        self.intercept = jnp.ones(self.network.shape)
+            ## Status at t-1
+            self.status_i, self.status_j = self.convert_status(status)
+            self.give_name(self.status,'status',names_status)
 
-        # fixed nodal covariates
-        self.covNF_i=None
-        self.covNF_j=None
+            # Network
+            self.network=None
+            if len(network.shape)==2:
+                self.convert_network(network)
+            elif (len(network.shape)==4):
+                self.network=network
+            elif (len(network.shape)!=4):
+                raise ValueError("Network must be a 2 (n, n) or 4 dimensional array (n, n, t,   num_networks)")
+            self.give_name(self.network,'network',names_network)
 
-        # Time-varying nodal covariates
-        self.covNV_i=None
-        self.covNV_j=None
+            # Intercetps for the network
+            self.intercept = jnp.ones(self.network.shape)
 
-        # fixed dyadic covariates
-        self.covDF=None
+            # fixed nodal covariates
+            self.covNF_i=None
+            self.covNF_j=None
 
-        # Time-varying dyadic covariates
-        self.covDV=None
+            # Time-varying nodal covariates
+            self.covNV_i=None
+            self.covNV_j=None
 
-        # individual observed
-        self.observed=None
+            # fixed dyadic covariates
+            self.covDF=None
 
-        # Conatenated covariates
-        self.D_social=None
-        self.D_asocial=None
+            # Time-varying dyadic covariates
+            self.covDV=None
 
-    def convert_network(self, network): # To be used only if there is a single network
+            # individual observed
+            self.observed=None
+
+            # Conatenated covariates
+            self.D_social=None
+            self.D_asocial=None
+
+            # Names
+            self.names=dict(intercept_asocial = 'intercept_asocial', intercept_social =     'intercept_asocial')
+
+            self.objects = None
+
+    def give_name(self, object, key, names):
+        if names is  None:
+            if object.shape[-1] == 1:
+                self.names[key] = f'{key}'
+            else:
+                self.names[key] = [f'{key}_{i}' for i in range(object.shape[-1])] # last dim is the number of objects
+        else:
+            if len(names) != object.shape[-1]:
+                raise ValueError(f'The number of names ({len(names)}) does not match the number of objects ({object.shape[-1]})')
+            else:
+                self.names[key] = names
+
+    def convert_network(self, network, names = None): # To be used only if there is a single network
 
         """
         Convert a single network array to a 4D array.
@@ -73,8 +112,12 @@ class NBDA:
         """
 
         self.network=jnp.repeat(network[jnp.newaxis, :, :,jnp.newaxis], self.t, axis=0).transpose((1,2,0,3))
-        return self.network
 
+        if names is not None:
+            if len(names)!=self.network.shape[3]:
+                raise ValueError("The length of names must be equal to the number of networks.")
+            self.names['network']=[name for name in names]
+        return self.network
 
     def convert_status(self, status):#A 2-dimension arrray of (n,t)
         """
@@ -141,7 +184,7 @@ class NBDA:
 
         return  self.covNF_dims(df, n, t, num_variables)
 
-    def import_covNF(self, df):
+    def import_covNF(self, df, names=None):
         """
         Import fixed nodal covariates.
 
@@ -152,7 +195,8 @@ class NBDA:
             tuple: A tuple of two 4-dimensional arrays (covNF_i, covNF_j).
         """
         self.covNF_i, self.covNF_j = self.convert_covNF(df, self.n, self.t, df.shape[1])
-        return self.covNF_i, self.covNF_j
+
+        self.give_name(self.covNF_i,'covNF',names)
 
     def convert_covNV(self, covV):
         """
@@ -170,11 +214,22 @@ class NBDA:
         
         return result_array_i, result_array_j
 
-    def import_covNV(self, covV): #covV need to be a 3 dimensional array of shape (num_var, n, t)i.e. A list of matrices of time-varying covariates
-        self.covNV_i, self.covNV_j = self.convert_covNV(covV)
-        return self.covNV_i, self.covNV_j
+    def import_covNV(self, covV, names = None, scale = True): #covV need to be a 3 dimensional array of shape (num_var, n, t)i.e. A list of matrices of time-varying covariates
+        if scale:
+            covV = scale_along_time(covV)
+        else: 
+            print("Not scaling covariates along time can result in correlation between regressions coeffcients in of temporal covariates and the intercepts (i.e. social rate)")
+            print("\nAlternative solution would be to add time varying coefficients, but it does affet computational time drastically.")
 
-    def import_covDF(self, covDF):
+        self.covNV_i, self.covNV_j = self.convert_covNV(covV)
+        if names is not None:
+            if len(names)!=self.covNV_i.shape[3]:
+                raise ValueError("The length of names must be equal to the number of variables.")
+            self.names['covNV']=[name for name in names]
+
+        self.give_name(self.covNV_i,'covV',names)
+
+    def import_covDF(self, covDF, names = None):
         """
         Import fixed dyadic covariates.
 
@@ -186,29 +241,34 @@ class NBDA:
         """
         if len(covDF.shape)==2:
             self.covDF = jnp.repeat(covDF[jnp.newaxis, :, :,jnp.newaxis], self.t, axis=0).transpose((1,2,0,3))
-            return self.covDF
+
         else:
-            self.covDF = jnp.array([covDF[i,:, :,None]*jnp.ones((self.n, self.n, self.t)) for i in range(covDF.shape[0])]).transpose((1,2,3,0))
-            return self.covDF
+            res = []
+            for i in range(covDF.shape[2]):
+                res.append(jnp.repeat(covDF[jnp.newaxis,:,:,i], 200, axis=0).transpose((1,2,0)))
+            self.covDF = jnp.stack(res, axis = -1)
+ 
+        self.give_name(self.covDF,'covDF',names)
 
-
-    def import_covDV(self, covDV):
+    def import_covDV(self, covDV, names = None):
         """
         Import time-varying dyadic covariates.
 
         Args:
-            covDV (Array): A 3-dimensional array of shape (n, n, t) or a 4-dimensional array of shape (n, n, t, num_dyads).
+            covDV (Array): A 3-dimensional array of shape (n, n, t) or a 4-dimensional array of shape (n, n, t, num_dyadics_effects).
 
         Returns:
             Array: A 4-dimensional array of shape (n, n, t, num_variables).
         """
+        
         if len(covDV.shape)==3:# A list of matrices of a single time-varying covariate
+            covDV = scale_along_time(covDV)
             self.covDV = covDV[:, :, :,jnp.newaxis]
-            return self.covDV
 
         if len(covDV.shape)==4:# A ist of list of matrices of a single time-varying covariate
-            self.covDF = jnp.array([covDV[i,:, :,None]*jnp.ones((self.n, self.n, self.t)) for i in range(covDF.shape[0])]).transpose((1,2,3,0))
-            return self.covDV
+            self.covDV = jnp.array([covDV[i,:, :,None]*jnp.ones((self.n, self.n, self.t)) for i in range(covDF.shape[0])]).transpose((1,2,3,0))
+
+        self.give_name(self.covDV,'covDV',names)
 
     def stack_cov(self):
         """
@@ -242,19 +302,27 @@ class NBDA:
         """
         
         objects = self.stack_cov()
+        self.objects = objects
         D_social = []
         D_asocial = []
         for k in objects.keys():
             if k not in ['status', 'status_i', 'status_j', 'network']:
                 if k is not None:   
                     if k in ['intercept', 'covNF_i', 'covNV_i']: 
-                        D_social.append(objects[k])
-                        D_asocial.append(objects[k][0,:,:,:],)
+                        if self.covNF_location is 'both':
+                            D_social.append(objects[k])
+                            D_asocial.append(objects[k][0,:,:,:])
+                        if self.covNF_location is 'social':
+                            D_social.append(objects[k])
+                        if self.covNF_location is 'asocial':
+                            D_asocial.append(objects[k])                           
                     else:
-                        D_social.append(objects[k])
+                        D_social.append(objects[k])             
+                    
 
         self.D_social = jnp.concatenate(D_social, axis=-1)
         self.D_asocial = jnp.concatenate(D_asocial, axis=-1)
+        return dict(D_social=self.D_social, D_asocial=self.D_asocial, status=self.status, network=self.network)
 
     
     
@@ -280,6 +348,45 @@ class NBDA:
             jnp.sum(stacked_cov[a]*stacked_betas[a],axis=3))
     
         return res
+
+    def model(self,D_asocial, D_social, status, network):
+        N = status.shape[0]
+        T = status.shape[1]
+        lk = jnp.zeros((N,T))
+
+
+        # Priors for social effect covariates
+        alpha_soc = dist.normal(0, 5, shape = (1,), sample=False,    name='alpha_soc')
+        betas_soc = dist.normal(0, 1, shape = (D_social.shape[3]-1,),    sample=False, name='betas_soc')
+        social = jnp.concatenate((alpha_soc, betas_soc))
+
+        # Priors for asocial effect covariates
+        alpha_asoc = dist.normal(0, 5,  shape = (1,), sample=False,  name='alpha_asoc')
+        betas_asoc = dist.normal(0, 1, shape = (D_asocial.shape[2]-1,),  sample=False, name='betas_asoc')
+        asocial = jnp.concatenate((alpha_asoc, betas_asoc))
+
+        # Asocial learning -----------------------
+        R_asocial = jnp.tensordot(D_asocial[:,0,:], asocial, axes=(-1, 0))    
+        theta = link.inv_logit(R_asocial)
+        lk = lk.at[:,0].set(theta)      
+        for t in range(1,T):
+            ## Social learning-----------------------
+            R_social = jnp.tensordot(D_social[:,:,t,:], social, axes=(-1, 0))
+            phi = bi.link.inv_logit(R_social)
+            attention_weigthed_network = phi*network[:,:,t,0]
+            social_influence_weight = inv_logit2(jnp.tensordot(attention_weigthed_network[:,:], status[:,t-1], axes=(-1, 0)))       
+            ## Asocial learning -----------------------
+            R_asocial = jnp.tensordot(D_asocial[:,t,:], asocial, axes=(-1, 0))
+            theta = bi.link.inv_logit(R_asocial)
+
+            # Informed update at t!= 0-----------------------
+            lk = lk.at[:,t].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))       
+
+
+        mask = ~jnp.isnan(lk)
+        with numpyro.handlers.mask(mask=mask): 
+        #m.binomial(probs=lk, obs=status[:,:,0])
+            numpyro.sample("y", numpyro.distributions.Binomial(probs=lk), obs=status)
 
     # We can add individual observation information in the same forme as  an input time varying cov
     # We can add multiple behaviors acquisition in the form of a (n,n,t,num_behaviors)
