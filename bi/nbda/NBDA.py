@@ -6,8 +6,7 @@ from BI.utils.unified_dists import UnifiedDist as dist
 from BI.utils.link import link
 import numpyro
 import inspect
-from IPython.display import display, Math
-
+from IPython.display import Markdown
 
 class NBDA:
 
@@ -364,7 +363,7 @@ class NBDA:
 
         if social is None:
             # Priors for social effect covariates
-            alpha_soc = dist.normal(0, 4, shape = (1,), sample=False,    name='alpha_soc')
+            alpha_soc = dist.uniform(0, 4, shape = (1,), sample=False,    name='alpha_soc')
             betas_soc = dist.normal(0, 1, shape = (D_social.shape[3]-1,),    sample=False, name='betas_soc')
             social = jnp.concatenate((alpha_soc, betas_soc))
         if asocial is None:
@@ -397,14 +396,13 @@ class NBDA:
             numpyro.sample("y", numpyro.distributions.Binomial(probs=lk), obs=status[:,:,0])
 
     def print_model(self):
-        r="""
+        r="""$$
         \\text{Informed} = \\text{Binomial}(\\text{LK}) \\newline
-        \\text{LK} = \\theta + (1-\\theta)S\\newline
+        \\text{LK} = \\left[ \\theta + (1-\\theta)S \\right] (1- z_i) \\newline
         \\theta = \\alpha_a \\newline
-        S = \\alpha_s \\left( \\sum A_{ij} z_{j} \\right) \\newline 
+        S = \\alpha_s \\left( \\sum_{j = 1}^{N} A_{ij} z_{j} \\right) \\newline 
         \\alpha_a\\sim Normal(0,4) \\newline
         \\alpha_s \\sim Normal(0,4) \\newline
-        \\beta_{(s)} \\sim Normal(0,1) \\newline
         """
 
         asocialCov=True
@@ -451,12 +449,15 @@ class NBDA:
 
                     count += 1
 
-        r = r.replace(r"\alpha_s \left( \sum A_{ij} z_{j} \right)",
-        """\\left(\\alpha_s + X\\right) \\sum A_{ij} z_{j}  \\newline  X = """ + fs.rstrip(' +') + """ \\newline""")
+            r = r.replace(r"\alpha_s \left( \sum A_{ij} z_{j} \right)",
+            """\\left(\\alpha_s + X\\right) \\sum A_{ij} z_{j}  \\newline  X = """ + fs.rstrip(' +') + """  \\newline""")
 
-        r = r.replace(r"\alpha_a ", 
-        """\\alpha_a + Z  \\newline  Z = """ + fa.rstrip(' +') + """ \\newline""")
-        display(Math(r))
+            r = r.replace(r"\alpha_a ", 
+            """\\alpha_a + Z  \\newline  Z = """ + fa.rstrip(' +') + """ \\newline""")
+
+            r = r+"""\\beta_{(s)} \\sim Normal(0,1) \\newline"""
+        r=r+"""$$"""
+        display(Markdown(r))
 
     # We can add individual observation information in the same forme as  an input time varying cov
     # We can add multiple behaviors acquisition in the form of a (n,n,t,num_behaviors)
