@@ -7,11 +7,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpyro
 import time as tm
-from jax import jit
-from jax import vmap
-import jax.numpy as jnp
 import jax as jax
-import numpy as np
+from jax import jit,vmap
+import jax.numpy as jnp
 import jax.random as random
 import numpy as np
 import random as pyrand

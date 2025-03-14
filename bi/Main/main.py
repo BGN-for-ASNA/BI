@@ -24,7 +24,7 @@ from BI.Surv.surv import survival
 from BI.utils.link import link
 from BI.diagnostic.Diag import diag
 from BI.network.Net import net
-from BI.nbda.NBDA import NBDA
+from BI.NBDA import NBDA
 
 from BI.utils.unified_dists import UnifiedDist as dist
 from BI.Sampler.sampler import sampler
