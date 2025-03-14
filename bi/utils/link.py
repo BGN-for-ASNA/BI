@@ -65,6 +65,7 @@ class link:
         float or array-like
             The inverse logit-transformed value(s): 1 / (1 + exp(-x)).
         """
+        return (1 / (1 + jnp.exp(-x)) - 0.5) * 2
         
     @staticmethod
     def probit(p):
