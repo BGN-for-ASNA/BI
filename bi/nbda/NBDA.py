@@ -34,7 +34,6 @@ class NBDA:
             self.covDF_location = "both"
             self.covDV_location = "both"
 
-
             # Status 
             self.status=status
             self.n=status.shape[0]
@@ -334,28 +333,6 @@ class NBDA:
         self.D_asocial = jnp.concatenate(D_asocial, axis=-1)
         return dict(D_social=self.D_social, D_asocial=self.D_asocial, status=self.status, network=self.network)
 
-    @staticmethod
-    def sum_cov_effect(n,t,stacked_betas, stacked_cov):
-        """
-        Calculate the sum of covariate effects.
-
-        Args:
-            n (int): Number of nodes.
-            t (int): Number of time points.
-            stacked_betas (Array): An array of coefficients.
-            stacked_cov (Array): An array of covariates.
-
-        Returns:
-            Array: A 3-dimensional array of shape (n, n, t) representing the sum of covariate effects.
-        """
-        res=jnp.zeros((n,n,t))
-        for a in range(len(stacked_cov)):
-            res=res.at[:,:,:].set(
-            res[:,:,:] +  
-            jnp.sum(stacked_cov[a]*stacked_betas[a],axis=3))
-    
-        return res
-
     def model(self,social=None, asocial=None, D_asocial=None, D_social=None, status=None, network=None):
         N = status.shape[0]
         T = status.shape[1]
@@ -363,9 +340,10 @@ class NBDA:
 
         if social is None:
             # Priors for social effect covariates
-            alpha_soc = dist.uniform(0, 4, shape = (1,), sample=False,    name='alpha_soc')
+            alpha_soc = dist.normal(0, 4, shape = (1,), sample=False,    name='alpha_soc')
             betas_soc = dist.normal(0, 1, shape = (D_social.shape[3]-1,),    sample=False, name='betas_soc')
             social = jnp.concatenate((alpha_soc, betas_soc))
+
         if asocial is None:
             # Priors for asocial effect covariates
             alpha_asoc = dist.normal(0, 4,  shape = (1,), sample=False,  name='alpha_asoc')
@@ -394,6 +372,26 @@ class NBDA:
         with numpyro.handlers.mask(mask=mask): 
         #m.binomial(probs=lk, obs=status[:,:,0])
             numpyro.sample("y", numpyro.distributions.Binomial(probs=lk), obs=status[:,:,0])
+
+    def compute_probs(D_asocial,asocial,
+                      D_social,social,
+                      network,status,T):
+        # Asocial learning -----------------------
+        R_asocial = jnp.tensordot(D_asocial[:,0,:], asocial, axes=(-1, 0))    
+        theta = link.inv_logit(R_asocial)
+        lk = lk.at[:,0].set(theta)      
+        for t in range(1,T):
+            ## Social learning-----------------------
+            R_social = jnp.tensordot(D_social[:,:,t,:], social, axes=(-1, 0))
+            phi = link.inv_logit(R_social)
+            attention_weigthed_network = phi*network[:,:,t,0]
+            social_influence_weight = link.inv_logit_scale(jnp.tensordot(attention_weigthed_network[:,:], status[:,t-1], axes=(-1, 0)))       
+            ## Asocial learning -----------------------
+            R_asocial = jnp.tensordot(D_asocial[:,t,:], asocial, axes=(-1, 0))
+            theta = link.inv_logit(R_asocial)
+
+            # Informed update at t!= 0-----------------------
+            lk = lk.at[:,t].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))       
 
     def print_model(self):
         r="""$$
