@@ -15,6 +15,7 @@ class manip():
             'float32': jnp.float32,
             'float16': jnp.float16,
         }
+
     # Import data----------------------------
     def data(self, path, **kwargs):
         self.data_original_path = path
@@ -68,22 +69,22 @@ class manip():
     def scale_var(self, x):
         return (x - x.mean()) / x.std()
 
-    def scale(self, x = None, cols = 'all'):
-        if x is not None:
-            return self.scale_var(x)
+    def scale(self, data = 'all'):
+        if type(data) == str:
+            return self.scale_var(data)
         else:
-            if cols == 'all':
+            if data == 'all':
                 for col in self.df.columns:                
                     self.df.loc[:, col] = (self.df.loc[:,col] - self.df.loc[:,col].mean())/self.df.loc[:,col].sd()
 
             else:
-                for a in range(len(cols)):
-                    self.df.loc[:, cols[a]] = (self.df.loc[:, cols[a]] - self.df.loc[:, cols[a]].mean()) / self.df.loc[:, cols[a]].std()
+                for a in range(len(data)):
+                    self.df.loc[:, data[a]] = (self.df.loc[:, data[a]] - self.df.loc[:, data[a]].mean()) / self.df.loc[:, data[a]].std()
 
 
-            self.data_modification['scale'] = cols # store info of scaled columns
+            self.data_modification['scale'] = data # store info of scaled columns
 
-            return self.df
+        return self.df
     
     def to_float(self, cols = 'all', type = 'float32'):
         if cols == 'all':
@@ -131,7 +132,6 @@ class manip():
             return "Error, no"
 
         for k in args_with_defaults.keys():
-            print(args_with_defaults[k][1])
             result[k] = jnp.array(args_with_defaults[k][0], dtype =self.pandas_to_jax_dtype_map.get(str(args_with_defaults[k][1]) + bit))
 
         return result     

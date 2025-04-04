@@ -1374,7 +1374,7 @@ class UnifiedDist:
             validate_args: None
             shape: Shape of samples to be drawn.
         """
-        if obs != None:
+        if obs is not None:
                 return numpyro.sample(name, numpyro.distributions.Normal(loc=loc, scale=scale, validate_args=validate_args),obs)
         else: 
                 if sample== True:
