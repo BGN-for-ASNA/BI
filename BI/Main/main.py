@@ -33,9 +33,9 @@ from numpyro.handlers import condition
 
 
 
-class bi(manip, NBDA, dist, gaussian, factors, net, survival, link, diag, sampler):
+class bi(manip, diag):
     def __init__(self, platform='cpu', cores=None, deallocate = False):
-
+        manip.__init__(self)
         setup_device(platform, cores, deallocate) 
         jax.config.update("jax_enable_x64", True)
         self.trace = None
@@ -46,37 +46,22 @@ class bi(manip, NBDA, dist, gaussian, factors, net, survival, link, diag, sample
         self.model2 = None # Model with NONE as default
         self.nbdaModel = False
 
+        self.dist = dist
+        self.net = net()
+        self.nbda = NBDA()
+        self.survival = survival
+        self.link = link
+
     #def lk(self,*args, **kwargs):
     #    numpyro.sample(*args, **kwargs)
     #    
     def randint(self, low, high, shape):
         return pyrand.randint(low, high, shape)
 
+    #def nbda_init(self, *args, **kwargs):
+    #    self.nbda = NBDA(*args, **kwargs)
 
-    # Dist functions (sampling and model)--------------------------
-    class dist(dist):
-        pass
 
-    # Network functions--------------------------
-    class net(net):
-        pass
-
-    # Network functions--------------------------
-    class nbda(NBDA):
-        def __init__():
-            self.nbdaModel = True
-
-    # Survival functions--------------------------
-    class surv(survival):
-        pass
-
-    # Link functions--------------------------
-    class link(link):
-        pass
-
-    # Link functions--------------------------
-    class diag(diag):
-        pass    
     # MCMC ----------------------------------------------------------------------------
     def run(self, 
             model = None, 
@@ -106,14 +91,17 @@ class bi(manip, NBDA, dist, gaussian, factors, net, survival, link, diag, sample
             seed = 0):
             
         if model is None:
-            raise CustomError("Argument model can't be None")
-         
-        self.model = model
+            if self.nbdaModel == False:
+                raise "Argument model can't be None"
+            else:
+                self.model = self.nbda.model
+        else:
+            self.model = model
 
-        if self.data_on_model is None and not self.nbdaModel == False:
-            self.data_on_model = self.pd_to_jax(self.model)
-        if self.nbdaModel:
-            self.model = self.nbda.model
+        if self.nbdaModel == False:
+            if self.data_on_model is None :
+                self.data_on_model = self.pd_to_jax(self.model)
+
 
         self.sampler = MCMC(NUTS(self.model,
                                 potential_fn=potential_fn,

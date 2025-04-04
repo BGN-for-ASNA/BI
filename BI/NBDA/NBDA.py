@@ -81,6 +81,9 @@ class NBDA:
             self.names=dict(intercept_asocial = 'intercept_asocial', intercept_social =     'intercept_asocial')
 
             self.objects = None
+    
+    def __call__(self, *args, **kwarg):
+        self.__init__(*args, **kwarg)
 
     @staticmethod
     @jax.jit
@@ -402,12 +405,14 @@ class NBDA:
         \\alpha_a\\sim Normal(0,4) \\newline
         \\alpha_s \\sim Normal(0,4) \\newline
         """
-
+        r2 = """$$ \\text{Informed} = Asocial Rate + Social Rate \\newline"""
         asocialCov=True
         socialCov=True
         if len(self.names) > 2:
             fa="""""" 
             fs=""""""
+            fa2="""""" 
+            fs2=""""""
             count = 0
             for k in self.names.keys():
                 if k in ['covNF', 'covNV', 'covDF','covDV']:
@@ -437,12 +442,14 @@ class NBDA:
                             for i in range(len(tmp)):
                                 if i < len(tmp):
                                     fa=fa+f"\\beta_{{a{{{count}}}}} {tmp[i]} + "
+                                    fa2 = fa2 + f"{tmp[i]} + "
                                     count += 1
 
                     if socialCov:
                         for i in range(len(tmp)):
                             if i < len(tmp):
                                 fs=fs+f"\\beta_{{s{{{count}}}}} {tmp[i]} + "
+                                fs2 = fs2 + f"{tmp[i]} + "
                                 count += 1
 
                     count += 1
@@ -455,7 +462,10 @@ class NBDA:
 
             r = r+"""\\beta_{(s)} \\sim Normal(0,1) \\newline"""
         r=r+"""$$"""
+        r2=r2+"""$$"""
         display(Markdown(r))
+        display(Markdown(r2))
+        return r, r2
 
     # We can add individual observation information in the same forme as  an input time varying cov
     # We can add multiple behaviors acquisition in the form of a (n,n,t,num_behaviors)
