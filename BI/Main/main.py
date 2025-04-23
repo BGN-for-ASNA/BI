@@ -33,10 +33,10 @@ from numpyro.handlers import condition
 
 
 
-class bi(manip, diag):
-    def __init__(self, platform='cpu', cores=None, deallocate = False):
+class bi(manip, diag, gaussian):
+    def __init__(self, platform='cpu', cores=None, deallocate = False, print_devices_found = True):
         manip.__init__(self)
-        setup_device(platform, cores, deallocate) 
+        setup_device(platform, cores, deallocate, print_devices_found) 
         jax.config.update("jax_enable_x64", True)
         self.trace = None
         self.priors_name = None
@@ -51,6 +51,8 @@ class bi(manip, diag):
         self.nbda = NBDA()
         self.survival = survival
         self.link = link
+        self.gaussian = gaussian
+        self.factor = factors
 
     #def lk(self,*args, **kwargs):
     #    numpyro.sample(*args, **kwargs)
