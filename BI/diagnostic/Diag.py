@@ -54,7 +54,7 @@ class diag:
         return fig
 
     def diag_posterior(self, figsize=(8, 4)):
-        posterior, axes = plt.subplots(1, len(self.priors_name), figsize=(figsize))
+        posterior, axes = plt.subplots(1, len(self.priors_name), figsize=figsize)
         axes = az.plot_posterior(self.trace , var_names=self.priors_name, ax=axes)
         axes.flatten()[0].get_figure() 
         self.plot_posterior = posterior
