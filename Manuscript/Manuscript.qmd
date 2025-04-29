@@ -66,7 +66,7 @@ Therefore, there is an evident and pressing demand for a Bayesian modeling frame
 
 *BI* is designed to navigate the critical *accessibility-flexibility trade-off* by providing multiple layers of abstraction and utility, catering effectively to users with varying levels of Bayesian modeling expertise and diverse complexity requirements throuhg : *Simplified Backend Interaction via Intuitive Syntax*, *Pre-built Components for Complex Model Features:*, *Addressing Domain-Specific Limitations within a General Framework*, *Integrated End-to-End Workflow:* and *Extensive Model Library and Documentation*.
 
- At its computational core, *BI* leverages the power and efficiency of established Probabilistic Programming Languages (PPLs) like *NumPyro* and *TFP*, both of which are built upon the *JAX* framework for high-performance numerical computation and automatic differentiation. However, *BI* deliberately abstracts away much of the inherent complexity of these lower-level tools. This significantly enhances **accessibility** for a broader range of users.
+ At its computational core, *BI* leverages the power and efficiency of established Probabilistic Programming Languages (PPLs) like *NumPyro* and *TFP*, both of which are built upon the *JAX* framework for high-performance numerical computation and automatic differentiation. However, *BI* deliberately abstracts away much of the inherent complexity of these lower-level tools (**Code block 1**). This significantly enhances **accessibility** for a broader range of users.
 
 ```{=latex}
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
@@ -86,7 +86,7 @@ yield Root(tfd.Sample(tfd.Normal(loc=1.0, scale=1.0), sample_shape=10))
 bi.dist.normal(0, 1, name = "mu", shape = (10,))
 ```
 
-To enhance **flexibility** without unduly sacrificing the accessibility provided by the high-level syntax, *BI* includes a library of pre-built, computationally optimized functions implemented directly in *JAX*. These components encapsulate common but potentially complex modeling structures, allowing users to incorporate them easily within the model specification. Key examples include:
+To enhance **flexibility** without unduly sacrificing the accessibility provided by the high-level syntax, *BI* includes a library of pre-built, computationally optimized functions implemented directly in *JAX* (e.g., **Code block 2**). These components encapsulate common but potentially complex modeling structures, allowing users to incorporate them easily within the model specification. Key examples include:
 
 1.  *Centered Random Effects* and *Non-Centered Random Effects* for hierarchical (multi-level) model components [@rethinking]. The non-centered parameterization, often crucial for efficient sampling in hierarchical models (particularly with sparse data), is provided without requiring the user to manually implement the reparameterization logic.
    
@@ -97,6 +97,8 @@ To enhance **flexibility** without unduly sacrificing the accessibility provided
 4.  *SRM effects* for modeling pairwise interactions in networks while accounting for sender effects, receiver effects, dyadic effects, nodal predictors, dyadic predictors, and observation biases [@STRAND2025].
    
 5.  *Network-Based Diffusion Approach (NBDA)* components for modeling the effect of network edges on the rates of transmission of phenomena (e.g., behavioral, epidemiological) while accounting for nodal or dyadic covariates.
+
+6. *Network metrics* ranging from nodal, dyadic, and global network measures with a total of 11 that can be used to build custom models of social network analysis.
 
 These pre-built *JAX* functions provide tailored model components for common patterns in specific fields, while keeping them fully integrated within the general, extensible modeling framework. By providing these optimized building blocks within its general syntax, *BI* allows researchers in these fields to rapidly implement standard domain models using familiar concepts. Crucially, however, users retain the full flexibility of the *BI* framework to combine these domain-specific components with other model features (e.g., complex non-linear effects via splines, hierarchical structures across groups of networks or phylogenies) or to customize or extend them using *BI*'s underlying mechanisms if needed—a capability often missing in more narrowly focused domain-specific packages. This design aims to foster methodological innovation *within* specialized domains by lowering the barrier to implementing more complex or novel models.
 
@@ -190,38 +192,126 @@ Finally, *BI* includes over 21 well-documented implementations of various standa
 Finally, a fundamental design principle of *BI* is to directly address the **scalability** challenge by building upon modern, high-performance computational backends. By utilizing *JAX*-based libraries like *NumPyro* and *TFP*, *BI* inherits their significant computational efficiencies, stemming from features such as Just-In-Time (JIT) compilation and seamless hardware acceleration (GPU/TPU support). These are critical for tackling the large datasets and complex models prevalent in contemporary research. This strategic reliance on the *JAX* ecosystem allows *BI* users to tackle computationally intensive problems that might be infeasible or prohibitively slow using frameworks lacking comparable optimization and hardware acceleration capabilities. By abstracting the backend complexities while retaining their power, *BI* significantly enhances the practical **scalability** of sophisticated Bayesian inference for a wider audience.
 -->
 
-## Example
-To illustrate how these design features of *BI* coalesce to provide a streamlined, flexible, and powerful solution, effectively addressing the limitations identified in the existing Bayesian software landscape we will provide a basic example of how an SRM model is declared in BI, compare it with the equivalent model in Numpyro (Appendix 1) and STRAND (Appendix 2). We will also show how this model can be build from scratch with BI (Appendix 3) or its custom functions (code block 3 @lst-SRMmodel) to highligh the aceessibility-flexibility of our package by demonstrating how advance user can build custom model as well as how new user can apply pre-build *BI* models.
+## Example : SRM model
+To illustrate how these design features of *BI* coalesce to provide a streamlined, flexible, and powerful solution, effectively addressing the limitations identified in the existing Bayesian software landscape we will provide a basic example of how an SRM model is declared in BI, compare it with the equivalent model in Numpyro (Appendix 1) and STAN (Appendix 2). We will also show how this model can be build from scratch with BI (**Code block 3**) or its custom functions (**Code block 4**) to highligh the aceessibility-flexibility of our package by demonstrating how advance user can build custom model (with less code than STAN) as well as how new user can apply pre-build *BI* models. Finally we show how it is also called in R (**Code block 5**) to cross language use with *BI*. Readers interested in further details on data structure, data import, data manipulation, and model fitting for SRM models can refer directly to the *BI* documentation [Modeling Network](https://github.com/BGN-for-ASNA/BI/blob/main/Documentation/20.%20Network%20model.qmd).
 
 ```{=latex}
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
-\noindent\textbf{\textit{Code block 3: }} \textit{SRM model with prebuild functions}\\[-10pt]
+\noindent\textbf{\textit{Code block 3: }} \textit{SRM model from scratch with BI}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
 \vspace{-\parskip}\vspace{-10pt}
 ```
 
-```{{python}}
-#| label: lst-SRMmodel
-#| caption: "Python function defining the Social Relations Model structure."
-def model(idx, result_outcomes, 
-          dyad_effects, focal_individual_predictors, 
+```python
+def model(N_id, idx,  result_outcomes,
+          focal_individual_predictors, 
           target_individual_predictors):
 
-    N_id = ids.shape[0]
+    # Intercept 
+    intercept = bi.dist.normal(
+        logit(0.1/jnp.sqrt(N_id)), 
+        2.5, shape=(1,), name = 'intercept'
+    )
 
-    # Sender Receiver effect (SR) its shape is equal to N_id 
-    ## Varying intercept and slope for SR
-    sr_rf, sr_raw, sr_sigma, sr_L = 
-        bi.net.nodes_random_effects(N_id, cholesky_density = 2) 
+    # Sender receiver  ----------------------
+    N_var = focal_individual_predictors.shape[0]
+    N_id = focal_individual_predictors.shape[1]   
+    focal_effects = dist.normal(0, 1,  name = 'focal_effects')
+    target_effects =  dist.normal( 0, 1,  name = 'target_effects')
+    terms = jnp.stack([
+        focal_effects @ focal_individual_predictors,
+        target_effects @  target_individual_predictors
+        ], axis = -1)
+    sr_raw =  dist.normal(0, 1, shape=(2, N_id), name = 'sr_raw')
+    sr_sigma =  dist.exponential( 1, shape= (2,), name = 'sr_sigma')
+    sr_L = dist.lkjcholesky(2, 2, name = "sr_L")
+    rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
+    ids = jnp.arange(0,sr_effects.shape[0])
+    edgl_idx = bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+    sender = sr_effects[edgl_idx[:,0],0] + sr_effects[edgl_idx[:,1],1]
+    receiver = sr_effects[edgl_idx[:,1],0] + sr_effects[edgl_idx[:,0],1]
+    sr =  jnp.stack([sender, receiver], axis = 1)
 
-    # Dyadic effect (D) its shape is equal to n dyads 
-    ## Varying intercept and slope for D
-    rf, dr_raw, dr_sigma, dr_L = 
-        bi.net.dyadic_random_effects(sender_receiver.shape[0], cholesky_density = 2)
+    # dyadic effects ------------------------------------------
+    bi.net.mat_to_edgl(dyadic_effect_mat)
+    dr_raw =  dist.normal(0, 1, shape=(2,N_dyads), name = 'dr_raw')
+    dr_sigma = dist.exponential(1,  name = 'dr_sigma' )
+    dr_L = dist.lkjcholesky(2, 2, name = 'dr_L')
+    dr_rf = deterministic('dr_rf', (
+        ((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2))
+        ))
 
-    # Likelihood
-    m.poisson(jnp.exp( sr_rf + rf ), obs=result_outcomes)
+    dyad_effects = dist.normal(0, 1, 
+        name= 'dyad_effects', shape = (dyadic_predictors.ndim - 1,
+    ))
+    dr = dyad_effects * dyadic_predictors
+
+    # Likelihood                                                       
+    bi.dist.poisson(jnp.exp(intercept + sr + dr), obs=result_outcomes)  
 ```
+
+```{=latex}
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
+\noindent\textbf{\textit{Code block 4: }} \textit{SRM model with prebuild functions}\\[-10pt]
+\noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
+\vspace{-\parskip}\vspace{-10pt}
+```
+
+```python
+def model(N_id, idx,  result_outcomes,
+          focal_individual_predictors, 
+          target_individual_predictors):
+
+    # Intercept 
+    intercept = bi.dist.normal(
+        logit(0.1/jnp.sqrt(N_id)), 
+        2.5, shape=(1,), name = 'intercept'
+    )
+
+    # SR 
+    sr =  bi.net.sender_receiver(
+        focal_individual_predictors,
+        target_individual_predictors
+    )
+
+    # Dyadic  
+    dr = bi.net.dyadic_effect(shape = idx.shape[0])
+
+    # Likelihood                                                       
+    bi.dist.poisson(jnp.exp(intercept + sr + dr), obs=result_outcomes)  
+```
+
+```{=latex}
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
+\noindent\textbf{\textit{Code block 5: }} \textit{SRM model with prebuild functions}\\[-10pt]
+\noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
+\vspace{-\parskip}\vspace{-10pt}
+```
+
+```R
+model <- function(N_id, idxShape, result_outcomes,
+                focal_individual_predictors, target_individual_predictors){
+
+  x=0.1/jnp$sqrt(N_id)
+  tmp=jnp$log(x / (1 - x))
+  
+  # Intercept 
+  intercept = bi.dist.normal(tmp, 2.5, shape=c(1), name = 'block')
+  
+  # SR 
+  sr =  m$net$sender_receiver(
+            focal_individual_predictors,
+            target_individual_predictors
+        )
+  
+  # Dyadic  
+  dr = m$net$dyadic_effect(shape = c(idxShape))
+
+  # Likelihood                                                       
+  m$poisson(jnp$exp(intercept + sr + dr), obs=result_outcomes)  
+}
+```
+Finally, regarding code performance we can time the computation time for network of size 200 in stan and BI and observed that BI comput time is around XXX on cpu and XXX on gpu and STAN compute time around XXX.
 
 ## Discussion
 
