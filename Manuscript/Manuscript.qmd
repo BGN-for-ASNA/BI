@@ -1,16 +1,50 @@
 ---
+title: "Bayesian Inference library"
+authors:
+  - name: Sebastian Sosa
+    affiliations:
+      - ref: MPI
+    corresponding: true
+    email: s.sosa@live.fr
+
+  - name: Mary B. McElreath
+    affiliations:
+      - ref: MPI
+
+  - name: Cody T. Ross
+    affiliations:
+      - ref: MPI
+  
+affiliations:
+  - id: MPI
+    name: Department of Human Behaviour, Ecology and Culture, Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany
+
+
+keywords:
+  - Bayesian Analysis
+  - Python
+  - R
+  - JAX
+
+
+bibliography: References.bib
+
 project:
   title: "quarto-arxiv"
-  
-title: Bayesian Inference
-bibliography: References.bib
-link-citations: true
-format:
-  pdf: 
+
+format: 
+  pdf:
+    keep-tex: true
+
     #documentclass: sagej.cls
     highlight-style: monokai
     include-in-header: 
       text:  |
+        \usepackage[noblocks]{authblk}
+        \renewcommand*{\Authsep}{, }
+        \renewcommand*{\Authand}{, }
+        \renewcommand*{\Authands}{, }
+        \renewcommand\Affilfont{\small}
         \usepackage{lineno}
         \linenumbers
         \usepackage{etoolbox}
@@ -101,15 +135,18 @@ format:
     keep-tex: true  
 crossref:
   lst-prefix: Code Block  
+  labels: arabic
+  ref-hyperlink: true
+  
 filters:
   - christopherkenny/wordcount
+  - authors-block
+
 ---
-
-
 wordcount : {{wordcount}} 
 
 
-### Abstract
+## Abstract
 
 1.  Bayesian modeling is a powerful paradigm in modern statistics and machine learning, offering a principled framework for inference under uncertainty. However, practitioners face significant obstacles, including **interoperability** issues, a persistent **accessibility-flexibility trade-off**, the limitations of **domain-specific limitations**, and challenges in **scalability**.
 
@@ -185,11 +222,12 @@ To enhance **flexibility** without unduly sacrificing the accessibility provided
 
 6. *Network metrics* ranging from nodal, dyadic, and global network measures with a total of 11 that can be used to build custom models of social network analysis [@sosa2020network].
 
-These pre-built *JAX* functions provide tailored model components for common patterns in specific fields, while keeping them fully integrated within the general, extensible modeling framework. By providing these optimized building blocks within its general syntax, *BI* allows researchers in these fields to rapidly implement standard domain models using familiar concepts. Crucially, however, users retain the full flexibility of the *BI* framework to combine these domain-specific components with other model features (e.g., complex non-linear effects via splines, hierarchical structures across groups of networks or phylogenies) or to customize or extend them using *BI*'s underlying mechanisms if needed—a capability often missing in more narrowly focused domain-specific packages. This design aims to foster methodological innovation *within* specialized domains by lowering the barrier to implementing more complex or novel models.
+These pre-built *JAX* functions provide tailored model components for common patterns in specific fields, while keeping them fully integrated within the general, extensible modeling framework. By providing these optimized building blocks within its general syntax, *BI* allows researchers in these fields to rapidly implement standard domain models using familiar concepts. Crucially, however, users retain the full flexibility of the *BI* framework to combine these domain-specific components with other model features (e.g., complex non-linear effects via splines, hierarchical structures across groups of networks or phylogenies) or to customize or extend them using *BI*'s underlying mechanisms if needed—a capability often missing in more narrowly focused domain-specific packages. This design aims to foster methodological innovation *within* specialized domains by lowering the barrier to implementing more complex or novel models [link to latex block].
 
 ```{=latex}
+
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
-\noindent\textbf{\textit{Code block 2: }} \textit{Example of random effect specification differences between NumPyro, TFP, and BI}\\[-10pt]
+\noindent\textbf{\textit{Code block 2: }} \textit{Random effect specification differences between NumPyro, TFP, and BI}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
 \vspace{-\parskip}\vspace{-10pt}
 ```
