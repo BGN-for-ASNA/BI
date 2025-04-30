@@ -2,13 +2,101 @@
 project:
   title: "quarto-arxiv"
   
-title: Manuscript BI
+title: Bayesian Inference
 bibliography: References.bib
 link-citations: true
 format:
   pdf: 
+    #documentclass: sagej.cls
     highlight-style: monokai
-    
+    include-in-header: 
+      text:  |
+        \usepackage{lineno}
+        \linenumbers
+        \usepackage{etoolbox}
+        \usepackage{mathtools}
+        \pretolerance=100
+        \tolerance=200 
+        \emergencystretch=10pt
+           %\usepackage{nccmath}
+        \usepackage{pdflscape}
+        \usepackage{float} % for the H specifier
+        \usepackage{subcaption}
+        \usepackage{geometry}
+        \usepackage{subcaption}
+        %\usepackage{txfonts}
+        %\usepackage{fancybox, graphicx, rotating, booktabs}
+        \usepackage{epstopdf}
+        \usepackage{hyperref}
+        \usepackage{xcolor}
+        \usepackage{rotating}
+        \usepackage{lscape}
+        \usepackage{subcaption}
+        \captionsetup{compatibility=false}
+        \hypersetup{
+            colorlinks,
+            linkcolor={blue!50!black},
+            citecolor={blue!50!black},
+            urlcolor={blue!80!black}
+        }
+        %\usepackage{pgfplotstable}
+        \newcommand{\sbx}[2][c]{%
+        \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+
+        \usepackage{epstopdf}
+        \usepackage{amsmath}
+        \usepackage{enumitem}
+        \usepackage{amsfonts}
+        \usepackage[utf8]{inputenc}
+        \usepackage{url}
+        \usepackage{array,booktabs}
+        %\newcolumntype{L}{@{}>{\kern\tabcolsep}l<{\kern\tabcolsep}
+        \usepackage{xcolor}
+        \usepackage{caption}
+        \usepackage{amssymb}
+        \usepackage{multirow}
+        %\usepackage{arydshln}
+        \usepackage{framed}
+        \usepackage{lipsum}
+        \usepackage{multicol}
+        \setlength{\columnsep}{0.6cm}
+        \usepackage{listings}
+        %This change code block colors
+        %\definecolor{shadecolor}{rgb}{0.9,0.9,0.9}
+        %\definecolor{airforceblue}{rgb}{0.0, 0.53, 0.74}
+        %\definecolor{asparagus}{rgb}{0.31, 0.47, 0.26}
+        \lstset{ 
+          language=R,                     % the language of the code
+          basicstyle=\ttfamily, 
+          backgroundcolor=\color{shadecolor},  % choose the background color. You must add \usepackage{color}
+          showspaces=false,               % show spaces adding particular underscores
+          showstringspaces=false,         % underline spaces within strings
+          showtabs=false,                 % show tabs within strings adding particular underscores
+          frame=single,                   % adds a frame around the code
+          rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens       (green here))
+          tabsize=2,                      % sets default tabsize to 2 spaces
+          captionpos=b,                   % sets the caption-position to bottom
+          breaklines=true,                % sets automatic line breaking
+          breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+          keywordstyle=\color{airforceblue},      % keyword style
+          commentstyle=\color{gray},   % comment style
+          stringstyle=\color{asparagus},      % string literal style
+          otherkeywords = {install_github, setup_folders, standardize_photos, build_survey, enter_data, compile_data, calculate_payouts,        check_classification, downsize, pre_process, auto_enter_all, annotate_data, simulate_selfreport_network, make_strand_data,      fit_latent_network_model, summarize_strand_results, data.frame, center, fit_block_plus_social_relations_model,   fit_social_relations_model, strand_caterpillar_plot},
+          alsoletter ={_},
+          deletekeywords={path, start, stop, ordered, case, colors, order, add, data, mode, distance}
+        } 
+        %\newcounter{framecnt}
+        %newenvironment{frameenv}[1]
+        %    {\begin{figure}[tb]
+        %    \refstepcounter{framecnt}
+        %    \begin{shaded}
+        %    \renewcommand{\theHfigure}{cont.\arabic{framecnt}}
+        %    \textbf{\centerline{Box \arabic{framecnt} --- #1}}
+        %         }
+        %    {\end{shaded}\end{figure}
+        %}
+        %\usepackage[switch, modulo]{lineno}
+ 
   arxiv-pdf:
     keep-tex: true  
 crossref:
@@ -21,23 +109,19 @@ filters:
 wordcount : {{wordcount}} 
 
 
-::: {.no-count}
 ### Abstract
 
-1.  Bayesian modeling is a powerful paradigm in modern statistics and machine learning, offering a principled framework for inference under uncertainty. However, practitioners face significant obstacles, including **interoperability** issues, a persistent **accessibility-flexibility trade-off*, the limitations of **domain-specific limitations**, and challenges in **scalability**.
+1.  Bayesian modeling is a powerful paradigm in modern statistics and machine learning, offering a principled framework for inference under uncertainty. However, practitioners face significant obstacles, including **interoperability** issues, a persistent **accessibility-flexibility trade-off**, the limitations of **domain-specific limitations**, and challenges in **scalability**.
 
-2.  ***Interoperability:*** The landscape of Bayesian software is fragmented across programming languages and abstraction levels. Newcomers often gravitate towards high-level interfaces (e.g., *brms*) within familiar environments due to their accessibility for standard models. However, these tools can be restrictive, lacking the flexibility needed for custom or complex models as research needs evolve.
+2.  ***Interoperability:*** The landscape of Bayesian software is fragmented across programming languages and abstraction levels. Newcomers often gravitate towards high-level interfaces (e.g., *brms*) within familiar environments due to their accessibility for standard models. However, highgh levels of abstraction frameworks can be restrictive, lacking the flexibility needed for custom or complex models as research needs evolve.
 
-3.  ***Accessibility-Flexibility Trade-off:*** However, highgh levels of abstraction frameworks can be restrictive, lacking the flexibility needed for custom or complex models as research needs evolve.To gain the necessary flexibility, researchers must often transition to lower-level probabilistic programming languages (PPLs) like *Stan* (requiring its specific DSL), *PyMC*, *NumPyro*, or *TensorFlow Probability*. This transition imposes a steeper learning curve and requires mastery of specific modeling languages or complex programming frameworks, hindering broader adoption and rapid iteration.
+3.  ***Accessibility-Flexibility Trade-off:*** To gain the necessary flexibility, researchers must often transition to lower-level probabilistic programming languages . This transition imposes a steeper learning curve and requires mastery of specific modeling languages or complex programming frameworks, hindering broader adoption and rapid iteration.
 
-4.  ***Domain-Specific Limitations:*** Similar accessibility and flexibility trade-offs exist in domain-specific Bayesian packages (e.g., *STRAND*, *BISON*, *BEAST*, *RevBayes*). While providing accessible, pre-packaged models for specific fields, customizing or extending these models often requires deep engagement with lower-level programming languages or switching tools entirely, limiting methodological innovation within those domains.
+4.  ***Domain-Specific Limitations:*** Similar accessibility and flexibility trade-offs exist in domain-specific Bayesian packages. While providing accessible, pre-packaged models for specific fields, customizing or extending these models often requires deep engagement with lower-level programming languages or switching tools entirely, limiting methodological innovation within those domains.
 
-5.  ***Scalability:*** Computational demands remain a significant bottleneck, limiting the application of Bayesian methods to the large datasets and complex, high-dimensional models prevalent in modern research. While established tools like *Stan* offer highly optimized inference algorithms, they can face challenges with model compilation times and often require substantial code restructuring to leverage hardware acceleration (e.g., GPUs, TPUs) effectively.
+5.  ***Scalability:*** Computational demands remain a significant bottleneck, limiting the application of Bayesian methods to the large datasets and complex, high-dimensional models prevalent in modern research. 
 
-6.  To address these challenges, we introduce ***Bayesian Inference (BI)***, a new Bayesian modeling software available in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax (enhancing **accessibility**) with the **flexibility** of multiple, interchangeable inference backends, including hardware-accelerated computation via JAX for improved **scalability**. Its availability in both major data science languages directly tackles the **interoperability** barrier and the prebuild function for specialized model in network analysis, survial models and phylogenetic analysis allow to improved **domain-specific limitations**.
-
-7.  By providing a streamlined and efficient environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction, ***BI*** lowers the barrier to entry for sophisticated Bayesian modeling. We aim to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems.
-:::
+6.  To address these challenges, we introduce ***Bayesian Inference (BI)***, a new Bayesian modeling software available in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax (enhancing **accessibility**) with the **flexibility** of low-level abstraction coding available but also pre-build function for high-level of abstraction and including hardware-accelerated computation via JAX for improved **scalability**. Its availability in both major data science languages directly tackles the **interoperability** barrier and the prebuild function for specialized model in network analysis, survial models and phylogenetic analysis allow to improved **domain-specific limitations**.
 
 ## Introduction
 
@@ -64,13 +148,15 @@ Therefore, there is an evident and pressing demand for a Bayesian modeling frame
 
 <!---*Balancing Ease-of-Use and Expressive Power: Resolving the Accessibility-Flexibility Trade-off*-->
 
-*BI* is designed to navigate the critical *accessibility-flexibility trade-off* by providing multiple layers of abstraction and utility, catering effectively to users with varying levels of Bayesian modeling expertise and diverse complexity requirements throuhg : *Simplified Backend Interaction via Intuitive Syntax*, *Pre-built Components for Complex Model Features:*, *Addressing Domain-Specific Limitations within a General Framework*, *Integrated End-to-End Workflow:* and *Extensive Model Library and Documentation*.
+*BI* is designed to navigate the critical *accessibility-flexibility trade-off* by providing multiple layers of abstraction and utility, catering effectively to users with varying levels of Bayesian modeling expertise and diverse complexity requirements throuhg : simplified backend interaction via intuitive syntax, pre-built components for complex model features , addressing domain-specific limitations within a general framework, integrated End-to-End Workflow and extensive model library and documentation.
 
  At its computational core, *BI* leverages the power and efficiency of established Probabilistic Programming Languages (PPLs) like *NumPyro* and *TFP*, both of which are built upon the *JAX* framework for high-performance numerical computation and automatic differentiation. However, *BI* deliberately abstracts away much of the inherent complexity of these lower-level tools (**Code block 1**). This significantly enhances **accessibility** for a broader range of users.
 
+`\hyperref[latex:my-custom-block]{this specific LaTeX section}`{=latex}
+
 ```{=latex}
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
-\noindent\textbf{\textit{Code block 1: }} \textit{Example of prior specification differences between NumPyro, TFP, and BI}\\[-10pt]
+\noindent\textbf{\textit{Code block 1: }} \textit{Prior specification differences between NumPyro, TFP, and BI}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
 \vspace{-\parskip}\vspace{-10pt}
 ```
@@ -92,13 +178,13 @@ To enhance **flexibility** without unduly sacrificing the accessibility provided
    
 2.  *Kernels for Gaussian Processes* for modeling spatial, temporal, phylogenetic, or other forms of structured correlation or dependency.
    
-3.  *BlockModelEffects* for implementing stochastic block models in network analysis.
+3.  *Block Model Effects* for implementing stochastic block models in network analysis.
    
 4.  *SRM effects* for modeling pairwise interactions in networks while accounting for sender effects, receiver effects, dyadic effects, nodal predictors, dyadic predictors, and observation biases [@STRAND2025].
    
 5.  *Network-Based Diffusion Approach (NBDA)* components for modeling the effect of network edges on the rates of transmission of phenomena (e.g., behavioral, epidemiological) while accounting for nodal or dyadic covariates.
 
-6. *Network metrics* ranging from nodal, dyadic, and global network measures with a total of 11 that can be used to build custom models of social network analysis.
+6. *Network metrics* ranging from nodal, dyadic, and global network measures with a total of 11 that can be used to build custom models of social network analysis [@sosa2020network].
 
 These pre-built *JAX* functions provide tailored model components for common patterns in specific fields, while keeping them fully integrated within the general, extensible modeling framework. By providing these optimized building blocks within its general syntax, *BI* allows researchers in these fields to rapidly implement standard domain models using familiar concepts. Crucially, however, users retain the full flexibility of the *BI* framework to combine these domain-specific components with other model features (e.g., complex non-linear effects via splines, hierarchical structures across groups of networks or phylogenies) or to customize or extend them using *BI*'s underlying mechanisms if needed—a capability often missing in more narrowly focused domain-specific packages. This design aims to foster methodological innovation *within* specialized domains by lowering the barrier to implementing more complex or novel models.
 
@@ -311,15 +397,12 @@ model <- function(N_id, idxShape, result_outcomes,
   m$poisson(jnp$exp(intercept + sr + dr), obs=result_outcomes)  
 }
 ```
-Finally, regarding code performance we can time the computation time for network of size 200 in stan and BI and observed that BI comput time is around XXX on cpu and XXX on gpu and STAN compute time around XXX.
+Finally, regarding code performance we can time the computation time for network of size 200 in STAN and BI and observed that BI comput time is around XXX on cpu and XXX on gpu and STAN compute time around XXX.
 
 ## Discussion
 
-The XXX framework is built on top of the popular Python programming language, with a focus on providing a user-friendly interface for model development and interpretation. Our framework is designed to be modular and extensible, allowing users to easily incorporate their own custom models and data types into the framework. We have also developed a set of tutorials and examples to help users get started with the framework and to demonstrate its capabilities.
+**BI** framework is built on top of the popular Python programming language, with a focus on providing a user-friendly interface for model development and interpretation. Our framework is designed to be modular and extensible, allowing users to easily incorporate their own custom models and data types into the framework. One of the key features of this software is its comprehensive library of 21 predefined Bayesian models, covering a wide range of common applications and use cases. These models are accompanied by detailed explanations, making it easier for users to understand the underlying assumptions and apply the models to their specific research questions. In addition to these built-in models, the software includes several custom functions tailored for advanced statistical and network modeling. This curated library serves not only as a collection of ready-to-use tools but also as a valuable pedagogical resource, demonstrating best practices for constructing, fitting, and interpreting models within the *BI* framework, and providing robust templates for users aiming to develop novel model variants. Whether users are interested in hierarchical models, time-series analysis, or cutting-edge network modeling approaches, our library caters to a variety of analytical needs. This accessibility fosters an environment where users can confidently explore and implement Bayesian methods, ultimately enhancing their research capabilities.
 
-One of the key features of this software is its comprehensive library of 16 predefined Bayesian models, covering a wide range of common applications and use cases. These models are accompanied by detailed explanations, making it easier for users to understand the underlying assumptions and apply the models to their specific research questions. In addition to these built-in models, the software includes several custom functions tailored for advanced statistical and network modeling. These functions support specialized tasks such as centered random effects, block modeling, and the computation of network measures.
-
-Whether users are interested in hierarchical models, time-series analysis, or cutting-edge network modeling approaches, our library caters to a variety of analytical needs. This accessibility fosters an environment where users can confidently explore and implement Bayesian methods, ultimately enhancing their research capabilities. This curated library serves not only as a collection of ready-to-use tools but also as a valuable pedagogical resource, demonstrating best practices for constructing, fitting, and interpreting models within the *BI* framework, and providing robust templates for users aiming to develop novel model variants.
-
+By providing a streamlined and efficient environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction, *BI* lowers the barrier to entry for sophisticated Bayesian modeling. We aim to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems.
 
 ## References
