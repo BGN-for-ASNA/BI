@@ -1,24 +1,8 @@
 ---
+project:
+  title: "quarto-arxiv"
+
 title: "Bayesian Inference library"
-authors:
-  - name: Sebastian Sosa
-    affiliations:
-      - ref: MPI
-    corresponding: true
-    email: s.sosa@live.fr
-
-  - name: Mary B. McElreath
-    affiliations:
-      - ref: MPI
-
-  - name: Cody T. Ross
-    affiliations:
-      - ref: MPI
-  
-affiliations:
-  - id: MPI
-    name: Department of Human Behaviour, Ecology and Culture, Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany
-
 
 keywords:
   - Bayesian Analysis
@@ -28,38 +12,29 @@ keywords:
 
 
 bibliography: References.bib
-
-project:
-  title: "quarto-arxiv"
-
-format: 
-  pdf:
-    keep-tex: true
-
-    #documentclass: sagej.cls
+link-citations: true
+format:
+  pdf: 
+    documentclass: sagej
     highlight-style: monokai
     include-in-header: 
       text:  |
-        \usepackage[noblocks]{authblk}
-        \renewcommand*{\Authsep}{, }
-        \renewcommand*{\Authand}{, }
-        \renewcommand*{\Authands}{, }
-        \renewcommand\Affilfont{\small}
         \usepackage{lineno}
         \linenumbers
+        \usepackage[a4paper, margin=2cm]{geometry} %DIF > 
         \usepackage{etoolbox}
         \usepackage{mathtools}
         \pretolerance=100
         \tolerance=200 
         \emergencystretch=10pt
-           %\usepackage{nccmath}
+        \usepackage{graphicx}
+        \usepackage{nccmath}
         \usepackage{pdflscape}
         \usepackage{float} % for the H specifier
         \usepackage{subcaption}
-        \usepackage{geometry}
         \usepackage{subcaption}
-        %\usepackage{txfonts}
-        %\usepackage{fancybox, graphicx, rotating, booktabs}
+        %\usepackage{txfonts} % this brook qmd text formating
+        %\usepackage{fancybox, graphicx}  % this brook qmd bi ref
         \usepackage{epstopdf}
         \usepackage{hyperref}
         \usepackage{xcolor}
@@ -73,32 +48,43 @@ format:
             citecolor={blue!50!black},
             urlcolor={blue!80!black}
         }
-        %\usepackage{pgfplotstable}
+        \usepackage{pgfplotstable}
         \newcommand{\sbx}[2][c]{%
-        \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
-
+          \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+         
+        \usepackage{graphicx}
         \usepackage{epstopdf}
+        \usepackage{amssymb}
         \usepackage{amsmath}
         \usepackage{enumitem}
+
+        %%%%% *** Do not adjust lengths that control margins, column widths, etc. ***
         \usepackage{amsfonts}
         \usepackage[utf8]{inputenc}
         \usepackage{url}
         \usepackage{array,booktabs}
-        %\newcolumntype{L}{@{}>{\kern\tabcolsep}l<{\kern\tabcolsep}
+        \newcolumntype{L}{@{}>{\kern\tabcolsep}l<{\kern\tabcolsep}}
+        \usepackage{colortbl}
         \usepackage{xcolor}
+        \usepackage{graphicx}
         \usepackage{caption}
+        \usepackage{amsmath}
         \usepackage{amssymb}
+        \usepackage{rotating}
         \usepackage{multirow}
-        %\usepackage{arydshln}
+        \usepackage{arydshln}
+
+        \setlength{\tabcolsep}{3pt}
+        \usepackage{graphicx,rotating,booktabs}
         \usepackage{framed}
         \usepackage{lipsum}
-        \usepackage{multicol}
-        \setlength{\columnsep}{0.6cm}
+        \setlength{\columnsep}{0.6cm}        
         \usepackage{listings}
-        %This change code block colors
+        %% This modify code block them of qmd
         %\definecolor{shadecolor}{rgb}{0.9,0.9,0.9}
         %\definecolor{airforceblue}{rgb}{0.0, 0.53, 0.74}
         %\definecolor{asparagus}{rgb}{0.31, 0.47, 0.26}
+
         \lstset{ 
           language=R,                     % the language of the code
           basicstyle=\ttfamily, 
@@ -107,7 +93,7 @@ format:
           showstringspaces=false,         % underline spaces within strings
           showtabs=false,                 % show tabs within strings adding particular underscores
           frame=single,                   % adds a frame around the code
-          rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens       (green here))
+          rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black        text (e.g. commens (green here))
           tabsize=2,                      % sets default tabsize to 2 spaces
           captionpos=b,                   % sets the caption-position to bottom
           breaklines=true,                % sets automatic line breaking
@@ -115,38 +101,154 @@ format:
           keywordstyle=\color{airforceblue},      % keyword style
           commentstyle=\color{gray},   % comment style
           stringstyle=\color{asparagus},      % string literal style
-          otherkeywords = {install_github, setup_folders, standardize_photos, build_survey, enter_data, compile_data, calculate_payouts,        check_classification, downsize, pre_process, auto_enter_all, annotate_data, simulate_selfreport_network, make_strand_data,      fit_latent_network_model, summarize_strand_results, data.frame, center, fit_block_plus_social_relations_model,   fit_social_relations_model, strand_caterpillar_plot},
+          otherkeywords = {install_github, setup_folders, standardize_photos, build_survey, enter_data, compile_data,         calculate_payouts, check_classification, downsize, pre_process, auto_enter_all, annotate_data,        simulate_selfreport_network, make_strand_data, fit_latent_network_model, summarize_strand_results, data.frame,        center, fit_block_plus_social_relations_model, fit_social_relations_model, strand_caterpillar_plot},
           alsoletter ={_},
           deletekeywords={path, start, stop, ordered, case, colors, order, add, data, mode, distance}
         } 
-        %\newcounter{framecnt}
-        %newenvironment{frameenv}[1]
-        %    {\begin{figure}[tb]
-        %    \refstepcounter{framecnt}
-        %    \begin{shaded}
-        %    \renewcommand{\theHfigure}{cont.\arabic{framecnt}}
-        %    \textbf{\centerline{Box \arabic{framecnt} --- #1}}
-        %         }
-        %    {\end{shaded}\end{figure}
-        %}
-        %\usepackage[switch, modulo]{lineno}
- 
+        
+        \lstdefinestyle{defFile}{keywordstyle = [2]{\color{green}}}
+
+        \newcounter{framecnt}
+        \newenvironment{frameenv}[1]
+            {\begin{figure}[tb]
+            \refstepcounter{framecnt}
+            \begin{shaded}
+            \renewcommand{\theHfigure}{cont.\arabic{framecnt}}
+          
+            \textbf{\centerline{Box \arabic{framecnt} --- #1}}
+                 }
+            {\end{shaded}\end{figure}
+            }
+        
+        
+        
+        %%DIF 133c131
+
+        %DIF < \usepackage[switch, modulo]{lineno}
+
+        %DIF -------
+        \usepackage[]{lineno} %DIF > 
+
+
+        %DIF -------
+        \usepackage{arydshln}
+        \usepackage[nolists]{endfloat} %DIF > 
+        %DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+        %DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+        \RequirePackage[normalem]{ulem} %DIF PREAMBLE
+        \RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+        \providecommand{\DIFaddtex}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+        \providecommand{\DIFdeltex}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+        %DIF SAFE PREAMBLE %DIF PREAMBLE
+        \providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+        \providecommand{\DIFaddend}{} %DIF PREAMBLE
+        \providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+        \providecommand{\DIFdelend}{} %DIF PREAMBLE
+        \providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+        \providecommand{\DIFmodend}{} %DIF PREAMBLE
+        %DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+        \providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+        \providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+        \providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+        \providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+        \providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+        \providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+        %DIF HYPERREF PREAMBLE %DIF PREAMBLE
+        \providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+        \providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+        \newcommand{\DIFscaledelfig}{0.5}
+        %DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+        \RequirePackage{settobox} %DIF PREAMBLE
+        \RequirePackage{letltxmacro} %DIF PREAMBLE
+        \newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+        \newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+        \newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+        % store original definition of \includegraphics %DIF PREAMBLE
+        \LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+        \newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+        \newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+        \sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+        \settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+        \settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+        \scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+        \parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}        \llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+        \setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+        \begin{picture}(1,1)% %DIF PREAMBLE
+        \thicklines\linethickness{2pt} %DIF PREAMBLE
+        {\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+        {\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+        {\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+        \end{picture}% %DIF PREAMBLE
+        }\hspace*{3pt}}} %DIF PREAMBLE
+        } %DIF PREAMBLE
+        \LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+        \LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+        \LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+        \LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+        \DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+        \DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+        \DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+        \DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+        \LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+        \LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+        \LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+        \LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+        \DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+        \DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+        \DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+        \DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+        %DIF COLORLISTINGS PREAMBLE %DIF PREAMBLE
+        \RequirePackage{listings} %DIF PREAMBLE
+        \RequirePackage{color} %DIF PREAMBLE
+        \lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+        %DIF DIFCODE_UNDERLINE %DIF PREAMBLE
+          moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+          moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+        } %DIF PREAMBLE
+        \lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+        	language=DIFcode, %DIF PREAMBLE
+        	basicstyle=\ttfamily, %DIF PREAMBLE
+        	columns=fullflexible, %DIF PREAMBLE
+        	keepspaces=true %DIF PREAMBLE
+        } %DIF PREAMBLE
+        \lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+        \lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+        %DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
   arxiv-pdf:
     keep-tex: true  
 crossref:
   lst-prefix: Code Block  
-  labels: arabic
-  ref-hyperlink: true
-  
 filters:
   - christopherkenny/wordcount
-  - authors-block
 
 ---
+
+
+
+```{=latex}
+\author{Sebastian Sosa\affilnum{1*}, Mary Brooke McElreath\affilnum{1}, Cody T. Ross\affilnum{1}}
+\DIFdelbegin 
+\DIFdelend \DIFaddbegin \affiliation{\color{white}\affilnum{1}{Department of Human Behavior, Ecology, and Culture, Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany.}
+\affilnum{2}{Department of Sociology, University of Groningen. The Netherlands.}
+\affilnum{3}{Inter-University Center for Social Science Theory and Methodology, University of Groningen. The Netherlands.}
+\affilnum{*}{Contributed equally.}
+}
+\DIFaddend 
+
+\DIFdelbegin 
+\DIFdelend \DIFaddbegin \corrauth{\color{white} Sebastian Sosa, Cody T. Ross}
+\DIFaddend 
+
+\DIFdelbegin 
+\DIFdelend \DIFaddbegin \email{\color{white} s.sosa@live.fr, cody\_ross@eva.mpg.de}
+\DIFaddend 
+
+```
+
 wordcount : {{wordcount}} 
 
-
-## Abstract
+# Abstract
 
 1.  Bayesian modeling is a powerful paradigm in modern statistics and machine learning, offering a principled framework for inference under uncertainty. However, practitioners face significant obstacles, including **interoperability** issues, a persistent **accessibility-flexibility trade-off**, the limitations of **domain-specific limitations**, and challenges in **scalability**.
 
@@ -160,7 +262,7 @@ wordcount : {{wordcount}}
 
 6.  To address these challenges, we introduce ***Bayesian Inference (BI)***, a new Bayesian modeling software available in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax (enhancing **accessibility**) with the **flexibility** of low-level abstraction coding available but also pre-build function for high-level of abstraction and including hardware-accelerated computation via JAX for improved **scalability**. Its availability in both major data science languages directly tackles the **interoperability** barrier and the prebuild function for specialized model in network analysis, survial models and phylogenetic analysis allow to improved **domain-specific limitations**.
 
-## Introduction
+# Introduction
 
 Bayesian modeling has emerged as a vital tool in modern statistics and machine learning, providing a framework for robust inference under uncertainty and the possibility to integrate prior knowledge. Despite its potential, the practical application of Bayesian methods is often hindered by significant hurdles within the current software ecosystem, preventing researchers from fully leveraging its capabilities. Key challenges stem from the fragmented nature of software across different programming languages (**interoperability**), gaps between theoretical understanding and practical implementation (**accessibility**), complexities in model specification that force trade-offs between ease-of-use and flexibility ( **accessibility-flexibility trade-off**), the constraints of overly specialized tools (**domain-specific limitations**), and persistent computational scalability limitations for complex models or large datasets (**scalability**).
 
@@ -175,7 +277,7 @@ Finally, computational **scalability** continues to be a significant bottleneck,
 Therefore, there is an evident and pressing demand for a Bayesian modeling framework that synergistically addresses these interconnected limitations. To address these interconnected challenges, we introduce ***Bayesian Inference (BI)***, a new Bayesian modeling software designed to unify the modeling experience across the two dominant data science languages, Python and R. *BI* tackles the **interoperability** barrier head-on by offering native interfaces in both environments. It aims to resolve the **accessibility-flexibility trade-off** by providing an intuitive model-building syntax familiar to users of statistical modeling languages, while enabling advanced customization and leveraging multiple, interchangeable inference backends for flexibility. To combat **domain-specific limitations**, *BI* includes pre-built functions and structures tailored for specialized models in areas like network analysis, survival analysis, and phylogenetic analysis, while still allowing extension and modification within its general framework. Crucially, *BI* enhances **scalability** by integrating with hardware-accelerated computation via *JAX* (using *NumPyro* or *TFP* as backends), enabling efficient execution on CPUs, GPUs, and TPUs. By providing a streamlined, efficient, and unified environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction—***BI*** lowers the barrier to entry for sophisticated Bayesian modeling, aiming to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems.
 
 
-## Software Presentation
+# Software Presentation
 
 <!---*Bridging Ecosystems: Enhancing Interoperability*-->
 
@@ -189,13 +291,13 @@ Therefore, there is an evident and pressing demand for a Bayesian modeling frame
 
  At its computational core, *BI* leverages the power and efficiency of established Probabilistic Programming Languages (PPLs) like *NumPyro* and *TFP*, both of which are built upon the *JAX* framework for high-performance numerical computation and automatic differentiation. However, *BI* deliberately abstracts away much of the inherent complexity of these lower-level tools (**Code block 1**). This significantly enhances **accessibility** for a broader range of users.
 
-
 ```{=latex}
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
 \noindent\textbf{\textit{Code block 1: }} \textit{Prior specification differences between NumPyro, TFP, and BI}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
-\vspace{-\parskip}\vspace{-10pt}
+\vspace{-\parskip}\vspace{0pt}
 ```
+
 
 ```python
 # NumPyro prior specification
@@ -225,11 +327,10 @@ To enhance **flexibility** without unduly sacrificing the accessibility provided
 These pre-built *JAX* functions provide tailored model components for common patterns in specific fields, while keeping them fully integrated within the general, extensible modeling framework. By providing these optimized building blocks within its general syntax, *BI* allows researchers in these fields to rapidly implement standard domain models using familiar concepts. Crucially, however, users retain the full flexibility of the *BI* framework to combine these domain-specific components with other model features (e.g., complex non-linear effects via splines, hierarchical structures across groups of networks or phylogenies) or to customize or extend them using *BI*'s underlying mechanisms if needed—a capability often missing in more narrowly focused domain-specific packages. This design aims to foster methodological innovation *within* specialized domains by lowering the barrier to implementing more complex or novel models [link to latex block].
 
 ```{=latex}
-
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
 \noindent\textbf{\textit{Code block 2: }} \textit{Random effect specification differences between NumPyro, TFP, and BI}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
-\vspace{-\parskip}\vspace{-10pt}
+\vspace{-\parskip}\vspace{0pt}
 ```
 
 ```python    
@@ -315,14 +416,14 @@ Finally, *BI* includes over 21 well-documented implementations of various standa
 Finally, a fundamental design principle of *BI* is to directly address the **scalability** challenge by building upon modern, high-performance computational backends. By utilizing *JAX*-based libraries like *NumPyro* and *TFP*, *BI* inherits their significant computational efficiencies, stemming from features such as Just-In-Time (JIT) compilation and seamless hardware acceleration (GPU/TPU support). These are critical for tackling the large datasets and complex models prevalent in contemporary research. This strategic reliance on the *JAX* ecosystem allows *BI* users to tackle computationally intensive problems that might be infeasible or prohibitively slow using frameworks lacking comparable optimization and hardware acceleration capabilities. By abstracting the backend complexities while retaining their power, *BI* significantly enhances the practical **scalability** of sophisticated Bayesian inference for a wider audience.
 -->
 
-## Example : SRM model
+# Example : SRM model
 To illustrate how these design features of *BI* coalesce to provide a streamlined, flexible, and powerful solution, effectively addressing the limitations identified in the existing Bayesian software landscape we will provide a basic example of how an SRM model is declared in BI, compare it with the equivalent model in Numpyro (Appendix 1) and STAN (Appendix 2). We will also show how this model can be build from scratch with BI (**Code block 3**) or its custom functions (**Code block 4**) to highligh the aceessibility-flexibility of our package by demonstrating how advance user can build custom model (with less code than STAN) as well as how new user can apply pre-build *BI* models. Finally we show how it is also called in R (**Code block 5**) to cross language use with *BI*. Readers interested in further details on data structure, data import, data manipulation, and model fitting for SRM models can refer directly to the *BI* documentation [Modeling Network](https://github.com/BGN-for-ASNA/BI/blob/main/Documentation/20.%20Network%20model.qmd).
 
 ```{=latex}
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
 \noindent\textbf{\textit{Code block 3: }} \textit{SRM model from scratch with BI}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
-\vspace{-\parskip}\vspace{-10pt}
+\vspace{-\parskip}\vspace{0pt}
 ```
 
 ```python
@@ -377,7 +478,7 @@ def model(N_id, idx,  result_outcomes,
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
 \noindent\textbf{\textit{Code block 4: }} \textit{SRM model with prebuild functions}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
-\vspace{-\parskip}\vspace{-10pt}
+\vspace{-\parskip}\vspace{0pt}
 ```
 
 ```python
@@ -408,7 +509,7 @@ def model(N_id, idx,  result_outcomes,
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
 \noindent\textbf{\textit{Code block 5: }} \textit{SRM model with prebuild functions}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
-\vspace{-\parskip}\vspace{-10pt}
+\vspace{-\parskip}\vspace{0pt}
 ```
 
 ```R
@@ -436,10 +537,10 @@ model <- function(N_id, idxShape, result_outcomes,
 ```
 Finally, regarding code performance we can time the computation time for network of size 200 in STAN and BI and observed that BI comput time is around XXX on cpu and XXX on gpu and STAN compute time around XXX.
 
-## Discussion
+# Discussion
 
 **BI** framework is built on top of the popular Python programming language, with a focus on providing a user-friendly interface for model development and interpretation. Our framework is designed to be modular and extensible, allowing users to easily incorporate their own custom models and data types into the framework. One of the key features of this software is its comprehensive library of 21 predefined Bayesian models, covering a wide range of common applications and use cases. These models are accompanied by detailed explanations, making it easier for users to understand the underlying assumptions and apply the models to their specific research questions. In addition to these built-in models, the software includes several custom functions tailored for advanced statistical and network modeling. This curated library serves not only as a collection of ready-to-use tools but also as a valuable pedagogical resource, demonstrating best practices for constructing, fitting, and interpreting models within the *BI* framework, and providing robust templates for users aiming to develop novel model variants. Whether users are interested in hierarchical models, time-series analysis, or cutting-edge network modeling approaches, our library caters to a variety of analytical needs. This accessibility fosters an environment where users can confidently explore and implement Bayesian methods, ultimately enhancing their research capabilities.
 
 By providing a streamlined and efficient environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction, *BI* lowers the barrier to entry for sophisticated Bayesian modeling. We aim to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems.
 
-## References
+# References
