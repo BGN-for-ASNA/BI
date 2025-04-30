@@ -1,21 +1,19 @@
 ---
-project:
-  title: "quarto-arxiv"
-
-title: "Bayesian Inference library"
-
-
-
 bibliography: References.bib
 link-citations: true
 format:
   pdf: 
     documentclass: sagej
+    #classoption:
+    #  - Afour  # Or use a single string: "Afour"
+    #  - sageh  # Or use a single string: "sageh"
+    #  - times  # Or use a single string: "times"
     highlight-style: monokai
+    maketitle: false
     include-in-header: 
       text:  |
-        \usepackage{lineno}
-        \usepackage[a4paper, margin=2cm]{geometry} %DIF > 
+        \usepackage{multicol}
+        \usepackage[a4paper, margin=2cm]{geometry}
         \usepackage{etoolbox}
         \usepackage{mathtools}
         \pretolerance=100
@@ -28,7 +26,7 @@ format:
         \usepackage{subcaption}
         \usepackage{subcaption}
         %\usepackage{txfonts} % this brook qmd text formating
-        \usepackage{graphicx}  % this brook qmd bi ref
+        %\usepackage{fancybox}  % this brook qmd bi ref
         \usepackage{epstopdf}
         \usepackage{hyperref}
         \usepackage{xcolor}
@@ -113,15 +111,6 @@ format:
                  }
             {\end{shaded}\end{figure}
             }
-        
-        
-        
-        %%DIF 133c131
-
-        %DIF < \usepackage[switch, modulo]{lineno}
-
-        %DIF -------
-        \usepackage[]{lineno} %DIF > 
 
 
         %DIF -------
@@ -208,6 +197,12 @@ format:
         \lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
         \lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
         %DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+        \lstdefinestyle{defFile}
+        {
+                    keywordstyle = [2]{\color{green}}
+        }
+        \usepackage[switch, modulo]{lineno}
+        \usepackage{arydshln}
 
 
 crossref:
@@ -220,39 +215,31 @@ filters:
 
 
 ```{=latex}
-\author{Sebastian Sosa\affilnum{1*}, Mary B. McElreath\affilnum{1}, Cody T. Ross\affilnum{1}}
+\title{Bayesian Inference library}
+\author{Sebastian Sosa\affilnum{1}, Mary B. McElreath\affilnum{1}, Cody T. Ross\affilnum{1}}
 
-\corrauth{Sebastian Sosa, Cody T. Ross}
-\email{s.sosa@live.fr, cody\_ross@eva.mpg.de}
+\affiliation{\color{black}\affilnum{1}{Department of Human Behavior, Ecology, and Culture, Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany.}}
+\corrauth{Sebastian Sosa}
+\email{s.sosa@live.fr}
 
+\begin{abstract}
+  1.  Bayesian modeling is a powerful paradigm in modern statistics and machine learning, offering a principled framework for inference under uncertainty. However, practitioners face significant obstacles, including **interoperability** issues, a persistent **accessibility-flexibility trade-off**, the limitations of **domain-specific limitations**, and challenges in **scalability**.
+
+  2.  ***Interoperability:*** The landscape of Bayesian software is fragmented across programming languages and abstraction levels. Newcomers often gravitate towards high-level interfaces (e.g., *brms*) within familiar environments due to their accessibility for standard models. However, highgh levels of abstraction frameworks can be restrictive, lacking the flexibility needed for custom or complex models as research needs evolve.
+
+  3.  ***Accessibility-Flexibility Trade-off:*** To gain the necessary flexibility, researchers must often transition to lower-level probabilistic programming languages . This transition imposes a steeper learning curve and requires mastery of specific modeling languages or complex programming frameworks, hindering broader adoption and rapid iteration.
+
+  4.  ***Domain-Specific Limitations:*** Similar accessibility and flexibility trade-offs exist in domain-specific Bayesian packages. While providing accessible, pre-packaged models for specific fields, customizing or extending these models often requires deep engagement with lower-level programming languages or switching tools entirely, limiting methodological innovation within those domains.
+
+  5.  ***Scalability:*** Computational demands remain a significant bottleneck, limiting the application of Bayesian methods to the large datasets and complex, high-dimensional models prevalent in modern research. 
+
+  6.  To address these challenges, we introduce ***Bayesian Inference (BI)***, a new Bayesian modeling software available in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax (enhancing **accessibility**) with the **flexibility** of low-level abstraction coding available but also pre-build function for high-level of abstraction and including hardware-accelerated computation via JAX for improved **scalability**. Its availability in both major data science languages directly tackles the **interoperability** barrier and the prebuild function for specialized model in network analysis, survial models and phylogenetic analysis allow to improved **domain-specific limitations**.
+\end{abstract}
+\keywords{social networks, animal networks, social interactions, generative models }
 
 \maketitle
-```
-
-wordcount : {{wordcount}} 
-
-# Abstract
-
-1.  Bayesian modeling is a powerful paradigm in modern statistics and machine learning, offering a principled framework for inference under uncertainty. However, practitioners face significant obstacles, including **interoperability** issues, a persistent **accessibility-flexibility trade-off**, the limitations of **domain-specific limitations**, and challenges in **scalability**.
-
-2.  ***Interoperability:*** The landscape of Bayesian software is fragmented across programming languages and abstraction levels. Newcomers often gravitate towards high-level interfaces (e.g., *brms*) within familiar environments due to their accessibility for standard models. However, highgh levels of abstraction frameworks can be restrictive, lacking the flexibility needed for custom or complex models as research needs evolve.
-
-3.  ***Accessibility-Flexibility Trade-off:*** To gain the necessary flexibility, researchers must often transition to lower-level probabilistic programming languages . This transition imposes a steeper learning curve and requires mastery of specific modeling languages or complex programming frameworks, hindering broader adoption and rapid iteration.
-
-4.  ***Domain-Specific Limitations:*** Similar accessibility and flexibility trade-offs exist in domain-specific Bayesian packages. While providing accessible, pre-packaged models for specific fields, customizing or extending these models often requires deep engagement with lower-level programming languages or switching tools entirely, limiting methodological innovation within those domains.
-
-5.  ***Scalability:*** Computational demands remain a significant bottleneck, limiting the application of Bayesian methods to the large datasets and complex, high-dimensional models prevalent in modern research. 
-
-6.  To address these challenges, we introduce ***Bayesian Inference (BI)***, a new Bayesian modeling software available in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax (enhancing **accessibility**) with the **flexibility** of low-level abstraction coding available but also pre-build function for high-level of abstraction and including hardware-accelerated computation via JAX for improved **scalability**. Its availability in both major data science languages directly tackles the **interoperability** barrier and the prebuild function for specialized model in network analysis, survial models and phylogenetic analysis allow to improved **domain-specific limitations**.
-\end{abstract}
-
-# Keywords
-Bayesian Analysis, Python, R, JAX
-
-```{=latex}
 
 \linenumbers
-
 ```
 
 # Introduction
@@ -470,7 +457,7 @@ def model(N_id, idx,  result_outcomes,
 ```{=latex}
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
 \noindent\textbf{\textit{Code block 4: }} \textit{SRM model with prebuild functions}\\[-10pt]
-\noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % % Bottom rule
 \vspace{-\parskip}\vspace{0pt}
 ```
 
@@ -501,7 +488,7 @@ def model(N_id, idx,  result_outcomes,
 ```{=latex}
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
 \noindent\textbf{\textit{Code block 5: }} \textit{SRM model with prebuild functions}\\[-10pt]
-\noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % % Bottom rule
 \vspace{-\parskip}\vspace{0pt}
 ```
 
