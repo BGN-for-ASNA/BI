@@ -365,7 +365,7 @@ centering]{geometry}
 \def\volumeyear{0000}
 \def\volumenumber{2024}
 \def\issuenumber{X}
-\def\journalname{Submitted to Methods in Ecology and Evolution}
+\def\journalname{Draft}
 
 \def\runninghead#1{\markboth{{#1}}{}}
 
