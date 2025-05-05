@@ -83,6 +83,7 @@ class diag:
         return fig
 
     def diag_posterior(self, figsize=(8, 4)):
+<<<<<<< HEAD
         """Create posterior distribution plots.
         
         Args:
@@ -92,6 +93,9 @@ class diag:
             fig: Matplotlib figure containing posterior plots
         """        
         posterior, axes = plt.subplots(1, len(self.priors_name), figsize=(figsize))
+=======
+        posterior, axes = plt.subplots(1, len(self.priors_name), figsize=figsize)
+>>>>>>> 7acc8eb0fd481d78ec6e11c309383450ff808119
         axes = az.plot_posterior(self.trace , var_names=self.priors_name, ax=axes)
         axes.flatten()[0].get_figure() 
         self.plot_posterior = posterior

@@ -109,11 +109,13 @@ class manip():
             return self.scale_var(data)
         else:
             if data == 'all':
-                for col in self.df.columns:                
+                for col in self.df.columns:     
+                    self.df[col] = self.df[col].astype(float)         
                     self.df.loc[:, col] = (self.df.loc[:,col] - self.df.loc[:,col].mean())/self.df.loc[:,col].sd()
 
             else:
                 for a in range(len(data)):
+                    self.df[data[a]] = self.df[data[a]].astype('float64') 
                     self.df.loc[:, data[a]] = (self.df.loc[:, data[a]] - self.df.loc[:, data[a]].mean()) / self.df.loc[:, data[a]].std()
 
 
