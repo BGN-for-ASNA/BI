@@ -4,6 +4,7 @@ def deallocate():
     os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"]="false"
     os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"]="platform"
     
+<<<<<<< HEAD
 def setup_device(platform='cpu', cores=None, deallocate = False):
     """Configures JAX for distributed computation.
 
@@ -37,6 +38,11 @@ def setup_device(platform='cpu', cores=None, deallocate = False):
     --------
     Basic usage:
     >>> setup_device(platform='cpu')
+=======
+def setup_device(platform='cpu', cores=None, deallocate = False, print_devices_found = True):
+    """
+    Configures JAX for distributed computation.
+>>>>>>> 7acc8eb0fd481d78ec6e11c309383450ff808119
 
     Specifying CPU cores:
     >>> setup_device(platform='cpu', cores=4)
@@ -62,5 +68,5 @@ def setup_device(platform='cpu', cores=None, deallocate = False):
     jax.config.update("jax_platform_name", platform)
 
 
-
-    print('jax.local_device_count', jax.local_device_count(backend=None))
+    if print_devices_found:
+        print('jax.local_device_count', jax.local_device_count(backend=None))
