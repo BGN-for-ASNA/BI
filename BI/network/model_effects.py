@@ -6,13 +6,6 @@ from numpyro import deterministic
 import os
 import sys
 import inspect
-# Get the directory of the current file
-current_file_directory = os.path.dirname(os.path.abspath(__file__))
-directory_to_add = os.path.join(current_file_directory, '..', 'utils')
-directory_to_add = os.path.normpath(directory_to_add)
-if directory_to_add not in sys.path:
-    sys.path.append(directory_to_add)
-
 from BI.utils.unified_dists import UnifiedDist as dist
 
 class Neteffect(array_manip):
@@ -105,6 +98,14 @@ class Neteffect(array_manip):
     @staticmethod 
     @jit
     def node_effects_to_dyadic_format(sr_effects):
+        """Convert node effects to dyadic (edge list) format.
+
+        Args:
+            sr_effects (jax array): Array of node effects with shape [N_nodes, 2].
+        Returns:
+            jax array: Dyadic effects with shape [N_dyads, 2], where each row represents 
+            a dyad (i, j) with sender effect i and receiver effect j.
+        """
         ids = jnp.arange(0,sr_effects.shape[0])
         edgl_idx = Neteffect.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
         sender = sr_effects[edgl_idx[:,0],0] + sr_effects[edgl_idx[:,1],1]
@@ -114,7 +115,27 @@ class Neteffect(array_manip):
     @staticmethod 
     def sender_receiver(focal_individual_predictors, target_individual_predictors,  s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, #Fixed effect parameters
                         sr_mu = 0, sr_sd = 1, sr_sigma_rate = 1, cholesky_dim = 2, cholesky_density = 2, #Random effect parameters
-                        sample = False, diag = False ):    
+                        sample = False, diag = False ):
+        """Compute sender-receiver effects combining both fixed and random effects.
+
+        Args:
+            focal_individual_predictors (jax array): Predictors for focal individuals.
+            target_individual_predictors (jax array): Predictors for target individuals.
+            s_mu (float, optional): Mean for focal effects. Defaults to 0.
+            s_sd (float, optional): SD for focal effects. Defaults to 1.
+            r_mu (float, optional): Mean for target effects. Defaults to 0.
+            r_sd (float, optional): SD for target effects. Defaults to 1.
+            sr_mu (float, optional): Mean for random effects. Defaults to 0.
+            sr_sd (float, optional): SD for random effects. Defaults to 1.
+            sr_sigma_rate (float, optional): Rate parameter for random effects. Defaults to 1.
+            cholesky_dim (int, optional): Dimension for Cholesky decomposition. Defaults to 2.
+            cholesky_density (int, optional): Density parameter for Cholesky. Defaults to 2.
+            sample (bool, optional): Whether to sample from distributions. Defaults to False.
+            diag (bool, optional): Whether to print diagnostic information. Defaults to False.
+
+        Returns:
+            jax array: Combined dyadic effects.
+        """                            
         N_var = focal_individual_predictors.shape[0]
         N_id = focal_individual_predictors.shape[1]            
 
@@ -127,6 +148,14 @@ class Neteffect(array_manip):
     @staticmethod 
     @jit
     def prepare_dyadic_effect(dyadic_effect_mat):
+        """Prepare dyadic effect matrix for processing.
+
+        Args:
+            dyadic_effect_mat (jax array): Dyadic effect matrix to process.
+
+        Returns:
+            jax array: Processed dyadic effects in edge list format.
+        """        
         if dyadic_effect_mat.ndim == 2:
             return Neteffect.mat_to_edgl(dyadic_effect_mat)
         else:
@@ -134,6 +163,21 @@ class Neteffect(array_manip):
 
     @staticmethod 
     def dyadic_random_effects(N_dyads, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False):
+        """Generate random effects for dyadic models.
+
+        Args:
+            N_dyads (int): Number of dyads.
+            dr_mu (float, optional): Mean for random effects. Defaults to 0.
+            dr_sd (float, optional): SD for random effects. Defaults to 1.
+            dr_sigma (float, optional): Sigma parameter for random effects. Defaults to 1.
+            cholesky_dim (int, optional): Dimension for Cholesky decomposition. Defaults to 2.
+            cholesky_density (int, optional): Density parameter for Cholesky. Defaults to 2.
+            sample (bool, optional): Whether to sample from distributions. Defaults to False.
+            diag (bool, optional): Whether to print diagnostic information. Defaults to False.
+
+        Returns:
+            tuple: Contains random effects, raw effects, sigma, and Cholesky decomposition matrix.
+        """
         dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2,N_dyads), name = 'dr_raw', sample = sample)
         dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample )
         dr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
@@ -151,6 +195,18 @@ class Neteffect(array_manip):
 
     @staticmethod 
     def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, sample = False, diag = False):
+        """Calculate fixed effects for dyadic terms.
+
+        Args:
+            dyadic_predictors (jax array): Predictors for dyadic terms.
+            d_m (float, optional): Mean for dyad effects. Defaults to 0.
+            d_sd (float, optional): SD for dyad effects. Defaults to 1.
+            sample (bool, optional): Whether to sample from distributions. Defaults to False.
+            diag (bool, optional): Whether to print diagnostic information. Defaults to False.
+
+        Returns:
+            tuple: Contains fixed effects and dyadic predictors.
+        """        
         dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.ndim - 1,), sample = sample)
         
         if dyadic_predictors.ndim == 2:
@@ -174,6 +230,23 @@ class Neteffect(array_manip):
     def dyadic_effect(dyadic_predictors = None, shape = None, d_m = 0, d_sd = 1, # Fixed effect arguments
                      dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2,
                      sample = False):
+        """Compute dyadic effects combining both fixed and random components.
+        
+        Args:
+            dyadic_predictors (jax array, optional): Predictors for dyadic effects.
+            shape (int, optional): Shape parameter if predictors are not provided.
+            d_m (float, optional): Mean for fixed effects. Defaults to 0.
+            d_sd (float, optional): SD for fixed effects. Defaults to 1.
+            dr_mu (float, optional): Mean for random effects. Defaults to 0.
+            dr_sd (float, optional): SD for random effects. Defaults to 1.
+            dr_sigma (float, optional): Sigma parameter for random effects. Defaults to 1.
+            cholesky_dim (int, optional): Dimension for Cholesky decomposition. Defaults to 2.
+            cholesky_density (int, optional): Density parameter for Cholesky. Defaults to 2.
+            sample (bool, optional): Whether to sample from distributions. Defaults to False.
+            
+        Returns:
+            jax array: Combined dyadic effects.
+        """                     
         if dyadic_predictors is not None and shape is None:
             print('Error: Argument shape must be defined if argument dyadic_predictors is not define')
             return 'Argument shape must be defined if argument dyadic_predictors is not define'

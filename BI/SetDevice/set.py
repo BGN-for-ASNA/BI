@@ -5,15 +5,45 @@ def deallocate():
     os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"]="platform"
     
 def setup_device(platform='cpu', cores=None, deallocate = False):
-    """
-    Configures JAX for distributed computation.
+    """Configures JAX for distributed computation.
 
-    Args:
-        platform (str): The platform to use for computation. Default is 'cpu'.
-        cores (int): Number of CPU cores to use. If None, it defaults to the total number of available CPU cores.
+    This function sets up the JAX computing environment by specifying the hardware 
+    platform and managing CPU core allocation. It also handles deallocation of existing
+    devices and configures XLA flags appropriately.
 
-    Returns:
-        None
+    Parameters
+    ----------
+    platform: str, optional
+        The hardware platform to use for computation. Options include:
+        - 'cpu': Use CPU(s) for computation
+        - 'gpu': Use GPU(s) for computation
+        - 'tpu': Use TPU(s) for computation
+        Defaults to 'cpu'.
+    cores: int, optional
+        Number of CPU cores to allocate for computation. If None, all available CPU 
+        cores will be used. Only applicable when platform is 'cpu'.
+    deallocate: bool, optional
+        Whether to deallocate any existing devices before setting up new configuration.
+        Defaults to False.
+
+    Notes
+    -----
+    This function must be called before any JAX imports or usage. It configures the 
+    XLA_FLAGS environment variable to specify the number of CPU cores to use. The 
+    XLA_FORCE_HOST_PLATFORM_DEVICE_COUNT flag is particularly important for properly 
+    distributing computation across multiple CPUs.
+
+    Examples
+    --------
+    Basic usage:
+    >>> setup_device(platform='cpu')
+
+    Specifying CPU cores:
+    >>> setup_device(platform='cpu', cores=4)
+
+    Returns
+    -------
+    None
     """
     if cores is None:
         cores = os.cpu_count()

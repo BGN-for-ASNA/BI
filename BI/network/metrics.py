@@ -294,7 +294,6 @@ class met:
         distances = jax.vmap(met.single_source_dijkstra)(jnp.arange(n_nodes))
         return distances
 
-
     @staticmethod
     def diameter(m):
         """

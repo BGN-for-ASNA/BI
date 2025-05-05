@@ -43,6 +43,15 @@ class factors:
     @staticmethod 
     @jit 
     def diag_pre_multiply(v, m):
+        """Dot product of a diagonal matrix with a matrix.
+
+        Args:
+            v (1D jax array): Vector of diagonal elements.
+            m (2D jax array): Matrix to be multiplied.
+
+        Returns:
+            2D jax array: Dot product of a diagonal matrix with a matrix.
+        """
         return jnp.matmul(jnp.diag(v), m)
 
     @staticmethod 
@@ -150,6 +159,12 @@ class Mgaussian:
     @staticmethod
     @jit
     def distance_matrix(array):
+        """Compute the distance matrix.
+        Args:
+            array (array): Input array representing the data points.
+        Returns:
+            array: The distance matrix computed using the absolute differences between data points.
+        """
         return jnp.abs(array[:, None] - array[None, :])
     
     @staticmethod
@@ -229,6 +244,15 @@ class Mgaussian:
 
     @staticmethod
     def gaussian_process(Dmat, etasq, rhosq, sigmaq):
+        """Gaussian Process Model with Cholesky Decomposition L2
+        Args:
+            Dmat (array): Input array representing the distance matrix.
+            etasq (float): Length-scale parameter of the squared exponential kernel.
+            rhosq (float): Length-scale parameter of the squared exponential kernel.
+            sigmaq (float): Scale parameter of the squared exponential kernel.
+        Returns:
+            array: The covariance matrix computed using the squared exponential kernel.
+        """
         SIGMA = cov_GPL2(Dmat, etasq, rhosq, sigmaq)
         L_SIGMA = jnp.linalg.cholesky(SIGMA)
         z = dist.normal('z', 0, 1, sample_shape= [10])
