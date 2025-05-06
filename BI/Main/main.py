@@ -267,10 +267,3 @@ class bi(manip, diag, gaussian):
         print('potential_fn: ', -potential_fn(init_params.z)) #log prob
         print('grad:         ', jax.grad(potential_fn)(init_params.z))
         return init_params, potential_fn, constrain_fn, model_trace 
-   
-
-#from numpyro import sample as lk
-#import random as r
-##from numpyro.infer import MCMC, NUTS, Predictive
-#from numpyro.distributions import*
-#import numpy as np
