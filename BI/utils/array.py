@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from jax import jit
 from jax import vmap
 import numpyro
-from BI.utils.unified_dists import UnifiedDist as dist
+from BI.Utils.dists import UnifiedDist as dist
 
 # Random factors related functions --------------------------------------------
 @jit
@@ -183,7 +183,6 @@ class Mgaussian:
         return sigma**2 * jnp.exp(-2*jnp.sin(jnp.pi * m / period)**2 / length_scale**2)  * jnp.exp(-(m**2/ 2*length_scale**2))
 
     @staticmethod
-<<<<<<< HEAD
     def gaussian_process(Dmat, etasq, rhosq, sigmaq):
         """Gaussian Process Model with Cholesky Decomposition L2
         Args:
@@ -193,21 +192,6 @@ class Mgaussian:
             sigmaq (float): Scale parameter of the squared exponential kernel.
         Returns:
             array: The covariance matrix computed using the squared exponential kernel.
-=======
-    def kernel_L2(Dmat, etasq, rhosq, sigmaq):
-        """
-        Generates a Gaussian process sample using the given covariance parameters.
-
-        Args:
-            Dmat: Distance matrix between points.
-            etasq: Squared variance parameter (eta^2).
-            rhosq: Squared length scale parameter (rho^2).
-            sigmaq: Squared noise variance parameter (sigma^2).
-            shape: Shape of the output sample.
-
-        Returns:
-            k: A deterministic Gaussian process sample as a NumPy array.
->>>>>>> 7acc8eb0fd481d78ec6e11c309383450ff808119
         """
         SIGMA = cov_GPL2(Dmat, etasq, rhosq, sigmaq)
         #L_SIGMA = jnp.linalg.cholesky(SIGMA)

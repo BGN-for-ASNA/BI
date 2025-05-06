@@ -1,7 +1,7 @@
 import numpyro
 from numpyro.infer import MCMC, NUTS, Predictive
 from numpyro.handlers import condition
-from BI.data.manip import manip
+from BI.Data.manip import manip
 import jax 
 class sampler:   
     def __init__(self):

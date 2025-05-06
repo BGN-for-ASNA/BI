@@ -16,17 +16,17 @@ import jax.random as random
 import numpy as np
 import random as pyrand
 
-from BI.data.manip import manip
-from BI.utils.array import Mgaussian as gaussian
-from BI.utils.array import factors 
+from BI.Data.manip import manip
+from BI.Utils.array import Mgaussian as gaussian
+from BI.Utils.array import factors 
 from BI.SetDevice.set import setup_device
 from BI.Surv.surv import survival
-from BI.utils.link import link
-from BI.diagnostic.Diag import diag
-from BI.network.Net import net
+from BI.Utils.link import link
+from BI.Diagnostic.Diag import diag
+from BI.Network.Net import net
 from BI.NBDA.NBDA import NBDA
 
-from BI.utils.unified_dists import UnifiedDist as dist
+from BI.Utils.dists import UnifiedDist as dist
 from BI.Sampler.sampler import sampler
 from numpyro.infer import MCMC, NUTS, Predictive
 from numpyro.handlers import condition
