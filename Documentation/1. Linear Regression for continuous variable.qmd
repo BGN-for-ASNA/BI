@@ -15,9 +15,6 @@ To study relationships between a continuous independent variable and a continuou
 3) A variance term $\sigma$, which informs us about the spread of points around the line, i.e., the variance around the prediction.
 
 
-
-![](https://miro.medium.com/v2/resize:fit:786/format:webp/1*WCcaObzvvVzcrg8CBi6iCQ.jpeg)
-
 ## Considerations 
 
 ::: callout-caution
@@ -27,9 +24,9 @@ To study relationships between a continuous independent variable and a continuou
 
   - As the data is [<span style="color:#0D6EFD">scaled 🛈</span>]{#scaled} (see introduction), we can use a Normal distribution for $\alpha$ and $\beta$, with a mean of 0 and a standard deviation of 1.
 
-  - Since $\sigma$ is strictly positive, we can use any distribution that is positively defined, such as the Exponential or Gamma distribution.
+  - Since $\sigma$ is strictly positive, we can use any distribution that is positively defined, such as the Exponential or Uniform distribution.
 
-- Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}. This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
+- Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF} (see introduction). This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
 
 
 :::
@@ -42,7 +39,7 @@ Below is an example code snippet demonstrating Bayesian linear regression using 
 ## Python
 
 ``` python
-from .bi.main import*
+from BI import bi
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
@@ -54,16 +51,16 @@ m.data_to_model(['weight', 'height']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 def model(weight, height):    
-    a = dist.normal( 178, 20, name = 'a',shape= (1,))
-    b = dist.lognormal(  0, 1, name = 'b',shape= (1,))   
-    s = dist.uniform( 0, 50, name = 's',shape = (1,))
-    m.normal(a + b * weight , s, obs=height)
+    a = m.dist.normal(178, 20, name = 'a') 
+    b = m.dist.lognormal(0, 1, name = 'b') 
+    s = m.dist.uniform(0, 50, name = 's') 
+    m.normal(a + b * weight , s, obs = height) 
 
 # Run mcmc ------------------------------------------------
 m.run(model)  # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$summary() # Get posterior distributions
+m.summary() # Get posterior distributions
 ```
 
 ## R

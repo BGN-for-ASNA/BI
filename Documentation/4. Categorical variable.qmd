@@ -36,8 +36,8 @@ m.data_to_model(['kcal_per_g', "index_clade"]) # Send to model (convert to jax a
 
 # Define model ------------------------------------------------
 def model(kcal_per_g, index_clade):
-    a = bi.dist.normal(0, 0.5, shape=(4,), name = 'a')
-    s = bi.dist.exponential( 1, shape = (1,), name = 's')    
+    a = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'a') # shape based on the number of clades
+    s = m.bi.dist.exponential( 1, name = 's')    
     mu = a[index_clade]
     m.normal(mu, s, obs=kcal_per_g)
 
@@ -46,7 +46,7 @@ def model(kcal_per_g, index_clade):
 m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89) # Get posterior distributions
+m.summary()
 ```
 
 ### R
@@ -63,7 +63,7 @@ m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to j
 # Define model ------------------------------------------------
 model <- function(kcal_per_g, index_clade){
   # Parameters priors distributions
-  beta = bi.dist.normal( 0, 0.5, name = 'beta', shape = c(4))
+  beta = bi.dist.normal( 0, 0.5, name = 'beta', shape = c(4))  # shape based on the number of clades
   sigma =bi.dist.exponential(1, name = 's')
   # Likelihood
   m$normal(beta[index_clade], sigma, obs=kcal_per_g)
