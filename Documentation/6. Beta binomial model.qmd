@@ -8,15 +8,11 @@ To model the relationship between a binary outcome variable representing success
 
 - A Beta-Binomial model assumes that each binomial count observation has its own probability of success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.
   
-- A Beta distribution has two parameters: the rates for each probabilities and a shape parameter θ. θ influence how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, $\gamma$  and $\eta$ , which determine the concentration of probability around 0 and 1. The values of 𝛼 and 𝛽 shape the distribution:
+- A Beta distribution has two parameters: the rates for each probabilities and a shape parameter θ. θ influence how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, $\alpha$  and $\beta$ , which determine the concentration of probability around 0 and 1.
 
-  - If both are greater than 1, the distribution is bell-shaped and centered around the mean 𝑝. 
-
-  - If $\gamma$ < 1 and $\eta$ < 1, the distribution is U-shaped, indicating that outcomes are more likely to be near 0 or 1.
-
-  - If 𝛼 = $\gamma$ and $\eta$ = 1, the Beta distribution is uniform. 
-
-Thus, the shape parameters 𝛼 $\gamma$ $\eta$ provide flexibility in modeling various types of prior beliefs about probabilities.
+  - If both are equal or greater than 1, the distribution is bell-shaped and centered around 0.5. 
+  - If 𝛼 > 𝛽 , the distribution is skewed toward 1 and if $\beta > \alpha$, it is skewed toward 0.
+Thus, the shape parameters $\gamma$ and $\eta$ provide flexibility in modeling various types of prior beliefs about probabilities.
   
 :::
 
@@ -27,7 +23,7 @@ Below is an example code snippet demonstrating Bayesian Beta-Binomial regression
 
 2) One independent categorical variable representing individuals' gender (gid).
 
-3) Additionally, we have the number of applications (applications) per individual, which will be used to account for independent rates.
+3) Additionally, we have the number of applications (applications) per individuals' gender, which will be used to account for independent rates.
 
 The goal is to evaluate whether the probability of admission is different between genders, while accounting for differences in the number of applications between genders.
 
@@ -55,14 +51,14 @@ m.data_on_model = dict(
 
 # Define model ------------------------------------------------
 def model(gid, applications, admit):
-    phi = dist.exponential(1, shape=(1,), name = 'phi')
-    alpha = dist.normal( 0., 1.5, shape=(2,), name = 'alpha')
+    phi = m.dist.exponential(1, shape=(1,), name = 'phi')
+    alpha = m.dist.normal( 0., 1.5, shape=(2,), name = 'alpha')
     theta = phi + 2
     pbar = jax.nn.sigmoid(alpha[gid])
-    concentration1 = pbar*theta
-    concentration0 = (1 - pbar) * theta
+    gamma = pbar*theta
+    eta = (1 - pbar) * theta
 
-    m.betabinomial(total_count = applications, concentration1 = concentration1, concentration0 = concentration0, obs=admit)
+    m.betabinomial(total_count = applications, concentration1 = gamma, concentration0 = eta, obs=admit)
 
 # Run MCMC ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
@@ -105,9 +101,6 @@ m$summary() # Get posterior distribution
 
 :::
 ## Mathematical Details
-### *Frequentist formulation*
-???
-
 ### *Bayesian Model*
 In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
 
@@ -141,7 +134,7 @@ $$
 
 Where:
 
-- $Y_i$ is the ount of successes for the *i*-th observation, which follows a beta-binomial distribution with $n_i$ trials.
+- $Y_i$ is the count of successes for the *i*-th observation, which follows a beta-binomial distribution with $n_i$ trials.
 
 - $\gamma_i$ represents the concentration parameter for the number of successes, derived from the probability of success and scaled by $\tau$.
   

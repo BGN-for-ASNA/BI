@@ -15,11 +15,11 @@ This document is a guide to Bayesian analysis and the implementation of Bayesian
 We recommend reading the introduction first since some key concepts here will not be revisited in later chapters.
 
 # Bayesian analysis
-Bayesian analysis is a statistical approach that uses probability theory to update beliefs about the parameters of a model as new data becomes available. Bayesian methods have several key advantages as they allow [<span style="color:#0D6EFD">direct uncertainty quantification 🛈</span>]{#Uncertainty}, [<span style="color:#0D6EFD">incorporation of prior knowledge 🛈</span>]{#Uncertainty} and [<span style="color:#0D6EFD">flexibility for complex models 🛈</span>]{#Uncertainty}.
+Bayesian analysis is a statistical approach that uses probability theory to update beliefs about the parameters of a model as new data becomes available. Bayesian methods have several key advantages as they allow [<span style="color:#0D6EFD">direct uncertainty quantification 🛈</span>]{#Uncertainty}, [<span style="color:#0D6EFD">incorporation of prior knowledge 🛈</span>]{#priorKnowledge} and [<span style="color:#0D6EFD">flexibility for complex models 🛈</span>]{#Flexibility}.
 
 
 # Model set-up, Bayesian linear regression example
-To illustrate the basics of setting up a Bayesian model, let’s consider a simple linear regression example. In this example, we build a simple model where we predict a [<span style="color:#0D6EFD">dependent variable 🛈</span>]{#DP} $y$ from a single [<span style="color:#0D6EFD">independent variable 🛈</span>]{#IP} $x$.  Where we will not focus on the equations and their details but rather used them to describe the different components of a Bayesian model, how parameters optimization algorithm works in Bayesian analysis, and provide basic technical vocabulary related to Bayesian methods. For further details on the mathematical formulas of the model, please refer to [Chapter 1: Multiple Continuous Variables](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+To illustrate the basics of setting up a Bayesian model, let’s consider a simple linear regression example. In this example, we build a simple model where we predict a [<span style="color:#0D6EFD">dependent variable 🛈</span>]{#DP} $y$ from a single [<span style="color:#0D6EFD">independent variable 🛈</span>]{#IP} $x$.  Where we will not focus on the equations and their details but rather used them to describe the different components of a Bayesian model, how parameters optimization algorithm works in Bayesian analysis, and provide basic technical vocabulary related to Bayesian methods. For further details on the mathematical formulas of the model, please refer to [Chapter 1: Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
 ### The Likelihood
 The [<span style="color:#0D6EFD">*likelihood* 🛈</span>]{#lk} can be consider as your main equation that combines the different terms of the model. Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.), the likelihood will be different. Additionally, a model can have multiple likelihoods (e.g., network models). 
@@ -30,7 +30,7 @@ $$
 y \sim \text{Normal}(\mu, \sigma)
 $$
 
-Basically, where our likelihood is saying that the *dependent variable* $y$ is normally distributed with a mean $\mu$ and a standard deviation $\sigma$. *Probability distribution* are available in BI through the class ```bi.dist.XXX``` where ```XXX``` is the name of the distribution you want to use. Within any ```bi.dist.XXX``` class, you can define which of the distribution need to be used as a likelihood by adding an argument ```obs```, e.g., ```m.normal(alpha + beta * x, s, obs=y)```.
+Basically, where our likelihood is saying that the *dependent variable* $y$ is normally distributed with a mean $\mu$ and a standard deviation $\sigma$. *Probability distribution* are available in BI through the class ```bi.dist.XXX``` where ```XXX``` is the name of the distribution you want to use. Within any ```bi.dist.XXX``` class, you can define which of the distribution need to be used as a likelihood by adding an argument ```obs```, e.g., ```m.normal(alpha + beta * x, s, obs=y)```. You can see this as instructing the model to adjust its parameters to best explain the observed dependent variable 𝑦, given the independent variable 𝑥, by maximizing the likelihood.
 
 ## Modeling Likelihood
 Once the *likelihood* is defined, we can know define the mathematical equations that describe our parameters ($\mu$ and $\sigma$) and their relationship with the *dependent variable* $y$. We can express this relationship in the form of a linear function:
@@ -57,7 +57,7 @@ For the moment, we just need to know that those different distributions required
 
 
 ## The Prior Distributions
-For each parameters of our equation that describe $\mu$ , we need to define a  [<span style="color:#0D6EFD">*prior distribution* 🛈</span>]{#prior} that encodes our initial beliefs about the parameter. In the case of the linear regression model, we need to specify *prior distributions* for ($\alpha$), slope ($\beta$), and standard deviation ($\sigma$):
+For each parameters of our equation that describe $\mu$ , we need to define a  [<span style="color:#0D6EFD">*prior distribution* 🛈</span>]{#prior} that encodes our initial beliefs about the parameter. In the case of the linear regression model, we need to specify *prior distributions* for the intercept $\alpha$, the slope $\beta$, and standard deviation $\sigma$. 
 
 $$
 \alpha \sim \text{Normal}(0, 1)
@@ -99,7 +99,7 @@ def model(x, y):
     sigma = bi.dist.uniform( 0, 50, name = 'sigma',shape = (1,))
     m.normal(alpha + beta * x , , obs=y)
 ```
-Notice that for eah parameter declared in the model you will need to give it a unique name as well as a shale. The shape is the number of parameters you want to estimate. For example, if you want to estimate a different $\beta$ for each predictor, you would need to declare $\beta$ with a shape equal to the number of predictors. By default, the shape is one those technically you don't need to specify it. In this example we only wanted to highlight this feature.
+Notice that for eah parameter declared in the model you will need to give it a unique name as well as a shape. The shape is the number of parameters you want to estimate. For example, if you want to estimate a different $\beta$ for each predictor, you would need to declare $\beta$ with a shape equal to the number of predictors. By default, the shape is one thus technically you don't need to specify it. In this example we only wanted to highlight this feature.
 
 ### Which prior distribution range to use?
 
@@ -114,7 +114,7 @@ The choice of prior ranges can significantly affect Bayesian analysis results. T
 
 ## Model fit and posterior distribution
 
-Once data are observed, [<span style="color:#0D6EFD">*Bayes’ Theorem* 🛈</span>]{#BT} to evaluate how well a given set of parameters value fits the data:
+Once data are observed, [<span style="color:#0D6EFD">*Bayes’ Theorem* 🛈</span>]{#BT} is used to evaluate how well a given set of parameters value fits the data:
 
 $$
 P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P(\text{data})}
@@ -128,14 +128,12 @@ Where:
   
 - $P(\text{data} \mid \theta)$ is the **likelihood**, representing the model of how the data are generated given $\theta$.
   
-- $P(\theta \mid \text{data})$ is the **posterior distribution**, representing our updated beliefs after observing the data.
+- $P(\theta \mid \text{data})$ is the **posterior distribution**, representing our updated beliefs after observing the data. It tells us not only the most likely value of $\theta$,(e.g., $\alpha$, $\beta$, and $\sigma$ in our case) but also quantifies the uncertainty in these estimates.
 
-This distribution reflects our updated beliefs about the parameters after observing the data. It tells us not only the most likely value of $\theta$,(e.g., $\alpha$, $\beta$, and $\sigma$ in our case) but also quantifies the uncertainty in these estimates.
-
-We can use [<span style="color:#0D6EFD">*Bayesian updating* 🛈</span>]{#BUpdating} using the _Bayesian theorem_ to 'reshape' the prior distributions by considering every possible combination of values for our parameters, and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of our parameters: the _posterior distributions_. Various techniques can be used to approximate the mathematical definition of Bayes' theorem: *grid approximation*, *quadratic approximation*, and Markov chain Monte Carlo (_MCMC_). Description of this algorithms are out of the scope of this document. For more information, please refer to the [Bayesian Inference](). In BI, we use MCMC and it can be call as ```m.run(model)``` where ```model``` is the function that describe the model.
+We can use [<span style="color:#0D6EFD">*Bayesian updating* 🛈</span>]{#BUpdating} using the _Bayesian theorem_ to 'reshape' the prior distributions by considering every possible combination of values for our parameters, and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of our parameters: the _posterior distributions_. Various techniques can be used to approximate the mathematical definition of Bayes' theorem: *grid approximation*, *quadratic approximation*, and Markov chain Monte Carlo (_MCMC_). Description of this algorithms are out of the scope of this document. For more information, please refer to the [Bayesian Inference](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo). In BI, we use MCMC and it can be call as ```m.run(model)``` where ```model``` is the function that describe the model.
 
 ## Model 'diagnostic'
-Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Mulitple diagnostics approaches can be used to assess the model's performance. Below are some key diagnostic tools and techniques available in BI within the class ```bi.diagnostics.XXX``` where ```XXX``` is the name of the diagnostic tool.
+Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Mulitple diagnostics approaches can be used to assess the model's performance. Below are some key diagnostic tools and techniques available in BI within the class ```bi.diag.XXX``` where ```XXX``` is the name of the diagnostic tool.
 
 
 | **Diagnostic Tool**          | **Purpose**                                              | **Key Indicator**               | **Interpretation**                                        |
@@ -150,7 +148,7 @@ Once a Bayesian model has been fit, it is crucial to evaluate how well it captur
 | [<span style="color:#0D6EFD">*density plots* 🛈</span>]{#DesPlot} | Visualize the posterior distribution of a parameter      | Smoothness and shape of the curve | Unimodal and smooth suggests convergence; multimodal or irregular may suggest poor mixing |
 
 ## Model comparison
-Model comparison is performed by evaluating how well different models explain the observed data while accounting for model complexity. Multiple criteria can be used to compare models, and are summarized in the table below. In BI, wwe can compare models using *Watanabe-Akaike Information Criterion (WAIC)* with the function ```m.diag.aic(model1,model2)```.
+Model comparison is performed by evaluating how well different models explain the observed data while accounting for model complexity. Multiple criteria can be used to compare models, and are summarized in the table below. In BI, we can compare models using *Watanabe-Akaike Information Criterion (WAIC)* with the function ``m.diag.waic(model1,model2)```.
 
 | **Criterion**  | **Purpose** | **Interpretation** | **Strengths** | **Weaknesses** |
 |--------------|------------|--------------------|--------------|---------------|

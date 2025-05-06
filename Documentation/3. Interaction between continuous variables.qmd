@@ -1,10 +1,7 @@
 # Interaction terms
 ## General Principles
 To study relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables.
-
-Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for temperature x humidity. The crossed lines on the graph suggest that there is an interaction effect. The graph shows that energy consumption levels are higher for humidity when the temperature is high. Conversely, energy consumption levels are higher for temperature when humidity is low. 
-
-![](https://i0.wp.com/statisticsbyjim.com/wp-content/uploads/2017/10/interactions_plot_categorical.png?w=576&ssl=1)
+<!--Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for temperature x humidity. The crossed lines on the graph suggest that there is an interaction effect. -->
 
 ## Considerations
 ::: callout-caution 
@@ -26,7 +23,7 @@ Below is example code demonstrating Bayesian regression with an interaction term
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from main import*
+from BI import bi
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -38,20 +35,19 @@ m.data_to_model(['blooms', 'water', 'shade']) # Send to model (convert to jax ar
 
 # Define model ------------------------------------------------
 def model(blooms,shade, water):
-    sigma = dist.exponential(1, name = 'sigma', shape = (1,))
-    bws = dist.normal(0, 0.25, name = 'bws', shape = (1,))
-    bs = dist.normal(0, 0.25, name = 'bs', shape = (1,))
-    bw = dist.normal(0, 0.25, name = 'bw', shape = (1,))
-    a = dist.normal(0.5, 0.25, name = 'a', shape = (1,))
+    sigma = m.dist.exponential(1, name = 'sigma', shape = (1,))   
+    bws = m.dist.normal(0, 0.25, name = 'bws', shape = (1,))
+    bs = m.dist.normal(0, 0.25, name = 'bs', shape = (1,))
+    bw = m.dist.normal(0, 0.25, name = 'bw', shape = (1,))
+    a = m.dist.normal(0.5, 0.25, name = 'a', shape = (1,))
     mu = a + bw*water + bs*shade + bws*water*shade
     m.normal(mu, sigma, obs=blooms)
     
 # Run mcmc ------------------------------------------------
-m.run(model) # Optimize model parameters through MCMC sampling
+m.run(model) # Optimize model m.summary()parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89) # Get posterior distributions
-
+m.summary()
 ```
 
 ### R

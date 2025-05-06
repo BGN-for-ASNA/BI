@@ -4,13 +4,12 @@ To model the relationship between a count outcome variable—e.g., counts of eve
 
 This is a special shape of the binomial distribution; it is useful because it models binomial events for which the number of trials $n$ is unknown or uncountably large.
 
-![](https://www.researchgate.net/publication/349989811/figure/fig1/AS:1024685147947009@1621315385285/Comparison-of-linear-model-and-Poisson-model-Note-The-red-line-shows-how-expected-y.png)
 
 ## Considerations
 ::: callout-caution 
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- We have the second [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}. The conventional link function for a Poisson model is the _log_ link (it ensures that _λ_ is always positive).
+- We have the second [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}: _log_. The _log_ link (it ensures that _λ_ is always positive).
 
 - To invert the log link function and model linearly the relationship between the predictor variables and the log of the mean rate parameter, we can apply the exponential function (see comment in code).
 
@@ -41,20 +40,18 @@ The goal is to estimate the production of tools based on population size, accoun
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from main import*
-
+from BI import bi
 # Setup device------------------------------------------------
-from main import *
-# setup platform------------------------------------------------
-m = bi()
+m = bi(platform='cpu')
+m = bi(platform='cpu')
 # import data ------------------------------------------------
 m.data('../resources/data/Kline.csv', sep=';') 
 m.scale(['population'])
 m.df["cid"] = (m.df.contact == "high").astype(int)
 #m.data_to_model(['total_tools', 'population', 'cid'])
 def model(cid, population, total_tools):
-    a = dist.normal(3, 0.5, shape= (2,), name='a')
-    b = dist.normal(0, 0.2, shape=(2,), name='b')
+    a = m.dist.normal(3, 0.5, shape= (2,), name='a')
+    b = m.dist.normal(0, 0.2, shape=(2,), name='b')
     l = jnp.exp(a[cid] + b[cid]*population)
     m.poisson(l, obs=total_tools)
 

@@ -419,7 +419,7 @@ window.Quarto = {
   <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">7.4.2</span> <em>Bayesian formulation</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">7.5</span> Notes</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">8.1</span> Reference(s)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">7.6</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -448,7 +448,6 @@ window.Quarto = {
 <section id="general-principles" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">7.1</span> General Principles</h2>
 <p>To model the relationship between a binary dependent variable —e.g., success/failure, yes/no, or 1/0— and one or more independent variables, we can use a <em>Binomial model</em>.</p>
-<p><img src="https://i.sstatic.net/xHlvv.png" class="img-fluid"></p>
 </section>
 <section id="considerations" class="level2" data-number="7.2">
 <h2 data-number="7.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">7.2</span> Considerations</h2>
@@ -464,7 +463,7 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>We have the first <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span> <em>logit</em>. The <em>logit</em> link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution.</p></li>
+<li><p>We have the first <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span> <em>logit</em>. The <em>logit</em> link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution <span class="math inline">\(\in[0,1]\)</span>.</p></li>
 </ul>
 </div>
 </div>
@@ -477,22 +476,23 @@ Caution
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span> bi</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># import data ------------------------------------------------</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../resources/data//chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>])</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left):</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal( <span class="dv">0</span>, <span class="dv">10</span>, shape<span class="op">=</span>(<span class="dv">1</span>,), name <span class="op">=</span> <span class="st">'a'</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    m.binomial(logits<span class="op">=</span>a[<span class="dv">0</span>], obs<span class="op">=</span>pulled_left)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>m.run(model, num_samples<span class="op">=</span><span class="dv">500</span>) </span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># import data ------------------------------------------------</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../resources/data//chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>])</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal( <span class="dv">0</span>, <span class="dv">10</span>, shape<span class="op">=</span>(<span class="dv">1</span>,), name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    m.binomial(logits<span class="op">=</span>a[<span class="dv">0</span>], obs<span class="op">=</span>pulled_left)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>m.run(model, num_samples<span class="op">=</span><span class="dv">500</span>) </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
@@ -507,7 +507,7 @@ Caution
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(pulled_left){</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="dv">10</span>, <span class="at">name =</span> <span class="st">'alpha'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="dv">10</span>, <span class="at">name =</span> <span class="st">'alpha'</span>)</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">binomial</span>(<span class="at">logits =</span> alpha, <span class="at">obs=</span>pulled_left)</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -581,18 +581,29 @@ Note
 <li><p>We can apply categorical variables similarly as in <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
 <li><p>Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents the side individuals pulled, and three independent variables (<em>actor</em>, <em>side</em>, <em>cond</em>). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as the different conditions.</p></li>
 </ul>
-<p>```python from main import bi m = bi(platform=‘cpu’) m.data(‘../resources/data/chimpanzees.csv’, sep=‘;’) m.df[‘treatment’] = m.df.prosoc_left + 2 * m.df.condition m.df[‘actor’] = m.df[‘actor’] - 1</p>
-<p>m.data_to_model([‘actor’, ‘treatment’, ‘pulled_left’])</p>
-<p>def model(actor, treatment, pulled_left): a = dist.normal(0, 1.5, shape = (7,), name=‘a’) b = dist.normal(0, 0.5, shape = (4,), name=‘b’) p = a[actor] + b[treatment] m.lk(“y”, dist.binomial(1, logits=p), obs=pulled_left)</p>
-<section id="run-sampler" class="level1" data-number="8">
-<h1 data-number="8"><span class="header-section-number">8</span> Run sampler ————————————————</h1>
-<p>m.run(model) # Diagnostic ———————————————— m.summary()</p>
-</section>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../resources/data/chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">'treatment'</span>] <span class="op">=</span>  m.df.prosoc_left <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> m.df.condition</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">'actor'</span>] <span class="op">=</span> m.df[<span class="st">'actor'</span>] <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'actor'</span>, <span class="st">'treatment'</span>, <span class="st">'pulled_left'</span>])</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(actor, treatment, pulled_left):</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">1.5</span>, shape <span class="op">=</span> (<span class="dv">7</span>,), name<span class="op">=</span><span class="st">'a'</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape <span class="op">=</span> (<span class="dv">4</span>,), name<span class="op">=</span><span class="st">'b'</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> a[actor] <span class="op">+</span> b[treatment]</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    m.lk(<span class="st">"y"</span>, dist.binomial(<span class="dv">1</span>, logits<span class="op">=</span>p), obs<span class="op">=</span>pulled_left)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </section>
-<section id="references" class="level2" data-number="8.1">
-<h2 data-number="8.1" class="anchored" data-anchor-id="references"><span class="header-section-number">8.1</span> Reference(s)</h2>
+<section id="references" class="level2" data-number="7.6">
+<h2 data-number="7.6" class="anchored" data-anchor-id="references"><span class="header-section-number">7.6</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
@@ -798,7 +809,7 @@ tippy('#Rhat', {
 
 tippy('#DP', {
 
-  content: convertMarkdownToHTML('A dependent variable is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
+  content: convertMarkdownToHTML('A dependent variable  is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
 
   allowHTML: true,
 
@@ -840,7 +851,7 @@ tippy('#lk', {
 
 tippy('#pdist', {
 
-  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilitiesare assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variabletakes finite or infinite values.'),
+  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilities are assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variable takes finite or infinite values.'),
 
   allowHTML: true,
 
@@ -854,7 +865,7 @@ tippy('#pdist', {
 
 tippy('#intercept ', {
 
-  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as β in linear models.'),
+  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as α in linear models.'),
 
   allowHTML: true,
 
@@ -868,7 +879,7 @@ tippy('#intercept ', {
 
 tippy('#slope ', {
 
-  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β₁ in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
+  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
 
   allowHTML: true,
 
@@ -896,6 +907,36 @@ tippy('#prior', {
 
 
 
+tippy('#BT', {
+
+  content: '<span style="color: white;">Bayes\' Theorem describes how to update the probability of a hypothesis given new evidence. It states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use ofBayesian updating to improve the accuracy of the model.</span>',
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#BUpdating', {
+
+    content: '<span style="color: white;">Bayesian updating is the iterative process of refining beliefs by applying Bayes\' Theorem as new data becomes available.</span>',
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+
+
 
 
 tippy('#overdispersion', {
@@ -914,7 +955,7 @@ tippy('#overdispersion', {
 
 tippy('#linkF', {
 
-    content: '<span style="color: white;">The *link function* is a key component of the *generalized linear model* (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges.The link function ensures that the modeled mean stays within a valid range.For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link(commonly used in logistic regression), the coefficients relate to the log - odds of the outcome.With an identity link(as in standard linear regression), the coefficients represent direct changes in the response variable.</span>',
+    content: '<span style="color: white;">The link function is a key component of the generalized linear model (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges. For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link (used in logistic regression), the coefficients relate to the log - odds of the outcome.</span>',
 
     allowHTML: true,
 
@@ -1182,7 +1223,7 @@ tippy('#scaled', {
 
 tippy('#grandMean', {
 
-  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their reference or mean levels. </span>",
+  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their mean levels. </span>",
 
   allowHTML: true,
 

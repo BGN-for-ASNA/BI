@@ -1,6 +1,6 @@
 # Multiple continuous variables model
 ## General Principles
-To study relationships between multiple continuous variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd) by adding a regression coefficient $\beta_x$ for each continuous variable (e.g., $\beta_{weight}$ and $\beta_{age}$).
+To study relationships between multiple continuous independent variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd) by adding a regression coefficient $\beta_x$ for each continuous variable (e.g., $\beta_{weight}$ and $\beta_{age}$).
 
 ![](https://miro.medium.com/v2/resize:fit:786/format:webp/0*dJqdzk1aMo2OQR7O)
 
@@ -18,7 +18,7 @@ Below is example code demonstrating Bayesian multiple linear regression using th
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from main import*
+from BI import bi
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -32,10 +32,10 @@ m.data_to_model(['weight', 'height', 'age']) # Send to model (convert to jax arr
 # Define model ------------------------------------------------
 def model(height, weight, age):
     # Parameters priors distributions
-    alpha = bi.dist.normal(0, 0.5, name = 'alpha')    
-    beta1 = bi.dist.normal(0, 0.5, name = 'beta1')
-    beta2 = bi.dist.normal(0, 0.5, name = 'beta2')
-    sigma = bi.dist.uniform(0,50, name = 'sigma')
+    alpha = m.dist.normal(0, 0.5, name = 'alpha')    
+    beta1 = m.dist.normal(0, 0.5, name = 'beta1')
+    beta2 = m.dist.normal(0, 0.5, name = 'beta2')
+    sigma = m.dist.uniform(0,50, name = 'sigma')
     # Likelihood
     m.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
 
@@ -43,7 +43,7 @@ def model(height, weight, age):
 m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89) # Get posterior distributions
+m.summary()
 ```
 
 ### R

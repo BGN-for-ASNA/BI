@@ -463,14 +463,12 @@ Caution
 <ul>
 <li><p>We have the same considerations as for <a href="./5. Binomial model.html">Binomial regression</a>.</p></li>
 <li><p>A Beta-Binomial model assumes that each binomial count observation has its own probability of success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.</p></li>
-<li><p>A Beta distribution has two parameters: the rates for each probabilities and a shape parameter θ. θ influence how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\eta\)</span> , which determine the concentration of probability around 0 and 1. The values of 𝛼 and 𝛽 shape the distribution:</p>
+<li><p>A Beta distribution has two parameters: the rates for each probabilities and a shape parameter θ. θ influence how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> , which determine the concentration of probability around 0 and 1.</p>
 <ul>
-<li><p>If both are greater than 1, the distribution is bell-shaped and centered around the mean 𝑝.</p></li>
-<li><p>If <span class="math inline">\(\gamma\)</span> &lt; 1 and <span class="math inline">\(\eta\)</span> &lt; 1, the distribution is U-shaped, indicating that outcomes are more likely to be near 0 or 1.</p></li>
-<li><p>If 𝛼 = <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\eta\)</span> = 1, the Beta distribution is uniform.</p></li>
+<li>If both are equal or greater than 1, the distribution is bell-shaped and centered around 0.5.</li>
+<li>If 𝛼 &gt; 𝛽 , the distribution is skewed toward 1 and if <span class="math inline">\(\beta &gt; \alpha\)</span>, it is skewed toward 0. Thus, the shape parameters <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\eta\)</span> provide flexibility in modeling various types of prior beliefs about probabilities.</li>
 </ul></li>
 </ul>
-<p>Thus, the shape parameters 𝛼 <span class="math inline">\(\gamma\)</span> <span class="math inline">\(\eta\)</span> provide flexibility in modeling various types of prior beliefs about probabilities.</p>
 </div>
 </div>
 </section>
@@ -480,7 +478,7 @@ Caution
 <ol type="1">
 <li><p>One binary dependent variable (admit), which represents candidates’ admission status.</p></li>
 <li><p>One independent categorical variable representing individuals’ gender (gid).</p></li>
-<li><p>Additionally, we have the number of applications (applications) per individual, which will be used to account for independent rates.</p></li>
+<li><p>Additionally, we have the number of applications (applications) per individuals’ gender, which will be used to account for independent rates.</p></li>
 </ol>
 <p>The goal is to evaluate whether the probability of admission is different between genders, while accounting for differences in the number of applications between genders.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
@@ -508,14 +506,14 @@ Caution
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(gid, applications, admit):</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>(<span class="dv">1</span>,), name <span class="op">=</span> <span class="st">'phi'</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> dist.normal( <span class="fl">0.</span>, <span class="fl">1.5</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>(<span class="dv">1</span>,), name <span class="op">=</span> <span class="st">'phi'</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal( <span class="fl">0.</span>, <span class="fl">1.5</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> phi <span class="op">+</span> <span class="dv">2</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    pbar <span class="op">=</span> jax.nn.sigmoid(alpha[gid])</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    concentration1 <span class="op">=</span> pbar<span class="op">*</span>theta</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    concentration0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> pbar) <span class="op">*</span> theta</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    gamma <span class="op">=</span> pbar<span class="op">*</span>theta</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    eta <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> pbar) <span class="op">*</span> theta</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    m.betabinomial(total_count <span class="op">=</span> applications, concentration1 <span class="op">=</span> concentration1, concentration0 <span class="op">=</span> concentration0, obs<span class="op">=</span>admit)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    m.betabinomial(total_count <span class="op">=</span> applications, concentration1 <span class="op">=</span> gamma, concentration0 <span class="op">=</span> eta, obs<span class="op">=</span>admit)</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
@@ -805,7 +803,7 @@ tippy('#Rhat', {
 
 tippy('#DP', {
 
-  content: convertMarkdownToHTML('A dependent variable is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
+  content: convertMarkdownToHTML('A dependent variable  is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
 
   allowHTML: true,
 
@@ -847,7 +845,7 @@ tippy('#lk', {
 
 tippy('#pdist', {
 
-  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilitiesare assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variabletakes finite or infinite values.'),
+  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilities are assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variable takes finite or infinite values.'),
 
   allowHTML: true,
 
@@ -861,7 +859,7 @@ tippy('#pdist', {
 
 tippy('#intercept ', {
 
-  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as β in linear models.'),
+  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as α in linear models.'),
 
   allowHTML: true,
 
@@ -875,7 +873,7 @@ tippy('#intercept ', {
 
 tippy('#slope ', {
 
-  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β₁ in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
+  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
 
   allowHTML: true,
 
@@ -903,6 +901,36 @@ tippy('#prior', {
 
 
 
+tippy('#BT', {
+
+  content: '<span style="color: white;">Bayes\' Theorem describes how to update the probability of a hypothesis given new evidence. It states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use ofBayesian updating to improve the accuracy of the model.</span>',
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#BUpdating', {
+
+    content: '<span style="color: white;">Bayesian updating is the iterative process of refining beliefs by applying Bayes\' Theorem as new data becomes available.</span>',
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+
+
 
 
 tippy('#overdispersion', {
@@ -921,7 +949,7 @@ tippy('#overdispersion', {
 
 tippy('#linkF', {
 
-    content: '<span style="color: white;">The *link function* is a key component of the *generalized linear model* (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges.The link function ensures that the modeled mean stays within a valid range.For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link(commonly used in logistic regression), the coefficients relate to the log - odds of the outcome.With an identity link(as in standard linear regression), the coefficients represent direct changes in the response variable.</span>',
+    content: '<span style="color: white;">The link function is a key component of the generalized linear model (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges. For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link (used in logistic regression), the coefficients relate to the log - odds of the outcome.</span>',
 
     allowHTML: true,
 
@@ -1189,7 +1217,7 @@ tippy('#scaled', {
 
 tippy('#grandMean', {
 
-  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their reference or mean levels. </span>",
+  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their mean levels. </span>",
 
   allowHTML: true,
 

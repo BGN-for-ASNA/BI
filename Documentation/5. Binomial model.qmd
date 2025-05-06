@@ -2,13 +2,12 @@
 ## General Principles
 To model the relationship between a binary dependent variable —e.g., success/failure, yes/no, or 1/0— and one or more independent variables, we can use a _Binomial model_. 
 
-![](https://i.sstatic.net/xHlvv.png)
 
 ## Considerations
 ::: callout-caution 
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- We have the first [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF} _logit_. The _logit_ link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution. 
+- We have the first [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF} _logit_. The _logit_ link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution $\in[0,1]$. 
   
 :::
 
@@ -19,6 +18,7 @@ Below is an example code snippet that demonstrates Bayesian binomial regression 
 ### Python
 ```python
 from main import bi
+
 # setup platform------------------------------------------------
 m = bi(platform='cpu')
 # import data ------------------------------------------------
@@ -130,7 +130,7 @@ Where:
 
 
 ```python
-from main import bi
+from BI import bi
 m = bi(platform='cpu')
 m.data('../resources/data/chimpanzees.csv', sep=';') 
 m.df['treatment'] =  m.df.prosoc_left + 2 * m.df.condition
@@ -148,7 +148,7 @@ def model(actor, treatment, pulled_left):
 m.run(model) 
 # Diagnostic ------------------------------------------------
 m.summary()
-
+```
 :::
 
 ## Reference(s)
