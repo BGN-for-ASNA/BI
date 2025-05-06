@@ -440,11 +440,11 @@ window.Quarto = {
 <p>We recommend reading the introduction first since some key concepts here will not be revisited in later chapters.</p>
 <section id="bayesian-analysis" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Bayesian analysis</h1>
-<p>Bayesian analysis is a statistical approach that uses probability theory to update beliefs about the parameters of a model as new data becomes available. Bayesian methods have several key advantages as they allow <span id="Uncertainty"><span style="color:#0D6EFD">direct uncertainty quantification 🛈</span></span>, <span id="Uncertainty"><span style="color:#0D6EFD">incorporation of prior knowledge 🛈</span></span> and <span id="Uncertainty"><span style="color:#0D6EFD">flexibility for complex models 🛈</span></span>.</p>
+<p>Bayesian analysis is a statistical approach that uses probability theory to update beliefs about the parameters of a model as new data becomes available. Bayesian methods have several key advantages as they allow <span id="Uncertainty"><span style="color:#0D6EFD">direct uncertainty quantification 🛈</span></span>, <span id="priorKnowledge"><span style="color:#0D6EFD">incorporation of prior knowledge 🛈</span></span> and <span id="Flexibility"><span style="color:#0D6EFD">flexibility for complex models 🛈</span></span>.</p>
 </section>
 <section id="model-set-up-bayesian-linear-regression-example" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Model set-up, Bayesian linear regression example</h1>
-<p>To illustrate the basics of setting up a Bayesian model, let’s consider a simple linear regression example. In this example, we build a simple model where we predict a <span id="DP"><span style="color:#0D6EFD">dependent variable 🛈</span></span> <span class="math inline">\(y\)</span> from a single <span id="IP"><span style="color:#0D6EFD">independent variable 🛈</span></span> <span class="math inline">\(x\)</span>. Where we will not focus on the equations and their details but rather used them to describe the different components of a Bayesian model, how parameters optimization algorithm works in Bayesian analysis, and provide basic technical vocabulary related to Bayesian methods. For further details on the mathematical formulas of the model, please refer to <a href="./1. Linear Regression for continuous variable.html">Chapter 1: Multiple Continuous Variables</a>.</p>
+<p>To illustrate the basics of setting up a Bayesian model, let’s consider a simple linear regression example. In this example, we build a simple model where we predict a <span id="DP"><span style="color:#0D6EFD">dependent variable 🛈</span></span> <span class="math inline">\(y\)</span> from a single <span id="IP"><span style="color:#0D6EFD">independent variable 🛈</span></span> <span class="math inline">\(x\)</span>. Where we will not focus on the equations and their details but rather used them to describe the different components of a Bayesian model, how parameters optimization algorithm works in Bayesian analysis, and provide basic technical vocabulary related to Bayesian methods. For further details on the mathematical formulas of the model, please refer to <a href="./1. Linear Regression for continuous variable.html">Chapter 1: Linear Regression for continuous variable</a>.</p>
 <section id="the-likelihood" class="level3" data-number="4.0.1">
 <h3 data-number="4.0.1" class="anchored" data-anchor-id="the-likelihood"><span class="header-section-number">4.0.1</span> The Likelihood</h3>
 <p>The <span id="lk"><span style="color:#0D6EFD"><em>likelihood</em> 🛈</span></span> can be consider as your main equation that combines the different terms of the model. Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.), the likelihood will be different. Additionally, a model can have multiple likelihoods (e.g., network models).</p>
@@ -452,7 +452,7 @@ window.Quarto = {
 <p><span class="math display">\[
 y \sim \text{Normal}(\mu, \sigma)
 \]</span></p>
-<p>Basically, where our likelihood is saying that the <em>dependent variable</em> <span class="math inline">\(y\)</span> is normally distributed with a mean <span class="math inline">\(\mu\)</span> and a standard deviation <span class="math inline">\(\sigma\)</span>. <em>Probability distribution</em> are available in BI through the class <code>bi.dist.XXX</code> where <code>XXX</code> is the name of the distribution you want to use. Within any <code>bi.dist.XXX</code> class, you can define which of the distribution need to be used as a likelihood by adding an argument <code>obs</code>, e.g., <code>m.normal(alpha + beta * x, s, obs=y)</code>.</p>
+<p>Basically, where our likelihood is saying that the <em>dependent variable</em> <span class="math inline">\(y\)</span> is normally distributed with a mean <span class="math inline">\(\mu\)</span> and a standard deviation <span class="math inline">\(\sigma\)</span>. <em>Probability distribution</em> are available in BI through the class <code>bi.dist.XXX</code> where <code>XXX</code> is the name of the distribution you want to use. Within any <code>bi.dist.XXX</code> class, you can define which of the distribution need to be used as a likelihood by adding an argument <code>obs</code>, e.g., <code>m.normal(alpha + beta * x, s, obs=y)</code>. You can see this as instructing the model to adjust its parameters to best explain the observed dependent variable 𝑦, given the independent variable 𝑥, by maximizing the likelihood.</p>
 </section>
 <section id="modeling-likelihood" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="modeling-likelihood"><span class="header-section-number">4.1</span> Modeling Likelihood</h2>
@@ -645,7 +645,7 @@ P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P
 </section>
 <section id="model-comparison" class="level2" data-number="4.6">
 <h2 data-number="4.6" class="anchored" data-anchor-id="model-comparison"><span class="header-section-number">4.6</span> Model comparison</h2>
-<p>Model comparison is performed by evaluating how well different models explain the observed data while accounting for model complexity. Multiple criteria can be used to compare models, and are summarized in the table below. In BI, wwe can compare models using <em>Watanabe-Akaike Information Criterion (WAIC)</em> with the function <code>m.aic(model1,model2)</code>.</p>
+<p>Model comparison is performed by evaluating how well different models explain the observed data while accounting for model complexity. Multiple criteria can be used to compare models, and are summarized in the table below. In BI, wwe can compare models using <em>Watanabe-Akaike Information Criterion (WAIC)</em> with the function <code>m.diag.aic(model1,model2)</code>.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 18%">
@@ -887,7 +887,7 @@ tippy('#Rhat', {
 
 tippy('#DP', {
 
-  content: convertMarkdownToHTML('A dependent variable is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
+  content: convertMarkdownToHTML('A dependent variable  is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
 
   allowHTML: true,
 
@@ -929,7 +929,7 @@ tippy('#lk', {
 
 tippy('#pdist', {
 
-  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilitiesare assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variabletakes finite or infinite values.'),
+  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilities are assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variable takes finite or infinite values.'),
 
   allowHTML: true,
 
@@ -943,7 +943,7 @@ tippy('#pdist', {
 
 tippy('#intercept ', {
 
-  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as β in linear models.'),
+  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as α in linear models.'),
 
   allowHTML: true,
 
@@ -957,7 +957,7 @@ tippy('#intercept ', {
 
 tippy('#slope ', {
 
-  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β₁ in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
+  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
 
   allowHTML: true,
 
@@ -985,6 +985,36 @@ tippy('#prior', {
 
 
 
+tippy('#BT', {
+
+  content: '<span style="color: white;">Bayes\' Theorem describes how to update the probability of a hypothesis given new evidence. It states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use ofBayesian updating to improve the accuracy of the model.</span>',
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#BUpdating', {
+
+    content: '<span style="color: white;">Bayesian updating is the iterative process of refining beliefs by applying Bayes\' Theorem as new data becomes available.</span>',
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+
+
 
 
 tippy('#overdispersion', {
@@ -1003,7 +1033,7 @@ tippy('#overdispersion', {
 
 tippy('#linkF', {
 
-    content: '<span style="color: white;">The *link function* is a key component of the *generalized linear model* (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges.The link function ensures that the modeled mean stays within a valid range.For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link(commonly used in logistic regression), the coefficients relate to the log - odds of the outcome.With an identity link(as in standard linear regression), the coefficients represent direct changes in the response variable.</span>',
+    content: '<span style="color: white;">The link function is a key component of the generalized linear model (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges. For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link (used in logistic regression), the coefficients relate to the log - odds of the outcome.</span>',
 
     allowHTML: true,
 
