@@ -2,8 +2,8 @@ import pandas as pd
 import jax
 import jax.numpy as jnp
 from jax import vmap
-from BI.utils.unified_dists import UnifiedDist as dist
-from BI.utils.link import link
+from BI.Utils.dists import UnifiedDist as dist
+from BI.Utils.link import link
 import numpyro
 import inspect
 from IPython.display import Markdown

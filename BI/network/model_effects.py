@@ -1,4 +1,4 @@
-from BI.network.util import array_manip
+from BI.Network.util import array_manip
 import jax 
 from jax import jit
 import jax.numpy as jnp
@@ -6,7 +6,7 @@ from numpyro import deterministic
 import os
 import sys
 import inspect
-from BI.utils.unified_dists import UnifiedDist as dist
+from BI.Utils.dists import UnifiedDist as dist
 
 class Neteffect(array_manip):
     def __init__(self) -> None:
