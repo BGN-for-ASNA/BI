@@ -29,9 +29,12 @@ from BI import bi
 m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
-m.data('../data/tulips.csv', sep=';') # Import
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'tulips.csv'
+m.data(data_path, sep=';') 
 m.scale(['blooms', 'water', 'shade']) # Scale
-m.data_to_model(['blooms', 'water', 'shade']) # Send to model (convert to jax array)
+
 
 # Define model ------------------------------------------------
 def model(blooms,shade, water):

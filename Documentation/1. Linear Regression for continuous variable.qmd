@@ -40,14 +40,17 @@ Below is an example code snippet demonstrating Bayesian linear regression using 
 
 ``` python
 from BI import bi
+
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
-m.data('../data/Howell1.csv', sep=';') # Import
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'Howell1.csv'
+m.data(data_path, sep=';') 
 m.df = m.df[m.df.age > 18] # Manipulate
 m.scale(['weight']) # Scale
-m.data_to_model(['weight', 'height']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 def model(weight, height):    

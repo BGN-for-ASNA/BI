@@ -3,14 +3,13 @@
 ## General Principles
 To model the relationship between a categorical outcome variable with more than two categories and one or more independent variables, we can use a _Multinomial_ model. 
 
-![](https://statstest.b-cdn.net/wp-content/uploads/2020/05/Multinomial-Logistic-Regression-1.jpg)
 
 ## Considerations
 
 ::: callout-caution 
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
   
-- One way to interpret a multinomial model is to consider that we need to build $K - 1$ linear models, where $K$ is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a [<span style="color:#0D6EFD">simplex 🛈</span>]{#simplex}. To do this, we convert the regression outputs using the [<span style="color:#0D6EFD">softmax function 🛈</span>]{#softmax} (see the "nn.softmax" line in the code). 
+- One way to interpret a multinomial model is to consider that we need to build $K - 1$ linear models, where $K$ is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a [<span style="color:#0D6EFD">simplex 🛈</span>]{#simplex}. To do this, we convert the regression outputs using the [<span style="color:#0D6EFD">softmax function 🛈</span>]{#softmax} (see the "jax.nn.softmax" line in the code). 
 
 - The intercept $\alpha$ captures the difference in the log-odds of the outcome categories; thus, different categories need different intercepts.
   
@@ -26,40 +25,34 @@ Below is an example code snippet demonstrating Bayesian multinomial model using 
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from main import*
-# Simulated data--------------------------------------------------------------------------
-# simulate career choices among 500 individuals
-N = 500  # number of individuals
-income = jnp.array([1, 2, 5])  # expected income of each career
-score = 0.5 * income  # scores for each career, based on income
+from BI import bi
+import jax.numpy as jnp
+import pandas as pd
+import jax
+# Setup device ------------------------------------------------
+m = bi('cpu')
 
-# next line converts scores to probabilities
-p = jnp.array(jax.nn.softmax(score))
-
-# now simulate choice
-# outcome career holds event type values, not counts
-career = bi.dist.categorical(p, shape=N, sample=True)
-m.data_on_model = dict(
-    income=income,
-    career=career
-)
-d.to_csv('Sim data multinomial.csv')
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'Sim data multinomial.csv'
+m.data(data_path, sep=',') 
 
 # Define model ------------------------------------------------
 def model(career, income ):
-    a = dist.normal(0, 1, name = 'a', shape= (2,))
-    b = bi.dist.halfnormal(0.5,  name = 'b')
+    a = m.dist.normal(0, 1, shape= (2,), name = 'a')
+    b = m.dist.halfnormal(0.5,  shape= (1,),name = 'b')
     s_1 = a[0] + b * income[0]
     s_2 = a[1] + b * income[1]
     s_3 = [0] #pivot
     p = jax.nn.softmax(jnp.stack([s_1[0], s_2[0], s_3[0]]))
-    m.categorical(probs =  p, obs=career)
+    m.dist.categorical(probs =  p, obs=career)
 
 # Run sampler ------------------------------------------------ 
 m.run(model)  # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89) # Get posterior distributions
+m.summary() # Get posterior distributions
 ```
 
 ### R

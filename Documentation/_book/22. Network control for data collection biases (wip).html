@@ -64,7 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./23. Network Metrics (wip).html" rel="next">
+<link href="./23. Network Metrics.html" rel="next">
 <link href="./21. Network with block model.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -352,7 +352,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./23. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./23. Network Metrics.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
   </div>
 </li>
@@ -360,24 +360,6 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./24. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./25. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./26. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./27. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -755,7 +737,7 @@ tippy('#Rhat', {
 
 tippy('#DP', {
 
-  content: convertMarkdownToHTML('A dependent variable is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
+  content: convertMarkdownToHTML('A dependent variable  is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
 
   allowHTML: true,
 
@@ -797,7 +779,7 @@ tippy('#lk', {
 
 tippy('#pdist', {
 
-  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilitiesare assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variabletakes finite or infinite values.'),
+  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilities are assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variable takes finite or infinite values.'),
 
   allowHTML: true,
 
@@ -811,7 +793,7 @@ tippy('#pdist', {
 
 tippy('#intercept ', {
 
-  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as β in linear models.'),
+  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as α in linear models.'),
 
   allowHTML: true,
 
@@ -825,7 +807,7 @@ tippy('#intercept ', {
 
 tippy('#slope ', {
 
-  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β₁ in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
+  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
 
   allowHTML: true,
 
@@ -853,6 +835,36 @@ tippy('#prior', {
 
 
 
+tippy('#BT', {
+
+  content: '<span style="color: white;">Bayes\' Theorem describes how to update the probability of a hypothesis given new evidence. It states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use ofBayesian updating to improve the accuracy of the model.</span>',
+
+  allowHTML: true,
+
+  interactive: true,
+
+  delay: 100,
+
+});
+
+
+
+tippy('#BUpdating', {
+
+    content: '<span style="color: white;">Bayesian updating is the iterative process of refining beliefs by applying Bayes\' Theorem as new data becomes available.</span>',
+
+    allowHTML: true,
+
+    interactive: true,
+
+    delay: 100,
+
+  });
+
+
+
+
+
 
 
 tippy('#overdispersion', {
@@ -871,7 +883,7 @@ tippy('#overdispersion', {
 
 tippy('#linkF', {
 
-    content: '<span style="color: white;">The *link function* is a key component of the *generalized linear model* (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges.The link function ensures that the modeled mean stays within a valid range.For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link(commonly used in logistic regression), the coefficients relate to the log - odds of the outcome.With an identity link(as in standard linear regression), the coefficients represent direct changes in the response variable.</span>',
+    content: '<span style="color: white;">The link function is a key component of the generalized linear model (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges. For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link (used in logistic regression), the coefficients relate to the log - odds of the outcome.</span>',
 
     allowHTML: true,
 
@@ -1139,7 +1151,7 @@ tippy('#scaled', {
 
 tippy('#grandMean', {
 
-  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their reference or mean levels. </span>",
+  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their mean levels. </span>",
 
   allowHTML: true,
 
@@ -1840,7 +1852,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./23. Network Metrics (wip).html" class="pagination-link" aria-label="Network metrics">
+      <a href="./23. Network Metrics.html" class="pagination-link" aria-label="Network metrics">
         <span class="nav-page-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Network metrics</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
