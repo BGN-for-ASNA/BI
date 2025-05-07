@@ -1,6 +1,6 @@
 # Modeling Network
 
-A network represents the relationships (links) between entities (nodes). These links can be weighted (weighted network) or unweighted (binary network), directed (directed network) or undirected (undirected network). Regardless of their type, networks generate links shared by nodes, leading to data dependency when modeling the network. One proposed solution is to model network links with random [intercepts](12.%20Varying%20intercepts.qmd) and [effects](13.%20Varying%20slopes.qmd). By adding such parameters to the model, we can account for the correlations between node link relationships.
+A network represents the relationships (links) between entities (nodes). These links can be weighted (weighted network) or unweighted (binary network), directed (directed network) or undirected (undirected network). Regardless of their type, networks generate links shared by nodes, leading to data dependency when modeling the network. One proposed solution is to model network links with random [intercepts](13.%20Varying%20intercepts.qmd) and [effects](14.%20Varying%20slopes.qmd). By adding such parameters to the model, we can account for the correlations between node link relationships.
 
 ## Considerations
 ::: callout-caution
@@ -12,7 +12,8 @@ Below is an example code snippet demonstrating Bayesian network model with send-
 
 ## Python
 ```Python
-from .bi.main import*
+from BI import bi
+
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
@@ -134,7 +135,7 @@ where:
 - 
 ### *Defining formula sub-equations and prior distributions*
 
-$\lambda_i$ and $\pi_j$ are varying [intercepts](12.%20Varying%20intercepts.qmd) and [slopes](13.%20Varying%20slopes.qmd) identical to those described in previous chapters and are define through the following equations:
+$\lambda_i$ and $\pi_j$ are varying [intercepts](13.%20Varying%20intercepts.qmd) and [slopes](14.%20Varying%20slopes.qmd) identical to those described in previous chapters and are define through the following equations:
 
 $$
 \left(\begin{array}{cc} 

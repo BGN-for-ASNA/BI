@@ -372,7 +372,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./23. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./23. Network Metrics.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
   </div>
 </li>
@@ -380,24 +380,6 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./24. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./25. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./26. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./27. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -469,7 +451,7 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We have the same considerations as for <a href="12. Varying intercepts.qmd">12. Varying intercepts</a>.</p></li>
+<li><p>We have the same considerations as for <a href="./13. Varying intercepts.html">12. Varying intercepts</a>.</p></li>
 <li><p>The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a <span id="MatCov"><span style="color:#0D6EFD">matrix of covariance 🛈</span></span>.</p></li>
 <li><p>The covariance matrix requires a correlation matrix distribution which is modeled using a <span class="math inline">\(LKJcorr\)</span> distribution that holds a parameter <span class="math inline">\(η\)</span>. <span class="math inline">\(η\)</span> is usually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use <span class="math inline">\(LKJcorr(1)\)</span>, the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.</p></li>
 <li><p>The Half-Cauchy distribution is used when modeling the covariance matrix to specify strictly positive values for the diagonal of the covariance matrix, ensuring positive variances.</p></li>
@@ -486,33 +468,32 @@ Caution
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'Sim data multivariatenormal.csv'</span>, sep<span class="op">=</span><span class="st">','</span>) </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.data.to_model([<span class="st">'cafe'</span>, <span class="st">'wait'</span>, <span class="st">'N_cafes'</span>])</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(cafe, wait, N_cafes):</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">5</span>, <span class="dv">2</span>, name <span class="op">=</span> <span class="st">'a'</span>) <span class="co">#Standard Normal Vector </span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="op">-</span><span class="dv">1</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'b'</span>) <span class="co"># Standard Normal Vector </span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    sigma_cafe <span class="op">=</span> dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>[<span class="dv">2</span>], name <span class="op">=</span> <span class="st">'sigma_cafe'</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> dist.exponential( <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    Rho <span class="op">=</span> dist.lkj(<span class="dv">2</span>, <span class="dv">2</span>, name <span class="op">=</span> <span class="st">'Rho'</span>) <span class="co"># Cholesky Factor</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Applies the correlation structure between the variables.</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Scaling the Cholesky Factor by the standard deviations.</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> jnp.outer(sigma_cafe, sigma_cafe) <span class="op">*</span> Rho <span class="co"># In a multivariate normal distribution, we not only have correlations (from sr_L), but also individual standard deviations for each variable (from sr_sigma). The diag_pre_multiply operation ensures that each variable's correlation structure is properly scaled by its standard deviation. This makes it possible to account for both correlations and individual variability when generating samples.</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This operation applies the correlation and standard deviation structure (encoded in scaled_sr_L) to the standard normal variables sr_raw. The result is a sample from a multivariate normal distribution that respects both the correlations between variables and the individual standard deviations.</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    a_cafe, b_cafe <span class="op">=</span> a_cafe_b_cafe[:, <span class="dv">0</span>], a_cafe_b_cafe[:, <span class="dv">1</span>]</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a_cafe[cafe] <span class="op">+</span> b_cafe[cafe] <span class="op">*</span> afternoon</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    m.normal(mu, sigma, obs<span class="op">=</span>wait)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'bi.resources.data'</span>) <span class="op">/</span> <span class="st">'Sim data multivariatenormal.csv'</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(cafe, wait, N_cafes, afternoon):</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">5</span>, <span class="dv">2</span>,  name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.normal(<span class="op">-</span><span class="dv">1</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    sigma_cafe <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>(<span class="dv">2</span>,),  name <span class="op">=</span> <span class="st">'sigma_cafe'</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential( <span class="dv">1</span>,  name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    Rho <span class="op">=</span> m.dist.lkj(<span class="dv">2</span>, <span class="dv">2</span>, name <span class="op">=</span> <span class="st">'Rho'</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> jnp.outer(sigma_cafe, sigma_cafe) <span class="op">*</span> Rho</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    a_cafe_b_cafe <span class="op">=</span> m.dist.multivariatenormal(jnp.stack([a, b]), cov, shape <span class="op">=</span> [N_cafes], name <span class="op">=</span> <span class="st">'a_b_cafe'</span>)    </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    a_cafe, b_cafe <span class="op">=</span> a_cafe_b_cafe[:, <span class="dv">0</span>], a_cafe_b_cafe[:, <span class="dv">1</span>]</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a_cafe[cafe] <span class="op">+</span> b_cafe[cafe] <span class="op">*</span> afternoon</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(mu, sigma, obs<span class="op">=</span>wait)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>m.run(model) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
@@ -670,7 +651,7 @@ L \sim LKJcorr(2)
 </section>
 <section id="multivariate-model-with-one-random-slope-for-each-variable" class="level2" data-number="16.6">
 <h2 data-number="16.6" class="anchored" data-anchor-id="multivariate-model-with-one-random-slope-for-each-variable"><span class="header-section-number">16.6</span> <em>Multivariate Model with One Random Slope for Each Variable</em></h2>
-<p>We can apply a multivariate model similarly to <a href=".\2. Multiple Regression for Continuous Variables.qmd">Chapter 2</a>. In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for <span class="math inline">\(i\)</span> actors in a model with two independent variables <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>, we can define the formula as follows:</p>
+<p>We can apply a multivariate model similarly to <a href="2. Multiple continuous variable.qmd">Chapter 2</a>. In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for <span class="math inline">\(i\)</span> actors in a model with two independent variables <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>, we can define the formula as follows:</p>
 <p><span class="math display">\[
 p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma)
 \]</span></p>

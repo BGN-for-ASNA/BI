@@ -15,25 +15,28 @@ Below is an example code snippet demonstrating Bayesian Gamma-Poisson model usin
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from main import *
+from BI import bi
 # Setup device ------------------------------------------------
-m = bi(platform='cpu)# Import
+m = bi(platform='cpu') # Import
 
 # Import Data & Data Manipulation ------------------------------------------------
-m.data('../data/Sim dat Gamma poisson.csv', sep=',')  # Import
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'Sim dat Gamma poisson.csv'
+m.data(data_path, sep=',') 
 m.data_to_model(['log_days', 'monastery', 'y']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 def model(log_days, monastery, y):
-    a = dist.normal(0, 1, name = 'a', shape=(1,))
-    b = dist.normal(0, 1, name = 'b', shape=(1,))
-    l = jnp.exp(log_days + a + b * monastery)
+    a = m.dist.normal(0, 1, name = 'a', shape=(1,))
+    b = m.dist.normal(0, 1, name = 'b', shape=(1,))
+    l = m.jnp.exp(log_days + a + b * monastery)
     m.poisson(rate = l, obs=y)
 # Run MCMC ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89) # Get posterior distributions
+m.summary() # Get posterior distributions
 ```
 
 ### R
@@ -125,11 +128,11 @@ Where:
 ## Notes
 
 ::: callout-note 
-- We can apply multiple variables similarly as in [chapter 2](2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
+- We can apply multiple variables similarly as in [chapter 2](2.&#32;Multiple&#32;continuous&#32;variables.qmd).
 
 - We can apply interaction terms similarly as in [chapter 3](3.&#32;Interaction&#32;between&#32;Continuous&#32;Variables.qmd).
 
-- We can apply categorical variables similarly as in [chapter 4](4.&#32;Categorical&#32;variable.md).
+- We can apply categorical variables similarly as in [chapter 4](4.&#32;Categorical&#32;variable.qmd).
 :::
 
 ## Reference(s)

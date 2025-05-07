@@ -33,13 +33,16 @@ Here’s an example Bayesian survival analysis using the **Bayesian Inference (B
 
 ### Python
 ```python
-from main import *
+from BI import bi
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
-m.data('data/mastectomy.csv', sep=',') # Import
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'mastectomy.csv'
+m.data(data_path, sep=',') 
 
 m.df.metastasized = (m.df.metastasized == "yes").astype(np.int64)
 m.df.event = jnp.array(m.df.event.values, dtype=jnp.int32)
@@ -54,9 +57,9 @@ m.plot_censoring(cov='metastasized')
 def model(intervals, death, metastasized, exposure):
     # Parameters priors distributions-------------------------
     ## Base hazard distribution
-    lambda0 = bi.dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
+    lambda0 = m.dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
     ## Covariate effect distribution
-    beta = bi.dist.normal(0, 1000, shape = (1,),  name='beta')
+    beta = m.dist.normal(0, 1000, shape = (1,),  name='beta')
     ### Likelihood
     #### Compute hazard rate based on covariate effect
     lambda_ = m.hazard_rate(cov = metastasized, beta = beta, lambda0 = lambda0)

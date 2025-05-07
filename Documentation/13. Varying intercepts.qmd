@@ -24,37 +24,32 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 ::: {.panel-tabset group="language"}
 ## Python
 ```python
-from main import*
+from BI import bi
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
-m.data('../data/reedfrogs.csv', sep=';') # Import
-m.df["tank"] = np.arange(m.df.shape[0]) # Manipulate
-tank = jnp.array(m.df["tank"].astype('int32').values) # Manipulate
-density = jnp.array(m.df["density"].astype('float32').values) # Manipulate
-surv = jnp.array(m.df["surv"].astype('int32').values) # Manipulate
-m.data_on_model = dict(
-    tank = tank,
-    surv = surv
-) # Send to model (convert to jax array)
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'reedfrogs.csv'
+m.data(data_path, sep=';') 
+# Manipulate
+m.df["tank"] = np.arange(m.df.shape[0]) 
 
 # Define model ------------------------------------------------
 def model(tank, surv, density):
-    sigma = dist.exponential( 1, shape=(1,), name = 'sigma')
-    a_bar = dist.normal( 0., 1.5, shape=(1,), name = 'a_bar')
-    alpha = dist.normal( a_bar, sigma, shape= tank.shape, name = 'alpha')
+    sigma = m.dist.exponential( 1,  name = 'sigma')
+    a_bar = m.dist.normal( 0., 1.5,  name = 'a_bar')
+    alpha = m.dist.normal( a_bar, sigma, shape= tank.shape, name = 'alpha')
     p = alpha[tank]
-    print(p.shape)
-    m.binomial(total_count = density, logits = p, obs=surv)
+    m.dist.binomial(total_count = density, logits = p, obs=surv)
 
+# Run sampler ------------------------------------------------
+m.run(model) 
 
-# Run mcmc ------------------------------------------------
-m.run(model) # Optimize model parameters through MCMC sampling
-
-# Summary ------------------------------------------------
-m.summary(0.89) # Get posterior distributions
+# Diagnostic ------------------------------------------------
+m.summary()
 ```
 ## R
 
@@ -157,7 +152,7 @@ Where:
 
 ## Notes
 ::: callout-note 
-- We can apply multiple variables similarly to [Chapter 2](/2.%20Multiple%20Regression%20for%20Continuous%20Variables.qmd).
+- We can apply multiple variables similarly to [Chapter 2](2.&#32;Multiple&#32;continuous&#32;Variables.qmd).
 
 - We can apply interaction terms similarly to [Chapter 3](/3.%20Interaction%20between%20continuous%20variables.qmd).
 

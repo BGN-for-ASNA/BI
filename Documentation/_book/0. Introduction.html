@@ -352,7 +352,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./23. Network Metrics (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./23. Network Metrics.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Network metrics</span></span></a>
   </div>
 </li>
@@ -360,24 +360,6 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./24. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./25. Multiplex network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multiplex network model</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./26. Multiplex temporal network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multiplex temporal network model</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./27. Multilayer network model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Multilayer Networks</span></span></a>
   </div>
 </li>
     </ul>
@@ -517,7 +499,7 @@ y \sim \text{Normal}(\mu, \sigma)
 </section>
 <section id="the-prior-distributions" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="the-prior-distributions"><span class="header-section-number">4.3</span> The Prior Distributions</h2>
-<p>For each parameters of our equation that describe <span class="math inline">\(\mu\)</span> , we need to define a <span id="prior"><span style="color:#0D6EFD"><em>prior distribution</em> 🛈</span></span> that encodes our initial beliefs about the parameter. In the case of the linear regression model, we need to specify <em>prior distributions</em> for (<span class="math inline">\(\alpha\)</span>), slope (<span class="math inline">\(\beta\)</span>), and standard deviation (<span class="math inline">\(\sigma\)</span>):</p>
+<p>For each parameters of our equation that describe <span class="math inline">\(\mu\)</span> , we need to define a <span id="prior"><span style="color:#0D6EFD"><em>prior distribution</em> 🛈</span></span> that encodes our initial beliefs about the parameter. In the case of the linear regression model, we need to specify <em>prior distributions</em> for the intercept <span class="math inline">\(\alpha\)</span>, the slope <span class="math inline">\(\beta\)</span>, and standard deviation <span class="math inline">\(\sigma\)</span>.</p>
 <p><span class="math display">\[
 \alpha \sim \text{Normal}(0, 1)
 \]</span></p>
@@ -540,13 +522,28 @@ y \sim \text{Normal}(\mu, \sigma)
 \sigma \sim \text{Uniform}(0, 1)
 \]</span></p>
 <p>In BI you will need to define this model within a function in which you will be able to use any probability distributions, ink functions and declare any mathematical operations required for your model. BI have been designed to allow you to declare your model as close as possible to the mathematical notation. For example, the model above can be written in BI as:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>bi <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(x, y):    </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bi.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'alpha'</span>,shape<span class="op">=</span> (<span class="dv">1</span>,))</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> bi.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'beta'</span>,shape<span class="op">=</span> (<span class="dv">1</span>,))   </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> bi.dist.uniform( <span class="dv">0</span>, <span class="dv">50</span>, name <span class="op">=</span> <span class="st">'sigma'</span>,shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    m.normal(alpha <span class="op">+</span> beta <span class="op">*</span> x , , obs<span class="op">=</span>y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Notice that for eah parameter declared in the model you will need to give it a unique name as well as a shale. The shape is the number of parameters you want to estimate. For example, if you want to estimate a different <span class="math inline">\(\beta\)</span> for each predictor, you would need to declare <span class="math inline">\(\beta\)</span> with a shape equal to the number of predictors. By default, the shape is one those technically you don’t need to specify it. In this example we only wanted to highlight this feature.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>bi <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>dat <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> m.dist.normal(<span class="dv">178</span>, <span class="dv">20</span>, sample <span class="op">=</span> <span class="va">True</span>)   </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> m.dist.lognormal( <span class="dv">0</span>, <span class="dv">1</span>, sample <span class="op">=</span> <span class="va">True</span>)   </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> dat</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(x, y):    </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bi.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'alpha'</span>, shape<span class="op">=</span> (<span class="dv">1</span>,))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> bi.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'beta'</span>, shape<span class="op">=</span> (<span class="dv">1</span>,))   </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> bi.dist.uniform( <span class="dv">0</span>, <span class="dv">50</span>, name <span class="op">=</span> <span class="st">'sigma'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    m.normal(alpha <span class="op">+</span> beta <span class="op">*</span> x , , obs<span class="op">=</span>y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The code snippet provides several key features of the <em>BI</em> package:</p>
+<ol type="1">
+<li><p>First, you need to initialize a bi object.</p></li>
+<li><p>Then, you can store data as a JAX array dictionary using the <code>m.data_on_model</code> function. If all the data can be stored in a data frame (e.g., <a href="./1. Linear Regression for continuous variable.html">Linear Regression for continuous variable</a>), you do not need to use <code>m.data_on_model</code>, as the BI object automatically detects the data provided in the model arguments. However, sometimes you may need different data structures such as vector(s) and 2D array(s) (e.g., <a href="./20. Network model.html">Network model</a>).</p></li>
+<li><p>Regarding distribution parameters, note the difference depending on whether you are generating data outside a function (e.g., for simulation purposes) or specifying priors inside a model function. In the former case, the argument <code>sample</code> should be set to <code>True</code>. However, if you are specifying priors within a model function, this argument must be set to <code>False</code>.</p></li>
+<li><p>Finally, note that each parameter declared in the model must have a unique <code>name</code> as well as a <code>shape</code>. The shape refers to the number of parameters you want to estimate. For example, if you want to estimate a different <span class="math inline">\(\beta\)</span> for each independent variable, you would declare <span class="math inline">\(\beta\)</span> with a shape equal to the number of independent variable. By default, the shape is one, so technically you don’t need to specify it in this. In this example, we highlight this feature explicitly.</p></li>
+</ol>
 <section id="which-prior-distribution-range-to-use" class="level3" data-number="4.3.1">
 <h3 data-number="4.3.1" class="anchored" data-anchor-id="which-prior-distribution-range-to-use"><span class="header-section-number">4.3.1</span> Which prior distribution range to use?</h3>
 <p>The choice of prior ranges can significantly affect Bayesian analysis results. There are several approaches to selecting them:</p>
@@ -559,7 +556,7 @@ y \sim \text{Normal}(\mu, \sigma)
 </section>
 <section id="model-fit-and-posterior-distribution" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="model-fit-and-posterior-distribution"><span class="header-section-number">4.4</span> Model fit and posterior distribution</h2>
-<p>Once data are observed, <span id="BT"><span style="color:#0D6EFD"><em>Bayes’ Theorem</em> 🛈</span></span> to evaluate how well a given set of parameters value fits the data:</p>
+<p>Once data are observed, <span id="BT"><span style="color:#0D6EFD"><em>Bayes’ Theorem</em> 🛈</span></span> is used to evaluate how well a given set of parameters value fits the data:</p>
 <p><span class="math display">\[
 P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P(\text{data})}
 \]</span></p>
@@ -568,14 +565,13 @@ P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P
 <li><p><span class="math inline">\(\theta\)</span> represents the unknown parameters we are interested in.</p></li>
 <li><p><span class="math inline">\(P(\theta)\)</span> is the <strong>prior distribution</strong>, representing our beliefs about <span class="math inline">\(\theta\)</span> before seeing the data.</p></li>
 <li><p><span class="math inline">\(P(\text{data} \mid \theta)\)</span> is the <strong>likelihood</strong>, representing the model of how the data are generated given <span class="math inline">\(\theta\)</span>.</p></li>
-<li><p><span class="math inline">\(P(\theta \mid \text{data})\)</span> is the <strong>posterior distribution</strong>, representing our updated beliefs after observing the data.</p></li>
+<li><p><span class="math inline">\(P(\theta \mid \text{data})\)</span> is the <strong>posterior distribution</strong>, representing our updated beliefs after observing the data. It tells us not only the most likely value of <span class="math inline">\(\theta\)</span>,(e.g., <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\sigma\)</span> in our case) but also quantifies the uncertainty in these estimates.</p></li>
 </ul>
-<p>This distribution reflects our updated beliefs about the parameters after observing the data. It tells us not only the most likely value of <span class="math inline">\(\theta\)</span>,(e.g., <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\sigma\)</span> in our case) but also quantifies the uncertainty in these estimates.</p>
-<p>We can use <span id="BUpdating"><span style="color:#0D6EFD"><em>Bayesian updating</em> 🛈</span></span> using the <em>Bayesian theorem</em> to ‘reshape’ the prior distributions by considering every possible combination of values for our parameters, and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of our parameters: the <em>posterior distributions</em>. Various techniques can be used to approximate the mathematical definition of Bayes’ theorem: <em>grid approximation</em>, <em>quadratic approximation</em>, and Markov chain Monte Carlo (<em>MCMC</em>). Description of this algorithms are out of the scope of this document. For more information, please refer to the <a href="">Bayesian Inference</a>. In BI, we use MCMC and it can be call as <code>m.run(model)</code> where <code>model</code> is the function that describe the model.</p>
+<p>We can use <span id="BUpdating"><span style="color:#0D6EFD"><em>Bayesian updating</em> 🛈</span></span> using the <em>Bayesian theorem</em> to ‘reshape’ the prior distributions by considering every possible combination of values for our parameters, and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of our parameters: the <em>posterior distributions</em>. Various techniques can be used to approximate the mathematical definition of Bayes’ theorem: <em>grid approximation</em>, <em>quadratic approximation</em>, and Markov chain Monte Carlo (<em>MCMC</em>). Description of this algorithms are out of the scope of this document. For more information, please refer to the <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Bayesian Inference</a>. In BI, we use MCMC and it can be call as <code>m.run(model)</code> where <code>model</code> is the function that describe the model.</p>
 </section>
 <section id="model-diagnostic" class="level2" data-number="4.5">
 <h2 data-number="4.5" class="anchored" data-anchor-id="model-diagnostic"><span class="header-section-number">4.5</span> Model ‘diagnostic’</h2>
-<p>Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Mulitple diagnostics approaches can be used to assess the model’s performance. Below are some key diagnostic tools and techniques available in BI within the class <code>bi.diagnostics.XXX</code> where <code>XXX</code> is the name of the diagnostic tool.</p>
+<p>Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Mulitple diagnostics approaches can be used to assess the model’s performance. Below are some key diagnostic tools and techniques available in BI within the class <code>bi.diag.XXX</code> where <code>XXX</code> is the name of the diagnostic tool.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 16%">
@@ -645,7 +641,7 @@ P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P
 </section>
 <section id="model-comparison" class="level2" data-number="4.6">
 <h2 data-number="4.6" class="anchored" data-anchor-id="model-comparison"><span class="header-section-number">4.6</span> Model comparison</h2>
-<p>Model comparison is performed by evaluating how well different models explain the observed data while accounting for model complexity. Multiple criteria can be used to compare models, and are summarized in the table below. In BI, wwe can compare models using <em>Watanabe-Akaike Information Criterion (WAIC)</em> with the function <code>m.diag.aic(model1,model2)</code>.</p>
+<p>Model comparison is performed by evaluating how well different models explain the observed data while accounting for model complexity. Multiple criteria can be used to compare models, and are summarized in the table below. In BI, we can compare models using <em>Watanabe-Akaike Information Criterion (WAIC)</em> with the function ``m.diag.waic(model1,model2)```.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 18%">
@@ -1301,7 +1297,7 @@ tippy('#scaled', {
 
 tippy('#grandMean', {
 
-  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their reference or mean levels. </span>",
+  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their mean levels. </span>",
 
   allowHTML: true,
 

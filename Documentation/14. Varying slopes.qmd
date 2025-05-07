@@ -10,7 +10,7 @@ This approach is useful when we expect the relationship between predictors and t
 ## Considerations
 
 ::: callout-caution
--   We have the same considerations as for [12. Varying intercepts](12.%20Varying%20intercepts.qmd).
+-   We have the same considerations as for [12. Varying intercepts](13.%20Varying%20intercepts.qmd).
 
 -   The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [<span style="color:#0D6EFD">matrix of covariance 🛈</span>]{#MatCov}.
 
@@ -30,33 +30,33 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 ## Python
 
 ``` python
-from main import*
+from BI import bi
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
-m.data('Sim data multivariatenormal.csv', sep=',') 
-m.data.to_model(['cafe', 'wait', 'N_cafes'])
 
-def model(cafe, wait, N_cafes):
-    a = dist.normal(5, 2, name = 'a') #Standard Normal Vector 
-    b = dist.normal(-1, 0.5, name = 'b') # Standard Normal Vector 
-    sigma_cafe = dist.exponential(1, shape=[2], name = 'sigma_cafe')
-    sigma = dist.exponential( 1, name = 'sigma')
-    Rho = dist.lkj(2, 2, name = 'Rho') # Cholesky Factor
-    # Applies the correlation structure between the variables.
-    # Scaling the Cholesky Factor by the standard deviations.
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'Sim data multivariatenormal.csv'
+m.data(data_path, sep=',') 
 
-    cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho # In a multivariate normal distribution, we not only have correlations (from sr_L), but also individual standard deviations for each variable (from sr_sigma). The diag_pre_multiply operation ensures that each variable's correlation structure is properly scaled by its standard deviation. This makes it possible to account for both correlations and individual variability when generating samples.
-    # This operation applies the correlation and standard deviation structure (encoded in scaled_sr_L) to the standard normal variables sr_raw. The result is a sample from a multivariate normal distribution that respects both the correlations between variables and the individual standard deviations.
+# Define model ------------------------------------------------
+def model(cafe, wait, N_cafes, afternoon):
+    a = m.dist.normal(5, 2,  name = 'a')
+    b = m.dist.normal(-1, 0.5, name = 'b')
+    sigma_cafe = m.dist.exponential(1, shape=(2,),  name = 'sigma_cafe')
+    sigma = m.dist.exponential( 1,  name = 'sigma')
+    Rho = m.dist.lkj(2, 2, name = 'Rho')
+    cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho
+    a_cafe_b_cafe = m.dist.multivariatenormal(jnp.stack([a, b]), cov, shape = [N_cafes], name = 'a_b_cafe')    
 
     a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
     mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
-    m.normal(mu, sigma, obs=wait)
+    m.dist.normal(mu, sigma, obs=wait)
 
-# Run mcmc ------------------------------------------------
+# Run sampler ------------------------------------------------
 m.run(model) 
 
-# Summary ------------------------------------------------
-m.summary()
 ```
 
 ## R
@@ -239,7 +239,7 @@ $$
 
 ## *Multivariate Model with One Random Slope for Each Variable*
 
-We can apply a multivariate model similarly to [Chapter 2](/2.%20Multiple%20Regression%20for%20Continuous%20Variables.qmd). In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ actors in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
+We can apply a multivariate model similarly to [Chapter 2](2.%20Multiple%20continuous%20variable.qmd). In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ actors in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
 
 $$
 p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) 

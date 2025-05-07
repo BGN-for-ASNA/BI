@@ -22,7 +22,10 @@ from main import bi
 # setup platform------------------------------------------------
 m = bi(platform='cpu')
 # import data ------------------------------------------------
-m.data('../resources/data//chimpanzees.csv', sep=';') 
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'chimpanzees.csv'
+m.data(data_path, sep=';') 
 m.data_to_model(['pulled_left'])
 
 # Define model ------------------------------------------------
@@ -120,9 +123,9 @@ Where:
 ## Notes
 ::: callout-note
 
-- We can apply multiple variables similarly as in [chapter 2](/2.&#32;Multiple&#32;Regression&#32;for&#32;Continuous&#32;Variables.qmd).
+- We can apply multiple variables similarly as in [chapter 2](2.&#32;Multiple&#32;continuous&#32;variables.qmd).
   
-- We can apply interaction terms similarly as in [chapter 3](\3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+- We can apply interaction terms similarly as in [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
 
 - We can apply categorical variables similarly as in [chapter 4](4.&#32;Categorical&#32;variable.qmd). 
   

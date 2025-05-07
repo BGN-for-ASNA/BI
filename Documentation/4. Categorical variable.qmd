@@ -29,7 +29,10 @@ from main import*
 m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
-m.data('../data/milk.csv', sep=';') # Import
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'milk.csv'
+m.data(data_path, sep=';') 
 m.index(["clade"]) # Manipulate
 m.scale(['kcal_per_g']) # Scale
 m.data_to_model(['kcal_per_g', "index_clade"]) # Send to model (convert to jax array)
