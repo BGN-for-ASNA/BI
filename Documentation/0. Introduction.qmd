@@ -92,14 +92,31 @@ $$
 In BI you will need to define this model within a function in which you will be able to use any probability distributions, ink functions and declare any mathematical operations required for your model. BI have been designed to allow you to declare your model as close as possible to the mathematical notation. For example, the model above can be written in BI as:
 
 ```python
+from BI import bi
+import jax.numpy as jnp
+
 bi = bi(platform='cpu')
+dat = dict(
+    x = m.dist.normal(178, 20, sample = True)   
+    y = m.dist.lognormal( 0, 1, sample = True)   
+)
+m.data_on_model = dat
+
 def model(x, y):    
-    alpha = bi.dist.normal( 0, 1, name = 'alpha',shape= (1,))
-    beta = bi.dist.normal( 0, 1, name = 'beta',shape= (1,))   
-    sigma = bi.dist.uniform( 0, 50, name = 'sigma',shape = (1,))
+    alpha = bi.dist.normal( 0, 1, name = 'alpha', shape= (1,))
+    beta = bi.dist.normal( 0, 1, name = 'beta', shape= (1,))   
+    sigma = bi.dist.uniform( 0, 50, name = 'sigma', shape = (1,))
     m.normal(alpha + beta * x , , obs=y)
 ```
-Notice that for eah parameter declared in the model you will need to give it a unique name as well as a shape. The shape is the number of parameters you want to estimate. For example, if you want to estimate a different $\beta$ for each predictor, you would need to declare $\beta$ with a shape equal to the number of predictors. By default, the shape is one thus technically you don't need to specify it. In this example we only wanted to highlight this feature.
+The code snippet provides several key features of the *BI* package:
+
+1. First, you need to initialize a bi object.
+
+3. Then, you can store data as a JAX array dictionary using the ```m.data_on_model``` function. If all the data can be stored in a data frame (e.g., [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd)), you do not need to use ```m.data_on_model```, as the BI object automatically detects the data provided in the model arguments. However, sometimes you may need different data structures such as vector(s) and 2D array(s) (e.g., [Network model](20.&#32;Network&#32;model.qmd)).
+
+4. Regarding distribution parameters, note the difference depending on whether you are generating data outside a function (e.g., for simulation purposes) or specifying priors inside a model function. In the former case, the argument ```sample``` should be set to ```True```. However, if you are specifying priors within a model function, this argument must be set to ```False```.
+
+5. Finally, note that each parameter declared in the model must have a unique ```name``` as well as a ```shape```. The shape refers to the number of parameters you want to estimate. For example, if you want to estimate a different $\beta$ for each independent variable, you would declare $\beta$ with a shape equal to the number of independent variable. By default, the shape is one, so technically you don't need to specify it in this. In this example, we highlight this feature explicitly.
 
 ### Which prior distribution range to use?
 

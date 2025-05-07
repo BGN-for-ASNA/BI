@@ -14,8 +14,7 @@ setuptools.setup(
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         packages=setuptools.find_packages(),
-        install_requires=[], # add any additional packages that 
-        # needs to be installed along with your package. Eg: 'caer'
+        install_requires=['numpyro', 'pandas', 'seaborn', 'tensorflow'],
         keywords=['python', 'Bayesian inferences'],
         include_package_data=True,
         classifiers= [

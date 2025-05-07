@@ -24,10 +24,12 @@ from BI import bi
 m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
-m.data('../data/Howell1.csv', sep=';')  # Import
+from importlib.resources import files
+# Import
+data_path = files('bi.resources.data') / 'Howell1.csv'
+m.data(data_path, sep=';') 
 m.df = m.df[m.df.age > 18] # Manipulate
 m.scale(['weight', 'age']) # Scale
-m.data_to_model(['weight', 'height', 'age']) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 def model(height, weight, age):

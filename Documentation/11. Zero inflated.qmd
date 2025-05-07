@@ -14,9 +14,10 @@ Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson re
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
+from BI import bi
 from jax.scipy.special import expit
-r.seed(42)
-from main import *
+# Setup device ------------------------------------------------
+m = bi('cpu')
 
 # Simulated data------------------------------------------------
 prob_drink = 0.2  # 20% of days
@@ -24,10 +25,11 @@ rate_work = 1     # average 1 manuscript per day
 
 # Sample one year of production
 N = 365
+drink = m.bi.binomial(1, prob_drink, shape = (N,), sample = True)
+y = (1 - drink) * m.bi.poisson(rate_work, , shape = (N,), sample = True)
 
-np.random.seed(365)
-drink = np.random.binomial(1, prob_drink, N)
-y = (1 - drink) * np.random.poisson(rate_work, N)
+# Setup device ------------------------------------------------
+m = bi('cpu')
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -47,7 +49,7 @@ def model(y):
 m.run(model) 
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.summary()
 ```
 
 ### R

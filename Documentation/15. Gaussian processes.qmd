@@ -19,32 +19,44 @@ Below is an example code snippet demonstrating Gaussian Process regression using
 ::: {.panel-tabset group="language"}
 ## Python
 ```Python
-from main import *
+from BI import bi
+import jax.numpy as jnp
+import numpyro
+# Setup device------------------------------------------------
 m = bi(platform='cpu')
-m.data('resources/data/Kline2.csv', sep=";")
-islandsDistMatrix = pd.read_csv('resources/data/islandsDistMatrix.csv'"", index_col=0)
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'Kline2.csv'
+m.data(data_path, sep=';') 
+
+data_path2 = files('bi.resources.data') / 'Kline2.csv'
+islandsDistMatrix = pd.read_csv(data_path2, index_col=0)
+
 m.data_to_model(['total_tools', 'population'])
 m.data_on_model["society"] = jnp.arange(0,10)# index observations
 m.data_on_model["Dmat"] = islandsDistMatrix.values # Distance matrix
 
 
 def model(Dmat, population, society, total_tools):
-    a = bi.dist.exponential(1, name = 'a')
-    b = bi.dist.exponential(1, name = 'b')
-    g = bi.dist.exponential(1, name = 'g')
+    a = m.dist.exponential(1, name = 'a')
+    b = m.dist.exponential(1, name = 'b')
+    g = m.dist.exponential(1, name = 'g')
 
     # non-centered Gaussian Process prior
-    etasq = bi.dist.exponential(2, name = 'etasq')
-    rhosq = bi.dist.exponential(0.5, name = 'rhosq')
-    z = bi.dist.normal(0,1, name = 'z', shape = (10,))
-    SIGMA, L_SIGMA, k = bi.kernel_sq_exp(Dmat, z, etasq, rhosq, 0.01)
- 
+    etasq = m.dist.exponential(2, name = 'etasq')
+    rhosq = m.dist.exponential(0.5, name = 'rhosq')
+    SIGMA = cov_GPL2(Dmat, etasq, rhosq, 0.01)
+    k = m.dist.multivariatenormal(0, SIGMA, name = 'k')
+    #k = m.gaussian.gaussian_process(Dmat, etasq, rhosq, 0.01, shape = (10,))
+    k = m.gaussian.kernel_L2(Dmat, etasq, rhosq, 0.01)
     lambda_ = a * population**b / g * jnp.exp(k[society])
 
-    m.oisson(lambda_, obs=total_tools)
+    m.dist.poisson(lambda_, obs=total_tools)
 
 # Run sampler ------------------------------------------------
-m.run(model, num_samples=500) 
+m.run(model) 
 m.summary()
 ```
 

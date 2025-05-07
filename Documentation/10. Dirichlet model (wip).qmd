@@ -3,11 +3,9 @@
 ## General Principles
 To model the relationship between a categorical outcome variable with more than two categories and one or more independent variables with [<span style="color:#0D6EFD">overdispersion 🛈</span>]{#overdispersion}, we can use a _Dirichlet_ model.
 
-![](https://statstest.b-cdn.net/wp-content/uploads/2020/05/Multinomial-Logistic-Regression-1.jpg)
-
 ## Considerations
 ::: callout-caution 
-- We have the same considerations as for the [Multinomial model](7.&#32;Multinomial&#32;model.qmd).
+- We have the same considerations as for the [Multinomial model](9.&#32;Multinomial&#32;model.qmd).
 
 - One major difference from the multinomial model is that the Dirichlet model doesn’t require a simplex but rather strictly positive values. We can thus exponentiate the outputs from the categorical regressions instead of using the softmax function.
 - 
@@ -15,40 +13,36 @@ To model the relationship between a categorical outcome variable with more than 
 
 ## Example
 ```python
-# Simulated data--------------------------------------------------------------------------
-# simulate career choices among 500 individuals
-N = 500  # number of individuals
-income = jnp.array([1, 2, 5])  # expected income of each career
-score = 0.5 * income  # scores for each career, based on income
+from BI import bi
+import jax.numpy as jnp
+import pandas as pd
+import jax
+# Setup device ------------------------------------------------
+m = bi('cpu')
 
-# next line converts scores to probabilities
-p = jnp.array(jax.nn.softmax(score))
-
-# now simulate choice
-# outcome career holds event type values, not counts
-career = bi.dist.categorical(p, shape=N, sample=True)
-m.data_on_model = dict(
-    income=income,
-    career=career
-)
-d.to_csv('Sim data multinomial.csv')
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = files('bi.resources.data') / 'Sim data multinomial.csv'
+m.data(data_path, sep=',') 
 
 # Define model ------------------------------------------------
 def model(income, career):
     # Parameters priors distributions
-    alpha = dist.normal(0, 1, shape=[2], name='a')
-    beta = dist.halfnormal(0.5, shape=[1], name='b')
+    alpha = m.dist.normal(0, 1, shape=(2,), name='a')
+    beta = m.dist.halfnormal(0.5, shape=(1,), name='b')
     s_1 = alpha[0] + beta * income[0]
     s_2 = alpha[1] + beta * income[1]
     s_3 = alpha[0] + beta * income[0]
     p = jax.nn.exp(jnp.stack([s_1[0], s_2[0], s_3[0]]))
     # Likelihood
-    lk("y", DirichletMultinomial(probs=p[career]), obs=career)
+    m.dirichletmultinomial(p[career], lambda_, obs=career)
+    
 # Run sampler ------------------------------------------------ 
 m.run(model)  
 
 # Summary ------------------------------------------------
-m.sampler.print_summary(0.89)
+m.summary()
 ```
 
 ## Mathematical Details
