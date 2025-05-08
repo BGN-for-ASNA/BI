@@ -77,7 +77,7 @@
 % Include section in journal if known, otherwise delete
 \paperfield{Methods in Ecology and Evolution}
 
-\title{Bayesian inference using the BI Python package}
+\title{Bayesian Inference library}
 
 % List abbreviations here, if any. Please note that it is preferred that abbreviations be defined at the first instance they appear in the text, rather than creating an abbreviations list.
 %\abbrevs{ABC, a black cat; DEF, doesn't ever fret; GHI, goes home immediately.}
@@ -85,7 +85,7 @@
 % Include full author names and degrees, when required by the journal.
 % Use the \authfn to add symbols for additional footnotes and present addresses, if any. Usually start with 1 for notes about author contributions; then continuing with 2 etc if any author has a different present address.
 \author[1]{Sebastian Sosa}
-\author[2]{Cody T. Ross}
+\author[1]{Cody T. Ross}
 
 
 % Include full affiliation details for all authors
@@ -153,17 +153,17 @@
 \begin{abstract}
 
 \begin{enumerate}
-    \item  \textit{Bayesian modeling} is a powerful paradigm in modern statistics and machine learning. However, practitioners face significant obstacles.
+    \item  Bayesian modeling is a powerful paradigm in modern statistics and machine learning. However, practitioners face significant obstacles.
    
-    \item  \textit{Interoperability:} The landscape of Bayesian software is fragmented across programming languages and abstraction levels. Newcomers often gravitate towards high-level interfaces within familiar environments due to their accessibility for standard models.
+    \item  The landscape of Bayesian software is fragmented across programming languages and abstraction levels. Newcomers often gravitate towards high-level interfaces within familiar environments due to their accessibility for standard models.
 
-    \item \textit{Accessibility-Flexibility Trade-off:} To gain the necessary flexibility, researchers must often transition to lower-level probabilistic programming languages.
+    \item To gain the necessary flexibility, researchers must often transition to lower-level probabilistic programming languages.
    
-    \item  \textit{Domain-Specific Limitations:} Similar accessibility and flexibility trade-offs exist in domain-specific Bayesian packages. 
+    \item  Similar accessibility and flexibility trade-offs exist in domain-specific Bayesian packages. 
     
-    \item  \textit{Scalability:} Computational demands remain a significant bottleneck, limiting the application of Bayesian methods to the large datasets and complex, high-dimensional models prevalent in modern research.
+    \item   Computational demands remain a significant bottleneck, limiting the application of Bayesian methods to the large datasets and complex, high-dimensional models prevalent in modern research.
 
-    \item We introduce \textit{Bayesian Inference (BI)} software, available in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax (enhancing \textbf{accessibility}) with the \textbf{flexibility} of low-level abstraction coding available but also pre-build function for high-level of abstraction and including hardware-accelerated computation for improved \textbf{scalability}. 
+    \item \textit{Bayesian Inference (BI)} software is available in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax with the flexibility of low-level abstraction coding available but also pre-build function for high-level of abstraction and including hardware-accelerated computation for improved scalability. 
 
 \end{enumerate}
 
@@ -194,6 +194,89 @@ We contend that the added cognitive load of learning Bayesian methods while simu
 \section{Software Presentation}\label{software-presentation}
 \subsection{Interoperability}\label{Interoperability}
 \textit{BI} directly confronts the \textbf{interoperability} challenge by offering native, feature-equivalent implementations in both Python and R. While minor syntactic differences exist to adhere to the idiomatic conventions of each language, the core model specification syntax, the procedural workflow for analysis, and the underlying computational engines remain fundamentally consistent. For instance, Python utilizes dot notation for method calls on class objects (e.g., \texttt{bi.dist.normal(0,1)}), while R employs dollar sign notation for accessing elements or methods within its object system (e.g., \texttt{bi\$dist\$normal(0,1)}). This dual-language availability significantly lowers the adoption barrier for researchers, allowing them to work entirely within their preferred programming environment without sacrificing access to a common, powerful Bayesian modeling framework. 
+\subsection{Accessibility}\label{Accessibility}
+\textit{BI} is designed to encapsulate the entire Bayesian modeling workflow within a cohesive object-oriented structure, promoting a streamlined and reproducible analysis pipeline. Typically, a user interacts with a primary \texttt{BI} object, through which they can sequentially:
+
+\begin{enumerate}
+    \item   \textbf{Handle Data:} Load, preprocess, and associate dataset(s) with the model object.
+  
+    \item   \textbf{Define Model:} Specify the model structure, including the likelihood(s), priors for all parameters, and incorporate any pre-built components using an intuitive formula syntax.
+% ---
+% -   **Specify Inference:** Select the desired inference engine (e.g., NUTS via *NumPyro* or *TFP*, potentially Variational Inference methods) and configure its parameters (e.g., number of chains, warmup iterations, target acceptance rate). Crucially, the choice of computational backend (*NumPyro*, *TFP*) can often be switched with minimal changes to the model specification code.
+% --- % Converted to comment
+    \item   \textbf{Run Inference:} Execute the model fitting process using the No-U-Turn Sampler (NUTS), which triggers the backend PPL (e.g., \textit{NumPyro}, \textit{TFP}) to perform Markov Chain Monte Carlo (MCMC) sampling. Progress indicators and diagnostics are typically provided.
+  
+    \item   \textbf{Analyze Posterior:} Access, summarize, and diagnose the posterior distributions of parameters. This includes methods for calculating posterior means, medians, credible intervals, convergence diagnostics (e.g., $\hat{R}$, Effective Sample Size - ESS), and retrieving raw posterior samples for custom analysis.
+   
+    \item   \textbf{Visualize Results:} Generate standard diagnostic plots (e.g., trace plots, rank plots, posterior distributions) and visualizations of model parameters, effects, and predictions using integrated plotting functions that leverage the \textit{arviz} library.
+\end{enumerate}
+
+ This unified structure minimizes the need for users to juggle multiple disparate software tools or manually transfer data and results between different stages of the analysis, thereby enhancing efficiency and reproducibility. Finally, \textit{BI} includes over 24 well-documented implementations of various standard and advanced Bayesian models \hyperlink{tab1}{Table 1}. Examples include Generalized Linear Models (GLMs), Generalized Linear Mixed Models (GLMMs), survival analysis models (e.g., Cox proportional hazards), Principal Component Analysis (PCA), phylogenetic comparative methods, and various network models. Each implementation is accompanied by detailed documentation that encompasses: 1) general principles, 2) underlying assumptions, 3) code snippets in Python and R, and 4) mathematical details, enabling users to gain a deeper understanding of the modeling process and its nuances. Additionally, the framework's flexibility allows models to be combined; for example, building a zero-inflated model with varying intercepts and slopes, or constructing a joint model where principal components (derived from PCA) serve as predictors in a subsequent regression, allowing uncertainty to be propagated through all stages of the analysis.
+
+ \label{tab1}
+\begin{table}[bt]
+\caption{This is a table. Tables should be self-contained and complement, but not duplicate, information contained in the text. They should be not be provided as images. Legends should be concise but comprehensive – the table, legend and footnotes must be understandable without reference to the text. All abbreviations must be defined in footnotes.}\label{tab1}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\headrow
+\thead{Documented Models} & \thead{Documentation link} & \thead{Source} & \thead{Citation} \\
+Linear Regression  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Multiple Regression  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Interactions  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Categorical models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Binomial models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Beta-binomial models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Poisson models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Gamma-Poisson models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Dirichlet models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Multinomial models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Dirichlet models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Zero-inflated models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Varying-intercept models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Varying-slopes models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Gaussian process models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Measurement-error models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Missing-data models  & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Latent variable models & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Principal Component Analysis & \url{www.sosa.com/chapter_1.html} & Statistical Rethinking, chapter X & \citep{cite} \\
+
+Basic social network models  & \url{www.sosa.com/chapter_1.html} & STRAND & \citep{cite} \\
+
+Sender-receiver network models  & \url{www.sosa.com/chapter_1.html} & STRAND & \citep{cite} \\
+
+Stochastic blockmodels  & \url{www.sosa.com/chapter_1.html} & STRAND & \citep{cite} \\
+
+Network control for data collection biases & \url{www.sosa.com/chapter_1.html} & ANTs & \citep{cite} \\
+
+Network-based diffusion analysis & \url{www.sosa.com/chapter_1.html} & ANTs & \citep{cite} \\
+
+
+\hline  % Please only put a hline at the end of the table
+\end{tabular}
+
+\begin{tablenotes}
+\item  ~
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
 
 \subsection{Accessibility-flexibility trade-off}\label{Accessibility-flexibility trade-off}
 \textit{BI} is designed to navigate the critical \textit{accessibility-flexibility trade-off} by providing multiple layers of abstraction and utility, catering effectively to users with varying levels of Bayesian modeling expertise and diverse complexity requirements throuhg : simplified backend interaction via intuitive syntax, pre-built components for complex model features , addressing domain-specific limitations within a general framework, integrated End-to-End Workflow and extensive model library and documentation.
@@ -272,58 +355,8 @@ Z = dist.normal(0, 1, name = 'z_individual', shape = (ni,K))
 alpha = random_centered2(Sigma, L, Z)
 \end{lstlisting}
 
-\textit{BI} is designed to encapsulate the entire Bayesian modeling workflow within a cohesive object-oriented structure, promoting a streamlined and reproducible analysis pipeline. Typically, a user interacts with a primary \texttt{BI} object, through which they can sequentially:
-
-
-\begin{itemize}
-    \item   \textbf{Handle Data:} Load, preprocess, and associate dataset(s) with the model object.
-  
-    \item   \textbf{Define Model:} Specify the model structure, including the likelihood(s), priors for all parameters, and incorporate any pre-built components using an intuitive formula syntax.
-% ---
-% -   **Specify Inference:** Select the desired inference engine (e.g., NUTS via *NumPyro* or *TFP*, potentially Variational Inference methods) and configure its parameters (e.g., number of chains, warmup iterations, target acceptance rate). Crucially, the choice of computational backend (*NumPyro*, *TFP*) can often be switched with minimal changes to the model specification code.
-% --- % Converted to comment
-    \item   \textbf{Run Inference:} Execute the model fitting process using the No-U-Turn Sampler (NUTS), which triggers the backend PPL (e.g., \textit{NumPyro}, \textit{TFP}) to perform Markov Chain Monte Carlo (MCMC) sampling. Progress indicators and diagnostics are typically provided.
-  
-    \item   \textbf{Analyze Posterior:} Access, summarize, and diagnose the posterior distributions of parameters. This includes methods for calculating posterior means, medians, credible intervals, convergence diagnostics (e.g., $\hat{R}$, Effective Sample Size - ESS), and retrieving raw posterior samples for custom analysis.
-   
-    \item   \textbf{Visualize Results:} Generate standard diagnostic plots (e.g., trace plots, rank plots, posterior distributions) and visualizations of model parameters, effects, and predictions using integrated plotting functions that leverage the \textit{arviz} library.
-\end{itemize}
-
-This unified structure minimizes the need for users to juggle multiple disparate software tools or manually transfer data and results between different stages of the analysis, thereby enhancing efficiency and reproducibility.
-
-% ---*Extensive Model Library and Documentation:*--- % Converted to comment
-
-Finally, \textit{BI} includes over 21 well-documented implementations of various standard and advanced Bayesian models. Examples include Generalized Linear Models (GLMs), Generalized Linear Mixed Models (GLMMs), survival analysis models (e.g., Cox proportional hazards), Principal Component Analysis (PCA), phylogenetic comparative methods, and various network models. Each implementation is accompanied by detailed documentation that encompasses: 1) general principles, 2) underlying assumptions, 3) code snippets in Python and R, and 4) mathematical details, enabling users to gain a deeper understanding of the modeling process and its nuances. Additionally, the framework's flexibility allows models to be combined; for example, building a zero-inflated model with varying intercepts and slopes, or constructing a joint model where principal components (derived from PCA) serve as predictors in a subsequent regression, allowing uncertainty to be propagated through all stages of the analysis.
-
-% ---
-% | **Table 1**: Table of documented models.                      |
-% |---|
-% | Linear Regression for continuous variable |
-% | Multiple continuous Variable |
-% | Interaction between variables |
-% | Categorical variable |
-% | Binomial model |
-% | Beta binomial |
-% | Poisson model |
-% | Gamma-Poisson |
-% | Multinomial |
-% | Dirichlet model |
-% | Zero inflated |
-% | Varying intercept |
-% | Varying slopes |
-% | Gaussian processes |
-% | Measurement error |
-% | Latent variable |
-% | PCA |
-% | Network model |
-% | Network with block model |
-% | Network control for data collection biases |
-% | Network Based diffusion approach |
-% --- % Commented out table as it's not standard LaTeX table format
-
-% ---*Inheriting Scalability through Modern Backends*
-% Finally, a fundamental design principle of *BI* is to directly address the **scalability** challenge by building upon modern, high-performance computational backends. By utilizing *JAX*-based libraries like *NumPyro* and *TFP*, *BI* inherits their significant computational efficiencies, stemming from features such as Just-In-Time (JIT) compilation and seamless hardware acceleration (GPU/TPU support). These are critical for tackling the large datasets and complex models prevalent in contemporary research. This strategic reliance on the *JAX* ecosystem allows *BI* users to tackle computationally intensive problems that might be infeasible or prohibitively slow using frameworks lacking comparable optimization and hardware acceleration capabilities. By abstracting the backend complexities while retaining their power, *BI* significantly enhances the practical **scalability** of sophisticated Bayesian inference for a wider audience.
-% --- % Converted to comment
+\subsection{Scalability}\label{Scalability}
+ Finally, a fundamental design principle of \texttt{BI}  is to directly address the \texttt{scalability} challenge by building upon modern, high-performance computational backends. By utilizing *JAX*-based libraries like \texttt{NumPyro} and \texttt{TFP}, \texttt{BI} inherits their significant computational efficiencies, stemming from features such as Just-In-Time (JIT) compilation and seamless hardware acceleration (GPU/TPU support). These are critical for tackling the large datasets and complex models prevalent in contemporary research. This strategic reliance on the \texttt{JAX} ecosystem allows \texttt{BI} users to tackle computationally intensive problems that might be infeasible or prohibitively slow using frameworks lacking comparable optimization and hardware acceleration capabilities. By abstracting the backend complexities while retaining their power, \texttt{BI}  significantly enhances the practical \texttt{scalability} of sophisticated Bayesian inference for a wider audience.
 
 
 \section{Example : SRM model}
