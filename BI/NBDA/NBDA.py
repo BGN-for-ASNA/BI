@@ -519,7 +519,7 @@ class NBDA:
  
     def compute_probs(self,D_asocial, asoc,
                       D_social, soc,
-                      network,status,N,T,P):
+                      network,status,N,T):
         lk = jnp.zeros((N,T))
         # Asocial learning -----------------------
         R_asocial = jnp.tensordot(D_asocial[:,0,:], asoc, axes=(-1, 0))    
