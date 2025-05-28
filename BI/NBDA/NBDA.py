@@ -452,67 +452,115 @@ class NBDA:
         self.T_social_names = D_social_names
         self.T_asocial_names = D_asocial_names
         #return dict(D_social=self.D_social, D_asocial=self.D_asocial, status=self.status, network=self.network)
+    
+    @partial(jax.jit, static_argnums=(0,)) 
+    def ces(self, K,L, alpha):
+        Q = (alpha * K + (1 - alpha) * L)
+        return Q
 
-    def model(self,social=None, asocial=None, D_asocial=None, D_social=None, status=None, network=None):
-        N = status.shape[0]
-        T = status.shape[1]
-        lk = jnp.zeros((N,T))
-
-        if social is None:
+    def priors(self, CES = True):
+        T_social_shape = self.T_social.shape[3]
+        T_asocial_shape = self.T_asocial.shape[2]
+        if CES:
+            ces_alpha =  dist.uniform(0.0001, 0.9999, name = 'ces_alpha')
+        if T_social_shape > 1: # Covariates have been provided for social formula
             # Priors for social effect covariates
-            alpha_soc = dist.normal(0, 4, shape = (1,), sample=False,    name='alpha_soc')
-            betas_soc = dist.normal(0, 1, shape = (D_social.shape[3]-1,),    sample=False, name='betas_soc')
-            social = jnp.concatenate((alpha_soc, betas_soc))
-
-        if asocial is None:
+            alpha_soc = dist.normal(0, 2, shape = (1,), sample=False, name='social_learning')
+            betas_soc = []
+            for a in range(T_social_shape-1):
+                beta_soc = dist.normal(0, 2, shape = (1,), sample=False, name=f"Beta_social_{self.T_social_names[a+1]}")
+                betas_soc.append(beta_soc)
+            betas_soc  = jnp.concatenate(betas_soc, -1)
+            soc = jnp.concatenate((alpha_soc, betas_soc), axis = -1)
+        else:
+            soc = dist.normal(0, 2, shape = (1,), sample=False, name='social_learning')
+        if T_asocial_shape > 1: # Covariates have been provided for asocial formula
             # Priors for asocial effect covariates
-            alpha_asoc = dist.normal(0, 4,  shape = (1,), sample=False,  name='alpha_asoc')
-            betas_asoc = dist.normal(0, 1, shape = (D_asocial.shape[2]-1,),  sample=False, name='betas_asoc')
-            asocial = jnp.concatenate((alpha_asoc, betas_asoc))
+            alpha_asoc = dist.normal(0, 2,  shape = (1,), sample=False, name='asocial_learning')
 
-        # Asocial learning -----------------------
-        R_asocial = jnp.tensordot(D_asocial[:,0,:], asocial, axes=(-1, 0))    
-        theta = link.inv_logit(R_asocial)
-        lk = lk.at[:,0].set(theta)      
-        for t in range(1,T):
-            ## Social learning-----------------------
-            R_social = jnp.tensordot(D_social[:,:,t,:], social, axes=(-1, 0))
-            phi = link.inv_logit(R_social)
-            attention_weigthed_network = phi*network[:,:,t,0]
-            social_influence_weight = link.inv_logit_scale(jnp.tensordot(attention_weigthed_network[:,:], status[:,t-1], axes=(-1, 0)))       
-            ## Asocial learning -----------------------
-            R_asocial = jnp.tensordot(D_asocial[:,t,:], asocial, axes=(-1, 0))
-            theta = link.inv_logit(R_asocial)
+            betas_asoc = []
+            for a in range(T_asocial_shape-1):
+                beta_asoc = dist.normal(0, 2, shape = (1,), sample=False, name=f"Beta_asocial_{self.T_asocial_names[a+1]}")
+                betas_asoc.append(beta_asoc)
+            betas_asoc  = jnp.concatenate(betas_asoc, -1)
+            asoc = jnp.concatenate((alpha_asoc, betas_asoc), axis = -1)
+        else:
+            asoc = dist.normal(0, 2, shape = (1,), sample=False, name='asocial_learning')
 
-            # Informed update at t!= 0-----------------------
-            lk = lk.at[:,t].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))       
+        if CES :
+            return soc, asoc, ces_alpha
+        else:
+            return soc, asoc
+    
+    def model(self, CES = True):
+        status = self.status
+        network = self.network
+        D_asocial = self.T_asocial
+        D_social = self.T_social
 
+        N = status.shape[0] # Number of individuals
+        T = status.shape[1] # Number of time steps
+        P = status.shape[2] # Number of processes
 
+        soc, asoc, ces_alpha = self.priors(CES)
+
+        lk = self.compute_probs_ces(D_asocial, asoc,
+                                    D_social, soc,
+                                    ces_alpha,
+                                    network,status,N,T,P)
         mask = ~jnp.isnan(lk)
         with numpyro.handlers.mask(mask=mask): 
-        #m.binomial(probs=lk, obs=status[:,:,0])
-            numpyro.sample("y", numpyro.distributions.Binomial(probs=lk), obs=status[:,:,0])
-
-    def compute_probs(D_asocial,asocial,
-                      D_social,social,
-                      network,status,T):
+            numpyro.sample("y", numpyro.distributions.Binomial(probs=lk), obs=status)
+ 
+    def compute_probs(self,D_asocial, asoc,
+                      D_social, soc,
+                      network,status,N,T,P):
+        lk = jnp.zeros((N,T, P))
         # Asocial learning -----------------------
-        R_asocial = jnp.tensordot(D_asocial[:,0,:], asocial, axes=(-1, 0))    
+        R_asocial = jnp.tensordot(D_asocial[:,0,:], asoc, axes=(-1, 0))    
         theta = link.inv_logit(R_asocial)
-        lk = lk.at[:,0].set(theta)      
+        lk = lk.at[:,0, 0].set(theta)
+
         for t in range(1,T):
             ## Social learning-----------------------
-            R_social = jnp.tensordot(D_social[:,:,t,:], social, axes=(-1, 0))
+            R_social = jnp.tensordot(D_social[:,:,t,:], soc, axes=(-1, 0))
             phi = link.inv_logit(R_social)
             attention_weigthed_network = phi*network[:,:,t,0]
-            social_influence_weight = link.inv_logit_scale(jnp.tensordot(attention_weigthed_network[:,:], status[:,t-1], axes=(-1, 0)))       
+            social_influence_weight = link.inv_logit_scale(jnp.tensordot(attention_weigthed_network[:,:], status[:,t-1], axes=(-1, 0)))
+
             ## Asocial learning -----------------------
-            R_asocial = jnp.tensordot(D_asocial[:,t,:], asocial, axes=(-1, 0))
+            R_asocial = jnp.tensordot(D_asocial[:,t,:], asoc, axes=(-1, 0))
             theta = link.inv_logit(R_asocial)
 
             # Informed update at t!= 0-----------------------
-            lk = lk.at[:,t].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))       
+            lk = lk.at[:,t, 0].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))
+        return lk
+    
+    def compute_probs_ces(self,D_asocial, asoc,
+                      D_social, soc,
+                      ces_alpha,
+                      network,status,N,T,P):
+        lk = jnp.zeros((N,T, P))
+        # Asocial learning -----------------------
+        R_asocial = jnp.tensordot(D_asocial[:,0,:], asoc, axes=(-1, 0))    
+        theta = link.inv_logit(R_asocial)
+        lk = lk.at[:,0, 0].set(theta)
 
+        for t in range(1,T):
+            ## Social learning-----------------------
+            R_social = jnp.tensordot(D_social[:,:,t,:], soc, axes=(-1, 0))
+            phi = link.inv_logit(R_social)
+            attention_weigthed_network = self.ces(phi*network[:,:,t,0], phi*network[:,:,t,0].T, ces_alpha)
+            social_influence_weight = link.inv_logit_scale(jnp.tensordot(attention_weigthed_network[:,:], status[:,t-1], axes=(-1, 0)))
+
+            ## Asocial learning -----------------------
+            R_asocial = jnp.tensordot(D_asocial[:,t,:], asoc, axes=(-1, 0))
+            theta = link.inv_logit(R_asocial)
+
+            # Informed update at t!= 0-----------------------
+            lk = lk.at[:,t, 0].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))
+        return lk
+    
     def print_model(self):
         r="""$$
         \\text{Informed} = \\text{Binomial}(\\text{LK}) \\newline
