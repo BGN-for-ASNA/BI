@@ -5,12 +5,12 @@ from jax import vmap
 from BI.Utils.dists import UnifiedDist as dist
 from BI.Utils.link import link
 import numpyro
-import inspect
+from functools import partial 
 from IPython.display import Markdown
 
 class NBDA:
 
-    def __init__(self,network=None,status=None,names_network=None,names_status=None):
+    def __init__(self,network=None,status=None,names_network=None,names_status=None): 
         """
         Initialize an NBDA object with network and status arrays.
 
@@ -26,13 +26,29 @@ class NBDA:
             pass
         else:
             # Names of the networks and status
-            self.names = {}
+            self.names = dict(
+                intercept = [],
+                status = [],
+                covNF = [],
+                covNV = [],
+                covDF = [],
+                covDV = [],
+                network = [],
+                observed = [],
+            )
             self.nbdaModel = True
+
             # Covariates locations
-            self.covNF_location = "both"
-            self.covNV_location = "both"
-            self.covDF_location = "both"
-            self.covDV_location = "both"
+            self.locations = dict(
+                covNF_i = [],
+                covNF_j = [],
+                covNV_i = [],                
+                covNV_j = [],
+            )
+
+            # Get j covariate
+            self.covNF_get_j = []
+            self.covNV_get_j = []
 
             # Status 
             self.status=status
@@ -41,7 +57,11 @@ class NBDA:
 
             ## Status at t-1
             self.status_i, self.status_j = self.convert_status(status)
-            self.give_name(self.status,'status',names_status)
+            #self.give_name(self.status,'status',names_status)
+            if names_status is None:
+                self.names['status'].append('status')
+            else:
+                self.names['status'].append(names_status)
 
             # Network
             self.network=None
@@ -51,7 +71,11 @@ class NBDA:
                 self.network=network
             elif (len(network.shape)!=4):
                 raise ValueError("Network must be a 2 (n, n) or 4 dimensional array (n, n, t,   num_networks)")
-            self.give_name(self.network,'network',names_network)
+            #self.give_name(self.network,'network',names_network)
+            if names_network is None:
+                self.names['network'].append('network')
+            else:
+                self.names['network'].append(names_network)
 
             # Intercetps for the network
             self.intercept = jnp.ones(self.network.shape)
@@ -74,31 +98,27 @@ class NBDA:
             self.observed=None
 
             # Conatenated covariates
-            self.D_social=None
-            self.D_asocial=None
-
-            # Names
-            self.names=dict(intercept_asocial = 'intercept_asocial', intercept_social =     'intercept_asocial')
+            self.T_social=None
+            self.T_asocial=None
 
             self.objects = None
-    
-    def __call__(self, *args, **kwarg):
-        self.__init__(*args, **kwarg)
 
-    @staticmethod
-    @jax.jit
-    def scale(x):
+    @partial(jax.jit, static_argnums=(0,)) 
+    def scale_data(self, x):
         return (x - x.mean()) / x.std()
 
     @staticmethod
     @jax.jit
     def scale_along_time(covNV):
-        return vmap(NBDA.scale, in_axes = 2, out_axes=2)(covNV)
+        return vmap(NBDA.scale, in_axes = 1, out_axes=1)(covNV)
 
     def give_name(self, object, key, names):
         if names is  None:
             if object.shape[-1] == 1:
-                self.names[key] = f'{key}'
+                if key in list(self.names.keys()):
+                    self.names[key].append([f'{key}'])
+                else:
+                    self.names[key] = [f'{key}']
             else:
                 self.names[key] = [f'{key}_{i}' for i in range(object.shape[-1])] # last dim is the number of objects
         else:
@@ -171,7 +191,7 @@ class NBDA:
 
         return result_array_i, result_array_j
 
-    def convert_covNF(self, df, n, t, num_variables):
+    def convert_covNF(self, df, n, t, num_variables, scale = True):
         """
         Convert fixed nodal covariates into 4D arrays.
 
@@ -185,14 +205,21 @@ class NBDA:
             tuple: A tuple of two 4-dimensional arrays (result_array_i, result_array_j).
         """
         if isinstance(df, pd.DataFrame):
-            df = jnp.array(df)
+            if scale:
+                df = df.apply(lambda x: self.scale_data(x.values), axis=0)
+                df = jnp.array(df)
+            else:
+                df = jnp.array(df)
         else:
-            if len(df)>2:
+            if len(df.shape)>2:
                 raise ValueError("covariates must be a data frame or a 2-dimensional array")
+            else:
+                if scale:
+                    df = vmap(lambda x: self.scale_data(x), in_axes=1, out_axes=1)(df)
 
         return  self.covNF_dims(df, n, t, num_variables)
 
-    def import_covNF(self, df, names=None, where = 'both'):
+    def import_covNF(self, df, names=None, where = 'both', get_cov_j = True, scale = True):
         """
         Import fixed nodal covariates.
 
@@ -202,10 +229,31 @@ class NBDA:
         Returns:
             tuple: A tuple of two 4-dimensional arrays (covNF_i, covNF_j).
         """
-        self.covNF_i, self.covNF_j = self.convert_covNF(df, self.n, self.t, df.shape[1])
+        covNF_i, covNF_j = self.convert_covNF(df, self.n, self.t, df.shape[1], scale = scale)
 
-        self.give_name(self.covNF_i,'covNF',names)
-        self.covNF_location = where
+        # Update self.covNF_i
+        if where == 'asocial':
+            get_cov_j = False
+        if self.covNF_i is None:
+            self.covNF_i = covNF_i
+        else:
+            self.covNF_i = jnp.concatenate((self.covNF_i, covNF_i), axis = -1)
+
+        # Build cov from demonstrator
+        if get_cov_j:
+            if self.covNF_j is None:
+                self.covNF_j = covNF_j
+            else:
+                self.covNF_j = jnp.concatenate((self.covNF_j, covNF_j), axis = -1)
+
+        if names is None:
+            self.names['covNF'].extend(str(len(self.names['covNF'])))
+        else:
+            self.names['covNF'].extend(names)
+
+        self.covNF_get_j.extend([get_cov_j]*self.covNF_j.shape[3])
+        self.locations['covNF_i'] = where
+        self.locations['covNF_j'] = where
 
     def convert_covNV(self, covV):
         """
@@ -217,29 +265,46 @@ class NBDA:
         Returns:
             tuple: A tuple of two 4-dimensional arrays (result_array_i, result_array_j).
         """
-        arrays=jnp.array([covV[i,:, ].T[:, None, :]* jnp.ones((1, self.n, 1)) for i in range(covV.shape[0])])
-        result_array_i = jnp.transpose(arrays, (2, 3, 1, 0))  # (n, n, t, num_variables)
-        result_array_j = jnp.transpose(result_array_i, (1, 0, 2, 3))
+        arrays=jnp.array([covV[:,:, i].T[:, None, :]* jnp.ones((1, self.n, 1)) for i in range(covV.shape[2])])
+        result_array_j = jnp.transpose(arrays, (2, 3, 1, 0))  # (n, n, t, num_variables)
+        result_array_i = jnp.transpose(arrays, (3, 2, 1, 0))
         
         return result_array_i, result_array_j
 
-    def import_covNV(self, covV, names = None, scale = True, where = 'both'): #covV need to be a 3 dimensional array of shape (num_var, n, t)i.e. A list of matrices of time-varying covariates
+    def import_covNV(self, covV, names = None, scale = True, where = 'both', get_cov_j = True): #covV need to be a 3 dimensional array of shape (num_var, n, t)i.e. A list of matrices of time-varying covariates
         if scale:
             covV = NBDA.scale_along_time(covV)
         else: 
             print("Not scaling covariates along time can result in correlation between regressions coeffcients in of temporal covariates and the intercepts (i.e. social rate)")
             print("\nAlternative solution would be to add time varying coefficients, but it does affet computational time drastically.")
 
-        self.covNV_i, self.covNV_j = self.convert_covNV(covV)
-        if names is not None:
-            if len(names)!=self.covNV_i.shape[3]:
-                raise ValueError("The length of names must be equal to the number of variables.")
-            self.names['covNV']=[name for name in names]
+        covNV_i, covNV_j = self.convert_covNV(covV)
 
-        self.give_name(self.covNV_i,'covV',names)
-        self.covNV_location = where
+        if where == 'asocial':
+            get_cov_j = False
+        if self.covNV_i is None:
+            self.covNV_i = covNV_i
+        else:
+            self.covNV_i = jnp.concatenate((self.covNV_i, covNV_i), axis = -1)
 
-    def import_covDF(self, covDF, names = None, where = 'both'):
+        # Build cov from demonstrator
+        if get_cov_j:
+            if self.covNV_j is None:
+                self.covNV_j = covNV_j
+            else:
+                self.covNV_j = jnp.concatenate((self.covNV_j, covNV_j), axis = -1)
+
+        #self.give_name(self.covNV_i,'covNV',names)
+        if names is None:
+            self.names['covNV'].extend(str(len(self.names['covNV'])))
+        else:
+            self.names['covNV'].extend(names)
+
+        self.covNF_get_j.extend([get_cov_j]*self.covNV_j.shape[3])
+        self.locations['covNV_i'] = where
+        self.locations['covNV_j'] = where
+
+    def import_covDF(self, covDF, names = None,  scale = True):
         """
         Import fixed dyadic covariates.
 
@@ -250,18 +315,28 @@ class NBDA:
             Array: A 4-dimensional array of shape (n, n, t, num_variables) if input is 3D, otherwise shape (n, n, t, 1).
         """
         if len(covDF.shape)==2:
-            self.covDF = jnp.repeat(covDF[jnp.newaxis, :, :,jnp.newaxis], self.t, axis=0).transpose((1,2,0,3))
+            tmp = self.scale_data(covDF)
+            covDF = jnp.repeat(tmp[jnp.newaxis, :, :,jnp.newaxis], self.t, axis=0).transpose((1,2,0,3))
 
         else:
             res = []
             for i in range(covDF.shape[2]):
-                res.append(jnp.repeat(covDF[jnp.newaxis,:,:,i], 200, axis=0).transpose((1,2,0)))
-            self.covDF = jnp.stack(res, axis = -1)
- 
-        self.give_name(self.covDF,'covDF',names)
-        self.covDF_location = where
+                tmp = self.scale_data(covDF[:,:,i])
+                res.append(jnp.repeat(tmp[jnp.newaxis,:,:], self.t, axis=0).transpose((1,2,0)))
+            covDF = jnp.stack(res, axis = -1)
 
-    def import_covDV(self, covDV, names = None, where = 'both'):
+        if self.covDF is None:
+            self.covDF = covDF
+        else:
+            self.covDF = jnp.concatenate((self.covDF, covDF), axis = -1)
+
+
+        if names is None:
+            self.names['covDF'].extend(str(len(self.names['covDF'])))
+        else:
+            self.names['covDF'].extend(names)
+
+    def import_covDV(self, covDV, names = None, scale = True, where = 'both'):
         """
         Import time-varying dyadic covariates.
 
@@ -274,13 +349,20 @@ class NBDA:
         
         if len(covDV.shape)==3:# A list of matrices of a single time-varying covariate
             covDV =  NBDA.scale_along_time(covDV)
-            self.covDV = covDV[:, :, :,jnp.newaxis]
+            covDV = covDV[:, :, :,jnp.newaxis]
 
-        if len(covDV.shape)==4:# A ist of list of matrices of a single time-varying covariate
-            self.covDV = jnp.array([covDV[i,:, :,None]*jnp.ones((self.n, self.n, self.t)) for i in range(covDF.shape[0])]).transpose((1,2,3,0))
+        elif len(covDV.shape)==4:# A ist of list of matrices of a single time-varying covariate
+            covDV = jnp.array([covDV[i,:, :,None]*jnp.ones((self.n, self.n, self.t)) for i in range(covDV.shape[0])]).transpose((1,2,3,0))
 
-        self.give_name(self.covDV,'covDV',names)
-        self.covDV_location = where
+        if self.covDV is None:
+            self.covDV = covDV
+        else:
+            self.covDV = jnp.concatenate((self.covDV, covDV), axis = -1)
+
+        if names is None:
+            self.names['covDV'].extend(str(len(self.names['covDV'])))
+        else:
+            self.names['covDV'].extend(names)
 
     def stack_cov(self):
         """
@@ -294,8 +376,8 @@ class NBDA:
             status = self.status,
             status_i = self.status_i, 
             status_j = self.status_j,
-            covNF_j = self.covNF_i,
-            covNF_i = self.covNF_j,
+            covNF_i = self.covNF_i,
+            covNF_j = self.covNF_j,
             covNV_i = self.covNV_i,
             covNV_j = self.covNV_j,
             covDF = self.covDF,
@@ -315,26 +397,61 @@ class NBDA:
         
         objects = self.stack_cov()
         self.objects = objects
-        D_social = []
-        D_asocial = []
-        for k in objects.keys():
-            if k not in ['status', 'status_i', 'status_j', 'network']:
-                if k is not None:   
-                    if k in ['intercept', 'covNF_i', 'covNV_i']: 
-                        if self.covNF_location is 'both':
-                            D_social.append(objects[k])
-                            D_asocial.append(objects[k][0,:,:,:])
-                        if self.covNF_location is 'social':
-                            D_social.append(objects[k])
-                        if self.covNF_location is 'asocial':
-                            D_asocial.append(objects[k])                           
-                    else:
-                        D_social.append(objects[k])             
-                    
+        D_social = [objects['intercept']]
+        D_asocial = [objects['intercept'][0,:,:,:]]
+        D_social_names = ['social_learning']
+        D_asocial_names = ['asocial_learning']
 
-        self.D_social = jnp.concatenate(D_social, axis=-1)
-        self.D_asocial = jnp.concatenate(D_asocial, axis=-1)
-        return dict(D_social=self.D_social, D_asocial=self.D_asocial, status=self.status, network=self.network)
+        for k in objects.keys():
+            if k not in ['intercept', 'status', 'status_i', 'status_j', 'network']:
+                if k is not None:
+                    if k in ['covNF_i', 'covNV_i']:
+                        for i in range(objects[k].shape[3]):
+                            if self.locations[k] == 'both':
+                                D_social.append(jnp.expand_dims(objects[k][:,:,:,i],-1))
+                                D_asocial.append(jnp.expand_dims(objects[k][:,0,:,i],-1))
+                                if 'covNF' in k:
+                                    D_social_names.append(k + '_' + self.names['covNF'][i])
+                                    D_asocial_names.append(k + '_' + self.names['covNF'][i])
+                                else:
+                                    D_social_names.append(k + '_' + self.names['covNV'][i])
+                                    D_asocial_names.append(k + '_' + self.names['covNV'][i])                                    
+
+                            elif self.locations[k] == 'social':
+                                D_social.append(jnp.expand_dims(objects[k][:,:,:,i],-1))
+                                if 'covNF' in k:
+                                    D_social_names.append(k + '_' + self.names['covNF'][i])
+                                else:
+                                    D_social_names.append(self.names['covNV'][i])    
+
+                            elif self.locations[k] == 'asocial':
+                                D_asocial.append(jnp.expand_dims(objects[k][:,0,:,i],-1))
+                                if 'covNF' in k:
+                                    D_asocial_names.append(k + '_' + self.names['covNF'][i])
+                                else:
+                                    D_social_names.append(k + '_' + self.names['covNV'][i])                                
+                    else:
+                            D_social.append(objects[k])   
+                            if 'covNF' in k:
+                                filtered = [s for b, s in zip(self.covNF_get_j, self.names['covNF']) if b]
+                                for i in range(len(filtered)):
+                                    D_social_names.append(k + '_' + filtered[i])
+                            elif 'covNV' in k:
+                                filtered = [s for b, s in zip(self.covNV_get_j, self.names['covNV']) if b]
+                                for i in range(len(filtered)):
+                                    D_social_names.append(k + '_' + filtered[i])      
+                            elif 'covDF' in k:
+                                for i  in range(objects[k].shape[3]):
+                                        D_social_names.append(k + '_' + self.names['covDF'][i])  
+                            elif 'covDV' in k:
+                                for i  in range(objects[k].shape[3]):
+                                        D_social_names.append(k + '_' + self.names['covDV'][i])  
+
+        self.T_social = jnp.concatenate(D_social, axis=-1)
+        self.T_asocial = jnp.concatenate(D_asocial, axis=-1)
+        self.T_social_names = D_social_names
+        self.T_asocial_names = D_asocial_names
+        #return dict(D_social=self.D_social, D_asocial=self.D_asocial, status=self.status, network=self.network)
 
     def model(self,social=None, asocial=None, D_asocial=None, D_social=None, status=None, network=None):
         N = status.shape[0]
@@ -405,14 +522,12 @@ class NBDA:
         \\alpha_a\\sim Normal(0,4) \\newline
         \\alpha_s \\sim Normal(0,4) \\newline
         """
-        r2 = """$$ \\text{Informed} = Asocial Rate + Social Rate \\newline"""
+
         asocialCov=True
         socialCov=True
         if len(self.names) > 2:
             fa="""""" 
             fs=""""""
-            fa2="""""" 
-            fs2=""""""
             count = 0
             for k in self.names.keys():
                 if k in ['covNF', 'covNV', 'covDF','covDV']:
@@ -442,14 +557,12 @@ class NBDA:
                             for i in range(len(tmp)):
                                 if i < len(tmp):
                                     fa=fa+f"\\beta_{{a{{{count}}}}} {tmp[i]} + "
-                                    fa2 = fa2 + f"{tmp[i]} + "
                                     count += 1
 
                     if socialCov:
                         for i in range(len(tmp)):
                             if i < len(tmp):
                                 fs=fs+f"\\beta_{{s{{{count}}}}} {tmp[i]} + "
-                                fs2 = fs2 + f"{tmp[i]} + "
                                 count += 1
 
                     count += 1
@@ -462,10 +575,7 @@ class NBDA:
 
             r = r+"""\\beta_{(s)} \\sim Normal(0,1) \\newline"""
         r=r+"""$$"""
-        r2=r2+"""$$"""
         display(Markdown(r))
-        display(Markdown(r2))
-        return r, r2
 
     # We can add individual observation information in the same forme as  an input time varying cov
     # We can add multiple behaviors acquisition in the form of a (n,n,t,num_behaviors)
