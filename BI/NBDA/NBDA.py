@@ -500,26 +500,31 @@ class NBDA:
 
         N = status.shape[0] # Number of individuals
         T = status.shape[1] # Number of time steps
-        P = status.shape[2] # Number of processes
 
-        soc, asoc, ces_alpha = self.priors(CES)
+        if CES:
+            soc, asoc, ces_alpha = self.priors(CES)
+            lk = self.compute_probs_ces(D_asocial, asoc,
+                            D_social, soc,
+                            ces_alpha,
+                            network,status,N,T)
+        else:
+            soc, asoc = self.priors(CES)
+            lk = self.compute_probs(D_asocial, asoc,
+                D_social, soc,
+                network,status,N,T)
 
-        lk = self.compute_probs_ces(D_asocial, asoc,
-                                    D_social, soc,
-                                    ces_alpha,
-                                    network,status,N,T,P)
         mask = ~jnp.isnan(lk)
         with numpyro.handlers.mask(mask=mask): 
-            numpyro.sample("y", numpyro.distributions.Binomial(probs=lk), obs=status)
+            numpyro.sample("y", numpyro.distributions.Binomial(probs=lk), obs=status[:,:,0])
  
     def compute_probs(self,D_asocial, asoc,
                       D_social, soc,
                       network,status,N,T,P):
-        lk = jnp.zeros((N,T, P))
+        lk = jnp.zeros((N,T))
         # Asocial learning -----------------------
         R_asocial = jnp.tensordot(D_asocial[:,0,:], asoc, axes=(-1, 0))    
         theta = link.inv_logit(R_asocial)
-        lk = lk.at[:,0, 0].set(theta)
+        lk = lk.at[:,0].set(theta)
 
         for t in range(1,T):
             ## Social learning-----------------------
@@ -533,18 +538,19 @@ class NBDA:
             theta = link.inv_logit(R_asocial)
 
             # Informed update at t!= 0-----------------------
-            lk = lk.at[:,t, 0].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))
+            lk = lk.at[:,t].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))
+
         return lk
     
     def compute_probs_ces(self,D_asocial, asoc,
                       D_social, soc,
                       ces_alpha,
-                      network,status,N,T,P):
-        lk = jnp.zeros((N,T, P))
+                      network,status,N,T):
+        lk = jnp.zeros((N,T))
         # Asocial learning -----------------------
         R_asocial = jnp.tensordot(D_asocial[:,0,:], asoc, axes=(-1, 0))    
         theta = link.inv_logit(R_asocial)
-        lk = lk.at[:,0, 0].set(theta)
+        lk = lk.at[:,0].set(theta)
 
         for t in range(1,T):
             ## Social learning-----------------------
@@ -558,7 +564,7 @@ class NBDA:
             theta = link.inv_logit(R_asocial)
 
             # Informed update at t!= 0-----------------------
-            lk = lk.at[:,t, 0].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))
+            lk = lk.at[:,t].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))
         return lk
     
     def print_model(self):
