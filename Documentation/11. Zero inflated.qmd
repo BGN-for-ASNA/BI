@@ -25,8 +25,8 @@ rate_work = 1     # average 1 manuscript per day
 
 # Sample one year of production
 N = 365
-drink = m.BEE.binomial(1, prob_drink, shape = (N,), sample = True)
-y = (1 - drink) * m.BEE.poisson(rate_work, shape = (N,), sample = True)
+drink = m.dist.binomial(1, prob_drink, shape = (N,), sample = True)
+y = (1 - drink) * m.dist.poisson(rate_work, shape = (N,), sample = True)
 
 # Setup device------------------------------------------------
 m = bee(platform='cpu')
