@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -452,7 +452,7 @@ Caution
 </section>
 <section id="example" class="level2" data-number="10.3">
 <h2 data-number="10.3" class="anchored" data-anchor-id="example"><span class="header-section-number">10.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian Gamma-Poisson model using the Bayesian Inference (BI) package:</p>
+<p>Below is an example code snippet demonstrating a Bayesian Gamma-Poisson model using the Bayesian Inference (BI) package:</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -483,16 +483,16 @@ Caution
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform------------------------------------------------</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># import data ------------------------------------------------</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Sim dat Gamma poisson.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">','</span>)</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'log_days'</span>, <span class="st">'monastery'</span>, <span class="st">'y'</span> )) <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(log_days, monastery, y){</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'beta'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">exp</span>(log_days <span class="sc">+</span> alpha <span class="sc">+</span> beta <span class="sc">*</span> monastery)</span>
@@ -504,7 +504,7 @@ Caution
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -524,18 +524,18 @@ Caution
 <li><p><span class="math inline">\(\lambda_i\)</span> is the mean rate parameter of the negative binomial distribution (expected count) for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\log(\lambda_i)\)</span> is the log of the mean rate parameter, ensuring it is positive for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficients.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
 <li><p><span class="math inline">\(X_i\)</span> is the value of the predictor variable for observation <em>i</em>.</p></li>
 </ul>
 </section>
 <section id="bayesian-model" class="level3" data-number="10.4.2">
 <h3 data-number="10.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">10.4.2</span> <em>Bayesian model</em></h3>
-<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
 <p><span class="math display">\[
-Y_i \sim \text{Poisson}(\lambda)
+Y_i \sim \text{Poisson}(\lambda_i)
 \]</span></p>
 <p><span class="math display">\[
-\log(\lambda_i) \sim \text{rates}_i + \alpha + \beta X_i
+\log(\lambda_i) = \text{rates}_i + \alpha + \beta X_i
 \]</span></p>
 <p><span class="math display">\[
 \alpha \sim \text{Normal}(0,1)
@@ -545,11 +545,11 @@ Y_i \sim \text{Poisson}(\lambda)
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is dependent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\lambda_i\)</span> is the mean rate parameter of the Poisson distribution for observation <em>i</em>, assuming that each Poisson count observation has its own <span class="math inline">\(rate_i\)</span>.</p></li>
-<li><p><span class="math inline">\(\log(\lambda_i)\)</span> is the log of the mean rate parameterfor observation <em>i</em>, ensuring it is positive.</p></li>
+<li><p><span class="math inline">\(\log(\lambda_i)\)</span> is the log of the mean rate parameter for observation <em>i</em>, ensuring it is positive.</p></li>
 <li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficients.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
 <li><p><span class="math inline">\(X_i\)</span> is the value of the predictor variable for observation <em>i</em>.</p></li>
 </ul>
 </section>

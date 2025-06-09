@@ -1,8 +1,5 @@
-<!-- Toolpit -->
 
-
-
-# Linear Regression for continuous variable
+# Linear Regression for a Continuous Variable
 
 ## General Principles
 
@@ -15,10 +12,10 @@ To study relationships between a continuous independent variable and a continuou
 3) A variance term $\sigma$, which informs us about the spread of points around the line, i.e., the variance around the prediction.
 
 
-## Considerations 
+## Considerations
 
 ::: callout-caution
--   Bayesian models consider [<span style="color:#0D6EFD">model parameter uncertainty 🛈</span>]{#uncertainty}, allowing for the quantification of confidence or uncertainty through the parameters'  [<span style="color:#0D6EFD">posterior distribution 🛈</span>]{#posterior}. Therefore, we need to declare [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for each model parameter, in your case for: $\alpha$, $\beta$, and $\sigma^2$.
+-   Bayesian models consider [<span style="color:#0D6EFD">model parameter uncertainty 🛈</span>]{#uncertainty}, allowing for the quantification of confidence or uncertainty through the parameters' [<span style="color:#0D6EFD">posterior distribution 🛈</span>]{#posterior}. Therefore, we need to declare [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for each model parameter, in this case for: $\alpha$, $\beta$, and $\sigma^2$.
 
 - Prior distributions are built following these considerations:
 
@@ -75,18 +72,18 @@ m=importBI(platform='cpu')
 # Load csv file
 m$data(paste(system.file(package = "BI"),"/data/Howell1.csv", sep = ''), sep=';')
 
-# fileter data frame
+# Filter data frame
 m$df = m$df[m$df$age > 18,]
 
 # Scale
 m$scale(list('weight')) 
 
-# convert data to jax arrays
+# Convert data to JAX arrays
 m$data_to_model(list('weight', 'height'))
 
 # Define model ------------------------------------------------
 model <- function(height, weight){
-  # Parameters priors distributions
+  # Parameter prior distributions
   s = bi.dist.uniform(0, 50, name = 's')
   a = bi.dist.normal(178, 20,  name = 'a')
   b = bi.dist.normal(0, 1, name = 'b')
@@ -106,9 +103,9 @@ m$summary()
 
 ## Mathematical Details
 
-### *Frequentist formulation*
+### *Frequentist Formulation*
 
-The following equation allows us to draw a line: 
+The following equation allows us to draw a line:
 $$
 Y_i = \alpha + \beta  X_i + \sigma_i
 $$
@@ -123,11 +120,11 @@ Where:
 
 -   $X_i$ is the input variable for observation *i*.
 
--   $\sigma_i$ is a vector of error terms for observation *i*.
+-   $\sigma_i$ is the error term for observation *i*.
 
-### *Bayesian formulation*
+### *Bayesian Formulation*
 
-In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express a Bayesian version of this regression model using the following model: 
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express a Bayesian version of this regression model using the following model:
 
 $$
 Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
@@ -147,13 +144,13 @@ $$
 
 Where:
 
--   $Y_i$ is dependent variable for observation *i*.
+-   $Y_i$ is the dependent variable for observation *i*.
 
--   $\alpha$ and $\beta$ are the regression coefficients and intercept parameters, respectively.
+-   $\alpha$ and $\beta$ are the intercept and regression coefficient, respectively.
 
 -   $X_i$ is the input variable for observation *i*.
 
--   $\sigma$ is a prior for the variance term standard deviation of the normal distribution that describes the variance in the relationship between the dependent variable $Y$ and the independent variable $X$.
+-   $\sigma$ is the standard deviation of the normal distribution, which describes the variance in the relationship between the dependent variable $Y$ and the independent variable $X$.
 
 
 ## Notes

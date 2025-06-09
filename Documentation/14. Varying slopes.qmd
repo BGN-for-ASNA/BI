@@ -14,7 +14,7 @@ This approach is useful when we expect the relationship between predictors and t
 
 -   The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [<span style="color:#0D6EFD">matrix of covariance 🛈</span>]{#MatCov}.
 
--   The covariance matrix requires a correlation matrix distribution which is modeled using a $LKJcorr$ distribution that holds a parameter $η$. $η$ is usually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use $LKJcorr(1)$, the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.
+-   The covariance matrix requires a correlation matrix distribution which is modeled using an $LKJcorr$ distribution that holds a parameter $η$. $η$ is usually set to 2 to define a weakly informative prior that is skeptical of extreme correlations near −1 or 1. When we use $LKJcorr(1)$, the prior is flat over all valid correlation matrices. When the value is greater than 1, then extreme correlations are less likely.
 
 -   The Half-Cauchy distribution is used when modeling the covariance matrix to specify strictly positive values for the diagonal of the covariance matrix, ensuring positive variances.
 
@@ -64,7 +64,7 @@ m.run(model)
 ``` r
 library(BI)
 
-# setup platform------------------------------------------------
+# Setup platform------------------------------------------------
 m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
@@ -102,8 +102,6 @@ m$summary() # Get posterior distribution
 
 ## Mathematical Details
 
-## Mathematical Details
-
 ### *Formula*
 
 We model the relationship between the independent variable $X$ and the outcome variable $Y$ with varying intercepts ($\alpha$) and varying slopes ($\beta$) for each group ($k$) using the following equation:
@@ -132,13 +130,17 @@ We can express the Bayesian regression model accounting for prior distributions 
 $$
 Y_{ik} \sim \text{Normal}(\mu_{ik} , \sigma)
 $$ 
-\mu_{ik} = \alpha_k + \beta_k X_{ik} + \sigma 
+$$
+\mu_{ik} = \alpha_k + \beta_k X_{ik} 
 $$ 
+$$
 \alpha_k \sim Normal(0,1) 
 $$ 
+$$
 \beta_k \sim Normal(0,1)
 $$ 
-\sigma \sim Exponential(0,1)
+$$
+\sigma \sim Exponential(1)
 $$
 
 The varying intercepts ($\alpha_k$) and slopes ($\beta_k$) are modeled using a *Multivariate Normal distribution*:
@@ -153,8 +155,8 @@ $$
 0 
 \end{pmatrix}, 
 \begin{pmatrix} 
-\sigma_\alpha^2 & \sigma_\pi \sigma_{\alpha\rho} \\ 
-\sigma_\alpha \sigma_{\pi\rho} & \sigma_\pi 
+\sigma_\alpha^2 & \rho_{\alpha\beta} \sigma_\alpha \sigma_\beta \\ 
+\rho_{\alpha\beta} \sigma_\alpha \sigma_\beta & \sigma_\beta^2
 \end{pmatrix} 
 \right) 
 $$
@@ -163,25 +165,26 @@ Where:
 
 - $\left(\begin{array}{cc} 0 \\ 0 \end{array}\right)$ is the prior for the average intercept.
 
-- $\left(\begin{array}{cc} \sigma_\alpha^2 & \sigma_\alpha \sigma_{\pi \rho} \\ \sigma_\alpha \sigma_{\pi \rho} & \sigma_\pi^2 \end{array}\right)$ is the covariance matrix which specifies the variance and covariance of $\alpha_k$ and $\beta_k$,
+- $\left(\begin{array}{cc} \sigma_\alpha^2 & \rho_{\alpha\beta} \sigma_\alpha \sigma_\beta \\ \rho_{\alpha\beta} \sigma_\alpha \sigma_\beta & \sigma_\beta^2 \end{array}\right)$ is the covariance matrix which specifies the variance and covariance of $\alpha_k$ and $\beta_k$,
 
 - where:
   - $\sigma_\alpha^2$ is the variance of $\alpha_k$.
-  - $\sigma_\pi^2$ is the variance of $\beta_k$.
-  - $\sigma_\alpha \sigma_{\pi \rho}$ is the covariance between $\alpha_k$ and $\beta_k$.
-For computational reasons, it is often better to implement a [<span style="color:#0D6EFD">centered version of the varying intercept 🛈</span>]{#RFcentered} that is equivalent to the *Multivariate Normal distribution* approach:
+  - $\sigma_\beta^2$ is the variance of $\beta_k$.
+  - $\rho_{\alpha\beta} \sigma_\alpha \sigma_\beta$ is the covariance between $\alpha_k$ and $\beta_k$.
+  
+For computational reasons, it is often better to implement a [<span style="color:#0D6EFD">non-centered parameterization 🛈</span>]{#RFcentered} that is equivalent to the *Multivariate Normal distribution* approach:
 
 $$
 \left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
 \sim 
 \left(\begin{array}{cc} 
 \sigma_\alpha\\
-\sigma_\pi
+\sigma_\beta
 \end{array}\right) \circ 
-L *
+L \cdot
 \left(\begin{array}{cc} 
 \widehat{\alpha}_k \\
-\widehat{\pi}_k
+\widehat{\beta}_k
 \end{array}\right)
 $$
 
@@ -193,15 +196,15 @@ $$
 
   - $L \sim \text{LKJcorr}(\eta)$ is the prior for the correlation matrix using the [<span style="color:#0D6EFD">Cholesky Factor 🛈</span>]{#LKJcorr}
 
-The full centered version of the model is thus:
+The full non-centered version of the model is thus:
 
 
 $$
-Y_{i} \sim \text{Normal}(\mu_k , \sigma) \\
+Y_{ik} \sim \text{Normal}(\mu_{ik} , \sigma) \\
 $$
 
 $$
-\mu_k =   \alpha_k + \beta_i X_i \\
+\mu_{ik} =   \alpha_k + \beta_k X_{ik} \\
 $$
 
 $$
@@ -209,12 +212,12 @@ $$
 \sim 
 \left(\begin{array}{cc} 
 \sigma_\alpha\\
-\sigma_\pi
+\sigma_\beta
 \end{array}\right) \circ 
-L *
+L \cdot
 \left(\begin{array}{cc} 
 \widehat{\alpha}_k \\
-\widehat{\pi}_k
+\widehat{\beta}_k
 \end{array}\right)
 $$
 
@@ -229,7 +232,7 @@ $$
 $$ 
 
 $$ 
-\sigma_\pi \sim Exponential(1)
+\sigma_\beta \sim Exponential(1)
 $$ 
 
 $$ 
@@ -239,14 +242,14 @@ $$
 
 ## *Multivariate Model with One Random Slope for Each Variable*
 
-We can apply a multivariate model similarly to [Chapter 2](2.%20Multiple%20continuous%20variable.qmd). In this case, we apply the same principle, but with a covariance matrix of a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ actors in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
+We can apply a multivariate model similarly to [Chapter 2](2.%20Multiple%20continuous%20variable.qmd). In this case, we apply the same principle, but with a covariance matrix with a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ observations in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
 
 $$
 p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) 
 $$
 
 $$
-\mu_i =   \alpha_i + \beta_{1i} X_{1i}  + \beta_{1i} X_{2i} 
+\mu_i =   \alpha_i + \beta_{1i} X_{1i}  + \beta_{2i} X_{2i} 
 $$
 
 $$ 
@@ -257,21 +260,23 @@ $$
 \end{pmatrix} 
 \sim \begin{pmatrix} 
 \sigma_{\alpha}\\ 
-\sigma_{\pi}\\ 
-\sigma_{\gamma} 
+\sigma_{\beta_1}\\ 
+\sigma_{\beta_2} 
 \end{pmatrix} \circ L \cdot \begin{pmatrix} 
-\widehat{\alpha}_{k} \\ 
-\widehat{\pi}_{k} \\ 
-\widehat{\gamma}_{k} 
+\widehat{\alpha}_{i} \\ 
+\widehat{\beta}_{1i} \\ 
+\widehat{\beta}_{2i} 
 \end{pmatrix} 
 $$
 
 $$
 \sigma_{\alpha} \sim Exponential(1)
 $$ 
-\sigma_{\pi} \sim Exponential(1)
+$$
+\sigma_{\beta_1} \sim Exponential(1)
 $$ 
-\sigma_{\gamma} \sim Exponential(1) 
+$$
+\sigma_{\beta_2} \sim Exponential(1) 
 $$ 
 
 $$ 
@@ -280,7 +285,7 @@ $$
 
 ## *Multivariate Random Slopes on a Single Variable*
 
-For more than two varying effects, we apply the same principle but with a covariance matrix for each varying effect that are summed to generate the varying intercept and slope. For example, if we want to generate random slopes for $i$ actors and $k$ groups, we can define the formula as follows:
+For more than two varying effects, we apply the same principle but with a covariance matrix for each varying effect that is summed to generate the varying intercept and slope. For example, if we want to generate random slopes for $i$ actors and $k$ groups, we can define the formula as follows:
 
 $$
 p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
@@ -312,10 +317,10 @@ $$
 \sim 
 \begin{pmatrix} 
 \sigma_{\alpha a} \\ 
-\sigma_{\pi a} 
+\sigma_{\beta a} 
 \end{pmatrix} \circ L_a \cdot \begin{pmatrix} 
 \widehat{\alpha}_{ka} \\ 
-\widehat{\pi}_{ka} 
+\widehat{\beta}_{ka} 
 \end{pmatrix} 
 $$
 
@@ -323,7 +328,7 @@ $$
 \sigma_{\alpha a} \sim Exponential(1)
 $$ 
 $$
-\sigma_{\pi a} \sim Exponential(1)
+\sigma_{\beta a} \sim Exponential(1)
 $$ 
 $$
 L_{a} \sim LKJcorr(2)
@@ -337,11 +342,11 @@ $$
 \sim  
 \begin{pmatrix} 
 \sigma_{\alpha g} \\ 
-\sigma_{\pi g} 
+\sigma_{\beta g} 
 \end{pmatrix} \circ L_g \cdot 
 \begin{pmatrix} 
 \widehat{\alpha}_{kg} \\ 
-\widehat{\pi}_{kg} 
+\widehat{\beta}_{kg} 
 \end{pmatrix} 
 $$
 
@@ -349,7 +354,7 @@ $$
 \sigma_{\alpha g} \sim Exponential(1)
 $$ 
 $$
-\sigma_{\pi g} \sim Exponential(1) 
+\sigma_{\beta g} \sim Exponential(1) 
 $$ 
 $$
 L_{g} \sim LKJcorr(2)
@@ -363,7 +368,7 @@ $$
 
 - We can apply categorical variables similarly to [Chapter 4](/4.%20Categorical%20variable.qmd).
 
-- We can apply varying slopes with any distribution presented in previous chapters. Below is the formula and the code snippet for a Binomial multivariate model with interaction between two independent variables $X_1$ and $X_2$ and multiple varying effects for each actor and each group
+- We can apply varying slopes with any distribution presented in previous chapters. Below is the formula and the code snippet for a Binomial multivariate model with an interaction between two independent variables $X_1$ and $X_2$ and multiple varying effects for each actor and each group.
 
 
 $$
@@ -371,41 +376,44 @@ p(Y_{i} |n , p_i) \sim \text{Binomial}(n = 1, p_i) \\
 $$
 
 $$
-logit{p_i}=   \alpha_i + (\beta_{1i}  + \beta_{2i} X_{2i})  X_{1i}
+\text{logit}(p_i)=   \alpha_i + \beta_{1i}X_{1i}  + \beta_{2i} X_{1i}X_{2i}
 $$ 
 $$
 \alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]}
 $$ 
 $$
-\beta_{1i} = \beta + \beta_{1 actor[i]} + \beta_{ group[i]}
+\beta_{1i} = \beta_1 + \beta_{1, actor[i]} + \beta_{1, group[i]}
 $$ 
 $$
-\beta_{2i} = \beta + \beta_{2 actor[i]} + \beta_{2 group[i]}
+\beta_{2i} = \beta_2 + \beta_{2, actor[i]} + \beta_{2, group[i]}
 $$
 
 $$
 \alpha \sim Normal(0,1)
 $$ 
 $$
-\beta \sim Normal(0,1)
+\beta_1 \sim Normal(0,1)
+$$
+$$
+\beta_2 \sim Normal(0,1)
 $$
 
 $$ 
 \begin{pmatrix} 
 \alpha_{\text{actor}} \\ 
-\beta_{1 \, \text{actor}} \\ 
-\beta_{2 \, \text{actor}} 
+\beta_{1, \text{actor}} \\ 
+\beta_{2, \text{actor}} 
 \end{pmatrix} 
 \sim  
 \begin{pmatrix} 
 \sigma_{\alpha a} \\ 
-\sigma_{\pi a} \\ 
-\sigma_{\gamma a} 
+\sigma_{\beta_1 a} \\ 
+\sigma_{\beta_2 a} 
 \end{pmatrix} \circ L_a \cdot 
 \begin{pmatrix} 
 \widehat{\alpha}_{ka} \\ 
-\widehat{\pi}_{ka} \\ 
-\widehat{\gamma}_{ka} 
+\widehat{\beta}_{1,ka} \\ 
+\widehat{\beta}_{2,ka} 
 \end{pmatrix} 
 $$
 
@@ -414,10 +422,10 @@ $$
 $$
 
 $$
-\sigma_{\pi a} \sim Exponential(1) 
+\sigma_{\beta_1 a} \sim Exponential(1) 
 $$ 
 $$
-\sigma_{\gamma a} \sim Exponential(1) 
+\sigma_{\beta_2 a} \sim Exponential(1) 
 $$ 
 $$
 L_{a} \sim LKJcorr(2)
@@ -426,19 +434,19 @@ $$
 $$ 
 \begin{pmatrix} 
 \alpha_{\text{group}} \\ 
-\beta_{1 \, \text{group}} \\ 
-\beta_{2 \, \text{group}} 
+\beta_{1, \text{group}} \\ 
+\beta_{2, \text{group}} 
 \end{pmatrix} 
 \sim  
 \begin{pmatrix} 
 \sigma_{\alpha g} \\ 
-\sigma_{\pi g} \\ 
-\sigma_{\gamma g} 
+\sigma_{\beta_1 g} \\ 
+\sigma_{\beta_2 g} 
 \end{pmatrix} \circ L_g \cdot 
 \begin{pmatrix} 
 \widehat{\alpha}_{kg} \\ 
-\widehat{\pi}_{kg} \\ 
-\widehat{\gamma}_{kg} 
+\widehat{\beta}_{1,kg} \\ 
+\widehat{\beta}_{2,kg} 
 \end{pmatrix} 
 $$
 
@@ -446,17 +454,17 @@ $$
 \sigma_{\alpha g} \sim Exponential(1)
 $$
 $$
-\sigma_{\pi g} \sim Exponential(1) 
+\sigma_{\beta_1 g} \sim Exponential(1) 
 $$ 
 $$
-\sigma_{\gamma g} \sim Exponential(1)
+\sigma_{\beta_2 g} \sim Exponential(1)
 $$ 
 $$
 L_{g} \sim LKJcorr(2)
 $$
 
 ``` python
-from main import*
+from main import *
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 # Import data
@@ -487,7 +495,7 @@ def model(tid, actor, block_id, L=None, link=False):
     logit_p = g[tid] + alpha[actor, tid] + beta[block_id, tid]
     dist("L", dist.Binomial(logits=logit_p), obs=L)
 
-    # compute ordinary correlation matrixes from Cholesky factors
+    # compute ordinary correlation matrices from Cholesky factors
     if link:
         deterministic("Rho_actor", L_Rho_actor @ L_Rho_actor.T)
         deterministic("Rho_block", L_Rho_block @ L_Rho_block.T)

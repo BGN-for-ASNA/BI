@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -429,7 +429,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">7.1</span> General Principles</h2>
-<p>To model the relationship between a binary dependent variable —e.g., success/failure, yes/no, or 1/0— and one or more independent variables, we can use a <em>Binomial model</em>.</p>
+<p>To model the relationship between a binary dependent variable—e.g., success/failure, yes/no, or 1/0—and one or more independent variables, we can use a <em>Binomial model</em>.</p>
 </section>
 <section id="considerations" class="level2" data-number="7.2">
 <h2 data-number="7.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">7.2</span> Considerations</h2>
@@ -445,19 +445,19 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>We have the first <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span> <em>logit</em>. The <em>logit</em> link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution <span class="math inline">\(\in[0,1]\)</span>.</p></li>
+<li><p>The first link function is the <em>logit</em>. The <em>logit</em> link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution <span class="math inline">\(\in[0,1]\)</span>.</p></li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2" data-number="7.3">
 <h2 data-number="7.3" class="anchored" data-anchor-id="example"><span class="header-section-number">7.3</span> Example</h2>
-<p>Below is an example code snippet that demonstrates Bayesian binomial regression using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents the side individuals pulled. The goal is to evaluate the probability of pulling the left side.</p>
+<p>Below is an example code snippet that demonstrates Bayesian binomial regression using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents which side individuals pulled. The goal is to evaluate the probability of pulling the left side.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span> bi</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bi <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
@@ -465,7 +465,7 @@ Caution
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'bi.resources.data'</span>) <span class="op">/</span> <span class="st">'chimpanzees.csv'</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'pulled_left'</span>])</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
@@ -474,7 +474,7 @@ Caution
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    m.binomial(logits<span class="op">=</span>a[<span class="dv">0</span>], obs<span class="op">=</span>pulled_left)</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m.run(model, num_samples<span class="op">=</span><span class="dv">500</span>) </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m.run(model, num_samples<span class="op">=</span><span class="dv">500</span>)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -526,7 +526,7 @@ logit(Y_i) = \alpha + \beta X_i
 </section>
 <section id="bayesian-formulation" class="level3" data-number="7.4.2">
 <h3 data-number="7.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">7.4.2</span> <em>Bayesian formulation</em></h3>
-<p><span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<p><span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
 <p><span class="math display">\[
 Y_i \sim Binomial(n = 1, p)
 \]</span></p>
@@ -541,9 +541,9 @@ logit(p) \sim \alpha + \beta X_i
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y\)</span> is the probability of success (i.e., the probability of the binary outcome being 1) for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\(Y_i\)</span> is the probability of success (i.e., the probability of the binary outcome being 1) for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(n = 1\)</span> represents the number of trials in the binomial distribution (binary outcome).</p></li>
-<li><p><span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span> are the prior distributions for the regression coefficients and intercept, respectively.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span> are the prior distributions for the regression coefficient and intercept, respectively.</p></li>
 <li><p><span class="math inline">\(logit\)</span> is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation <em>i</em>.</p></li>
 </ul>
 </section>
@@ -561,27 +561,27 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We can apply multiple variables similarly as in <a href="2. Multiple continuous variables.qmd">chapter 2</a>.</p></li>
-<li><p>We can apply interaction terms similarly as in <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
-<li><p>We can apply categorical variables similarly as in <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
-<li><p>Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents the side individuals pulled, and three independent variables (<em>actor</em>, <em>side</em>, <em>cond</em>). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as the different conditions.</p></li>
+<li><p>We can apply multiple variables similarly to <a href="2. Multiple continuous variables.qmd">chapter 2</a>.</p></li>
+<li><p>We can apply interaction terms similarly to <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
+<li><p>We can apply categorical variables similarly to <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
+<li><p>Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents which side individuals pulled, and three independent variables (<em>actor</em>, <em>side</em>, <em>cond</em>). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as the different conditions.</p></li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bi <span class="im">import</span> bi</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../resources/data/chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'../resources/data/chimpanzees.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">'treatment'</span>] <span class="op">=</span>  m.df.prosoc_left <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> m.df.condition</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">'actor'</span>] <span class="op">=</span> m.df[<span class="st">'actor'</span>] <span class="op">-</span> <span class="dv">1</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'actor'</span>, <span class="st">'treatment'</span>, <span class="st">'pulled_left'</span>])</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(actor, treatment, pulled_left):</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">1.5</span>, shape <span class="op">=</span> (<span class="dv">7</span>,), name<span class="op">=</span><span class="st">'a'</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape <span class="op">=</span> (<span class="dv">4</span>,), name<span class="op">=</span><span class="st">'b'</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">1.5</span>, shape <span class="op">=</span> (<span class="dv">7</span>,), name<span class="op">=</span><span class="st">'a'</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape <span class="op">=</span> (<span class="dv">4</span>,), name<span class="op">=</span><span class="st">'b'</span>)</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> a[actor] <span class="op">+</span> b[treatment]</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    m.lk(<span class="st">"y"</span>, dist.binomial(<span class="dv">1</span>, logits<span class="op">=</span>p), obs<span class="op">=</span>pulled_left)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    m.lk(<span class="st">"y"</span>, m.dist.binomial(<span class="dv">1</span>, logits<span class="op">=</span>p), obs<span class="op">=</span>pulled_left)</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>m.run(model)</span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>

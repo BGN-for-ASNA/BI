@@ -221,7 +221,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -281,7 +281,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -310,7 +310,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -436,14 +436,14 @@ Caution
 <li><p>The <strong>baseline hazard</strong> can follow distributions like Exponential, Weibull, or Gompertz, depending on the data.</p></li>
 <li><p>Censoring (when the event is not observed for some subjects) must be accounted for in the likelihood function. Proper handling is essential for unbiased results.</p></li>
 </ul></li>
-<li><p>Bayesian survival models allow flexible handling of time-dependent covariate, random effects, and incorporate uncertainty more naturally than Frequentist methods.</p></li>
+<li><p>Bayesian survival models allow flexible handling of time-dependent covariates, random effects, and incorporate uncertainty more naturally than Frequentist methods.</p></li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2" data-number="14.3">
 <h2 data-number="14.3" class="anchored" data-anchor-id="example"><span class="header-section-number">14.3</span> Example</h2>
-<p>Here’s an example Bayesian survival analysis using the <strong>Bayesian Inference (BI)</strong> package. The data come from a clinical trial of mastectomy for breast cancer. The goal is to estimate the effect of treatment <code>metastasized</code> coded as 0 (no metastasis) and 1 (metastasis) on the survival probability <code>event</code> for each patient. Time is continuous and censoring is indicated by the event variable.</p>
+<p>Here’s an example of a Bayesian survival analysis using the <strong>Bayesian Inference (BI)</strong> package. The data come from a clinical trial of mastectomy for breast cancer. The goal is to estimate the effect of the <code>metastasized</code> covariate, coded as 0 (no metastasis) and 1 (metastasis), on the survival outcome <code>event</code> for each patient. Time is continuous and censoring is indicated by the event variable.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -470,7 +470,7 @@ Caution
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Model ------------------------------------------------</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(intervals, death, metastasized, exposure):</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameters priors distributions-------------------------</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameter prior distributions-------------------------</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Base hazard distribution</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    lambda0 <span class="op">=</span> m.dist.gamma(<span class="fl">0.01</span>, <span class="fl">0.01</span>, shape<span class="op">=</span> intervals.shape, name <span class="op">=</span> <span class="st">'lambda0'</span>)</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Covariate effect distribution</span></span>
@@ -490,7 +490,7 @@ Caution
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(m.summary())</span>
 <span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># PLot hazards and survival function ------------------------------------------------</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot hazards and survival function ------------------------------------------------</span></span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>m.plot_surv()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
@@ -524,10 +524,10 @@ h(t | X) = h_0(t) \exp(\beta^T X)
 <h3 data-number="14.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">14.4.2</span> <em>Bayesian formulation</em></h3>
 <p>In Bayesian survival analysis, we define priors for each parameter:</p>
 <ol type="1">
-<li><p><strong>Hazard Function</strong>: The hazard rate at time ( <span class="math inline">\(t\)</span> ) for an individual is given by: <span class="math display">\[Y_i(t) = Poisson(\lambda(t) * censoring(t))\]</span> <span class="math display">\[\lambda(t) = \lambda_0(t)\exp(x\beta)\]</span></p>
+<li><p><strong>Hazard Function</strong>: The hazard rate at time <span class="math inline">\(t\)</span> for an individual is given by: <span class="math display">\[Y_i(t) = Poisson(\lambda(t) * censoring(t))\]</span> <span class="math display">\[\lambda(t) = \lambda_0(t)\exp(x\beta)\]</span></p>
 <p><span class="math display">\[ \beta \sim Normal(\mu_\beta, \sigma^2_\beta) \]</span></p>
 <p><span class="math display">\[\mu_\beta \sim Normal(0, 10^2)\]</span></p>
-<p><span class="math display">\[\sigma^2_\beta \sim Unifrom(0, 10)\]</span></p>
+<p><span class="math display">\[\sigma^2_\beta \sim Uniform(0, 10)\]</span></p>
 <p>Where:</p>
 <ul>
 <li><p><span class="math inline">\(Y_i(t)\)</span> is the status of the <span class="math inline">\(i\)</span>-th subject at time <span class="math inline">\(t\)</span> coded as a binary variable: <span class="math display">\[
@@ -540,7 +540,7 @@ Y_i(t) =
 <li><p><span class="math inline">\(\lambda(t)\)</span>: Hazard function at time <span class="math inline">\(t\)</span>.</p></li>
 <li><p><span class="math inline">\(\lambda_0(t)\)</span>: Baseline hazard function (e.g., exponential or Weibull).</p></li>
 <li><p><span class="math inline">\(x\)</span>: Covariates (e.g., age, treatment).</p></li>
-<li><p><span class="math inline">\(\beta\)</span>: Regression coefficients capturing the effect of <span class="math inline">\(x\)</span> on the hazard have an assigned a normal prior.</p></li>
+<li><p><span class="math inline">\(\beta\)</span>: Regression coefficients capturing the effect of <span class="math inline">\(x\)</span> on the hazard are assigned a normal prior.</p></li>
 <li><p><span class="math inline">\(\mu_\beta\)</span>: Mean of the normal distribution.</p></li>
 <li><p><span class="math inline">\(\sigma^2_\beta\)</span>: Variance of the normal distribution.</p></li>
 </ul></li>
@@ -1858,8 +1858,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./11. Zero inflated.html" class="pagination-link" aria-label="Zero inflated">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span>
+      <a href="./11. Zero inflated.html" class="pagination-link" aria-label="Zero-Inflated">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

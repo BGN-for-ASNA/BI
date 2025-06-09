@@ -8,10 +8,10 @@ To model the relationship between a binary outcome variable representing success
 
 - A Beta-Binomial model assumes that each binomial count observation has its own probability of success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.
   
-- A Beta distribution has two parameters: the rates for each probabilities and a shape parameter θ. θ influence how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, $\alpha$  and $\beta$ , which determine the concentration of probability around 0 and 1.
+- A Beta distribution has two parameters: the rates for each probability and a shape parameter θ. θ influences how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, $\alpha$ and $\beta$, which determine the concentration of probability around 0 and 1.
 
-  - If both are equal or greater than 1, the distribution is bell-shaped and centered around 0.5. 
-  - If 𝛼 > 𝛽 , the distribution is skewed toward 1 and if $\beta > \alpha$, it is skewed toward 0.
+  - If both are equal to or greater than 1, the distribution is bell-shaped and centered around 0.5. 
+  - If $\alpha > \beta$, the distribution is skewed toward 1, and if $\beta > \alpha$, it is skewed toward 0.
 Thus, the shape parameters $\gamma$ and $\eta$ provide flexibility in modeling various types of prior beliefs about probabilities.
   
 :::
@@ -23,16 +23,17 @@ Below is an example code snippet demonstrating Bayesian Beta-Binomial regression
 
 2) One independent categorical variable representing individuals' gender (gid).
 
-3) Additionally, we have the number of applications (applications) per individuals' gender, which will be used to account for independent rates.
+3) Additionally, we have the number of applications (applications) per gender, which will be used to account for independent rates.
 
 The goal is to evaluate whether the probability of admission is different between genders, while accounting for differences in the number of applications between genders.
 
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from main import*#
-# Setup device------------------------------------------------
-m = bi()
+from bi import bi
+
+# setup platform------------------------------------------------
+m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -72,7 +73,7 @@ m$data_to_model(list('gid', 'applications', 'admit' )) # Send to model (convert 
 
 # Define model ------------------------------------------------
 model <- function(gid, applications, admit){
-  # Parameters priors distributions
+  # Parameter prior distributions
   phi = bi.dist.exponential(1, name = 'phi',shape=c(1))
   alpha = bi.dist.normal(0., 1.5, shape= c(2), name='alpha')
   t = phi + 2
@@ -94,7 +95,7 @@ m$summary() # Get posterior distribution
 :::
 ## Mathematical Details
 ### *Bayesian Model*
-In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
 Y_i \sim BetaBinomial(n_i, \gamma_i, \eta_i)
@@ -136,12 +137,10 @@ Where:
   
 - $\tau$ is derived from 𝜙 and is used as a scaling factor for the shape parameters 𝛾 and 𝜂.
   
-- α is a vector of parameters, each representing the effect of the group variable *i on the success probability.
+- α is a vector of parameters, each representing the effect of group *i* on the success probability.
 
 - ϕ is a random variable following an exponential distribution with a rate of 1.
 
 
 ## Reference(s)
 @mcelreath2018statistical
-
-

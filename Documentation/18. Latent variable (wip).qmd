@@ -2,7 +2,7 @@
 
 ## General Principles
 
-In some scenarios, the observed data does not directly reflect the underlying structure or factors influencing the outcome. Instead, _latent variables_ — variables that are not directly observed but inferred from the data — can help model this hidden structure. These latent variables capture unobserved factors that affect the relationship between predictors (_X_) and the outcome (_Y_).
+In some scenarios, the observed data does not directly reflect the underlying structure or factors influencing the outcome. Instead, _latent variables_—variables that are not directly observed but are inferred from the data—can help model this hidden structure. These latent variables capture unobserved factors that affect the relationship between predictors (_X_) and the outcome (_Y_).
 
 We model the relationship between the predictor variables (_X_) and the outcome variable (_Y_) with a latent variable (_Z_) as follows:
 
@@ -47,8 +47,8 @@ Y2 = np.full((NV, NY), np.nan)
 # Generate the means and offsets for the data
 # means: Generate random normal means for each of the NY outcomes
 # offsets: Generate random normal offsets for each of the NV observations
-means = m.dist.normal(0, 1, shape=(NY,), sample = True, seed = 10)
-offsets = m.dist.normal(0, 1, shape=(NV,1), sample = True, seed = 20)
+means = m.dist.normal(0, 1, shape=(NY,), sample=True, seed=10)
+offsets = m.dist.normal(0, 1, shape=(NV, 1), sample=True, seed=20)
 
 # Fill the matrix Y2 with simulated data based on the generated means and offsets
 # Each observation (i) is the sum of an individual-specific offset and an outcome-specific mean
@@ -58,7 +58,7 @@ for i in range(NV):
 
 # Simulate individual-level random effects (e.g., random slopes or intercepts)
 # b_individual: A matrix of size (N, K) where N is the number of individuals and K is the number of covariates
-b_individual = bi.distribution.normal(0, 1, shape=N, K), sample = True, seed = 0)
+b_individual = bi.distribution.normal(0, 1, shape=(N, K), sample=True, seed=0)
 
 # mu: Add an additional effect 'a' to the individual-level random effects 'b_individual'
 # 'a' could represent a population-level effect or a baseline
@@ -78,19 +78,18 @@ m.data_on_model = dat
 
 # Define model ------------------------------------------------
 def model(NY, NV, Y2):
-    means = m.dist.normal(0, 1, shape=(NY,), name = 'means')
-    offset = m.dist.normal(0, 1, shape=(NY,1), name = 'offset')
-    sigma = m.dist.exponential(1, shape=(NY,), name = 'sigma')
-    tmp = jnp.tile(means, (NV, 1)).reshape(NV,NY)  
-    mu_l = tmp + offset 
+    means = m.dist.normal(0, 1, shape=(NY,), name='means')
+    offset = m.dist.normal(0, 1, shape=(NV, 1), name='offset')
+    sigma = m.dist.exponential(1, shape=(NY,), name='sigma')
+    tmp = jnp.tile(means, (NV, 1)).reshape(NV, NY)
+    mu_l = tmp + offset
     m.normal(mu_l, jnp.tile(sigma, [NV, 1]), obs=Y2)
 
-# Run sampler ------------------------------------------------ 
-m.run(model)  
+# Run sampler ------------------------------------------------
+m.run(model)
 
 # Summary ------------------------------------------------
 m.summary()
-
 ```
 
 ## Mathematical Details
@@ -99,7 +98,7 @@ We can express the Bayesian latent variable model using probability distribution
 
 $$
 \begin{aligned}
-& p(Y | X, Z, W, \sigma) = \text{Normal}(X * W + Z, \sigma^2) \\
+& p(Y | X, Z, W, \sigma) = \text{Normal}(X \cdot W + Z, \sigma^2) \\
 & p(Z) = \text{Normal}(0, \tau^2) \\
 & p(W) = \text{Normal}(0, \alpha^2) \\
 \end{aligned}
@@ -122,4 +121,3 @@ The latent variable _Z_ introduces additional flexibility to the model, capturin
 - **Latent Factors in Psychometrics**: In psychometric models, latent variables represent traits or abilities that are not directly observed, such as cognitive ability or personality traits.
 - **Time-Varying Effects**: Latent variables can represent unobserved time trends or individual-specific effects in time-series or longitudinal models.
 - **Mixed Models**: In hierarchical or mixed models, latent variables can represent group-specific intercepts or slopes.
-

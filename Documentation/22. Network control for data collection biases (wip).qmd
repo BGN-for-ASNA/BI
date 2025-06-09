@@ -1,9 +1,9 @@
 # Network with data collection biases
-Data collection biases are a persistent issue in studies of social networks. Two main types of biases can be considered: [<span style="color:#0D6EFD">exposure biases 🛈</span>]{#expoB} and [<span style="color:#0D6EFD">censoring biases 🛈</span>]{#censoB} .
+Data collection biases are a persistent issue in studies of social networks. Two main types of biases can be considered: [<span style="color:#0D6EFD">exposure biases 🛈</span>]{#expoB} and [<span style="color:#0D6EFD">censoring biases 🛈</span>]{#censoB}.
 
 To account for exposure biases, we can switch the network link probability model from a *Poisson* distribution to a *Binomial* distribution, as the binomial distribution allows us to account for the number of trials for each data estimation.
 
-To address censoring biases, we need to add an additional equation to account for the probability of missing an interaction during observation when modeling interaction between individual *i* and *j*.
+To address censoring biases, we need to add an additional equation to account for the probability of missing an interaction during observation when modeling the interaction between individuals *i* and *j*.
 
 ## Considerations
 ::: callout-caution
@@ -12,10 +12,10 @@ To address censoring biases, we need to add an additional equation to account fo
 :::
 
 ## Example 1
-Below is an example code snippet demonstrating Bayesian network model with send-receiver effect, dyadic effect and block model effect while accounting for exposure biases:
+Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect, a dyadic effect, and a block model effect while accounting for exposure biases:
 
 ``` python
-from .bi.main import*
+from .bi.main import *
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
@@ -39,8 +39,8 @@ def model(idx, result_outcomes,
     N_id = ids.shape[0]
 
     # Block ---------------------------------------
-    B_any, b_any, b_ij_any, b_ii_any = bi.net.block_model(Any,1, name_b_ij = 'b_ij_Any', name_b_ii = 'b_ii_Any' )
-    B_Merica, b_Merica, b_ij_Merica, b_ii_Merica = bi.net.block_model(Merica,  3, name_b_ij = 'b_ij_Merica', name_b_ii = 'b_ii_Merica' )
+    B_any, b_any, b_ij_any, b_ii_any = bi.net.block_model(Any, 1, name_b_ij = 'b_ij_Any', name_b_ii = 'b_ii_Any' )
+    B_Merica, b_Merica, b_ij_Merica, b_ii_Merica = bi.net.block_model(Merica, 3, name_b_ij = 'b_ij_Merica', name_b_ii = 'b_ii_Merica' )
     B_Quantum, b_Quantum, b_ij_Quantum, b_ii_Quantum = bi.net.block_model(Quantum, 2, name_b_ij = 'b_ij_Quantum', name_b_ii = 'b_ii_Quantum' )
 
     ## SR ---------------------------------------
@@ -56,7 +56,7 @@ def model(idx, result_outcomes,
     rf, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)
     dr = dr_terms + rf
 
-    m.binomial(exposure,jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr )), obs=result_outcomes)
+    m.binomial(exposure, jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr), obs=result_outcomes)
 
 
 m.run(model) 
@@ -64,8 +64,8 @@ summary = m.summary()
 summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 ```
 
-## Example2 
-Below is an example code snippet demonstrating Bayesian network model with send-receiver effect, dyadic effect and block model effect while accounting for exposure biases and cesnsoring biases:
+## Example 2
+Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect, a dyadic effect, and a block model effect while accounting for exposure biases and censoring biases:
 
 ``` python
 
@@ -94,7 +94,7 @@ Where:
 $$
 \begin{aligned}
 Q_{[i,j]} \sim \begin{cases} 
-0 & \text{when no interactions occurs or when i or j are not detectable} \\
+0 & \text{when no interaction occurs or when i or j is not detectable} \\
 \text{1}  & \text{when i and j are both detectable}
 \end{cases}
 \end{aligned}
@@ -113,18 +113,17 @@ Where:
 -   $\eta_{[j]}$ is the probability of individual $j$ being detectable.
 
 ### *Defining formula sub-equations and prior distributions*
-We can let $\eta_{[i]}$ depend on individual-specific covariates. To model the probability of censoring, we can model  $1-\eta_{[i]}$:
+We can let $\eta_{[i]}$ depend on individual-specific covariates. To model the probability of censoring, we can model $1-\eta_{[i]}$:
 $$
 \text{logit}(1-\eta_{[i]}) = \mu_\psi + \hat\psi_{[i]}  \sigma_\psi + \ldots 
 $$
 
-where 
--   $\mu_\psi$ is an intercept
--   $\sigma_\psi$ is a scalar for the variance of random effects
--   $\hat\psi_{[i]}\sim \text {Normal}(0,1)$, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if $C$ is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with:  $\kappa_{[5]}C_{[i]}$, to give the effects of coloration on censoring probability.
+Where: 
+-   $\mu_\psi$ is the intercept.
+-   $\sigma_\psi$ is a scalar for the variance of random effects.
+-   $\hat\psi_{[i]}\sim \text{Normal}(0,1)$, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if $C$ is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with:  $\kappa_{[5]}C_{[i]}$, to give the effects of coloration on censoring probability.
 
 ## Note(s)
 ::: callout-note
 -   One major limitation of this model is the necessity of having an estimation of the censoring bias for each individual.
 :::
-

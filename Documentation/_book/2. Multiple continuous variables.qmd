@@ -8,7 +8,7 @@ To study relationships between multiple continuous independent variables (e.g., 
 ::: callout-caution 
 - We have the same considerations as for the [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- The model interpretation of the regression coefficients $\beta_x$  is considered for fixed values of the other independent variable(s)' regression coefficients —i.e., for a given age, $\beta_{weight}$ represents the expected change in the dependent variable variation (height) for each one-unit increase in weight, holding all other variable(s) constant (age).
+- The model interpretation of the regression coefficients $\beta_x$ is considered for fixed values of the other independent variable(s)' regression coefficients—i.e., for a given age, $\beta_{weight}$ represents the expected change in the dependent variable (height) for each one-unit increase in weight, holding all other variable(s) constant (age).
 
 :::
 
@@ -33,7 +33,7 @@ m.scale(['weight', 'age']) # Scale
 
 # Define model ------------------------------------------------
 def model(height, weight, age):
-    # Parameters priors distributions
+    # Parameter prior distributions
     alpha = m.dist.normal(0, 0.5, name = 'alpha')    
     beta1 = m.dist.normal(0, 0.5, name = 'beta1')
     beta2 = m.dist.normal(0, 0.5, name = 'beta2')
@@ -41,7 +41,7 @@ def model(height, weight, age):
     # Likelihood
     m.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
 
-# Run mcmc ------------------------------------------------
+# Run MCMC ------------------------------------------------
 m.run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
@@ -61,7 +61,7 @@ m$data_to_model(list('weight', 'height', 'age')) # Send to model (convert to jax
 
 # Define model ------------------------------------------------
 model <- function(height, weight, age){
-  # Parameters priors distributions
+  # Parameter prior distributions
   alpha = bi.dist.normal( 0, 0.5, name = 'a')
   beta1 = bi.dist.normal( 0, 0.5, name = 'b1')
   beta2 = bi.dist.normal(  0, 0.5, name = 'b2')   
@@ -70,7 +70,7 @@ model <- function(height, weight, age){
   m$normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)
 }
 
-# Run mcmc ------------------------------------------------
+# Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
@@ -98,7 +98,7 @@ Where:
   
 - $\beta_1$, $\beta_2$, ..., $\beta_n$ are the regression coefficients.
   
-- $\sigma_i$ is a vector of error terms for observation *i*.
+- $\sigma_i$ is the error term for observation *i*.
   
 
 ### *Bayesian formulation*
@@ -126,7 +126,7 @@ Where:
   
 - $\alpha$ is the prior distribution for the intercept.
   
-- $\beta_k$ are the prior distributions for the regression coefficients _k_ distinct regression coefficients.
+- $\beta_k$ are the prior distributions for the _k_ distinct regression coefficients.
   
 - $X_{1i}$, $X_{2i}$, ..., $X_{ni}$ are the values of the independent variables for observation *i*.
   
@@ -134,5 +134,3 @@ Where:
 
 ## Reference(s)
 @mcelreath2018statistical
-
-
