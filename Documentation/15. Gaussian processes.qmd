@@ -19,19 +19,19 @@ Below is an example code snippet demonstrating Gaussian Process regression using
 ::: {.panel-tabset group="language"}
 ## Python
 ```Python
-from BI import bi
+from BEE import bee
 import jax.numpy as jnp
 import numpyro
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('bi.resources.data') / 'Kline2.csv'
+data_path = files('BEE.resources.data') / 'Kline2.csv'
 m.data(data_path, sep=';') 
 
-data_path2 = files('bi.resources.data') / 'Kline2.csv'
+data_path2 = files('BEE.resources.data') / 'Kline2.csv'
 islandsDistMatrix = pd.read_csv(data_path2, index_col=0)
 
 m.data_to_model(['total_tools', 'population'])
@@ -65,7 +65,7 @@ m.summary()
 library(BI)
 pd=import('pandas')
 # setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importbee(platform='cpu')
 
 # Import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/Kline2.csv", sep = ''), sep=';')
@@ -77,14 +77,14 @@ m$data_on_model$Dmat = jnp$array(islandsDistMatrix)
 
 # Define model ------------------------------------------------
 model <- function(Dmat, population, society, total_tools){
-  a = bi.dist.exponential(1, name = 'a')
-  b = bi.dist.exponential(1, name = 'b')
-  g = bi.dist.exponential(1, name = 'g')
+  a = bee.dist.exponential(1, name = 'a')
+  b = bee.dist.exponential(1, name = 'b')
+  g = bee.dist.exponential(1, name = 'g')
   
   # non-centered Gaussian Process prior
-  etasq = bi.dist.exponential(2, name = 'etasq')
-  rhosq = bi.dist.exponential(0.5, name = 'rhosq')
-  z = bi.dist.normal(0,1, name = 'z', shape = c(10))
+  etasq = bee.dist.exponential(2, name = 'etasq')
+  rhosq = bee.dist.exponential(0.5, name = 'rhosq')
+  z = bee.dist.normal(0,1, name = 'z', shape = c(10))
   r = m$kernel_sq_exp(Dmat, z, etasq, rhosq, 0.01)
   SIGMA = r[[1]]
   L_SIGMA = r[[2]]

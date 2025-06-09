@@ -345,8 +345,8 @@ y \sim \text{Normal}(\mu, \sigma)
 Basically, our likelihood is saying that the \emph{dependent variable}
 \(y\) is normally distributed with a mean \(\mu\) and a standard
 deviation \(\sigma\). \emph{Probability distributions} are available in
-BI through the class \texttt{bi.dist.XXX} where \texttt{XXX} is the name
-of the distribution you want to use. Within any \texttt{bi.dist.XXX}
+BI through the class \texttt{bee.dist.XXX} where \texttt{XXX} is the name
+of the distribution you want to use. Within any \texttt{bee.dist.XXX}
 class, you can define which distribution needs to be used as a
 likelihood by adding an argument \texttt{obs}, e.g.,
 \texttt{m.normal(alpha\ +\ beta\ *\ x,\ sigma,\ obs=y)}. You can see
@@ -388,7 +388,7 @@ require a \emph{link function} (for each specific family we will discuss
 the corresponding link function); however, below is a table summarizing
 some of the most common link functions, the mathematical form of each,
 their typical applications, and how to interpret them. \emph{Link
-functions} in BI can be accessed through the class \texttt{bi.link.XXX}
+functions} in BI can be accessed through the class \texttt{BEE.link.XXX}
 where \texttt{XXX} is the name of the link function.
 
 \begin{longtable}[]{@{}
@@ -610,7 +610,7 @@ reliable?'', ``Does the model generate data similar to what we
 observed?'', and ``Have the chains mixed well?'' Multiple diagnostics
 approaches can be used to assess the model's performance. Below are some
 key diagnostic tools and techniques available in BI within the class
-\texttt{bi.diag.XXX} where \texttt{XXX} is the name of the diagnostic
+\texttt{BEE.diag.XXX} where \texttt{XXX} is the name of the diagnostic
 tool.
 
 \begin{longtable}[]{@{}
@@ -793,7 +793,7 @@ estimate the effect of weight on height.
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Howell1.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Howell1.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{) }
 \NormalTok{m.df }\OperatorTok{=}\NormalTok{ m.df[m.df.age }\OperatorTok{\textgreater{}} \DecValTok{18}\NormalTok{] }\CommentTok{\# Manipulate}
 \NormalTok{m.scale([}\StringTok{\textquotesingle{}weight\textquotesingle{}}\NormalTok{]) }\CommentTok{\# Scale}
@@ -835,9 +835,9 @@ estimate the effect of weight on height.
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(height, weight)\{}
   \CommentTok{\# Parameter prior distributions}
-\NormalTok{  s }\OtherTok{=} \FunctionTok{bi.dist.uniform}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)}
-\NormalTok{  a }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{178}\NormalTok{, }\DecValTok{20}\NormalTok{,  }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
-\NormalTok{  b }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
+\NormalTok{  s }\OtherTok{=} \FunctionTok{bee.dist.uniform}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)}
+\NormalTok{  a }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{178}\NormalTok{, }\DecValTok{20}\NormalTok{,  }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
+\NormalTok{  b }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
   
   \CommentTok{\# Likelihood}
 \NormalTok{  m}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(a }\SpecialCharTok{+}\NormalTok{ b }\SpecialCharTok{*}\NormalTok{ weight, s, }\AttributeTok{obs =}\NormalTok{ height)}
@@ -991,7 +991,7 @@ goal is to estimate the effect of \emph{weight} and \emph{age} on
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
 \CommentTok{\# Import}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Howell1.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Howell1.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{) }
 \NormalTok{m.df }\OperatorTok{=}\NormalTok{ m.df[m.df.age }\OperatorTok{\textgreater{}} \DecValTok{18}\NormalTok{] }\CommentTok{\# Manipulate}
 \NormalTok{m.scale([}\StringTok{\textquotesingle{}weight\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{]) }\CommentTok{\# Scale}
@@ -1030,10 +1030,10 @@ goal is to estimate the effect of \emph{weight} and \emph{age} on
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(height, weight, age)\{}
   \CommentTok{\# Parameter prior distributions}
-\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
-\NormalTok{  beta1 }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b1\textquotesingle{}}\NormalTok{)}
-\NormalTok{  beta2 }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(  }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b2\textquotesingle{}}\NormalTok{)   }
-\NormalTok{  sigma }\OtherTok{=} \FunctionTok{bi.dist.uniform}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)}
+\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
+\NormalTok{  beta1 }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b1\textquotesingle{}}\NormalTok{)}
+\NormalTok{  beta2 }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(  }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b2\textquotesingle{}}\NormalTok{)   }
+\NormalTok{  sigma }\OtherTok{=} \FunctionTok{bee.dist.uniform}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)}
   \CommentTok{\# Likelihood}
 \NormalTok{  m}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(alpha }\SpecialCharTok{+}\NormalTok{ beta1 }\SpecialCharTok{*}\NormalTok{ weight }\SpecialCharTok{+}\NormalTok{ beta2 }\SpecialCharTok{*}\NormalTok{ age, sigma, }\AttributeTok{obs=}\NormalTok{height)}
 \NormalTok{\}}
@@ -1190,7 +1190,7 @@ consumption.
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}tulips.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}tulips.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{)}
 \NormalTok{m.scale([}\StringTok{\textquotesingle{}blooms\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}water\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}shade\textquotesingle{}}\NormalTok{]) }\CommentTok{\# Scale}
 
@@ -1228,11 +1228,11 @@ consumption.
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(blooms, water,shade)\{}
   \CommentTok{\# Parameter prior distributions}
-\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{( }\FloatTok{0.5}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
-\NormalTok{  beta1 }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{,  }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b1\textquotesingle{}}\NormalTok{)}
-\NormalTok{  beta2 }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(  }\DecValTok{0}\NormalTok{,  }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b2\textquotesingle{}}\NormalTok{)}
-\NormalTok{  beta\_interaction\_ }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(  }\DecValTok{0}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}bint\textquotesingle{}}\NormalTok{)}
-\NormalTok{  sigma }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)}
+\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{( }\FloatTok{0.5}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
+\NormalTok{  beta1 }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{,  }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b1\textquotesingle{}}\NormalTok{)}
+\NormalTok{  beta2 }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(  }\DecValTok{0}\NormalTok{,  }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b2\textquotesingle{}}\NormalTok{)}
+\NormalTok{  beta\_interaction\_ }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(  }\DecValTok{0}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}bint\textquotesingle{}}\NormalTok{)}
+\NormalTok{  sigma }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{50}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)}
   \CommentTok{\# Likelihood}
 \NormalTok{  m}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(alpha }\SpecialCharTok{+}\NormalTok{ beta1}\SpecialCharTok{*}\NormalTok{water }\SpecialCharTok{+}\NormalTok{ beta2}\SpecialCharTok{*}\NormalTok{shade }\SpecialCharTok{+}\NormalTok{ beta\_interaction\_}\SpecialCharTok{*}\NormalTok{water}\SpecialCharTok{*}\NormalTok{shade, sigma, }\AttributeTok{obs=}\NormalTok{blooms)}
 \NormalTok{\}}
@@ -1399,7 +1399,7 @@ between clades.
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}milk.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}milk.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{) }
 \NormalTok{m.index([}\StringTok{"clade"}\NormalTok{]) }\CommentTok{\# Manipulate}
 \NormalTok{m.scale([}\StringTok{\textquotesingle{}kcal\_per\_g\textquotesingle{}}\NormalTok{]) }\CommentTok{\# Scale}
@@ -1407,8 +1407,8 @@ between clades.
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \KeywordTok{def}\NormalTok{ model(kcal\_per\_g, index\_clade):}
-\NormalTok{    a }\OperatorTok{=}\NormalTok{ m.bi.dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(}\DecValTok{4}\NormalTok{,), name }\OperatorTok{=} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{) }\CommentTok{\# shape based on the number of clades}
-\NormalTok{    s }\OperatorTok{=}\NormalTok{ m.bi.dist.exponential( }\DecValTok{1}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)    }
+\NormalTok{    a }\OperatorTok{=}\NormalTok{ m.bee.dist.normal(}\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(}\DecValTok{4}\NormalTok{,), name }\OperatorTok{=} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{) }\CommentTok{\# shape based on the number of clades}
+\NormalTok{    s }\OperatorTok{=}\NormalTok{ m.bee.dist.exponential( }\DecValTok{1}\NormalTok{, name }\OperatorTok{=} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)    }
 \NormalTok{    mu }\OperatorTok{=}\NormalTok{ a[index\_clade]}
 \NormalTok{    m.normal(mu, s, obs}\OperatorTok{=}\NormalTok{kcal\_per\_g)}
 
@@ -1437,8 +1437,8 @@ between clades.
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(kcal\_per\_g, index\_clade)\{}
   \CommentTok{\# Parameter prior distributions}
-\NormalTok{  beta }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{))  }\CommentTok{\# shape based on the number of clades}
-\NormalTok{  sigma }\OtherTok{=}\FunctionTok{bi.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)}
+\NormalTok{  beta }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{))  }\CommentTok{\# shape based on the number of clades}
+\NormalTok{  sigma }\OtherTok{=}\FunctionTok{bee.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}s\textquotesingle{}}\NormalTok{)}
   \CommentTok{\# Likelihood}
 \NormalTok{  m}\SpecialCharTok{$}\FunctionTok{normal}\NormalTok{(beta[index\_clade], sigma, }\AttributeTok{obs=}\NormalTok{kcal\_per\_g)}
 \NormalTok{\}}
@@ -1596,7 +1596,7 @@ of pulling the left side.
 \CommentTok{\# import data {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}chimpanzees.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}chimpanzees.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{)}
 \NormalTok{m.data\_to\_model([}\StringTok{\textquotesingle{}pulled\_left\textquotesingle{}}\NormalTok{])}
 
@@ -1629,7 +1629,7 @@ of pulling the left side.
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(pulled\_left)\{}
   \CommentTok{\# Parameters priors distributions}
-\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
+\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{( }\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
   \CommentTok{\# Likelihood}
 \NormalTok{  m}\SpecialCharTok{$}\FunctionTok{binomial}\NormalTok{(}\AttributeTok{logits =}\NormalTok{ alpha, }\AttributeTok{obs=}\NormalTok{pulled\_left)}
 \NormalTok{\}}
@@ -1856,7 +1856,7 @@ number of applications between genders.
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}UCBadmit.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}UCBadmit.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{) }
 \NormalTok{m.df[}\StringTok{"gid"}\NormalTok{] }\OperatorTok{=}\NormalTok{ (m.df[}\StringTok{"applicant.gender"}\NormalTok{] }\OperatorTok{!=} \StringTok{"male"}\NormalTok{).astype(}\BuiltInTok{int}\NormalTok{)}
 
@@ -1896,8 +1896,8 @@ number of applications between genders.
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(gid, applications, admit)\{}
   \CommentTok{\# Parameter prior distributions}
-\NormalTok{  phi }\OtherTok{=} \FunctionTok{bi.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}phi\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
-\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\FloatTok{0.}\NormalTok{, }\FloatTok{1.5}\NormalTok{, }\AttributeTok{shape=} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{), }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
+\NormalTok{  phi }\OtherTok{=} \FunctionTok{bee.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}phi\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
+\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\FloatTok{0.}\NormalTok{, }\FloatTok{1.5}\NormalTok{, }\AttributeTok{shape=} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{), }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{)}
 \NormalTok{  t }\OtherTok{=}\NormalTok{ phi }\SpecialCharTok{+} \DecValTok{2}
 \NormalTok{  pbar }\OtherTok{=}\NormalTok{ jax}\SpecialCharTok{$}\NormalTok{nn}\SpecialCharTok{$}\FunctionTok{sigmoid}\NormalTok{(alpha[gid])}
 \NormalTok{  gamma }\OtherTok{=}\NormalTok{ pbar }\SpecialCharTok{*}\NormalTok{ t}
@@ -2054,7 +2054,7 @@ size, accounting for each civilization.
 \CommentTok{\# import data {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Kline.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Kline.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{)}
 \NormalTok{m.scale([}\StringTok{\textquotesingle{}population\textquotesingle{}}\NormalTok{])}
 \NormalTok{m.df[}\StringTok{"cid"}\NormalTok{] }\OperatorTok{=}\NormalTok{ (m.df.contact }\OperatorTok{==} \StringTok{"high"}\NormalTok{).astype(}\BuiltInTok{int}\NormalTok{)}
@@ -2091,8 +2091,8 @@ size, accounting for each civilization.
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(total\_tools, population, cid)\{}
   \CommentTok{\# Parameter prior distributions}
-\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{3}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{))}
-\NormalTok{  beta }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.2}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{))}
+\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{3}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{))}
+\NormalTok{  beta }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.2}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{))}
 \NormalTok{  l }\OtherTok{=}\NormalTok{ jnp}\SpecialCharTok{$}\FunctionTok{exp}\NormalTok{(alpha[cid] }\SpecialCharTok{+}\NormalTok{ beta[cid]}\SpecialCharTok{*}\NormalTok{population)}
   \CommentTok{\# Likelihood}
 \NormalTok{  m}\SpecialCharTok{$}\FunctionTok{poisson}\NormalTok{(l, }\AttributeTok{obs=}\NormalTok{total\_tools)}
@@ -2251,7 +2251,7 @@ model using the Bayesian Inference (BI) package:
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Sim dat Gamma poisson.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Sim dat Gamma poisson.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{) }
 \NormalTok{m.data\_to\_model([}\StringTok{\textquotesingle{}log\_days\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}monastery\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}y\textquotesingle{}}\NormalTok{]) }\CommentTok{\# Send to model (convert to jax array)}
 
@@ -2285,8 +2285,8 @@ model using the Bayesian Inference (BI) package:
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(log\_days, monastery, y)\{}
   \CommentTok{\# Parameter prior distributions}
-\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
-\NormalTok{  beta }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
+\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
+\NormalTok{  beta }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
 \NormalTok{  l }\OtherTok{=}\NormalTok{ jnp}\SpecialCharTok{$}\FunctionTok{exp}\NormalTok{(log\_days }\SpecialCharTok{+}\NormalTok{ alpha }\SpecialCharTok{+}\NormalTok{ beta }\SpecialCharTok{*}\NormalTok{ monastery)}
   \CommentTok{\# Likelihood}
 \NormalTok{  m}\SpecialCharTok{$}\FunctionTok{poisson}\NormalTok{(}\AttributeTok{rate=}\NormalTok{l, }\AttributeTok{obs=}\NormalTok{y)}
@@ -2462,7 +2462,7 @@ model using the Bayesian Inference (BI) package:
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Sim data multinomial.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Sim data multinomial.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{) }
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
@@ -2503,8 +2503,8 @@ model using the Bayesian Inference (BI) package:
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(income, career)\{}
   \CommentTok{\# Parameter prior distributions}
-\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{))}
-\NormalTok{  beta }\OtherTok{=} \FunctionTok{bi.dist.halfnormal}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{)}
+\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{))}
+\NormalTok{  beta }\OtherTok{=} \FunctionTok{bee.dist.halfnormal}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}beta\textquotesingle{}}\NormalTok{)}
   
 \NormalTok{  s\_1 }\OtherTok{=}\NormalTok{ alpha[}\DecValTok{0}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ beta }\SpecialCharTok{*}\NormalTok{ income[}\DecValTok{0}\NormalTok{]}
 \NormalTok{  s\_2 }\OtherTok{=}\NormalTok{ alpha[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ beta }\SpecialCharTok{*}\NormalTok{ income[}\DecValTok{1}\NormalTok{]}
@@ -2631,7 +2631,7 @@ more than two categories and one or more independent variables with
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Sim data multinomial.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Sim data multinomial.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{) }
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
@@ -2720,8 +2720,8 @@ days individuals drink.
 
 \CommentTok{\# Sample one year of production}
 \NormalTok{N }\OperatorTok{=} \DecValTok{365}
-\NormalTok{drink }\OperatorTok{=}\NormalTok{ m.bi.binomial(}\DecValTok{1}\NormalTok{, prob\_drink, shape }\OperatorTok{=}\NormalTok{ (N,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
-\NormalTok{y }\OperatorTok{=}\NormalTok{ (}\DecValTok{1} \OperatorTok{{-}}\NormalTok{ drink) }\OperatorTok{*}\NormalTok{ m.bi.poisson(rate\_work, shape }\OperatorTok{=}\NormalTok{ (N,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
+\NormalTok{drink }\OperatorTok{=}\NormalTok{ m.BEE.binomial(}\DecValTok{1}\NormalTok{, prob\_drink, shape }\OperatorTok{=}\NormalTok{ (N,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
+\NormalTok{y }\OperatorTok{=}\NormalTok{ (}\DecValTok{1} \OperatorTok{{-}}\NormalTok{ drink) }\OperatorTok{*}\NormalTok{ m.BEE.poisson(rate\_work, shape }\OperatorTok{=}\NormalTok{ (N,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
 
 \CommentTok{\# Setup device{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m }\OperatorTok{=}\NormalTok{ bi(platform}\OperatorTok{=}\StringTok{\textquotesingle{}cpu\textquotesingle{}}\NormalTok{)}
@@ -2759,16 +2759,16 @@ days individuals drink.
 \NormalTok{rate\_work }\OtherTok{=} \DecValTok{1}     \CommentTok{\# average 1 manuscript per day}
 \CommentTok{\# sample one year of production}
 \NormalTok{N }\OtherTok{=} \FunctionTok{as.integer}\NormalTok{(}\DecValTok{365}\NormalTok{)}
-\NormalTok{drink }\OtherTok{=} \FunctionTok{bi.dist.binomial}\NormalTok{(}\AttributeTok{total\_count =} \FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{), }\AttributeTok{probs =}\NormalTok{ prob\_drink, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(N), }\AttributeTok{sample =}\NormalTok{ T ) }\CommentTok{\# An example of sampling a distribution with BI}
-\NormalTok{y }\OtherTok{=}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ drink) }\SpecialCharTok{*}  \FunctionTok{bi.dist.poisson}\NormalTok{(rate\_work, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(N), }\AttributeTok{sample =}\NormalTok{ T)}
+\NormalTok{drink }\OtherTok{=} \FunctionTok{bee.dist.binomial}\NormalTok{(}\AttributeTok{total\_count =} \FunctionTok{as.integer}\NormalTok{(}\DecValTok{1}\NormalTok{), }\AttributeTok{probs =}\NormalTok{ prob\_drink, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(N), }\AttributeTok{sample =}\NormalTok{ T ) }\CommentTok{\# An example of sampling a distribution with BI}
+\NormalTok{y }\OtherTok{=}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ drink) }\SpecialCharTok{*}  \FunctionTok{bee.dist.poisson}\NormalTok{(rate\_work, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(N), }\AttributeTok{sample =}\NormalTok{ T)}
 \NormalTok{data }\OtherTok{=} \FunctionTok{list}\NormalTok{()}
 \NormalTok{data}\SpecialCharTok{$}\NormalTok{y }\OtherTok{=}\NormalTok{ y}
 \NormalTok{m}\SpecialCharTok{$}\NormalTok{data\_on\_model }\OtherTok{=}\NormalTok{ data}
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y)\{}
-\NormalTok{  al }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}al\textquotesingle{}}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
-\NormalTok{  ap }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}ap\textquotesingle{}}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
+\NormalTok{  al }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}al\textquotesingle{}}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
+\NormalTok{  ap }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}ap\textquotesingle{}}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
 \NormalTok{  p }\OtherTok{=}\NormalTok{ jax}\SpecialCharTok{$}\NormalTok{scipy}\SpecialCharTok{$}\NormalTok{special}\SpecialCharTok{$}\FunctionTok{expit}\NormalTok{(ap)}
 \NormalTok{  lambda\_ }\OtherTok{=}\NormalTok{ jnp}\SpecialCharTok{$}\FunctionTok{exp}\NormalTok{(al)}
 \NormalTok{  m}\SpecialCharTok{$}\FunctionTok{zeroinflatedpoisson}\NormalTok{(p, lambda\_, }\AttributeTok{obs=}\NormalTok{y)}
@@ -2977,7 +2977,7 @@ event variable.
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}mastectomy.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}mastectomy.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{) }
 
 \NormalTok{m.df.metastasized }\OperatorTok{=}\NormalTok{ (m.df.metastasized }\OperatorTok{==} \StringTok{"yes"}\NormalTok{).astype(np.int64)}
@@ -3168,7 +3168,7 @@ which indicates the tank where the individual was born, with a total of
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}reedfrogs.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}reedfrogs.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{) }
 \CommentTok{\# Manipulate}
 \NormalTok{m.df[}\StringTok{"tank"}\NormalTok{] }\OperatorTok{=}\NormalTok{ np.arange(m.df.shape[}\DecValTok{0}\NormalTok{]) }
@@ -3209,9 +3209,9 @@ which indicates the tank where the individual was born, with a total of
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(tank, surv, density)\{}
   \CommentTok{\# Parameter prior distributions}
-\NormalTok{  sigma }\OtherTok{=} \FunctionTok{bi.dist.exponential}\NormalTok{( }\DecValTok{1}\NormalTok{,  }\AttributeTok{name =} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
-\NormalTok{  a\_bar }\OtherTok{=}  \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{1.5}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}a\_bar\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
-\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(a\_bar, sigma, }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =}\FunctionTok{c}\NormalTok{(}\DecValTok{48}\NormalTok{))}
+\NormalTok{  sigma }\OtherTok{=} \FunctionTok{bee.dist.exponential}\NormalTok{( }\DecValTok{1}\NormalTok{,  }\AttributeTok{name =} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
+\NormalTok{  a\_bar }\OtherTok{=}  \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{1.5}\NormalTok{, }\AttributeTok{name=}\StringTok{\textquotesingle{}a\_bar\textquotesingle{}}\NormalTok{,}\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
+\NormalTok{  alpha }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(a\_bar, sigma, }\AttributeTok{name=}\StringTok{\textquotesingle{}alpha\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =}\FunctionTok{c}\NormalTok{(}\DecValTok{48}\NormalTok{))}
 \NormalTok{  p }\OtherTok{=}\NormalTok{ alpha[tank]}
   \CommentTok{\# Likelihood}
 \NormalTok{  m}\SpecialCharTok{$}\FunctionTok{binomial}\NormalTok{(}\AttributeTok{total\_count =}\NormalTok{ density, }\AttributeTok{logits =}\NormalTok{ p, }\AttributeTok{obs=}\NormalTok{surv)}
@@ -3386,7 +3386,7 @@ varying effects:
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Sim data multivariatenormal.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Sim data multivariatenormal.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{) }
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
@@ -3423,14 +3423,14 @@ varying effects:
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(cafe, afternoon, wait, }\AttributeTok{N\_cafes =} \FunctionTok{as.integer}\NormalTok{(}\DecValTok{20}\NormalTok{) )\{}
-\NormalTok{  a }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{5}\NormalTok{, }\DecValTok{2}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
-\NormalTok{  b }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
-\NormalTok{  sigma\_cafe }\OtherTok{=} \FunctionTok{bi.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{shape=} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{), }\AttributeTok{name =} \StringTok{\textquotesingle{}sigma\_cafe\textquotesingle{}}\NormalTok{)}
-\NormalTok{  sigma }\OtherTok{=} \FunctionTok{bi.dist.exponential}\NormalTok{( }\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
-\NormalTok{  Rho }\OtherTok{=} \FunctionTok{bi.dist.lkj}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{2}\NormalTok{), }\FunctionTok{as.integer}\NormalTok{(}\DecValTok{2}\NormalTok{), }\AttributeTok{name =} \StringTok{\textquotesingle{}Rho\textquotesingle{}}\NormalTok{)}
+\NormalTok{  a }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{5}\NormalTok{, }\DecValTok{2}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
+\NormalTok{  b }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
+\NormalTok{  sigma\_cafe }\OtherTok{=} \FunctionTok{bee.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{shape=} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{), }\AttributeTok{name =} \StringTok{\textquotesingle{}sigma\_cafe\textquotesingle{}}\NormalTok{)}
+\NormalTok{  sigma }\OtherTok{=} \FunctionTok{bee.dist.exponential}\NormalTok{( }\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}sigma\textquotesingle{}}\NormalTok{)}
+\NormalTok{  Rho }\OtherTok{=} \FunctionTok{bee.dist.lkj}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\DecValTok{2}\NormalTok{), }\FunctionTok{as.integer}\NormalTok{(}\DecValTok{2}\NormalTok{), }\AttributeTok{name =} \StringTok{\textquotesingle{}Rho\textquotesingle{}}\NormalTok{)}
 \NormalTok{  cov }\OtherTok{=}\NormalTok{ jnp}\SpecialCharTok{$}\FunctionTok{outer}\NormalTok{(sigma\_cafe, sigma\_cafe) }\SpecialCharTok{*}\NormalTok{ Rho}
   
-\NormalTok{  a\_cafe\_b\_cafe }\OtherTok{=} \FunctionTok{bi.dist.multivariatenormal}\NormalTok{(}
+\NormalTok{  a\_cafe\_b\_cafe }\OtherTok{=} \FunctionTok{bee.dist.multivariatenormal}\NormalTok{(}
 \NormalTok{    jnp}\SpecialCharTok{$}\FunctionTok{squeeze}\NormalTok{(jnp}\SpecialCharTok{$}\FunctionTok{stack}\NormalTok{(}\FunctionTok{list}\NormalTok{(a, b))), }
 \NormalTok{    cov, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(N\_cafes), }\AttributeTok{name =} \StringTok{\textquotesingle{}a\_cafe\textquotesingle{}}\NormalTok{)  }
   
@@ -3967,10 +3967,10 @@ in order to capture the spatial dependence of the relationship.
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Kline2.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Kline2.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{) }
 
-\NormalTok{data\_path2 }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Kline2.csv\textquotesingle{}}
+\NormalTok{data\_path2 }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}Kline2.csv\textquotesingle{}}
 \NormalTok{islandsDistMatrix }\OperatorTok{=}\NormalTok{ pd.read\_csv(data\_path2, index\_col}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
 
 \NormalTok{m.data\_to\_model([}\StringTok{\textquotesingle{}total\_tools\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}population\textquotesingle{}}\NormalTok{])}
@@ -4019,14 +4019,14 @@ in order to capture the spatial dependence of the relationship.
 
 \CommentTok{\# Define model {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{model }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(Dmat, population, society, total\_tools)\{}
-\NormalTok{  a }\OtherTok{=} \FunctionTok{bi.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
-\NormalTok{  b }\OtherTok{=} \FunctionTok{bi.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
-\NormalTok{  g }\OtherTok{=} \FunctionTok{bi.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}g\textquotesingle{}}\NormalTok{)}
+\NormalTok{  a }\OtherTok{=} \FunctionTok{bee.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{)}
+\NormalTok{  b }\OtherTok{=} \FunctionTok{bee.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{)}
+\NormalTok{  g }\OtherTok{=} \FunctionTok{bee.dist.exponential}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}g\textquotesingle{}}\NormalTok{)}
   
   \CommentTok{\# non{-}centered Gaussian Process prior}
-\NormalTok{  etasq }\OtherTok{=} \FunctionTok{bi.dist.exponential}\NormalTok{(}\DecValTok{2}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}etasq\textquotesingle{}}\NormalTok{)}
-\NormalTok{  rhosq }\OtherTok{=} \FunctionTok{bi.dist.exponential}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}rhosq\textquotesingle{}}\NormalTok{)}
-\NormalTok{  z }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}z\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{10}\NormalTok{))}
+\NormalTok{  etasq }\OtherTok{=} \FunctionTok{bee.dist.exponential}\NormalTok{(}\DecValTok{2}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}etasq\textquotesingle{}}\NormalTok{)}
+\NormalTok{  rhosq }\OtherTok{=} \FunctionTok{bee.dist.exponential}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}rhosq\textquotesingle{}}\NormalTok{)}
+\NormalTok{  z }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{, }\AttributeTok{name =} \StringTok{\textquotesingle{}z\textquotesingle{}}\NormalTok{, }\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(}\DecValTok{10}\NormalTok{))}
 \NormalTok{  r }\OtherTok{=}\NormalTok{ m}\SpecialCharTok{$}\FunctionTok{kernel\_sq\_exp}\NormalTok{(Dmat, z, etasq, rhosq, }\FloatTok{0.01}\NormalTok{)}
 \NormalTok{  SIGMA }\OtherTok{=}\NormalTok{ r[[}\DecValTok{1}\NormalTok{]]}
 \NormalTok{  L\_SIGMA }\OtherTok{=}\NormalTok{ r[[}\DecValTok{2}\NormalTok{]]}
@@ -4306,7 +4306,7 @@ error.
 \CommentTok{\# Import Data \& Data Manipulation {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \CommentTok{\# Import}
 \ImportTok{from}\NormalTok{ importlib.resources }\ImportTok{import}\NormalTok{ files}
-\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}bi.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}WaffleDivorce.csv\textquotesingle{}}
+\NormalTok{data\_path }\OperatorTok{=}\NormalTok{ files(}\StringTok{\textquotesingle{}BEE.resources.data\textquotesingle{}}\NormalTok{) }\OperatorTok{/} \StringTok{\textquotesingle{}WaffleDivorce.csv\textquotesingle{}}
 \NormalTok{m.data(data\_path, sep}\OperatorTok{=}\StringTok{\textquotesingle{};\textquotesingle{}}\NormalTok{) }
 \NormalTok{m.scale([}\StringTok{\textquotesingle{}Divorce\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Divorce SE\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}MedianAgeMarriage\textquotesingle{}}\NormalTok{]) }\CommentTok{\# Scale}
 \NormalTok{dat }\OperatorTok{=} \BuiltInTok{dict}\NormalTok{(}
@@ -4526,7 +4526,7 @@ latent variables using TensorFlow Probability:
 
 \CommentTok{\# Simulate individual{-}level random effects (e.g., random slopes or intercepts)}
 \CommentTok{\# b\_individual: A matrix of size (N, K) where N is the number of individuals and K is the number of covariates}
-\NormalTok{b\_individual }\OperatorTok{=}\NormalTok{ bi.distribution.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(N, K), sample}\OperatorTok{=}\VariableTok{True}\NormalTok{, seed}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
+\NormalTok{b\_individual }\OperatorTok{=}\NormalTok{ BEE.distribution.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(N, K), sample}\OperatorTok{=}\VariableTok{True}\NormalTok{, seed}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
 
 \CommentTok{\# mu: Add an additional effect \textquotesingle{}a\textquotesingle{} to the individual{-}level random effects \textquotesingle{}b\_individual\textquotesingle{}}
 \CommentTok{\# \textquotesingle{}a\textquotesingle{} could represent a population{-}level effect or a baseline}
@@ -4711,9 +4711,9 @@ TensorFlow Probability:
 
 \CommentTok{\# Simulate data}
 \KeywordTok{def}\NormalTok{ sim\_data(data\_dim, latent\_dim, num\_datapoints, stddv\_datapoints, seed }\OperatorTok{=} \DecValTok{0}\NormalTok{): }
-\NormalTok{    w }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(data\_dim, latent\_dim), name}\OperatorTok{=}\StringTok{\textquotesingle{}w\textquotesingle{}}\NormalTok{, sample}\OperatorTok{=}\VariableTok{True}\NormalTok{, seed}\OperatorTok{=}\NormalTok{seed)}
-\NormalTok{    z }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(latent\_dim, num\_datapoints), name}\OperatorTok{=}\StringTok{\textquotesingle{}z\textquotesingle{}}\NormalTok{, sample}\OperatorTok{=}\VariableTok{True}\NormalTok{, seed}\OperatorTok{=}\NormalTok{seed)}
-\NormalTok{    x }\OperatorTok{=}\NormalTok{ bi.dist.normal(w }\OperatorTok{@}\NormalTok{ z, stddv\_datapoints, name}\OperatorTok{=}\StringTok{\textquotesingle{}x\textquotesingle{}}\NormalTok{, sample}\OperatorTok{=}\VariableTok{True}\NormalTok{, seed}\OperatorTok{=}\NormalTok{seed)}
+\NormalTok{    w }\OperatorTok{=}\NormalTok{ bee.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(data\_dim, latent\_dim), name}\OperatorTok{=}\StringTok{\textquotesingle{}w\textquotesingle{}}\NormalTok{, sample}\OperatorTok{=}\VariableTok{True}\NormalTok{, seed}\OperatorTok{=}\NormalTok{seed)}
+\NormalTok{    z }\OperatorTok{=}\NormalTok{ bee.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(latent\_dim, num\_datapoints), name}\OperatorTok{=}\StringTok{\textquotesingle{}z\textquotesingle{}}\NormalTok{, sample}\OperatorTok{=}\VariableTok{True}\NormalTok{, seed}\OperatorTok{=}\NormalTok{seed)}
+\NormalTok{    x }\OperatorTok{=}\NormalTok{ bee.dist.normal(w }\OperatorTok{@}\NormalTok{ z, stddv\_datapoints, name}\OperatorTok{=}\StringTok{\textquotesingle{}x\textquotesingle{}}\NormalTok{, sample}\OperatorTok{=}\VariableTok{True}\NormalTok{, seed}\OperatorTok{=}\NormalTok{seed)}
     \ControlFlowTok{return}\NormalTok{ w, z, x}
 
 \NormalTok{actual\_w, actual\_z, x\_train }\OperatorTok{=}\NormalTok{sim\_data(data\_dim, latent\_dim, num\_datapoints, stddv\_datapoints, seed }\OperatorTok{=} \DecValTok{20}\NormalTok{)}
@@ -4725,8 +4725,8 @@ TensorFlow Probability:
 
 \CommentTok{\# Model using simulated data}
 \KeywordTok{def}\NormalTok{ model(x\_train, data\_dim, latent\_dim, num\_datapoints, stddv\_datapoints, seed }\OperatorTok{=} \DecValTok{0}\NormalTok{): }
-\NormalTok{    w }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(data\_dim, latent\_dim), name}\OperatorTok{=}\StringTok{\textquotesingle{}w\textquotesingle{}}\NormalTok{)}
-\NormalTok{    z }\OperatorTok{=}\NormalTok{ bi.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(latent\_dim, num\_datapoints), name}\OperatorTok{=}\StringTok{\textquotesingle{}z\textquotesingle{}}\NormalTok{)}
+\NormalTok{    w }\OperatorTok{=}\NormalTok{ bee.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(data\_dim, latent\_dim), name}\OperatorTok{=}\StringTok{\textquotesingle{}w\textquotesingle{}}\NormalTok{)}
+\NormalTok{    z }\OperatorTok{=}\NormalTok{ bee.dist.normal(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, shape}\OperatorTok{=}\NormalTok{(latent\_dim, num\_datapoints), name}\OperatorTok{=}\StringTok{\textquotesingle{}z\textquotesingle{}}\NormalTok{)}
 \NormalTok{    lk(}\StringTok{\textquotesingle{}Y\textquotesingle{}}\NormalTok{, Normal(w }\OperatorTok{@}\NormalTok{ z, stddv\_datapoints), obs }\OperatorTok{=}\NormalTok{ x\_train)  }
     
 \NormalTok{m.data\_on\_model }\OperatorTok{=} \BuiltInTok{dict}\NormalTok{(}
@@ -4884,27 +4884,27 @@ with a sender-receiver effect:
 
 \NormalTok{m.data\_on\_model }\OperatorTok{=} \BuiltInTok{dict}\NormalTok{(}
 \NormalTok{    idx }\OperatorTok{=}\NormalTok{ idx,}
-\NormalTok{    result\_outcomes }\OperatorTok{=}\NormalTok{ bi.net.mat\_to\_edgl(data[}\StringTok{\textquotesingle{}outcomes\textquotesingle{}}\NormalTok{]), }
-\NormalTok{    dyad\_effects }\OperatorTok{=}\NormalTok{ bi.net.prepare\_dyadic\_effect(kinship), }\CommentTok{\# Can be a jax array of multiple dimensions}
+\NormalTok{    result\_outcomes }\OperatorTok{=}\NormalTok{ BEE.net.mat\_to\_edgl(data[}\StringTok{\textquotesingle{}outcomes\textquotesingle{}}\NormalTok{]), }
+\NormalTok{    dyad\_effects }\OperatorTok{=}\NormalTok{ BEE.net.prepare\_dyadic\_effect(kinship), }\CommentTok{\# Can be a jax array of multiple dimensions}
 \NormalTok{    focal\_individual\_predictors }\OperatorTok{=}\NormalTok{ data[}\StringTok{\textquotesingle{}individual\_predictors\textquotesingle{}}\NormalTok{],}
 \NormalTok{    target\_individual\_predictors }\OperatorTok{=}\NormalTok{ data[}\StringTok{\textquotesingle{}individual\_predictors\textquotesingle{}}\NormalTok{]}
 \NormalTok{)}
 
 \CommentTok{\# Building model and sampling it {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{ids }\OperatorTok{=}\NormalTok{ jnp.arange(}\DecValTok{0}\NormalTok{,data[}\StringTok{\textquotesingle{}N\_id\textquotesingle{}}\NormalTok{][}\DecValTok{0}\NormalTok{])}
-\NormalTok{idx }\OperatorTok{=}\NormalTok{ bi.net.vec\_node\_to\_edgle(jnp.stack([ids, ids], axis }\OperatorTok{=} \OperatorTok{{-}}\DecValTok{1}\NormalTok{))}
+\NormalTok{idx }\OperatorTok{=}\NormalTok{ BEE.net.vec\_node\_to\_edgle(jnp.stack([ids, ids], axis }\OperatorTok{=} \OperatorTok{{-}}\DecValTok{1}\NormalTok{))}
 
 \KeywordTok{def}\NormalTok{ model2(idx, result\_outcomes, dyad\_effects, focal\_individual\_predictors, target\_individual\_predictors):}
 \NormalTok{    N\_id }\OperatorTok{=}\NormalTok{ ids.shape[}\DecValTok{0}\NormalTok{]}
 
     \CommentTok{\# Sender Receiver effect (SR), its shape is equal to N\_id {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
     \CommentTok{\#\# Varying intercept and slope for SR}
-\NormalTok{    sr\_rf, sr\_raw, sr\_sigma, sr\_L }\OperatorTok{=}\NormalTok{ bi.net.nodes\_random\_effects(N\_id, cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{) }
+\NormalTok{    sr\_rf, sr\_raw, sr\_sigma, sr\_L }\OperatorTok{=}\NormalTok{ BEE.net.nodes\_random\_effects(N\_id, cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{) }
 \NormalTok{    sender\_receiver }\OperatorTok{=}\NormalTok{ sr\_rf}
 
     \CommentTok{\# Dyadic effect (D), its shape is equal to n dyads {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
     \CommentTok{\#\# Varying intercept and slope for D}
-\NormalTok{    rf, dr\_raw, dr\_sigma, dr\_L }\OperatorTok{=}\NormalTok{ bi.net.dyadic\_random\_effects(sender\_receiver.shape[}\DecValTok{0}\NormalTok{], cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{)}
+\NormalTok{    rf, dr\_raw, dr\_sigma, dr\_L }\OperatorTok{=}\NormalTok{ BEE.net.dyadic\_random\_effects(sender\_receiver.shape[}\DecValTok{0}\NormalTok{], cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{)}
 \NormalTok{    dr }\OperatorTok{=}\NormalTok{  rf}
 
 \NormalTok{    m.poisson(jnp.exp( sender\_receiver }\OperatorTok{+}\NormalTok{ dr ), obs}\OperatorTok{=}\NormalTok{result\_outcomes)}
@@ -4955,13 +4955,13 @@ with a sender-receiver effect:
 \NormalTok{  tmp}\OtherTok{=}\NormalTok{jnp}\SpecialCharTok{$}\FunctionTok{log}\NormalTok{(x }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ x))}
   
   \DocumentationTok{\#\# Block {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
-\NormalTok{  B }\OtherTok{=} \FunctionTok{bi.dist.normal}\NormalTok{(tmp, }\FloatTok{2.5}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{), }\AttributeTok{name =} \StringTok{\textquotesingle{}block\textquotesingle{}}\NormalTok{)}
+\NormalTok{  B }\OtherTok{=} \FunctionTok{bee.dist.normal}\NormalTok{(tmp, }\FloatTok{2.5}\NormalTok{, }\AttributeTok{shape=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{), }\AttributeTok{name =} \StringTok{\textquotesingle{}block\textquotesingle{}}\NormalTok{)}
   
   \CommentTok{\#SR {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{  sr }\OtherTok{=}\NormalTok{  m}\SpecialCharTok{$}\NormalTok{net}\SpecialCharTok{$}\FunctionTok{sender\_receiver}\NormalTok{(focal\_individual\_predictors,target\_individual\_predictors)}
   
   \DocumentationTok{\#\#\# Dyadic{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}  }
-  \CommentTok{\#dr, dr\_raw, dr\_sigma, dr\_L = bi.net.dyadic\_random\_effects(idx.shape[0], cholesky\_density = 2)\# shape = n dyads}
+  \CommentTok{\#dr, dr\_raw, dr\_sigma, dr\_L = BEE.net.dyadic\_random\_effects(idx.shape[0], cholesky\_density = 2)\# shape = n dyads}
 \NormalTok{  dr }\OtherTok{=}\NormalTok{ m}\SpecialCharTok{$}\NormalTok{net}\SpecialCharTok{$}\FunctionTok{dyadic\_effect}\NormalTok{(}\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(idxShape))}
 
   \DocumentationTok{\#\# SR {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}                                                      }
@@ -5113,27 +5113,27 @@ L_\delta \sim LKJ(2)
 
     \CommentTok{\# Sender Receiver effect (SR), its shape is equal to N\_id {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
     \CommentTok{\#\# Covariates for SR}
-\NormalTok{    sr\_terms, focal\_effects, target\_effects }\OperatorTok{=}\NormalTok{ bi.net.nodes\_terms(focal\_individual\_predictors, target\_individual\_predictors) }
+\NormalTok{    sr\_terms, focal\_effects, target\_effects }\OperatorTok{=}\NormalTok{ BEE.net.nodes\_terms(focal\_individual\_predictors, target\_individual\_predictors) }
 
     \CommentTok{\#\# Varying intercept and slope for SR}
-\NormalTok{    sr\_rf, sr\_raw, sr\_sigma, sr\_L }\OperatorTok{=}\NormalTok{ bi.net.nodes\_random\_effects(N\_id, cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{) }
+\NormalTok{    sr\_rf, sr\_raw, sr\_sigma, sr\_L }\OperatorTok{=}\NormalTok{ BEE.net.nodes\_random\_effects(N\_id, cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{) }
 
 \NormalTok{    sender\_receiver }\OperatorTok{=}\NormalTok{ sr\_terms }\OperatorTok{+}\NormalTok{ sr\_rf}
 
     \CommentTok{\# Dyadic effect (D), its shape is equal to n dyads {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
     \CommentTok{\#\# Covariates for D}
-\NormalTok{    dr\_terms, dyad\_effects }\OperatorTok{=}\NormalTok{ bi.net.dyadic\_terms(dyad\_effects)}
+\NormalTok{    dr\_terms, dyad\_effects }\OperatorTok{=}\NormalTok{ BEE.net.dyadic\_terms(dyad\_effects)}
 
     \CommentTok{\#\# Varying intercept and slope for D}
-\NormalTok{    rf, dr\_raw, dr\_sigma, dr\_L }\OperatorTok{=}\NormalTok{ bi.net.dyadic\_random\_effects(sender\_receiver.shape[}\DecValTok{0}\NormalTok{], cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{)}
+\NormalTok{    rf, dr\_raw, dr\_sigma, dr\_L }\OperatorTok{=}\NormalTok{ BEE.net.dyadic\_random\_effects(sender\_receiver.shape[}\DecValTok{0}\NormalTok{], cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{)}
 \NormalTok{    dr }\OperatorTok{=}\NormalTok{ dr\_terms }\OperatorTok{+}\NormalTok{ rf}
 
 \NormalTok{    lk(}\StringTok{\textquotesingle{}Y\textquotesingle{}}\NormalTok{, Poisson(jnp.exp( sender\_receiver }\OperatorTok{+}\NormalTok{ dr ), is\_sparse }\OperatorTok{=} \VariableTok{False}\NormalTok{), obs}\OperatorTok{=}\NormalTok{result\_outcomes) }\CommentTok{\# is\_sparse = True; if the matrix has many zeros, it can help speed up computation.}
 
 \NormalTok{m.data\_on\_model }\OperatorTok{=} \BuiltInTok{dict}\NormalTok{(}
 \NormalTok{    idx }\OperatorTok{=}\NormalTok{ idx,}
-\NormalTok{    result\_outcomes }\OperatorTok{=}\NormalTok{ bi.net.mat\_to\_edgl(data[}\StringTok{\textquotesingle{}outcomes\textquotesingle{}}\NormalTok{]), }
-\NormalTok{    dyad\_effects }\OperatorTok{=}\NormalTok{ bi.net.prepare\_dyadic\_effect(kinship), }\CommentTok{\# Can be a jax array of multiple dimensions}
+\NormalTok{    result\_outcomes }\OperatorTok{=}\NormalTok{ BEE.net.mat\_to\_edgl(data[}\StringTok{\textquotesingle{}outcomes\textquotesingle{}}\NormalTok{]), }
+\NormalTok{    dyad\_effects }\OperatorTok{=}\NormalTok{ BEE.net.prepare\_dyadic\_effect(kinship), }\CommentTok{\# Can be a jax array of multiple dimensions}
 \NormalTok{    focal\_individual\_predictors }\OperatorTok{=}\NormalTok{ data[}\StringTok{\textquotesingle{}individual\_predictors\textquotesingle{}}\NormalTok{],}
 \NormalTok{    target\_individual\_predictors }\OperatorTok{=}\NormalTok{ data[}\StringTok{\textquotesingle{}individual\_predictors\textquotesingle{}}\NormalTok{]}
 \NormalTok{)}
@@ -5216,21 +5216,21 @@ representing the block membership of each node.
 \NormalTok{    N\_id }\OperatorTok{=}\NormalTok{ ids.shape[}\DecValTok{0}\NormalTok{]}
 
     \CommentTok{\# Block {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
-\NormalTok{    B\_any, b\_any, b\_ij\_any, b\_ii\_any }\OperatorTok{=}\NormalTok{ bi.net.block\_model(Any, }\DecValTok{1}\NormalTok{, name\_b\_ij}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ij\_Any\textquotesingle{}}\NormalTok{, name\_b\_ii}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ii\_Any\textquotesingle{}}\NormalTok{)}
-\NormalTok{    B\_Merica, b\_Merica, b\_ij\_Merica, b\_ii\_Merica }\OperatorTok{=}\NormalTok{ bi.net.block\_model(Merica, }\DecValTok{3}\NormalTok{, name\_b\_ij}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ij\_Merica\textquotesingle{}}\NormalTok{, name\_b\_ii}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ii\_Merica\textquotesingle{}}\NormalTok{)}
-\NormalTok{    B\_Quantum, b\_Quantum, b\_ij\_Quantum, b\_ii\_Quantum }\OperatorTok{=}\NormalTok{ bi.net.block\_model(Quantum, }\DecValTok{2}\NormalTok{, name\_b\_ij}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ij\_Quantum\textquotesingle{}}\NormalTok{, name\_b\_ii}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ii\_Quantum\textquotesingle{}}\NormalTok{)}
+\NormalTok{    B\_any, b\_any, b\_ij\_any, b\_ii\_any }\OperatorTok{=}\NormalTok{ BEE.net.block\_model(Any, }\DecValTok{1}\NormalTok{, name\_b\_ij}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ij\_Any\textquotesingle{}}\NormalTok{, name\_b\_ii}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ii\_Any\textquotesingle{}}\NormalTok{)}
+\NormalTok{    B\_Merica, b\_Merica, b\_ij\_Merica, b\_ii\_Merica }\OperatorTok{=}\NormalTok{ BEE.net.block\_model(Merica, }\DecValTok{3}\NormalTok{, name\_b\_ij}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ij\_Merica\textquotesingle{}}\NormalTok{, name\_b\_ii}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ii\_Merica\textquotesingle{}}\NormalTok{)}
+\NormalTok{    B\_Quantum, b\_Quantum, b\_ij\_Quantum, b\_ii\_Quantum }\OperatorTok{=}\NormalTok{ BEE.net.block\_model(Quantum, }\DecValTok{2}\NormalTok{, name\_b\_ij}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ij\_Quantum\textquotesingle{}}\NormalTok{, name\_b\_ii}\OperatorTok{=}\StringTok{\textquotesingle{}b\_ii\_Quantum\textquotesingle{}}\NormalTok{)}
 
     \CommentTok{\#\# SR {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
-\NormalTok{    sr\_terms, focal\_effects, target\_effects }\OperatorTok{=}\NormalTok{ bi.net.nodes\_terms(focal\_individual\_predictors, target\_individual\_predictors)}
-\NormalTok{    sr\_rf, sr\_raw, sr\_sigma, sr\_L }\OperatorTok{=}\NormalTok{ bi.net.nodes\_random\_effects(sr\_terms.shape[}\DecValTok{0}\NormalTok{], cholesky\_density}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
+\NormalTok{    sr\_terms, focal\_effects, target\_effects }\OperatorTok{=}\NormalTok{ BEE.net.nodes\_terms(focal\_individual\_predictors, target\_individual\_predictors)}
+\NormalTok{    sr\_rf, sr\_raw, sr\_sigma, sr\_L }\OperatorTok{=}\NormalTok{ BEE.net.nodes\_random\_effects(sr\_terms.shape[}\DecValTok{0}\NormalTok{], cholesky\_density}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
 
 \NormalTok{    sender }\OperatorTok{=}\NormalTok{ sr\_terms[idx[:,}\DecValTok{0}\NormalTok{],}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ sr\_terms[idx[:,}\DecValTok{1}\NormalTok{],}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\NormalTok{ sr\_rf[idx[:,}\DecValTok{0}\NormalTok{],}\DecValTok{0}\NormalTok{]}
 \NormalTok{    receiver }\OperatorTok{=}\NormalTok{ sr\_terms[idx[:,}\DecValTok{1}\NormalTok{],}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ sr\_terms[idx[:,}\DecValTok{0}\NormalTok{],}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\NormalTok{ sr\_rf[idx[:,}\DecValTok{1}\NormalTok{],}\DecValTok{1}\NormalTok{]}
 \NormalTok{    sender\_receiver }\OperatorTok{=}\NormalTok{ jnp.stack([sender, receiver], axis}\OperatorTok{=}\DecValTok{1}\NormalTok{)}
 
     \CommentTok{\# Dyadic{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}  }
-\NormalTok{    dr\_terms, dyad\_effects }\OperatorTok{=}\NormalTok{ bi.net.dyadic\_terms(kinship[:,}\DecValTok{0}\NormalTok{], kinship[:,}\DecValTok{1}\NormalTok{])}
-\NormalTok{    rf, dr\_raw, dr\_sigma, dr\_L }\OperatorTok{=}\NormalTok{ bi.net.dyadic\_random\_effects(idx.shape[}\DecValTok{0}\NormalTok{], cholesky\_density}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
+\NormalTok{    dr\_terms, dyad\_effects }\OperatorTok{=}\NormalTok{ BEE.net.dyadic\_terms(kinship[:,}\DecValTok{0}\NormalTok{], kinship[:,}\DecValTok{1}\NormalTok{])}
+\NormalTok{    rf, dr\_raw, dr\_sigma, dr\_L }\OperatorTok{=}\NormalTok{ BEE.net.dyadic\_random\_effects(idx.shape[}\DecValTok{0}\NormalTok{], cholesky\_density}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
 \NormalTok{    dr }\OperatorTok{=}\NormalTok{ dr\_terms }\OperatorTok{+}\NormalTok{ rf}
 
 \NormalTok{    m.poisson(jnp.exp(B\_any }\OperatorTok{+}\NormalTok{ B\_Merica }\OperatorTok{+}\NormalTok{ B\_Quantum }\OperatorTok{+}\NormalTok{ sender\_receiver }\OperatorTok{+}\NormalTok{ dr), obs}\OperatorTok{=}\NormalTok{result\_outcomes)}
@@ -5240,8 +5240,8 @@ representing the block membership of each node.
 \NormalTok{    Any}\OperatorTok{=}\NormalTok{Any}\OperatorTok{{-}}\DecValTok{1}\NormalTok{, }
 \NormalTok{    Merica}\OperatorTok{=}\NormalTok{Merica}\OperatorTok{{-}}\DecValTok{1}\NormalTok{, }
 \NormalTok{    Quantum}\OperatorTok{=}\NormalTok{Quantum}\OperatorTok{{-}}\DecValTok{1}\NormalTok{,}
-\NormalTok{    result\_outcomes}\OperatorTok{=}\NormalTok{bi.net.mat\_to\_edgl(data[}\StringTok{\textquotesingle{}outcomes\textquotesingle{}}\NormalTok{]), }
-\NormalTok{    kinship}\OperatorTok{=}\NormalTok{bi.net.mat\_to\_edgl(kinship),}
+\NormalTok{    result\_outcomes}\OperatorTok{=}\NormalTok{BEE.net.mat\_to\_edgl(data[}\StringTok{\textquotesingle{}outcomes\textquotesingle{}}\NormalTok{]), }
+\NormalTok{    kinship}\OperatorTok{=}\NormalTok{BEE.net.mat\_to\_edgl(kinship),}
 \NormalTok{    focal\_individual\_predictors}\OperatorTok{=}\NormalTok{data[}\StringTok{\textquotesingle{}individual\_predictors\textquotesingle{}}\NormalTok{],}
 \NormalTok{    target\_individual\_predictors}\OperatorTok{=}\NormalTok{data[}\StringTok{\textquotesingle{}individual\_predictors\textquotesingle{}}\NormalTok{]}
 \NormalTok{)}
@@ -5386,7 +5386,7 @@ while accounting for exposure biases:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\ImportTok{from}\NormalTok{ .bi.main }\ImportTok{import} \OperatorTok{*}
+\ImportTok{from}\NormalTok{ .BEE.main }\ImportTok{import} \OperatorTok{*}
 \CommentTok{\# Setup device{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m }\OperatorTok{=}\NormalTok{ bi(platform}\OperatorTok{=}\StringTok{\textquotesingle{}cpu\textquotesingle{}}\NormalTok{)}
 
@@ -5395,8 +5395,8 @@ while accounting for exposure biases:
 \NormalTok{    Any }\OperatorTok{=}\NormalTok{ Any}\OperatorTok{{-}}\DecValTok{1}\NormalTok{, }
 \NormalTok{    Merica }\OperatorTok{=}\NormalTok{ Merica}\OperatorTok{{-}}\DecValTok{1}\NormalTok{, }
 \NormalTok{    Quantum }\OperatorTok{=}\NormalTok{ Quantum}\OperatorTok{{-}}\DecValTok{1}\NormalTok{,}
-\NormalTok{    result\_outcomes }\OperatorTok{=}\NormalTok{ bi.net.mat\_to\_edgl(data[}\StringTok{\textquotesingle{}outcomes\textquotesingle{}}\NormalTok{]), }
-\NormalTok{    kinship }\OperatorTok{=}\NormalTok{ bi.net.mat\_to\_edgl(kinship),}
+\NormalTok{    result\_outcomes }\OperatorTok{=}\NormalTok{ BEE.net.mat\_to\_edgl(data[}\StringTok{\textquotesingle{}outcomes\textquotesingle{}}\NormalTok{]), }
+\NormalTok{    kinship }\OperatorTok{=}\NormalTok{ BEE.net.mat\_to\_edgl(kinship),}
 \NormalTok{    focal\_individual\_predictors }\OperatorTok{=}\NormalTok{ data[}\StringTok{\textquotesingle{}individual\_predictors\textquotesingle{}}\NormalTok{],}
 \NormalTok{    target\_individual\_predictors }\OperatorTok{=}\NormalTok{ data[}\StringTok{\textquotesingle{}individual\_predictors\textquotesingle{}}\NormalTok{]}
 \NormalTok{)}
@@ -5410,21 +5410,21 @@ while accounting for exposure biases:
 \NormalTok{    N\_id }\OperatorTok{=}\NormalTok{ ids.shape[}\DecValTok{0}\NormalTok{]}
 
     \CommentTok{\# Block {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
-\NormalTok{    B\_any, b\_any, b\_ij\_any, b\_ii\_any }\OperatorTok{=}\NormalTok{ bi.net.block\_model(Any, }\DecValTok{1}\NormalTok{, name\_b\_ij }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ij\_Any\textquotesingle{}}\NormalTok{, name\_b\_ii }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ii\_Any\textquotesingle{}}\NormalTok{ )}
-\NormalTok{    B\_Merica, b\_Merica, b\_ij\_Merica, b\_ii\_Merica }\OperatorTok{=}\NormalTok{ bi.net.block\_model(Merica, }\DecValTok{3}\NormalTok{, name\_b\_ij }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ij\_Merica\textquotesingle{}}\NormalTok{, name\_b\_ii }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ii\_Merica\textquotesingle{}}\NormalTok{ )}
-\NormalTok{    B\_Quantum, b\_Quantum, b\_ij\_Quantum, b\_ii\_Quantum }\OperatorTok{=}\NormalTok{ bi.net.block\_model(Quantum, }\DecValTok{2}\NormalTok{, name\_b\_ij }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ij\_Quantum\textquotesingle{}}\NormalTok{, name\_b\_ii }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ii\_Quantum\textquotesingle{}}\NormalTok{ )}
+\NormalTok{    B\_any, b\_any, b\_ij\_any, b\_ii\_any }\OperatorTok{=}\NormalTok{ BEE.net.block\_model(Any, }\DecValTok{1}\NormalTok{, name\_b\_ij }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ij\_Any\textquotesingle{}}\NormalTok{, name\_b\_ii }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ii\_Any\textquotesingle{}}\NormalTok{ )}
+\NormalTok{    B\_Merica, b\_Merica, b\_ij\_Merica, b\_ii\_Merica }\OperatorTok{=}\NormalTok{ BEE.net.block\_model(Merica, }\DecValTok{3}\NormalTok{, name\_b\_ij }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ij\_Merica\textquotesingle{}}\NormalTok{, name\_b\_ii }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ii\_Merica\textquotesingle{}}\NormalTok{ )}
+\NormalTok{    B\_Quantum, b\_Quantum, b\_ij\_Quantum, b\_ii\_Quantum }\OperatorTok{=}\NormalTok{ BEE.net.block\_model(Quantum, }\DecValTok{2}\NormalTok{, name\_b\_ij }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ij\_Quantum\textquotesingle{}}\NormalTok{, name\_b\_ii }\OperatorTok{=} \StringTok{\textquotesingle{}b\_ii\_Quantum\textquotesingle{}}\NormalTok{ )}
 
     \CommentTok{\#\# SR {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
-\NormalTok{    sr\_terms, focal\_effects, target\_effects }\OperatorTok{=}\NormalTok{ bi.net.nodes\_terms(focal\_individual\_predictors, target\_individual\_predictors)}
-\NormalTok{    sr\_rf, sr\_raw, sr\_sigma, sr\_L }\OperatorTok{=}\NormalTok{ bi.net.nodes\_random\_effects(sr\_terms.shape[}\DecValTok{0}\NormalTok{], cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{)}
+\NormalTok{    sr\_terms, focal\_effects, target\_effects }\OperatorTok{=}\NormalTok{ BEE.net.nodes\_terms(focal\_individual\_predictors, target\_individual\_predictors)}
+\NormalTok{    sr\_rf, sr\_raw, sr\_sigma, sr\_L }\OperatorTok{=}\NormalTok{ BEE.net.nodes\_random\_effects(sr\_terms.shape[}\DecValTok{0}\NormalTok{], cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{)}
 
 \NormalTok{    sender }\OperatorTok{=}\NormalTok{ sr\_terms[idx[:,}\DecValTok{0}\NormalTok{],}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ sr\_terms[idx[:,}\DecValTok{1}\NormalTok{],}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\NormalTok{ sr\_rf[idx[:,}\DecValTok{0}\NormalTok{],}\DecValTok{0}\NormalTok{]}
 \NormalTok{    receiver }\OperatorTok{=}\NormalTok{  sr\_terms[idx[:,}\DecValTok{1}\NormalTok{],}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ sr\_terms[idx[:,}\DecValTok{0}\NormalTok{],}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\NormalTok{ sr\_rf[idx[:,}\DecValTok{1}\NormalTok{],}\DecValTok{1}\NormalTok{]}
 \NormalTok{    sender\_receiver }\OperatorTok{=}\NormalTok{ jnp.stack([sender, receiver], axis }\OperatorTok{=} \DecValTok{1}\NormalTok{)}
 
     \CommentTok{\# Dyadic{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}  }
-\NormalTok{    dr\_terms, dyad\_effects }\OperatorTok{=}\NormalTok{ bi.net.dyadic\_terms(kinship[:,}\DecValTok{0}\NormalTok{], kinship[:,}\DecValTok{1}\NormalTok{])}
-\NormalTok{    rf, dr\_raw, dr\_sigma, dr\_L }\OperatorTok{=}\NormalTok{ bi.net.dyadic\_random\_effects(idx.shape[}\DecValTok{0}\NormalTok{], cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{)}
+\NormalTok{    dr\_terms, dyad\_effects }\OperatorTok{=}\NormalTok{ BEE.net.dyadic\_terms(kinship[:,}\DecValTok{0}\NormalTok{], kinship[:,}\DecValTok{1}\NormalTok{])}
+\NormalTok{    rf, dr\_raw, dr\_sigma, dr\_L }\OperatorTok{=}\NormalTok{ BEE.net.dyadic\_random\_effects(idx.shape[}\DecValTok{0}\NormalTok{], cholesky\_density }\OperatorTok{=} \DecValTok{2}\NormalTok{)}
 \NormalTok{    dr }\OperatorTok{=}\NormalTok{ dr\_terms }\OperatorTok{+}\NormalTok{ rf}
 
 \NormalTok{    m.binomial(exposure, jnp.exp(B\_any }\OperatorTok{+}\NormalTok{ B\_Merica }\OperatorTok{+}\NormalTok{ B\_Quantum }\OperatorTok{+}\NormalTok{ sender\_receiver }\OperatorTok{+}\NormalTok{ dr), obs}\OperatorTok{=}\NormalTok{result\_outcomes)}
@@ -5535,7 +5535,7 @@ Network metrics are mathematical calculations to quantify specific
 features of a network, including global, nodal, and polyadic measures.
 Unlike other chapters, here we will present a suite of the most commonly
 used network metrics and the corresponding BI functions under the class
-\texttt{bi.net.}, implemented with JAX and usable within any bi model.
+\texttt{BEE.net.}, implemented with JAX and usable within any bi model.
 This section is inspired by XXX, and users willing to dig further are
 invited to read and cite this paper.
 
@@ -5555,12 +5555,12 @@ through distributions, means, and coefficients of variation.
 
 \subsection{Degree and strength}\label{degree-and-strength}
 
-The degree \texttt{bi.net.degree} measures the number of links of a
+The degree \texttt{BEE.net.degree} measures the number of links of a
 node. When computed on an undirected network, the degree represents the
 number of alters of an ego. When the network is directed\emph{, it
 represents the number of either incoming} or outgoing* links of an ego,
-and it is then called in-degree \texttt{bi.net.indegree} or out-degree
-\texttt{bi.net.outdegree}, respectively. Note that degree can also be
+and it is then called in-degree \texttt{BEE.net.indegree} or out-degree
+\texttt{BEE.net.outdegree}, respectively. Note that degree can also be
 computed in directed networks; in this case, it represents the sum of
 incoming and outgoing links and not the number of alters.
 
@@ -5571,11 +5571,11 @@ D_i = \sum_{j=1}^N a_{ij}
 Where \(a_{ij}\) is the value of the link between nodes \(i\) and \(j\).
 Isolated node(s) can be considered as zero(s).
 
-Strength (or weighted degree) \texttt{bi.net.strength} is the sum of the
+Strength (or weighted degree) \texttt{BEE.net.strength} is the sum of the
 links' weights in a weighted network*. When the network comprises
 directed links, then it is also possible to differentiate between
-in-strength \texttt{bi.net.instrength} (the sum of weights of incoming
-links) and out-strength \texttt{bi.net.outstrength} (the sum of weights
+in-strength \texttt{BEE.net.instrength} (the sum of weights of incoming
+links) and out-strength \texttt{BEE.net.outstrength} (the sum of weights
 of outgoing links). While degree and strength can be considered
 correlated, it may not always be the case, as individuals can interact
 frequently with a few social partners or vice versa (Liao, Sosa, Wu, \&
@@ -5591,7 +5591,7 @@ Isolated node(s) can be considered as zero(s).
 
 \subsection{Eigenvector centrality}\label{eigenvector-centrality}
 
-Eigenvector centrality \texttt{bi.net.eigenvector} is the first
+Eigenvector centrality \texttt{BEE.net.eigenvector} is the first
 non-negative eigenvector value obtained by transforming an adjacency
 matrix linearly. It can be computed on weighted, binary\emph{, directed,
 or undirected networks. It measures centrality} by examining the
@@ -5612,7 +5612,7 @@ Where \(\lambda\) is the largest eigenvalue of the adjacency matrix
 \subsection{Local clustering
 coefficient}\label{local-clustering-coefficient}
 
-The local clustering coefficient \texttt{bi.net.cc} measures the number
+The local clustering coefficient \texttt{BEE.net.cc} measures the number
 of closed triplets* over the total theoretical number of triplets (i.e.,
 open and closed), where a triplet is a set of three nodes that are
 connected by either two (open triplet) or three (closed triplet) edges.
@@ -5761,7 +5761,7 @@ diffusion analysis.
 
 \subsection{Density}\label{density}
 
-The density \texttt{bi.net.density} is the ratio of existing links to
+The density \texttt{BEE.net.density} is the ratio of existing links to
 all potential links in a network. This measure is easy to interpret; it
 assesses how fully connected a network is. Density considers neither
 directionality nor link weights.
@@ -5775,7 +5775,7 @@ Isolated node(s) can be considered as zero(s).
 
 \subsection{Geodesic Distance}\label{geodesic-distance}
 
-Geodesic distance \texttt{bi.net.geodesic\_distance} is the shortest
+Geodesic distance \texttt{BEE.net.geodesic\_distance} is the shortest
 path considering all potential dyads in a network. This measure thereby
 indicates the fastest path of diffusion. Geodesic distance can be
 calculated in binary, weighted*, directed, or undirected networks. In
@@ -5792,7 +5792,7 @@ search, or Dijkstra's algorithm. None handle isolated nodes.
 
 \subsection{Diameter}\label{diameter}
 
-The diameter \texttt{bi.net.diameter} of a network represents the
+The diameter \texttt{BEE.net.diameter} of a network represents the
 longest of the shortest paths in the network. The diameter is used in
 ASNA to examine aspects such as network cohesion and the rapidness of
 information or disease transmission. While global efficiency measures

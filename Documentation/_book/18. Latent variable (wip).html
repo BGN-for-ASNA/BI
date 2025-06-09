@@ -449,7 +449,7 @@ Y = f(X, Z) + \epsilon
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate individual-level random effects (e.g., random slopes or intercepts)</span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># b_individual: A matrix of size (N, K) where N is the number of individuals and K is the number of covariates</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>b_individual <span class="op">=</span> bi.distribution.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(N, K), sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>b_individual <span class="op">=</span> BEE.distribution.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(N, K), sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># mu: Add an additional effect 'a' to the individual-level random effects 'b_individual'</span></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 'a' could represent a population-level effect or a baseline</span></span>
