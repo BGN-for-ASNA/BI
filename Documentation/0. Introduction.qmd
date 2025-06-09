@@ -30,7 +30,7 @@ $$
 y \sim \text{Normal}(\mu, \sigma)
 $$
 
-Basically, our likelihood is saying that the *dependent variable* $y$ is normally distributed with a mean $\mu$ and a standard deviation $\sigma$. *Probability distributions* are available in BI through the class ```bi.dist.XXX``` where ```XXX``` is the name of the distribution you want to use. Within any ```bi.dist.XXX``` class, you can define which distribution needs to be used as a likelihood by adding an argument ```obs```, e.g., ```m.normal(alpha + beta * x, sigma, obs=y)```. You can see this as instructing the model to adjust its parameters to best explain the observed dependent variable 𝑦, given the independent variable 𝑥, by maximizing the likelihood.
+Basically, our likelihood is saying that the *dependent variable* $y$ is normally distributed with a mean $\mu$ and a standard deviation $\sigma$. *Probability distributions* are available in BI through the class ```bee.dist.XXX``` where ```XXX``` is the name of the distribution you want to use. Within any ```bee.dist.XXX``` class, you can define which distribution needs to be used as a likelihood by adding an argument ```obs```, e.g., ```m.normal(alpha + beta * x, sigma, obs=y)```. You can see this as instructing the model to adjust its parameters to best explain the observed dependent variable 𝑦, given the independent variable 𝑥, by maximizing the likelihood.
 
 ## Modeling Likelihood
 Once the *likelihood* is defined, we can now define the mathematical equations that describe our parameters ($\mu$ and $\sigma$) and their relationship with the *dependent variable* $y$. We can express this relationship in the form of a linear function:
@@ -44,7 +44,7 @@ Where $\alpha$ is the [<span style="color:#0D6EFD">*intercept* 🛈</span>]{#int
 ## Link functions
 Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.), you will need to choose the appropriate distribution to describe the relationship between the data. By using a different distribution, you will need to use a different [<span style="color:#0D6EFD">*link function* 🛈</span>]{#linkF}. 
 
-For the moment, we just need to know that these different distributions require a *link function* (for each specific family we will discuss the corresponding link function); however, below is a table summarizing some of the most common link functions, the mathematical form of each, their typical applications, and how to interpret them. *Link functions* in BI can be accessed through the class ```bi.link.XXX``` where ```XXX``` is the name of the link function.
+For the moment, we just need to know that these different distributions require a *link function* (for each specific family we will discuss the corresponding link function); however, below is a table summarizing some of the most common link functions, the mathematical form of each, their typical applications, and how to interpret them. *Link functions* in BI can be accessed through the class ```BEE.link.XXX``` where ```XXX``` is the name of the link function.
 
 | **Link Function**         | **Mathematical Form**                                      | **Typical Use / Model**                      | **Interpretation & Range**                                  |
 |---------------------------|------------------------------------------------------------|----------------------------------------------|-------------------------------------------------------------|
@@ -92,10 +92,10 @@ $$
 In BI, you will need to define this model within a function in which you will be able to use any probability distributions, link functions, and mathematical operations required for your model. BI has been designed to allow you to declare your model as close as possible to the mathematical notation. For example, the model above can be written in BI as:
 
 ```python
-from BI import bi
+from BEE import bee
 import jax.numpy as jnp
 
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 dat = dict(
     x = m.dist.normal(178, 20, sample = True),   
     y = m.dist.lognormal( 0, 1, sample = True)   
@@ -150,7 +150,7 @@ Where:
 We can use [<span style="color:#0D6EFD">*Bayesian updating* 🛈</span>]{#BUpdating} using the _Bayesian theorem_ to 'reshape' the prior distributions by considering every possible combination of values for our parameters, and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of our parameters: the _posterior distributions_. Various techniques can be used to approximate the mathematical definition of Bayes' theorem: *grid approximation*, *quadratic approximation*, and Markov chain Monte Carlo (_MCMC_). Descriptions of these algorithms are out of the scope of this document. For more information, please refer to the [Bayesian Inference](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo). In BI, we use MCMC and it can be called as ```m.run(model)``` where ```model``` is the function that describes the model.
 
 ## Model 'diagnostic'
-Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Multiple diagnostics approaches can be used to assess the model's performance. Below are some key diagnostic tools and techniques available in BI within the class ```bi.diag.XXX``` where ```XXX``` is the name of the diagnostic tool.
+Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Multiple diagnostics approaches can be used to assess the model's performance. Below are some key diagnostic tools and techniques available in BI within the class ```BEE.diag.XXX``` where ```XXX``` is the name of the diagnostic tool.
 
 
 | **Diagnostic Tool**          | **Purpose**                                              | **Key Indicator**               | **Interpretation**                                        |

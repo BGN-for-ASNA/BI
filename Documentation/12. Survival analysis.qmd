@@ -34,15 +34,15 @@ Here’s an example of a Bayesian survival analysis using the **Bayesian Inferen
 ### Python
 
 ```python
-from BI import bi
+from BEE import bee
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('bi.resources.data') / 'mastectomy.csv'
+data_path = files('BEE.resources.data') / 'mastectomy.csv'
 m.data(data_path, sep=',') 
 
 m.df.metastasized = (m.df.metastasized == "yes").astype(np.int64)

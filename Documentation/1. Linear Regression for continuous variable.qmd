@@ -36,15 +36,15 @@ Below is an example code snippet demonstrating Bayesian linear regression using 
 ## Python
 
 ``` python
-from BI import bi
+from BEE import bee
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('bi.resources.data') / 'Howell1.csv'
+data_path = files('BEE.resources.data') / 'Howell1.csv'
 m.data(data_path, sep=';') 
 m.df = m.df[m.df.age > 18] # Manipulate
 m.scale(['weight']) # Scale
@@ -67,7 +67,7 @@ m.summary() # Get posterior distributions
 
 ``` r
 library(BI)
-m=importBI(platform='cpu')
+m=importbee(platform='cpu')
 
 # Load csv file
 m$data(paste(system.file(package = "BI"),"/data/Howell1.csv", sep = ''), sep=';')
@@ -84,9 +84,9 @@ m$data_to_model(list('weight', 'height'))
 # Define model ------------------------------------------------
 model <- function(height, weight){
   # Parameter prior distributions
-  s = bi.dist.uniform(0, 50, name = 's')
-  a = bi.dist.normal(178, 20,  name = 'a')
-  b = bi.dist.normal(0, 1, name = 'b')
+  s = bee.dist.uniform(0, 50, name = 's')
+  a = bee.dist.normal(178, 20,  name = 'a')
+  b = bee.dist.normal(0, 1, name = 'b')
   
   # Likelihood
   m$normal(a + b * weight, s, obs = height)

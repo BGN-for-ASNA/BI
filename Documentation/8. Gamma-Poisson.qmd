@@ -15,14 +15,14 @@ Below is an example code snippet demonstrating a Bayesian Gamma-Poisson model us
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from BI import bi
+from BEE import bee
 # Setup device ------------------------------------------------
-m = bi(platform='cpu') # Import
+m = bee(platform='cpu') # Import
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('bi.resources.data') / 'Sim dat Gamma poisson.csv'
+data_path = files('BEE.resources.data') / 'Sim dat Gamma poisson.csv'
 m.data(data_path, sep=',') 
 m.data_to_model(['log_days', 'monastery', 'y']) # Send to model (convert to jax array)
 
@@ -44,7 +44,7 @@ m.summary() # Get posterior distributions
 library(BI)
 
 # Setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importbee(platform='cpu')
 
 # Import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/Sim dat Gamma poisson.csv", sep = ''), sep=',')
@@ -53,8 +53,8 @@ m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to
 # Define model ------------------------------------------------
 model <- function(log_days, monastery, y){
   # Parameter prior distributions
-  alpha = bi.dist.normal(0, 1, name='alpha', shape=c(1))
-  beta = bi.dist.normal(0, 1, name='beta', shape=c(1))
+  alpha = bee.dist.normal(0, 1, name='alpha', shape=c(1))
+  beta = bee.dist.normal(0, 1, name='beta', shape=c(1))
   l = jnp$exp(log_days + alpha + beta * monastery)
   # Likelihood
   m$poisson(rate=l, obs=y)

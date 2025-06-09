@@ -30,14 +30,14 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 ## Python
 
 ``` python
-from BI import bi
+from BEE import bee
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('bi.resources.data') / 'Sim data multivariatenormal.csv'
+data_path = files('BEE.resources.data') / 'Sim data multivariatenormal.csv'
 m.data(data_path, sep=',') 
 
 # Define model ------------------------------------------------
@@ -65,7 +65,7 @@ m.run(model)
 library(BI)
 
 # Setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importbee(platform='cpu')
 
 # Import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/Sim data multivariatenormal.csv", sep = ''), sep=',')
@@ -73,14 +73,14 @@ m$data_to_model(list('cafe', 'wait', 'afternoon'))
 
 # Define model ------------------------------------------------
 model <- function(cafe, afternoon, wait, N_cafes = as.integer(20) ){
-  a = bi.dist.normal(5, 2, name = 'a')
-  b = bi.dist.normal(-1, 0.5, name = 'b')
-  sigma_cafe = bi.dist.exponential(1, shape= c(2), name = 'sigma_cafe')
-  sigma = bi.dist.exponential( 1, name = 'sigma')
-  Rho = bi.dist.lkj(as.integer(2), as.integer(2), name = 'Rho')
+  a = bee.dist.normal(5, 2, name = 'a')
+  b = bee.dist.normal(-1, 0.5, name = 'b')
+  sigma_cafe = bee.dist.exponential(1, shape= c(2), name = 'sigma_cafe')
+  sigma = bee.dist.exponential( 1, name = 'sigma')
+  Rho = bee.dist.lkj(as.integer(2), as.integer(2), name = 'Rho')
   cov = jnp$outer(sigma_cafe, sigma_cafe) * Rho
   
-  a_cafe_b_cafe = bi.dist.multivariatenormal(
+  a_cafe_b_cafe = bee.dist.multivariatenormal(
     jnp$squeeze(jnp$stack(list(a, b))), 
     cov, shape = c(N_cafes), name = 'a_cafe')  
   
@@ -466,7 +466,7 @@ $$
 ``` python
 from main import *
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 # Import data
 m.read_csv("../data/chimpanzees.csv", sep=";")
 m.df["block_id"] = m.df.block

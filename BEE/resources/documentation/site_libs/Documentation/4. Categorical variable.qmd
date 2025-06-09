@@ -1,0 +1,141 @@
+# Regression for Categorical Variables
+## General Principles
+To study the relationship between a categorical independent variable and a continuous dependent variable, we use a _Categorical model_ which applies _stratification_.
+
+_Stratification_ consists of modeling how the different categories of the independent variable affect the target continuous variable by performing a regression for each category and assigning a regression coefficient for each category. To realize the _stratification_, categorical variables are often encoded using one-hot encoding or converting categories to indices.
+
+![](https://i0.wp.com/67.media.tumblr.com/e8ec86a7dd863cfccb64fd40e55c0e90/tumblr_inline_o8j406qB4V1qa0hyw_540.png?resize=450%2C354)
+
+## Considerations
+::: callout-caution
+- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+
+- As we generate regression coefficients for each *k* category in the code, we need to specify a prior with a shape equal to the number of categories (see comments in the code).
+
+- To compare differences between categories, we need to compute the distribution of the differences between categories, known as the contrast distribution. **Never compare the confidence intervals or p-values directly.**
+:::
+
+## Example
+Below is an example code snippet demonstrating Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package:
+
+::: {.panel-tabset group="language"}
+### Python
+```python
+from main import*
+
+# Setup device------------------------------------------------
+m = bee(platform='cpu')
+
+# Import data ------------------------------------------------
+m.data('../data/milk.csv', sep=';') 
+m.index(["clade"])
+m.scale(['kcal_per_g'])
+m.data_to_model(['kcal_per_g', "index_clade"])
+
+# Define model ------------------------------------------------
+def model(kcal_per_g, index_clade):    
+    beta = bee.dist.normal(0, 0.5, shape=(4,), name='beta')  # we specify a vector of length 4 as we have 4 categories
+    sigma = bee.dist.exponential(1, name='sigma')
+    lk("y", Normal(beta[index_clade], sigma), obs=kcal_per_g)
+
+
+# Run mcmc ------------------------------------------------
+m.run(model) 
+
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89)
+```
+
+### R
+```R
+library(reticulate)
+bi <- import("main")
+
+# Setup device------------------------------------------------
+m = bi$bee(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data('../data/milk.csv', sep=';') 
+m$scale(list('kcal_per_g'))
+m$index(list('clade'))
+m$data_to_model(list('kcal_per_g', 'index_clade'))
+
+# Define model ------------------------------------------------
+model <- function(kcal_per_g, index_clade){
+  beta = bi$dist$normal( 0, 0.5, name = 'beta',shape= tuple(as.integer(1)))
+  sigma = bi$dist$exponential(1, name = 's',shape = tuple(as.integer(1)))
+  bi$lk("Y", bi$Normal(beta[index_clade], sigma), obs=kcal_per_g)
+}
+
+# Run mcmc ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+```
+:::
+
+## Mathematical Details
+### *Frequentist formulation*
+We model the relationship between the categorical input feature (X) and the target variable (Y) using the following equation:
+
+$$
+Y_i = \alpha + \beta_k X_i + \sigma
+$$
+
+Where:
+
+- $Y_i$ is dependent variable for observation *i*. 
+  
+- $\alpha$ is the intercept term.
+  
+- $\beta_k$ are the regression coefficients for each _k_ category.
+  
+- $X_i$ is the encoded categorical input variable for observation *i*. 
+  
+- $\sigma$ is the error term.
+
+We can interpret $\beta_i$ as the effect of each category on $Y$ relative to the baseline (usually one of the categories or the intercept). 
+
+### *Bayesian formulation*
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
+
+$$
+Y \sim Normal(\alpha +  \beta_k X, \sigma)
+$$
+
+$$
+\alpha \sim Normal(0,1)
+$$
+
+$$
+\beta_k \sim Normal(0,1)
+$$
+
+$$
+\sigma \sim Exponential(1)
+$$
+
+Where:
+
+- $Y_i$ is dependent variable for observation *i*.
+  
+- $\alpha$ is the prior distribution for the intercept.
+  
+- $\beta_k$ are _k_ prior distributions for _k_ regression coefficients.
+  
+- $X_i$ is the encoded categorical input variable for observation *i*. 
+  
+- $\sigma$ is the prior distribution for the standard deviation, ensuring it is positive.
+
+## Notes
+::: callout-note
+
+- We can apply multiple variables similarly as in [Chapter 2: Multiple Continuous Variables](2.&#32;Multiple&#32;continuous&#32;Variables.qmd).
+
+- We can apply interaction terms similarly as in [Chapter 3: Interaction between Continuous Variables](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+:::
+
+## Reference(s)
+@mcelreath2018statistical
+

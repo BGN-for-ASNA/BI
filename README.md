@@ -73,7 +73,7 @@ can be declared in the package as
 ```
 # Setup device------------------------------------------------
 from main import*
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 
 
 # Import data ------------------------------------------------

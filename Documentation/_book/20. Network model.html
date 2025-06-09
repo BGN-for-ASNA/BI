@@ -438,27 +438,27 @@ Caution
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> idx,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> bi.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    dyad_effects <span class="op">=</span> bi.net.prepare_dyadic_effect(kinship), <span class="co"># Can be a jax array of multiple dimensions</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> BEE.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    dyad_effects <span class="op">=</span> BEE.net.prepare_dyadic_effect(kinship), <span class="co"># Can be a jax array of multiple dimensions</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>],</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>]</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Building model and sampling it ------------------</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>ids <span class="op">=</span> jnp.arange(<span class="dv">0</span>,data[<span class="st">'N_id'</span>][<span class="dv">0</span>])</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> BEE.net.vec_node_to_edgle(jnp.stack([ids, ids], axis <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>))</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> ids.shape[<span class="dv">0</span>]</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sender Receiver effect (SR), its shape is equal to N_id ---------------------------------------</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Varying intercept and slope for SR</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    sr_rf, sr_raw, sr_sigma, sr_L <span class="op">=</span> bi.net.nodes_random_effects(N_id, cholesky_density <span class="op">=</span> <span class="dv">2</span>) </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    sr_rf, sr_raw, sr_sigma, sr_L <span class="op">=</span> BEE.net.nodes_random_effects(N_id, cholesky_density <span class="op">=</span> <span class="dv">2</span>) </span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    sender_receiver <span class="op">=</span> sr_rf</span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic effect (D), its shape is equal to n dyads -----------------------------------------</span></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Varying intercept and slope for D</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> bi.net.dyadic_random_effects(sender_receiver.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> BEE.net.dyadic_random_effects(sender_receiver.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span>  rf</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    m.poisson(jnp.exp( sender_receiver <span class="op">+</span> dr ), obs<span class="op">=</span>result_outcomes)</span>
@@ -505,13 +505,13 @@ Caution
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  tmp<span class="ot">=</span>jnp<span class="sc">$</span><span class="fu">log</span>(x <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> x))</span>
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Block ---------------------------------------</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  B <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(tmp, <span class="fl">2.5</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>), <span class="at">name =</span> <span class="st">'block'</span>)</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  B <span class="ot">=</span> <span class="fu">bee.dist.normal</span>(tmp, <span class="fl">2.5</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>), <span class="at">name =</span> <span class="st">'block'</span>)</span>
 <span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="co">#SR ---------------------------------------</span></span>
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  sr <span class="ot">=</span>  m<span class="sc">$</span>net<span class="sc">$</span><span class="fu">sender_receiver</span>(focal_individual_predictors,target_individual_predictors)</span>
 <span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="do">### Dyadic--------------------------------------  </span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="co">#dr, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)# shape = n dyads</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="co">#dr, dr_raw, dr_sigma, dr_L = BEE.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)# shape = n dyads</span></span>
 <span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  dr <span class="ot">=</span> m<span class="sc">$</span>net<span class="sc">$</span><span class="fu">dyadic_effect</span>(<span class="at">shape =</span> <span class="fu">c</span>(idxShape))</span>
 <span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="do">## SR ---------------------------------------                                                      </span></span>
@@ -625,27 +625,27 @@ Note
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sender Receiver effect (SR), its shape is equal to N_id ---------------------------------------</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Covariates for SR</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    sr_terms, focal_effects, target_effects <span class="op">=</span> bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors) </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    sr_terms, focal_effects, target_effects <span class="op">=</span> BEE.net.nodes_terms(focal_individual_predictors, target_individual_predictors) </span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Varying intercept and slope for SR</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    sr_rf, sr_raw, sr_sigma, sr_L <span class="op">=</span> bi.net.nodes_random_effects(N_id, cholesky_density <span class="op">=</span> <span class="dv">2</span>) </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    sr_rf, sr_raw, sr_sigma, sr_L <span class="op">=</span> BEE.net.nodes_random_effects(N_id, cholesky_density <span class="op">=</span> <span class="dv">2</span>) </span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    sender_receiver <span class="op">=</span> sr_terms <span class="op">+</span> sr_rf</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic effect (D), its shape is equal to n dyads -----------------------------------------</span></span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Covariates for D</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    dr_terms, dyad_effects <span class="op">=</span> bi.net.dyadic_terms(dyad_effects)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    dr_terms, dyad_effects <span class="op">=</span> BEE.net.dyadic_terms(dyad_effects)</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Varying intercept and slope for D</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> bi.net.dyadic_random_effects(sender_receiver.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    rf, dr_raw, dr_sigma, dr_L <span class="op">=</span> BEE.net.dyadic_random_effects(sender_receiver.shape[<span class="dv">0</span>], cholesky_density <span class="op">=</span> <span class="dv">2</span>)</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span> dr_terms <span class="op">+</span> rf</span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">'Y'</span>, Poisson(jnp.exp( sender_receiver <span class="op">+</span> dr ), is_sparse <span class="op">=</span> <span class="va">False</span>), obs<span class="op">=</span>result_outcomes) <span class="co"># is_sparse = True; if the matrix has many zeros, it can help speed up computation.</span></span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> idx,</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> bi.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    dyad_effects <span class="op">=</span> bi.net.prepare_dyadic_effect(kinship), <span class="co"># Can be a jax array of multiple dimensions</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> BEE.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    dyad_effects <span class="op">=</span> BEE.net.prepare_dyadic_effect(kinship), <span class="co"># Can be a jax array of multiple dimensions</span></span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>],</span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>]</span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>)</span>

@@ -23,15 +23,15 @@ Below is example code demonstrating Bayesian regression with an interaction term
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from BI import bi
+from BEE import bee
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('bi.resources.data') / 'tulips.csv'
+data_path = files('BEE.resources.data') / 'tulips.csv'
 m.data(data_path, sep=';')
 m.scale(['blooms', 'water', 'shade']) # Scale
 
@@ -56,7 +56,7 @@ m.summary()
 ### R
 ```R
 library(BI)
-m=importBI(platform='cpu')
+m=importbee(platform='cpu')
 
 # Load csv file
 m$data(paste(system.file(package = "BI"),"/data/tulips.csv", sep = ''), sep=';')
@@ -66,11 +66,11 @@ m$data_to_model(list('blooms', 'water', 'shade')) # Send to model (convert to ja
 # Define model ------------------------------------------------
 model <- function(blooms, water,shade){
   # Parameter prior distributions
-  alpha = bi.dist.normal( 0.5, 0.25, name = 'a')
-  beta1 = bi.dist.normal( 0,  0.25, name = 'b1')
-  beta2 = bi.dist.normal(  0,  0.25, name = 'b2')
-  beta_interaction_ = bi.dist.normal(  0, 0.25, name = 'bint')
-  sigma = bi.dist.normal(0, 50, name = 's')
+  alpha = bee.dist.normal( 0.5, 0.25, name = 'a')
+  beta1 = bee.dist.normal( 0,  0.25, name = 'b1')
+  beta2 = bee.dist.normal(  0,  0.25, name = 'b2')
+  beta_interaction_ = bee.dist.normal(  0, 0.25, name = 'bint')
+  sigma = bee.dist.normal(0, 50, name = 's')
   # Likelihood
   m$normal(alpha + beta1*water + beta2*shade + beta_interaction_*water*shade, sigma, obs=blooms)
 }
