@@ -14,7 +14,7 @@ Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson re
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from BI import bi
+from BEE import bee
 from jax.scipy.special import expit
 # Setup device ------------------------------------------------
 m = bi('cpu')
@@ -25,11 +25,11 @@ rate_work = 1     # average 1 manuscript per day
 
 # Sample one year of production
 N = 365
-drink = m.bi.binomial(1, prob_drink, shape = (N,), sample = True)
-y = (1 - drink) * m.bi.poisson(rate_work, shape = (N,), sample = True)
+drink = m.BEE.binomial(1, prob_drink, shape = (N,), sample = True)
+y = (1 - drink) * m.BEE.poisson(rate_work, shape = (N,), sample = True)
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 m.data_on_model = dict(
     y=jnp.array(y)
 )
@@ -54,23 +54,23 @@ m.summary()
 library(BI)
 
 # setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importbee(platform='cpu')
 
 # Simulate data ------------------------------------------------
 prob_drink = 0.2  # 20% of days
 rate_work = 1     # average 1 manuscript per day
 # sample one year of production
 N = as.integer(365)
-drink = bi.dist.binomial(total_count = as.integer(1), probs = prob_drink, shape = c(N), sample = T ) # An example of sampling a distribution with BI
-y = (1 - drink) *  bi.dist.poisson(rate_work, shape = c(N), sample = T)
+drink = bee.dist.binomial(total_count = as.integer(1), probs = prob_drink, shape = c(N), sample = T ) # An example of sampling a distribution with BI
+y = (1 - drink) *  bee.dist.poisson(rate_work, shape = c(N), sample = T)
 data = list()
 data$y = y
 m$data_on_model = data
 
 # Define model ------------------------------------------------
 model <- function(y){
-  al = bi.dist.normal(1, 0.5, name='al', shape=c(1))
-  ap = bi.dist.normal(-1, 1, name='ap', shape=c(1))
+  al = bee.dist.normal(1, 0.5, name='al', shape=c(1))
+  ap = bee.dist.normal(-1, 1, name='ap', shape=c(1))
   p = jax$scipy$special$expit(ap)
   lambda_ = jnp$exp(al)
   m$zeroinflatedpoisson(p, lambda_, obs=y)

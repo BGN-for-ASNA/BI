@@ -12,7 +12,7 @@ To model the relationship between a categorical outcome variable with more than 
 
 ## Example
 ```python
-from BI import bi
+from BEE import bee
 import jax.numpy as jnp
 import pandas as pd
 import jax
@@ -22,7 +22,7 @@ m = bi('cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('bi.resources.data') / 'Sim data multinomial.csv'
+data_path = files('BEE.resources.data') / 'Sim data multinomial.csv'
 m.data(data_path, sep=',') 
 
 # Define model ------------------------------------------------

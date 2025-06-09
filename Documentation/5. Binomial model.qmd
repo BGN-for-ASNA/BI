@@ -17,14 +17,14 @@ Below is an example code snippet that demonstrates Bayesian binomial regression 
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from bi import bi
+from BEE import bee
 
 # setup platform------------------------------------------------
-m = bi(platform='cpu')
+m = bee(platform='cpu')
 # import data ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('bi.resources.data') / 'chimpanzees.csv'
+data_path = files('BEE.resources.data') / 'chimpanzees.csv'
 m.data(data_path, sep=';')
 m.data_to_model(['pulled_left'])
 
@@ -46,7 +46,7 @@ m.summary()
 library(BI)
 
 # setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importbee(platform='cpu')
 
 # import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/chimpanzees.csv", sep = ''), sep=';')
@@ -55,7 +55,7 @@ m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 # Define model ------------------------------------------------
 model <- function(pulled_left){
   # Parameters priors distributions
-  alpha = bi.dist.normal( 0, 10, name = 'alpha')
+  alpha = bee.dist.normal( 0, 10, name = 'alpha')
   # Likelihood
   m$binomial(logits = alpha, obs=pulled_left)
 }
@@ -133,8 +133,8 @@ Where:
 
 
 ```python
-from bi import bi
-m = bi(platform='cpu')
+from BEE import bee
+m = bee(platform='cpu')
 m.data('../resources/data/chimpanzees.csv', sep=';')
 m.df['treatment'] =  m.df.prosoc_left + 2 * m.df.condition
 m.df['actor'] = m.df['actor'] - 1
