@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -444,10 +444,10 @@ Caution
 <ul>
 <li><p>We have the same considerations as for <a href="./5. Binomial model.html">Binomial regression</a>.</p></li>
 <li><p>A Beta-Binomial model assumes that each binomial count observation has its own probability of success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.</p></li>
-<li><p>A Beta distribution has two parameters: the rates for each probabilities and a shape parameter θ. θ influence how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> , which determine the concentration of probability around 0 and 1.</p>
+<li><p>A Beta distribution has two parameters: the rates for each probability and a shape parameter θ. θ influences how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, which determine the concentration of probability around 0 and 1.</p>
 <ul>
-<li>If both are equal or greater than 1, the distribution is bell-shaped and centered around 0.5.</li>
-<li>If 𝛼 &gt; 𝛽 , the distribution is skewed toward 1 and if <span class="math inline">\(\beta &gt; \alpha\)</span>, it is skewed toward 0. Thus, the shape parameters <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\eta\)</span> provide flexibility in modeling various types of prior beliefs about probabilities.</li>
+<li>If both are equal to or greater than 1, the distribution is bell-shaped and centered around 0.5.</li>
+<li>If <span class="math inline">\(\alpha &gt; \beta\)</span>, the distribution is skewed toward 1, and if <span class="math inline">\(\beta &gt; \alpha\)</span>, it is skewed toward 0. Thus, the shape parameters <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\eta\)</span> provide flexibility in modeling various types of prior beliefs about probabilities.</li>
 </ul></li>
 </ul>
 </div>
@@ -459,40 +459,41 @@ Caution
 <ol type="1">
 <li><p>One binary dependent variable (admit), which represents candidates’ admission status.</p></li>
 <li><p>One independent categorical variable representing individuals’ gender (gid).</p></li>
-<li><p>Additionally, we have the number of applications (applications) per individuals’ gender, which will be used to account for independent rates.</p></li>
+<li><p>Additionally, we have the number of applications (applications) per gender, which will be used to account for independent rates.</p></li>
 </ol>
 <p>The goal is to evaluate whether the probability of admission is different between genders, while accounting for differences in the number of applications between genders.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span><span class="co">#</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'bi.resources.data'</span>) <span class="op">/</span> <span class="st">'UCBadmit.csv'</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"gid"</span>] <span class="op">=</span> (m.df[<span class="st">"applicant.gender"</span>] <span class="op">!=</span> <span class="st">"male"</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(gid, applications, admit):</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>,  name <span class="op">=</span> <span class="st">'phi'</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal( <span class="fl">0.</span>, <span class="fl">1.5</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span>  phi <span class="op">+</span> <span class="dv">2</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    pbar <span class="op">=</span> jax.nn.sigmoid(alpha[gid])</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    concentration1 <span class="op">=</span> pbar<span class="op">*</span>theta</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    concentration0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> pbar) <span class="op">*</span> theta</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    m.dist.betabinomial(total_count <span class="op">=</span> applications, concentration1 <span class="op">=</span> concentration1, concentration0 <span class="op">=</span> concentration0, obs<span class="op">=</span>admit)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bi <span class="im">import</span> bi</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'bi.resources.data'</span>) <span class="op">/</span> <span class="st">'UCBadmit.csv'</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"gid"</span>] <span class="op">=</span> (m.df[<span class="st">"applicant.gender"</span>] <span class="op">!=</span> <span class="st">"male"</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(gid, applications, admit):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>,  name <span class="op">=</span> <span class="st">'phi'</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal( <span class="fl">0.</span>, <span class="fl">1.5</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span>  phi <span class="op">+</span> <span class="dv">2</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    pbar <span class="op">=</span> jax.nn.sigmoid(alpha[gid])</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    concentration1 <span class="op">=</span> pbar<span class="op">*</span>theta</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    concentration0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> pbar) <span class="op">*</span> theta</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    m.dist.betabinomial(total_count <span class="op">=</span> applications, concentration1 <span class="op">=</span> concentration1, concentration0 <span class="op">=</span> concentration0, obs<span class="op">=</span>admit)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
@@ -507,7 +508,7 @@ Caution
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(gid, applications, admit){</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  phi <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'phi'</span>,<span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="fl">0.</span>, <span class="fl">1.5</span>, <span class="at">shape=</span> <span class="fu">c</span>(<span class="dv">2</span>), <span class="at">name=</span><span class="st">'alpha'</span>)</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  t <span class="ot">=</span> phi <span class="sc">+</span> <span class="dv">2</span></span>
@@ -531,7 +532,7 @@ Caution
 <h2 data-number="8.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">8.4</span> Mathematical Details</h2>
 <section id="bayesian-model" class="level3" data-number="8.4.1">
 <h3 data-number="8.4.1" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">8.4.1</span> <em>Bayesian Model</em></h3>
-<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
 <p><span class="math display">\[
 Y_i \sim BetaBinomial(n_i, \gamma_i, \eta_i)
 \]</span></p>
@@ -560,7 +561,7 @@ Y_i \sim BetaBinomial(n_i, \gamma_i, \eta_i)
 <li><p><span class="math inline">\(\eta_i\)</span> represents the concentration parameter for failures, derived from the probability of failure <span class="math inline">\((1 - \overline{\rho} )\)</span> and also scaled by <span class="math inline">\(\tau\)</span>.</p></li>
 <li><p><span class="math inline">\(\overline{\rho}\)</span> is the probability of success for the <em>i</em>-th observation. The logit function transforms the linear predictor α (which can take any real value) into a probability value between 0 and 1.</p></li>
 <li><p><span class="math inline">\(\tau\)</span> is derived from 𝜙 and is used as a scaling factor for the shape parameters 𝛾 and 𝜂.</p></li>
-<li><p>α is a vector of parameters, each representing the effect of the group variable *i on the success probability.</p></li>
+<li><p>α is a vector of parameters, each representing the effect of group <em>i</em> on the success probability.</p></li>
 <li><p>ϕ is a random variable following an exponential distribution with a rate of 1.</p></li>
 </ul>
 </section>

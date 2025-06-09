@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -429,7 +429,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="15.1">
 <h2 data-number="15.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">15.1</span> General Principles</h2>
-<p>To model the relationship between dependent variables and an independent variable while allowing for different intercepts across groups or clusters, we can use a <em>Varying Intercepts</em> model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.</p>
+<p>To model the relationship between a dependent variable and an independent variable while allowing for different intercepts across groups or clusters, we can use a <em>Varying Intercepts</em> model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.</p>
 </section>
 <section id="considerations" class="level2" data-number="15.2">
 <h2 data-number="15.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">15.2</span> Considerations</h2>
@@ -444,9 +444,9 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept <span class="math inline">\(\beta\)</span> is defined based on the <span class="math inline">\(k\)</span> declared groups.</p></li>
-<li><p>Each intercept has its own prior -i.e., a <span id="hyperP"><span style="color:#0D6EFD">hyper-prior 🛈</span></span>.</p></li>
+<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for a continuous variable</a>.</p></li>
+<li><p>The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept <span class="math inline">\(\alpha_k\)</span> is defined based on the <span class="math inline">\(k\)</span> declared groups.</p></li>
+<li><p>Each intercept has its own prior - i.e., a <span id="hyperP"><span style="color:#0D6EFD">hyper-prior 🛈</span></span>.</p></li>
 <li><p>In the code below, the <em>hyper-prior</em> is <code>a_bar</code>.</p></li>
 </ul>
 </div>
@@ -454,37 +454,38 @@ Caution
 </section>
 <section id="example" class="level2" data-number="15.3">
 <h2 data-number="15.3" class="anchored" data-anchor-id="example"><span class="header-section-number">15.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consist of a dependent variable representing individuals’ survival (<em>surv</em>) and an independent categorical variable (<em>tank</em>), which indicates the tank where the individual was born, with a total of 48 tanks.</p>
+<p>Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consists of a dependent variable representing individuals’ survival (<em>surv</em>) and an independent categorical variable (<em>tank</em>), which indicates the tank where the individual was born, with a total of 48 tanks.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'bi.resources.data'</span>) <span class="op">/</span> <span class="st">'reedfrogs.csv'</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Manipulate</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"tank"</span>] <span class="op">=</span> np.arange(m.df.shape[<span class="dv">0</span>]) </span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(tank, surv, density):</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential( <span class="dv">1</span>,  name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    a_bar <span class="op">=</span> m.dist.normal( <span class="fl">0.</span>, <span class="fl">1.5</span>,  name <span class="op">=</span> <span class="st">'a_bar'</span>)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal( a_bar, sigma, shape<span class="op">=</span> tank.shape, name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> alpha[tank]</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    m.dist.binomial(total_count <span class="op">=</span> density, logits <span class="op">=</span> p, obs<span class="op">=</span>surv)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'bi.resources.data'</span>) <span class="op">/</span> <span class="st">'reedfrogs.csv'</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Manipulate</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"tank"</span>] <span class="op">=</span> np.arange(m.df.shape[<span class="dv">0</span>]) </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(tank, surv, density):</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential( <span class="dv">1</span>,  name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    a_bar <span class="op">=</span> m.dist.normal( <span class="fl">0.</span>, <span class="fl">1.5</span>,  name <span class="op">=</span> <span class="st">'a_bar'</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal( a_bar, sigma, shape<span class="op">=</span> tank.shape, name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> alpha[tank]</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    m.dist.binomial(total_count <span class="op">=</span> density, logits <span class="op">=</span> p, obs<span class="op">=</span>surv)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
@@ -502,7 +503,7 @@ Caution
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(tank, surv, density){</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>( <span class="dv">1</span>,  <span class="at">name =</span> <span class="st">'sigma'</span>,<span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  a_bar <span class="ot">=</span>  <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">1.5</span>, <span class="at">name=</span><span class="st">'a_bar'</span>,<span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(a_bar, sigma, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape =</span><span class="fu">c</span>(<span class="dv">48</span>))</span>
@@ -524,7 +525,7 @@ Caution
 <h2 data-number="15.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">15.4</span> Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3" data-number="15.4.1">
 <h3 data-number="15.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">15.4.1</span> <em>Frequentist formulation</em></h3>
-<p>We model the relationship between the independent variables <span class="math inline">\(X\)</span> and the outcome variable <span class="math inline">\(Y\)</span> with varying intercepts <span class="math inline">\(\alpha\)</span> for each group <span class="math inline">\(k\)</span> using the following equation:</p>
+<p>We model the relationship between the independent variable <span class="math inline">\(X\)</span> and the outcome variable <span class="math inline">\(Y\)</span> with varying intercepts <span class="math inline">\(\alpha\)</span> for each group <span class="math inline">\(k\)</span> using the following equation:</p>
 <p><span class="math display">\[
 Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
 \]</span></p>
@@ -533,7 +534,7 @@ Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
 <li><p><span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <span class="math inline">\(i\)</span> in group <span class="math inline">\(k\)</span>.</p></li>
 <li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <span class="math inline">\(k\)</span>.</p></li>
 <li><p><span class="math inline">\(X_{ik}\)</span> is the independent variable for observation <span class="math inline">\(i\)</span> in group <span class="math inline">\(k\)</span>.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
 <li><p><span class="math inline">\(\sigma\)</span> is the error term, typically assumed to be normally distributed and positive.</p></li>
 </ul>
 </section>
@@ -541,9 +542,9 @@ Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
 <h3 data-number="15.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">15.4.2</span> Bayesian Model</h3>
 <p>We can express the Bayesian regression model accounting for <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span> distributions as follows:</p>
 <p><span class="math display">\[
-Y_{ik} = Normal(\mu_{ik}, \sigma)
+Y_{ik} \sim \text{Normal}(\mu_{ik}, \sigma)
 \]</span> <span class="math display">\[
-\mu_{ik} = \alpha_j + \beta X_{ik} + \sigma
+\mu_{ik} = \alpha_k + \beta X_{ik}
 \]</span> <span class="math display">\[
 \alpha_k \sim \text{Normal}(\mu_{\alpha_k}, \sigma_{\alpha_k})
 \]</span> <span class="math display">\[
@@ -556,14 +557,13 @@ Y_{ik} = Normal(\mu_{ik}, \sigma)
 \sigma_{\alpha_k} \sim \text{Exponential}(1)
 \]</span></p>
 <p>Where:</p>
-<p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_{ij}\)</span> is the likelihood function for the outcome variable.</p></li>
+<li><p><span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <span class="math inline">\(i\)</span> in group <span class="math inline">\(k\)</span>.</p></li>
 <li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <span class="math inline">\(k\)</span>.</p></li>
 <li><p><span class="math inline">\(\mu_{\alpha_k}\)</span> is the overall mean intercept.</p></li>
 <li><p><span class="math inline">\(\sigma_{\alpha_k}\)</span> is the variance of the intercepts across groups.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the prior distribution for the regression coefficients.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the prior distribution for the error term.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is the standard deviation of the error term.</p></li>
 </ul>
 </section>
 </section>

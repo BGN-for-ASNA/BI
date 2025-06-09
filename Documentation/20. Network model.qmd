@@ -1,14 +1,14 @@
 # Modeling Network
 
-A network represents the relationships (links) between entities (nodes). These links can be weighted (weighted network) or unweighted (binary network), directed (directed network) or undirected (undirected network). Regardless of their type, networks generate links shared by nodes, leading to data dependency when modeling the network. One proposed solution is to model network links with random [intercepts](13.%20Varying%20intercepts.qmd) and [effects](14.%20Varying%20slopes.qmd). By adding such parameters to the model, we can account for the correlations between node link relationships.
+A network represents the relationships (links) between entities (nodes). These links can be weighted (weighted network) or unweighted (binary network), directed (directed network) or undirected (undirected network). Regardless of their type, networks generate links shared by nodes, leading to data dependency when modeling the network. One proposed solution is to model network links with random [intercepts](13.%20Varying%20intercepts.qmd) and [slopes](14.%20Varying%20slopes.qmd). By adding such parameters to the model, we can account for the correlations between node link relationships.
 
 ## Considerations
 ::: callout-caution
--   The particularity here is that varying intercepts and slopes are generated for both [<span style="color:#0D6EFD">nodal effects 🛈</span>]{#NodeF} and [<span style="color:#0D6EFD">dyadic effects 🛈</span>]{#DyadicF}. Those the varying intercepts and slopes are identical to those described in previous chapters and will therefore not be detailed further and only the random centered version of the varying slopes will be described here.
+-   The particularity here is that varying intercepts and slopes are generated for both [<span style="color:#0D6EFD">nodal effects 🛈</span>]{#NodeF} and [<span style="color:#0D6EFD">dyadic effects 🛈</span>]{#DyadicF}. These varying intercepts and slopes are identical to those described in previous chapters and will therefore not be detailed further. Only the random-centered version of the varying slopes will be described here.
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian network model with send-receiver effect:
+Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect:
 
 ## Python
 ```Python
@@ -32,12 +32,12 @@ idx = bi.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
 def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):
     N_id = ids.shape[0]
 
-    # Sender Receiver effect (SR) its shape is equal to N_id ---------------------------------------
+    # Sender Receiver effect (SR), its shape is equal to N_id ---------------------------------------
     ## Varying intercept and slope for SR
     sr_rf, sr_raw, sr_sigma, sr_L = bi.net.nodes_random_effects(N_id, cholesky_density = 2) 
     sender_receiver = sr_rf
 
-    # Dyadic effect (D) its shape is equal to n dyads -----------------------------------------
+    # Dyadic effect (D), its shape is equal to n dyads -----------------------------------------
     ## Varying intercept and slope for D
     rf, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(sender_receiver.shape[0], cholesky_density = 2)
     dr =  rf
@@ -53,7 +53,7 @@ summary
 ## R
 ```r
 library(BI)
-# setup platform------------------------------------------------
+# Setup platform------------------------------------------------
 m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
@@ -99,7 +99,7 @@ model <- function(idx, idxShape, result_outcomes,focal_individual_predictors, ta
   m$poisson(jnp$exp(B + sr + dr), obs=result_outcomes)  
 }
 
-# Run mcmc ------------------------------------------------
+# Run MCMC ------------------------------------------------
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
@@ -113,7 +113,7 @@ summary[rownames(summary) %in% c('focal_effects[0]', 'target_effects[0]', 'block
 
 ### *Main Formula*
 
-The simple model that can be built to model link weights between nodes *i* and *j* can be defined using a poisson distribution:
+The simple model that can be built to model link weights between nodes *i* and *j* can be defined using a Poisson distribution:
 
 $$
 G_{ij} \sim Poisson(Y_{ij})
@@ -125,17 +125,17 @@ $$
 
 where:
 
--   $Y\_{ij}$ is the weight of links between *i* and *j*.
+-   $Y_{ij}$ is the weight of the link between *i* and *j*.
   
 -   $\lambda_i$ is the [<span style="color:#0D6EFD">sender effect 🛈</span>]{#senderF}.
   
 -   $\pi_j$ is the [<span style="color:#0D6EFD">receiver effect 🛈</span>]{#receiverF}.
   
--   $\delta_{ij}$ is the  [<span style="color:#0D6EFD">dyadic effect 🛈</span>]{#DyadicF2}.
+-   $\delta_{ij}$ is the [<span style="color:#0D6EFD">dyadic effect 🛈</span>]{#DyadicF2}.
 - 
 ### *Defining formula sub-equations and prior distributions*
 
-$\lambda_i$ and $\pi_j$ are varying [intercepts](13.%20Varying%20intercepts.qmd) and [slopes](14.%20Varying%20slopes.qmd) identical to those described in previous chapters and are define through the following equations:
+$\lambda_i$ and $\pi_j$ are varying [intercepts](13.%20Varying%20intercepts.qmd) and [slopes](14.%20Varying%20slopes.qmd) identical to those described in previous chapters and are defined through the following equations:
 
 $$
 \left(\begin{array}{cc} 
@@ -169,7 +169,7 @@ $$
 L \sim LKJ(2)
 $$
 
-Similarly, for each dyads we can define varying intercepts and slopes to account for correlation between the propensity to emit and receive links of a dyad :
+Similarly, for each dyad we can define varying intercepts and slopes to account for the correlation between the propensity to emit and receive links of a dyad:
 
 $$
 \left(\begin{array}{cc} 
@@ -200,18 +200,18 @@ $$
 $$
 
 $$
-L \sim LKJ(2)
+L_\delta \sim LKJ(2)
 $$
 
 ## Note(s)
 ::: callout-note
--  Note that any additional covariates can be summed with a regression coefficient to $\lambda_i$, $\pi_j$ and $\delta_{ij}$. Of course for $\lambda_i$, $\pi_j$ as they represent nodal effects those covariates need to be nodal characteristics (e.g., sex, age) whereas for $\\delta_{ij}$ as it represents dyadic effects those covariates need to be dyadic characteristics (e.g., genetic distances). Concidering previous example given a vector of nodal characteristics *individual_predictors* and a a matrix of dyadic characteristics *kinship* we can incorporate those covariates in the sender-receiver effect and dyadic effect respectivelly as fellow:
+-  Note that any additional covariates can be summed with a regression coefficient to $\lambda_i$, $\pi_j$ and $\delta_{ij}$. Of course, for $\lambda_i$ and $\pi_j$, as they represent nodal effects, these covariates need to be nodal characteristics (e.g., sex, age), whereas for $\delta_{ij}$, as it represents dyadic effects, these covariates need to be dyadic characteristics (e.g., genetic distances). Considering the previous example, given a vector of nodal characteristics, *individual_predictors*, and a matrix of dyadic characteristics, *kinship*, we can incorporate these covariates into the sender-receiver and dyadic effects, respectively, as follows:
 
 ``` python
 def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):
     N_id = ids.shape[0]
 
-    # Sender Receiver effect (SR) its shape is equal to N_id ---------------------------------------
+    # Sender Receiver effect (SR), its shape is equal to N_id ---------------------------------------
     ## Covariates for SR
     sr_terms, focal_effects, target_effects = bi.net.nodes_terms(focal_individual_predictors, target_individual_predictors) 
 
@@ -220,7 +220,7 @@ def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, targ
 
     sender_receiver = sr_terms + sr_rf
 
-    # Dyadic effect (D) its shape is equal to n dyads -----------------------------------------
+    # Dyadic effect (D), its shape is equal to n dyads -----------------------------------------
     ## Covariates for D
     dr_terms, dyad_effects = bi.net.dyadic_terms(dyad_effects)
 
@@ -228,7 +228,7 @@ def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, targ
     rf, dr_raw, dr_sigma, dr_L = bi.net.dyadic_random_effects(sender_receiver.shape[0], cholesky_density = 2)
     dr = dr_terms + rf
 
-    lk('Y', Poisson(jnp.exp( sender_receiver + dr ), is_sparse = False), obs=result_outcomes) # is_sparse = True, if matrix have a lot of zeros, it can help to speed up computation.
+    lk('Y', Poisson(jnp.exp( sender_receiver + dr ), is_sparse = False), obs=result_outcomes) # is_sparse = True; if the matrix has many zeros, it can help speed up computation.
 
 m.data_on_model = dict(
     idx = idx,
@@ -242,15 +242,14 @@ m.run(model2)
 summary = m.summary()
 summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 ```
--   We can apply multiple variables similarly as [chapter 2: Multiple continuous Variables](2.%20Multiple%20continuous%20Variables.qmd).
+-   We can apply multiple variables as in [chapter 2: Multiple Continuous Variables](2.%20Multiple%20continuous%20Variables.qmd).
 
--   We can apply interaction terms similarly as [chapter 3: Interaction between continuous variables](3.%20Interaction%20between%20continuous%20variables.qmd).
+-   We can apply interaction terms as in [chapter 3: Interaction Between Continuous Variables](3.%20Interaction%20between%20continuous%20variables.qmd).
 
 
--   Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of link — i.e., model binary networks.
+-   Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of a link — i.e., model binary networks.
 
--   If the network is undirected, then accounting for correlation between propensity to emit and receive links is not necessary, and the terms $\lambda_i$, $\pi_j$ , and $\delta_{ij}$ are no longer required. (Is it correct?)
+-   If the network is undirected, then accounting for the correlation between the propensity to emit and receive links is not necessary, and the terms $\lambda_i$, $\pi_j$, and $\delta_{ij}$ are no longer required. (Is it correct?)
 
 -   In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).
 :::
-

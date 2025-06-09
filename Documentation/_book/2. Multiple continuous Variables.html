@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -445,7 +445,7 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for the <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>The model interpretation of the regression coefficients <span class="math inline">\(\beta_x\)</span> is considered for fixed values of the other independent variable(s)’ regression coefficients —i.e., for a given age, <span class="math inline">\(\beta_{weight}\)</span> represents the expected change in the dependent variable variation (height) for each one-unit increase in weight, holding all other variable(s) constant (age).</p></li>
+<li><p>The model interpretation of the regression coefficients <span class="math inline">\(\beta_x\)</span> is considered for fixed values of the other independent variable(s)’ regression coefficients—i.e., for a given age, <span class="math inline">\(\beta_{weight}\)</span> represents the expected change in the dependent variable (height) for each one-unit increase in weight, holding all other variable(s) constant (age).</p></li>
 </ul>
 </div>
 </div>
@@ -472,7 +472,7 @@ Caution
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(height, weight, age):</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameters priors distributions</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameter prior distributions</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'alpha'</span>)    </span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'beta1'</span>)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    beta2 <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'beta2'</span>)</span>
@@ -480,7 +480,7 @@ Caution
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    m.normal(alpha <span class="op">+</span> beta1 <span class="op">*</span> weight <span class="op">+</span> beta2 <span class="op">*</span> age, sigma, obs <span class="op">=</span> height)</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
@@ -498,7 +498,7 @@ Caution
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight, age){</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  beta1 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b1'</span>)</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  beta2 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(  <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b2'</span>)   </span>
@@ -507,7 +507,7 @@ Caution
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">normal</span>(alpha <span class="sc">+</span> beta1 <span class="sc">*</span> weight <span class="sc">+</span> beta2 <span class="sc">*</span> age, sigma, <span class="at">obs=</span>height)</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
@@ -530,7 +530,7 @@ Caution
 <li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
 <li><p><span class="math inline">\(X_{1i}\)</span>, <span class="math inline">\(X_{2i}\)</span>, …, <span class="math inline">\(X_{ni}\)</span> are the values of the independent variables for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_2\)</span>, …, <span class="math inline">\(\beta_n\)</span> are the regression coefficients.</p></li>
-<li><p><span class="math inline">\(\sigma_i\)</span> is a vector of error terms for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\(\sigma_i\)</span> is the error term for observation <em>i</em>.</p></li>
 </ul>
 </section>
 <section id="bayesian-formulation" class="level3" data-number="4.4.2">
@@ -552,7 +552,7 @@ Caution
 <ul>
 <li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\alpha\)</span> is the prior distribution for the intercept.</p></li>
-<li><p><span class="math inline">\(\beta_k\)</span> are the prior distributions for the regression coefficients <em>k</em> distinct regression coefficients.</p></li>
+<li><p><span class="math inline">\(\beta_k\)</span> are the prior distributions for the <em>k</em> distinct regression coefficients.</p></li>
 <li><p><span class="math inline">\(X_{1i}\)</span>, <span class="math inline">\(X_{2i}\)</span>, …, <span class="math inline">\(X_{ni}\)</span> are the values of the independent variables for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\sigma\)</span> is the prior distribution for the standard deviation, ensuring that it is positive.</p></li>
 </ul>
@@ -1875,8 +1875,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./1. Linear Regression for continuous variable.html" class="pagination-link" aria-label="Linear Regression for continuous variable">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span>
+      <a href="./1. Linear Regression for continuous variable.html" class="pagination-link" aria-label="Linear Regression for a Continuous Variable">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

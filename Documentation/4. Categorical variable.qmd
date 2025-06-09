@@ -8,7 +8,7 @@ _Stratification_ involves modeling how the *k* different categories of the indep
 
 ## Considerations
 ::: callout-caution
-- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+- We have the same considerations as for [Regression for a Continuous Variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
  
 - As we generate regression coefficients for each *k* category, we need to specify a prior with a shape equal to the number of categories *k* in the code (see comments in the code).
   
@@ -18,7 +18,7 @@ _Stratification_ involves modeling how the *k* different categories of the indep
 :::
 
 ## Example
-Below is example code that demonstrates Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (*kcal_per_g*), representing the caloric value of milk per gram, and a categorical independent variable, representing species clade membership. The goal is to estimate the differences in milk calories between clades.
+Below is an example of code that demonstrates Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (*kcal_per_g*), representing the caloric value of milk per gram, and a categorical independent variable, representing species clade membership. The goal is to estimate the differences in milk calories between clades.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -65,7 +65,7 @@ m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to j
 
 # Define model ------------------------------------------------
 model <- function(kcal_per_g, index_clade){
-  # Parameters priors distributions
+  # Parameter prior distributions
   beta = bi.dist.normal( 0, 0.5, name = 'beta', shape = c(4))  # shape based on the number of clades
   sigma =bi.dist.exponential(1, name = 's')
   # Likelihood
@@ -103,7 +103,7 @@ Where:
 We can interpret $\beta_i$ as the effect of each category on $Y$ relative to the baseline (usually one of the categories or the intercept). 
 
 ### *Bayesian formulation*
-In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
 Y \sim Normal(\alpha +  \beta_k X, \sigma)
@@ -136,11 +136,10 @@ Where:
 ## Notes
 ::: callout-note
 
-- We can apply multiple variables similarly as in [Chapter 2: Multiple Continuous Variables](2.&#32;Multiple&#32;continuous&#32;Variables.qmd).
+- We can apply multiple variables similarly to [Chapter 2: Multiple Continuous Variables](2.&#32;Multiple&#32;continuous&#32;Variables.qmd).
 
-- We can apply interaction terms similarly as in [Chapter 3: Interaction between Continuous Variables](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+- We can apply interaction terms similarly to [Chapter 3: Interaction between Continuous Variables](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
 :::
 
 ## Reference(s)
 @mcelreath2018statistical
-

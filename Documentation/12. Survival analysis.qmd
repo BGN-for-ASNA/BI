@@ -6,10 +6,10 @@ Survival analysis studies the time until an event of interest (e.g., death, reco
 
 Key concepts include:
 
-1. **Hazard Function**: The instantaneous risk of the event occurring at a given time.
-2. **Survival Function**: The probability of surviving beyond a given time.
-3. **Covariates**: Variables (e.g., age, treatment) that may affect survival probabilities.
-4. **Baseline Hazard**: The hazard when all covariates are zero, which forms the reference for comparing different conditions.
+1.  **Hazard Function**: The instantaneous risk of the event occurring at a given time.
+2.  **Survival Function**: The probability of surviving beyond a given time.
+3.  **Covariates**: Variables (e.g., age, treatment) that may affect survival probabilities.
+4.  **Baseline Hazard**: The hazard when all covariates are zero, which forms the reference for comparing different conditions.
 
 ## Considerations
 
@@ -22,16 +22,17 @@ Key concepts include:
 
   - Censoring (when the event is not observed for some subjects) must be accounted for in the likelihood function. Proper handling is essential for unbiased results.
 
-- Bayesian survival models allow flexible handling of time-dependent covariate, random effects, and incorporate uncertainty more naturally than Frequentist methods.
+- Bayesian survival models allow flexible handling of time-dependent covariates, random effects, and incorporate uncertainty more naturally than Frequentist methods.
 :::
 
 ## Example
 
-Here’s an example Bayesian survival analysis using the **Bayesian Inference (BI)** package. The data come from a clinical trial of mastectomy for breast cancer. The goal is to estimate the effect of treatment `metastasized` coded as 0 (no metastasis) and 1 (metastasis) on the survival probability `event` for each patient. Time is continuous and censoring is indicated by the event variable.
+Here’s an example of a Bayesian survival analysis using the **Bayesian Inference (BI)** package. The data come from a clinical trial of mastectomy for breast cancer. The goal is to estimate the effect of the `metastasized` covariate, coded as 0 (no metastasis) and 1 (metastasis), on the survival outcome `event` for each patient. Time is continuous and censoring is indicated by the event variable.
 
 ::: {.panel-tabset group="language"}
 
 ### Python
+
 ```python
 from BI import bi
 
@@ -55,7 +56,7 @@ m.plot_censoring(cov='metastasized')
 
 # Model ------------------------------------------------
 def model(intervals, death, metastasized, exposure):
-    # Parameters priors distributions-------------------------
+    # Parameter prior distributions-------------------------
     ## Base hazard distribution
     lambda0 = m.dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
     ## Covariate effect distribution
@@ -75,11 +76,12 @@ m.run(model, num_samples=500)
 # Summary ------------------------------------------------
 print(m.summary())
 
-# PLot hazards and survival function ------------------------------------------------
+# Plot hazards and survival function ------------------------------------------------
 m.plot_surv()
 ```
 
 ### R
+
 ```r
 
 ```
@@ -95,27 +97,26 @@ $$
 h(t | X) = h_0(t) \exp(\beta^T X)
 $$
 
-- Where:
+-   Where:
 
-  - $h(t | X)$ is the hazard at time $t$ for covariates $X$.
-  
-  - $h_0(t)$ is the baseline hazard function (e.g., exponential, Weibull).
-  
-  - $X$ represents the covariates (such as age, treatment).
-  
-  - $\beta$ are the regression coefficients to be estimated.
+    -   $h(t | X)$ is the hazard at time $t$ for covariates $X$.
 
-- Censoring is accounted for by multiplying the hazard function by a factor that depends on the censoring distribution, usually modeled as independent censoring with a rate δ(t): 
-  
-  - $Y_i(t) = Poisson(h(t | X) * δ(t))$
+    -   $h_0(t)$ is the baseline hazard function (e.g., exponential, Weibull).
 
+    -   $X$ represents the covariates (such as age, treatment).
+
+    -   $\beta$ are the regression coefficients to be estimated.
+
+-   Censoring is accounted for by multiplying the hazard function by a factor that depends on the censoring distribution, usually modeled as independent censoring with a rate δ(t):
+
+    -   $Y_i(t) = Poisson(h(t | X) * δ(t))$
 
 ### *Bayesian formulation*
 
 In Bayesian survival analysis, we define priors for each parameter:
 
-1. **Hazard Function**:
-   The hazard rate at time \( $t$ \) for an individual is given by:
+1.  **Hazard Function**:
+    The hazard rate at time $t$ for an individual is given by:
     $$Y_i(t) = Poisson(\lambda(t) * censoring(t))$$
     $$\lambda(t) = \lambda_0(t)\exp(x\beta)$$
 
@@ -123,29 +124,29 @@ In Bayesian survival analysis, we define priors for each parameter:
 
     $$\mu_\beta \sim Normal(0, 10^2)$$
 
-    $$\sigma^2_\beta \sim Unifrom(0, 10)$$
+    $$\sigma^2_\beta \sim Uniform(0, 10)$$
 
-   Where:
-   - $Y_i(t)$ is the status of the $i$-th subject at time $t$ coded as a binary variable:
-   $$
-   Y_i(t) = 
-   \begin{cases} 
-   1 & \text{if subject } i \text{ died at time $t$  }, \\ 
-   0 & \text{otherwise.}
-   \end{cases}
-   $$
+    Where:
 
-   - $\lambda(t)$: Hazard function at time $t$.
-  
-   - $\lambda_0(t)$: Baseline hazard function (e.g., exponential or Weibull).
-  
-   - $x$: Covariates (e.g., age, treatment).
-  
-   - $\beta$: Regression coefficients capturing the effect of $x$ on the hazard have an assigned a normal prior.
-  
-   - $\mu_\beta$: Mean of the normal distribution.
-  
-   - $\sigma^2_\beta$: Variance of the normal distribution.
+    -   $Y_i(t)$ is the status of the $i$-th subject at time $t$ coded as a binary variable:
+        $$
+        Y_i(t) = 
+        \begin{cases} 
+        1 & \text{if subject } i \text{ died at time $t$  }, \\ 
+        0 & \text{otherwise.}
+        \end{cases}
+        $$
+
+    -   $\lambda(t)$: Hazard function at time $t$.
+
+    -   $\lambda_0(t)$: Baseline hazard function (e.g., exponential or Weibull).
+
+    -   $x$: Covariates (e.g., age, treatment).
+
+    -   $\beta$: Regression coefficients capturing the effect of $x$ on the hazard are assigned a normal prior.
+
+    -   $\mu_\beta$: Mean of the normal distribution.
+
+    -   $\sigma^2_\beta$: Variance of the normal distribution.
 
 ## Reference(s)
-

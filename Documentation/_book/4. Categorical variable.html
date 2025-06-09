@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -446,7 +446,7 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
+<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for a Continuous Variable</a>.</p></li>
 <li><p>As we generate regression coefficients for each <em>k</em> category, we need to specify a prior with a shape equal to the number of categories <em>k</em> in the code (see comments in the code).</p></li>
 <li><p>To compare differences between categories, we need to compute the distribution of the differences between categories, known as the contrast distribution. <strong>Never compare confidence intervals or p-values directly</strong>.</p></li>
 </ul>
@@ -455,7 +455,7 @@ Caution
 </section>
 <section id="example" class="level2" data-number="6.3">
 <h2 data-number="6.3" class="anchored" data-anchor-id="example"><span class="header-section-number">6.3</span> Example</h2>
-<p>Below is example code that demonstrates Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (<em>kcal_per_g</em>), representing the caloric value of milk per gram, and a categorical independent variable, representing species clade membership. The goal is to estimate the differences in milk calories between clades.</p>
+<p>Below is an example of code that demonstrates Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (<em>kcal_per_g</em>), representing the caloric value of milk per gram, and a categorical independent variable, representing species clade membership. The goal is to estimate the differences in milk calories between clades.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -500,7 +500,7 @@ Caution
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(kcal_per_g, index_clade){</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'beta'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">4</span>))  <span class="co"># shape based on the number of clades</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span><span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'s'</span>)</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
@@ -536,7 +536,7 @@ Y_i = \alpha + \beta_k X_i + \sigma
 </section>
 <section id="bayesian-formulation" class="level3" data-number="6.4.2">
 <h3 data-number="6.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">6.4.2</span> <em>Bayesian formulation</em></h3>
-<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
 <p><span class="math display">\[
 Y \sim Normal(\alpha +  \beta_k X, \sigma)
 \]</span></p>
@@ -572,8 +572,8 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We can apply multiple variables similarly as in <a href="./2. Multiple continuous Variables.html">Chapter 2: Multiple Continuous Variables</a>.</p></li>
-<li><p>We can apply interaction terms similarly as in <a href="./3. Interaction between continuous variables.html">Chapter 3: Interaction between Continuous Variables</a>.</p></li>
+<li><p>We can apply multiple variables similarly to <a href="./2. Multiple continuous Variables.html">Chapter 2: Multiple Continuous Variables</a>.</p></li>
+<li><p>We can apply interaction terms similarly to <a href="./3. Interaction between continuous variables.html">Chapter 3: Interaction between Continuous Variables</a>.</p></li>
 </ul>
 </div>
 </div>

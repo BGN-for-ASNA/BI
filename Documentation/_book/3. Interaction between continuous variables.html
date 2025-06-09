@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -428,7 +428,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">5.1</span> General Principles</h2>
-<p>To study relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables. <!--Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for temperature x humidity. The crossed lines on the graph suggest that there is an interaction effect. --></p>
+<p>To study the relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables. <!--Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for temperature x humidity. The crossed lines on the graph suggest that there is an interaction effect. --></p>
 </section>
 <section id="considerations" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">5.2</span> Considerations</h2>
@@ -444,9 +444,9 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same assumptions as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>We wish to model the relationship between independent variable <em>Y</em> and dependent variable <span class="math inline">\(X_1\)</span> to vary as a function of dependent variable <span class="math inline">\(X_2\)</span>. To do this, we explicitly model the hypothesis that the slope between <em>Y</em> and <span class="math inline">\(X_1\)</span> depends—is conditional—upon <span class="math inline">\(X_2\)</span>.</p></li>
+<li><p>We wish to model the relationship between dependent variable <em>Y</em> and independent variable <span class="math inline">\(X_1\)</span> to vary as a function of independent variable <span class="math inline">\(X_2\)</span>. To do this, we explicitly model the hypothesis that the slope between <em>Y</em> and <span class="math inline">\(X_1\)</span> depends—is conditional—upon <span class="math inline">\(X_2\)</span>.</p></li>
 <li><p>For continuous interactions with scaled data, the intercept becomes the <span id="grandMean"><span style="color:#0D6EFD">grand mean 🛈</span></span> of the outcome variable.</p></li>
-<li><p>The interpretation of estimates is more complex. The estimate of non-interaction terms reflects the expected change in <em>Y</em> when <span class="math inline">\(X_1\)</span> increases by one unit, holding <span class="math inline">\(X_2\)</span> constant at its average value. The estimate of interaction terms represents how the effect of <span class="math inline">\(X_1\)</span> on <em>Y</em> changes depending on the value of <span class="math inline">\(X_2\)</span>, and vice versa, showing how the relationship between the two variables influences the outcome <em>Y</em>.</p></li>
+<li><p>The interpretation of estimates is more complex. The estimate for a non-interaction term reflects the expected change in <em>Y</em> when <span class="math inline">\(X_1\)</span> increases by one unit, holding <span class="math inline">\(X_2\)</span> constant at its average value. The estimate for the interaction term represents how the effect of <span class="math inline">\(X_1\)</span> on <em>Y</em> changes depending on the value of <span class="math inline">\(X_2\)</span>, and vice versa, showing how the relationship between the two variables influences the outcome <em>Y</em>.</p></li>
 <li><p><span id="triptych"><span style="color:#0D6EFD">Triptych 🛈</span></span> plots are very handy for understanding the impact of interactions, especially when more than two interactions are present.</p></li>
 </ul>
 </div>
@@ -454,7 +454,7 @@ Caution
 </section>
 <section id="example" class="level2" data-number="5.3">
 <h2 data-number="5.3" class="anchored" data-anchor-id="example"><span class="header-section-number">5.3</span> Example</h2>
-<p>Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the Bayesian Inference (BI) package. Data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption.</p>
+<p>Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the Bayesian Inference (BI) package. The data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -468,22 +468,22 @@ Caution
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'bi.resources.data'</span>) <span class="op">/</span> <span class="st">'tulips.csv'</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>]) <span class="co"># Scale</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(blooms,shade, water):</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'sigma'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))   </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'sigma'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    bws <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name <span class="op">=</span> <span class="st">'bws'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    bs <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name <span class="op">=</span> <span class="st">'bs'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    bw <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, name <span class="op">=</span> <span class="st">'bw'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="fl">0.5</span>, <span class="fl">0.25</span>, name <span class="op">=</span> <span class="st">'a'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a <span class="op">+</span> bw<span class="op">*</span>water <span class="op">+</span> bs<span class="op">*</span>shade <span class="op">+</span> bws<span class="op">*</span>water<span class="op">*</span>shade</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    m.normal(mu, sigma, obs<span class="op">=</span>blooms)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model m.summary()parameters through MCMC sampling</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -499,11 +499,11 @@ Caution
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(blooms, water,shade){</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="fl">0.5</span>, <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  beta1 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>,  <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'b1'</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  beta2 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(  <span class="dv">0</span>,  <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'b2'</span>)   </span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  beta_interaction_ <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(  <span class="dv">0</span>, <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'bint'</span>) </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  beta2 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(  <span class="dv">0</span>,  <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'b2'</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  beta_interaction_ <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(  <span class="dv">0</span>, <span class="fl">0.25</span>, <span class="at">name =</span> <span class="st">'bint'</span>)</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>)</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">normal</span>(alpha <span class="sc">+</span> beta1<span class="sc">*</span>water <span class="sc">+</span> beta2<span class="sc">*</span>shade <span class="sc">+</span> beta_interaction_<span class="sc">*</span>water<span class="sc">*</span>shade, sigma, <span class="at">obs=</span>blooms)</span>
@@ -533,15 +533,15 @@ Caution
 <li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
 <li><p><span class="math inline">\(X_{1i}\)</span> and <span class="math inline">\(X_{2i}\)</span> are the two values of the independent continuous variables for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> are the regression coefficients for <span class="math inline">\(X_{1}\)</span> and <span class="math inline">\(X_{2}\)</span>, respectively.</p></li>
-<li><p><span class="math inline">\(\beta_{interaction}\)</span> is the regression coefficient for the interaction term <span class="math inline">\((X_{1}  X_{2})\)</span>.</p></li>
+<li><p><span class="math inline">\(\beta_{interaction}\)</span> is the regression coefficient for the interaction term <span class="math inline">\((X_{1} X_{2})\)</span>.</p></li>
 <li><p><span class="math inline">\(\sigma\)</span> is the error term, assumed to be normally distributed.</p></li>
 </ul>
 <p>In this context, the interaction term <span class="math inline">\(X_{1i} * X_{2i}\)</span> captures the joint effect of <span class="math inline">\(X_{1i}\)</span> and <span class="math inline">\(X_{2i}\)</span> on the target variable <span class="math inline">\(Y_i\)</span>.</p>
 <section id="bayesian-formulation" class="level3" data-number="5.5.1">
 <h3 data-number="5.5.1" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">5.5.1</span> <em>Bayesian formulation</em></h3>
-<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
 <p><span class="math display">\[
-Y \sim Normal(\alpha +  \beta_1  X_{1i}​ + \beta_2  X_{2i}​​ + \beta_{interaction}  X_1{1i} X_{2i}​ ,  \sigma)
+Y \sim Normal(\alpha + \beta_1 X_{1i} + \beta_2 X_{2i} + \beta_{interaction} X_{1i} X_{2i}, \sigma)
 \]</span></p>
 <p><span class="math display">\[
 \alpha \sim Normal(0,1)
@@ -556,7 +556,7 @@ Y \sim Normal(\alpha +  \beta_1  X_{1i}​ + \beta_2  X_{2i}​​ + \beta_{inte
 \beta_{interaction} \sim Normal(0,1)
 \]</span></p>
 <p><span class="math display">\[
-σ \sim Exponential(1)
+\sigma \sim Exponential(1)
 \]</span></p>
 <p>Where:</p>
 <ul>

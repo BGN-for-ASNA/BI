@@ -6,12 +6,12 @@ This is a special shape of the binomial distribution; it is useful because it mo
 
 
 ## Considerations
-::: callout-caution 
-- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+::: callout-caution
+- We have the same considerations as for [Regression for a continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- We have the second [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}: _log_. The _log_ link (it ensures that _λ_ is always positive).
+- We have the second [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}: _log_. The _log_ link ensures that _λ_ is always positive.
 
-- To invert the log link function and model linearly the relationship between the predictor variables and the log of the mean rate parameter, we can apply the exponential function (see comment in code).
+- To invert the log link function and linearly model the relationship between the predictor variables and the log of the mean rate parameter, we can apply the exponential function (see comment in code).
 
 <!--
 - The parameter $λ$ is the expected value, but it’s also commonly thought of as a rate. $λ$ is equal to an expected number of events, $µ$, per unit time or distance, $\tau$. This implies that $λ = µ/τ$, which lets us redefine the link
@@ -49,7 +49,7 @@ m = bi(platform='cpu')
 # Import
 from importlib.resources import files
 data_path = files('bi.resources.data') / 'Kline.csv'
-m.data(data_path, sep=';') 
+m.data(data_path, sep=';')
 m.scale(['population'])
 m.df["cid"] = (m.df.contact == "high").astype(int)
 #m.data_to_model(['total_tools', 'population', 'cid'])
@@ -60,7 +60,7 @@ def model(cid, population, total_tools):
     m.poisson(l, obs=total_tools)
 
 # Run sampler ------------------------------------------------
-m.run(model) 
+m.run(model)
 
 # Diagnostic ------------------------------------------------
 m.summary()
@@ -70,7 +70,7 @@ m.summary()
 ```R
 library(BI)
 
-# setup platform------------------------------------------------
+# Setup platform------------------------------------------------
 m=importBI(platform='cpu')
 
 # import data ------------------------------------------------
@@ -81,7 +81,7 @@ m$data_to_model(list('total_tools', 'population', 'cid' )) # Send to model (conv
 
 # Define model ------------------------------------------------
 model <- function(total_tools, population, cid){
-  # Parameters priors distributions
+  # Parameter prior distributions
   alpha = bi.dist.normal(3, 0.5, name='alpha', shape = c(2))
   beta = bi.dist.normal(0, 0.2, name='beta', shape = c(2))
   l = jnp$exp(alpha[cid] + beta[cid]*population)
@@ -103,31 +103,31 @@ m$summary() # Get posterior distribution
 We model the relationship between the predictor variable ($X_i$) and the count outcome variable ($Y_i$) using the following equation:
 
 $$
-\log(\lambda_i) = \alpha + \beta  X_i 
+\log(\lambda_i) = \alpha + \beta  X_i
 $$
 
 Where:
 
 - $\lambda_i$ is the mean rate parameter of the Poisson distribution (expected count) for observation *i*, modeled as the exponential function of the linear combination of predictors.
-  
+
 - $\log(\lambda_i)$ is the log of the mean rate parameter for observation *i*, ensuring it is positive.
-  
+
 - $\beta$ is the regression coefficient.
-  
+
 - $\alpha$ is the intercept term.
-  
-- $X_i$ is the value for the independent variables for observation *i*.
+
+- $X_i$ is the value of the independent variable for observation *i*.
 
 
 ### *Bayesian formulation*
-In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
 Y \sim Poisson(\lambda_i)
 $$
 
 $$
-\log(\lambda_i) \sim \alpha + \beta X_i
+\log(\lambda_i) = \alpha + \beta X_i
 $$
 
 $$
@@ -140,28 +140,28 @@ $$
 
 Where:
 
-- $Y_i$ is the dependent variable for observation *i*. 
-  
+- $Y_i$ is the dependent variable for observation *i*.
+
 - $\lambda_i$ is the mean rate parameter of the Poisson distribution for observation *i*, modeled as the exponential function of the linear combination of predictors.
-  
+
 - $\log(\lambda_i)$ is the log of the mean rate parameter for observation *i*.
-  
-- $\alpha$ and $\beta$ are the prior distributions for the intercept and the regression coefficients, respectivelly .
-  
-- $\lambda$ is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.
-  
-- $X_i$ is the value for the independent variables for observation *i*.
+
+- $\alpha$ and $\beta$ are the prior distributions for the intercept and the regression coefficients, respectively.
+
+- $\lambda_i$ is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.
+
+- $X_i$ is the value of the independent variable for observation *i*.
 
 ## Notes
 ::: callout-note
 
-- We can apply multiple variables similarly as in [chapter 2](2.&#32;Multiple&#32;continuous&#32;variables.qmd).
+- We can apply multiple variables similarly to [chapter 2](2.&#32;Multiple&#32;continuous&#32;variables.qmd).
 
-- We can apply interaction terms similarly as in [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+- We can apply interaction terms similarly to [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
 
-- We can apply categorical variables similarly as in [chapter 4](4.&#32;Categorical&#32;variable.qmd).
+- We can apply categorical variables similarly to [chapter 4](4.&#32;Categorical&#32;variable.qmd).
 
 
 ## Reference(s)
 @mcelreath2018statistical
-
+:::

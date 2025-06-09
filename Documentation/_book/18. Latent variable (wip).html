@@ -221,7 +221,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -281,7 +281,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -310,7 +310,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -405,7 +405,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="20.1">
 <h2 data-number="20.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">20.1</span> General Principles</h2>
-<p>In some scenarios, the observed data does not directly reflect the underlying structure or factors influencing the outcome. Instead, <em>latent variables</em> — variables that are not directly observed but inferred from the data — can help model this hidden structure. These latent variables capture unobserved factors that affect the relationship between predictors (<em>X</em>) and the outcome (<em>Y</em>).</p>
+<p>In some scenarios, the observed data does not directly reflect the underlying structure or factors influencing the outcome. Instead, <em>latent variables</em>—variables that are not directly observed but are inferred from the data—can help model this hidden structure. These latent variables capture unobserved factors that affect the relationship between predictors (<em>X</em>) and the outcome (<em>Y</em>).</p>
 <p>We model the relationship between the predictor variables (<em>X</em>) and the outcome variable (<em>Y</em>) with a latent variable (<em>Z</em>) as follows:</p>
 <p><span class="math display">\[
 Y = f(X, Z) + \epsilon
@@ -438,8 +438,8 @@ Y = f(X, Z) + \epsilon
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the means and offsets for the data</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># means: Generate random normal means for each of the NY outcomes</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># offsets: Generate random normal offsets for each of the NV observations</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>means <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,), sample <span class="op">=</span> <span class="va">True</span>, seed <span class="op">=</span> <span class="dv">10</span>)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>offsets <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NV,<span class="dv">1</span>), sample <span class="op">=</span> <span class="va">True</span>, seed <span class="op">=</span> <span class="dv">20</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>means <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,), sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>offsets <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NV, <span class="dv">1</span>), sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span><span class="dv">20</span>)</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Fill the matrix Y2 with simulated data based on the generated means and offsets</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Each observation (i) is the sum of an individual-specific offset and an outcome-specific mean</span></span>
@@ -449,7 +449,7 @@ Y = f(X, Z) + \epsilon
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate individual-level random effects (e.g., random slopes or intercepts)</span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># b_individual: A matrix of size (N, K) where N is the number of individuals and K is the number of covariates</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>b_individual <span class="op">=</span> bi.distribution.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>N, K), sample <span class="op">=</span> <span class="va">True</span>, seed <span class="op">=</span> <span class="dv">0</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>b_individual <span class="op">=</span> bi.distribution.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(N, K), sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># mu: Add an additional effect 'a' to the individual-level random effects 'b_individual'</span></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 'a' could represent a population-level effect or a baseline</span></span>
@@ -469,15 +469,15 @@ Y = f(X, Z) + \epsilon
 <span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(NY, NV, Y2):</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    means <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,), name <span class="op">=</span> <span class="st">'means'</span>)</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    offset <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,<span class="dv">1</span>), name <span class="op">=</span> <span class="st">'offset'</span>)</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>(NY,), name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    tmp <span class="op">=</span> jnp.tile(means, (NV, <span class="dv">1</span>)).reshape(NV,NY)  </span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    mu_l <span class="op">=</span> tmp <span class="op">+</span> offset </span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    means <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,), name<span class="op">=</span><span class="st">'means'</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    offset <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NV, <span class="dv">1</span>), name<span class="op">=</span><span class="st">'offset'</span>)</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>(NY,), name<span class="op">=</span><span class="st">'sigma'</span>)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    tmp <span class="op">=</span> jnp.tile(means, (NV, <span class="dv">1</span>)).reshape(NV, NY)</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    mu_l <span class="op">=</span> tmp <span class="op">+</span> offset</span>
 <span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    m.normal(mu_l, jnp.tile(sigma, [NV, <span class="dv">1</span>]), obs<span class="op">=</span>Y2)</span>
 <span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------ </span></span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>m.run(model)  </span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>m.run(model)</span>
 <span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -487,7 +487,7 @@ Y = f(X, Z) + \epsilon
 <p>We can express the Bayesian latent variable model using probability distributions as follows:</p>
 <p><span class="math display">\[
 \begin{aligned}
-&amp; p(Y | X, Z, W, \sigma) = \text{Normal}(X * W + Z, \sigma^2) \\
+&amp; p(Y | X, Z, W, \sigma) = \text{Normal}(X \cdot W + Z, \sigma^2) \\
 &amp; p(Z) = \text{Normal}(0, \tau^2) \\
 &amp; p(W) = \text{Normal}(0, \alpha^2) \\
 \end{aligned}

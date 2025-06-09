@@ -84,7 +84,7 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./16. Measuring error (wip).html" rel="next">
+<link href="./16. Measuring error.html" rel="next">
 <link href="./14. Varying slopes.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -429,7 +429,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2" data-number="17.1">
 <h2 data-number="17.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">17.1</span> General Principles</h2>
-<p>Through varying intercepts and slopes we have seen how quantify some of the unique features that generate variation across clusters and covariance among the observations within each cluster. But through the covariance matrix that is used to account for correlation between clusters, we are assuming inherently linear relationships between clusters. What if we want to model the relationship between two variables that are not linearly related? In this case, we can use a Gaussian Process (GP) to model the relationship between two variables. Basically, a GP is a a varying slope model with a covariance matrix where each element of the matrix is a <span id="kernel"><span style="color:#0D6EFD">kernel function 🛈</span></span>.</p>
+<p>Through varying intercepts and slopes, we have seen how to quantify some of the unique features that generate variation across clusters and covariance among the observations within each cluster. But through the covariance matrix that is used to account for correlation between clusters, we are inherently assuming linear relationships between clusters. What if we want to model the relationship between two variables that are not linearly related? In this case, we can use a Gaussian Process (GP) to model the relationship between two variables. Basically, a GP is a varying-slope model with a covariance matrix where each element of the matrix is a <span id="kernel"><span style="color:#0D6EFD">kernel function 🛈</span></span>.</p>
 </section>
 <section id="considerations" class="level2" data-number="17.2">
 <h2 data-number="17.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">17.2</span> Considerations</h2>
@@ -444,18 +444,18 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li>To capture complex, non-linear relationships in data where the underlying function is smooth but has an unknown functional form, GPs use a <span id="kernel"><span style="color:#0D6EFD">kernel 🛈</span></span></li>
-<li>GPs assume normally distributed errors and may not be appropriate for all types of noise</li>
-<li>The choice of kernel hyperparameters can significantly impact results, thus GPs require choosing an appropriate kernel function that captures the expected behavior of your data.</li>
-<li>Though kernel definition we can incorporate domain knowledge.</li>
-<li>They scale poorly with dataset size (O(n³) complexity) due to matrix operations, thus memory requirements can be substantial for large datasets which as lead neural networks to be used instead to resolve large non linear problems.</li>
+<li>To capture complex, non-linear relationships in data where the underlying function is smooth but has an unknown functional form, GPs use a <span id="kernel"><span style="color:#0D6EFD">kernel 🛈</span></span>.</li>
+<li>GPs assume normally distributed errors and may not be appropriate for all types of noise.</li>
+<li>The choice of kernel hyperparameters can significantly impact results; thus, GPs require choosing an appropriate kernel function that captures the expected behavior of your data.</li>
+<li>Through kernel definition, we can incorporate domain knowledge.</li>
+<li>They scale poorly with dataset size (O(n³) complexity) due to matrix operations; thus, memory requirements can be substantial for large datasets, which has led to neural networks being used instead to resolve large non-linear problems.</li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2" data-number="17.3">
 <h2 data-number="17.3" class="anchored" data-anchor-id="example"><span class="header-section-number">17.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist in a continuous dependet variable (<em>total_tools</em>) representing the number of tools inveted in the islands, and a continuous independent variable (<em>population</em>) representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance amtrix of the islands for the kernel function in order to capture the spatial dependence of the relationship.</p>
+<p>Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist of a continuous dependent variable (<em>total_tools</em>), representing the number of tools invented in the islands, and a continuous independent variable (<em>population</em>), representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance matrix of the islands for the kernel function in order to capture the spatial dependence of the relationship.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -545,7 +545,7 @@ Caution
 <h2 data-number="17.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">17.4</span> Mathematical Details</h2>
 <section id="formula" class="level3" data-number="17.4.1">
 <h3 data-number="17.4.1" class="anchored" data-anchor-id="formula"><span class="header-section-number">17.4.1</span> <em>Formula</em></h3>
-<p>The following equation allows us to evaluate the relationship between dependent variable <span class="math inline">\(Y\)</span> and independent variable <span class="math inline">\(X\)</span> while incorporating a GP for variable <span class="math inline">\(Z\)</span> :</p>
+<p>The following equation allows us to evaluate the relationship between the dependent variable <span class="math inline">\(Y\)</span> and the independent variable <span class="math inline">\(X\)</span> while incorporating a GP for variable <span class="math inline">\(Z\)</span>:</p>
 <p><span class="math display">\[
 Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
 \]</span></p>
@@ -553,10 +553,10 @@ Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
 <ul>
 <li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
 <li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the i-th value for independent variable <span class="math inline">\(X\)</span>.</p></li>
-<li><p><span class="math inline">\(\gamma_{Z_i}\)</span> is the gaussian process i-th value for independent variable <span class="math inline">\(Z\)</span>.</p></li>
+<li><p><span class="math inline">\(X_i\)</span> is the i-th value for the independent variable <span class="math inline">\(X\)</span>.</p></li>
+<li><p><span class="math inline">\(\gamma_{Z_i}\)</span> is the Gaussian process i-th value for the independent variable <span class="math inline">\(Z\)</span>.</p></li>
 </ul>
-<p>The GP <span class="math inline">\(\gamma_{Z_i}\)</span> follow a multivariate normal distribution:</p>
+<p>The GP <span class="math inline">\(\gamma_{Z_i}\)</span> follows a multivariate normal distribution:</p>
 <p><span class="math display">\[
 \begin{pmatrix}
     Z_1 \\
@@ -575,8 +575,8 @@ K
 <p>where:</p>
 <ul>
 <li><p><span class="math inline">\((Z_1, ..., Z_n)\)</span> represents a collection of all values of the random variable <span class="math inline">\(Z\)</span>.</p></li>
-<li><p><span class="math inline">\((0, ..., 0)\)</span> represents the mean vector of the multivariate normal distribution of the same size as the number of random variable and set to <span id="kernelMean0"><span style="color:#0D6EFD">zero 🛈</span></span>.</p></li>
-<li><p><span class="math inline">\(K\)</span> is the covariance matrix of the random variable <span class="math inline">\(Z\)</span>. Each element <span class="math inline">\(K{ij}\)</span> of the matrix is given by the kernel function evaluated at the corresponding points: <span class="math inline">\(K_{ij} = k(Z_i,Z_j)\)</span></p></li>
+<li><p><span class="math inline">\((0, ..., 0)\)</span> represents the mean vector of the multivariate normal distribution of the same size as the number of random variables and set to <span id="kernelMean0"><span style="color:#0D6EFD">zero 🛈</span></span>.</p></li>
+<li><p><span class="math inline">\(K\)</span> is the covariance matrix of the random variable <span class="math inline">\(Z\)</span>. Each element <span class="math inline">\(K_{ij}\)</span> of the matrix is given by the kernel function evaluated at the corresponding points: <span class="math inline">\(K_{ij} = k(Z_i, Z_j)\)</span></p></li>
 </ul>
 <p><span class="math display">\[
 K = \begin{pmatrix}
@@ -587,18 +587,18 @@ K = \begin{pmatrix}
 \end{pmatrix}
 \]</span></p>
 <ul>
-<li>Multiple kernel function exist and will be discussed in the <a href="#notes">Note(s)</a> section. But the most common one is the quadratic kernel:</li>
+<li>Multiple kernel functions exist and will be discussed in the <a href="#notes">Note(s)</a> section. But the most common one is the quadratic kernel:</li>
 </ul>
 <p><span class="math display">\[
-K_{ij} = \eta^2 exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
+K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
 \]</span></p>
 <p>Where:</p>
 <ul>
 <li><p><span class="math inline">\(\eta\)</span> is the signal variance, representing the overall variance of the outputs of the Gaussian process. It scales the influence of the kernel function. A larger <span class="math inline">\(\eta^2\)</span> indicates a wider range of values the function can take.</p></li>
 <li><p><span class="math inline">\(p\)</span> determines the rate of decline.</p></li>
 <li><p><span class="math inline">\(D_{ij}\)</span> is the distance between the <span class="math inline">\(i\)</span>-th and <span class="math inline">\(j\)</span>-th points.</p></li>
-<li><p><span class="math inline">\(\delta_{ij}\)</span> is the Kronecker delta taking a value of zero when <span class="math inline">\(i = j\)</span>, allowing to included in the calculation the self-covariance.</p></li>
-<li><p><span class="math inline">\(\sigma^2\)</span> is the noise variance, which accounts for the observation noise in the data. It represents the uncertainty or variability in the measurements or outputs at each point. The term effectively adds this noise variance only when <span class="math inline">\(i = 𝑗\)</span>, ensuring that the diagonal elements of the covariance matrix represent the total variance at each input point.</p></li>
+<li><p><span class="math inline">\(\delta_{ij}\)</span> is the Kronecker delta, taking a value of one when <span class="math inline">\(i = j\)</span> and zero otherwise, allowing the self-covariance to be included in the calculation.</p></li>
+<li><p><span class="math inline">\(\sigma^2\)</span> is the noise variance, which accounts for the observation noise in the data. It represents the uncertainty or variability in the measurements or outputs at each point. The term effectively adds this noise variance only when <span class="math inline">\(i = j\)</span>, ensuring that the diagonal elements of the covariance matrix represent the total variance at each input point.</p></li>
 </ul>
 </section>
 <section id="bayesian-model" class="level3" data-number="17.4.2">
@@ -618,7 +618,7 @@ K
 \right)
 \]</span></p>
 <p><span class="math display">\[
-K_{ij} = \eta^2 exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
+K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
 \]</span></p>
 <p><span class="math display">\[
 \alpha \sim Normal(0,1)
@@ -632,12 +632,12 @@ p^2 \sim HalfCauchy(0,1)
 <p>where:</p>
 <ul>
 <li><p><span class="math inline">\(Y_i\)</span> is the i-th value for the dependent variable <span class="math inline">\(Y\)</span>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term with prior <span class="math inline">\(Normal(0,1)\)</span>.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term with prior <span class="math inline">\(Normal(0,1)\)</span>.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the i-th value for independent variable <span class="math inline">\(X\)</span>.</p></li>
-<li><p><span class="math inline">\(\gamma_{Z_i}\)</span> is the gaussian process i-th value for independent variable <span class="math inline">\(Z\)</span>.</p></li>
+<li><p><span class="math inline">\(\alpha\)</span> is the intercept term with a prior of <span class="math inline">\(Normal(0,1)\)</span>.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term with a prior of <span class="math inline">\(Normal(0,1)\)</span>.</p></li>
+<li><p><span class="math inline">\(X_i\)</span> is the i-th value for the independent variable <span class="math inline">\(X\)</span>.</p></li>
+<li><p><span class="math inline">\(\gamma_{Z_i}\)</span> is the Gaussian process i-th value for the independent variable <span class="math inline">\(Z\)</span>.</p></li>
 <li><p><span class="math inline">\(\gamma\)</span> is the latent function modeled by the GP.</p></li>
-<li><p><span class="math inline">\(K_{ij}\)</span> is the kernel function evaluated at the corresponding points: <span class="math inline">\(K_{ij} = k(Z_i,Z_j)\)</span> with priors HalfCauchy(0,1) for <span class="math inline">\(\eta^2\)</span> and <span class="math inline">\(p^2\)</span> to ensure positive values.</p></li>
+<li><p><span class="math inline">\(K_{ij}\)</span> is the kernel function evaluated at the corresponding points, <span class="math inline">\(K_{ij} = k(Z_i, Z_j)\)</span>, with priors of HalfCauchy(0,1) for <span class="math inline">\(\eta^2\)</span> and <span class="math inline">\(p^2\)</span> to ensure positive values.</p></li>
 </ul>
 </section>
 </section>
@@ -657,12 +657,14 @@ Note
 <ul>
 <li><p><em>Radial Basis Function</em> (RBF) or Squared Exponential Kernel: <span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{||x-x'||^2}{2l^2}\right)\]</span></p></li>
 <li><p><em>Rational Quadratic Kernel</em>, this kernel is equivalent to adding together many RBF kernels with different length scales: <span class="math display">\[k(x,x') = \sigma^2 \left(1 + \frac{||x-x'||^2}{2l^2}\right)^{-\alpha}\]</span></p></li>
-<li><p><em>Periodic kernel</em> allows to model functions which repeat themselves exactly: <span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right)\]</span></p></li>
+<li><p><em>Periodic kernel</em> allows for modeling functions that repeat themselves exactly: <span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right)\]</span></p></li>
 <li><p><em>Locally Periodic Kernel</em>:</p></li>
 </ul>
 <p><span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right) \exp\left(-\frac{||x-x'||^2}{2l^2}\right)\]</span></p>
 <ul>
-<li><p>GPs can be extended to classification problems using link functions Multi-output problems using matrix-valued kernels Deep learning through Deep Kernel Learning</p></li>
+<li><p>GPs can be extended to classification problems using link functions.</p></li>
+<li><p>Multi-output problems can be addressed using matrix-valued kernels.</p></li>
+<li><p>Deep learning can be combined with GPs through Deep Kernel Learning.</p></li>
 <li><p>Computational tricks for large datasets include:</p>
 <ul>
 <li>Sparse approximations (e.g., FITC, VFE)</li>
@@ -1996,7 +1998,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./16. Measuring error (wip).html" class="pagination-link" aria-label="Measuring error">
+      <a href="./16. Measuring error.html" class="pagination-link" aria-label="Measuring error">
         <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>

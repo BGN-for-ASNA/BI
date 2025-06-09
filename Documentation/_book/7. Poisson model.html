@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -444,9 +444,9 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>We have the second <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span>: <em>log</em>. The <em>log</em> link (it ensures that <em>λ</em> is always positive).</p></li>
-<li><p>To invert the log link function and model linearly the relationship between the predictor variables and the log of the mean rate parameter, we can apply the exponential function (see comment in code).</p></li>
+<li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for a continuous variable</a>.</p></li>
+<li><p>We have the second <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span>: <em>log</em>. The <em>log</em> link ensures that <em>λ</em> is always positive.</p></li>
+<li><p>To invert the log link function and linearly model the relationship between the predictor variables and the log of the mean rate parameter, we can apply the exponential function (see comment in code).</p></li>
 </ul>
 <!--
 - The parameter $λ$ is the expected value, but it’s also commonly thought of as a rate. $λ$ is equal to an expected number of events, $µ$, per unit time or distance, $\tau$. This implies that $λ = µ/τ$, which lets us redefine the link
@@ -483,7 +483,7 @@ $$
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'bi.resources.data'</span>) <span class="op">/</span> <span class="st">'Kline.csv'</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'population'</span>])</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"cid"</span>] <span class="op">=</span> (m.df.contact <span class="op">==</span> <span class="st">"high"</span>).astype(<span class="bu">int</span>)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#m.data_to_model(['total_tools', 'population', 'cid'])</span></span>
@@ -494,7 +494,7 @@ $$
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    m.poisson(l, obs<span class="op">=</span>total_tools)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>m.run(model) </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>m.run(model)</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -502,7 +502,7 @@ $$
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform------------------------------------------------</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># import data ------------------------------------------------</span></span>
@@ -513,7 +513,7 @@ $$
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(total_tools, population, cid){</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">3</span>, <span class="fl">0.5</span>, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">2</span>))</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">name=</span><span class="st">'beta'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">2</span>))</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">exp</span>(alpha[cid] <span class="sc">+</span> beta[cid]<span class="sc">*</span>population)</span>
@@ -544,17 +544,17 @@ $$
 <li><p><span class="math inline">\(\log(\lambda_i)\)</span> is the log of the mean rate parameter for observation <em>i</em>, ensuring it is positive.</p></li>
 <li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
 <li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the value for the independent variables for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\(X_i\)</span> is the value of the independent variable for observation <em>i</em>.</p></li>
 </ul>
 </section>
 <section id="bayesian-formulation" class="level3" data-number="9.4.2">
 <h3 data-number="9.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">9.4.2</span> <em>Bayesian formulation</em></h3>
-<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distribution as follows:</p>
+<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
 <p><span class="math display">\[
 Y \sim Poisson(\lambda_i)
 \]</span></p>
 <p><span class="math display">\[
-\log(\lambda_i) \sim \alpha + \beta X_i
+\log(\lambda_i) = \alpha + \beta X_i
 \]</span></p>
 <p><span class="math display">\[
 \alpha \sim Normal(0, 1)
@@ -567,9 +567,9 @@ Y \sim Poisson(\lambda_i)
 <li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
 <li><p><span class="math inline">\(\lambda_i\)</span> is the mean rate parameter of the Poisson distribution for observation <em>i</em>, modeled as the exponential function of the linear combination of predictors.</p></li>
 <li><p><span class="math inline">\(\log(\lambda_i)\)</span> is the log of the mean rate parameter for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are the prior distributions for the intercept and the regression coefficients, respectivelly .</p></li>
-<li><p><span class="math inline">\(\lambda\)</span> is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the value for the independent variables for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are the prior distributions for the intercept and the regression coefficients, respectively.</p></li>
+<li><p><span class="math inline">\(\lambda_i\)</span> is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.</p></li>
+<li><p><span class="math inline">\(X_i\)</span> is the value of the independent variable for observation <em>i</em>.</p></li>
 </ul>
 </section>
 </section>
@@ -586,18 +586,18 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We can apply multiple variables similarly as in <a href="2. Multiple continuous variables.qmd">chapter 2</a>.</p></li>
-<li><p>We can apply interaction terms similarly as in <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
-<li><p>We can apply categorical variables similarly as in <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
+<li><p>We can apply multiple variables similarly to <a href="2. Multiple continuous variables.qmd">chapter 2</a>.</p></li>
+<li><p>We can apply interaction terms similarly to <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
+<li><p>We can apply categorical variables similarly to <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
 </ul>
 <section id="references" class="level2" data-number="9.6">
 <h2 data-number="9.6" class="anchored" data-anchor-id="references"><span class="header-section-number">9.6</span> Reference(s)</h2>
 <p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
-
 </section>
 </div>
 </div>
+
+
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
 McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
