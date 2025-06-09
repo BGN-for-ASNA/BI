@@ -20,7 +20,7 @@ To model the relationship between a categorical outcome variable with more than 
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian multinomial model using the Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating a Bayesian multinomial model using the Bayesian Inference (BI) package:
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -39,14 +39,14 @@ data_path = files('bi.resources.data') / 'Sim data multinomial.csv'
 m.data(data_path, sep=',') 
 
 # Define model ------------------------------------------------
-def model(career, income ):
-    a = m.dist.normal(0, 1, shape= (2,), name = 'a')
-    b = m.dist.halfnormal(0.5,  shape= (1,),name = 'b')
+def model(career, income):
+    a = m.dist.normal(0, 1, shape=(2,), name = 'a')
+    b = m.dist.halfnormal(0.5, shape=(1,), name = 'b')
     s_1 = a[0] + b * income[0]
     s_2 = a[1] + b * income[1]
     s_3 = [0] #pivot
     p = jax.nn.softmax(jnp.stack([s_1[0], s_2[0], s_3[0]]))
-    m.dist.categorical(probs =  p, obs=career)
+    m.dist.categorical(probs=p, obs=career)
 
 # Run sampler ------------------------------------------------ 
 m.run(model)  # Optimize model parameters through MCMC sampling
@@ -72,7 +72,7 @@ m$data_on_model = py_dict(keys, values, convert = TRUE)
 
 # Define model ------------------------------------------------
 model <- function(income, career){
-  # Parameters priors distributions
+  # Parameter prior distributions
   alpha = bi.dist.normal(0, 1, name='alpha', shape = c(2))
   beta = bi.dist.halfnormal(0.5, name='beta')
   
@@ -100,13 +100,13 @@ m$summary() # Get posterior distribution
 We model the relationship between the predictor variables (X1, X2, ..., Xn) and the categorical outcome variable ($Y_i$) using the following equation:
 
 $$
-logit(p_ik) = α_k + β X_i 
+logit(p_{ik}) = α_k + β X_i 
 $$
 
 Where:
 
 
-- $p_ik$ is the probability of the 𝑖-th observation being in category 𝑘.
+- $p_{ik}$ is the probability of the 𝑖-th observation being in category 𝑘.
 
 - $α_k$ is the intercept for category 𝑘.
   
@@ -121,7 +121,7 @@ Where:
 In Bayesian multinomial modeling, the likelihood function of the data is specified using a multinomial distribution. The multinomial distribution models the counts of outcomes falling into different categories. For an outcome variable 
 𝑦 with 𝐾 categories, the multinomial likelihood function is:
 $$
-Multinomial(y|θ)=\frac{N!}{∏^K_{k=1}yk!} ∏_{k=1}^{K} θ_{k}^{y_k}
+Multinomial(y|θ)=\frac{N!}{\prod^K_{k=1}y_k!} \prod_{k=1}^{K} θ_{k}^{y_k}
 $$
 
 Where:
@@ -130,9 +130,9 @@ Where:
   
 - $N$ is the total number of observations or trials.
   
-- $θ=(θ_1,θ_2,…,θ_K)$  is a simplex of category probabilities, with $θ_k$ representing the probability of category 𝑘.
+- $θ=(θ_1,θ_2,…,θ_K)$ is a simplex of category probabilities, with $θ_k$ representing the probability of category 𝑘.
   
-- $\frac{N!}{∏^K_{k=1}yk!}$ is the multinomial coefficient that accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.
-- 
+- $\frac{N!}{\prod^K_{k=1}y_k!}$ is the multinomial coefficient that accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.
+
 ## Reference(s)
 @mcelreath2018statistical

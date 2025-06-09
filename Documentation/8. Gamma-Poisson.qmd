@@ -10,7 +10,7 @@ To model the relationship between a count outcome variable and one or more indep
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian Gamma-Poisson model using the Bayesian Inference (BI) package:
+Below is an example code snippet demonstrating a Bayesian Gamma-Poisson model using the Bayesian Inference (BI) package:
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -43,16 +43,16 @@ m.summary() # Get posterior distributions
 ```R
 library(BI)
 
-# setup platform------------------------------------------------
+# Setup platform------------------------------------------------
 m=importBI(platform='cpu')
 
-# import data ------------------------------------------------
+# Import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/Sim dat Gamma poisson.csv", sep = ''), sep=',')
 m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(log_days, monastery, y){
-  # Parameters priors distributions
+  # Parameter prior distributions
   alpha = bi.dist.normal(0, 1, name='alpha', shape=c(1))
   beta = bi.dist.normal(0, 1, name='beta', shape=c(1))
   l = jnp$exp(log_days + alpha + beta * monastery)
@@ -64,7 +64,7 @@ model <- function(log_days, monastery, y){
 m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m$summary() # Get posterior distribution
+m$summary() # Get posterior distributions
 
 
 
@@ -87,19 +87,19 @@ Where:
   
 - $\alpha$ is the intercept term.
   
-- $\beta$ is the regression coefficients.
+- $\beta$ is the regression coefficient.
   
-- $X_i$ is the value of the predictor variable  for observation *i*.
+- $X_i$ is the value of the predictor variable for observation *i*.
 
 ### *Bayesian model*
-In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
-Y_i \sim \text{Poisson}(\lambda)
+Y_i \sim \text{Poisson}(\lambda_i)
 $$
 
 $$
-\log(\lambda_i) \sim \text{rates}_i + \alpha + \beta X_i
+\log(\lambda_i) = \text{rates}_i + \alpha + \beta X_i
 $$
 
 $$
@@ -112,17 +112,17 @@ $$
 
 Where:
 
-- $Y_i$  is dependent variable for observation *i*. 
+- $Y_i$ is the dependent variable for observation *i*. 
   
 - $\lambda_i$ is the mean rate parameter of the Poisson distribution for observation *i*, assuming that each Poisson count observation has its own $rate_i$.
   
-- $\log(\lambda_i)$ is the log of the mean rate parameterfor observation *i*, ensuring it is positive.
+- $\log(\lambda_i)$ is the log of the mean rate parameter for observation *i*, ensuring it is positive.
   
 - $\alpha$ is the intercept term.
   
-- $\beta$ is the regression coefficients.
+- $\beta$ is the regression coefficient.
   
-- $X_i$ is the value of the predictor variable  for observation *i*.
+- $X_i$ is the value of the predictor variable for observation *i*.
 
 
 ## Notes

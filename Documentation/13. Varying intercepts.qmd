@@ -2,16 +2,16 @@
 
 ## General Principles
 
-To model the relationship between dependent variables and an independent variable while allowing for different intercepts across groups or clusters, we can use a *Varying Intercepts* model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.
+To model the relationship between a dependent variable and an independent variable while allowing for different intercepts across groups or clusters, we can use a *Varying Intercepts* model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.
 
 ## Considerations
 
 ::: callout-caution
-- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+- We have the same considerations as for [Regression for a continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $\beta$ is defined based on the $k$ declared groups.
+- The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $\alpha_k$ is defined based on the $k$ declared groups.
 
-- Each intercept has its own prior -i.e., a [<span style="color:#0D6EFD">hyper-prior 🛈</span>]{#hyperP}.
+- Each intercept has its own prior - i.e., a [<span style="color:#0D6EFD">hyper-prior 🛈</span>]{#hyperP}.
 
 - In the code below, the *hyper-prior* is ```a_bar```.
 
@@ -19,12 +19,13 @@ To model the relationship between dependent variables and an independent variabl
 
 ## Example
 
-Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consist of a dependent variable representing individuals' survival (*surv*) and an independent categorical variable (*tank*), which indicates the tank where the individual was born, with a total of 48 tanks.
+Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consists of a dependent variable representing individuals' survival (*surv*) and an independent categorical variable (*tank*), which indicates the tank where the individual was born, with a total of 48 tanks.
 
 ::: {.panel-tabset group="language"}
 ## Python
 ```python
 from BI import bi
+import numpy as np
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -69,7 +70,7 @@ m$data_on_model$surv = m$data_on_model$surv$astype(jnp$int32) # Manipulate
 
 # Define model ------------------------------------------------
 model <- function(tank, surv, density){
-  # Parameters priors distributions
+  # Parameter prior distributions
   sigma = bi.dist.exponential( 1,  name = 'sigma',shape=c(1))
   a_bar =  bi.dist.normal(0, 1.5, name='a_bar',shape=c(1))
   alpha = bi.dist.normal(a_bar, sigma, name='alpha', shape =c(48))
@@ -89,7 +90,7 @@ m$summary() # Get posterior distribution
 
 ## Mathematical Details
 ### *Frequentist formulation*
-We model the relationship between the independent variables $X$ and the outcome variable $Y$ with varying intercepts $\alpha$ for each group $k$ using the following equation:
+We model the relationship between the independent variable $X$ and the outcome variable $Y$ with varying intercepts $\alpha$ for each group $k$ using the following equation:
 
 
 $$
@@ -104,7 +105,7 @@ Where:
 
 - $X_{ik}$ is the independent variable for observation $i$ in group $k$.
 
-- $\beta$ is the regression coefficient term.
+- $\beta$ is the regression coefficient.
 
 - $\sigma$ is the error term, typically assumed to be normally distributed and positive.
 
@@ -113,10 +114,10 @@ Where:
 We can express the Bayesian regression model accounting for [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} distributions as follows:
 
 $$
-Y_{ik} = Normal(\mu_{ik}, \sigma)
+Y_{ik} \sim \text{Normal}(\mu_{ik}, \sigma)
 $$
 $$
-\mu_{ik} = \alpha_j + \beta X_{ik} + \sigma 
+\mu_{ik} = \alpha_k + \beta X_{ik}
 $$
 $$
 \alpha_k \sim \text{Normal}(\mu_{\alpha_k}, \sigma_{\alpha_k}) 
@@ -136,9 +137,7 @@ $$
 
 Where:
 
-Where:
-
-- $Y_{ij}$ is the likelihood function for the outcome variable.
+- $Y_{ik}$ is the outcome variable for observation $i$ in group $k$.
 
 - $\alpha_k$ is the varying intercept for group $k$.
 
@@ -146,9 +145,9 @@ Where:
 
 - $\sigma_{\alpha_k}$ is the variance of the intercepts across groups.
 
-- $\beta$ is the prior distribution for the regression coefficients.
+- $\beta$ is the regression coefficient.
 
-- $\sigma$ is the prior distribution for the error term.
+- $\sigma$ is the standard deviation of the error term.
 
 ## Notes
 ::: callout-note 

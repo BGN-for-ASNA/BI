@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -400,6 +400,7 @@ window.Quarto = {
   <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">11.4.1</span> <em>Frequentist formulation</em></a></li>
   <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><span class="header-section-number">11.4.2</span> <em>Bayesian model</em></a></li>
   </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">11.5</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -453,7 +454,7 @@ Caution
 </section>
 <section id="example" class="level2" data-number="11.3">
 <h2 data-number="11.3" class="anchored" data-anchor-id="example"><span class="header-section-number">11.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian multinomial model using the Bayesian Inference (BI) package:</p>
+<p>Below is an example code snippet demonstrating a Bayesian multinomial model using the Bayesian Inference (BI) package:</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -472,14 +473,14 @@ Caution
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(career, income ):</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span> (<span class="dv">2</span>,), name <span class="op">=</span> <span class="st">'a'</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.halfnormal(<span class="fl">0.5</span>,  shape<span class="op">=</span> (<span class="dv">1</span>,),name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(career, income):</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.halfnormal(<span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">1</span>,), name <span class="op">=</span> <span class="st">'b'</span>)</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    s_1 <span class="op">=</span> a[<span class="dv">0</span>] <span class="op">+</span> b <span class="op">*</span> income[<span class="dv">0</span>]</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    s_2 <span class="op">=</span> a[<span class="dv">1</span>] <span class="op">+</span> b <span class="op">*</span> income[<span class="dv">1</span>]</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    s_3 <span class="op">=</span> [<span class="dv">0</span>] <span class="co">#pivot</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> jax.nn.softmax(jnp.stack([s_1[<span class="dv">0</span>], s_2[<span class="dv">0</span>], s_3[<span class="dv">0</span>]]))</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    m.dist.categorical(probs <span class="op">=</span>  p, obs<span class="op">=</span>career)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    m.dist.categorical(probs<span class="op">=</span>p, obs<span class="op">=</span>career)</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------ </span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>m.run(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
@@ -503,7 +504,7 @@ Caution
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(income, career){</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">2</span>))</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bi.dist.halfnormal</span>(<span class="fl">0.5</span>, <span class="at">name=</span><span class="st">'beta'</span>)</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -532,11 +533,11 @@ Caution
 <h3 data-number="11.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">11.4.1</span> <em>Frequentist formulation</em></h3>
 <p>We model the relationship between the predictor variables (X1, X2, …, Xn) and the categorical outcome variable (<span class="math inline">\(Y_i\)</span>) using the following equation:</p>
 <p><span class="math display">\[
-logit(p_ik) = α_k + β X_i
+logit(p_{ik}) = α_k + β X_i
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(p_ik\)</span> is the probability of the 𝑖-th observation being in category 𝑘.</p></li>
+<li><p><span class="math inline">\(p_{ik}\)</span> is the probability of the 𝑖-th observation being in category 𝑘.</p></li>
 <li><p><span class="math inline">\(α_k\)</span> is the intercept for category 𝑘.</p></li>
 <li><p><span class="math inline">\(β\)</span> is the regression coefficients common to all categories.</p></li>
 <li><p><span class="math inline">\(X_i\)</span> is the vector of independent variables for the 𝑖-th observation.</p></li>
@@ -544,19 +545,22 @@ logit(p_ik) = α_k + β X_i
 </ul>
 </section>
 <section id="bayesian-model" class="level3" data-number="11.4.2">
-<h3 data-number="11.4.2" class="anchored"><span class="header-section-number">11.4.2</span> <em>Bayesian model</em></h3>
+<h3 data-number="11.4.2" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">11.4.2</span> <em>Bayesian model</em></h3>
 <p>In Bayesian multinomial modeling, the likelihood function of the data is specified using a multinomial distribution. The multinomial distribution models the counts of outcomes falling into different categories. For an outcome variable 𝑦 with 𝐾 categories, the multinomial likelihood function is: <span class="math display">\[
-Multinomial(y|θ)=\frac{N!}{∏^K_{k=1}yk!} ∏_{k=1}^{K} θ_{k}^{y_k}
+Multinomial(y|θ)=\frac{N!}{\prod^K_{k=1}y_k!} \prod_{k=1}^{K} θ_{k}^{y_k}
 \]</span></p>
 <p>Where:</p>
 <ul>
 <li><p><span class="math inline">\(y=(y_1, y_2,…,y_K)\)</span> represents the counts of observations in each of the 𝐾 categories.</p></li>
 <li><p><span class="math inline">\(N\)</span> is the total number of observations or trials.</p></li>
 <li><p><span class="math inline">\(θ=(θ_1,θ_2,…,θ_K)\)</span> is a simplex of category probabilities, with <span class="math inline">\(θ_k\)</span> representing the probability of category 𝑘.</p></li>
-<li><p><span class="math inline">\(\frac{N!}{∏^K_{k=1}yk!}\)</span> is the multinomial coefficient that accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.</p></li>
-<li><h2 id="references" data-number="11.5" class="anchored" data-anchor-id="bayesian-model"><span class="header-section-number">11.5</span> Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p></li>
+<li><p><span class="math inline">\(\frac{N!}{\prod^K_{k=1}y_k!}\)</span> is the multinomial coefficient that accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.</p></li>
 </ul>
+</section>
+</section>
+<section id="references" class="level2" data-number="11.5">
+<h2 data-number="11.5" class="anchored" data-anchor-id="references"><span class="header-section-number">11.5</span> Reference(s)</h2>
+<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
@@ -564,7 +568,6 @@ Multinomial(y|θ)=\frac{N!}{∏^K_{k=1}yk!} ∏_{k=1}^{K} θ_{k}^{y_k}
 McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
 </div>
 </div>
-</section>
 </section>
 
 </main> <!-- /main -->

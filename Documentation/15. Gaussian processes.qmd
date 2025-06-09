@@ -1,20 +1,20 @@
 # Gaussian Processes
 ## General Principles
-Through varying intercepts and slopes we have seen how quantify some of the unique features that generate variation across clusters and covariance among the observations within each cluster. But through the covariance matrix that is used to account for correlation between clusters, we are assuming inherently linear relationships between clusters. What if we want to model the relationship between two variables that are not linearly related? In this case, we can use a Gaussian Process (GP) to model the relationship between two variables. Basically, a GP is a a varying slope model with a covariance matrix where each element of the matrix is a  [<span style="color:#0D6EFD">kernel function 🛈</span>]{#kernel}. 
+Through varying intercepts and slopes, we have seen how to quantify some of the unique features that generate variation across clusters and covariance among the observations within each cluster. But through the covariance matrix that is used to account for correlation between clusters, we are inherently assuming linear relationships between clusters. What if we want to model the relationship between two variables that are not linearly related? In this case, we can use a Gaussian Process (GP) to model the relationship between two variables. Basically, a GP is a varying-slope model with a covariance matrix where each element of the matrix is a [<span style="color:#0D6EFD">kernel function 🛈</span>]{#kernel}.
 
 
 ## Considerations
 ::: callout-caution
-- To capture complex, non-linear relationships in data where the underlying function is smooth but has an unknown functional form, GPs use a [<span style="color:#0D6EFD">kernel 🛈</span>]{#kernel}
-- GPs assume normally distributed errors and may not be appropriate for all types of noise
-- The choice of kernel hyperparameters can significantly impact results, thus GPs require choosing an appropriate kernel function that captures the expected behavior of your data.
-- Though kernel definition we can incorporate domain knowledge.
-- They scale poorly with dataset size (O(n³) complexity) due to matrix operations, thus memory requirements can be substantial for large datasets which as lead neural networks to be used instead to resolve large non linear problems.
+- To capture complex, non-linear relationships in data where the underlying function is smooth but has an unknown functional form, GPs use a [<span style="color:#0D6EFD">kernel 🛈</span>]{#kernel}.
+- GPs assume normally distributed errors and may not be appropriate for all types of noise.
+- The choice of kernel hyperparameters can significantly impact results; thus, GPs require choosing an appropriate kernel function that captures the expected behavior of your data.
+- Through kernel definition, we can incorporate domain knowledge.
+- They scale poorly with dataset size (O(n³) complexity) due to matrix operations; thus, memory requirements can be substantial for large datasets, which has led to neural networks being used instead to resolve large non-linear problems.
 
 :::
 
 ## Example
-Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist in a  continuous dependet variable (*total_tools*) representing the number of tools inveted in the islands, and a continuous independent variable (*population*) representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance amtrix of the islands  for the kernel function in order to capture the spatial dependence of the relationship.
+Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist of a continuous dependent variable (*total_tools*), representing the number of tools invented in the islands, and a continuous independent variable (*population*), representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance matrix of the islands for the kernel function in order to capture the spatial dependence of the relationship.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -106,7 +106,7 @@ m$summary() # Get posterior distribution
 ### *Formula*
 
 
-The following equation allows us to evaluate the relationship between dependent variable $Y$ and independent variable $X$ while incorporating a GP for variable $Z$ : 
+The following equation allows us to evaluate the relationship between the dependent variable $Y$ and the independent variable $X$ while incorporating a GP for variable $Z$:
 
 $$
 Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
@@ -119,11 +119,11 @@ where:
 
 - $\beta$ is the regression coefficient term.
 
-- $X_i$ is the i-th value for independent variable $X$.
+- $X_i$ is the i-th value for the independent variable $X$.
 
-- $\gamma_{Z_i}$ is the gaussian process i-th value for independent variable $Z$.
+- $\gamma_{Z_i}$ is the Gaussian process i-th value for the independent variable $Z$.
 
-The GP $\gamma_{Z_i}$ follow a multivariate normal distribution:
+The GP $\gamma_{Z_i}$ follows a multivariate normal distribution:
 
 $$
 \begin{pmatrix}
@@ -145,10 +145,9 @@ where:
 
 - $(Z_1, ..., Z_n)$ represents a collection of all values of the random variable $Z$.
 
-- $(0, ..., 0)$ represents the mean vector of the multivariate normal distribution of the same size as the number of random variable and set to [<span style="color:#0D6EFD">zero 🛈</span>]{#kernelMean0}. 
+- $(0, ..., 0)$ represents the mean vector of the multivariate normal distribution of the same size as the number of random variables and set to [<span style="color:#0D6EFD">zero 🛈</span>]{#kernelMean0}.
 
-- $K$ is the covariance matrix of the random variable $Z$. Each element 
-$K{ij}$ of the matrix is given by the kernel function evaluated at the corresponding points: $K_{ij} = k(Z_i,Z_j)$
+- $K$ is the covariance matrix of the random variable $Z$. Each element $K_{ij}$ of the matrix is given by the kernel function evaluated at the corresponding points: $K_{ij} = k(Z_i, Z_j)$
 
 $$
 K = \begin{pmatrix}
@@ -159,10 +158,10 @@ K = \begin{pmatrix}
 \end{pmatrix}
 $$
 
-- Multiple kernel function exist and will be discussed in the [Note(s)](#notes) section. But the most common one is the quadratic kernel:
+- Multiple kernel functions exist and will be discussed in the [Note(s)](#notes) section. But the most common one is the quadratic kernel:
 
 $$
-K_{ij} = \eta^2 exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2 
+K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2 
 $$
 
 Where:
@@ -173,14 +172,14 @@ Where:
   
 - $D_{ij}$ is the distance between the $i$-th and $j$-th points.
   
-- $\delta_{ij}$ is the Kronecker delta taking a value of zero when $i = j$, allowing to included in the calculation the self-covariance.
+- $\delta_{ij}$ is the Kronecker delta, taking a value of one when $i = j$ and zero otherwise, allowing the self-covariance to be included in the calculation.
   
-- $\sigma^2$ is the noise variance, which accounts for the observation noise in the data. It represents the uncertainty or variability in the measurements or outputs at each point. The term effectively adds this noise variance only when $i = 𝑗$, ensuring that the diagonal elements of the covariance matrix represent the total variance at each input point.
+- $\sigma^2$ is the noise variance, which accounts for the observation noise in the data. It represents the uncertainty or variability in the measurements or outputs at each point. The term effectively adds this noise variance only when $i = j$, ensuring that the diagonal elements of the covariance matrix represent the total variance at each input point.
 
 
 
 ### *Bayesian model*
-In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express a Bayesian version of this GP using the following model: 
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express a Bayesian version of this GP using the following model:
 
 $$
 Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
@@ -198,7 +197,7 @@ K
 $$
 
 $$
-K_{ij} = \eta^2 exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2 
+K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2 
 $$
 
 $$
@@ -217,17 +216,17 @@ where:
 
 - $Y_i$ is the i-th value for the dependent variable $Y$.
 
-- $\alpha$ is the intercept term with prior $Normal(0,1)$.
+- $\alpha$ is the intercept term with a prior of $Normal(0,1)$.
 
-- $\beta$ is the regression coefficient term with prior $Normal(0,1)$.
+- $\beta$ is the regression coefficient term with a prior of $Normal(0,1)$.
 
-- $X_i$ is the i-th value for independent variable $X$.
+- $X_i$ is the i-th value for the independent variable $X$.
 
-- $\gamma_{Z_i}$ is the gaussian process i-th value for independent variable $Z$.
+- $\gamma_{Z_i}$ is the Gaussian process i-th value for the independent variable $Z$.
 
 - $\gamma$ is the latent function modeled by the GP.
 
-- $K_{ij}$ is the kernel function evaluated at the corresponding points: $K_{ij} = k(Z_i,Z_j)$ with priors HalfCauchy(0,1) for $\eta^2$ and $p^2$ to ensure positive values.
+- $K_{ij}$ is the kernel function evaluated at the corresponding points, $K_{ij} = k(Z_i, Z_j)$, with priors of HalfCauchy(0,1) for $\eta^2$ and $p^2$ to ensure positive values.
 
 
 ## Notes{#notes}
@@ -242,15 +241,16 @@ $$k(x,x') = \sigma^2 \exp\left(-\frac{||x-x'||^2}{2l^2}\right)$$
 - *Rational Quadratic Kernel*, this kernel is equivalent to adding together many RBF kernels with different length scales:
 $$k(x,x') = \sigma^2 \left(1 + \frac{||x-x'||^2}{2l^2}\right)^{-\alpha}$$
 
-- *Periodic kernel* allows to model functions which repeat themselves exactly:
+- *Periodic kernel* allows for modeling functions that repeat themselves exactly:
 $$k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right)$$
 
 - *Locally Periodic Kernel*:
 
 $$k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right) \exp\left(-\frac{||x-x'||^2}{2l^2}\right)$$ 
 
-- GPs can be extended to classification problems using link functions
-Multi-output problems using matrix-valued kernels Deep learning through Deep Kernel Learning
+- GPs can be extended to classification problems using link functions.
+- Multi-output problems can be addressed using matrix-valued kernels. 
+- Deep learning can be combined with GPs through Deep Kernel Learning.
 
 
 - Computational tricks for large datasets include:

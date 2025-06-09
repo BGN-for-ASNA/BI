@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Linear Regression for continuous variable – BI documentation</title>
+<title>3&nbsp; Linear Regression for a Continuous Variable – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -164,7 +164,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./1. Linear Regression for continuous variable.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./1. Linear Regression for continuous variable.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -241,7 +241,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -301,7 +301,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero inflated</span></span></a>
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Zero-Inflated</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -330,7 +330,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./16. Measuring error (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Measuring error</span></span></a>
   </div>
 </li>
@@ -397,8 +397,8 @@ window.Quarto = {
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">3.3</span> Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">3.4</span> Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">3.4.1</span> <em>Frequentist formulation</em></a></li>
-  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">3.4.2</span> <em>Bayesian formulation</em></a></li>
+  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">3.4.1</span> <em>Frequentist Formulation</em></a></li>
+  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">3.4.2</span> <em>Bayesian Formulation</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">3.5</span> Notes</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">3.6</span> Reference(s)</a></li>
@@ -410,7 +410,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for continuous variable</span></h1>
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Linear Regression for a Continuous Variable</span></h1>
 </div>
 
 
@@ -427,7 +427,6 @@ window.Quarto = {
 </header>
 
 
-<!-- Toolpit -->
 <section id="general-principles" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">3.1</span> General Principles</h2>
 <p>To study relationships between a continuous independent variable and a continuous dependent variable (e.g., height and weight), we can use linear regression. Essentially, we draw a line that passes through the point cloud of the two variables being tested. For this, we need to have:</p>
@@ -450,7 +449,7 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>Bayesian models consider <span id="uncertainty"><span style="color:#0D6EFD">model parameter uncertainty 🛈</span></span>, allowing for the quantification of confidence or uncertainty through the parameters’ <span id="posterior"><span style="color:#0D6EFD">posterior distribution 🛈</span></span>. Therefore, we need to declare <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for each model parameter, in your case for: <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\sigma^2\)</span>.</p></li>
+<li><p>Bayesian models consider <span id="uncertainty"><span style="color:#0D6EFD">model parameter uncertainty 🛈</span></span>, allowing for the quantification of confidence or uncertainty through the parameters’ <span id="posterior"><span style="color:#0D6EFD">posterior distribution 🛈</span></span>. Therefore, we need to declare <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for each model parameter, in this case for: <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\sigma^2\)</span>.</p></li>
 <li><p>Prior distributions are built following these considerations:</p>
 <ul>
 <li><p>As the data is <span id="scaled"><span style="color:#0D6EFD">scaled 🛈</span></span> (see introduction), we can use a Normal distribution for <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, with a mean of 0 and a standard deviation of 1.</p></li>
@@ -501,18 +500,18 @@ Caution
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load csv file</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Howell1.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># fileter data frame</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter data frame</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,]</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'weight'</span>)) </span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># convert data to jax arrays</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert data to JAX arrays</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'height'</span>))</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight){</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters priors distributions</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">=</span> <span class="fu">bi.dist.uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>)</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">178</span>, <span class="dv">20</span>,  <span class="at">name =</span> <span class="st">'a'</span>)</span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
@@ -533,7 +532,7 @@ Caution
 <section id="mathematical-details" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">3.4</span> Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3" data-number="3.4.1">
-<h3 data-number="3.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">3.4.1</span> <em>Frequentist formulation</em></h3>
+<h3 data-number="3.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">3.4.1</span> <em>Frequentist Formulation</em></h3>
 <p>The following equation allows us to draw a line: <span class="math display">\[
 Y_i = \alpha + \beta  X_i + \sigma_i
 \]</span></p>
@@ -543,11 +542,11 @@ Y_i = \alpha + \beta  X_i + \sigma_i
 <li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
 <li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
 <li><p><span class="math inline">\(X_i\)</span> is the input variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\sigma_i\)</span> is a vector of error terms for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\(\sigma_i\)</span> is the error term for observation <em>i</em>.</p></li>
 </ul>
 </section>
 <section id="bayesian-formulation" class="level3" data-number="3.4.2">
-<h3 data-number="3.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">3.4.2</span> <em>Bayesian formulation</em></h3>
+<h3 data-number="3.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">3.4.2</span> <em>Bayesian Formulation</em></h3>
 <p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express a Bayesian version of this regression model using the following model:</p>
 <p><span class="math display">\[
 Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
@@ -563,10 +562,10 @@ Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
 \]</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is dependent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are the regression coefficients and intercept parameters, respectively.</p></li>
+<li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are the intercept and regression coefficient, respectively.</p></li>
 <li><p><span class="math inline">\(X_i\)</span> is the input variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is a prior for the variance term standard deviation of the normal distribution that describes the variance in the relationship between the dependent variable <span class="math inline">\(Y\)</span> and the independent variable <span class="math inline">\(X\)</span>.</p></li>
+<li><p><span class="math inline">\(\sigma\)</span> is the standard deviation of the normal distribution, which describes the variance in the relationship between the dependent variable <span class="math inline">\(Y\)</span> and the independent variable <span class="math inline">\(X\)</span>.</p></li>
 </ul>
 </section>
 </section>

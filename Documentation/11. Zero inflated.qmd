@@ -1,9 +1,9 @@
-# Zero inflated 
+# Zero-Inflated
 ## General Principles
 Zero-Inflated Regression models are used when the outcome variable is a count variable with an excess of zero counts. These models combine a count model (e.g., Poisson or Negative Binomial) with a separate model for predicting the probability of excess zeros.
 
 ## Considerations
-::: callout-caution 
+::: callout-caution
 - In Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for $W_{1\pi}, W_{2\pi}, ..., W_{n\pi}$, $W_{1\lambda}, W_{2\lambda}, ..., W_{n\lambda}$, $b_\pi$, and $b_\lambda$.
 :::
 
@@ -26,10 +26,7 @@ rate_work = 1     # average 1 manuscript per day
 # Sample one year of production
 N = 365
 drink = m.bi.binomial(1, prob_drink, shape = (N,), sample = True)
-y = (1 - drink) * m.bi.poisson(rate_work, , shape = (N,), sample = True)
-
-# Setup device ------------------------------------------------
-m = bi('cpu')
+y = (1 - drink) * m.bi.poisson(rate_work, shape = (N,), sample = True)
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -46,7 +43,7 @@ def model(y):
     m.zeroinflatedpoisson(p, lambda_, obs=y)
 
 # Run MCMC ------------------------------------------------
-m.run(model) 
+m.run(model)
 
 # Summary ------------------------------------------------
 m.summary()
@@ -67,14 +64,14 @@ N = as.integer(365)
 drink = bi.dist.binomial(total_count = as.integer(1), probs = prob_drink, shape = c(N), sample = T ) # An example of sampling a distribution with BI
 y = (1 - drink) *  bi.dist.poisson(rate_work, shape = c(N), sample = T)
 data = list()
-data$y = y 
+data$y = y
 m$data_on_model = data
 
 # Define model ------------------------------------------------
 model <- function(y){
-  al =  bi.dist.normal(1, 0.5, name='al', shape=c(1))
+  al = bi.dist.normal(1, 0.5, name='al', shape=c(1))
   ap = bi.dist.normal(-1, 1, name='ap', shape=c(1))
-  p = jax$scipy$special$expit(al)
+  p = jax$scipy$special$expit(ap)
   lambda_ = jnp$exp(al)
   m$zeroinflatedpoisson(p, lambda_, obs=y)
 }
@@ -89,7 +86,6 @@ m$summary() # Get posterior distribution
 ```
 :::
 
-
 # Mathematical Details
 ### *Frequentist formulation*
 We model the relationship between the independent variable $X$ and the count outcome variable $Y$ using two components:
@@ -103,9 +99,9 @@ $$
 \begin{aligned}
 & \text{logit}(\pi) = \alpha_\pi + \beta_\pi X_i \\
 & \text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X_i\\
-& Y_i \sim \begin{cases} 
+& Y_i \sim \begin{cases}
 0 & \text{with probability } \pi \\
-\text{CountModel}(\lambda) & \text{with probability } (1 - \pi) 
+\text{CountModel}(\lambda) & \text{with probability } (1 - \pi)
 \end{cases}
 \end{aligned}
 $$
@@ -113,20 +109,20 @@ $$
 Where:
 
 - $\pi$ is the probability of an excess zero.
-  
+
 - $\lambda$ is the mean rate parameter of the count model.
-  
+
 - $\alpha_\pi$ and $\beta_\pi$ are respectively the intercept and the regression coefficient for the logistic model.
-  
+
 - $\alpha_\lambda$ and $\beta_\lambda$ are respectively the intercept and the regression coefficient for the count model.
-  
-- $X_i$ is the independent variables value for observation *i*.
+
+- $X_i$ are the independent variables' values for observation *i*.
 
 ### *Bayesian formulation*
-In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
-𝑌\sim ZIPoisson(\pi,\lambda)
+Y\sim ZIPoisson(\pi,\lambda)
 $$
 
 $$
@@ -156,14 +152,14 @@ $$
 Where:
 
 - $\pi$ is the probability of an excess zero.
-  
+
 - $\lambda$ is the mean rate parameter of the count model.
-  
+
 - $\alpha_\pi$ and $\beta_\pi$ are respectively the intercept and the regression coefficient for the logistic model.
-  
+
 - $\alpha_\lambda$ and $\beta_\lambda$ are respectively the intercept and the regression coefficient for the count model.
-  
-- $X_i$ is the independent variables value for observation *i*.
+
+- $X_i$ are the independent variables' values for observation *i*.
 
 ## Reference(s)
 @mcelreath2018statistical
