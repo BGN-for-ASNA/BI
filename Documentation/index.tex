@@ -2720,8 +2720,8 @@ days individuals drink.
 
 \CommentTok{\# Sample one year of production}
 \NormalTok{N }\OperatorTok{=} \DecValTok{365}
-\NormalTok{drink }\OperatorTok{=}\NormalTok{ m.BEE.binomial(}\DecValTok{1}\NormalTok{, prob\_drink, shape }\OperatorTok{=}\NormalTok{ (N,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
-\NormalTok{y }\OperatorTok{=}\NormalTok{ (}\DecValTok{1} \OperatorTok{{-}}\NormalTok{ drink) }\OperatorTok{*}\NormalTok{ m.BEE.poisson(rate\_work, shape }\OperatorTok{=}\NormalTok{ (N,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
+\NormalTok{drink }\OperatorTok{=}\NormalTok{ m.dist.binomial(}\DecValTok{1}\NormalTok{, prob\_drink, shape }\OperatorTok{=}\NormalTok{ (N,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
+\NormalTok{y }\OperatorTok{=}\NormalTok{ (}\DecValTok{1} \OperatorTok{{-}}\NormalTok{ drink) }\OperatorTok{*}\NormalTok{ m.dist.poisson(rate\_work, shape }\OperatorTok{=}\NormalTok{ (N,), sample }\OperatorTok{=} \VariableTok{True}\NormalTok{)}
 
 \CommentTok{\# Setup device{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
 \NormalTok{m }\OperatorTok{=}\NormalTok{ bi(platform}\OperatorTok{=}\StringTok{\textquotesingle{}cpu\textquotesingle{}}\NormalTok{)}

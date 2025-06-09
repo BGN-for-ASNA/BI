@@ -466,8 +466,8 @@ Caution
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample one year of production</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">365</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>drink <span class="op">=</span> m.BEE.binomial(<span class="dv">1</span>, prob_drink, shape <span class="op">=</span> (N,), sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> drink) <span class="op">*</span> m.BEE.poisson(rate_work, shape <span class="op">=</span> (N,), sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>drink <span class="op">=</span> m.dist.binomial(<span class="dv">1</span>, prob_drink, shape <span class="op">=</span> (N,), sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> drink) <span class="op">*</span> m.dist.poisson(rate_work, shape <span class="op">=</span> (N,), sample <span class="op">=</span> <span class="va">True</span>)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
