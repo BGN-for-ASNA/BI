@@ -34,7 +34,7 @@ id = random.randint(1, data['N_id'][0]-1)
 
 
 ids = jnp.arange(0,data['N_id'][0])
-idx = BEE.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+idx = m.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
 @jit
 def logit(x):
     return jnp.log(x / (1 - x))
@@ -49,7 +49,7 @@ def model(idx, result_outcomes,focal_individual_predictors, target_individual_pr
     sr =  m.net.sender_receiver(focal_individual_predictors,target_individual_predictors)
 
     ### Dyadic--------------------------------------  
-    #dr, dr_raw, dr_sigma, dr_L = BEE.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)# shape = n dyads
+    #dr, dr_raw, dr_sigma, dr_L = m.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)# shape = n dyads
     dr = m.net.dyadic_effect(shape = idx.shape[0])
     ## SR ---------------------------------------                                                      
     m.dist.poisson(jnp.exp(B + sr + dr),  obs=result_outcomes)  

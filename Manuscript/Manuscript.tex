@@ -394,13 +394,13 @@ def model(N_id, idx,  result_outcomes,
     sr_L = dist.lkjcholesky(2, 2, name = "sr_L")
     rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
     ids = jnp.arange(0,sr_effects.shape[0])
-    edgl_idx = bee.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+    edgl_idx = m.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
     sender = sr_effects[edgl_idx[:,0],0] + sr_effects[edgl_idx[:,1],1]
     receiver = sr_effects[edgl_idx[:,1],0] + sr_effects[edgl_idx[:,0],1]
     sr =  jnp.stack([sender, receiver], axis = 1)
 
     # dyadic effects ------------------------------------------
-    bee.net.mat_to_edgl(dyadic_effect_mat)
+    m.net.mat_to_edgl(dyadic_effect_mat)
     dr_raw =  dist.normal(0, 1, shape=(2,N_dyads), name = 'dr_raw')
     dr_sigma = dist.exponential(1,  name = 'dr_sigma' )
     dr_L = dist.lkjcholesky(2, 2, name = 'dr_L')
@@ -435,13 +435,13 @@ def model(N_id, idx,  result_outcomes,
     )
 
     # SR 
-    sr =  bee.net.sender_receiver(
+    sr =  m.net.sender_receiver(
         focal_individual_predictors,
         target_individual_predictors
     )
 
     # Dyadic  
-    dr = bee.net.dyadic_effect(shape = idx.shape[0])
+    dr = m.net.dyadic_effect(shape = idx.shape[0])
 
     # Likelihood                                                       
     bee.dist.poisson(jnp.exp(intercept + sr + dr), obs=result_outcomes)  
