@@ -1,6 +1,6 @@
-from BEE.Network.metrics import met
-from BEE.Network.util import array_manip 
-from BEE.Network.model_effects import Neteffect 
+from m.network.metrics import met
+from m.network.util import array_manip 
+from m.network.model_effects import Neteffect 
 import jax.numpy as jnp
 
 class net(met, Neteffect, array_manip):
