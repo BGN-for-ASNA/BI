@@ -151,18 +151,6 @@ class diag:
         self.forest = az.plot_forest(list, var_names = var_names,  kind = kind, ess = ess, *args, **kwargs)
         return self.forest
     
-    def waic(self, *args, **kwargs):
-        """Calculate WAIC (Watanabe-Akaike information criterion).
-        
-        Args:
-            *args, **kwargs: Additional arguments for arviz.waic
-            
-        Returns:
-            waic: WAIC result
-        """        
-        self.waic = az.waic(self.trace, *args, **kwargs)
-        return self.waic
-    
     def compare(self, dict, *args, **kwargs):
         """Compare models using WAIC or LOOIC.
         
@@ -301,3 +289,105 @@ class diag:
         self.rank = rank
         self.forest = forest
 
+    def loo(self, pointwise=None, var_name=None, reff=None, scale=None):
+        """Compute Pareto-smoothed importance sampling leave-one-out cross-validation (PSIS-LOO-CV).
+
+        Estimates the expected log pointwise predictive density (elpd) using Pareto-smoothed
+        importance sampling leave-one-out cross-validation (PSIS-LOO-CV). Also calculates LOO's
+        standard error and the effective number of parameters. Read more theory here
+        https://arxiv.org/abs/1507.04544 and here https://arxiv.org/abs/1507.02646
+
+        Parameters
+        ----------
+        data: obj
+            Any object that can be converted to an :class:`arviz.InferenceData` object.
+            Refer to documentation of
+            :func:`arviz.convert_to_dataset` for details.
+        pointwise: bool, optional
+            If True the pointwise predictive accuracy will be returned. Defaults to
+            ``stats.ic_pointwise`` rcParam.
+        var_name : str, optional
+            The name of the variable in log_likelihood groups storing the pointwise log
+            likelihood data to use for loo computation.
+        reff: float, optional
+            Relative MCMC efficiency, ``ess / n`` i.e. number of effective samples divided by the number
+            of actual samples. Computed from trace by default.
+        scale: str
+            Output scale for loo. Available options are:
+
+            - ``log`` : (default) log-score
+            - ``negative_log`` : -1 * log-score
+            - ``deviance`` : -2 * log-score
+
+            A higher log-score (or a lower deviance or negative log_score) indicates a model with
+            better predictive accuracy.
+
+        Returns
+        -------
+        ELPDData object (inherits from :class:`pandas.Series`) with the following row/attributes:
+        elpd_loo: approximated expected log pointwise predictive density (elpd)
+        se: standard error of the elpd
+        p_loo: effective number of parameters
+        n_samples: number of samples
+        n_data_points: number of data points
+        warning: bool
+            True if the estimated shape parameter of Pareto distribution is greater than
+            ``good_k``.
+        loo_i: :class:`~xarray.DataArray` with the pointwise predictive accuracy,
+                only if pointwise=True
+        pareto_k: array of Pareto shape values, only if pointwise True
+        scale: scale of the elpd
+        good_k: For a sample size S, the thresold is compute as min(1 - 1/log10(S), 0.7)
+
+            The returned object has a custom print method that overrides pd.Series method.
+        """
+        return az.loo(self.sampler, pointwise=pointwise, var_name=var_name, reff=reff, scale=scale)
+    
+    def WAIC(self,  pointwise=None, var_name=None, scale=None, dask_kwargs=None):
+        """
+        Compute the widely applicable information criterion.
+
+        Estimates the expected log pointwise predictive density (elpd) using WAIC. Also calculates the
+        WAIC's standard error and the effective number of parameters.
+        Read more theory here https://arxiv.org/abs/1507.04544 and here https://arxiv.org/abs/1004.2316
+
+        Parameters
+        ----------
+        data: obj
+            Any object that can be converted to an :class:`arviz.InferenceData` object.
+            Refer to documentation of :func:`arviz.convert_to_inference_data` for details.
+        pointwise: bool
+            If True the pointwise predictive accuracy will be returned. Defaults to
+            ``stats.ic_pointwise`` rcParam.
+        var_name : str, optional
+            The name of the variable in log_likelihood groups storing the pointwise log
+            likelihood data to use for waic computation.
+        scale: str
+            Output scale for WAIC. Available options are:
+
+            - `log` : (default) log-score
+            - `negative_log` : -1 * log-score
+            - `deviance` : -2 * log-score
+
+            A higher log-score (or a lower deviance or negative log_score) indicates a model with
+            better predictive accuracy.
+        dask_kwargs : dict, optional
+            Dask related kwargs passed to :func:`~arviz.wrap_xarray_ufunc`.
+
+        Returns
+        -------
+        ELPDData object (inherits from :class:`pandas.Series`) with the following row/attributes:
+        elpd_waic: approximated expected log pointwise predictive density (elpd)
+        se: standard error of the elpd
+        p_waic: effective number parameters
+        n_samples: number of samples
+        n_data_points: number of data points
+        warning: bool
+            True if posterior variance of the log predictive densities exceeds 0.4
+        waic_i: :class:`~xarray.DataArray` with the pointwise predictive accuracy,
+                only if pointwise=True
+        scale: scale of the elpd
+
+            The returned object has a custom print method that overrides pd.Series method.
+        """
+        return az.waic(self.sampler, pointwise=pointwise, var_name=var_name, scale=scale, dask_kwargs=dask_kwargs)
