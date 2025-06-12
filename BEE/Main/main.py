@@ -33,7 +33,7 @@ from numpyro.handlers import condition
 
 
 
-class bee(manip, diag, gaussian):
+class bee(manip):
     def __init__(self, platform='cpu', cores=None, deallocate = False, print_devices_found = True):
         manip.__init__(self)
         setup_device(platform, cores, deallocate, print_devices_found) 
@@ -131,12 +131,13 @@ class bee(manip, diag, gaussian):
 
         self.sampler.run(jax.random.PRNGKey(seed), **self.data_on_model)
         self.posteriors = self.sampler.get_samples()
+        self.diag = diag(sampler = self.sampler)
 
     # Get posteriors ----------------------------------------------------------------------------
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
         if self.trace is None:
-            self.to_az()
-        self.tab_summary = az.summary(self.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
+            self.diag.to_az()
+        self.tab_summary = az.summary(self.diag.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
         return self.tab_summary 
 
     def get_posterior_means(self):
