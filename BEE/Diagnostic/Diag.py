@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 
 class diag:
 
-    def __init__(self):
+    def __init__(self, sampler):
         """Initialize the diagnostic class. Currently empty but can be extended for initialization needs."""
-        pass
+        self.sampler = sampler
 
     # Diagnostic with ARVIZ ----------------------------------------------------------------------------
     def to_az(self):
@@ -41,7 +41,7 @@ class diag:
         self.tab_summary = az.summary(self.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
         return self.tab_summary 
 
-    def diag_plot_trace(self, var_names= None, kind="rank_bars", *args, **kwargs): 
+    def plot_trace(self, var_names= None, kind="rank_bars", *args, **kwargs): 
         """Create a trace plot for visualizing MCMC diagnostics.
         
         Args:
@@ -57,7 +57,7 @@ class diag:
         self.plot_trace = az.plot_trace(self.trace, var_names=self.priors_name, kind=kind, *args, **kwargs)
         return self.plot_trace 
 
-    def diag_prior_dist(self, N = 100):
+    def prior_dist(self, N = 100):
         """Visualize prior distributions compared to log probability.
         
         Args:
@@ -82,7 +82,7 @@ class diag:
         self.plot_priors = fig
         return fig
 
-    def diag_posterior(self, figsize=(8, 4)):
+    def posterior(self, figsize=(8, 4)):
         """Create posterior distribution plots.
         
         Args:
@@ -96,7 +96,7 @@ class diag:
         axes.flatten()[0].get_figure() 
         self.plot_posterior = posterior
 
-    def diag_autocor(self, *args, **kwargs):
+    def autocor(self, *args, **kwargs):
         """Plot autocorrelation of the MCMC chains.
         
         Args:
@@ -107,7 +107,7 @@ class diag:
         """        
         self.autocor = az.plot_autocorr(self.trace , var_names=self.priors_name, *args, **kwargs)
 
-    def diag_traces(self, *args, **kwargs):
+    def traces(self, *args, **kwargs):
         """Create trace plots for MCMC chains.
         
         Args:
@@ -118,7 +118,7 @@ class diag:
         """        
         self.traces =  az.plot_trace(self.trace, compact=False, *args, **kwargs)
 
-    def diag_rank(self, *args, **kwargs):
+    def rank(self, *args, **kwargs):
         """Create rank plots for MCMC chains.
         
         Args:
@@ -131,7 +131,7 @@ class diag:
         az.plot_rank(self.trace , var_names= self.priors_name, ax=axes, *args, **kwargs)
         self.rank = rank
     
-    def diag_forest(self, list = None, kind = "ridgeplot", ess = True, var_names = None, *args, **kwargs):
+    def forest(self, list = None, kind = "ridgeplot", ess = True, var_names = None, *args, **kwargs):
         """Create a forest plot of estimated values.
         
         Args:
@@ -151,7 +151,7 @@ class diag:
         self.forest = az.plot_forest(list, var_names = var_names,  kind = kind, ess = ess, *args, **kwargs)
         return self.forest
     
-    def diag_waic(self, *args, **kwargs):
+    def waic(self, *args, **kwargs):
         """Calculate WAIC (Watanabe-Akaike information criterion).
         
         Args:
@@ -163,7 +163,7 @@ class diag:
         self.waic = az.waic(self.trace, *args, **kwargs)
         return self.waic
     
-    def diag_compare(self, dict, *args, **kwargs):
+    def compare(self, dict, *args, **kwargs):
         """Compare models using WAIC or LOOIC.
         
         Args:
@@ -176,7 +176,7 @@ class diag:
         self.comparison = az.compare(dict, *args, **kwargs)
         return self.comparison 
 
-    def diag_rhat(self, *args, **kwargs):
+    def rhat(self, *args, **kwargs):
         """Calculate R-hat statistics for convergence.
         
         Args:
@@ -188,7 +188,7 @@ class diag:
         self.rhat = az.rhat(self.trace, *args, **kwargs)
         return self.rhat 
 
-    def  diag_ess(self, *args, **kwargs):
+    def  ess(self, *args, **kwargs):
         """Calculate effective sample size (ESS).
         
         Args:
@@ -200,7 +200,7 @@ class diag:
         self.ess = az.ess(self.trace, *args, **kwargs)
         return self.ess 
 
-    def diag_pair(self, var_names = None, 
+    def pair(self, var_names = None, 
                   kind=["scatter", "kde"],
                   kde_kwargs={"fill_last": False},
                   marginals=True,
@@ -232,7 +232,7 @@ class diag:
                                       *args, **kwargs)
         return self.pair_plot   
     
-    def diag_density(self, var_names=None, shade=0.2, *args, **kwargs):
+    def density(self, var_names=None, shade=0.2, *args, **kwargs):
         """Plot density plots of the posterior distribution.
         
         Args:
@@ -254,7 +254,7 @@ class diag:
                         )
         return self.density
     
-    def diag_plot_ess(self,):
+    def plot_ess(self,):
         """Plot evolution of effective sample size across iterations.
         
         Returns:
