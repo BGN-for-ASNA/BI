@@ -11,26 +11,44 @@ Within networks, nodes can belong to different categories, and these categories 
 Below is an example code snippet demonstrating a Bayesian network model using the stochastic block model approach. The data is identical to the [Network model](20.&#32;Network&#32;model.qmd) example, with the addition of covariates *Any*, *Merica*, and *Quantum*, representing the block membership of each node.
 
 ```python
-def model3(idx, result_outcomes, kinship, focal_individual_predictors, target_individual_predictors, Any, Merica, Quantum):
-    N_id = ids.shape[0]
+from BEE import bee
+# Setup device------------------------------------------------
+m = bee(platform='cpu')
 
-    # Block ---------------------------------------
-    B_any, b_any, b_ij_any, b_ii_any = BEE.net.block_model(Any, 1, name_b_ij='b_ij_Any', name_b_ii='b_ii_Any')
-    B_Merica, b_Merica, b_ij_Merica, b_ii_Merica = BEE.net.block_model(Merica, 3, name_b_ij='b_ij_Merica', name_b_ii='b_ii_Merica')
-    B_Quantum, b_Quantum, b_ij_Quantum, b_ii_Quantum = BEE.net.block_model(Quantum, 2, name_b_ij='b_ij_Quantum', name_b_ii='b_ii_Quantum')
+m.data_on_model = dict(
+    idx = idx,
+    Any = Any-1, 
+    Merica = Merica-1, 
+    Quantum = Quantum-1,
+    result_outcomes = m.net.mat_to_edgl(data['outcomes']), 
+    kinship = m.net.mat_to_edgl(kinship),
+    focal_individual_predictors = data['individual_predictors'],
+    target_individual_predictors = data['individual_predictors']
 
-    ## SR ---------------------------------------
-    sr_terms, focal_effects, target_effects = BEE.net.nodes_terms(focal_individual_predictors, target_individual_predictors)
-    sr_rf, sr_raw, sr_sigma, sr_L = BEE.net.nodes_random_effects(sr_terms.shape[0], cholesky_density=2)
 
-    sender = sr_terms[idx[:,0],0] + sr_terms[idx[:,1],1] + sr_rf[idx[:,0],0]
-    receiver = sr_terms[idx[:,1],0] + sr_terms[idx[:,0],1] + sr_rf[idx[:,1],1]
-    sender_receiver = jnp.stack([sender, receiver], axis=1)
+def model(idx, result_outcomes, 
+    exposure,
+    kinship, 
+    focal_individual_predictors, target_individual_predictors, 
+    Any, Merica, Quantum):
+      # Block ---------------------------------------
+      B_any = m.net.block_model(Any,1)
+      B_Merica = m.net.block_model(Merica,3)
+      B_Quantum = m.net.block_model(Quantum,2)
 
-    # Dyadic--------------------------------------  
-    dr_terms, dyad_effects = BEE.net.dyadic_terms(kinship[:,0], kinship[:,1])
-    rf, dr_raw, dr_sigma, dr_L = BEE.net.dyadic_random_effects(idx.shape[0], cholesky_density=2)
-    dr = dr_terms + rf
+      ## SR shape =  N individuals---------------------------------------
+      sr =  m.net.sender_receiver(focal_individual_predictors,target_individual_predictors)
+
+      # Dyadic shape = N dyads--------------------------------------  
+      dr = m.net.dyadic_effect(dyadic_predictors)
+
+      m.dist.poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr), obs = result_outcomes, name= 'latent network' )
+
+
+
+m.run(model) 
+summary = m.summary()
+summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 
     m.poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr), obs=result_outcomes)
 
@@ -39,8 +57,8 @@ m.data_on_model = dict(
     Any=Any-1, 
     Merica=Merica-1, 
     Quantum=Quantum-1,
-    result_outcomes=BEE.net.mat_to_edgl(data['outcomes']), 
-    kinship=BEE.net.mat_to_edgl(kinship),
+    result_outcomes=m.net.mat_to_edgl(data['outcomes']), 
+    kinship=m.net.mat_to_edgl(kinship),
     focal_individual_predictors=data['individual_predictors'],
     target_individual_predictors=data['individual_predictors']
 )
