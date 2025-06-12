@@ -299,10 +299,6 @@ class diag:
 
         Parameters
         ----------
-        data: obj
-            Any object that can be converted to an :class:`arviz.InferenceData` object.
-            Refer to documentation of
-            :func:`arviz.convert_to_dataset` for details.
         pointwise: bool, optional
             If True the pointwise predictive accuracy will be returned. Defaults to
             ``stats.ic_pointwise`` rcParam.
@@ -353,9 +349,6 @@ class diag:
 
         Parameters
         ----------
-        data: obj
-            Any object that can be converted to an :class:`arviz.InferenceData` object.
-            Refer to documentation of :func:`arviz.convert_to_inference_data` for details.
         pointwise: bool
             If True the pointwise predictive accuracy will be returned. Defaults to
             ``stats.ic_pointwise`` rcParam.
@@ -391,3 +384,183 @@ class diag:
             The returned object has a custom print method that overrides pd.Series method.
         """
         return az.waic(self.sampler, pointwise=pointwise, var_name=var_name, scale=scale, dask_kwargs=dask_kwargs)
+
+    @staticMethod
+    def compare(compare_dict, ic=None, method='stacking', b_samples=1000, alpha=1, seed=None, scale=None, var_name=None):
+        r"""Compare models based on  their expected log pointwise predictive density (ELPD).
+
+        The ELPD is estimated either by Pareto smoothed importance sampling leave-one-out
+        cross-validation (LOO) or using the widely applicable information criterion (WAIC).
+        We recommend loo. Read more theory here - in a paper by some of the
+        leading authorities on model comparison dx.doi.org/10.1111/1467-9868.00353
+    
+        Parameters
+        ----------
+        compare_dict: dict of {str: InferenceData or ELPDData}
+            A dictionary of model names and :class:`arviz.InferenceData` or ``ELPDData``.
+        ic: str, optional
+            Method to estimate the ELPD, available options are "loo" or "waic". Defaults to
+            ``rcParams["stats.information_criterion"]``.
+        method: str, optional
+            Method used to estimate the weights for each model. Available options are:
+    
+            - 'stacking' : stacking of predictive distributions.
+            - 'BB-pseudo-BMA' : pseudo-Bayesian Model averaging using Akaike-type
+              weighting. The weights are stabilized using the Bayesian bootstrap.
+            - 'pseudo-BMA': pseudo-Bayesian Model averaging using Akaike-type
+              weighting, without Bootstrap stabilization (not recommended).
+    
+            For more information read https://arxiv.org/abs/1704.02030
+        b_samples: int, optional default = 1000
+            Number of samples taken by the Bayesian bootstrap estimation.
+            Only useful when method = 'BB-pseudo-BMA'.
+            Defaults to ``rcParams["stats.ic_compare_method"]``.
+        alpha: float, optional
+            The shape parameter in the Dirichlet distribution used for the Bayesian bootstrap. Only
+            useful when method = 'BB-pseudo-BMA'. When alpha=1 (default), the distribution is uniform
+            on the simplex. A smaller alpha will keeps the final weights more away from 0 and 1.
+        seed: int or np.random.RandomState instance, optional
+            If int or RandomState, use it for seeding Bayesian bootstrap. Only
+            useful when method = 'BB-pseudo-BMA'. Default None the global
+            :mod:`numpy.random` state is used.
+        scale: str, optional
+            Output scale for IC. Available options are:
+    
+            - `log` : (default) log-score (after Vehtari et al. (2017))
+            - `negative_log` : -1 * (log-score)
+            - `deviance` : -2 * (log-score)
+    
+            A higher log-score (or a lower deviance) indicates a model with better predictive
+            accuracy.
+        var_name: str, optional
+            If there is more than a single observed variable in the ``InferenceData``, which
+            should be used as the basis for comparison.
+    
+        Returns
+        -------
+        A DataFrame, ordered from best to worst model (measured by the ELPD).
+        The index reflects the key with which the models are passed to this function. The columns are:
+        rank: The rank-order of the models. 0 is the best.
+        elpd: ELPD estimated either using (PSIS-LOO-CV `elpd_loo` or WAIC `elpd_waic`).
+            Higher ELPD indicates higher out-of-sample predictive fit ("better" model).
+            If `scale` is `deviance` or `negative_log` smaller values indicates
+            higher out-of-sample predictive fit ("better" model).
+        pIC: Estimated effective number of parameters.
+        elpd_diff: The difference in ELPD between two models.
+            If more than two models are compared, the difference is computed relative to the
+            top-ranked model, that always has a elpd_diff of 0.
+        weight: Relative weight for each model.
+            This can be loosely interpreted as the probability of each model (among the compared model)
+            given the data. By default the uncertainty in the weights estimation is considered using
+            Bayesian bootstrap.
+        SE: Standard error of the ELPD estimate.
+            If method = BB-pseudo-BMA these values are estimated using Bayesian bootstrap.
+        dSE: Standard error of the difference in ELPD between each model and the top-ranked model.
+            It's always 0 for the top-ranked model.
+        warning: A value of 1 indicates that the computation of the ELPD may not be reliable.
+            This could be indication of WAIC/LOO starting to fail see
+            http://arxiv.org/abs/1507.04544 for details.
+        scale: Scale used for the ELPD.
+
+        References
+        ----------
+        .. [1] Vehtari, A., Gelman, A. & Gabry, J. Practical Bayesian model evaluation using
+            leave-one-out cross-validation and WAIC. Stat Comput 27, 1413–1432 (2017)
+            see https://doi.org/10.1007/s11222-016-9696-4
+        """
+        return az.compare(compare_dict = compare_dict, ic=ic, method='stacking', b_samples=b_samples, alpha=alpha, seed=seed, scale=None, var_name=var_name)
+
+    @staticMethod
+    def plot_compare(
+        comp_df,
+        insample_dev=False,
+        plot_standard_error=True,
+        plot_ic_diff=False,
+        order_by_rank=True,
+        legend=False,
+        title=True,
+        figsize=None,
+        textsize=None,
+        labeller=None,
+        plot_kwargs=None,
+        ax=None,
+        backend=None,
+        backend_kwargs=None,
+        show=None,
+    ):
+        r"""Summary plot for model comparison.
+
+        Models are compared based on their expected log pointwise predictive density (ELPD).
+        This plot is in the style of the one used in [2]_. Chapter 6 in the first edition
+        or 7 in the second.
+
+        Notes
+        -----
+        The ELPD is estimated either by Pareto smoothed importance sampling leave-one-out
+        cross-validation (LOO) or using the widely applicable information criterion (WAIC).
+        We recommend LOO in line with the work presented by [1]_.
+
+        Parameters
+        ----------
+        comp_df : pandas.DataFrame
+            Result of the :func:`arviz.compare` method.
+        insample_dev : bool, default False
+            Plot in-sample ELPD, that is the value of the information criteria without the
+            penalization given by the effective number of parameters (p_loo or p_waic).
+        plot_standard_error : bool, default True
+            Plot the standard error of the ELPD.
+        plot_ic_diff : bool, default False
+            Plot standard error of the difference in ELPD between each model
+            and the top-ranked model.
+        order_by_rank : bool, default True
+            If True ensure the best model is used as reference.
+        legend : bool, default False
+            Add legend to figure.
+        figsize : (float, float), optional
+            If `None`, size is (6, num of models) inches.
+        title : bool, default True
+            Show a tittle with a description of how to interpret the plot.
+        textsize : float, optional
+            Text size scaling factor for labels, titles and lines. If `None` it will be autoscaled based
+            on `figsize`.
+        labeller : Labeller, optional
+            Class providing the method ``make_label_vert`` to generate the labels in the plot titles.
+            Read the :ref:`label_guide` for more details and usage examples.
+        plot_kwargs : dict, optional
+            Optional arguments for plot elements. Currently accepts 'color_ic',
+            'marker_ic', 'color_insample_dev', 'marker_insample_dev', 'color_dse',
+            'marker_dse', 'ls_min_ic' 'color_ls_min_ic',  'fontsize'
+        ax : matplotlib_axes or bokeh_figure, optional
+            Matplotlib axes or bokeh figure.
+        backend : {"matplotlib", "bokeh"}, default "matplotlib"
+            Select plotting backend.
+        backend_kwargs : bool, optional
+            These are kwargs specific to the backend being used, passed to
+            :func:`matplotlib.pyplot.subplots` or :class:`bokeh.plotting.figure`.
+            For additional documentation check the plotting method of the backend.
+        show : bool, optional
+            Call backend show function.
+
+        Returns
+        -------
+        axes : matplotlib_axes or bokeh_figure
+
+        See Also
+        --------
+        plot_elpd : Plot pointwise elpd differences between two or more models.
+        compare : Compare models based on PSIS-LOO loo or WAIC waic cross-validation.
+        loo : Compute Pareto-smoothed importance sampling leave-one-out cross-validation (PSIS-LOO-CV).
+        waic : Compute the widely applicable information criterion.
+
+        References
+        ----------
+        .. [1] Vehtari et al. (2016). Practical Bayesian model evaluation using leave-one-out
+           cross-validation and WAIC https://arxiv.org/abs/1507.04544
+
+        .. [2] McElreath R. (2022). Statistical Rethinking A Bayesian Course with Examples in
+           R and Stan, Second edition, CRC Press.
+
+
+
+        """
+        return az.plot_compare(comp_df, insample_dev=insample_dev, plot_standard_error=plot_standard_error, plot_ic_diff=plot_ic_diff, order_by_rank=order_by_rank, legend=legend, title=title, figsize=figsize, textsize=textsize, labeller=labeller, plot_kwargs=plot_kwargs, ax=ax, backend=backend, backend_kwargs=backend_kwargs, show=show)
