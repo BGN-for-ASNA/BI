@@ -23,7 +23,7 @@ from BEE.SetDevice.set import setup_device
 from BEE.Surv.surv import survival
 from BEE.Utils.link import link
 from BEE.Diagnostic.Diag import diag
-from m.network.Net import net
+from BEE.Network.Net import net
 from BEE.NBDA.NBDA import NBDA
 
 from BEE.Utils.dists import UnifiedDist as dist

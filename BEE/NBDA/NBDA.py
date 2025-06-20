@@ -22,6 +22,13 @@ class NBDA:
         Returns:
             None
         """
+        
+        self.cov = False
+        self.random_factor = False
+        self.time_varying_network = False
+        self.multi_network = False
+        self.multiprocess = False
+
         if network is None or status is None:
             pass
         else:
@@ -51,9 +58,16 @@ class NBDA:
             self.covNV_get_j = []
 
             # Status 
+            if len(status.shape) > 2:
+                self.multiprocess = True
+                self.N_process = status.shape[2]
+            else:
+                self.N_process = 1 
+
             self.status=status
             self.n=status.shape[0]
             self.t=status.shape[1]
+            self.intercept_asocial = jnp.ones((self.n,self.t,self.N_process)) # Intercept for asocial learning
 
             ## Status at t-1
             self.status_i, self.status_j = self.convert_status(status)
@@ -65,11 +79,16 @@ class NBDA:
 
             # Network
             self.network=None
-            if len(network.shape)==2:
+            if len(network.shape)==2: # 2D arrays representing a single network (n, n)
                 self.convert_network(network)
-            elif (len(network.shape)==4):
+            elif (len(network.shape)==3): # 3D arrays representing networks through time (n, n, t)
                 self.network=network
-            elif (len(network.shape)!=4):
+                self.time_varying_network = True
+            elif (len(network.shape)==4):
+                self.network=network # 4D arrays representing multiple networks through time (n, n, t, num_networks), to represent multiple networks that do not vary through time, just repeat the network   rough time axis
+                self.time_varying_network = True
+                self.multi_network = True
+            else:
                 raise ValueError("Network must be a 2 (n, n) or 4 dimensional array (n, n, t,   num_networks)")
             #self.give_name(self.network,'network',names_network)
             if names_network is None:
@@ -372,7 +391,8 @@ class NBDA:
             dict: A dictionary containing all covariates.
         """
         tmp=dict(
-            intercept = self.intercept,
+            intercept_social = self.intercept,
+            intercept_asocial = self.intercept_asocial,
             status = self.status,
             status_i = self.status_i, 
             status_j = self.status_j,
@@ -397,13 +417,13 @@ class NBDA:
         
         objects = self.stack_cov()
         self.objects = objects
-        D_social = [objects['intercept']]
-        D_asocial = [objects['intercept'][0,:,:,:]]
+        D_social = [objects['intercept_social']]
+        D_asocial = [objects['intercept_asocial']]
         D_social_names = ['social_learning']
         D_asocial_names = ['asocial_learning']
 
         for k in objects.keys():
-            if k not in ['intercept', 'status', 'status_i', 'status_j', 'network']:
+            if k not in ['intercept_social', 'intercept_asocial', 'status', 'status_i', 'status_j', 'network']:
                 if k is not None:
                     if k in ['covNF_i', 'covNV_i']:
                         for i in range(objects[k].shape[3]):
@@ -492,6 +512,40 @@ class NBDA:
         else:
             return soc, asoc
     
+    def priors_multinetwork(self, N_networks, CES = True):
+        T_social_shape = self.T_social.shape[3]
+        T_asocial_shape = self.T_asocial.shape[2]
+        if CES:
+            ces_alpha =  dist.uniform(0.0001, 0.9999, name = 'ces_alpha')
+        if T_social_shape > 1: # Covariates have been provided for social formula
+            # Priors for social effect covariates
+            alpha_soc = dist.normal(0, 2, shape = (N_networks, 1), sample=False, name='social_learning')
+            betas_soc = []
+            for a in range(T_social_shape-1):
+                beta_soc = dist.normal(0, 2, shape = (N_networks,1), sample=False, name=f"Beta_social_{self.T_social_names[a+1]}")
+                betas_soc.append(beta_soc)
+            betas_soc  = jnp.concatenate(betas_soc, -1)
+            soc = jnp.concatenate((alpha_soc, betas_soc), axis = -1)
+        else:
+            soc = dist.normal(0, 2, shape = (1,), sample=False, name='social_learning')
+        if T_asocial_shape > 1: # Covariates have been provided for asocial formula
+            # Priors for asocial effect covariates
+            alpha_asoc = dist.normal(0, 2,  shape = (1,), sample=False, name='asocial_learning')
+
+            betas_asoc = []
+            for a in range(T_asocial_shape-1):
+                beta_asoc = dist.normal(0, 2, shape = (1,), sample=False, name=f"Beta_asocial_{self.T_asocial_names[a+1]}")
+                betas_asoc.append(beta_asoc)
+            betas_asoc  = jnp.concatenate(betas_asoc, -1)
+            asoc = jnp.concatenate((alpha_asoc, betas_asoc), axis = -1)
+        else:
+            asoc = dist.normal(0, 2, shape = (1,), sample=False, name='asocial_learning')
+
+        if CES :
+            return soc, asoc, ces_alpha
+        else:
+            return soc, asoc
+    
     def model(self, CES = True):
         status = self.status
         network = self.network
@@ -541,6 +595,33 @@ class NBDA:
             lk = lk.at[:,t].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))
 
         return lk
+
+    def compute_probs_multinetwork(self,D_asocial, asoc,
+                                   D_social, soc,
+                                   network,status,N,T):
+        N_networks = network.shape[3]
+        lk = jnp.zeros((N,T))
+        # Asocial learning -----------------------
+        R_asocial = jnp.tensordot(D_asocial[:,0,:], asoc, axes=(-1, 0))    
+        theta = link.inv_logit(R_asocial)
+        lk = lk.at[:,0].set(theta)
+
+        for t in range(1,T):
+
+            ## Social learning-----------------------
+            R_social = jnp.tensordot(D_social[:,:,t,:], soc, axes=(-1, 0))
+            phi = link.inv_logit(R_social)
+            attention_weigthed_network = phi*network[:,:,t,0]
+            social_influence_weight = link.inv_logit_scale(jnp.tensordot(attention_weigthed_network[:,:], status[:,t-1], axes=(-1, 0)))
+
+            ## Asocial learning -----------------------
+            R_asocial = jnp.tensordot(D_asocial[:,t,:], asoc, axes=(-1, 0))
+            theta = link.inv_logit(R_asocial)
+
+            # Informed update at t!= 0-----------------------
+            lk = lk.at[:,t].set(jnp.where(status[:, t-1][:,0] == 1, jnp.nan, theta + (1-theta)*social_influence_weight[:,0]))
+
+        return lk    
     
     def compute_probs_ces(self,D_asocial, asoc,
                       D_social, soc,

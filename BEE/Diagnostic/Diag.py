@@ -385,7 +385,7 @@ class diag:
         """
         return az.waic(self.sampler, pointwise=pointwise, var_name=var_name, scale=scale, dask_kwargs=dask_kwargs)
 
-    @staticMethod
+    @staticmethod
     def compare(compare_dict, ic=None, method='stacking', b_samples=1000, alpha=1, seed=None, scale=None, var_name=None):
         r"""Compare models based on  their expected log pointwise predictive density (ELPD).
 
@@ -470,7 +470,7 @@ class diag:
         """
         return az.compare(compare_dict = compare_dict, ic=ic, method='stacking', b_samples=b_samples, alpha=alpha, seed=seed, scale=None, var_name=var_name)
 
-    @staticMethod
+    @staticmethod
     def plot_compare(
         comp_df,
         insample_dev=False,
