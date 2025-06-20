@@ -33,7 +33,7 @@ m.data_on_model = dict(
 
 
 def model(idx, result_outcomes, 
-    exposure,
+    exposure_mat,
     kinship, 
     focal_individual_predictors, target_individual_predictors, 
     Any, Merica, Quantum):
@@ -60,63 +60,50 @@ summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 ## Example 2
 Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect, a dyadic effect, and a block model effect while accounting for exposure biases and censoring biases:
 
-``` python
-
-```
 
 ## Mathematical Details
 
 ### *Main Formula*
 
 $$
-\begin{align}
-	Y_{[i,j]} &\sim \mathrm{Binomial}\Big(E_{[i,j]}, Q_{[i,j]}  \Big)
-\end{align}
+Y_{[i,j]} \sim \text{Binomial}\Big(E_{[i,j]}, Q_{[i,j]}  \Big)
 $$
 
 $$
-Q_{[i,j]} \in \{0,1\} 
+Q_{[i,j]} = \phi_{[i,j]}\eta_{[i]}\eta_{[j]}
 $$
 
 Where:
 
 -   $E_{[i,j]}$ is the number of trials for each observation (i.e., the sampling effort).
--   $Q_{[i,j]}$ is the indicator of a true tie between $i$ and $j$.
-
-
-$$
-\begin{aligned}
-Q_{[i,j]} \sim \begin{cases} 
-0 & \text{when no interaction occurs or when i or j is not detectable} \\
-\text{1}  & \text{when i and j are both detectable}
-\end{cases}
-\end{aligned}
-$$
-
-
-$$
-\begin{align}
-  Q_{[i,j]}= \phi_{[i,j]}\eta_{[i]}\eta_{[j]}
-\end{align}
-$$
-
-Where:
+-   $Q_{[i,j]}$ is the indicator of a true tie between $i$ and $j$, defined as:
+    $$
+    Q_{[i,j]} \sim \begin{cases} 
+    0 & \text{if no interaction occurs or if } i \text{ or } j \text{ is not detectable} \\
+    1 & \text{if } i \text{ and } j \text{ are both detectable}
+    \end{cases}
+    $$
 -   $\phi_{[i,j]}$ is the probability of a true tie between $i$ and $j$.
 -   $\eta_{[i]}$ is the probability of individual $i$ being detectable.
 -   $\eta_{[j]}$ is the probability of individual $j$ being detectable.
 
 ### *Defining formula sub-equations and prior distributions*
+
 We can let $\eta_{[i]}$ depend on individual-specific covariates. To model the probability of censoring, we can model $1-\eta_{[i]}$:
 $$
-\text{logit}(1-\eta_{[i]}) = \mu_\psi + \hat\psi_{[i]}  \sigma_\psi + \ldots 
+\text{logit}(1-\eta_{[i]}) = \mu_\psi + \hat\psi_{[i]}  \sigma_\psi + \dots 
 $$
 
 Where: 
+
 -   $\mu_\psi$ is the intercept.
 -   $\sigma_\psi$ is a scalar for the variance of random effects.
--   $\hat\psi_{[i]}\sim \text{Normal}(0,1)$, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if $C$ is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with:  $\kappa_{[5]}C_{[i]}$, to give the effects of coloration on censoring probability.
+-   $\hat\psi_{[i]}\sim \text{Normal}(0,1)$, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if $C$ is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with $\kappa_{[5]}C_{[i]}$ to give the effects of coloration on censoring probability.
+
 
 ## Note(s)
 ::: callout-note
 -   One major limitation of this model is the necessity of having an estimation of the censoring bias for each individual.
 :::
+
+
