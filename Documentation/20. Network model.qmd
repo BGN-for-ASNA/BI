@@ -12,12 +12,12 @@ Below is an example code snippet demonstrating a Bayesian network model with a s
 
 ## Python
 ```Python
-from BEE import bee
+from BI import bi
 
 # Setup device------------------------------------------------
-from BEE import bee
+from BI import bi
 # Setup device------------------------------------------------
-m = bee(platform='cpu')
+m = bi(platform='cpu')
 
 m.data_on_model = dict(
     idx = idx,
@@ -64,7 +64,7 @@ summary
 ```r
 library(BI)
 # Setup platform------------------------------------------------
-m=importbee(platform='cpu')
+m=importbi(platform='cpu')
 
 # Import data ------------------------------------------------
 
@@ -96,7 +96,7 @@ model <- function(idx, idxShape, result_outcomes,focal_individual_predictors, ta
   tmp=jnp$log(x / (1 - x))
   
   ## Block ---------------------------------------
-  B = bee.dist.normal(tmp, 2.5, shape=c(1), name = 'block')
+  B = bi.dist.normal(tmp, 2.5, shape=c(1), name = 'block')
   
   #SR ---------------------------------------
   sr =  m$net$sender_receiver(focal_individual_predictors,target_individual_predictors)

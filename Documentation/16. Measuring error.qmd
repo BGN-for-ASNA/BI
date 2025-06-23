@@ -9,15 +9,15 @@ Below is an example code snippet demonstrating a Bayesian measurement error mode
 ::: {.panel-tabset group="language"}
 ## Python
 ``` python
-from BEE import bee
+from BI import bi
 
 # Setup device------------------------------------------------
-m = bee(platform='cpu')
+m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BEE.resources.data') / 'WaffleDivorce.csv'
+data_path = files('BI.resources.data') / 'WaffleDivorce.csv'
 m.data(data_path, sep=';') 
 m.scale(['Divorce', 'Divorce SE', 'MedianAgeMarriage']) # Scale
 dat = dict(
