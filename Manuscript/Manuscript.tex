@@ -137,7 +137,7 @@
     showstringspaces=false,
     showtabs=false,                  
     tabsize=2,
-    otherkeywords = {install_github, setup_folders, standardize_photos, build_survey, enter_data, compile_data, calculate_payouts, check_classification, downsize, pre_process, auto_enter_all, annotate_data, simulate_selfreport_network, make_strand_data, fit_latent_network_model, summarize_strand_results, data.frame, set.seed, summarize_bsrm_hh_results, simulate_multiplex_network, multiplex_plot, fit_block_plus_social_relations_hh_model, simulate_sbm_plus_srm_hh_network, fit_multiplex_model, fit_block_plus_social_relations_model, fit_social_relations_model, strand_caterpillar_plot, fit_longitudinal_model, longitudinal_plot, standardize, simulate_longitudinal_network, process_block_parameters, jnp.outer, numpyro.sample, dist.Normal, dist.Exponential, expand, dist.LKJ, dist.MultivariateNormal, jnp.stack, jax.random.PRNGKey, tfd.Sample, yield, Root, tfd.Normal, tfd.Exponential, tfd.LKJ, tf.concat, tf.linalg.LinearOperatorDiag, matmul, tf.squeeze, bee.dist.normal, tfp.distributions.Normal, random_centered2, bee.dist.lkjcholesky, bee.dist.exponential, dist.normal, dist.uniform, Normal },
+    otherkeywords = {install_github, setup_folders, standardize_photos, build_survey, enter_data, compile_data, calculate_payouts, check_classification, downsize, pre_process, auto_enter_all, annotate_data, simulate_selfreport_network, make_strand_data, fit_latent_network_model, summarize_strand_results, data.frame, set.seed, summarize_bsrm_hh_results, simulate_multiplex_network, multiplex_plot, fit_block_plus_social_relations_hh_model, simulate_sbm_plus_srm_hh_network, fit_multiplex_model, fit_block_plus_social_relations_model, fit_social_relations_model, strand_caterpillar_plot, fit_longitudinal_model, longitudinal_plot, standardize, simulate_longitudinal_network, process_block_parameters, jnp.outer, numpyro.sample, dist.Normal, dist.Exponential, expand, dist.LKJ, dist.MultivariateNormal, jnp.stack, jax.random.PRNGKey, tfd.Sample, yield, Root, tfd.Normal, tfd.Exponential, tfd.LKJ, tf.concat, tf.linalg.LinearOperatorDiag, matmul, tf.squeeze, bi.dist.normal, tfp.distributions.Normal, random_centered2, bi.dist.lkjcholesky, bi.dist.exponential, dist.normal, dist.uniform, Normal },
   alsoletter ={_},
   deletekeywords={path, start, stop, ordered, case, colors, order, add, data, mode, R, distance}
 }
@@ -164,7 +164,7 @@
     
     \item   Computational demands remain a significant bottleneck, limiting the application of Bayesian methods to the large datasets and complex, high-dimensional models prevalent in modern research.
 
-    \item \textit{Bayesian Estimation Environment (BEE)} software is available in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax with the flexibility of low-level abstraction coding available but also pre-build function for high-level of abstraction and including hardware-accelerated computation for improved scalability. 
+    \item \textit{Bayesian Estimation Environment (BI)} software is available in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax with the flexibility of low-level abstraction coding available but also pre-build function for high-level of abstraction and including hardware-accelerated computation for improved scalability. 
 
 \end{enumerate}
 
@@ -190,13 +190,13 @@ Similar accessibility and flexibility constraints manifest as \textbf{domain-spe
 
 Finally, computational \textbf{scalability} continues to be a significant bottleneck, limiting the application of Bayesian methods to the large datasets (e.g., millions of observations) and complex, high-dimensional models  prevalent in modern research across fields like genomics, neuroscience, and machine learning. While established tools like \textit{Stan} feature highly optimized inference algorithms (particularly its NUTS sampler) and offer effective multi-core parallelization, they can still face challenges with long C++ compilation times for complex models and may require substantial code restructuring or external tooling to efficiently leverage hardware accelerators like GPUs or TPUs for certain computations (e.g., social network models in \texttt{STRAND} have a parameter complexity that scales with the square of the number of nodes, and so MCMC run-times can become unacceptable with as few as a few hundred individuals in the sample). Conversely, emerging frameworks built on \textit{JAX} \citep{jax2018github} (powering \textit{NumPyro} and parts of \textit{TFP}) promise substantial speedups via automatic differentiation, JIT compilation, and native support for parallel hardware architectures. However, integrating these powerful backends seamlessly into user-friendly, flexible modeling front-ends that don't require deep expertise in the JAX ecosystem itself is an ongoing challenge. Domain-specific tools often inherit the scalability limitations of the frameworks they are built upon, failing to provide a universally efficient solution across different model types and data sizes.
 
-We contend that the added cognitive load of learning Bayesian methods while simultaneously struggling with various programming language back-ends may be discouraging end-users from fully exploring the capabilities of Bayesian methods, simply due to the friction introduced by language barriers. Therefore, there is an evident and pressing demand for a Bayesian modeling framework that synergistically addresses these interconnected limitations.To address these interconnected challenges, we introduce \textit{\textbf{Bayesian Estimation Environment (BEE)}}, a new Bayesian modeling software designed to unify the modeling experience across the two dominant data science languages, Python and R. \textit{BEE} tackles the \textbf{interoperability} barrier head-on by offering native interfaces in both environments. It aims to resolve the \textbf{accessibility-flexibility trade-off} by providing an intuitive model-building syntax familiar to users of statistical modeling languages, while enabling advanced customization and leveraging multiple, interchangeable inference backends for flexibility. To combat \textbf{domain-specific limitations}, \textit{BEE} includes pre-built functions and structures tailored for specialized models in areas like network analysis, survival analysis, and phylogenetic analysis, while still allowing extension and modification within its general framework. Crucially, \textit{BEE} enhances \textbf{scalability} by integrating with hardware-accelerated computation via \textit{JAX} (using \textit{NumPyro} or \textit{TFP} as backends), enabling efficient execution on CPUs, GPUs, and TPUs. By providing a streamlined, efficient, and unified environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction—\textit{\textbf{BEE}} lowers the barrier to entry for sophisticated Bayesian modeling, aiming to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems.
+We contend that the added cognitive load of learning Bayesian methods while simultaneously struggling with various programming language back-ends may be discouraging end-users from fully exploring the capabilities of Bayesian methods, simply due to the friction introduced by language barriers. Therefore, there is an evident and pressing demand for a Bayesian modeling framework that synergistically addresses these interconnected limitations.To address these interconnected challenges, we introduce \textit{\textbf{Bayesian Estimation Environment (BI)}}, a new Bayesian modeling software designed to unify the modeling experience across the two dominant data science languages, Python and R. \textit{BI} tackles the \textbf{interoperability} barrier head-on by offering native interfaces in both environments. It aims to resolve the \textbf{accessibility-flexibility trade-off} by providing an intuitive model-building syntax familiar to users of statistical modeling languages, while enabling advanced customization and leveraging multiple, interchangeable inference backends for flexibility. To combat \textbf{domain-specific limitations}, \textit{BI} includes pre-built functions and structures tailored for specialized models in areas like network analysis, survival analysis, and phylogenetic analysis, while still allowing extension and modification within its general framework. Crucially, \textit{BI} enhances \textbf{scalability} by integrating with hardware-accelerated computation via \textit{JAX} (using \textit{NumPyro} or \textit{TFP} as backends), enabling efficient execution on CPUs, GPUs, and TPUs. By providing a streamlined, efficient, and unified environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction—\textit{\textbf{BI}} lowers the barrier to entry for sophisticated Bayesian modeling, aiming to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems.
 
 \section{Software Presentation}\label{software-presentation}
 \subsection{Interoperability}\label{Interoperability}
-\textit{BEE} directly confronts the \textbf{interoperability} challenge by offering native, feature-equivalent implementations in both Python and R. While minor syntactic differences exist to adhere to the idiomatic conventions of each language, the core model specification syntax, the procedural workflow for analysis, and the underlying computational engines remain fundamentally consistent. For instance, Python utilizes dot notation for method calls on class objects (e.g., \texttt{bee.dist.normal(0,1)}), while R employs dollar sign notation for accessing elements or methods within its object system (e.g., \texttt{bee\$dist\$normal(0,1)}). This dual-language availability significantly lowers the adoption barrier for researchers, allowing them to work entirely within their preferred programming environment without sacrificing access to a common, powerful Bayesian modeling framework. 
+\textit{BI} directly confronts the \textbf{interoperability} challenge by offering native, feature-equivalent implementations in both Python and R. While minor syntactic differences exist to adhere to the idiomatic conventions of each language, the core model specification syntax, the procedural workflow for analysis, and the underlying computational engines remain fundamentally consistent. For instance, Python utilizes dot notation for method calls on class objects (e.g., \texttt{bi.dist.normal(0,1)}), while R employs dollar sign notation for accessing elements or methods within its object system (e.g., \texttt{bi\$dist\$normal(0,1)}). This dual-language availability significantly lowers the adoption barrier for researchers, allowing them to work entirely within their preferred programming environment without sacrificing access to a common, powerful Bayesian modeling framework. 
 \subsection{Accessibility}\label{Accessibility}
-\textit{BEE} is designed to encapsulate the entire Bayesian modeling workflow within a cohesive object-oriented structure, promoting a streamlined and reproducible analysis pipeline. Typically, a user interacts with a primary \texttt{BEE} object, through which they can sequentially:
+\textit{BI} is designed to encapsulate the entire Bayesian modeling workflow within a cohesive object-oriented structure, promoting a streamlined and reproducible analysis pipeline. Typically, a user interacts with a primary \texttt{BI} object, through which they can sequentially:
 
 \begin{enumerate}
     \item   \textbf{Handle Data:} Load, preprocess, and associate dataset(s) with the model object.
@@ -212,7 +212,7 @@ We contend that the added cognitive load of learning Bayesian methods while simu
     \item   \textbf{Visualize Results:} Generate standard diagnostic plots (e.g., trace plots, rank plots, posterior distributions) and visualizations of model parameters, effects, and predictions using integrated plotting functions that leverage the \textit{arviz} library.
 \end{enumerate}
 
- This unified structure minimizes the need for users to juggle multiple disparate software tools or manually transfer data and results between different stages of the analysis, thereby enhancing efficiency and reproducibility. Finally, \textit{BEE} includes over 24 well-documented implementations of various standard and advanced Bayesian models \hyperlink{tab1}{Table 1}. Examples include Generalized Linear Models (GLMs), Generalized Linear Mixed Models (GLMMs), survival analysis models (e.g., Cox proportional hazards), Principal Component Analysis (PCA), phylogenetic comparative methods, and various network models. Each implementation is accompanied by detailed documentation that encompasses: 1) general principles, 2) underlying assumptions, 3) code snippets in Python and R, and 4) mathematical details, enabling users to gain a deeper understanding of the modeling process and its nuances. Additionally, the framework's flexibility allows models to be combined; for example, building a zero-inflated model with varying intercepts and slopes, or constructing a joint model where principal components (derived from PCA) serve as predictors in a subsequent regression, allowing uncertainty to be propagated through all stages of the analysis.
+ This unified structure minimizes the need for users to juggle multiple disparate software tools or manually transfer data and results between different stages of the analysis, thereby enhancing efficiency and reproducibility. Finally, \textit{BI} includes over 24 well-documented implementations of various standard and advanced Bayesian models \hyperlink{tab1}{Table 1}. Examples include Generalized Linear Models (GLMs), Generalized Linear Mixed Models (GLMMs), survival analysis models (e.g., Cox proportional hazards), Principal Component Analysis (PCA), phylogenetic comparative methods, and various network models. Each implementation is accompanied by detailed documentation that encompasses: 1) general principles, 2) underlying assumptions, 3) code snippets in Python and R, and 4) mathematical details, enabling users to gain a deeper understanding of the modeling process and its nuances. Additionally, the framework's flexibility allows models to be combined; for example, building a zero-inflated model with varying intercepts and slopes, or constructing a joint model where principal components (derived from PCA) serve as predictors in a subsequent regression, allowing uncertainty to be propagated through all stages of the analysis.
 
  \label{tab1}
 \begin{table}[bt]
@@ -280,13 +280,13 @@ Network-based diffusion analysis & \url{www.sosa.com/chapter_1.html} & ANTs & \c
 \end{table}
 
 \subsection{Accessibility-flexibility trade-off}\label{Accessibility-flexibility trade-off}
-\textit{BEE} is designed to navigate the critical \textit{accessibility-flexibility trade-off} by providing multiple layers of abstraction and utility, catering effectively to users with varying levels of Bayesian modeling expertise and diverse complexity requirements throuhg : simplified backend interaction via intuitive syntax, pre-built components for complex model features , addressing domain-specific limitations within a general framework, integrated End-to-End Workflow and extensive model library and documentation.
+\textit{BI} is designed to navigate the critical \textit{accessibility-flexibility trade-off} by providing multiple layers of abstraction and utility, catering effectively to users with varying levels of Bayesian modeling expertise and diverse complexity requirements throuhg : simplified backend interaction via intuitive syntax, pre-built components for complex model features , addressing domain-specific limitations within a general framework, integrated End-to-End Workflow and extensive model library and documentation.
 
-At its computational core, \textit{BEE} leverages the power and efficiency of established Probabilistic Programming Languages (PPLs) like \textit{NumPyro} and \textit{TFP}, both of which are built upon the \textit{JAX} framework for high-performance numerical computation and automatic differentiation. However, \textit{BEE} deliberately abstracts away much of the inherent complexity of these lower-level tools \hyperref[code:block1_example]{(\textbf{Code block 1})}. This significantly enhances \textbf{accessibility} for a broader range of users.
+At its computational core, \textit{BI} leverages the power and efficiency of established Probabilistic Programming Languages (PPLs) like \textit{NumPyro} and \textit{TFP}, both of which are built upon the \textit{JAX} framework for high-performance numerical computation and automatic differentiation. However, \textit{BI} deliberately abstracts away much of the inherent complexity of these lower-level tools \hyperref[code:block1_example]{(\textbf{Code block 1})}. This significantly enhances \textbf{accessibility} for a broader range of users.
 
 \label{code:block1_example} 
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
-\noindent\textbf{\textit{Code block 1: }} \textit{Prior specification differences between NumPyro, TFP, and BEE}\\[-10pt]
+\noindent\textbf{\textit{Code block 1: }} \textit{Prior specification differences between NumPyro, TFP, and BI}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
 \vspace{-\parskip}\vspace{0pt}
 
@@ -297,11 +297,11 @@ numpyro.sample("mu", dist.Normal(0, 1)).expand([10])
 # TFP prior specification (within a JointDistributionCoroutine)
 yield Root(tfd.Sample(tfd.Normal(loc=1.0, scale=1.0), sample_shape=10))
 
-# BEE prior specification
-bee.dist.normal(0, 1, name = "mu", shape = (10,))
+# BI prior specification
+bi.dist.normal(0, 1, name = "mu", shape = (10,))
 \end{lstlisting}
 
-To enhance \textbf{flexibility} without unduly sacrificing the accessibility provided by the high-level syntax, \textit{BEE} includes a library of pre-built, computationally optimized functions implemented directly in \textit{JAX} (e.g., \textbf{Code block 2}). These components encapsulate common but potentially complex modeling structures, allowing users to incorporate them easily within the model specification. Key examples include:
+To enhance \textbf{flexibility} without unduly sacrificing the accessibility provided by the high-level syntax, \textit{BI} includes a library of pre-built, computationally optimized functions implemented directly in \textit{JAX} (e.g., \textbf{Code block 2}). These components encapsulate common but potentially complex modeling structures, allowing users to incorporate them easily within the model specification. Key examples include:
 
 \begin{enumerate}
     \item  \textit{Centered Random Effects} and \textit{Non-Centered Random Effects} for hierarchical (multi-level) model components \citep{rethinking}. The non-centered parameterization, often crucial for efficient sampling in hierarchical models (particularly with sparse data), is provided without requiring the user to manually implement the reparameterization logic.
@@ -317,11 +317,11 @@ To enhance \textbf{flexibility} without unduly sacrificing the accessibility pro
     \item \textit{Network metrics} ranging from nodal, dyadic, and global network measures with a total of 11 that can be used to build custom models of social network analysis \citep{sosa2021network}.
 \end{enumerate}
 
-These pre-built \textit{JAX} functions provide tailored model components for common patterns in specific fields, while keeping them fully integrated within the general, extensible modeling framework  \hyperref[code:block2_example]{(\textbf{Code block 2})}. By providing these optimized building blocks within its general syntax, \textit{BEE} allows researchers in these fields to rapidly implement standard domain models using familiar concepts. Crucially, however, users retain the full flexibility of the \textit{BEE} framework to combine these domain-specific components with other model features (e.g., complex non-linear effects via splines, hierarchical structures across groups of networks or phylogenies) or to customize or extend them using \textit{BEE}'s underlying mechanisms if needed—a capability often missing in more narrowly focused domain-specific packages. This design aims to foster methodological innovation \textit{within} specialized domains by lowering the barrier to implementing more complex or novel models.
+These pre-built \textit{JAX} functions provide tailored model components for common patterns in specific fields, while keeping them fully integrated within the general, extensible modeling framework  \hyperref[code:block2_example]{(\textbf{Code block 2})}. By providing these optimized building blocks within its general syntax, \textit{BI} allows researchers in these fields to rapidly implement standard domain models using familiar concepts. Crucially, however, users retain the full flexibility of the \textit{BI} framework to combine these domain-specific components with other model features (e.g., complex non-linear effects via splines, hierarchical structures across groups of networks or phylogenies) or to customize or extend them using \textit{BI}'s underlying mechanisms if needed—a capability often missing in more narrowly focused domain-specific packages. This design aims to foster methodological innovation \textit{within} specialized domains by lowering the barrier to implementing more complex or novel models.
 
 \label{code:block2_example} 
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
-\noindent\textbf{\textit{Code block 2: }} \textit{Random effect specification differences between NumPyro, TFP, and BEE}\\[-10pt]
+\noindent\textbf{\textit{Code block 2: }} \textit{Random effect specification differences between NumPyro, TFP, and BI}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
 \vspace{-\parskip}\vspace{0pt}
 
@@ -349,7 +349,7 @@ Rho = yield Root(tfd.LKJ(dimension=2, concentration=2.0))
 Mu = tf.concat([alpha, beta], axis=-1)
 scale = tf.linalg.LinearOperatorDiag(sigma_alpha_beta).matmul(tf.squeeze(Rho))
 
-# BEE version of rendom centered effect----------------------------------------
+# BI version of rendom centered effect----------------------------------------
 Sigma = dist.exponential(1, (ni,), name = 'Sigma_individual')
 L = dist.lkjcholesky(1, (ni,), name = 'L_individual', shape = (ni,)) 
 Z = dist.normal(0, 1, name = 'z_individual', shape = (ni,K))
@@ -357,15 +357,15 @@ alpha = random_centered2(Sigma, L, Z)
 \end{lstlisting}
 
 \subsection{Scalability}\label{Scalability}
- Finally, a fundamental design principle of \texttt{BEE}  is to directly address the \texttt{scalability} challenge by building upon modern, high-performance computational backends. By utilizing *JAX*-based libraries like \texttt{NumPyro} and \texttt{TFP}, \texttt{BEE} inherits their significant computational efficiencies, stemming from features such as Just-In-Time (JIT) compilation and seamless hardware acceleration (GPU/TPU support). These are critical for tackling the large datasets and complex models prevalent in contemporary research. This strategic reliance on the \texttt{JAX} ecosystem allows \texttt{BEE} users to tackle computationally intensive problems that might be infeasible or prohibitively slow using frameworks lacking comparable optimization and hardware acceleration capabilities. By abstracting the backend complexities while retaining their power, \texttt{BEE}  significantly enhances the practical \texttt{scalability} of sophisticated Bayesian inference for a wider audience.
+ Finally, a fundamental design principle of \texttt{BI}  is to directly address the \texttt{scalability} challenge by building upon modern, high-performance computational backends. By utilizing *JAX*-based libraries like \texttt{NumPyro} and \texttt{TFP}, \texttt{BI} inherits their significant computational efficiencies, stemming from features such as Just-In-Time (JIT) compilation and seamless hardware acceleration (GPU/TPU support). These are critical for tackling the large datasets and complex models prevalent in contemporary research. This strategic reliance on the \texttt{JAX} ecosystem allows \texttt{BI} users to tackle computationally intensive problems that might be infeasible or prohibitively slow using frameworks lacking comparable optimization and hardware acceleration capabilities. By abstracting the backend complexities while retaining their power, \texttt{BI}  significantly enhances the practical \texttt{scalability} of sophisticated Bayesian inference for a wider audience.
 
 
 \section{Example : SRM model}
-To illustrate how these design features of \textit{BEE} coalesce to provide a streamlined, flexible, and powerful solution, effectively addressing the limitations identified in the existing Bayesian software landscape we will provide a basic example of how an SRM model is declared in BEE, compare it with the equivalent model in Numpyro (Appendix 1) and STAN (Appendix 2). We will also show how this model can be build from scratch with BEE  \hyperref[code:block3_example]{(\textbf{Code block 3})} or its custom functions  \hyperref[code:block4_example]{(\textbf{Code block 4})} to highligh the aceessibility-flexibility of our package by demonstrating how advance user can build custom model (with less code than STAN) as well as how new user can apply pre-build \textit{BEE} models. Finally we show how it is also called in R \hyperref[code:block5_example]{(\textbf{Code block 5})} to cross language use with \textit{BEE}. Readers interested in further details on data structure, data import, data manipulation, and model fitting for SRM models can refer directly to the \textit{BEE} documentation \href{https://github.com/BGN-for-ASNA/BEE/blob/main/Documentation/20.\%20Network\%20model.qmd}{Modeling Network}.
+To illustrate how these design features of \textit{BI} coalesce to provide a streamlined, flexible, and powerful solution, effectively addressing the limitations identified in the existing Bayesian software landscape we will provide a basic example of how an SRM model is declared in BI, compare it with the equivalent model in Numpyro (Appendix 1) and STAN (Appendix 2). We will also show how this model can be build from scratch with BI  \hyperref[code:block3_example]{(\textbf{Code block 3})} or its custom functions  \hyperref[code:block4_example]{(\textbf{Code block 4})} to highligh the aceessibility-flexibility of our package by demonstrating how advance user can build custom model (with less code than STAN) as well as how new user can apply pre-build \textit{BI} models. Finally we show how it is also called in R \hyperref[code:block5_example]{(\textbf{Code block 5})} to cross language use with \textit{BI}. Readers interested in further details on data structure, data import, data manipulation, and model fitting for SRM models can refer directly to the \textit{BI} documentation \href{https://github.com/BGN-for-ASNA/BI/blob/main/Documentation/20.\%20Network\%20model.qmd}{Modeling Network}.
 
 \label{code:block3_example} 
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
-\noindent\textbf{\textit{Code block 3: }} \textit{SRM model from scratch with BEE}\\[-10pt]
+\noindent\textbf{\textit{Code block 3: }} \textit{SRM model from scratch with BI}\\[-10pt]
 \noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
 \vspace{-\parskip}\vspace{0pt}
 
@@ -375,7 +375,7 @@ def model(N_id, idx,  result_outcomes,
           target_individual_predictors):
 
     # Intercept 
-    intercept = bee.dist.normal(
+    intercept = bi.dist.normal(
         logit(0.1/jnp.sqrt(N_id)), 
         2.5, shape=(1,), name = 'intercept'
     )
@@ -414,7 +414,7 @@ def model(N_id, idx,  result_outcomes,
     dr = dyad_effects * dyadic_predictors
 
     # Likelihood                                                       
-    bee.dist.poisson(jnp.exp(intercept + sr + dr), obs=result_outcomes)  
+    bi.dist.poisson(jnp.exp(intercept + sr + dr), obs=result_outcomes)  
 \end{lstlisting}
 
 \label{code:block4_example} 
@@ -429,7 +429,7 @@ def model(N_id, idx,  result_outcomes,
           target_individual_predictors):
 
     # Intercept 
-    intercept = bee.dist.normal(
+    intercept = bi.dist.normal(
         logit(0.1/jnp.sqrt(N_id)), 
         2.5, shape=(1,), name = 'intercept'
     )
@@ -444,7 +444,7 @@ def model(N_id, idx,  result_outcomes,
     dr = m.net.dyadic_effect(shape = idx.shape[0])
 
     # Likelihood                                                       
-    bee.dist.poisson(jnp.exp(intercept + sr + dr), obs=result_outcomes)  
+    bi.dist.poisson(jnp.exp(intercept + sr + dr), obs=result_outcomes)  
 \end{lstlisting}
 
 \label{code:block5_example} 
@@ -461,7 +461,7 @@ model <- function(N_id, idxShape, result_outcomes,
   tmp=jnp$log(x / (1 - x))
   
   # Intercept 
-  intercept = bee.dist.normal(tmp, 2.5, shape=c(1), name = 'block')
+  intercept = bi.dist.normal(tmp, 2.5, shape=c(1), name = 'block')
   
   # SR 
   sr =  m$net$sender_receiver(
@@ -477,13 +477,13 @@ model <- function(N_id, idxShape, result_outcomes,
 }
 \end{lstlisting}
 
-Finally, regarding code performance we can time the computation time for network of size 200 in STAN and BEE and observed that BEE comput time is around XXX on cpu and XXX on gpu and STAN compute time around XXX.
+Finally, regarding code performance we can time the computation time for network of size 200 in STAN and BI and observed that BI comput time is around XXX on cpu and XXX on gpu and STAN compute time around XXX.
 
 \section{Discussion}
 
-\textbf{BEE} framework is built on top of the popular Python programming language, with a focus on providing a user-friendly interface for model development and interpretation. Our framework is designed to be modular and extensible, allowing users to easily incorporate their own custom models and data types into the framework. One of the key features of this software is its comprehensive library of 21 predefined Bayesian models, covering a wide range of common applications and use cases. These models are accompanied by detailed explanations, making it easier for users to understand the underlying assumptions and apply the models to their specific research questions. In addition to these built-in models, the software includes several custom functions tailored for advanced statistical and network modeling. This curated library serves not only as a collection of ready-to-use tools but also as a valuable pedagogical resource, demonstrating best practices for constructing, fitting, and interpreting models within the \textit{BEE} framework, and providing robust templates for users aiming to develop novel model variants. Whether users are interested in hierarchical models, time-series analysis, or cutting-edge network modeling approaches, our library caters to a variety of analytical needs. This accessibility fosters an environment where users can confidently explore and implement Bayesian methods, ultimately enhancing their research capabilities.
+\textbf{BI} framework is built on top of the popular Python programming language, with a focus on providing a user-friendly interface for model development and interpretation. Our framework is designed to be modular and extensible, allowing users to easily incorporate their own custom models and data types into the framework. One of the key features of this software is its comprehensive library of 21 predefined Bayesian models, covering a wide range of common applications and use cases. These models are accompanied by detailed explanations, making it easier for users to understand the underlying assumptions and apply the models to their specific research questions. In addition to these built-in models, the software includes several custom functions tailored for advanced statistical and network modeling. This curated library serves not only as a collection of ready-to-use tools but also as a valuable pedagogical resource, demonstrating best practices for constructing, fitting, and interpreting models within the \textit{BI} framework, and providing robust templates for users aiming to develop novel model variants. Whether users are interested in hierarchical models, time-series analysis, or cutting-edge network modeling approaches, our library caters to a variety of analytical needs. This accessibility fosters an environment where users can confidently explore and implement Bayesian methods, ultimately enhancing their research capabilities.
 
-By providing a streamlined and efficient environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction, \textit{BEE} lowers the barrier to entry for sophisticated Bayesian modeling. We aim to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems.
+By providing a streamlined and efficient environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction, \textit{BI} lowers the barrier to entry for sophisticated Bayesian modeling. We aim to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems.
 
 \section*{Acknowledgements}
 Acknowledgements should include contributions from anyone who does not meet the criteria for authorship (for example, to recognize contributions from people who provided technical help, collation of data, writing assistance, acquisition of funding, or a department chairperson who provided general support), as well as any funding or other support information.

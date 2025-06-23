@@ -30,12 +30,12 @@ The goal is to infer the posterior distribution over both the parameters and the
 Below is an example code snippet demonstrating Bayesian regression with latent variables using TensorFlow Probability:
 
 ```python
-from BEE import bee
+from BI import bi
 import numpy as np
 import jax.numpy as jnp
 
 # Setup device------------------------------------------------
-m = bee(platform='cpu')
+m = bi(platform='cpu')
 
 # Data Simulation ------------------------------------------------
 NY = 4  # Number of dependent variables or outcomes (e.g., dimensions for latent variables)
@@ -58,7 +58,7 @@ for i in range(NV):
 
 # Simulate individual-level random effects (e.g., random slopes or intercepts)
 # b_individual: A matrix of size (N, K) where N is the number of individuals and K is the number of covariates
-b_individual = BEE.distribution.normal(0, 1, shape=(N, K), sample=True, seed=0)
+b_individual = BI.distribution.normal(0, 1, shape=(N, K), sample=True, seed=0)
 
 # mu: Add an additional effect 'a' to the individual-level random effects 'b_individual'
 # 'a' could represent a population-level effect or a baseline
