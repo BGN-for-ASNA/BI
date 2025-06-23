@@ -24,16 +24,16 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 ::: {.panel-tabset group="language"}
 ## Python
 ```python
-from BEE import bee
+from BI import bi
 import numpy as np
 
 # Setup device------------------------------------------------
-m = bee(platform='cpu')
+m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BEE.resources.data') / 'reedfrogs.csv'
+data_path = files('BI.resources.data') / 'reedfrogs.csv'
 m.data(data_path, sep=';') 
 # Manipulate
 m.df["tank"] = np.arange(m.df.shape[0]) 
@@ -58,7 +58,7 @@ m.summary()
 library(BI)
 
 # setup platform------------------------------------------------
-m=importbee(platform='cpu')
+m=importbi(platform='cpu')
 
 # Import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/reedfrogs.csv", sep = ''), sep=';')
@@ -71,9 +71,9 @@ m$data_on_model$surv = m$data_on_model$surv$astype(jnp$int32) # Manipulate
 # Define model ------------------------------------------------
 model <- function(tank, surv, density){
   # Parameter prior distributions
-  sigma = bee.dist.exponential( 1,  name = 'sigma',shape=c(1))
-  a_bar =  bee.dist.normal(0, 1.5, name='a_bar',shape=c(1))
-  alpha = bee.dist.normal(a_bar, sigma, name='alpha', shape =c(48))
+  sigma = bi.dist.exponential( 1,  name = 'sigma',shape=c(1))
+  a_bar =  bi.dist.normal(0, 1.5, name='a_bar',shape=c(1))
+  alpha = bi.dist.normal(a_bar, sigma, name='alpha', shape =c(48))
   p = alpha[tank]
   # Likelihood
   m$binomial(total_count = density, logits = p, obs=surv)

@@ -17,15 +17,15 @@ Below is example code demonstrating Bayesian multiple linear regression using th
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from BEE import bee
+from BI import bi
 
 # Setup device------------------------------------------------
-m = bee(platform='cpu')
+m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 from importlib.resources import files
 # Import
-data_path = files('BEE.resources.data') / 'Howell1.csv'
+data_path = files('BI.resources.data') / 'Howell1.csv'
 m.data(data_path, sep=';') 
 m.df = m.df[m.df.age > 18] # Manipulate
 m.scale(['weight', 'age']) # Scale
@@ -50,7 +50,7 @@ m.summary()
 ### R
 ```R
 library(BI)
-m=importbee(platform='cpu')
+m=importbi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/Howell1.csv", sep = ''), sep=';')# Import
@@ -61,10 +61,10 @@ m$data_to_model(list('weight', 'height', 'age')) # Send to model (convert to jax
 # Define model ------------------------------------------------
 model <- function(height, weight, age){
   # Parameter prior distributions
-  alpha = bee.dist.normal( 0, 0.5, name = 'a')
-  beta1 = bee.dist.normal( 0, 0.5, name = 'b1')
-  beta2 = bee.dist.normal(  0, 0.5, name = 'b2')   
-  sigma = bee.dist.uniform(0, 50, name = 's')
+  alpha = bi.dist.normal( 0, 0.5, name = 'a')
+  beta1 = bi.dist.normal( 0, 0.5, name = 'b1')
+  beta2 = bi.dist.normal(  0, 0.5, name = 'b2')   
+  sigma = bi.dist.uniform(0, 50, name = 's')
   # Likelihood
   m$normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)
 }

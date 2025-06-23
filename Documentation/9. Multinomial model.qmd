@@ -25,7 +25,7 @@ Below is an example code snippet demonstrating a Bayesian multinomial model usin
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from BEE import bee
+from BI import bi
 import jax.numpy as jnp
 import pandas as pd
 import jax
@@ -35,7 +35,7 @@ m = bi('cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BEE.resources.data') / 'Sim data multinomial.csv'
+data_path = files('BI.resources.data') / 'Sim data multinomial.csv'
 m.data(data_path, sep=',') 
 
 # Define model ------------------------------------------------
@@ -60,7 +60,7 @@ m.summary() # Get posterior distributions
 library(BI)
 
 # setup platform------------------------------------------------
-m=importbee(platform='cpu')
+m=importbi(platform='cpu')
 
 # import data ------------------------------------------------
 m$data(paste(system.file(package = "BI"),"/data/Sim data multinomial.csv", sep = ''), sep=',')
@@ -73,8 +73,8 @@ m$data_on_model = py_dict(keys, values, convert = TRUE)
 # Define model ------------------------------------------------
 model <- function(income, career){
   # Parameter prior distributions
-  alpha = bee.dist.normal(0, 1, name='alpha', shape = c(2))
-  beta = bee.dist.halfnormal(0.5, name='beta')
+  alpha = bi.dist.normal(0, 1, name='alpha', shape = c(2))
+  beta = bi.dist.halfnormal(0.5, name='beta')
   
   s_1 = alpha[0] + beta * income[0]
   s_2 = alpha[1] + beta * income[1]

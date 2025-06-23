@@ -1,0 +1,167 @@
+# Zero inflated 
+## General Principles
+Zero-Inflated Regression models are used when the outcome variable is a count variable with an excess of zero counts. These models combine a count model (e.g., Poisson or Negative Binomial) with a separate model for predicting the probability of excess zeros.
+
+## Considerations
+::: callout-caution 
+In Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for $W_{1\pi}, W_{2\pi}, ..., W_{n\pi}$, $W_{1\lambda}, W_{2\lambda}, ..., W_{n\lambda}$, $b_\pi$, and $b_\lambda$.
+:::
+
+## Example
+
+Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson regression using the Bayesian Inference (BI) package:
+
+::: {.panel-tabset group="language"}
+### Python
+```python
+from jax.scipy.special import expit
+r.seed(42)
+from main import *
+
+# Simulated data------------------------------------------------
+prob_drink = 0.2  # 20% of days
+rate_work = 1     # average 1 manuscript per day
+
+# Sample one year of production
+N = 365
+
+np.random.seed(365)
+drink = np.random.binomial(1, prob_drink, N)
+y = (1 - drink) * np.random.poisson(rate_work, N)
+
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+m.data_on_model = dict(
+    y=jnp.array(y)
+)
+
+# Define model ------------------------------------------------
+def model(y):
+    al = dist.normal(1, 0.5, name='al')
+    ap = dist.normal(-1.5, 1, name='ap')
+    p = expit(ap)
+    lambda_ = jnp.exp(al)
+    lk("y", ZeroInflatedPoisson(p, lambda_), obs=y)
+
+# Run MCMC ------------------------------------------------
+m.run(model) 
+
+# Summary ------------------------------------------------
+m.sampler.print_summary(0.89)
+```
+
+### R
+```R
+library(reticulate)
+bi <- import("main")
+
+# Setup device ------------------------------------------------
+m = bi$bi(platform='cpu')
+
+# Define parameters
+prob_drink = 0.2  # 20% of days
+rate_work = 1     # average 1 manuscript per day
+# sample one year of production
+N = as.integer(365)
+drink = bi$dist$binomial(total_count = as.integer(1), probs = prob_drink, shape = tuple(N), sample = T ) # An example of sampling a distribution with BI
+y = (1 - drink) *  bi$dist$poisson(rate_work, shape = tuple(N), sample = T)
+data = list()
+data$y = y 
+m$data_on_model = data
+# Import data ------------------------------------------------
+
+# Define model ------------------------------------------------
+model <- function(y){
+  al = bi$dist$normal(1, 0.5, name='al')
+  ap = bi$dist$normal(-1, 1, name='ap')
+  p = bi$jax$scipy$special$expit(al)
+  lambda_ = bi$jnp$exp(al)
+  bi$lk("y", bi$ZeroInflatedPoisson(p, lambda_), obs=y)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) 
+
+# Summary ------------------------------------------------
+m$sampler$print_summary(0.89)
+
+```
+:::
+
+
+# Mathematical Details
+### *Frequentist formulation*
+We model the relationship between the predictor variables $X$ and the count outcome variable $Y$ using two components:
+1. A logistic regression model to predict the probability of an excess zero.
+2. A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.
+
+The overall model can be represented as follows:
+
+$$
+\begin{aligned}
+& \text{logit}(\pi) = \alpha_\pi + \beta_\pi X \\
+& \text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X\\
+& Y \sim \begin{cases} 
+0 & \text{with probability } \pi \\
+\text{CountModel}(\lambda) & \text{with probability } (1 - \pi) 
+\end{cases}
+\end{aligned}
+$$
+
+Where:
+
+- $\pi$ is the probability of an excess zero.
+  
+- $\lambda$ is the mean rate parameter of the count model.
+  
+- $\alpha_\pi$ and $\beta_\pi$ are respectively the intercept and the regression coefficient for the logistic model.
+  
+- $\alpha_\lambda$ and $\beta_\lambda$ are respectively the regression coefficients for the count model.
+  
+- $X$ are the independent variables.
+
+### *Bayesian formulation*
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distribution as follows:
+
+$$
+𝑌\sim ZIPoisson(\pi,\lambda)
+$$
+
+$$
+\text{logit}(\pi) = \alpha_\pi + \beta_\pi X
+$$
+
+$$
+\text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X
+$$
+
+$$
+\alpha_\pi \sim \text{Normal}(0,1)
+$$
+
+$$
+\beta_\pi \sim \text{Normal}(0,1)
+$$
+
+$$
+\alpha_\lambda \sim \text{Normal}(0,1)
+$$
+
+$$
+\beta_\lambda \sim \text{Normal}(0,1)
+$$
+
+Where:
+
+- $\pi$ is the probability of an excess zero.
+  
+- $\lambda$ is the mean rate parameter of the count model.
+  
+- $\alpha_\pi$ and $\beta_\pi$ are respectively the intercept and the regression coefficient for the logistic model.
+  
+- $\alpha_\lambda$ and $\beta_\lambda$ are respectively the regression coefficients for the count model.
+  
+- $X$ are the independent variables.
+
+## Reference(s)
+@mcelreath2018statistical

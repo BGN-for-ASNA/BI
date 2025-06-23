@@ -464,12 +464,12 @@ Caution
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span><span class="op">*</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bee(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BEE.resources.data'</span>) <span class="op">/</span> <span class="st">'milk.csv'</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'milk.csv'</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.index([<span class="st">"clade"</span>]) <span class="co"># Manipulate</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'kcal_per_g'</span>]) <span class="co"># Scale</span></span>
@@ -477,8 +477,8 @@ Caution
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(kcal_per_g, index_clade):</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.bee.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">4</span>,), name <span class="op">=</span> <span class="st">'a'</span>) <span class="co"># shape based on the number of clades</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> m.bee.dist.exponential( <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'s'</span>)    </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.bi.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">4</span>,), name <span class="op">=</span> <span class="st">'a'</span>) <span class="co"># shape based on the number of clades</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> m.bi.dist.exponential( <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'s'</span>)    </span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a[index_clade]</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    m.normal(mu, s, obs<span class="op">=</span>kcal_per_g)</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
@@ -491,7 +491,7 @@ Caution
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importbee</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importbi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load csv file</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/milk.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
@@ -502,8 +502,8 @@ Caution
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(kcal_per_g, index_clade){</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bee.dist.normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'beta'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">4</span>))  <span class="co"># shape based on the number of clades</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span><span class="fu">bee.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'s'</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'beta'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">4</span>))  <span class="co"># shape based on the number of clades</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span><span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'s'</span>)</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">normal</span>(beta[index_clade], sigma, <span class="at">obs=</span>kcal_per_g)</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>}</span>
