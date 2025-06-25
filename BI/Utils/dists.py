@@ -9,6 +9,10 @@ class UnifiedDist:
         pass
 
     @staticmethod
+    def mask(mask):
+        return numpyro.handlers.mask(mask=mask)
+
+    @staticmethod
     def asymmetriclaplace(loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
         """
         AsymmetricLaplace distribution.

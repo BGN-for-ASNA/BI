@@ -12,6 +12,7 @@ class_dict = {name: getattr(numpyro.distributions, name) for name in all_names}
 with open("unified_dists.py", "w") as file:
     # Write the import statement
     file.write("from functools import partial\n")
+    file.write("import jax\n")
     file.write("from jax import random\n")
     file.write("from jax import jit\n")
     file.write("import numpyro as numpyro\n\n")
