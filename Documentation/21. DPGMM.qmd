@@ -1,0 +1,116 @@
+# Dirichlet Process Gaussian Mixture Model
+
+## General Principles
+
+To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Gaussian Mixture Model (DPMM)**. This is a [non-parametric 🛈]{style="color:#0D6EFD"} clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian (bell curve) distributions, and it simultaneously tries to figure out:
+
+1.  **How many clusters (`K`) exist**: Unlike algorithms like K-Means, the DPMM infers the most probable number of clusters directly from the data.
+2.  **The properties of each cluster**: For each inferred cluster, it estimates its center (mean `μ`) and its shape/spread (covariance `Σ`).
+3.  **The assignment of each data point**: It determines the probability of each data point belonging to each cluster.
+
+## Considerations
+
+::: callout-caution
+-   A DPMM is a [Bayesian model 🛈]{style="color:#0D6EFD"} that considers uncertainty in all its parameters. The core idea is the [Dirichlet Process 🛈]{style="color:#0D6EFD"}, a prior over distributions that allows for a potentially infinite number of clusters. In practice, we use a finite approximation called the [Stick-Breaking Process 🛈]{style="color:#0D6EFD"}.
+
+-   The key parameters and their priors are:
+
+    -   **Concentration `α`**: This single parameter controls the tendency to create new clusters. A low `α` favors fewer, larger clusters, while a high `α` allows for many smaller clusters. We typically place a `Gamma` prior on `α` to learn its value from the data.
+    -   **Cluster Weights `w`**: Generated via the Stick-Breaking process from `α`. These are the probabilities of drawing a data point from any given cluster.
+    -   **Cluster Parameters (`μ`, `Σ`)**: Each potential cluster has a mean `μ` and a covariance matrix `Σ`. We must define priors for them. For numerical stability, the covariance `Σ` is often decomposed into standard deviations (`σ`) and a correlation matrix (`Lcorr`), using a [LKJ prior 🛈]{style="color:#0D6EFD"} for the correlation part.
+
+-   The model is often implemented in its [marginalized form 🛈]{style="color:#0D6EFD"}. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm (e.g., NUTS) to explore, leading to much more efficient computation.
+:::
+
+## Example
+
+Below is an example of a DPMM implemented in Python. The goal is to cluster a synthetic dataset into its underlying groups. The code first generates data with 4 distinct centers and then applies the DPMM to recover these clusters.
+
+::: {.panel-tabset group="language"}
+## Python
+
+``` python
+from BI import bi
+
+def dpmm_marginal(data, T=10):
+    # 1) stick-breaking weights
+    alpha = m.dist.gamma(1.0, 10.0,name='alpha')
+    beta = m.dist.beta(1, alpha,name='beta',shape=(T-1,))
+    w = numpyro.deterministic("w",dist.transforms.StickBreakingTransform()(beta))
+
+
+    # 2) component parameters
+    data_mean = jnp.mean(data, axis=0)
+    with numpyro.plate("components", T):
+        mu = m.dist.multivariatenormal(loc=data_mean, covariance_matrix=100.0*jnp.eye(D),name='mu')# shape (T, D)        
+        sigma = m.dist.halfcauchy(1,shape=(D,),event=1,name='sigma')# shape (T, D)
+        Lcorr = m.dist.lkjcholesky(dimension=D, concentration=1.0,name='Lcorr')# shape (T, D, D)
+
+        scale_tril = sigma[..., None] * Lcorr  # shape (T, D, D)
+
+    # 3) marginal mixture over obs
+    m.dist.mixturesamefamily(
+        mixing_distribution=m.dist.categoricalprobs(w,name='cat', create_obj=True),
+        component_distribution=m.dist.multivariatenormal(loc=mu, scale_tril=scale_tril,name='mvn', create_obj=True),
+        name="obs",  
+        obs=data   
+    )
+m.data_on_model = dict(data=data)
+m.run(dpmm_marginal)  # Optimize model parameters through MCMC sampling
+```
+
+## R 
+
+``` r
+```
+:::
+
+## Mathematical Details
+
+### *Parametric Formulation: Finite Gaussian Mixture Model*
+
+A standard, parametric approach to clustering is the **Finite Gaussian Mixture Model (GMM)**, where the number of clusters `K` must be specified in advance. The model is:
+
+$$
+y_i \sim \sum_{k=1}^{K} w_k \cdot \text{Normal}(\mu_k, \Sigma_k)
+$$
+
+Where: - $y_i$ is the data for observation *i*. - `K` is the fixed number of clusters. - $w_k$ are fixed mixing weights that sum to 1. - $\mu_k$ and $\Sigma_k$ are the mean and covariance of the *k*-th cluster.
+
+### *Non-Parametric Bayesian Formulation: DPMM*
+
+The DPMM replaces the fixed `K` with a flexible, data-driven process. The model is specified hierarchically:
+
+**1. Stick-Breaking Construction for Weights** $$
+\begin{align*}
+\beta_k &\sim \text{Beta}(1, \alpha) \quad \text{for } k=1, \dots, T-1 \\
+w_k &= \beta_k \prod_{j=1}^{k-1} (1-\beta_j)
+\end{align*}
+$$
+
+**2. Priors on Parameters** $$
+\begin{align*}
+\alpha &\sim \text{Gamma}(1, 10) && \text{(Concentration hyperprior)} \\
+\mu_k &\sim \text{Normal}(\mu_0, \Sigma_0) && \text{(Prior for cluster means)} \\
+\Sigma_k &\sim \text{InverseWishart}(\nu, \Psi) && \text{(A common prior for covariance)} \\
+&\text{or decomposed as:} \\
+L_{k} &\sim \text{LKJCholesky}(\eta) && \text{(Prior for correlation structure)} \\
+\sigma_{k,d} &\sim \text{HalfCauchy}(1) && \text{(Prior for standard deviations)}
+\end{align*}
+$$
+
+**3. Likelihood** $$
+y_i \sim \sum_{k=1}^{T} w_k \cdot \text{Normal}(y_i | \mu_k, \Sigma_k)
+$$ Where `T` is a truncation level chosen to be larger than the expected number of clusters.
+
+## Notes
+
+::: callout-note
+The primary advantage of the DPMM over methods like K-Means or a finite GMM is the **automatic inference of the number of clusters**. Instead of running the model multiple times with different values of `K` and comparing them, the DPMM explores different numbers of clusters as part of its fitting process. The posterior distribution of the weights `w` reveals which components are "active" (have significant weight) and thus gives a probabilistic estimate of the number of clusters supported by the data.
+:::
+
+## Reference(s)
+
+@gershman2012tutorial
+
+@mcelreath2018statistical

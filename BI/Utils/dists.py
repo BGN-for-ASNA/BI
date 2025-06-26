@@ -1,1964 +1,3895 @@
-from functools import partial
+import jax
 from jax import random
-from jax import jit
-import numpyro as numpyro
+import numpyro
 
 class UnifiedDist:
 
     def __init__(self):
         pass
 
-    @staticmethod
-    def mask(mask):
+    def mask(self,mask):
         return numpyro.handlers.mask(mask=mask)
 
+    def plate(self,name, shape):
+        return numpyro.plate(name, shape)
+
     @staticmethod
-    def asymmetriclaplace(loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def asymmetriclaplace(loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        AsymmetricLaplace distribution.
-    
-        Arguments:
+        AsymmetricLaplace distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             asymmetry: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.AsymmetricLaplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.AsymmetricLaplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.AsymmetricLaplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.AsymmetricLaplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def asymmetriclaplacequantile(loc=0.0, scale=1.0, quantile=0.5, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def asymmetriclaplacequantile(loc=0.0, scale=1.0, quantile=0.5, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        AsymmetricLaplaceQuantile distribution.
-    
-        Arguments:
+        AsymmetricLaplaceQuantile distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             quantile: 0.5
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.AsymmetricLaplaceQuantile(loc=loc, scale=scale, quantile=quantile, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.AsymmetricLaplaceQuantile(loc=loc, scale=scale, quantile=quantile, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.AsymmetricLaplaceQuantile(loc=loc, scale=scale, quantile=quantile, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.AsymmetricLaplaceQuantile(loc=loc, scale=scale, quantile=quantile, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def bernoulli(probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def bernoulli(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Bernoulli distribution.
-    
-        Arguments:
+        Bernoulli distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             probs: None
+                
             logits: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Bernoulli(probs=probs, logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Bernoulli(probs=probs, logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Bernoulli(probs=probs, logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Bernoulli(probs=probs, logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def bernoullilogits(logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def bernoullilogits(logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        BernoulliLogits distribution.
-    
-        Arguments:
+        BernoulliLogits distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             logits: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.BernoulliLogits(logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.BernoulliLogits(logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.BernoulliLogits(logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.BernoulliLogits(logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def bernoulliprobs(probs, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def bernoulliprobs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        BernoulliProbs distribution.
-    
-        Arguments:
+        BernoulliProbs distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             probs: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.BernoulliProbs(probs=probs, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.BernoulliProbs(probs=probs, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.BernoulliProbs(probs=probs, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.BernoulliProbs(probs=probs, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def beta(concentration1, concentration0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def beta(concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Beta distribution.
-    
-        Arguments:
+        Beta distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration1: <class 'inspect._empty'>
+                
             concentration0: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def betabinomial(concentration1, concentration0, total_count=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def betabinomial(concentration1, concentration0, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        BetaBinomial distribution.
-    
-        Arguments:
+        BetaBinomial distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration1: <class 'inspect._empty'>
+                
             concentration0: <class 'inspect._empty'>
+                
             total_count: 1
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.BetaBinomial(concentration1=concentration1, concentration0=concentration0, total_count=total_count, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.BetaBinomial(concentration1=concentration1, concentration0=concentration0, total_count=total_count, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.BetaBinomial(concentration1=concentration1, concentration0=concentration0, total_count=total_count, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.BetaBinomial(concentration1=concentration1, concentration0=concentration0, total_count=total_count, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def betaproportion(mean, concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def betaproportion(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        BetaProportion distribution.
-    
-        Arguments:
+        BetaProportion distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             mean: <class 'inspect._empty'>
+                
             concentration: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.BetaProportion(mean=mean, concentration=concentration, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.BetaProportion(mean=mean, concentration=concentration, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.BetaProportion(mean=mean, concentration=concentration, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.BetaProportion(mean=mean, concentration=concentration, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def binomial(total_count=1, probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def binomial(total_count=1, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Binomial distribution.
-    
-        Arguments:
+        Binomial distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             total_count: 1
+                
             probs: None
+                
             logits: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Binomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Binomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Binomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Binomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def binomiallogits(logits, total_count=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def binomiallogits(logits, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        BinomialLogits distribution.
-    
-        Arguments:
+        BinomialLogits distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             logits: <class 'inspect._empty'>
+                
             total_count: 1
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.BinomialLogits(logits=logits, total_count=total_count, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.BinomialLogits(logits=logits, total_count=total_count, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.BinomialLogits(logits=logits, total_count=total_count, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.BinomialLogits(logits=logits, total_count=total_count, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def binomialprobs(probs, total_count=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def binomialprobs(probs, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        BinomialProbs distribution.
-    
-        Arguments:
+        BinomialProbs distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             probs: <class 'inspect._empty'>
+                
             total_count: 1
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.BinomialProbs(probs=probs, total_count=total_count, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.BinomialProbs(probs=probs, total_count=total_count, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.BinomialProbs(probs=probs, total_count=total_count, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.BinomialProbs(probs=probs, total_count=total_count, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def car(loc, correlation, conditional_precision, adj_matrix, is_sparse=False, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def car(loc, correlation, conditional_precision, adj_matrix, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        CAR distribution.
-    
-        Arguments:
+        CAR distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: <class 'inspect._empty'>
+                
             correlation: <class 'inspect._empty'>
+                
             conditional_precision: <class 'inspect._empty'>
+                
             adj_matrix: <class 'inspect._empty'>
+                
             is_sparse: False
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.CAR(loc=loc, correlation=correlation, conditional_precision=conditional_precision, adj_matrix=adj_matrix, is_sparse=is_sparse, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.CAR(loc=loc, correlation=correlation, conditional_precision=conditional_precision, adj_matrix=adj_matrix, is_sparse=is_sparse, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.CAR(loc=loc, correlation=correlation, conditional_precision=conditional_precision, adj_matrix=adj_matrix, is_sparse=is_sparse, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.CAR(loc=loc, correlation=correlation, conditional_precision=conditional_precision, adj_matrix=adj_matrix, is_sparse=is_sparse, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def categorical(probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def categorical(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Categorical distribution.
-    
-        Arguments:
+        Categorical distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             probs: None
+                
             logits: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Categorical(probs=probs, logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Categorical(probs=probs, logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Categorical(probs=probs, logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Categorical(probs=probs, logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def categoricallogits(logits, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def categoricallogits(logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        CategoricalLogits distribution.
-    
-        Arguments:
+        CategoricalLogits distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             logits: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.CategoricalLogits(logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.CategoricalLogits(logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.CategoricalLogits(logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.CategoricalLogits(logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def categoricalprobs(probs, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def categoricalprobs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        CategoricalProbs distribution.
-    
-        Arguments:
+        CategoricalProbs distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             probs: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.CategoricalProbs(probs=probs, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.CategoricalProbs(probs=probs, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.CategoricalProbs(probs=probs, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.CategoricalProbs(probs=probs, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def cauchy(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def cauchy(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Cauchy distribution.
-    
-        Arguments:
+        Cauchy distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Cauchy(loc=loc, scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Cauchy(loc=loc, scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Cauchy(loc=loc, scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Cauchy(loc=loc, scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def chi2(df, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def chi2(df, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Chi2 distribution.
-    
-        Arguments:
+        Chi2 distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             df: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Chi2(df=df, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Chi2(df=df, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Chi2(df=df, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Chi2(df=df, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def delta(v=0.0, log_density=0.0, event_dim=0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def circulantnormal(loc: jax.Array, covariance_row: jax.Array = None, covariance_rfft: jax.Array = None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Delta distribution.
-    
-        Arguments:
+        CirculantNormal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
+            loc: <class 'inspect._empty'>
+                
+            covariance_row: None
+                
+            covariance_rfft: None
+                
+            validate_args: None
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
+        """
+        d = numpyro.distributions.CirculantNormal(loc=loc, covariance_row=covariance_row, covariance_rfft=covariance_rfft, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
+
+    @staticmethod
+    def delta(v=0.0, log_density=0.0, event_dim=0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
+        """
+        Delta distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             v: 0.0
+                
             log_density: 0.0
+                
             event_dim: 0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Delta(v=v, log_density=log_density, event_dim=event_dim, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Delta(v=v, log_density=log_density, event_dim=event_dim, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Delta(v=v, log_density=log_density, event_dim=event_dim, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Delta(v=v, log_density=log_density, event_dim=event_dim, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def dirichlet(concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def dirichlet(concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Dirichlet distribution.
-    
-        Arguments:
+        Dirichlet distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Dirichlet(concentration=concentration, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Dirichlet(concentration=concentration, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Dirichlet(concentration=concentration, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Dirichlet(concentration=concentration, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def dirichletmultinomial(concentration, total_count=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def dirichletmultinomial(concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        DirichletMultinomial distribution.
-    
-        Arguments:
+        DirichletMultinomial distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration: <class 'inspect._empty'>
+                
             total_count: 1
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.DirichletMultinomial(concentration=concentration, total_count=total_count, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.DirichletMultinomial(concentration=concentration, total_count=total_count, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.DirichletMultinomial(concentration=concentration, total_count=total_count, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.DirichletMultinomial(concentration=concentration, total_count=total_count, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def discreteuniform(low=0, high=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def discreteuniform(low=0, high=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        DiscreteUniform distribution.
-    
-        Arguments:
+        DiscreteUniform distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             low: 0
+                
             high: 1
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.DiscreteUniform(low=low, high=high, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.DiscreteUniform(low=low, high=high, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.DiscreteUniform(low=low, high=high, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.DiscreteUniform(low=low, high=high, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def distribution(batch_shape=(), event_shape=(), validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def distribution(batch_shape=(), event_shape=(), validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Distribution distribution.
-    
-        Arguments:
+        Distribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             batch_shape: ()
+                
             event_shape: ()
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Distribution(batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Distribution(batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Distribution(batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Distribution(batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def doublytruncatedpowerlaw(alpha, low, high, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def doublytruncatedpowerlaw(alpha, low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        DoublyTruncatedPowerLaw distribution.
-    
-        Arguments:
+        DoublyTruncatedPowerLaw distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             alpha: <class 'inspect._empty'>
+                
             low: <class 'inspect._empty'>
+                
             high: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.DoublyTruncatedPowerLaw(alpha=alpha, low=low, high=high, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.DoublyTruncatedPowerLaw(alpha=alpha, low=low, high=high, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.DoublyTruncatedPowerLaw(alpha=alpha, low=low, high=high, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.DoublyTruncatedPowerLaw(alpha=alpha, low=low, high=high, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def eulermaruyama(t, sde_fn, init_dist, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def eulermaruyama(t, sde_fn, init_dist, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        EulerMaruyama distribution.
-    
-        Arguments:
+        EulerMaruyama distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             t: <class 'inspect._empty'>
+                
             sde_fn: <class 'inspect._empty'>
+                
             init_dist: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.EulerMaruyama(t=t, sde_fn=sde_fn, init_dist=init_dist, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.EulerMaruyama(t=t, sde_fn=sde_fn, init_dist=init_dist, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.EulerMaruyama(t=t, sde_fn=sde_fn, init_dist=init_dist, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.EulerMaruyama(t=t, sde_fn=sde_fn, init_dist=init_dist, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def expandeddistribution(base_dist, batch_shape=(), shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def expandeddistribution(base_dist, batch_shape=(), name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        ExpandedDistribution distribution.
-    
-        Arguments:
+        ExpandedDistribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             batch_shape: ()
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.ExpandedDistribution(base_dist=base_dist, batch_shape=batch_shape),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.ExpandedDistribution(base_dist=base_dist, batch_shape=batch_shape).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.ExpandedDistribution(base_dist=base_dist, batch_shape=batch_shape).expand(shape))
+        d = numpyro.distributions.ExpandedDistribution(base_dist=base_dist, batch_shape=batch_shape)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def exponential(rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def exponential(rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Exponential distribution.
-    
-        Arguments:
+        Exponential distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             rate: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Exponential(rate=rate, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Exponential(rate=rate, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Exponential(rate=rate, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Exponential(rate=rate, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def foldeddistribution(base_dist, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def foldeddistribution(base_dist, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        FoldedDistribution distribution.
-    
-        Arguments:
+        FoldedDistribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.FoldedDistribution(base_dist=base_dist, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.FoldedDistribution(base_dist=base_dist, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.FoldedDistribution(base_dist=base_dist, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.FoldedDistribution(base_dist=base_dist, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gamma(concentration, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def gamma(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Gamma distribution.
-    
-        Arguments:
+        Gamma distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration: <class 'inspect._empty'>
+                
             rate: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Gamma(concentration=concentration, rate=rate, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Gamma(concentration=concentration, rate=rate, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Gamma(concentration=concentration, rate=rate, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Gamma(concentration=concentration, rate=rate, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gammapoisson(concentration, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def gammapoisson(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        GammaPoisson distribution.
-    
-        Arguments:
+        GammaPoisson distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration: <class 'inspect._empty'>
+                
             rate: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.GammaPoisson(concentration=concentration, rate=rate, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.GammaPoisson(concentration=concentration, rate=rate, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.GammaPoisson(concentration=concentration, rate=rate, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.GammaPoisson(concentration=concentration, rate=rate, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gaussiancopula(marginal_dist, correlation_matrix=None, correlation_cholesky=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def gaussiancopula(marginal_dist, correlation_matrix=None, correlation_cholesky=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        GaussianCopula distribution.
-    
-        Arguments:
+        GaussianCopula distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             marginal_dist: <class 'inspect._empty'>
+                
             correlation_matrix: None
+                
             correlation_cholesky: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.GaussianCopula(marginal_dist=marginal_dist, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.GaussianCopula(marginal_dist=marginal_dist, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.GaussianCopula(marginal_dist=marginal_dist, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.GaussianCopula(marginal_dist=marginal_dist, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gaussiancopulabeta(concentration1, concentration0, correlation_matrix=None, correlation_cholesky=None, validate_args=False, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def gaussiancopulabeta(concentration1, concentration0, correlation_matrix=None, correlation_cholesky=None, validate_args=False, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        GaussianCopulaBeta distribution.
-    
-        Arguments:
+        GaussianCopulaBeta distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration1: <class 'inspect._empty'>
+                
             concentration0: <class 'inspect._empty'>
+                
             correlation_matrix: None
+                
             correlation_cholesky: None
+                
             validate_args: False
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.GaussianCopulaBeta(concentration1=concentration1, concentration0=concentration0, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.GaussianCopulaBeta(concentration1=concentration1, concentration0=concentration0, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.GaussianCopulaBeta(concentration1=concentration1, concentration0=concentration0, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.GaussianCopulaBeta(concentration1=concentration1, concentration0=concentration0, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gaussianrandomwalk(scale=1.0, num_steps=1, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def gaussianrandomwalk(scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        GaussianRandomWalk distribution.
-    
-        Arguments:
+        GaussianRandomWalk distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             scale: 1.0
+                
             num_steps: 1
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.GaussianRandomWalk(scale=scale, num_steps=num_steps, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.GaussianRandomWalk(scale=scale, num_steps=num_steps, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.GaussianRandomWalk(scale=scale, num_steps=num_steps, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.GaussianRandomWalk(scale=scale, num_steps=num_steps, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gaussianstatespace(num_steps, transition_matrix, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def gaussianstatespace(num_steps, transition_matrix, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        GaussianStateSpace distribution.
-    
-        Arguments:
+        GaussianStateSpace distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             num_steps: <class 'inspect._empty'>
+                
             transition_matrix: <class 'inspect._empty'>
+                
             covariance_matrix: None
+                
             precision_matrix: None
+                
             scale_tril: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.GaussianStateSpace(num_steps=num_steps, transition_matrix=transition_matrix, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.GaussianStateSpace(num_steps=num_steps, transition_matrix=transition_matrix, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.GaussianStateSpace(num_steps=num_steps, transition_matrix=transition_matrix, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.GaussianStateSpace(num_steps=num_steps, transition_matrix=transition_matrix, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def geometric(probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def geometric(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Geometric distribution.
-    
-        Arguments:
+        Geometric distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             probs: None
+                
             logits: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Geometric(probs=probs, logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Geometric(probs=probs, logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Geometric(probs=probs, logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Geometric(probs=probs, logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def geometriclogits(logits, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def geometriclogits(logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        GeometricLogits distribution.
-    
-        Arguments:
+        GeometricLogits distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             logits: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.GeometricLogits(logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.GeometricLogits(logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.GeometricLogits(logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.GeometricLogits(logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def geometricprobs(probs, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def geometricprobs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        GeometricProbs distribution.
-    
-        Arguments:
+        GeometricProbs distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             probs: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.GeometricProbs(probs=probs, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.GeometricProbs(probs=probs, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.GeometricProbs(probs=probs, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.GeometricProbs(probs=probs, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gompertz(concentration, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def gompertz(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Gompertz distribution.
-    
-        Arguments:
+        Gompertz distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration: <class 'inspect._empty'>
+                
             rate: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Gompertz(concentration=concentration, rate=rate, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Gompertz(concentration=concentration, rate=rate, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Gompertz(concentration=concentration, rate=rate, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Gompertz(concentration=concentration, rate=rate, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gumbel(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def gumbel(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Gumbel distribution.
-    
-        Arguments:
+        Gumbel distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Gumbel(loc=loc, scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Gumbel(loc=loc, scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Gumbel(loc=loc, scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Gumbel(loc=loc, scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def halfcauchy(scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def halfcauchy(scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        HalfCauchy distribution.
-    
-        Arguments:
+        HalfCauchy distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             scale: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.HalfCauchy(scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.HalfCauchy(scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.HalfCauchy(scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.HalfCauchy(scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def halfnormal(scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def halfnormal(scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        HalfNormal distribution.
-    
-        Arguments:
+        HalfNormal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             scale: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.HalfNormal(scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.HalfNormal(scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.HalfNormal(scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.HalfNormal(scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def improperuniform(support, batch_shape, event_shape, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def improperuniform(support, batch_shape, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        ImproperUniform distribution.
-    
-        Arguments:
+        ImproperUniform distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             support: <class 'inspect._empty'>
+                
             batch_shape: <class 'inspect._empty'>
+                
             event_shape: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.ImproperUniform(support=support, batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.ImproperUniform(support=support, batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.ImproperUniform(support=support, batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.ImproperUniform(support=support, batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def independent(base_dist, reinterpreted_batch_ndims, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def independent(base_dist, reinterpreted_batch_ndims, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Independent distribution.
-    
-        Arguments:
+        Independent distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             reinterpreted_batch_ndims: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Independent(base_dist=base_dist, reinterpreted_batch_ndims=reinterpreted_batch_ndims, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Independent(base_dist=base_dist, reinterpreted_batch_ndims=reinterpreted_batch_ndims, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Independent(base_dist=base_dist, reinterpreted_batch_ndims=reinterpreted_batch_ndims, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Independent(base_dist=base_dist, reinterpreted_batch_ndims=reinterpreted_batch_ndims, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def inversegamma(concentration, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def inversegamma(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        InverseGamma distribution.
-    
-        Arguments:
+        InverseGamma distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration: <class 'inspect._empty'>
+                
             rate: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.InverseGamma(concentration=concentration, rate=rate, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.InverseGamma(concentration=concentration, rate=rate, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.InverseGamma(concentration=concentration, rate=rate, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.InverseGamma(concentration=concentration, rate=rate, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def kumaraswamy(concentration1, concentration0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def kumaraswamy(concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Kumaraswamy distribution.
-    
-        Arguments:
+        Kumaraswamy distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration1: <class 'inspect._empty'>
+                
             concentration0: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Kumaraswamy(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Kumaraswamy(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Kumaraswamy(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Kumaraswamy(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def lkj(dimension, concentration=1.0, sample_method='onion', validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def lkj(dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        LKJ distribution.
-    
-        Arguments:
+        LKJ distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             dimension: <class 'inspect._empty'>
+                
             concentration: 1.0
+                
             sample_method: onion
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.LKJ(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.LKJ(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.LKJ(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.LKJ(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def lkjcholesky(dimension, concentration=1.0, sample_method='onion', validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def lkjcholesky(dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        LKJCholesky distribution.
-    
-        Arguments:
+        LKJCholesky distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             dimension: <class 'inspect._empty'>
+                
             concentration: 1.0
+                
             sample_method: onion
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.LKJCholesky(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.LKJCholesky(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.LKJCholesky(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.LKJCholesky(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def laplace(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def laplace(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Laplace distribution.
-    
-        Arguments:
+        Laplace distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Laplace(loc=loc, scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Laplace(loc=loc, scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Laplace(loc=loc, scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Laplace(loc=loc, scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def lefttruncateddistribution(base_dist, low=0.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def lefttruncateddistribution(base_dist, low=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        LeftTruncatedDistribution distribution.
-    
-        Arguments:
+        LeftTruncatedDistribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             low: 0.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.LeftTruncatedDistribution(base_dist=base_dist, low=low, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.LeftTruncatedDistribution(base_dist=base_dist, low=low, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.LeftTruncatedDistribution(base_dist=base_dist, low=low, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.LeftTruncatedDistribution(base_dist=base_dist, low=low, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def levy(loc, scale, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def levy(loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Levy distribution.
-    
-        Arguments:
+        Levy distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: <class 'inspect._empty'>
+                
             scale: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Levy(loc=loc, scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Levy(loc=loc, scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Levy(loc=loc, scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Levy(loc=loc, scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def lognormal(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def lognormal(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        LogNormal distribution.
-    
-        Arguments:
+        LogNormal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.LogNormal(loc=loc, scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.LogNormal(loc=loc, scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.LogNormal(loc=loc, scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.LogNormal(loc=loc, scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def loguniform(low, high, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def loguniform(low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        LogUniform distribution.
-    
-        Arguments:
+        LogUniform distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             low: <class 'inspect._empty'>
+                
             high: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.LogUniform(low=low, high=high, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.LogUniform(low=low, high=high, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.LogUniform(low=low, high=high, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.LogUniform(low=low, high=high, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def logistic(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def logistic(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Logistic distribution.
-    
-        Arguments:
+        Logistic distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Logistic(loc=loc, scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Logistic(loc=loc, scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Logistic(loc=loc, scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Logistic(loc=loc, scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def lowrankmultivariatenormal(loc, cov_factor, cov_diag, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def lowrankmultivariatenormal(loc, cov_factor, cov_diag, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        LowRankMultivariateNormal distribution.
-    
-        Arguments:
+        LowRankMultivariateNormal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: <class 'inspect._empty'>
+                
             cov_factor: <class 'inspect._empty'>
+                
             cov_diag: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.LowRankMultivariateNormal(loc=loc, cov_factor=cov_factor, cov_diag=cov_diag, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.LowRankMultivariateNormal(loc=loc, cov_factor=cov_factor, cov_diag=cov_diag, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.LowRankMultivariateNormal(loc=loc, cov_factor=cov_factor, cov_diag=cov_diag, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.LowRankMultivariateNormal(loc=loc, cov_factor=cov_factor, cov_diag=cov_diag, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def lowertruncatedpowerlaw(alpha, low, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def lowertruncatedpowerlaw(alpha, low, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        LowerTruncatedPowerLaw distribution.
-    
-        Arguments:
+        LowerTruncatedPowerLaw distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             alpha: <class 'inspect._empty'>
+                
             low: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.LowerTruncatedPowerLaw(alpha=alpha, low=low, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.LowerTruncatedPowerLaw(alpha=alpha, low=low, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.LowerTruncatedPowerLaw(alpha=alpha, low=low, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.LowerTruncatedPowerLaw(alpha=alpha, low=low, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def maskeddistribution(base_dist, mask, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def maskeddistribution(base_dist, mask, name='x', obs=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        MaskedDistribution distribution.
-    
-        Arguments:
+        MaskedDistribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             mask: <class 'inspect._empty'>
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.MaskedDistribution(base_dist=base_dist, mask=mask),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.MaskedDistribution(base_dist=base_dist, mask=mask).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.MaskedDistribution(base_dist=base_dist, mask=mask).expand(shape))
+        d = numpyro.distributions.MaskedDistribution(base_dist=base_dist, mask=mask)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def matrixnormal(loc, scale_tril_row, scale_tril_column, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def matrixnormal(loc, scale_tril_row, scale_tril_column, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        MatrixNormal distribution.
-    
-        Arguments:
+        MatrixNormal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: <class 'inspect._empty'>
+                
             scale_tril_row: <class 'inspect._empty'>
+                
             scale_tril_column: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.MatrixNormal(loc=loc, scale_tril_row=scale_tril_row, scale_tril_column=scale_tril_column, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.MatrixNormal(loc=loc, scale_tril_row=scale_tril_row, scale_tril_column=scale_tril_column, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.MatrixNormal(loc=loc, scale_tril_row=scale_tril_row, scale_tril_column=scale_tril_column, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.MatrixNormal(loc=loc, scale_tril_row=scale_tril_row, scale_tril_column=scale_tril_column, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def mixture(mixing_distribution, component_distributions, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def mixture(mixing_distribution, component_distributions, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Mixture distribution.
-    
-        Arguments:
+        Mixture distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             mixing_distribution: <class 'inspect._empty'>
+                
             component_distributions: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Mixture(mixing_distribution=mixing_distribution, component_distributions=component_distributions, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Mixture(mixing_distribution=mixing_distribution, component_distributions=component_distributions, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Mixture(mixing_distribution=mixing_distribution, component_distributions=component_distributions, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Mixture(mixing_distribution=mixing_distribution, component_distributions=component_distributions, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def mixturegeneral(mixing_distribution, component_distributions, support=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def mixturegeneral(mixing_distribution, component_distributions, support=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        MixtureGeneral distribution.
-    
-        Arguments:
+        MixtureGeneral distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             mixing_distribution: <class 'inspect._empty'>
+                
             component_distributions: <class 'inspect._empty'>
+                
             support: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.MixtureGeneral(mixing_distribution=mixing_distribution, component_distributions=component_distributions, support=support, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.MixtureGeneral(mixing_distribution=mixing_distribution, component_distributions=component_distributions, support=support, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.MixtureGeneral(mixing_distribution=mixing_distribution, component_distributions=component_distributions, support=support, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.MixtureGeneral(mixing_distribution=mixing_distribution, component_distributions=component_distributions, support=support, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def mixturesamefamily(mixing_distribution, component_distribution, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def mixturesamefamily(mixing_distribution, component_distribution, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        MixtureSameFamily distribution.
-    
-        Arguments:
+        MixtureSameFamily distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             mixing_distribution: <class 'inspect._empty'>
+                
             component_distribution: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.MixtureSameFamily(mixing_distribution=mixing_distribution, component_distribution=component_distribution, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.MixtureSameFamily(mixing_distribution=mixing_distribution, component_distribution=component_distribution, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.MixtureSameFamily(mixing_distribution=mixing_distribution, component_distribution=component_distribution, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.MixtureSameFamily(mixing_distribution=mixing_distribution, component_distribution=component_distribution, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multinomial(total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def multinomial(total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Multinomial distribution.
-    
-        Arguments:
+        Multinomial distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             total_count: 1
+                
             probs: None
+                
             logits: None
+                
             total_count_max: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits, total_count_max=total_count_max, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits, total_count_max=total_count_max, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits, total_count_max=total_count_max, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits, total_count_max=total_count_max, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multinomiallogits(logits, total_count=1, total_count_max=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def multinomiallogits(logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        MultinomialLogits distribution.
-    
-        Arguments:
+        MultinomialLogits distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             logits: <class 'inspect._empty'>
+                
             total_count: 1
+                
             total_count_max: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.MultinomialLogits(logits=logits, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.MultinomialLogits(logits=logits, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.MultinomialLogits(logits=logits, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.MultinomialLogits(logits=logits, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multinomialprobs(probs, total_count=1, total_count_max=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def multinomialprobs(probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        MultinomialProbs distribution.
-    
-        Arguments:
+        MultinomialProbs distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             probs: <class 'inspect._empty'>
+                
             total_count: 1
+                
             total_count_max: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.MultinomialProbs(probs=probs, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.MultinomialProbs(probs=probs, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.MultinomialProbs(probs=probs, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.MultinomialProbs(probs=probs, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multivariatenormal(loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def multivariatenormal(loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        MultivariateNormal distribution.
-    
-        Arguments:
+        MultivariateNormal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             covariance_matrix: None
+                
             precision_matrix: None
+                
             scale_tril: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.MultivariateNormal(loc=loc, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.MultivariateNormal(loc=loc, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.MultivariateNormal(loc=loc, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.MultivariateNormal(loc=loc, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multivariatestudentt(df, loc=0.0, scale_tril=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def multivariatestudentt(df, loc=0.0, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        MultivariateStudentT distribution.
-    
-        Arguments:
+        MultivariateStudentT distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             df: <class 'inspect._empty'>
+                
             loc: 0.0
+                
             scale_tril: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.MultivariateStudentT(df=df, loc=loc, scale_tril=scale_tril, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.MultivariateStudentT(df=df, loc=loc, scale_tril=scale_tril, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.MultivariateStudentT(df=df, loc=loc, scale_tril=scale_tril, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.MultivariateStudentT(df=df, loc=loc, scale_tril=scale_tril, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def negativebinomial2(mean, concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def negativebinomial2(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        NegativeBinomial2 distribution.
-    
-        Arguments:
+        NegativeBinomial2 distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             mean: <class 'inspect._empty'>
+                
             concentration: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.NegativeBinomial2(mean=mean, concentration=concentration, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.NegativeBinomial2(mean=mean, concentration=concentration, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.NegativeBinomial2(mean=mean, concentration=concentration, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.NegativeBinomial2(mean=mean, concentration=concentration, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def negativebinomiallogits(total_count, logits, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def negativebinomiallogits(total_count, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        NegativeBinomialLogits distribution.
-    
-        Arguments:
+        NegativeBinomialLogits distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             total_count: <class 'inspect._empty'>
+                
             logits: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.NegativeBinomialLogits(total_count=total_count, logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.NegativeBinomialLogits(total_count=total_count, logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.NegativeBinomialLogits(total_count=total_count, logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.NegativeBinomialLogits(total_count=total_count, logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def negativebinomialprobs(total_count, probs, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def negativebinomialprobs(total_count, probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        NegativeBinomialProbs distribution.
-    
-        Arguments:
+        NegativeBinomialProbs distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             total_count: <class 'inspect._empty'>
+                
             probs: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.NegativeBinomialProbs(total_count=total_count, probs=probs, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.NegativeBinomialProbs(total_count=total_count, probs=probs, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.NegativeBinomialProbs(total_count=total_count, probs=probs, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.NegativeBinomialProbs(total_count=total_count, probs=probs, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def normal(loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def normal(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Normal distribution.
-    
-        Arguments:
+        Normal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs is not None:
-                return numpyro.sample(name, numpyro.distributions.Normal(loc=loc, scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Normal(loc=loc, scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Normal(loc=loc, scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Normal(loc=loc, scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def orderedlogistic(predictor, cutpoints, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def orderedlogistic(predictor, cutpoints, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        OrderedLogistic distribution.
-    
-        Arguments:
+        OrderedLogistic distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             predictor: <class 'inspect._empty'>
+                
             cutpoints: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.OrderedLogistic(predictor=predictor, cutpoints=cutpoints, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.OrderedLogistic(predictor=predictor, cutpoints=cutpoints, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.OrderedLogistic(predictor=predictor, cutpoints=cutpoints, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.OrderedLogistic(predictor=predictor, cutpoints=cutpoints, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def pareto(scale, alpha, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def pareto(scale, alpha, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Pareto distribution.
-    
-        Arguments:
+        Pareto distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             scale: <class 'inspect._empty'>
+                
             alpha: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Pareto(scale=scale, alpha=alpha, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Pareto(scale=scale, alpha=alpha, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Pareto(scale=scale, alpha=alpha, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Pareto(scale=scale, alpha=alpha, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def poisson(rate, is_sparse=False, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def poisson(rate, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Poisson distribution.
-    
-        Arguments:
+        Poisson distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             rate: <class 'inspect._empty'>
+                
             is_sparse: False
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Poisson(rate=rate, is_sparse=is_sparse, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Poisson(rate=rate, is_sparse=is_sparse, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Poisson(rate=rate, is_sparse=is_sparse, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Poisson(rate=rate, is_sparse=is_sparse, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def projectednormal(concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def projectednormal(concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        ProjectedNormal distribution.
-    
-        Arguments:
+        ProjectedNormal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.ProjectedNormal(concentration=concentration, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.ProjectedNormal(concentration=concentration, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.ProjectedNormal(concentration=concentration, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.ProjectedNormal(concentration=concentration, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def relaxedbernoulli(temperature, probs=None, logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def relaxedbernoulli(temperature, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        RelaxedBernoulli distribution.
-    
-        Arguments:
+        RelaxedBernoulli distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             temperature: <class 'inspect._empty'>
+                
             probs: None
+                
             logits: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.RelaxedBernoulli(temperature=temperature, probs=probs, logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.RelaxedBernoulli(temperature=temperature, probs=probs, logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.RelaxedBernoulli(temperature=temperature, probs=probs, logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.RelaxedBernoulli(temperature=temperature, probs=probs, logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def relaxedbernoullilogits(temperature, logits, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def relaxedbernoullilogits(temperature, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        RelaxedBernoulliLogits distribution.
-    
-        Arguments:
+        RelaxedBernoulliLogits distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             temperature: <class 'inspect._empty'>
+                
             logits: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.RelaxedBernoulliLogits(temperature=temperature, logits=logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.RelaxedBernoulliLogits(temperature=temperature, logits=logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.RelaxedBernoulliLogits(temperature=temperature, logits=logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.RelaxedBernoulliLogits(temperature=temperature, logits=logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def righttruncateddistribution(base_dist, high=0.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def righttruncateddistribution(base_dist, high=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        RightTruncatedDistribution distribution.
-    
-        Arguments:
+        RightTruncatedDistribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             high: 0.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.RightTruncatedDistribution(base_dist=base_dist, high=high, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.RightTruncatedDistribution(base_dist=base_dist, high=high, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.RightTruncatedDistribution(base_dist=base_dist, high=high, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.RightTruncatedDistribution(base_dist=base_dist, high=high, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def sinebivariatevonmises(phi_loc, psi_loc, phi_concentration, psi_concentration, correlation=None, weighted_correlation=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def sinebivariatevonmises(phi_loc, psi_loc, phi_concentration, psi_concentration, correlation=None, weighted_correlation=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        SineBivariateVonMises distribution.
-    
-        Arguments:
+        SineBivariateVonMises distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             phi_loc: <class 'inspect._empty'>
+                
             psi_loc: <class 'inspect._empty'>
+                
             phi_concentration: <class 'inspect._empty'>
+                
             psi_concentration: <class 'inspect._empty'>
+                
             correlation: None
+                
             weighted_correlation: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.SineBivariateVonMises(phi_loc=phi_loc, psi_loc=psi_loc, phi_concentration=phi_concentration, psi_concentration=psi_concentration, correlation=correlation, weighted_correlation=weighted_correlation, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.SineBivariateVonMises(phi_loc=phi_loc, psi_loc=psi_loc, phi_concentration=phi_concentration, psi_concentration=psi_concentration, correlation=correlation, weighted_correlation=weighted_correlation, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.SineBivariateVonMises(phi_loc=phi_loc, psi_loc=psi_loc, phi_concentration=phi_concentration, psi_concentration=psi_concentration, correlation=correlation, weighted_correlation=weighted_correlation, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.SineBivariateVonMises(phi_loc=phi_loc, psi_loc=psi_loc, phi_concentration=phi_concentration, psi_concentration=psi_concentration, correlation=correlation, weighted_correlation=weighted_correlation, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def sineskewed(base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def sineskewed(base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        SineSkewed distribution.
-    
-        Arguments:
+        SineSkewed distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             skewness: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.SineSkewed(base_dist=base_dist, skewness=skewness, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.SineSkewed(base_dist=base_dist, skewness=skewness, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.SineSkewed(base_dist=base_dist, skewness=skewness, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.SineSkewed(base_dist=base_dist, skewness=skewness, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def softlaplace(loc, scale, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def softlaplace(loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        SoftLaplace distribution.
-    
-        Arguments:
+        SoftLaplace distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: <class 'inspect._empty'>
+                
             scale: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.SoftLaplace(loc=loc, scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.SoftLaplace(loc=loc, scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.SoftLaplace(loc=loc, scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.SoftLaplace(loc=loc, scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def studentt(df, loc=0.0, scale=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def studentt(df, loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        StudentT distribution.
-    
-        Arguments:
+        StudentT distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             df: <class 'inspect._empty'>
+                
             loc: 0.0
+                
             scale: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.StudentT(df=df, loc=loc, scale=scale, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.StudentT(df=df, loc=loc, scale=scale, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.StudentT(df=df, loc=loc, scale=scale, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.StudentT(df=df, loc=loc, scale=scale, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def transformeddistribution(base_distribution, transforms, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def transformeddistribution(base_distribution, transforms, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        TransformedDistribution distribution.
-    
-        Arguments:
+        TransformedDistribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_distribution: <class 'inspect._empty'>
+                
             transforms: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.TransformedDistribution(base_distribution=base_distribution, transforms=transforms, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.TransformedDistribution(base_distribution=base_distribution, transforms=transforms, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.TransformedDistribution(base_distribution=base_distribution, transforms=transforms, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.TransformedDistribution(base_distribution=base_distribution, transforms=transforms, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def truncatedcauchy(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def truncatedcauchy(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        TruncatedCauchy distribution.
-    
-        Arguments:
+        TruncatedCauchy distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             low: None
+                
             high: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.TruncatedCauchy(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.TruncatedCauchy(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.TruncatedCauchy(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.TruncatedCauchy(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def truncateddistribution(base_dist, low=None, high=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def truncateddistribution(base_dist, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        TruncatedDistribution distribution.
-    
-        Arguments:
+        TruncatedDistribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             low: None
+                
             high: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.TruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.TruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.TruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.TruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def truncatednormal(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def truncatednormal(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        TruncatedNormal distribution.
-    
-        Arguments:
+        TruncatedNormal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: 0.0
+                
             scale: 1.0
+                
             low: None
+                
             high: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def truncatedpolyagamma(batch_shape=(), validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def truncatedpolyagamma(batch_shape=(), validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        TruncatedPolyaGamma distribution.
-    
-        Arguments:
+        TruncatedPolyaGamma distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             batch_shape: ()
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.TruncatedPolyaGamma(batch_shape=batch_shape, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.TruncatedPolyaGamma(batch_shape=batch_shape, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.TruncatedPolyaGamma(batch_shape=batch_shape, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.TruncatedPolyaGamma(batch_shape=batch_shape, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def twosidedtruncateddistribution(base_dist, low=0.0, high=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def twosidedtruncateddistribution(base_dist, low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        TwoSidedTruncatedDistribution distribution.
-    
-        Arguments:
+        TwoSidedTruncatedDistribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             low: 0.0
+                
             high: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.TwoSidedTruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.TwoSidedTruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.TwoSidedTruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.TwoSidedTruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def uniform(low=0.0, high=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def uniform(low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Uniform distribution.
-    
-        Arguments:
+        Uniform distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             low: 0.0
+                
             high: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Uniform(low=low, high=high, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Uniform(low=low, high=high, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Uniform(low=low, high=high, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Uniform(low=low, high=high, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def unit(log_factor, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def unit(log_factor, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Unit distribution.
-    
-        Arguments:
+        Unit distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             log_factor: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Unit(log_factor=log_factor, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Unit(log_factor=log_factor, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Unit(log_factor=log_factor, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Unit(log_factor=log_factor, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def vonmises(loc, concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def vonmises(loc, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        VonMises distribution.
-    
-        Arguments:
+        VonMises distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             loc: <class 'inspect._empty'>
+                
             concentration: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.VonMises(loc=loc, concentration=concentration, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.VonMises(loc=loc, concentration=concentration, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.VonMises(loc=loc, concentration=concentration, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.VonMises(loc=loc, concentration=concentration, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def weibull(scale, concentration, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def weibull(scale, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Weibull distribution.
-    
-        Arguments:
+        Weibull distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             scale: <class 'inspect._empty'>
+                
             concentration: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Weibull(scale=scale, concentration=concentration, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Weibull(scale=scale, concentration=concentration, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Weibull(scale=scale, concentration=concentration, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Weibull(scale=scale, concentration=concentration, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def wishart(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def wishart(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        Wishart distribution.
-    
-        Arguments:
+        Wishart distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration: <class 'inspect._empty'>
+                
             scale_matrix: None
+                
             rate_matrix: None
+                
             scale_tril: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.Wishart(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.Wishart(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.Wishart(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.Wishart(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def wishartcholesky(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def wishartcholesky(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        WishartCholesky distribution.
-    
-        Arguments:
+        WishartCholesky distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             concentration: <class 'inspect._empty'>
+                
             scale_matrix: None
+                
             rate_matrix: None
+                
             scale_tril: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.WishartCholesky(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.WishartCholesky(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.WishartCholesky(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.WishartCholesky(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def zeroinflateddistribution(base_dist, gate=None, gate_logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def zeroinflateddistribution(base_dist, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        ZeroInflatedDistribution distribution.
-    
-        Arguments:
+        ZeroInflatedDistribution distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             base_dist: <class 'inspect._empty'>
+                
             gate: None
+                
             gate_logits: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.ZeroInflatedDistribution(base_dist=base_dist, gate=gate, gate_logits=gate_logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.ZeroInflatedDistribution(base_dist=base_dist, gate=gate, gate_logits=gate_logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.ZeroInflatedDistribution(base_dist=base_dist, gate=gate, gate_logits=gate_logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.ZeroInflatedDistribution(base_dist=base_dist, gate=gate, gate_logits=gate_logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def zeroinflatednegativebinomial2(mean, concentration, gate=None, gate_logits=None, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def zeroinflatednegativebinomial2(mean, concentration, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        ZeroInflatedNegativeBinomial2 distribution.
-    
-        Arguments:
+        ZeroInflatedNegativeBinomial2 distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             mean: <class 'inspect._empty'>
+                
             concentration: <class 'inspect._empty'>
+                
             gate: None
+                
             gate_logits: None
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.ZeroInflatedNegativeBinomial2(mean=mean, concentration=concentration, gate=gate, gate_logits=gate_logits, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.ZeroInflatedNegativeBinomial2(mean=mean, concentration=concentration, gate=gate, gate_logits=gate_logits, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.ZeroInflatedNegativeBinomial2(mean=mean, concentration=concentration, gate=gate, gate_logits=gate_logits, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.ZeroInflatedNegativeBinomial2(mean=mean, concentration=concentration, gate=gate, gate_logits=gate_logits, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def zeroinflatedpoisson(gate, rate=1.0, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def zeroinflatedpoisson(gate, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        ZeroInflatedPoisson distribution.
-    
-        Arguments:
+        ZeroInflatedPoisson distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             gate: <class 'inspect._empty'>
+                
             rate: 1.0
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.ZeroInflatedPoisson(gate=gate, rate=rate, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.ZeroInflatedPoisson(gate=gate, rate=rate, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.ZeroInflatedPoisson(gate=gate, rate=rate, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.ZeroInflatedPoisson(gate=gate, rate=rate, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def zerosumnormal(scale, event_shape, validate_args=None, shape=(), sample = False, seed = 0, name = 'x',obs=None):
+    def zerosumnormal(scale, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        ZeroSumNormal distribution.
-    
-        Arguments:
+        ZeroSumNormal distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             scale: <class 'inspect._empty'>
+                
             event_shape: <class 'inspect._empty'>
+                
             validate_args: None
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.ZeroSumNormal(scale=scale, event_shape=event_shape, validate_args=validate_args),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.ZeroSumNormal(scale=scale, event_shape=event_shape, validate_args=validate_args).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.ZeroSumNormal(scale=scale, event_shape=event_shape, validate_args=validate_args).expand(shape))
+        d = numpyro.distributions.ZeroSumNormal(scale=scale, event_shape=event_shape, validate_args=validate_args)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def kl_divergence(shape=(), sample = False, seed = 0, name = 'x',obs=None, *args, **kwargs):
+    def biject_to(constraint, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         """
-        kl_divergence distribution.
-    
-        Arguments:
+        biject_to distribution wrapper.
+        
+            Original Arguments:
+            -----------------
+            constraint: <class 'inspect._empty'>
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
+        """
+        d = numpyro.distributions.biject_to(constraint=constraint)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
+
+    @staticmethod
+    def kl_divergence( name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False,*args, **kwargs):
+        """
+        kl_divergence distribution wrapper.
+        
+            Original Arguments:
+            -----------------
             args: <class 'inspect._empty'>
+                
             kwargs: <class 'inspect._empty'>
-            shape: Shape of samples to be drawn.
+                
+        
+            Wrapper Arguments:
+            ------------------
+            shape (tuple): A multi-purpose argument for shaping.
+                - When sample=False (model building), this is used with `.expand(shape)` to set the distribution's batch shape.
+                - When sample=True (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations. This is passed to the `infer={'obs_mask': ...}` argument of `numpyro.sample`.
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
         """
-        if obs != None:
-                return numpyro.sample(name, numpyro.distributions.kl_divergence(args=args, kwargs=kwargs),obs)
-        else: 
-                if sample== True:
-                        seed = random.PRNGKey(seed)
-                        return numpyro.distributions.kl_divergence(args=args, kwargs=kwargs).sample(seed, shape)
-                else: 
-                        return numpyro.sample(name, numpyro.distributions.kl_divergence(args=args, kwargs=kwargs).expand(shape))
+        d = numpyro.distributions.kl_divergence(args=args, kwargs=kwargs)
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
