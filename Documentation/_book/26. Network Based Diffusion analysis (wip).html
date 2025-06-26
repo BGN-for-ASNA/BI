@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Sebastian Sosa">
-<meta name="dcterms.date" content="2024-09-09">
 
-<title>BI documentation</title>
+<title>28&nbsp; Network Based Diffusion analysis – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -32,7 +65,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./0. Introduction.html" rel="next">
+<link href="./25. Network Metrics.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -71,10 +104,39 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
-<body class="nav-sidebar floating fullcontent quarto-light">
+<body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -83,7 +145,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./26. Network Based Diffusion analysis (wip).html"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -147,7 +209,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></span></a>
   </div>
 </li>
@@ -309,7 +371,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></span></a>
   </div>
 </li>
@@ -318,32 +380,36 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">28.1</span> General Principles</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">28.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">28.3</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">28.4</span> Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#formulation" id="toc-formulation" class="nav-link" data-scroll-target="#formulation"><span class="header-section-number">28.4.1</span> <em>Formulation</em></a></li>
+  </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">28.5</span> Notes</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">28.6</span> Reference(s)</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">BI documentation</h1>
+<h1 class="title"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Sebastian Sosa </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">September 9, 2024</p>
-    </div>
-  </div>
   
     
   </div>
@@ -353,9 +419,96 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><img src="cover.png" title="BI documentation" class="quarto-cover-image nolightbox img-fluid"></p>
+<section id="general-principles" class="level2" data-number="28.1">
+<h2 data-number="28.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">28.1</span> General Principles</h2>
+<p>The principle idea behind Network Based Diffusion analysis (NBDA) is that if social transmission is involved in the spread of a novel behavior through a group, then that spread is expected to follow a social network links. The basic model underlying NBDA states that at time <span class="math inline">\(t\)</span> an individual, <span class="math inline">\(i\)</span>, learns the behavior of interest with a specific rate formula.</p>
+<p>In principle NBDA can be consider as a survival analysis, so we have the same concepts as in <a href="./12. Survival analysis.html">chapter 12</a>:</p>
+<ol type="1">
+<li>Where the <strong>baseline hazard</strong> (e.g.&nbsp;the hazard when all covariates are zero) is the asocial hazard.</li>
+<li>Where the <strong>covariate</strong> is the sum of links toward informed individuals (i.e.&nbsp;individuals that acquired the behavior of interest at time <span class="math inline">\(t-1\)</span>).</li>
+<li>Thus the <strong>Hazard Function</strong> which account for the network links weights <strong>covariate</strong> can thus be consider as the social rate of learning the behavior.</li>
+</ol>
+</section>
+<section id="considerations" class="level2" data-number="28.2">
+<h2 data-number="28.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">28.2</span> Considerations</h2>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Caution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>There are two main NBDA variants: order-of-acquisition diffusion analysis (OADA), which takes as data the order in which individuals acquired the target behaviour, and time-of-acquisition diffusion analysis (TADA), which uses the times of acquisition of the target behaviour.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="example" class="level2" data-number="28.3">
+<h2 data-number="28.3" class="anchored" data-anchor-id="example"><span class="header-section-number">28.3</span> Example</h2>
+<p>Below is an example code snippet demonstrating Bayesian Multiplex network model using the Bayesian Inference (BI) package:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="mathematical-details" class="level2" data-number="28.4">
+<h2 data-number="28.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">28.4</span> Mathematical Details</h2>
+<section id="formulation" class="level3" data-number="28.4.1">
+<h3 data-number="28.4.1" class="anchored" data-anchor-id="formulation"><span class="header-section-number">28.4.1</span> <em>Formulation</em></h3>
+<p>There are two parameters of interest in the basic time of acquisition diffusion analysis model: the rate of social transmission be-tween individuals per unit of network connection,<em>s</em>, and the baseline rate of trait performance in the absence of social transmission, <span class="math inline">\(λ_0\)</span>.</p>
+<p><span class="math display">\[
+\lambda_i(t) = \lambda_0(t) (1- z_i(t))  \left[ s \sum_{j = 1}^{N} a_{ij} z_j (t_{-1}) + 1 \right]
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\(\lambda_i(t)\)</span> is the rate at which individuals <em>i</em> acquire the task solution at time <em>t</em>.</p></li>
+<li><p><span class="math inline">\(\lambda_0(t)\)</span> is a baseline acquisition function determining the distribution of latencies to acquisition in the absence of social transmission (that is, through asocial learning). It can be specify by an exponential or Weibull distrbution.</p></li>
+<li><p><span class="math inline">\(z_i(t)\)</span> gives the status (1 = informed, 0 = naïve) of individual <em>i</em> at time <em>t</em>.</p></li>
+<li><p><span class="math inline">\(s\)</span> is the regression coefficients capturing the effect of <span class="math inline">\(x\)</span> on the hazard have an assigned a normal prior.</p></li>
+<li><p><span class="math inline">\((1- z_i(t))\)</span> and <span class="math inline">\(z_j (-1)\)</span> terms ensure that the task solution is only transmitted from informed to uninformed individuals:</p></li>
+</ul>
+<p><span class="math display">\[
+z_j(t) =  Y_i \sim \begin{cases}
+0, &amp; \text{if j is naive} \\
+1, &amp; \text{if j is informed}
+\end{cases}
+\]</span></p>
+</section>
+</section>
+<section id="notes" class="level2" data-number="28.5">
+<h2 data-number="28.5" class="anchored" data-anchor-id="notes"><span class="header-section-number">28.5</span> Notes</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+</section>
+<section id="references" class="level2" data-number="28.6">
+<h2 data-number="28.6" class="anchored" data-anchor-id="references"><span class="header-section-number">28.6</span> Reference(s)</h2>
+<p>https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/1365-2656.13307</p>
+<ol start="17" type="1">
+<li>(PDF) Quantifying diffusion in social networks: a Bayesian approach. Available from: https://www.researchgate.net/publication/270048687_Quantifying_diffusion_in_social_networks_a_Bayesian_approach [accessed Oct 24 2024].</li>
+</ol>
 
 
+</section>
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -1200,11 +1353,11 @@ tippy('#LKJcorr', {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./25. Network Metrics.html" class="pagination-link" aria-label="Network metrics">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Network metrics</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./0. Introduction.html" class="pagination-link" aria-label="Introduction">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
