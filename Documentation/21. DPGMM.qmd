@@ -2,29 +2,29 @@
 
 ## General Principles
 
-To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Gaussian Mixture Model (DPMM)**. This is a [non-parametric 🛈]{style="color:#0D6EFD"} clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian (bell curve) distributions, and it simultaneously tries to figure out:
+To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Gaussian Mixture Model (DPMM)**. This is a [non-parametric 🛈]{style="color:#0D6EFD"} clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:
 
 1.  **How many clusters (`K`) exist**: Unlike algorithms like K-Means, the DPMM infers the most probable number of clusters directly from the data.
-2.  **The properties of each cluster**: For each inferred cluster, it estimates its center (mean `μ`) and its shape/spread (covariance `Σ`).
+2.  **The properties of each cluster**: For each inferred cluster, it estimates its center (mean $\mu$) and its shape/spread (covariance $\sigma$).
 3.  **The assignment of each data point**: It determines the probability of each data point belonging to each cluster.
 
 ## Considerations
 
 ::: callout-caution
--   A DPMM is a [Bayesian model 🛈]{style="color:#0D6EFD"} that considers uncertainty in all its parameters. The core idea is the [Dirichlet Process 🛈]{style="color:#0D6EFD"}, a prior over distributions that allows for a potentially infinite number of clusters. In practice, we use a finite approximation called the [Stick-Breaking Process 🛈]{style="color:#0D6EFD"}.
+-   A DPMM is a Bayesian model 🛈 that considers uncertainty in all its parameters. The core idea is to use the Dirichlet Process prior that allows for a potentially infinite number of clusters. In practice, we use a finite approximation called the [Stick-Breaking Process 🛈]{style="color:#0D6EFD"}.
 
 -   The key parameters and their priors are:
 
-    -   **Concentration `α`**: This single parameter controls the tendency to create new clusters. A low `α` favors fewer, larger clusters, while a high `α` allows for many smaller clusters. We typically place a `Gamma` prior on `α` to learn its value from the data.
-    -   **Cluster Weights `w`**: Generated via the Stick-Breaking process from `α`. These are the probabilities of drawing a data point from any given cluster.
-    -   **Cluster Parameters (`μ`, `Σ`)**: Each potential cluster has a mean `μ` and a covariance matrix `Σ`. We must define priors for them. For numerical stability, the covariance `Σ` is often decomposed into standard deviations (`σ`) and a correlation matrix (`Lcorr`), using a [LKJ prior 🛈]{style="color:#0D6EFD"} for the correlation part.
+    -   **Concentration** $\alpha$: This single parameter controls the tendency to create new clusters. A low `α` favors fewer, larger clusters, while a high `α` allows for many smaller clusters. We typically place a `Gamma` prior on $\alpha$ to learn its value from the data.
+    -   **Cluster Weights `w`**: Generated via the Stick-Breaking process from $\alpha$. These are the probabilities of drawing a data point from any given cluster.
+    -   **Cluster Parameters (**$\mu$, $\sigma$): Each potential cluster has a mean $\mu$ and a covariance matrix $\sigma$. If the data have multiple dimensions, we use a multivariate normal distribution (see chapter, [14](14.%20Varying%20slopes.qmd)). Howver, if the data is one-dimensional, we use a univariate normal distribution.
 
--   The model is often implemented in its [marginalized form 🛈]{style="color:#0D6EFD"}. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm (e.g., NUTS) to explore, leading to much more efficient computation.
+-   The model is often implemented in its [marginalized form 🛈]{style="color:#0D6EFD"}. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.
 :::
 
 ## Example
 
-Below is an example of a DPMM implemented in Python. The goal is to cluster a synthetic dataset into its underlying groups. The code first generates data with 4 distinct centers and then applies the DPMM to recover these clusters.
+Below is an example of a DPMM implemented in BI. The goal is to cluster a synthetic dataset into its underlying groups. The code first generates data with 4 distinct centers and then applies the DPMM to recover these clusters.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -59,7 +59,7 @@ m.data_on_model = dict(data=data)
 m.run(dpmm_marginal)  # Optimize model parameters through MCMC sampling
 ```
 
-## R 
+## R
 
 ``` r
 ```
@@ -67,46 +67,49 @@ m.run(dpmm_marginal)  # Optimize model parameters through MCMC sampling
 
 ## Mathematical Details
 
-### *Parametric Formulation: Finite Gaussian Mixture Model*
-
-A standard, parametric approach to clustering is the **Finite Gaussian Mixture Model (GMM)**, where the number of clusters `K` must be specified in advance. The model is:
+This level describes how any single data point, $\mathbf{x}_i$, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster's specific distribution. We use a truncation level $T$ as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.
 
 $$
-y_i \sim \sum_{k=1}^{K} w_k \cdot \text{Normal}(\mu_k, \Sigma_k)
-$$
-
-Where: - $y_i$ is the data for observation *i*. - `K` is the fixed number of clusters. - $w_k$ are fixed mixing weights that sum to 1. - $\mu_k$ and $\Sigma_k$ are the mean and covariance of the *k*-th cluster.
-
-### *Non-Parametric Bayesian Formulation: DPMM*
-
-The DPMM replaces the fixed `K` with a flexible, data-driven process. The model is specified hierarchically:
-
-**1. Stick-Breaking Construction for Weights** $$
 \begin{align*}
-\beta_k &\sim \text{Beta}(1, \alpha) \quad \text{for } k=1, \dots, T-1 \\
-w_k &= \beta_k \prod_{j=1}^{k-1} (1-\beta_j)
+\mathbf{x}_i \mid z_i=k &\sim \text{MultivariateNormal}(\boldsymbol{\mu}_k, \Sigma_{\text{obs}}) \\
+
+\\
+z_i &\sim \text{Categorical}(\mathbf{w}) \\
+\mathbf{w} &= \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
+\beta_k &\sim \text{Beta}(1, \alpha) \\
+\alpha &\sim \text{Gamma}(1, 10)\\
+
+\\
+\boldsymbol{\mu}_k &\sim \text{MultivariateNormal}(\boldsymbol{\mu}_0, \Sigma_0)  \\
+\Sigma_{\text{obs}} &= \mathbf{I}_D \\
+
+
 \end{align*}
 $$
 
-**2. Priors on Parameters** $$
-\begin{align*}
-\alpha &\sim \text{Gamma}(1, 10) && \text{(Concentration hyperprior)} \\
-\mu_k &\sim \text{Normal}(\mu_0, \Sigma_0) && \text{(Prior for cluster means)} \\
-\Sigma_k &\sim \text{InverseWishart}(\nu, \Psi) && \text{(A common prior for covariance)} \\
-&\text{or decomposed as:} \\
-L_{k} &\sim \text{LKJCholesky}(\eta) && \text{(Prior for correlation structure)} \\
-\sigma_{k,d} &\sim \text{HalfCauchy}(1) && \text{(Prior for standard deviations)}
-\end{align*}
-$$
 
-**3. Likelihood** $$
-y_i \sim \sum_{k=1}^{T} w_k \cdot \text{Normal}(y_i | \mu_k, \Sigma_k)
-$$ Where `T` is a truncation level chosen to be larger than the expected number of clusters.
+**Parameter Definitions:**
+*   **Observed Data:**
+    *   $\mathbf{x}_i$: The $i$-th observed D-dimensional data point.
+
+*   **Latent Variables (Inferred):**
+    *   $z_i$: The integer cluster assignment for the $i$-th data point.
+  
+    *   $\mathbf{w}$: The vector of mixture weights, where $w_k$ is the probability of belonging to cluster $k$.
+    *   $\beta_k$: The set of Beta-distributed random variables for the stick-breaking process.
+    *   $\alpha$: The concentration parameter, controlling the effective number of clusters.  
+    *   $\boldsymbol{\mu}_k$: The D-dimensional mean vector of the $k$-th cluster.
+    
+  
+*   **Hyperparameters (Fixed):**
+    *   $\boldsymbol{\mu}_0$: The prior mean for the cluster centers (e.g., `mean(data)`).
+    *   $\Sigma_0$: The prior covariance for the cluster centers (e.g., `10 * I_D`).
+
 
 ## Notes
 
 ::: callout-note
-The primary advantage of the DPMM over methods like K-Means or a finite GMM is the **automatic inference of the number of clusters**. Instead of running the model multiple times with different values of `K` and comparing them, the DPMM explores different numbers of clusters as part of its fitting process. The posterior distribution of the weights `w` reveals which components are "active" (have significant weight) and thus gives a probabilistic estimate of the number of clusters supported by the data.
+The primary advantage of the DPMM over methods like K-Means or a GMM is the **automatic inference of the number of clusters**. Instead of running the model multiple times with different values of `K` and comparing them, the DPMM explores different numbers of clusters as part of its fitting process. The posterior distribution of the weights `w` reveals which components are "active" (have significant weight) and thus gives a probabilistic estimate of the number of clusters supported by the data.
 :::
 
 ## Reference(s)
