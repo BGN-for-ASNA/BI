@@ -1,0 +1,139 @@
+
+# Gaussian Mixture Model
+
+## General Principles
+
+To discover group structures or clusters in data, we can use a **Gaussian Mixture Model (GMM)**. This is a [parametric 🛈]{style="color:#0D6EFD"} clustering method. A GMM assumes that the data is generated from a mixture of a **pre-specified number (`K`)** of different Gaussian distributions. The model's goal is to figure out:
+
+1.  **The properties of each of the `K` clusters**: For each of the `K` clusters, it estimates its center (mean $\mu$) and its shape/spread (covariance $\Sigma$).
+2.  **The mixture weights**: It estimates the proportion of the data that belongs to each cluster.
+3.  **The assignment of each data point**: It determines the probability of each data point belonging to each of the `K` clusters.
+
+## Considerations
+
+::: callout-caution
+-   A GMM is a Bayesian model 🛈 that considers uncertainty in all its parameters, *except for the number of clusters, `K`*, which must be fixed in advance.
+
+-   The key parameters and their priors are:
+
+    -   **Number of Clusters `K`**: This is a **fixed hyperparameter** that you must choose before running the model. Choosing the right `K` often involves running the model multiple times and using model comparison criteria (like cross-validation, AIC, or BIC).
+    -   **Cluster Weights `w`**: These are the probabilities of drawing a data point from any given cluster. Since there are a fixed number `K` of them and they must sum to 1, they are typically given a `Dirichlet` prior. A symmetric `Dirichlet` prior (e.g., `Dirichlet(1, 1, ..., 1)`) represents an initial belief that all clusters are equally likely.
+    -   **Cluster Parameters (**$\boldsymbol{\mu}$, $\Sigma$): Each of the `K` clusters has a mean $\boldsymbol{\mu}$ and a covariance matrix $\Sigma$. We place priors on these to define our beliefs about their plausible values.
+
+-   Like the DPMM, the model is often implemented in its [marginalized form 🛈]{style="color:#0D6EFD"}. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.
+  
+- To increase accuracy we run a k-means algorithm to initialize the cluster mean priors.
+:::
+
+## Example
+
+Below is an example of a GMM implemented in BI. The goal is to cluster a synthetic dataset into **a pre-specified `K=4` groups**.
+
+::: {.panel-tabset group="language"}
+## Python
+
+```python
+from BI import bi
+from sklearn.datasets import make_blobs
+from sklearn.cluster import KMeans
+
+# Generate synthetic data
+data, true_labels = make_blobs(
+    n_samples=500, centers=8, cluster_std=0.8,
+    center_box=(-10,10), random_state=101
+)
+N, D = data.shape
+
+# Initialize cluster means priors, with k-means
+means = KMeans(n_clusters=3, random_state=0, n_init=10).fit(data)
+initial_means = jnp.array(means.cluster_centers_) 
+
+# Define the model
+def GMM(data, K=4):
+    # Get data dimensions
+    N, D = data.shape
+
+    # 1) Mixture weights
+    # Prior on the weights for K components. A Dirichlet distribution is the
+    # natural choice for a fixed-length probability vector.
+    # A concentration of 1.0 implies a uniform prior over the weights.
+    w = m.dist.dirichlet(concentration=jnp.ones(K), name='w')
+
+    # 2) Component parameters
+    data_mean = jnp.mean(data, axis=0)
+    with numpyro.plate("components", K):
+        mu = m.dist.multivariatenormal(loc=data_mean, covariance_matrix=100.0 * jnp.eye(D), name='mu') # shape (K, D)
+        sigma = m.dist.halfcauchy(1, shape=(D,), event_dim=1, name='sigma') # shape (K, D)
+        Lcorr = m.dist.lkjcholesky(dimension=D, concentration=1.0, name='Lcorr') # shape (K, D, D)
+
+        # Build the covariance matrix from its scale and correlation parts
+        scale_tril = sigma[..., None] * Lcorr  # shape (K, D, D)
+
+    # 3) Marginal mixture over obs
+    m.dist.mixturesamefamily(
+        mixing_distribution=m.dist.categoricalprobs(w, name='cat', create_obj=True),
+        component_distribution=m.dist.multivariatenormal(loc=mu, scale_tril=scale_tril, name='mvn', create_obj=True),
+        name="obs",
+        obs=data
+    )
+
+m.data_on_model = dict(data=data)
+m.run(GMM) # Optimize model parameters through MCMC sampling
+```
+
+## R
+
+```r
+```
+:::
+
+## Mathematical Details
+
+This section describes the generative process for a GMM. For each data point $\mathbf{x}_i$, the model first selects one of the `K` clusters according to the weights $\mathbf{w}$, and then draws the point from that cluster's Gaussian distribution.
+
+$$
+\begin{align*}
+z_i &\sim \text{Categorical}(\mathbf{w}) && \text{for } i=1, \dots, N \\
+\mathbf{x}_i \mid z_i=k &\sim \text{MultivariateNormal}(\boldsymbol{\mu}_k, \Sigma_k) && \text{for } i=1, \dots, N
+\end{align*}
+$$
+
+$$
+\mathbf{w} \sim \text{Dirichlet}(\boldsymbol{\alpha}_0) \quad \text{(Mixture weights vector for K clusters)}
+$$
+
+$$
+\begin{align*}
+\boldsymbol{\mu}_k &\sim \text{MultivariateNormal}(\boldsymbol{\mu}_0, \Sigma_0) && \text{for } k=1, \dots, K \\
+\boldsymbol{\sigma}_k &\sim \text{HalfCauchy}(1) && \text{for } k=1, \dots, K \\
+\mathbf{L}_{\text{corr}, k} &\sim \text{LKJCholesky}(D, 1.0) && \text{for } k=1, \dots, K \\
+\Sigma_k &= \text{diag}(\boldsymbol{\sigma}_k) \cdot \mathbf{L}_{\text{corr}, k} \cdot \mathbf{L}_{\text{corr}, k}^T \cdot \text{diag}(\boldsymbol{\sigma}_k)
+\end{align*}
+$$
+
+
+
+**Parameter Definitions:**
+*   **Observed Data:**
+    *   $\mathbf{x}_i$: The $i$-th observed D-dimensional data point.
+
+*   **Latent Variables (Inferred):**
+    *   $z_i$: The integer cluster assignment for the $i$-th data point.
+    *   $\mathbf{w}$: The K-dimensional vector of mixture weights.
+    *   $\boldsymbol{\mu}_k$: The D-dimensional mean vector of the $k$-th cluster.
+    *   $\Sigma_k$: The DxD covariance matrix of the $k$-th cluster (composed of $\boldsymbol{\sigma}_k$ and $\mathbf{L}_{\text{corr},k}$).
+
+*   **Hyperparameters (Fixed):**
+    *   $K$: The total number of clusters.
+    *   $\boldsymbol{\alpha}_0$: The concentration parameter vector for the Dirichlet prior on weights (e.g., `[1, 1, ..., 1]`).
+    *   $\boldsymbol{\mu}_0$: The prior mean for the cluster centers.
+    *   $\Sigma_0$: The prior covariance for the cluster centers.
+
+## Notes
+
+::: callout-note
+The primary challenge of the GMM compared to the DPMM is the need to **manually specify the number of clusters `K`**. If the chosen `K` is too small, the model may merge distinct clusters. If `K` is too large, it may split natural clusters into meaningless sub-groups. Therefore, applying a GMM often involves an outer loop of model selection where one fits the model for a range of `K` values and uses a scoring metric to select the best one.
+:::
+
+## Reference(s)
+C. M. Bishop (2006). *Pattern Recognition and Machine Learning*. Springer. (Chapter 9)
