@@ -1,159 +1,105 @@
-import jax
-import jax.numpy as jnp
-from jax import jit, random
-from jax.lax import fori_loop
-from functools import partial
-import matplotlib.pyplot as plt
-from sklearn.datasets import make_blobs
-from sklearn.utils.validation import check_is_fitted
-
 # For type hinting
 from jax.typing import ArrayLike
 from jax import Array
 from typing import Optional, Union
-import time
-
-
-
-class JAXKMeans:
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+from BI.ML.KMeans import JAXKMeans
+import numpy as onp
+class ml():
     """
-    K-Means clustering implemented in JAX with a Scikit-learn like API.
+    A stateful handler to manage and interact with ML models using a fluent API.
 
-    Parameters
-    ----------
-    n_clusters : int
-        The number of clusters to form as well as the number of centroids
-        to generate.
-    n_iterations : int, default=100
-        Maximum number of iterations of the k-means algorithm for a
-        single run.
-    random_state : int, optional
-        Determines random number generation for centroid initialization. Use an
-        int to make the randomness deterministic.
+    This handler allows selecting, fitting, and predicting with models
+    in a chained, stateful manner.
+
+    Example:
+        handler = ModelHandler()
+        handler.KMEANS(X, n_clusters=3).fit()
+        predictions = handler.predict(X_test)
+        handler.plot()
     """
-    def __init__(self, n_clusters: int, n_iterations: int = 100, random_state: Optional[int] = None):
-        self.n_clusters = n_clusters
-        self.n_iterations = n_iterations
-        self.random_state = random_state
+    def __init__(self):
+        self.model = None
+        self.model_name = None
+        self.X = None
+        self.y = None
+        self.results = {}
+        self.predictions = None
+        self.model_params = {}
 
-        # Attributes that will be set after fitting (ending with an underscore)
-        self.centroids_: Optional[Array] = None
-        self.labels_: Optional[Array] = None
-        self.inertia_: Optional[Array] = None
-
-    def fit(self, X: ArrayLike, y: None = None):
+    def fit(self, X: ArrayLike) -> Array:
         """
-        Compute k-means clustering.
+        Fits the model to the provided data.
 
         Parameters
         ----------
-        X : ArrayLike of shape (n_samples, n_features)
-            Training instances to cluster.
-        y : Ignored
-            Not used, present here for API consistency by convention.
-        
+        X : ArrayLike
+            The input data to fit the model.
+
         Returns
         -------
-        self
-            Fitted estimator.
+        Array
+            The fitted model's results.
         """
-        X_jnp = jnp.asarray(X)
+        if self.model is None:
+            raise RuntimeError("No model has been initialized. Call a model method first.")
         
-        # Set up the JAX random key
-        if self.random_state is None:
-            # Use a non-deterministic seed if no state is provided
-            seed = int(time.time())
-        else:
-            seed = self.random_state
-        key = random.PRNGKey(seed)
-
-        # Run the core JAX implementation
-        centroids, labels, inertia = _kmeans_jax_impl(
-            key, X_jnp, self.n_clusters, self.n_iterations
-        )
-        
-        # Store the results as instance attributes
-        self.centroids_ = centroids
-        self.labels_ = labels
-        self.inertia_ = inertia
-        
-        return self
+        self.X = jnp.asarray(X)
+        self.model.fit(self.X)
+        self.results = self.model.results
+        return self.results
 
     def predict(self, X: ArrayLike) -> Array:
         """
-        Predict the closest cluster each sample in X belongs to.
+        Prediction method for the fitted model.
 
         Parameters
         ----------
-        X : ArrayLike of shape (n_samples, n_features)
-            New data to predict.
+        X : ArrayLike
+            The input data to predict.
 
         Returns
         -------
-        labels : Array of shape (n_samples,)
-            Index of the cluster each sample belongs to.
+        Array
+            The predicted cluster labels.
         """
-        # Check if fit has been called
-        if self.centroids_ is None:
-            raise RuntimeError("Model has not been fitted yet. Call .fit() first.")
+        if self.model is None:
+            raise RuntimeError("No model has been fitted. Call fit() first.")
         
-        X_jnp = jnp.asarray(X)
-        return _predict_jax_impl(self.centroids_, X_jnp)
+        return self.model.predict(X)
 
-    def fit_predict(self, X: ArrayLike, y: None = None) -> Array:
+    def plot(self, X: ArrayLike):
         """
-        Compute cluster centers and predict cluster index for each sample.
+        Plots the model output.
+        """
+        if self.model is None or self.X is None:
+            raise RuntimeError("No model has been fitted. Call fit() first.")
+        
+        self.model.plot(X)
 
-        Convenience method; equivalent to calling fit(X) followed by
-        predict(X), but more efficient.
+    def KMEANS(self, X: ArrayLike, n_clusters: int, n_iterations: int = 100, random_state: Optional[int] = None):
+        """
+        Initializes a KMeans model with the given parameters.
 
         Parameters
         ----------
-        X : ArrayLike of shape (n_samples, n_features)
-            New data to transform.
-        y : Ignored
-            Not used, present here for API consistency by convention.
+        X : ArrayLike
+            The input data to fit the model.
+        n_clusters : int
+            The number of clusters to form.
+        n_iterations : int, default=100
+            The number of iterations for the K-means algorithm.
+        random_state : int, optional
+            Random seed for reproducibility.
 
         Returns
         -------
-        labels : Array of shape (n_samples,)
-            Index of the cluster each sample belongs to.
+        self
+            Returns the instance itself for method chaining.
         """
-        self.fit(X)
-        return self.labels_
-
-    def plot_clusters(self, X: ArrayLike, show_centroids: bool = True):
-        """
-        Generates a 2D scatter plot of the data colored by cluster assignment.
-        
-        This is a helper method for visualization and requires matplotlib.
-        It will only work for 2D data (n_features=2).
-
-        Parameters
-        ----------
-        X : ArrayLike of shape (n_samples, 2)
-            The data to plot. Usually the same data used for fitting.
-        show_centroids : bool, default=True
-            Whether to plot the final centroids on the graph.
-        """
-        if self.labels_ is None or self.centroids_ is None:
-             raise RuntimeError("Model has not been fitted yet. Call .fit() first.")
-        
-        if X.shape[1] != 2:
-            raise ValueError("Plotting is only supported for 2D data (n_features=2).")
-
-        plt.figure(figsize=(10, 7))
-        plt.scatter(X[:, 0], X[:, 1], c=self.labels_, cmap='viridis', s=50, alpha=0.7)
-        
-        if show_centroids:
-            plt.scatter(
-                self.centroids_[:, 0], self.centroids_[:, 1], 
-                c='red', marker='X', s=200, edgecolor='black', label='Centroids'
-            )
-            plt.legend()
-            
-        plt.title('K-Means Clustering Results')
-        plt.xlabel('Feature 1')
-        plt.ylabel('Feature 2')
-        plt.grid(True)
-        plt.show()
+        self.X = jnp.asarray(X)
+        self.model_name = 'KMEANS'
+        self.model = JAXKMeans(X, n_clusters=n_clusters, n_iterations=n_iterations, random_state=random_state)
+        self.results = self.model.results
+        return self
