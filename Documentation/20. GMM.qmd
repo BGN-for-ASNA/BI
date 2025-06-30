@@ -76,44 +76,39 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 ## Mathematical Details
 
-This section describes the generative process for a GMM. For each data point $\mathbf{x}_i$, the model first selects one of the `K` clusters according to the weights $\mathbf{w}$, and then draws the point from that cluster's Gaussian distribution.
+This section describes the generative process for a GMM. For each data point $x_i$, the model first selects one of the `K` clusters according to the weights $w$, and then draws the point from that cluster's Gaussian distribution.
 
-$$
 \begin{align*}
-z_i &\sim \text{Categorical}(\mathbf{w}) && \text{for } i=1, \dots, N \\
-\mathbf{x}_i \mid z_i=k &\sim \text{MultivariateNormal}(\boldsymbol{\mu}_k, \Sigma_k) && \text{for } i=1, \dots, N
+z_i &\sim \text{Categorical}(w) && \text{for } i=1, \dots, N \\
+x_i \mid z_i=k &\sim \text{MultivariateNormal}(\mu_k, \Sigma_k) && \text{for } i=1, \dots, N
 \end{align*}
 $$
-
-$$
-\mathbf{w} \sim \text{Dirichlet}(\boldsymbol{\alpha}_0) \quad \text{(Mixture weights vector for K clusters)}
+w \sim \text{Dirichlet}(\alpha_0) \quad \text{(Mixture weights vector for K clusters)}
 $$
 
-$$
 \begin{align*}
-\boldsymbol{\mu}_k &\sim \text{MultivariateNormal}(\boldsymbol{\mu}_0, \Sigma_0) && \text{for } k=1, \dots, K \\
-\boldsymbol{\sigma}_k &\sim \text{HalfCauchy}(1) && \text{for } k=1, \dots, K \\
-\mathbf{L}_{\text{corr}, k} &\sim \text{LKJCholesky}(D, 1.0) && \text{for } k=1, \dots, K \\
-\Sigma_k &= \text{diag}(\boldsymbol{\sigma}_k) \cdot \mathbf{L}_{\text{corr}, k} \cdot \mathbf{L}_{\text{corr}, k}^T \cdot \text{diag}(\boldsymbol{\sigma}_k)
+\mu_k &\sim \text{MultivariateNormal}(\mu_0, \Sigma_0) && \text{for } k=1, \dots, K \\
+\sigma_k &\sim \text{HalfCauchy}(1) && \text{for } k=1, \dots, K \\
+L_{\text{corr}, k} &\sim \text{LKJCholesky}(D, 1.0) && \text{for } k=1, \dots, K \\
+\Sigma_k &= \text{diag}(\sigma_k) \cdot L_{\text{corr}, k} \cdot L_{\text{corr}, k}^T \cdot \text{diag}(\sigma_k)
 \end{align*}
-$$
 
 
 
 **Parameter Definitions:**
 *   **Observed Data:**
-    *   $\mathbf{x}_i$: The $i$-th observed D-dimensional data point.
+    *   $x_i$: The $i$-th observed D-dimensional data point.
 
 *   **Latent Variables (Inferred):**
     *   $z_i$: The integer cluster assignment for the $i$-th data point.
-    *   $\mathbf{w}$: The K-dimensional vector of mixture weights.
-    *   $\boldsymbol{\mu}_k$: The D-dimensional mean vector of the $k$-th cluster.
-    *   $\Sigma_k$: The DxD covariance matrix of the $k$-th cluster (composed of $\boldsymbol{\sigma}_k$ and $\mathbf{L}_{\text{corr},k}$).
+    *   $w$: The K-dimensional vector of mixture weights.
+    *   $\mu_k$: The D-dimensional mean vector of the $k$-th cluster.
+    *   $\Sigma_k$: The DxD covariance matrix of the $k$-th cluster (composed of $\sigma_k$ and $L_{\text{corr},k}$).
 
 *   **Hyperparameters (Fixed):**
     *   $K$: The total number of clusters.
-    *   $\boldsymbol{\alpha}_0$: The concentration parameter vector for the Dirichlet prior on weights (e.g., `[1, 1, ..., 1]`).
-    *   $\boldsymbol{\mu}_0$: The prior mean for the cluster centers.
+    *   $\alpha_0$: The concentration parameter vector for the Dirichlet prior on weights (e.g., `[1, 1, ..., 1]`).
+    *   $\mu_0$: The prior mean for the cluster centers.
     *   $\Sigma_0$: The prior covariance for the cluster centers.
 
 ## Notes
