@@ -35,50 +35,37 @@ Below is an example of a GMM implemented in BI. The goal is to cluster a synthet
 ```python
 from BI import bi
 from sklearn.datasets import make_blobs
-from sklearn.cluster import KMeans
 
 # Generate synthetic data
 data, true_labels = make_blobs(
     n_samples=500, centers=8, cluster_std=0.8,
     center_box=(-10,10), random_state=101
 )
-N, D = data.shape
 
-# Initialize cluster means priors, with k-means
-means = KMeans(n_clusters=3, random_state=0, n_init=10).fit(data)
-initial_means = jnp.array(means.cluster_centers_) 
 
-# Define the model
-def GMM(data, K=4):
-    # Get data dimensions
-    N, D = data.shape
+#  The model
+def gmm(data, K, initial_means): # Here K is the *exact* number of clusters
+    D = data.shape[1]  # Number of features
+    alpha_prior = 0.5 * jnp.ones(K)
+    w = dist.dirichlet(concentration=alpha_prior, name='weights') 
 
-    # 1) Mixture weights
-    # Prior on the weights for K components. A Dirichlet distribution is the
-    # natural choice for a fixed-length probability vector.
-    # A concentration of 1.0 implies a uniform prior over the weights.
-    w = m.dist.dirichlet(concentration=jnp.ones(K), name='w')
+    with dist.plate("components", K): # Use fixed K
+        mu = dist.multivariatenormal(loc=initial_means, covariance_matrix=0.1*jnp.eye(D), name='mu')        
+        sigma = dist.halfcauchy(1, shape=(D,), event=1, name='sigma')
+        Lcorr = dist.lkjcholesky(dimension=D, concentration=1.0, name='Lcorr')
 
-    # 2) Component parameters
-    data_mean = jnp.mean(data, axis=0)
-    with numpyro.plate("components", K):
-        mu = m.dist.multivariatenormal(loc=data_mean, covariance_matrix=100.0 * jnp.eye(D), name='mu') # shape (K, D)
-        sigma = m.dist.halfcauchy(1, shape=(D,), event_dim=1, name='sigma') # shape (K, D)
-        Lcorr = m.dist.lkjcholesky(dimension=D, concentration=1.0, name='Lcorr') # shape (K, D, D)
+        scale_tril = sigma[..., None] * Lcorr
 
-        # Build the covariance matrix from its scale and correlation parts
-        scale_tril = sigma[..., None] * Lcorr  # shape (K, D, D)
-
-    # 3) Marginal mixture over obs
-    m.dist.mixturesamefamily(
-        mixing_distribution=m.dist.categoricalprobs(w, name='cat', create_obj=True),
-        component_distribution=m.dist.multivariatenormal(loc=mu, scale_tril=scale_tril, name='mvn', create_obj=True),
+    dist.mixturesamefamily(
+        mixing_distribution=dist.categorical(probs=w, create_obj=True),
+        component_distribution=dist.multivariatenormal(loc=mu, scale_tril=scale_tril, create_obj=True),
         name="obs",
         obs=data
     )
 
-m.data_on_model = dict(data=data)
+m.data_on_model = {"data": data,"K": 4 }
 m.run(GMM) # Optimize model parameters through MCMC sampling
+m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```
 
 ## R
