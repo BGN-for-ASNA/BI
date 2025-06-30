@@ -10,6 +10,18 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import pdist, squareform
 
 def gmm(data, K, initial_means): # Here K is the *exact* number of clusters
+    """
+    Gaussian Mixture Model with a fixed number of clusters K.
+    Parameters:
+    - data: Input data points (shape: [N, D] where N is the number of samples and D is the number of features).
+    - K: The exact number of clusters.
+    - initial_means: Initial means for the clusters (shape: [K, D]). If not provided, it is initialized using K-means.
+    Returns:
+    - A model that defines the GMM with K clusters.
+    This model assumes that the data is generated from a mixture of K Gaussian distributions.
+    The model estimates the means, covariances, and mixture weights for each cluster.
+    The number of clusters K is fixed and must be specified in advance.
+    """
     D = data.shape[1]  # Number of features
     alpha_prior = 0.5 * jnp.ones(K)
     w = dist.dirichlet(concentration=alpha_prior, name='weights') 

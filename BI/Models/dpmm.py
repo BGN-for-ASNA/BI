@@ -20,7 +20,7 @@ def mix_weights(beta):
     padded_cumprod = jnp.pad(beta1m_cumprod, (1, 0), constant_values=1.0)
     return padded_beta * padded_cumprod
 
-def dpmm(data, T=2):
+def dpmm(data, T=10):
     N, D = data.shape  # Number of features
     data_mean = jnp.mean(data, axis=0)
     data_std = jnp.std(data, axis=0)*2
