@@ -1,8 +1,8 @@
-# Dirichlet Process Gaussian Mixture Model
+# Dirichlet Process Mixture Model
 
 ## General Principles
 
-To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Gaussian Mixture Model (DPMM)**. This is a [non-parametric 🛈]{style="color:#0D6EFD"} clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:
+To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Mixture Model (DPMM)**. This is a [non-parametric 🛈]{style="color:#0D6EFD"} clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:
 
 1.  **How many clusters (`K`) exist**: Unlike algorithms like K-Means, the DPMM infers the most probable number of clusters directly from the data.
 2.  **The properties of each cluster**: For each inferred cluster, it estimates its center (mean $\mu$) and its shape/spread (covariance $\sigma$).
@@ -85,42 +85,35 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 ## Mathematical Details
 
-This level describes how any single data point, $\mathbf{x}_i$, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster's specific distribution. We use a truncation level $T$ as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.
+This level describes how any single data point, $x_i$, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster's specific distribution. We use a truncation level $T$ as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.
 
-$$
 \begin{align*}
-\mathbf{x}_i \mid z_i=k &\sim \text{MultivariateNormal}(\boldsymbol{\mu}_k, \Sigma_{\text{obs}}) \\
-
-\\
-z_i &\sim \text{Categorical}(\mathbf{w}) \\
-\mathbf{w} &= \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
+x_i \mid z_i=k &\sim \text{MultivariateNormal}(\mu_k, \Sigma_{\text{obs}}) \\
+z_i &\sim \text{Categorical}(w) \\
+w &= \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
 \beta_k &\sim \text{Beta}(1, \alpha) \\
 \alpha &\sim \text{Gamma}(1, 10)\\
-
-\\
-\boldsymbol{\mu}_k &\sim \text{MultivariateNormal}(\boldsymbol{\mu}_0, \Sigma_0)  \\
-\Sigma_{\text{obs}} &= \mathbf{I}_D \\
-
-
+\mu_k &\sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \\
+\Sigma_{\text{obs}} &= I_D \\
 \end{align*}
-$$
+
 
 
 **Parameter Definitions:**
 *   **Observed Data:**
-    *   $\mathbf{x}_i$: The $i$-th observed D-dimensional data point.
+    *   $x_i$: The $i$-th observed D-dimensional data point.
 
 *   **Latent Variables (Inferred):**
     *   $z_i$: The integer cluster assignment for the $i$-th data point.
   
-    *   $\mathbf{w}$: The vector of mixture weights, where $w_k$ is the probability of belonging to cluster $k$.
+    *   $w$: The vector of mixture weights, where $w_k$ is the probability of belonging to cluster $k$.
     *   $\beta_k$: The set of Beta-distributed random variables for the stick-breaking process.
     *   $\alpha$: The concentration parameter, controlling the effective number of clusters.  
-    *   $\boldsymbol{\mu}_k$: The D-dimensional mean vector of the $k$-th cluster.
+    *   $\mu_k$: The D-dimensional mean vector of the $k$-th cluster.
     
   
 *   **Hyperparameters (Fixed):**
-    *   $\boldsymbol{\mu}_0$: The prior mean for the cluster centers (e.g., `mean(data)`).
+    *   $\mu_0$: The prior mean for the cluster centers (e.g., `mean(data)`).
     *   $\Sigma_0$: The prior covariance for the cluster centers (e.g., `10 * I_D`).
 
 
