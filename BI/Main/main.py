@@ -25,6 +25,8 @@ from BI.Utils.link import link
 from BI.Diagnostic.Diag import diag
 from BI.Network.Net import net
 from BI.NBDA.NBDA import NBDA
+from BI.GMM.gmm import *
+from BI.ML.ml import ml
 
 from BI.Utils.dists import UnifiedDist as dist
 from BI.Sampler.sampler import sampler
@@ -38,31 +40,29 @@ class bi(manip):
         manip.__init__(self)
         setup_device(platform, cores, deallocate, print_devices_found) 
         jax.config.update("jax_enable_x64", True)
-        self.trace = None
-        self.priors_name = None
         self.data_on_model = None
+        self.priors_name = None
         self.tab_summary = None
-        self.obs_args = None
-        self.model2 = None # Model with NONE as default
+        self.model_name = None
         self.nbdaModel = False
+        self.obs_args = None
+        self.model2 = None 
+        self.trace = None
+        self.history = {}
 
-        self.dist = dist
-        self.net = net()
-        self.nbda = NBDA()
-        self.survival = survival
-        self.link = link
         self.gaussian = gaussian
+        self.survival = survival
         self.factor = factors
+        self.link = link
+        self.dist = dist
+        self.gmm = gmm
+        self.nbda = NBDA()
+        self.net = net()
+        self.ml= ml()       
 
-    #def lk(self,*args, **kwargs):
-    #    numpyro.sample(*args, **kwargs)
-    #    
+
     def randint(self, low, high, shape):
         return pyrand.randint(low, high, shape)
-
-    #def nbda_init(self, *args, **kwargs):
-    #    self.nbda = NBDA(*args, **kwargs)
-
 
     # MCMC ----------------------------------------------------------------------------
     def run(self, 
@@ -97,13 +97,19 @@ class bi(manip):
                 raise "Argument model can't be None"
             else:
                 self.model = self.nbda.model
+                self.model_name = 'NBDA' 
         else:
             self.model = model
+            self.model_name = model.__name__
 
         if self.nbdaModel == False:
             if self.data_on_model is None :
                 self.data_on_model = self.pd_to_jax(self.model)
 
+        if self.model_name is 'gmm':
+            if 'initial_means' not in self.data_on_model:
+                self.ml.KMEANS(self.data_on_model['data'], n_clusters=self.data_on_model['K'])
+                self.data_on_model['initial_means'] = self.ml.results['centroids']
 
         self.sampler = MCMC(NUTS(self.model,
                                 potential_fn=potential_fn,
@@ -132,6 +138,7 @@ class bi(manip):
         self.sampler.run(jax.random.PRNGKey(seed), **self.data_on_model)
         self.posteriors = self.sampler.get_samples()
         self.diag = diag(sampler = self.sampler)
+        self.get_history()
 
     # Get posteriors ----------------------------------------------------------------------------
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
@@ -268,3 +275,16 @@ class bi(manip):
         print('potential_fn: ', -potential_fn(init_params.z)) #log prob
         print('grad:         ', jax.grad(potential_fn)(init_params.z))
         return init_params, potential_fn, constrain_fn, model_trace 
+
+    def get_history(self):
+        self.history = {
+            'model': self.model,
+            'model_name': self.model_name,  
+            'data': self.data_on_model,
+            'sampler': self.sampler,
+            'posteriors': self.posteriors,
+        }
+
+    def plot(self, X, y=None, figsize=(10, 6), **kwargs):
+        if self.model_name == 'gmm':
+            plot_gmm(X, **kwargs)
