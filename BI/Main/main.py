@@ -58,6 +58,7 @@ class bi(manip):
         self.dist = dist
         self.dpmm = dpmm
         self.gmm = gmm       
+        self.NBDA = NBDA()
         self.net = net()
         self.ml= ml()       
 
