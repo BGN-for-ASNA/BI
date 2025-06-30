@@ -25,7 +25,8 @@ from BI.Utils.link import link
 from BI.Diagnostic.Diag import diag
 from BI.Network.Net import net
 from BI.NBDA.NBDA import NBDA
-from BI.GMM.gmm import *
+from BI.Models.gmm import *
+from BI.Models.dpmm import *
 from BI.ML.ml import ml
 
 from BI.Utils.dists import UnifiedDist as dist
@@ -55,8 +56,8 @@ class bi(manip):
         self.factor = factors
         self.link = link
         self.dist = dist
-        self.gmm = gmm
-        self.nbda = NBDA()
+        self.dpmm = dpmm
+        self.gmm = gmm       
         self.net = net()
         self.ml= ml()       
 
@@ -287,4 +288,6 @@ class bi(manip):
 
     def plot(self, X, y=None, figsize=(10, 6), **kwargs):
         if self.model_name == 'gmm':
-            plot_gmm(X, **kwargs)
+            plot_gmm(X, sampler= self.sampler)
+        if self.model_name == 'dpmm':
+            plot_dpmm(X, sampler= self.sampler)
