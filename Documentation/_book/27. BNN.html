@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>20&nbsp; Latent Variables – BI documentation</title>
+<title>29&nbsp; Bayesian Neural Network – BI documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./19. PCA.html" rel="next">
-<link href="./17. Missing data (wip).html" rel="prev">
+<link href="./26. Network Based Diffusion analysis (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -146,7 +145,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./18. Latent variable (wip).html"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Latent Variables</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./27. BNN.html"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Bayesian Neural Network</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -324,7 +323,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link active">
+  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Latent Variables</span></span></a>
   </div>
 </li>
@@ -378,7 +377,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
+  <a href="./27. BNN.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Bayesian Neural Network</span></span></a>
   </div>
 </li>
@@ -392,12 +391,16 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">20.1</span> General Principles</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">20.2</span> Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">20.3</span> Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">20.4</span> Mathematical Details</a></li>
-  <li><a href="#interpretation-of-latent-variables" id="toc-interpretation-of-latent-variables" class="nav-link" data-scroll-target="#interpretation-of-latent-variables"><span class="header-section-number">20.5</span> Interpretation of Latent Variables</a></li>
-  <li><a href="#use-cases" id="toc-use-cases" class="nav-link" data-scroll-target="#use-cases"><span class="header-section-number">20.6</span> Use Cases</a></li>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles"><span class="header-section-number">29.1</span> General Principles</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations"><span class="header-section-number">29.2</span> Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example"><span class="header-section-number">29.3</span> Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details"><span class="header-section-number">29.4</span> Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><span class="header-section-number">29.4.1</span> <em>Frequentist Formulation</em></a></li>
+  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><span class="header-section-number">29.4.2</span> <em>Bayesian Formulation</em></a></li>
+  </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes"><span class="header-section-number">29.5</span> Notes</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">29.6</span> Reference(s)</a></li>
   </ul>
 </nav>
     </div>
@@ -406,7 +409,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Latent Variables</span></h1>
+<h1 class="title"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Bayesian Neural Network</span></h1>
 </div>
 
 
@@ -423,112 +426,212 @@ window.Quarto = {
 </header>
 
 
-<section id="general-principles" class="level2" data-number="20.1">
-<h2 data-number="20.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">20.1</span> General Principles</h2>
-<p>In some scenarios, the observed data does not directly reflect the underlying structure or factors influencing the outcome. Instead, <em>latent variables</em>—variables that are not directly observed but are inferred from the data—can help model this hidden structure. These latent variables capture unobserved factors that affect the relationship between predictors (<em>X</em>) and the outcome (<em>Y</em>).</p>
-<p>We model the relationship between the predictor variables (<em>X</em>) and the outcome variable (<em>Y</em>) with a latent variable (<em>Z</em>) as follows:</p>
-<p><span class="math display">\[
-Y = f(X, Z) + \epsilon
-\]</span></p>
-<p>Where: - <em>Y</em> is the observed outcome variable. - <em>X</em> is the observed predictor variable(s). - <em>Z</em> is the latent (unobserved) variable, which we aim to infer. - <em>f(X, Z)</em> is the function that relates <em>X</em> and <em>Z</em> to <em>Y</em>. - <em></em> is the error term, typically assumed to be normally distributed with mean 0 and variance <em>^2</em>.</p>
-<p>The latent variable <em>Z</em> can represent various phenomena, such as group-level effects, time-varying trends, or individual-level factors, that are not captured by the observed predictors alone.</p>
+<p>Of course. Here is a documentation page for Bayesian Neural Networks, generated in the same style and format as the provided example for Linear Regression.</p>
+<hr>
+<section id="general-principles" class="level2" data-number="29.1">
+<h2 data-number="29.1" class="anchored" data-anchor-id="general-principles"><span class="header-section-number">29.1</span> General Principles</h2>
+<p>To model complex, non-linear relationships between variables, we can use multiple approaches including, splines, polynomials, gaussian processes, and neural networks. Here, we will focus on a Bayesian Neural Network (BNN). Think of a neural network as a highly flexible function made of interconnected layers of “neurons.” Each connection between neurons has a weight, and each neuron has a bias. These weights and biases are like a vast set of adjustable knobs. In a standard network, the goal is to find the single best setting for all these knobs to map inputs to outputs. Unlike a standard neural network which learns a single set of optimal weights, a BNN learns distributions over its weights and biases. This allows it to capture not just the relationship in the data, but also its own uncertainty about that relationship. For this, we need to define:</p>
+<ol type="1">
+<li><p><strong>A Network Architecture</strong>, which specifies the number of layers, the number of neurons in each layer, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the structure of our “knobs.”</p></li>
+<li><p><strong>Priors for Arrays of Weights and Biases</strong>. In a simple model like linear regression, we define a prior for each individual parameter (e.g., one prior for the slope <span class="math inline">\(\beta\)</span>). In a neural network, which can have thousands or millions of weights, we don’t define a unique prior for every single one. Instead, we define a prior that acts as a template for an entire <strong>array of parameters</strong>. For example, we might declare that all weights in a specific layer are drawn from the same <code>Normal(0, 1)</code> distribution. This allows us to efficiently specify our beliefs about the entire set of network parameters.</p></li>
+<li><p><strong>An Output Distribution (Likelihood)</strong>, which defines the probability of the data given the network’s predictions. For a continuous variable (regression), this is often a Normal distribution with a variance term <span class="math inline">\(\sigma\)</span> that quantifies the data’s noise around the model’s predictions.</p></li>
+</ol>
 </section>
-<section id="considerations" class="level2" data-number="20.2">
-<h2 data-number="20.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">20.2</span> Considerations</h2>
-<p>In Bayesian regression with latent variables, we consider the uncertainty in both the observed and latent variables. We declare prior distributions for the latent variables, in addition to the usual priors for regression coefficients and intercepts. These latent variables are often modeled using Gaussian distributions (<em>Normal</em> priors) or more flexible distributions such as <em>Multivariate Normal</em> for correlations among the latent variables.</p>
-<p>The goal is to infer the posterior distribution over both the parameters and the latent variables, given the observed data.</p>
+<section id="considerations" class="level2" data-number="29.2">
+<h2 data-number="29.2" class="anchored" data-anchor-id="considerations"><span class="header-section-number">29.2</span> Considerations</h2>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Caution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>Like all Bayesian models, BNNs consider <span id="uncertainty"><span style="color:#0D6EFD">model parameter uncertainty 🛈</span></span>. The parameters here are the network’s <strong>weights (W)</strong> and <strong>biases (b)</strong>. We quantify our uncertainty about them through their <span id="posterior"><span style="color:#0D6EFD">posterior distribution 🛈</span></span>. Therefore, we must declare <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for all weights and biases, as well as for the output variance <span class="math inline">\(\sigma\)</span>.</p></li>
+<li><p>Unlike in a linear regression where the coefficient <code>β</code> has a direct interpretation (e.g., the effect of weight on height), the individual weights and biases in a BNN are not directly interpretable. A single weight’s influence is entangled with thousands of other parameters through non-linear functions. Consequently, BNNs are best viewed as powerful <strong>predictive tools</strong> rather than explanatory ones. They excel at learning complex patterns and quantifying predictive uncertainty, but if the goal is to isolate and interpret the effect of a specific variable, a simpler model is often more appropriate.</p></li>
+<li><p>Prior distributions are built following these considerations:</p>
+<ul>
+<li><p>As the data is typically <span id="scaled"><span style="color:#0D6EFD">scaled 🛈</span></span> (see introduction), we can use a standard Normal distribution (mean 0, standard deviation 1) as a weakly-informative prior for all weights and biases. This acts as a form of regularization.</p></li>
+<li><p>Since the output variance <span class="math inline">\(\sigma\)</span> must be positive, we can use a positively-defined distribution, such as the Exponential or Half-Normal.</p></li>
+</ul></li>
+<li><p>BNNs can be used for both regression and classification. The final layer’s activation and the chosen likelihood distribution depend on the task. For binary classification, a sigmoid activation is paired with a Bernoulli likelihood, which requires a <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span> (logit) to connect the linear output of the network to the probability space [0, 1]. For regression, the identity activation is often used with a Gaussian likelihood.</p></li>
+</ul>
+</div>
+</div>
 </section>
-<section id="example" class="level2" data-number="20.3">
-<h2 data-number="20.3" class="anchored" data-anchor-id="example"><span class="header-section-number">20.3</span> Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian regression with latent variables using TensorFlow Probability:</p>
+<section id="example" class="level2" data-number="29.3">
+<h2 data-number="29.3" class="anchored" data-anchor-id="example"><span class="header-section-number">29.3</span> Example</h2>
+<p>Below is an example code snippet demonstrating a Bayesian Neural Network for regression using the Bayesian Inference (BI) package. Data consist of two continuous variables (height and weight), and the goal is to predict height from weight using a non-linear model.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Data Simulation ------------------------------------------------</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>NY <span class="op">=</span> <span class="dv">4</span>  <span class="co"># Number of dependent variables or outcomes (e.g., dimensions for latent variables)</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>NV <span class="op">=</span> <span class="dv">8</span>  <span class="co"># Number of observations or individual-level data points (e.g., subjects)</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the matrix Y2 with shape (NV, NY) filled with NaN values, to be filled later</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>Y2 <span class="op">=</span> np.full((NV, NY), np.nan)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the means and offsets for the data</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># means: Generate random normal means for each of the NY outcomes</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># offsets: Generate random normal offsets for each of the NV observations</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>means <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,), sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>offsets <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NV, <span class="dv">1</span>), sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Howell1.csv'</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>] <span class="co"># Manipulate</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>]) <span class="co"># Scale</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(weight, height):</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define the BNN architecture and get its output (mu)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1 input -&gt; 10 hidden neurons (tanh) -&gt; 1 output neuron (identity)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Priors for weights/biases are Normal(0,1) by default</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> m.bnn(x<span class="op">=</span>weight, n_neurons<span class="op">=</span>[<span class="dv">10</span>, <span class="dv">1</span>], activations<span class="op">=</span>[<span class="st">'tanh'</span>, <span class="st">'identity'</span>], name<span class="op">=</span><span class="st">'bnn'</span>)</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Fill the matrix Y2 with simulated data based on the generated means and offsets</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Each observation (i) is the sum of an individual-specific offset and an outcome-specific mean</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(NV):</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(NY):</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        Y2[i, k] <span class="op">=</span> means[k] <span class="op">+</span> offsets[i]</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Prior for the output standard deviation</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">'s'</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    m.normal(mu, s, obs<span class="op">=</span>height)</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate individual-level random effects (e.g., random slopes or intercepts)</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># b_individual: A matrix of size (N, K) where N is the number of individuals and K is the number of covariates</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>b_individual <span class="op">=</span> BI.distribution.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(N, K), sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># mu: Add an additional effect 'a' to the individual-level random effects 'b_individual'</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 'a' could represent a population-level effect or a baseline</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> b_individual <span class="op">+</span> a</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert Y2 to a JAX array for further computation in a JAX-based framework</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>Y2 <span class="op">=</span> jnp.array(Y2)</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Set data ------------------------------------------------</span></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>dat <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    NY <span class="op">=</span> NY,</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    NV <span class="op">=</span> NV,</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    Y2 <span class="op">=</span> Y2</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> dat</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(NY, NV, Y2):</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    means <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NY,), name<span class="op">=</span><span class="st">'means'</span>)</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    offset <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(NV, <span class="dv">1</span>), name<span class="op">=</span><span class="st">'offset'</span>)</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, shape<span class="op">=</span>(NY,), name<span class="op">=</span><span class="st">'sigma'</span>)</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    tmp <span class="op">=</span> jnp.tile(means, (NV, <span class="dv">1</span>)).reshape(NV, NY)</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    mu_l <span class="op">=</span> tmp <span class="op">+</span> offset</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    m.normal(mu_l, jnp.tile(sigma, [NV, <span class="dv">1</span>]), obs<span class="op">=</span>Y2)</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>m.run(model)</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>m.run(model)  <span class="co"># Approximate posterior distributions for weights, biases, and sigma</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>m.summary() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importbi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load csv file</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Howell1.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter data frame</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'weight'</span>)) </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert data to JAX arrays</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'height'</span>))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight){</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define the BNN architecture</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1 input -&gt; 10 hidden neurons (tanh) -&gt; 1 output neuron (identity)</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Priors for weights/biases are Normal(0,1) by default</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> bi<span class="sc">$</span><span class="fu">bnn</span>(<span class="at">x =</span> weight, <span class="at">n_neurons =</span> <span class="fu">list</span>(<span class="dv">10</span>, <span class="dv">1</span>), <span class="at">activations =</span> <span class="fu">list</span>(<span class="st">'tanh'</span>, <span class="st">'identity'</span>), <span class="at">name =</span> <span class="st">'bnn'</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prior for the output standard deviation</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'s'</span>)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">normal</span>(mu, s, <span class="at">obs =</span> height)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Approximate posterior distributions</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </section>
-<section id="mathematical-details" class="level2" data-number="20.4">
-<h2 data-number="20.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">20.4</span> Mathematical Details</h2>
-<p>We can express the Bayesian latent variable model using probability distributions as follows:</p>
+<section id="mathematical-details" class="level2" data-number="29.4">
+<h2 data-number="29.4" class="anchored" data-anchor-id="mathematical-details"><span class="header-section-number">29.4</span> Mathematical Details</h2>
+<section id="frequentist-formulation" class="level3" data-number="29.4.1">
+<h3 data-number="29.4.1" class="anchored" data-anchor-id="frequentist-formulation"><span class="header-section-number">29.4.1</span> <em>Frequentist Formulation</em></h3>
+<p>A standard (non-Bayesian) neural network with one hidden layer is defined by forward propagation:</p>
 <p><span class="math display">\[
-\begin{aligned}
-&amp; p(Y | X, Z, W, \sigma) = \text{Normal}(X \cdot W + Z, \sigma^2) \\
-&amp; p(Z) = \text{Normal}(0, \tau^2) \\
-&amp; p(W) = \text{Normal}(0, \alpha^2) \\
-\end{aligned}
+h_i = f(X_i W_1 + b_1)
 \]</span></p>
-<p>Where: - <em>p(Y | X, Z, W, )</em> is the likelihood function for the observed outcome variable, which depends on both the observed predictor <em>X</em> and the latent variable <em>Z</em>. - <em>p(Z)</em> is the prior distribution for the latent variable <em>Z</em>, often modeled as <em>Normal</em> with a mean of 0 and variance <em>^2</em>. - <em>p(W)</em> is the prior distribution for the regression coefficient(s) <em>W</em>, typically assumed to follow a <em>Normal</em> distribution with mean 0 and variance <em>^2</em>.</p>
-<p>The latent variable <em>Z</em> introduces additional flexibility to the model, capturing unobserved influences on the outcome <em>Y</em>.</p>
+<p><span class="math display">\[
+\hat{Y}_i = g(h_i W_2 + b_2)
+\]</span></p>
+<p>Where: - <span class="math inline">\(Y_i\)</span> is the predicted output for observation <em>i</em>. - <span class="math inline">\(X_i\)</span> is the input vector for observation <em>i</em>. - <span class="math inline">\(W_1, b_1\)</span> are the weight matrix and bias vector for the hidden layer. - <span class="math inline">\(W_2, b_2\)</span> are the weight matrix and bias vector for the output layer. - <span class="math inline">\(h_i\)</span> is the activation of the hidden layer. - <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span> are activation functions (e.g., ReLU, tanh, sigmoid, identity). - Parameters <span class="math inline">\(W_1, b_1, W_2, b_2\)</span> are learned as single optimal values via optimization.</p>
 </section>
-<section id="interpretation-of-latent-variables" class="level2" data-number="20.5">
-<h2 data-number="20.5" class="anchored" data-anchor-id="interpretation-of-latent-variables"><span class="header-section-number">20.5</span> Interpretation of Latent Variables</h2>
-<ul>
-<li><p><strong>Latent Variable (<em>Z</em>)</strong>: Represents hidden factors not captured by the observed variables, allowing the model to explain more of the variance in the outcome. For instance, in a psychological model, <em>Z</em> might represent a latent trait such as intelligence or anxiety that influences the outcome.</p></li>
-<li><p><strong>Posterior Inference</strong>: The posterior distribution of the latent variable <em>Z</em> can give insights into how much the unobserved factors contribute to the outcome.</p></li>
-</ul>
+<section id="bayesian-formulation" class="level3" data-number="29.4.2">
+<h3 data-number="29.4.2" class="anchored" data-anchor-id="bayesian-formulation"><span class="header-section-number">29.4.2</span> <em>Bayesian Formulation</em></h3>
+<p>In the Bayesian formulation, we place <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span> on all weights and biases and define a likelihood for the output. For a regression task with a one-layer BNN:</p>
+<p><span class="math display">\[
+Y_i \sim Normal(\mu_i, \sigma)
+\]</span></p>
+<p><span class="math display">\[
+\mu_i = g(h_i W_2 + b_2)
+\]</span></p>
+<p><span class="math display">\[
+h_i = f(X_i W_1 + b_1)
+\]</span></p>
+<p>The parameters are now distributions: <span class="math display">\[
+W_1 \sim Normal(0, 1)
+\]</span> <span class="math display">\[
+b_1 \sim Normal(0, 1)
+\]</span> <span class="math display">\[
+W_2 \sim Normal(0, 1)
+\]</span> <span class="math display">\[
+b_2 \sim Normal(0, 1)
+\]</span> <span class="math display">\[
+\sigma \sim Exponential(1)
+\]</span></p>
+<p>Where: - <span class="math inline">\(Y_i\)</span> is the observed dependent variable for observation <em>i</em>. - <span class="math inline">\(\mu_i\)</span> is the mean predicted by the network, which is itself a distribution because it is a function of the distributions of weights and biases. - <span class="math inline">\(W_1, b_1, W_2, b_2\)</span> are the weights and biases, treated as random variables. - <span class="math inline">\(\sigma\)</span> is the standard deviation of the normal distribution, quantifying observation noise.</p>
 </section>
-<section id="use-cases" class="level2" data-number="20.6">
-<h2 data-number="20.6" class="anchored" data-anchor-id="use-cases"><span class="header-section-number">20.6</span> Use Cases</h2>
+</section>
+<section id="notes" class="level2" data-number="29.5">
+<h2 data-number="29.5" class="anchored" data-anchor-id="notes"><span class="header-section-number">29.5</span> Notes</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <ul>
-<li><strong>Latent Factors in Psychometrics</strong>: In psychometric models, latent variables represent traits or abilities that are not directly observed, such as cognitive ability or personality traits.</li>
-<li><strong>Time-Varying Effects</strong>: Latent variables can represent unobserved time trends or individual-specific effects in time-series or longitudinal models.</li>
-<li><strong>Mixed Models</strong>: In hierarchical or mixed models, latent variables can represent group-specific intercepts or slopes.</li>
+<li>The primary difference between a <em>Frequentist</em> and <em>Bayesian</em> neural network lies in how parameters are treated. In the frequentist approach, weights and biases are point estimates found by minimizing a loss function (e.g., via gradient descent). Techniques like <em>Dropout</em> or <em>L2 regularization</em> are often used to prevent overfitting, which can be interpreted as approximations to a Bayesian treatment. In contrast, the <em>Bayesian</em> formulation does not seek a single best set of weights. Instead, it uses methods like MCMC or Variational Inference to approximate the entire posterior distribution for every weight and bias. This provides a principled and direct way to quantify model uncertainty.</li>
+<li>While present an example of non-linear regression, the Bayesian Neural Network can be used for linear regressions as well (keeping in mind that interpretation of the weights are impossible).</li>
 </ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Howell1.csv'</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>] <span class="co"># Manipulate</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>]) <span class="co"># Scale</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(weight, height):</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define the BNN architecture and get its output (mu)</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1 input -&gt; 10 hidden neurons (tanh) -&gt; 1 output neuron (identity)</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Priors for weights/biases are Normal(0,1) by default</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> m.bnn(x<span class="op">=</span>weight, n_neurons<span class="op">=</span>[<span class="dv">10</span>, <span class="dv">1</span>], activations<span class="op">=</span>[<span class="st">'tanh'</span>, <span class="st">'identity'</span>], name<span class="op">=</span><span class="st">'bnn'</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Prior for the output standard deviation</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">'s'</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    m.normal(mu, s, obs<span class="op">=</span>height)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>m.run(model)  <span class="co"># Approximate posterior distributions for weights, biases, and sigma</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>m.summary() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</section>
+<section id="references" class="level2" data-number="29.6">
+<h2 data-number="29.6" class="anchored" data-anchor-id="references"><span class="header-section-number">29.6</span> Reference(s)</h2>
+<p><span class="citation" data-cites="neal1995bayesian">(<a href="#ref-neal1995bayesian" role="doc-biblioref"><strong>neal1995bayesian?</strong></a>)</span></p>
 
 
 </section>
@@ -1376,14 +1479,11 @@ tippy('#LKJcorr', {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./17. Missing data (wip).html" class="pagination-link" aria-label="Missing data">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Missing data</span></span>
+      <a href="./26. Network Based Diffusion analysis (wip).html" class="pagination-link" aria-label="Network Based Diffusion analysis">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Network Based Diffusion analysis</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./19. PCA.html" class="pagination-link" aria-label="Principal Component Analysis">
-        <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Principal Component Analysis</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->

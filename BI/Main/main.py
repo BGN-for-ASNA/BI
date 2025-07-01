@@ -28,6 +28,7 @@ from BI.NBDA.NBDA import NBDA
 from BI.Models.gmm import *
 from BI.Models.dpmm import *
 from BI.ML.ml import ml
+from BI.BNN.bnn import bnn 
 
 from BI.Utils.dists import UnifiedDist as dist
 from BI.Sampler.sampler import sampler
@@ -60,7 +61,8 @@ class bi(manip):
         self.gmm = gmm       
         self.NBDA = NBDA()
         self.net = net()
-        self.ml= ml()       
+        self.ml= ml()   
+        self.bnn= bnn()    
 
 
     def randint(self, low, high, shape):
