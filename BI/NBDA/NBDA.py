@@ -2,7 +2,7 @@ import pandas as pd
 import jax
 import jax.numpy as jnp
 from jax import vmap
-from BI.Utils.dists import UnifiedDist as dist
+from BI.Utils.np_dists import UnifiedDist as dist
 from BI.Utils.link import link
 import numpyro
 from functools import partial 

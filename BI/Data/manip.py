@@ -16,6 +16,14 @@ class manip():
             'float32': jnp.float32,
             'float16': jnp.float16,
         }
+        self.pandas_to_jax_dtype_map_force32 = {
+            'int64': jnp.int32,
+            'int32': jnp.int32,
+            'int16': jnp.int32,
+            'float64': jnp.float32,
+            'float32': jnp.float32,
+            'float16': jnp.float16,
+        }
 
     # Import data----------------------------
     def data(self, path, **kwargs):
@@ -167,7 +175,7 @@ class manip():
 
         self.data_modification['int'] = cols # store info of scaled columns
 
-    def pd_to_jax(self, model, bit = '32'):
+    def pd_to_jax(self, model, bit = None):
         """Convert pandas dataframe to JAX compatible format for a model.
         
         Args:
@@ -191,7 +199,11 @@ class manip():
         if test:
             for arg in args_without_defaults:
                 varType = str(self.df[arg].dtype)
-                result[arg] = jnp.array(self.df[arg], dtype = self.pandas_to_jax_dtype_map.get(varType))
+                if bit is None:                    
+                    result[arg] = jnp.array(self.df[arg], dtype = self.pandas_to_jax_dtype_map.get(varType))
+                else: 
+                    result[arg] = jnp.array(self.df[arg], dtype = self.pandas_to_jax_dtype_map_force32.get(varType))
+
         else:
             return "Error, no"
 

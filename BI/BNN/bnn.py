@@ -2,7 +2,7 @@ import jax.numpy as jnp
 import jax
 from BI.BNN.activations import activation
 from numpyro import deterministic
-from BI.Utils.dists import UnifiedDist as dist
+from BI.Utils.np_dists import UnifiedDist as dist
 
 class bnn(activation):
     def __init__(self):

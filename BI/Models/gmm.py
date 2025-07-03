@@ -1,7 +1,7 @@
 import jax
 import jax.numpy as jnp
 from jax import random, vmap
-from BI.Utils.dists import UnifiedDist as dist
+from BI.Utils.np_dists import UnifiedDist as dist
 import numpyro.distributions as Dist
 from scipy.spatial.distance import pdist, squareform
 from scipy.cluster.hierarchy import fcluster, linkage

@@ -29,19 +29,15 @@ from BI.Models.gmm import *
 from BI.Models.dpmm import *
 from BI.ML.ml import ml
 from BI.BNN.bnn import bnn 
-
-from BI.Utils.dists import UnifiedDist as dist
-from BI.Sampler.sampler import sampler
 from numpyro.infer import MCMC, NUTS, Predictive
 from numpyro.handlers import condition
 
 
-
 class bi(manip):
-    def __init__(self, platform='cpu', cores=None, deallocate = False, print_devices_found = True):
+    def __init__(self, platform='cpu', cores=None, deallocate = False, print_devices_found =    True, backend='numpyro'):
         manip.__init__(self)
         setup_device(platform, cores, deallocate, print_devices_found) 
-        jax.config.update("jax_enable_x64", True)
+        
         self.data_on_model = None
         self.priors_name = None
         self.tab_summary = None
@@ -51,26 +47,35 @@ class bi(manip):
         self.model2 = None 
         self.trace = None
         self.history = {}
+        self.backend = backend
 
         self.gaussian = gaussian
         self.survival = survival
         self.factor = factors
         self.link = link
-        self.dist = dist
         self.dpmm = dpmm
-        self.gmm = gmm       
+        self.gmm = gmm    
         self.NBDA = NBDA()
         self.net = net()
         self.ml= ml()   
-        self.bnn= bnn()    
+        self.bnn= bnn()  
+
+        if backend == 'numpyro':
+            from BI.Utils.np_dists import UnifiedDist as np_dists
+            self.dist=np_dists 
+            jax.config.update("jax_enable_x64", True)
+
+        elif backend == 'tfp':
+            from BI.Utils.tfp_dists import UnifiedDist as tfp_dists  
+            from BI.Samplers.mcmc_tfp import mcmc as mcmc_tfp          
+            self.dist=tfp_dists 
+            self.sampler = mcmc_tfp()
+            jax.config.update("jax_enable_x64", False)
 
 
-    def randint(self, low, high, shape):
-        return pyrand.randint(low, high, shape)
-
-    # MCMC ----------------------------------------------------------------------------
-    def run(self, 
+    def fit(self, 
             model = None, 
+            obs=None,
             potential_fn=None,
             kinetic_fn=None,
             step_size=1.0,
@@ -95,10 +100,11 @@ class bi(manip):
             progress_bar=True,
             jit_model_args=False,
             seed = 0):
-            
+
         if model is None:
             if self.nbdaModel == False:
-                raise "Argument model can't be None"
+                print( "Argument model can't be None")
+                
             else:
                 self.model = self.nbda.model
                 self.model_name = 'NBDA' 
@@ -108,46 +114,73 @@ class bi(manip):
 
         if self.nbdaModel == False:
             if self.data_on_model is None :
-                self.data_on_model = self.pd_to_jax(self.model)
+                if self.backend == 'numpyro':
+                    self.data_on_model = self.pd_to_jax(self.model)
+                else:
+                    self.data_on_model = self.pd_to_jax(self.model, bit = "32")
 
-        if self.model_name is 'gmm':
+        if self.model_name == 'gmm':
             if 'initial_means' not in self.data_on_model:
                 self.ml.KMEANS(self.data_on_model['data'], n_clusters=self.data_on_model['K'])
                 self.data_on_model['initial_means'] = self.ml.results['centroids']
 
-        self.sampler = MCMC(NUTS(self.model,
-                                potential_fn=potential_fn,
-                                kinetic_fn=kinetic_fn,
-                                step_size=step_size,
-                                inverse_mass_matrix=inverse_mass_matrix,
-                                adapt_step_size=adapt_step_size,
-                                adapt_mass_matrix=adapt_mass_matrix,
-                                dense_mass=dense_mass,
-                                target_accept_prob=target_accept_prob,
-                                trajectory_length=trajectory_length,
-                                max_tree_depth=max_tree_depth,
-                                init_strategy=init_strategy,
-                                find_heuristic_step_size=find_heuristic_step_size,
-                                forward_mode_differentiation=forward_mode_differentiation,
-                                regularize_mass_matrix=regularize_mass_matrix), 
-                                num_warmup = num_warmup,
-                                num_samples = num_samples,
-                                num_chains=num_chains,
-                                thinning=thinning,
-                                postprocess_fn=postprocess_fn,
-                                chain_method=chain_method,
-                                progress_bar=progress_bar,
-                                jit_model_args=jit_model_args)
+        if self.backend == 'numpyro':
+            from BI.Samplers.mcmc_numpyro import mcmc_numpyro
+            self.sampler = mcmc_numpyro(
+                model=self.model,
+                potential_fn=potential_fn,
+                kinetic_fn=kinetic_fn,
+                step_size=step_size,
+                inverse_mass_matrix=inverse_mass_matrix,
+                adapt_step_size=adapt_step_size,
+                adapt_mass_matrix=adapt_mass_matrix,
+                dense_mass=dense_mass,
+                target_accept_prob=target_accept_prob,
+                trajectory_length=trajectory_length,
+                max_tree_depth=max_tree_depth,
+                init_strategy=init_strategy,
+                find_heuristic_step_size=find_heuristic_step_size,
+                forward_mode_differentiation=forward_mode_differentiation,
+                regularize_mass_matrix=regularize_mass_matrix,
+                num_warmup = num_warmup,
+                num_samples = num_samples,
+                num_chains=num_chains,
+                thinning=thinning,
+                postprocess_fn=postprocess_fn,
+                chain_method=chain_method,
+                progress_bar=progress_bar,
+                jit_model_args=jit_model_args
+                )
+            self.sampler.run(jax.random.PRNGKey(seed), **self.data_on_model)
+            self.posteriors = self.sampler.get_samples()
+            self.diag = diag(sampler = self.sampler)
+            self.get_history()
 
-        self.sampler.run(jax.random.PRNGKey(seed), **self.data_on_model)
-        self.posteriors = self.sampler.get_samples()
-        self.diag = diag(sampler = self.sampler)
-        self.get_history()
+        elif self.backend == 'tfp':
+            from BI.Utils.tfp_dists import UnifiedDist as tfp_dists
+            from BI.Samplers.mcmc_tfp import mcmc as mcmc_tfp
+            from BI.Samplers.Model_handler import model_handler 
+
+            #self.mcmc= mcmc_tfp() 
+            self.sampler.data_on_model = self.data_on_model
+            self.sampler.model = self.model
+
+
+            self.sampler.run(model = self.model, obs = obs) 
+            self.diag = diag(sampler = self.sampler)
+            sample_stats_name=['target_log_prob','log_accept_ratio','has_divergence','energy']
+            self.posteriors = {k:jnp.transpose(v) for k, v in zip(sample_stats_name, self.sampler.sample_stats)}
+            self.get_history()
+
+
+    def randint(self, low, high, shape):
+        return pyrand.randint(low, high, shape)
+
 
     # Get posteriors ----------------------------------------------------------------------------
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
         if self.trace is None:
-            self.diag.to_az()
+            self.diag.to_az(backend=self.backend)
         self.tab_summary = az.summary(self.diag.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
         return self.tab_summary 
 

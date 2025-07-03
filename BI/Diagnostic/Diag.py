@@ -4,15 +4,15 @@ import seaborn as sns
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-
-class diag:
+class diag():
 
     def __init__(self, sampler):
         """Initialize the diagnostic class. Currently empty but can be extended for initialization needs."""
         self.sampler = sampler
 
+
     # Diagnostic with ARVIZ ----------------------------------------------------------------------------
-    def to_az(self):
+    def to_az(self, backend="numpyro", sample_stats_name=['target_log_prob','log_accept_ratio','has_divergence','energy']):
         """Convert the sampler output to an arviz trace object.
         
         This method prepares the trace for use with arviz diagnostic tools.
@@ -20,9 +20,24 @@ class diag:
         Returns:
             self.trace: The arviz trace object containing the diagnostic data
         """
-        self.trace = az.from_numpyro(self.sampler)
-        self.priors_name = list(self.trace['posterior'].data_vars.keys())
-        return self.trace
+        if backend == "numpyro":
+            self.trace = az.from_numpyro(self.sampler)
+            self.priors_name = list(self.trace['posterior'].data_vars.keys())
+            return self.trace
+        
+        elif backend == "tfp":
+            var_names= list(self.sampler.model_info.keys())
+            sample_stats = {k:jnp.transpose(v) for k, v in zip(sample_stats_name, self.sampler.sample_stats)}
+            trace = {}
+            #First dim is the number of chains
+            #Second dim is the number of sampling
+            #The rest is the shape of the object
+            for name, samp in zip(var_names, self.sampler.posterior):
+                trace[name] = samp
+    
+            self.trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
+            self.priors_name = var_names
+            return self.trace
 
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
         """Calculate summary statistics for the posterior distribution.
