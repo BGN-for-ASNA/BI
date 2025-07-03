@@ -1,4 +1,4 @@
-from BI.Utils.dists import UnifiedDist as dist
+from BI.Utils.np_dists import UnifiedDist as dist
 import jax.numpy as jnp
 import numpyro.distributions as Dist
 import numpyro

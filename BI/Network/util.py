@@ -1,7 +1,7 @@
 import inspect
 from numpyro import sample as lk
 from numpyro import deterministic
-from BI.Utils.dists import UnifiedDist as dist
+from BI.Utils.np_dists import UnifiedDist as dist
 from BI.Utils.array import Mgaussian
 from BI.Utils.array import factors
 import jax 
