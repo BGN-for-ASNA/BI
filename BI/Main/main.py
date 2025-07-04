@@ -168,8 +168,11 @@ class bi(manip):
 
             self.sampler.run(model = self.model, obs = obs) 
             self.diag = diag(sampler = self.sampler)
-            sample_stats_name=['target_log_prob','log_accept_ratio','has_divergence','energy']
-            self.posteriors = {k:jnp.transpose(v) for k, v in zip(sample_stats_name, self.sampler.sample_stats)}
+            trace = {}
+            var_names= list(self.sampler.model_info.keys())
+            for name, samp in zip(var_names, self.sampler.posterior):
+                trace[name] = samp
+            self.posteriors = trace
             self.get_history()
 
 
