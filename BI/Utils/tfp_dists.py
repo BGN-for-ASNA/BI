@@ -536,7 +536,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def cholesky_l_k_j(dimension, concentration, validate_args=False, allow_nan_stats=True, name='CholeskyLKJ', shape=(), sample=False, seed=0, obs=None):
+    def cholesky_lkj(dimension, concentration, validate_args=False, allow_nan_stats=True, name='CholeskyLKJ', shape=(), sample=False, seed=0, obs=None):
         """
         Wrapper for the tfd.CholeskyLKJ distribution.
         
@@ -1984,7 +1984,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def l_k_j(dimension, concentration, input_output_cholesky=False, validate_args=False, allow_nan_stats=True, name='LKJ', shape=(), sample=False, seed=0, obs=None):
+    def lkj(dimension, concentration, input_output_cholesky=False, validate_args=False, allow_nan_stats=True, name='LKJ', shape=(), sample=False, seed=0, obs=None):
         """
         Wrapper for the tfd.LKJ distribution.
         
