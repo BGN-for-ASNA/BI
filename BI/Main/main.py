@@ -35,6 +35,16 @@ from numpyro.handlers import condition
 
 class bi(manip):
     def __init__(self, platform='cpu', cores=None, deallocate = False, print_devices_found =    True, backend='numpyro'):
+        """
+        Initialize the BI class with platform, cores, deallocate, print_devices_found, and backend parameters.
+        
+        Args:
+            platform (str, optional): Platform to use. Defaults to 'cpu'.
+            cores (int, optional): Number of cores. Defaults to None.
+            deallocate (bool, optional): Whether to deallocate. Defaults to False.
+            print_devices_found (bool, optional): Whether to print devices found. Defaults to True.
+            backend (str, optional): Backend to use. Defaults to 'numpyro'.
+        """
         manip.__init__(self)
         setup_device(platform, cores, deallocate, print_devices_found) 
         
@@ -100,7 +110,36 @@ class bi(manip):
             progress_bar=True,
             jit_model_args=False,
             seed = 0):
-
+        """
+        Fit the model using the specified backend and parameters.
+        
+        Args:
+            model: Model to fit.
+            obs: Observed data.
+            potential_fn: Potential function.
+            kinetic_fn: Kinetic function.
+            step_size: Step size for the sampler.
+            inverse_mass_matrix: Inverse mass matrix.
+            adapt_step_size: Whether to adapt step size.
+            adapt_mass_matrix: Whether to adapt mass matrix.
+            dense_mass: Whether to use dense mass.
+            target_accept_prob: Target acceptance probability.
+            trajectory_length: Length of the trajectory.
+            max_tree_depth: Maximum tree depth.
+            init_strategy: Initialization strategy.
+            find_heuristic_step_size: Whether to find heuristic step size.
+            forward_mode_differentiation: Whether to use forward mode differentiation.
+            regularize_mass_matrix: Whether to regularize mass matrix.
+            num_warmup: Number of warmup samples.
+            num_samples: Number of samples.
+            num_chains: Number of chains.
+            thinning: Thinning factor.
+            postprocess_fn: Postprocess function.
+            chain_method: Chain method.
+            progress_bar: Whether to show progress bar.
+            jit_model_args: Whether to JIT model arguments.
+            seed: Random seed.
+        """
         if model is None:
             if self.nbdaModel == False:
                 print( "Argument model can't be None")
@@ -177,17 +216,47 @@ class bi(manip):
 
 
     def randint(self, low, high, shape):
+        """
+        Generate random integers in the given range.
+        
+        Args:
+            low: Lowest possible value.
+            high: Highest possible value.
+            shape: Shape of the output array.
+        
+        Returns:
+            Array of random integers.
+        """        
         return pyrand.randint(low, high, shape)
 
 
     # Get posteriors ----------------------------------------------------------------------------
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
+        """
+        Generate a summary of the posterior distribution.
+        
+        Args:
+            round_to: Number of decimal places to round.
+            kind: Type of summary statistics.
+            hdi_prob: Probability for HDI interval.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+        
+        Returns:
+            Summary statistics.
+        """        
         if self.trace is None:
             self.diag.to_az(backend=self.backend)
         self.tab_summary = az.summary(self.diag.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
         return self.tab_summary 
 
     def get_posterior_means(self):
+        """
+        Get the posterior means of the variables.
+        
+        Returns:
+            Dictionary of variable names and their posterior means.
+        """        
         d = self.summary()
         posterior_means = d['mean'].values
         posterior_names = d.index.tolist()
@@ -196,8 +265,11 @@ class bi(manip):
     # Sample model ----------------------------------------------------------------------------
     def visit_call(self, node, obs_args):
         """
-        Parse a function call node to find `lk` calls with `obs` arguments
-        and add those argument names to the `obs_args` list.
+        Parse a function call node to find `lk` calls with `obs` arguments and add those argument names to the `obs_args` list.
+        
+        Args:
+            node: AST node to parse.
+            obs_args: List to store observed argument names.
         """
         # Check if the function called is `lk`
         if isinstance(node.func, ast.Name) and node.func.id == "lk":
@@ -211,6 +283,12 @@ class bi(manip):
     def find_obs_in_model(self, model_func):
         """
         Extract observed argument names from `obs` in `lk` calls in `model_func`.
+        
+        Args:
+            model_func: Model function to analyze.
+        
+        Returns:
+            List of observed argument values.
         """
         # Get the source code of the function
         source_code = inspect.getsource(self.model)
@@ -233,9 +311,15 @@ class bi(manip):
 
     # Create a new model function with the modified signature
     def build_model_with_Y_None(self, model):
-        '''
-        This function modifies the original model function to make the observed arguments optional. This is useful for scenarios where you want to use the model for prediction without providing the observed data (e.g., when generating posterior predictions).
-        '''
+        """
+        Modify the original model function to make the observed arguments optional.
+        
+        Args:
+            model: Model function to modify.
+        
+        Returns:
+            Modified model function with optional observed arguments.
+        """
         # Extract `obs` argument names
         obs = self.find_obs_in_model(model)
         # Modify the function's signature to make the observed argument optional
@@ -259,17 +343,18 @@ class bi(manip):
         return model_with_None
 
     def sample(self,  data = None, remove_obs = True, posterior = True,  samples = 1,  seed = 0):
-        """_summary_
-
+        """
+        Sample from the model.
+        
         Args:
-            data (_type_, optional): _description_. Defaults to None.
-            remove_obs (bool, optional): _description_. Defaults to True.
-            posterior (bool, optional): If true use posterior obtained from run function. If false it dones't use posterior. Defaults to True.
-            samples (int, optional): _description_. Defaults to 1.
-            seed (int, optional): _description_. Defaults to 0.
-
+            data: Data to use for sampling. Defaults to None.
+            remove_obs: Whether to remove observed data. Defaults to True.
+            posterior: Whether to use posterior. Defaults to True.
+            samples: Number of samples. Defaults to 1.
+            seed: Random seed. Defaults to 0.
+        
         Returns:
-            _type_: _description_
+            Samples from the model.
         """
         rng_key = jax.random.PRNGKey(int(seed))
         self.build_model_with_Y_None(self.model)
@@ -296,15 +381,16 @@ class bi(manip):
     
     # Log probability ----------------------------------------------------------------------------
     def log_prob(self, model, seed = 0, **kwargs):
-        """Compute the log probability of a model, the Transforms parameters to constrained space, the gradient of the negative log probability. 
-
+        """
+        Compute the log probability of a model.
+        
         Args:
-            model (_type_): _description_
-            seed (int, optional): _description_. Defaults to 0.
-            **kwargs: 
-
+            model: Model to compute log probability for.
+            seed: Random seed. Defaults to 0.
+            **kwargs: Additional keyword arguments.
+        
         Returns:
-            _type_: _description_
+            Tuple containing init_params, potential_fn, constrain_fn, and model_trace.
         """
         # getting log porbability
         rng_key = jax.random.PRNGKey(int(seed))
@@ -317,6 +403,12 @@ class bi(manip):
         return init_params, potential_fn, constrain_fn, model_trace 
 
     def get_history(self):
+        """
+        Get the history of the model fit.
+        
+        Returns:
+            Dictionary containing model, model_name, data, sampler, and posteriors.
+        """        
         self.history = {
             'model': self.model,
             'model_name': self.model_name,  
@@ -326,6 +418,15 @@ class bi(manip):
         }
 
     def plot(self, X, y=None, figsize=(10, 6), **kwargs):
+        """
+        Plot the model results.
+        
+        Args:
+            X: Data to plot.
+            y: Target variable. Defaults to None.
+            figsize: Figure size. Defaults to (10, 6).
+            **kwargs: Additional keyword arguments.
+        """        
         if self.model_name == 'gmm':
             plot_gmm(X, sampler= self.sampler)
         if self.model_name == 'dpmm':
