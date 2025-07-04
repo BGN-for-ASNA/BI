@@ -4210,7 +4210,11 @@ class UnifiedDist:
                                If False, return a Root distribution object. Defaults to False.
                 seed (int): The PRNG seed for sampling. Defaults to 0.
         """
-        dist = tfd.ZeroInflatedNegativeBinomial(inflated_loc_logits=inflated_loc_logits, inflated_loc_probs=inflated_loc_probs, name=name, kwargs=kwargs)
+        dist = tfd.ZeroInflatedNegativeBinomial(
+            inflated_loc_logits=inflated_loc_logits, 
+            inflated_loc_probs=inflated_loc_probs, 
+            name=name, **kwargs
+            )
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
@@ -4219,6 +4223,7 @@ class UnifiedDist:
             if obs is None:
                 return root(tfd.Sample(dist, sample_shape=shape))
             else:
+
                 return tfd.Independent(dist, reinterpreted_batch_ndims=shape)
 
 
