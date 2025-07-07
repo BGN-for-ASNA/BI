@@ -129,9 +129,9 @@ def predict_dpmm(data, sampler):
 
     return post_mean_w, post_mean_mu, post_mean_cov, final_labels
 
-def plot_dpmm(data,sampler):
+def plot_dpmm(data,sampler,figsize=(10, 8), point_size=10):
     post_mean_w, post_mean_mu, post_mean_cov, final_labels = predict_dpmm(data,sampler)
-# 2. Set up a grid of points to evaluate the GMM density
+    # 2. Set up a grid of points to evaluate the GMM density
     x_min, x_max = data[:, 0].min() - 2, data[:, 0].max() + 2
     y_min, y_max = data[:, 1].min() - 2, data[:, 1].max() + 2
     xx, yy = jnp.meshgrid(jnp.linspace(x_min, x_max, 150),
@@ -157,7 +157,7 @@ def plot_dpmm(data,sampler):
 
     # 4. Create the plot
     plt.style.use('seaborn-v0_8-whitegrid')
-    fig, ax = plt.subplots(figsize=(10, 8))
+    fig, ax = plt.subplots(figsize=figsize)
     fig.patch.set_facecolor('#f0f0f0') 
     ax.set_facecolor('#f0f0f0')
 
@@ -176,7 +176,7 @@ def plot_dpmm(data,sampler):
     # === END OF FIX ===
 
     # Plot the data points using the dynamically generated colors
-    ax.scatter(data[:, 0], data[:, 1], c=point_colors, s=15, alpha=0.9, edgecolor='white', linewidth=0.3)
+    ax.scatter(data[:, 0], data[:, 1], c=point_colors, s=point_size, alpha=0.9, edgecolor='white', linewidth=0.3)
 
     # Plot the density contours
     # Using a different colormap for the contours (e.g., 'Blues' or 'Reds') can look nice
@@ -190,6 +190,6 @@ def plot_dpmm(data,sampler):
     ax.set_xlabel("Feature 1")
     ax.set_ylabel("Feature 2")
     ax.grid(True, linestyle=':', color='gray', alpha=0.6)
-    ax.set_aspect('equal', adjustable='box') 
+    #ax.set_aspect('equal', adjustable='box') 
 
     plt.show()

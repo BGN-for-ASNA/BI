@@ -82,7 +82,6 @@ class bi(manip):
             self.sampler = mcmc_tfp()
             jax.config.update("jax_enable_x64", False)
 
-
     def fit(self, 
             model = None, 
             obs=None,
@@ -214,7 +213,6 @@ class bi(manip):
             self.posteriors = trace
             self.get_history()
 
-
     def randint(self, low, high, shape):
         """
         Generate random integers in the given range.
@@ -228,7 +226,6 @@ class bi(manip):
             Array of random integers.
         """        
         return pyrand.randint(low, high, shape)
-
 
     # Get posteriors ----------------------------------------------------------------------------
     def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
@@ -428,6 +425,6 @@ class bi(manip):
             **kwargs: Additional keyword arguments.
         """        
         if self.model_name == 'gmm':
-            plot_gmm(X, sampler= self.sampler)
+            plot_gmm(X, sampler= self.sampler,figsize=figsize,**kwargs)
         if self.model_name == 'dpmm':
-            plot_dpmm(X, sampler= self.sampler)
+            plot_dpmm(X, sampler= self.sampler,figsize=figsize,**kwargs)
