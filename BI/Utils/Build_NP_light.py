@@ -1,12 +1,12 @@
 # %%
-# Function to create the numpyro wrappers
+"""
+This file wraps NumPyro functions to enable different calls depending on the provided arguments.
+"""
+
 import inspect
 import re
 import numpyro
 from numpyro.distributions import Distribution
-
-
-
 
 # --- Filter for actual, instantiable Distribution classes ---
 dist_classes = {}

@@ -1,4 +1,8 @@
 #%%
+"""
+This file wraps TFP functions to enable different calls depending on the provided arguments.
+"""
+
 import re
 import inspect
 from tensorflow_probability.substrates import jax as tfp
@@ -41,7 +45,8 @@ with open("tfp_dists.py", "w") as file:
                 'shape': '()',
                 'sample': 'False',
                 'seed': '0',
-                'obs': 'None'
+                'obs': 'None',
+                'wrap': 'True'
             }
             
             # Build the list of new parameter strings, ONLY if they don't already exist
@@ -93,12 +98,14 @@ with open("tfp_dists.py", "w") as file:
             method_str += f"        if sample:\n"
             method_str += f"            prng_key = jax.random.PRNGKey(seed)\n"
             method_str += f"            return dist.sample(sample_shape=shape, seed=prng_key)\n"
+            method_str += f"        if obs is not None:\n"
+            method_str += f"             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=shape)\n"
             method_str += f"        else:\n"
-            method_str += f"            # If shape is provided, wrap in tfd.Sample\n"
-            method_str += f"            if obs is None:\n"
-            method_str += f"                return root(tfd.Sample(dist, sample_shape=shape))\n"
-            method_str += f"            else:\n"
-            method_str += f"                return tfd.Independent(dist, reinterpreted_batch_ndims=shape)\n"
+            method_str += f"             final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist\n"
+            method_str += f"        if wrap:\n"
+            method_str += f"            return root(final_dist)\n"
+            method_str += f"        else:\n"
+            method_str += f"            return final_dist\n"
             
             # Write the method string to the file
             file.write(method_str + "\n\n")
