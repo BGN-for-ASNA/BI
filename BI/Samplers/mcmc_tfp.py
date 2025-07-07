@@ -35,7 +35,7 @@ class mcmc(model_handler):
             self.init_params = init
 
         if bijectors is None:
-            _, self.bijectors = self.initialise(self.model_info, self.init_params)
+             _, self.bijectors = self.initialise(self.model_info, self.init_params, self.obs_name)
         else:
             self.bijectors = bijectors
         #names = self.model_info.keys()
@@ -105,8 +105,9 @@ class mcmc(model_handler):
     def run(self, model,  obs, n_chains = 1, init = None, bijectors = None, target_log_prob_fn = None,
          num_results = 500, num_burnin_steps=500, num_steps_between_results=0,
          parallel_iterations = 10, seed=0, name=None):
-         
+        self.obs_name = obs
         obs = self.data_on_model[obs]
+        
 
         self.init_Model(model, init = init, bijectors = bijectors, seed=seed)
 
