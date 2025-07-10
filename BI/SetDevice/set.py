@@ -1,6 +1,6 @@
 import os 
 import re
-def deallocate():
+def set_deallocate():
     os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"]="false"
     os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"]="platform"
     
@@ -48,7 +48,7 @@ def setup_device(platform='cpu', cores=None, deallocate = False, print_devices_f
     if cores is None:
         cores = os.cpu_count()
     if deallocate:
-        deallocate()
+        set_deallocate()
 
     # Set the XLA flags before importing jax
     xla_flags = os.getenv("XLA_FLAGS", "")

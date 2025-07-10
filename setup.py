@@ -1,19 +1,22 @@
 import setuptools 
+import os
+VERSION = '0.0.7' 
 
-VERSION = '0.0.1' 
-DESCRIPTION = 'Bayesian Inferences'
-LONG_DESCRIPTION = 'Run Bayesian inferences models'
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
 
 # Setting up
 setuptools.setup(
-        name="BI", 
+        name="BayesInference", 
         version=VERSION,
         author="Sebastian Sosa",
-        author_email="<s.sosa@live.fr>",
-        description=MIT License,
-        long_description="Bayesian Estimation Environment (BEE) software is availble in both Python and R. It aims to unify the modeling experience by integrating an intuitive model-building syntax with the flexibility of low-level abstraction coding available but also pre-build function for high-level of abstraction and including hardware-accelerated computation for improved scalability.",
+        description="GNU GENERAL PUBLIC LICENSE",
+        long_description=long_description,
+        long_description_content_type="text/markdown",
         packages=setuptools.find_packages(),
-        install_requires=['jax[cuda12]', 'numpyro', 'pandas', 'seaborn', 'tensorflow_probability', 'arviz'],
+        install_requires=['jax', 'numpyro', 'pandas', 'seaborn', 'tensorflow_probability', 'arviz'],
+        extras_require={"cuda": ["jax[cuda12]"]},
         python_requires=">=3.9",
         keywords=['python', 'Bayesian inferences'],
         include_package_data=True,
@@ -23,11 +26,10 @@ setuptools.setup(
             "Programming Language :: Python :: 2",
             "Programming Language :: Python :: 3",
             "Operating System :: MacOS :: MacOS X",
-            "Operating System :: Microsoft :: Windows",
-            "Operating System :: Microsoft :: Linux",
+            "Operating System :: Microsoft :: Windows"
         ],
         project_urls={
-            url = "https://github.com/BGN-for-ASNA/BI",
-            url = "https://github.com/BGN-for-ASNA/BI/issues"
+            "Homepage": "https://github.com/BGN-for-ASNA/BI",
+            "Bug Tracker": "https://github.com/BGN-for-ASNA/BI/issues"
         }
 )
