@@ -1,3 +1,4 @@
+# This file contain the process to wrap the python code into R functions programatically
 library(magrittr)
 library(reticulate)
 inspect <- import("inspect")
