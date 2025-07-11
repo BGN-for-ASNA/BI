@@ -34,7 +34,7 @@ def model(pulled_left):
     m.binomial(logits=a[0], obs=pulled_left)
 
 # Run sampler ------------------------------------------------
-m.run(model, num_samples=500)
+m.fit(model, num_samples=500)
 
 # Diagnostic ------------------------------------------------
 m.summary()
@@ -148,7 +148,7 @@ def model(actor, treatment, pulled_left):
     m.lk("y", m.dist.binomial(1, logits=p), obs=pulled_left)
 
 # Run sampler ------------------------------------------------
-m.run(model)
+m.fit(model)
 # Diagnostic ------------------------------------------------
 m.summary()
 ```

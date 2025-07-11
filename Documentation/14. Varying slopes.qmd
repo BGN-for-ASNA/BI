@@ -55,7 +55,7 @@ def model(cafe, wait, N_cafes, afternoon):
     m.dist.normal(mu, sigma, obs=wait)
 
 # Run sampler ------------------------------------------------
-m.run(model) 
+m.fit(model) 
 
 ```
 
@@ -502,7 +502,7 @@ def model(tid, actor, block_id, L=None, link=False):
         deterministic("p", expit(logit_p))
 
 # Run mcmc ------------------------------------------------
-m.run(model) 
+m.fit(model) 
 
 # Summary ------------------------------------------------
 m.sampler.print_summary(0.89)

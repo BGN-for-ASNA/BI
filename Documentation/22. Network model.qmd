@@ -52,11 +52,11 @@ def model(idx, result_outcomes,
 
 
 
-m.run(model) 
+m.fit(model) 
 summary = m.summary()
 summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 
-m.run(model2) 
+m.fit(model2) 
 summary = m.summary()
 summary
 ```
@@ -248,7 +248,7 @@ m.data_on_model = dict(
     target_individual_predictors = data['individual_predictors']
 )
 
-m.run(model2) 
+m.fit(model2) 
 summary = m.summary()
 summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 ```

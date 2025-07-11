@@ -64,7 +64,7 @@ def gmm(data, K, initial_means): # Here K is the *exact* number of clusters
     )
 
 m.data_on_model = {"data": data,"K": 4 }
-m.run(GMM) # Optimize model parameters through MCMC sampling
+m.fit(GMM) # Optimize model parameters through MCMC sampling
 m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```
 

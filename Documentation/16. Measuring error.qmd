@@ -39,7 +39,7 @@ def model(D_obs, D_sd, A, N):
     m.normal(D_true , D_sd, obs = D_obs) 
 
 # Run MCMC ------------------------------------------------
-m.run(model)  # Optimize model parameters through MCMC sampling
+m.fit(model)  # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary() # Get posterior distributions

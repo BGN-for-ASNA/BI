@@ -495,7 +495,7 @@ Caution
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> m.jnp.exp(log_days <span class="op">+</span> a <span class="op">+</span> b <span class="op">*</span> monastery)</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    m.poisson(rate <span class="op">=</span> l, obs<span class="op">=</span>y)</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.run(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.fit(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m.summary() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

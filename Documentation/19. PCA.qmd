@@ -79,7 +79,7 @@ m.data_on_model = dict(
     stddv_datapoints = stddv_datapoints
 )
 
-m.run(model) 
+m.fit(model) 
 summary = m.summary()
 real_data = jnp.concatenate([actual_w.flatten(), actual_z.flatten()]) # concatenate the actual values of w and z
 posteriors = summary.iloc[:,0]

@@ -38,7 +38,7 @@ def model(income, career):
     m.dirichletmultinomial(p[career], lambda_, obs=career)
     
 # Run sampler ------------------------------------------------ 
-m.run(model)  
+m.fit(model)  
 
 # Summary ------------------------------------------------
 m.summary()

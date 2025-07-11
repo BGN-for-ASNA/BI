@@ -65,7 +65,7 @@ class bi(manip):
         self.link = link
         self.dpmm = dpmm
         self.gmm = gmm    
-        self.NBDA = NBDA()
+        self.NBDA = NBDA
         self.net = net()
         self.ml= ml()   
         self.bnn= bnn()  

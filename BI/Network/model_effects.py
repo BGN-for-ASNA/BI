@@ -48,7 +48,7 @@ class Neteffect(array_manip):
             print("rf--------------------------------------------------------------------------------")
             print(rf)
         return rf, sr_raw, sr_sigma, sr_L
-   
+    @staticmethod 
     def nodes_terms(focal_individual_predictors, target_individual_predictors,
                     N_var = 1, s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False, diag = False  ):
         """_summary_
