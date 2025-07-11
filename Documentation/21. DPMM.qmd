@@ -73,7 +73,7 @@ def dpmm(data, T=10):
         )  
 
 m.data_on_model = dict(data=data)
-m.run(dpmm)  # Optimize model parameters through MCMC sampling
+m.fit(dpmm)  # Optimize model parameters through MCMC sampling
 m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```
 

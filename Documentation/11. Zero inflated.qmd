@@ -43,7 +43,7 @@ def model(y):
     m.zeroinflatedpoisson(p, lambda_, obs=y)
 
 # Run MCMC ------------------------------------------------
-m.run(model)
+m.fit(model)
 
 # Summary ------------------------------------------------
 m.summary()
