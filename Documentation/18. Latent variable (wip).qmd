@@ -86,7 +86,7 @@ def model(NY, NV, Y2):
     m.normal(mu_l, jnp.tile(sigma, [NV, 1]), obs=Y2)
 
 # Run sampler ------------------------------------------------
-m.run(model)
+m.fit(model)
 
 # Summary ------------------------------------------------
 m.summary()

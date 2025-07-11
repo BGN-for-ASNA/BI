@@ -41,7 +41,7 @@ def model(height, weight, age):
     m.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
 
 # Run MCMC ------------------------------------------------
-m.run(model) # Optimize model parameters through MCMC sampling
+m.fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary()

@@ -54,7 +54,7 @@ def model(gid, applications, admit):
     m.dist.betabinomial(total_count = applications, concentration1 = concentration1, concentration0 = concentration0, obs=admit)
 
 # Run MCMC ------------------------------------------------
-m.run(model) # Optimize model parameters through MCMC sampling
+m.fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary()

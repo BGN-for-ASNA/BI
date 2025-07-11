@@ -33,7 +33,7 @@ def model(log_days, monastery, y):
     l = m.jnp.exp(log_days + a + b * monastery)
     m.poisson(rate = l, obs=y)
 # Run MCMC ------------------------------------------------
-m.run(model) # Optimize model parameters through MCMC sampling
+m.fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary() # Get posterior distributions

@@ -2,7 +2,8 @@
 library(magrittr)
 library(reticulate)
 inspect <- import("inspect")
-setwd("G:/OneDrive/Travail/Max Planck/Projects/BI/bi")
+dirout_path = "./BIR/R"
+setwd(dirout_path)
 bi <- import("main")
 
 
@@ -17,7 +18,7 @@ build_function = function(foo,
                           func_name,
                           name_file,
                           signature,
-                          output_dir="G:/OneDrive/Travail/Max Planck/Projects/BI/bi/R"){
+                          output_dir=dirout_path){
   # Create directory if it doesn't exist
   dir.create(output_dir, showWarnings = FALSE)
 
