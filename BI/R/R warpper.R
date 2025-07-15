@@ -2,9 +2,9 @@
 library(magrittr)
 library(reticulate)
 inspect <- import("inspect")
-dirout_path = "./BIR/R"
+dirout_path = "./R"
 setwd(dirout_path)
-bi <- import("main")
+bi <- import("BI")
 
 
 extract_values <- function(param) {
@@ -18,7 +18,8 @@ build_function = function(foo,
                           func_name,
                           name_file,
                           signature,
-                          output_dir=dirout_path){
+                          output_dir=dirout_path,
+                          docString = ""){
   # Create directory if it doesn't exist
   dir.create(output_dir, showWarnings = FALSE)
 
@@ -72,11 +73,21 @@ build_function = function(foo,
                         "     seed=as.integer(seed);\n",
                         "     ", foo, "(",paste(default_paramsP), ")\n",
                         "}")
+
+    func_body = gsub("loc: jax.Array", "loc=0.0", func_body)
+    func_body = gsub("covariance_row:\\s*jax\\.Array\\s*=\\s*py_none\\(\\),?", "covariance_row=None,", func_body)
+    func_body = gsub("covariance_row: jax.Array = covariance_row: jax.Array ,", "covariance_row = covariance_row,", func_body)
+    func_body = gsub("covariance_rfft:\\s*jax\\.Array\\s*=\\s*py_none\\(\\),?", "covariance_rfft=None,", func_body)
+    func_body = gsub(" covariance_rfft: jax.Array = covariance_rfft: jax.Array ,", "covariance_rfft=covariance_rfft,", func_body)
+
   }else{
     func_body <- paste0("function(", paste(default_paramsR), ") {",
                       "    bi$", foo, "(",
                       paste(default_paramsP), ")",
                       "}")
+    func_body = gsub("loc: jax.Array", "loc=0.0", func_body)
+    func_body = gsub("covariance_row:\\s*jax\\.Array\\s*=\\s*py_none\\(\\),?", "covariance_row=None,", func_body)
+    func_body = gsub("covariance_rfft:\\s*jax\\.Array\\s*=\\s*py_none\\(\\),?", "covariance_rfft=None,", func_body)
   }
 
 
@@ -91,13 +102,14 @@ build_function = function(foo,
 
   # Write the function to the file
   file_con <- file(file_path, "w")
+  writeLines(doc, file_con)
   writeLines(func_body, file_con)
   close(file_con)
 }
 
 
 # Call distributions----------------------
-attrs <- py_list_attributes(bi$bi$dist)
+attrs <- py_list_attributes(bi$dist)
 no=c("__class__",
      "__delattr__",
      "__dict__",
@@ -126,22 +138,26 @@ no=c("__class__",
      "__subclasshook__",
      "__weakref__",
      "sineskewed")
-
+attrs = attrs[30:length(attrs)]
+library(jsonlite)
+data <- fromJSON("RDoc.json")
 for (a in attrs){
   if(!a %in% no){
-    obj <- tryCatch(bi$bi$dist[[a]], error = function(e) NULL)
+    obj <- tryCatch(bi$dist[[a]], error = function(e) NULL)
     if (!is.null(obj)) {
-      py_has_attr(bi$bi$dist[[a]], "__call__")
-      func_name = gsub("<function\\s+[\\w\\.]+\\.(\\w+)\\s+at\\s+0x[0-9A-Fa-f]+>", "bi.dist.\\1", as.character(bi$bi$dist[[a]]), perl=TRUE)
+      py_has_attr(bi$dist[[a]], "__call__")
+      func_name = gsub("<function\\s+[\\w\\.]+\\.(\\w+)\\s+at\\s+0x[0-9A-Fa-f]+>", "bi.dist.\\1", as.character(bi$dist[[a]]), perl=TRUE)
       func_name2=paste(".",gsub("\\.", "\\$",func_name),sep='')
       func_name3=gsub("\\.", "",func_name)
+      docName = gsub("bi.dist.", "", func_name)
+      doc = data[[docName]]
+      if (is.null(doc)){doc = ""}
       build_function(foo=func_name2,
                      name_file=a,
                      func_name = func_name,
-                     signature = inspect$signature(bi$bi$dist[[a]]))
-    } else {
-      FALSE
-    }
+                     signature = inspect$signature(bi$dist[[a]]),
+                     docString = doc)
+    } else {FALSE}
   }
 
 }
