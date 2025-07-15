@@ -15,7 +15,7 @@ setuptools.setup(
         long_description=long_description,
         long_description_content_type="text/markdown",
         packages=setuptools.find_packages(),
-        install_requires=['jax', 'numpyro', 'pandas', 'seaborn', 'tensorflow_probability', 'arviz'],
+        install_requires=['jax', 'numpyro', 'pandas', 'seaborn', 'tensorflow_probability', 'arviz', 'funsor'],
         extras_require={
             "cpu": ["jax[cpu]"],
             "cuda12": ["jax[cuda12]"]},
