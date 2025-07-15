@@ -50,7 +50,7 @@ class Neteffect(array_manip):
         return rf, sr_raw, sr_sigma, sr_L
     @staticmethod 
     def nodes_terms(focal_individual_predictors, target_individual_predictors,
-                    N_var = 1, s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False, diag = False  ):
+                    N_var = 1, s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False, diag = False, focal_name='focal_effects', target_name ='target_effects' ):
         """_summary_
 
         Args:
@@ -65,8 +65,8 @@ class Neteffect(array_manip):
         Returns:
             _type_: terms, focal_effects, target_effects
         """
-        focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), sample = sample, name = 'focal_effects')
-        target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = 'target_effects')
+        focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), sample = sample, name = focal_name)
+        target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = target_name)
         terms = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  target_individual_predictors], axis = -1)
 
         if diag:
@@ -126,6 +126,7 @@ class Neteffect(array_manip):
         N_id = focal_individual_predictors.shape[1]            
 
         sr_ff, focal_effects, target_effects = Neteffect.nodes_terms(focal_individual_predictors, target_individual_predictors, N_var = N_var, s_mu = s_mu, s_sd = s_sd, r_mu = r_mu, r_sd = r_sd, sample = sample, diag = diag )
+
         sr_rf, sr_raw, sr_sigma, sr_L = Neteffect.nodes_random_effects(N_id, sr_mu = sr_mu, sr_sd = sr_sd, sr_sigma_rate = sr_sigma_rate, cholesky_dim = cholesky_dim, cholesky_density = cholesky_density,  sample = sample, diag = diag ) # shape = N_id
         sr_to_dyads = Neteffect.node_effects_to_dyadic_format(sr_ff + sr_rf) # sr_ff and sr_rf are nodal values that need to be converted to dyadic values
         return sr_to_dyads
