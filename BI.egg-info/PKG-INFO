@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
-Name: BayesInference
-Version: 0.0.7
+Name: BI
+Version: 0.0.8
 Summary: GNU GENERAL PUBLIC LICENSE
 Author: Sebastian Sosa
 Project-URL: Homepage, https://github.com/BGN-for-ASNA/BI
@@ -12,6 +12,7 @@ Classifier: Programming Language :: Python :: 2
 Classifier: Programming Language :: Python :: 3
 Classifier: Operating System :: MacOS :: MacOS X
 Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 License-File: LICENSE
@@ -21,8 +22,10 @@ Requires-Dist: pandas
 Requires-Dist: seaborn
 Requires-Dist: tensorflow_probability
 Requires-Dist: arviz
-Provides-Extra: cuda
-Requires-Dist: jax[cuda12]; extra == "cuda"
+Provides-Extra: cpu
+Requires-Dist: jax[cpu]; extra == "cpu"
+Provides-Extra: cuda12
+Requires-Dist: jax[cuda12]; extra == "cuda12"
 Dynamic: author
 Dynamic: classifier
 Dynamic: description
@@ -92,17 +95,25 @@ Currently, the package provides:
 
 ## 2.  Easy Model Building:
 The following linear regression model (rethinking 4.Geocentric Models): 
-```math
-height∼Normal(μ,σ)
+$$
+\text{height} \sim \mathrm{Normal}(\mu,\sigma)
+$$
 
-μ=α+β*weight
+$$
+\mu = \alpha + \beta \cdot \text{weight}
+$$
 
-α∼Normal(178,20)
+$$
+\alpha \sim \mathrm{Normal}(178,20)
+$$
 
-β∼Normal(0,10)
+$$
+\beta \sim \mathrm{Normal}(0,10)
+$$
 
-σ∼Uniform(0,50)
-```
+$$
+\sigma \sim \mathrm{Uniform}(0,50)
+$$
     
 can be declared in the package as
 ```
