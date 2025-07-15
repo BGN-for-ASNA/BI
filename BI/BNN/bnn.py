@@ -61,7 +61,7 @@ class bnn(activation):
                 raise ValueError(f"Unknown activation function: '{activation_name}'")    
             return activation_func(prod)
 
-    def cov(self,hidden_dim,N,a, b):
+    def cov(self,hidden_dim,N,a, b, sample = True):
         """
         Creates a Bayesian Neural Network (BNN) with two layers for covariance estimation.
         The first layer maps the input to a hidden dimension using a normal distribution,
@@ -73,10 +73,10 @@ class bnn(activation):
         - b (jnp.ndarray): The second set of offsets for the covariance matrix.
         """
         # First layer weights/biases: note these are treated as latent parameters
-        W1 = dist.normal(0, 1, shape=(N, hidden_dim), name='W1')
+        W1 = dist.normal(0, 1, shape=(N, hidden_dim), name='W1', sample=sample)
 
         # Second layer weights/biases
-        W2 = dist.normal(0, 1, shape=(hidden_dim, 2), name='W2')
+        W2 = dist.normal(0, 1, shape=(hidden_dim, 2), name='W2', sample=sample)
 
         # Create one-hot encoding for each N (each row is a one–hot vector)
         X = jnp.eye(N)
