@@ -1,6 +1,6 @@
 import setuptools 
 import os
-VERSION = '0.0.7' 
+VERSION = '0.0.8' 
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
@@ -16,7 +16,9 @@ setuptools.setup(
         long_description_content_type="text/markdown",
         packages=setuptools.find_packages(),
         install_requires=['jax', 'numpyro', 'pandas', 'seaborn', 'tensorflow_probability', 'arviz'],
-        extras_require={"cuda": ["jax[cuda12]"]},
+        extras_require={
+            "cpu": ["jax[cpu]"],
+            "cuda12": ["jax[cuda12]"]},
         python_requires=">=3.9",
         keywords=['python', 'Bayesian inferences'],
         include_package_data=True,
@@ -26,7 +28,8 @@ setuptools.setup(
             "Programming Language :: Python :: 2",
             "Programming Language :: Python :: 3",
             "Operating System :: MacOS :: MacOS X",
-            "Operating System :: Microsoft :: Windows"
+            "Operating System :: Microsoft :: Windows",
+            "Operating System :: POSIX :: Linux",
         ],
         project_urls={
             "Homepage": "https://github.com/BGN-for-ASNA/BI",
