@@ -7,10 +7,12 @@ class UnifiedDist:
     def __init__(self):
         pass
 
-    def mask(self,mask):
+    @staticmethod
+    def mask( mask):
         return numpyro.handlers.mask(mask=mask)
 
-    def plate(self,name, shape):
+    @staticmethod
+    def plate(name, shape):
         return numpyro.plate(name, shape)
 
     @staticmethod

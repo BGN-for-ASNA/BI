@@ -35,7 +35,7 @@ class Neteffect(array_manip):
     def nodes_random_effects(N_id, sr_mu = 0, sr_sd = 1, sr_sigma_rate = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False ):
         sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
         sr_sigma =  dist.exponential( sr_sigma_rate, shape= (2,), name = 'sr_sigma', sample = sample)
-        sr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
+        sr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
         rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
 
         if diag:
@@ -167,7 +167,7 @@ class Neteffect(array_manip):
         """
         dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2,N_dyads), name = 'dr_raw', sample = sample)
         dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample )
-        dr_L = dist.lkjcholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
+        dr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
         dr_rf = deterministic('dr_rf', (((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2))))
         if diag :
             print("dr_raw--------------------------------------------------------------------------------")
