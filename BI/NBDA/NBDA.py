@@ -127,9 +127,8 @@ class NBDA:
         return (x - x.mean()) / x.std()
 
     @staticmethod
-    @jax.jit
-    def scale_along_time(covNV):
-        return vmap(NBDA.scale, in_axes = 1, out_axes=1)(covNV)
+    def scale_along_time(self,covNV):
+        return vmap(self.scale_data, in_axes = 1, out_axes=1)(covNV)
 
     def give_name(self, object, key, names):
         if names is  None:
