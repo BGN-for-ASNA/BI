@@ -17,7 +17,7 @@ class UnifiedDist:
     def asymmetric_laplace(loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """AsymmetricLaplace
+        r"""AsymmetricLaplace
         
         Samples from an Asymmetric Laplace distribution.
         
@@ -82,7 +82,7 @@ class UnifiedDist:
     def asymmetric_laplace_quantile(loc=0.0, scale=1.0, quantile=0.5, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """AsymmetricLaplaceQuantile
+        r"""AsymmetricLaplaceQuantile
         
         Samples from an AsymmetricLaplaceQuantile distribution.
         
@@ -156,7 +156,7 @@ class UnifiedDist:
     def bernoulli_logits(logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """BernoulliLogits
+        r"""BernoulliLogits
         
         Samples from a Bernoulli distribution parameterized by logits.
         
@@ -199,7 +199,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.bernoulli_logits(logits=jnp.zeros(10))
+            m.dist.bernoulli_logits(logits=jnp.array([0.2, 1, 2]), sample=True)
         
         Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#bernoulli-logits
@@ -225,7 +225,7 @@ class UnifiedDist:
     def bernoulli_probs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """BernoulliProbs
+        r"""BernoulliProbs
         
         Samples from a Bernoulli distribution parameterized by probabilities.
         
@@ -296,7 +296,7 @@ class UnifiedDist:
     def beta(concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Beta Distribution
+        r"""Beta Distribution
         
         Samples from a Beta distribution, defined on the interval [0, 1].
         The Beta distribution is a versatile distribution often used to model
@@ -360,7 +360,7 @@ class UnifiedDist:
     def beta_binomial(concentration1, concentration0, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """BetaBinomial Distribution
+        r"""BetaBinomial Distribution
         
         Samples from a BetaBinomial distribution, a compound distribution where the probability of success in a binomial
         experiment is drawn from a Beta distribution. This models situations where the underlying probability of success
@@ -419,7 +419,7 @@ class UnifiedDist:
     def beta_proportion(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a BetaProportion distribution.
+        r"""Samples from a BetaProportion distribution.
         
         The BetaProportion distribution is a reparameterization of the conventional
         Beta distribution in terms of a the variate mean and a
@@ -484,7 +484,7 @@ class UnifiedDist:
     def binomial_logits(logits, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """BinomialLogits Distribution
+        r"""BinomialLogits Distribution
         
         The BinomialLogits distribution represents a binomial distribution parameterized by logits.
         It is useful when the probability of success is not directly known but is instead
@@ -545,7 +545,7 @@ class UnifiedDist:
     def binomial_probs(probs, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """BinomialProbs
+        r"""BinomialProbs
         
         Samples from a Binomial distribution with specified probabilities for each trial.
         
@@ -650,7 +650,7 @@ class UnifiedDist:
     def categorical_logits(logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """CategoricalLogits
+        r"""CategoricalLogits
         
         Samples from a Categorical distribution with logits. This distribution represents a discrete probability distribution over a finite set of outcomes, where the probabilities are determined by the logits. The probability of each outcome is given by the softmax function applied to the logits.
         
@@ -702,7 +702,7 @@ class UnifiedDist:
     def categorical_probs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """CategoricalProbs
+        r"""CategoricalProbs
         
         Samples from a Categorical distribution.
         
@@ -767,7 +767,7 @@ class UnifiedDist:
     def cauchy(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Cauchy Distribution
+        r"""Cauchy Distribution
         
         Samples from a Cauchy distribution.
         
@@ -828,7 +828,7 @@ class UnifiedDist:
     def chi2(df, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Chi-squared distribution.
+        r"""Samples from a Chi-squared distribution.
         
         The Chi-squared distribution is a continuous probability distribution that arises
         frequently in hypothesis testing, particularly in ANOVA and chi-squared tests.
@@ -958,7 +958,7 @@ class UnifiedDist:
     def delta(v=0.0, log_density=0.0, event_dim=0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Delta distribution.
+        r"""Delta distribution.
         
         The Delta distribution, also known as a point mass distribution, assigns probability 1 to a single point and 0 elsewhere. It's useful for representing deterministic variables or as a building block for more complex distributions.
         
@@ -1010,7 +1010,7 @@ class UnifiedDist:
     def dirichlet(concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Dirichlet
+        r"""Dirichlet
         
         Samples from a Dirichlet distribution.
         
@@ -1071,7 +1071,7 @@ class UnifiedDist:
     def dirichlet_multinomial(concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """DirichletMultinomial
+        r"""DirichletMultinomial
         
         Samples from a DirichletMultinomial distribution.
         
@@ -1133,7 +1133,7 @@ class UnifiedDist:
     def discrete_uniform(low=0, high=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """DiscreteUniform
+        r"""DiscreteUniform
         
         Samples from a Discrete Uniform distribution.
         
@@ -1191,6 +1191,49 @@ class UnifiedDist:
 
     @staticmethod
     def doubly_truncated_power_law(alpha, low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
+        r"""
+        Doubly Truncated Power Law distribution.
+
+        This distribution represents a continuous power law with a finite support bounded
+        between `low` and `high`, and with an exponent `alpha`. It is normalized over the
+        interval `[low, high]` to ensure the area under the density function is 1.
+
+        The probability density function (PDF) is defined as:
+
+        .. math::
+            f(x; \\alpha, a, b) = \\frac{x^{\\alpha}}{Z(\\alpha, a, b)}
+
+        where the normalization constant :math:`Z(\\alpha, a, b)` is given by:
+
+        .. math::
+            Z(\\alpha, a, b) = \\begin{cases}
+                \\log(b) - \\log(a) & \\text{if } \\alpha = -1, \\\\
+                \\frac{b^{1 + \\alpha} - a^{1 + \\alpha}}{1 + \\alpha} & \\text{otherwise}.
+            \\end{cases}
+
+        This distribution is useful for modeling data that follows a power-law behavior
+        but is naturally bounded due to measurement or theoretical constraints (e.g.,
+        finite-size systems).
+
+
+        Args:
+            alpha (float or array-like): Power-law exponent.
+
+            low (float or array-like): Lower bound of the distribution (must be ≥ 0).
+
+            high (float or array-like): Upper bound of the distribution (must be > 0).
+
+            shape (tuple, optional): The shape of the output tensor. Defaults to None.
+
+            sample_shape (tuple, optional): The shape of the samples to draw. Defaults to None.
+            
+            validate_args (bool, optional): Whether to validate the arguments. Defaults to True.
+
+        Example usage:
+            from BI import bi
+            m = bi('cpu')        
+            m.dist.doubly_truncated_power_law(low=0.1, high=10.0, alpha=2.0, sample=True)
+        """
 
         d = numpyro.distributions.truncated.DoublyTruncatedPowerLaw(alpha=alpha, low=low, high=high, validate_args=validate_args)
         if sample:
@@ -1208,10 +1251,10 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def euler_maruyama(t, sde_fn, init_dist, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
+    def euler_maruyama(t, sde_fn, init_dist, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,   shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         Euler–Maruyama method is a method for the approximate numerical solution
         of a stochastic differential equation (SDE). It simulates the solution
         to an SDE by iteratively applying the Euler method to each time step,
@@ -1240,7 +1283,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            samples = euler_maruyama(t=jnp.array([0.0, 0.1, 0.2]), sde_fn=lambda x, t: (x, 1.0), init_dist=Normal(0.0, 1.0))
+            m.dist.euler_maruyama(t=jnp.array([0.0, 0.1, 0.2]), sde_fn=lambda x, t: (x, 1.0), init_dist=m.dist.normal(0.0, 1.0, create_obj=True), sample = True)
         """
 
            
@@ -1263,7 +1306,7 @@ class UnifiedDist:
     def exponential(rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         Samples from an Exponential distribution.
         
         The Exponential distribution is a continuous probability distribution that models the time until an event occurs in a Poisson process, where events occur continuously and independently at a constant average rate. It is often used to model the duration of events, such as the time until a machine fails or the length of a phone call.
@@ -1316,7 +1359,7 @@ class UnifiedDist:
     def folded_distribution(base_dist, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         Samples from a Folded distribution, which is the absolute value of a base univariate distribution.
         This distribution reflects the base distribution across the origin, effectively taking the absolute value of each sample.
     
@@ -1372,7 +1415,7 @@ class UnifiedDist:
     def gamma(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Gamma Distribution
+        r"""Gamma Distribution
         
         Samples from a Gamma distribution.
         
@@ -1439,7 +1482,7 @@ class UnifiedDist:
     def gamma_poisson(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """GammaPoisson Distribution
+        r"""GammaPoisson Distribution
         
         A compound distribution comprising of a gamma-poisson pair, also referred to as
         a gamma-poisson mixture. The ``rate`` parameter for the
@@ -1506,7 +1549,7 @@ class UnifiedDist:
     def gaussian_copula(marginal_dist, correlation_matrix=None, correlation_cholesky=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         A distribution that links the `batch_shape[:-1]` of a marginal distribution with a multivariate Gaussian copula,
         modelling the correlation between the axes. A copula is a multivariate distribution over the uniform distribution
         on [0, 1]. The Gaussian copula links the marginal distributions through a multivariate normal distribution.
@@ -1528,7 +1571,7 @@ class UnifiedDist:
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
             event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
             mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
-            create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+            create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `Mi  xtureSameFamily`. Defaults to False.
         
         Returns:
             NumPyro GaussianCopula distribution object: When `sample=False` (for model building).
@@ -1538,7 +1581,11 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.gaussian_copula(shape=(2,), event=1)
+            m.dist.gaussian_copula(
+                marginal_dist = m.dist.beta(2.0, 5.0, create_obj = True), 
+                correlation_matrix = jnp.array([[1.0, 0.7],[0.7, 1.0]]), 
+                sample = True
+            )
         
         Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gaussiancopula
@@ -1564,7 +1611,7 @@ class UnifiedDist:
     def gaussian_copula_beta(concentration1, concentration0, correlation_matrix=None, correlation_cholesky=None, validate_args=False, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Gaussian Copula Beta distribution.
+        r"""Samples from a Gaussian Copula Beta distribution.
     
         This distribution combines a Gaussian copula with a Beta distribution.
         The Gaussian copula models the dependence structure between random variables,
@@ -1580,7 +1627,7 @@ class UnifiedDist:
         Args:
             concentration1 (jnp.ndarray): The first shape parameter of the Beta distribution.
             concentration0 (jnp.ndarray): The second shape parameter of the Beta distribution.
-    
+            correlation_cholesky (jnp.ndarray): The Cholesky decomposition of the correlation matrix.
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
                 this is used with `.expand(shape)` to set the distribution's batch shape.
                 When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array
@@ -1601,7 +1648,12 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.gaussian_copula_beta(concentration1=1.0, concentration0=1.0, sample=True)
+            m.dist.gaussian_copula_beta(
+                concentration1 = jnp.array([2.0, 3.0]), 
+                concentration0 = jnp.array([5.0, 3.0]),
+                correlation_cholesky = jnp.linalg.cholesky(jnp.array([[1.0, 0.7],[0.7, 1.0]])), 
+                sample = True
+            )
     
         Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gaussiancopulabetadistribution
@@ -1627,7 +1679,7 @@ class UnifiedDist:
     def gaussian_random_walk(scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """GaussianRandomWalk
+        r"""GaussianRandomWalk
         
         Samples from a Gaussian Random Walk distribution.
         
@@ -1689,7 +1741,7 @@ class UnifiedDist:
     def gaussian_state_space(num_steps, transition_matrix, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         GaussianStateSpace Distribution
         
         Samples from a Gaussian state space model.
@@ -1723,8 +1775,8 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.gaussian_state_space(num_steps=5, transition_matrix=jnp.array([[0.5]]), sample=True)
-        
+            m.dist.gaussian_state_space(num_steps=5, transition_matrix=jnp.array([[0.5]]), covariance_matrix =  jnp.array([[1.0, 0.6],[0.6, 1.0]]), sample=True)
+
         Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gaussianstate
         """
@@ -1749,7 +1801,7 @@ class UnifiedDist:
     def geometric_logits(logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """GeometricLogits Distribution
+        r"""GeometricLogits Distribution
         
         Samples from a GeometricLogits distribution, which models the number of failures before the first success in a sequence of independent Bernoulli trials.  It is parameterized by logits, which are transformed into probabilities using the sigmoid function.
         
@@ -1807,7 +1859,7 @@ class UnifiedDist:
     def geometric_probs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """GeometricProbs
+        r"""GeometricProbs
         
         Samples from a Geometric distribution.
         
@@ -1861,7 +1913,7 @@ class UnifiedDist:
     def gompertz(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Gompertz Distribution.
+        r"""Gompertz Distribution.
         
         The Gompertz distribution is a distribution with support on the positive real line that is closely
         related to the Gumbel distribution. This implementation follows the notation used in the Wikipedia
@@ -1921,7 +1973,7 @@ class UnifiedDist:
     def gumbel(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Gumbel
+        r"""Gumbel
         
         Samples from a Gumbel (or Extreme Value) distribution.
         
@@ -1981,7 +2033,7 @@ class UnifiedDist:
     def half_cauchy(scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """HalfCauchy Distribution
+        r"""HalfCauchy Distribution
         
         The HalfCauchy distribution is a probability distribution that is half of the Cauchy distribution. It is defined on the positive real numbers and is often used in situations where only positive values are relevant.
         
@@ -2032,7 +2084,7 @@ class UnifiedDist:
     def half_normal(scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """HalfNormal
+        r"""HalfNormal
         
         Samples from a HalfNormal distribution.
         
@@ -2091,7 +2143,7 @@ class UnifiedDist:
     def improper_uniform(support, batch_shape, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """ImproperUniform
+        r"""ImproperUniform
         
         A helper distribution with zero :meth:`log_prob` over the `support` domain.
         
@@ -2150,7 +2202,7 @@ class UnifiedDist:
     def inverse_gamma(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """InverseGamma Distribution
+        r"""InverseGamma Distribution
         
         The InverseGamma distribution is a two-parameter family of continuous probability
         distributions. It is defined by its shape and rate parameters. It is often used as a prior distribution for
@@ -2209,7 +2261,7 @@ class UnifiedDist:
     def kumaraswamy(concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Kumaraswamy Distribution.
+        r"""Kumaraswamy Distribution.
         
         The Kumaraswamy distribution is a continuous probability distribution defined on the interval [0, 1].
         It is a flexible distribution that can take on various shapes depending on its parameters.
@@ -2265,7 +2317,7 @@ class UnifiedDist:
     def lkj(dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         Samples from an LKJ (Lewandowski, Kurowicka, Joe) distribution for correlation matrices.
         
         The LKJ distribution is controlled by the concentration parameter :math:`\eta` to make the probability
@@ -2329,7 +2381,7 @@ class UnifiedDist:
     def lkj_cholesky(dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         LKJ Cholesky Distribution
         
         The LKJ (Leonard-Kjærgaard-Jørgensen) Cholesky distribution is a family of distributions
@@ -2365,7 +2417,7 @@ class UnifiedDist:
     def laplace(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Laplace Distribution
+        r"""Laplace Distribution
         
         Samples from a Laplace distribution, also known as the double exponential distribution.
         The Laplace distribution is defined by its location parameter (loc) and scale parameter (scale).
@@ -2424,7 +2476,7 @@ class UnifiedDist:
     def left_truncated_distribution(base_dist, low=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """LeftTruncatedDistribution
+        r"""LeftTruncatedDistribution
         
         Samples from a left-truncated distribution.
         
@@ -2487,7 +2539,7 @@ class UnifiedDist:
     def levy(loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Levy distribution.
+        r"""Levy distribution.
         
         Samples from a Levy distribution.
         
@@ -2542,7 +2594,7 @@ class UnifiedDist:
     def log_normal(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """LogNormal distribution.
+        r"""LogNormal distribution.
         
         The LogNormal distribution is a probability distribution defined for positive real-valued random variables,
         parameterized by a location parameter (loc) and a scale parameter (scale).  It arises when the logarithm
@@ -2600,7 +2652,7 @@ class UnifiedDist:
     def log_uniform(low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """LogUniform
+        r"""LogUniform
         
         Samples from a LogUniform distribution.
         
@@ -2659,7 +2711,7 @@ class UnifiedDist:
     def logistic(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Logistic Distribution
+        r"""Logistic Distribution
         
         Samples from a Logistic distribution.
         
@@ -2715,7 +2767,7 @@ class UnifiedDist:
     def low_rank_multivariate_normal(loc, cov_factor, cov_diag, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         LowRankMultivariateNormal Distribution
         
         Represents a multivariate normal distribution with a low-rank covariance structure.
@@ -2736,9 +2788,15 @@ class UnifiedDist:
             cov_diag (jnp.ndarray): Diagonal elements of the covariance matrix.
         
         Example Usage:
-            from num.pyro import bi
+            from BI import bi
             m = bi('cpu')
-            samples = m.dist.low_rank_multivariate_normal(loc=0.0, cov_factor=jnp.array([[1.0]]), cov_diag=jnp.array([1.0]), sample=True)
+            event_size = 100  # Our distribution has 100 dimensions
+            rank = 5   
+            m.dist.low_rank_multivariate_normal(
+                loc=m.dist.normal(0,1, shape = (event_size,), sample=True)*2, 
+                cov_factor=m.dist.normal(0,1, shape = (event_size, rank), sample=True),
+                cov_diag=jnp.exp(m.dist.normal(0,1, shape = (event_size,), sample=True)) * 0.1, sample=True
+            )
         
         Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#lowrankmultivariatenormal
@@ -2763,7 +2821,7 @@ class UnifiedDist:
     def lower_truncated_power_law(alpha, low, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """LowerTruncatedPowerLaw
+        r"""LowerTruncatedPowerLaw
         
         Lower truncated power law distribution with :math:`\alpha` index.
         
@@ -2824,7 +2882,7 @@ class UnifiedDist:
     def matrix_normal(loc, scale_tril_row, scale_tril_column, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         Matrix Normal Distribution
         
         Samples from a Matrix Normal distribution, which is a multivariate normal distribution over matrices.
@@ -2862,8 +2920,30 @@ class UnifiedDist:
         
         Example Usage:
             from BI import bi
-            m = bi('cpu')
-            m.dist.matrix_normal(loc=0.0, scale_tril_row=1.0, scale_tril_column=1.0, sample=True)
+            import jax.numpy as jnp
+            m = bi('cpu')            
+            n_rows, n_cols = 3, 4
+
+            loc = jnp.zeros((n_rows, n_cols))
+            U_row_cov = jnp.array([[1.0, 0.5, 0.2],
+                                   [0.5, 1.0, 0.3],
+                                   [0.2, 0.3, 1.0]])
+            scale_tril_row = jnp.linalg.cholesky(U_row_cov)
+
+            V_col_cov = jnp.array([[2.0, -0.8, 0.1, 0.4],
+                                   [-0.8, 2.0, 0.2, -0.2],
+                                   [0.1, 0.2, 2.0, 0.0],
+                                   [0.4, -0.2, 0.0, 2.0]])
+
+            # The argument passed to the distribution is its Cholesky factor
+            scale_tril_column = jnp.linalg.cholesky(V_col_cov)
+
+            m.dist.matrix_normal(
+                oc=loc, 
+                scale_tril_row=scale_tril_row, 
+                scale_tril_column=scale_tril_column, 
+                sample=True
+            )
         
         Wrapper of: https://num.pyro.ai/en/stable/distributions.html#matrixnormal_lowercase
         """
@@ -2888,7 +2968,7 @@ class UnifiedDist:
     def mixture_general(mixing_distribution, component_distributions, support=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         MixtureGeneral
         
         A finite mixture of component distributions from different families.
@@ -2920,14 +3000,16 @@ class UnifiedDist:
         *   **When `sample=True`**: A JAX array of samples drawn from the MixtureGeneral distribution (for direct sampling).
         *   **When `create_obj=True`**: The raw NumPyro distribution object (for advanced use cases).
         
-        **Example Usage:**
-        
+        **Example Usage:**      
 
-        from BI import bi
-        m = bi('cpu')
-        m.dist.mixture_general(mixing_distribution=m.dist.categorical(probs=jnp.array([0.3, 0.7])), component_distributions=[m.dist.normal(loc=0.0, scale=1.0), m.dist.normal(loc=2.0, scale=1.0)], sample=True)
+            from BI import bi
+            m = bi('cpu')
+            m.dist.mixture_general(
+                mixing_distribution=m.dist.categorical(probs=jnp.array([0.3, 0.7]), create_obj = True),     
+                component_distributions=[m.dist.normal(loc=0.0, scale=1.0, create_obj=True),m.dist.normal  (loc=0.0, scale=1.0,  create_obj=True)],
+                sample = True
+            )           
 
-        
         Wrapper of: [https://num.pyro.ai/en/stable/distributions.html#mixturegeneral](https://num.pyro.ai/en/stable/distributions.html#mixturegeneral)
         """
         
@@ -2951,7 +3033,7 @@ class UnifiedDist:
     def mixture_same_family(mixing_distribution, component_distribution, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         A finite mixture of component distributions from the same family.
         
         This mixture only supports a mixture of component distributions that are all
@@ -2991,7 +3073,11 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.mixture_same_family(loc=0.0, scale=1.0, sample=True)
+            m.dist.mixture_same_family(
+                mixing_distribution=m.dist.categorical(probs=jnp.array([0.3, 0.7]), create_obj = True), 
+                component_distribution=m.dist.normal(loc=0.0, scale=1.0, shape = (2,), create_obj=True),
+                sample = True
+            )
         
         Wrapper of: https://num.pyro.ai/en/stable/distributions.html#mixture-same-family
         """
@@ -3016,7 +3102,7 @@ class UnifiedDist:
     def multinomial_logits(logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """MultinomialLogits
+        r"""MultinomialLogits
         
         Samples from a MultinomialLogits distribution.
         
@@ -3078,7 +3164,7 @@ class UnifiedDist:
     def multinomial_probs(probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """MultinomialProbs
+        r"""MultinomialProbs
         
         Samples from a Multinomial distribution.
         
@@ -3139,7 +3225,7 @@ class UnifiedDist:
     def multivariate_normal(loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Multivariate Normal distribution.
+        r"""Samples from a Multivariate Normal distribution.
         
         The Multivariate Normal distribution, also known as the Gaussian distribution in multiple dimensions,
         is a probability distribution that arises frequently in statistics and machine learning. It is
@@ -3185,7 +3271,13 @@ class UnifiedDist:
 
         from BI import bi
         m = bi('cpu')
-        m.dist.multivariate_normal(loc=0.0, scale=1.0, sample=True)
+        m.dist.multivariate_normal(
+            loc=jnp.array([1.0, 0.0, -2.0]), 
+            covariance_matrix=jnp.array([[ 2.0,  0.7, -0.3],
+                                        [ 0.7,  1.0,  0.5],
+                                        [-0.3,  0.5,  1.5]]), 
+            sample=True
+        )
 
         
         Wrapper of: https://num.pyro.ai/en/stable/distributions.html#multivariate-normal
@@ -3211,7 +3303,7 @@ class UnifiedDist:
     def multivariate_student_t(df, loc=0.0, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Multivariate Student's t Distribution
+        r"""Multivariate Student's t Distribution
         
         The Multivariate Student's t distribution is a generalization of the Student's t
         distribution to multiple dimensions. It is a heavy-tailed distribution that is
@@ -3247,8 +3339,18 @@ class UnifiedDist:
         
         Example Usage:
             from BI import bi
+            import jax.numpy as jnp
             m = bi('cpu')
-            m.dist.multivariate_student_t(df = 2, loc=0.0, scale=1.0, sample=True)
+            m.dist.multivariate_student_t(
+                df = 2,
+                loc=jnp.array([1.0, 0.0, -2.0]), 
+                scale_tril=jnp.linalg.cholesky(
+                    jnp.array([[ 2.0,  0.7, -0.3],
+                                [ 0.7,  1.0,  0.5],
+                                [-0.3,  0.5,  1.5]])), 
+                sample=True
+            )   
+
         
         Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#multivariatestudentt
@@ -3274,7 +3376,7 @@ class UnifiedDist:
     def negative_binomial2(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
             Samples from a NegativeBinomial2 distribution.
         
             This distribution is parameterized as a GammaPoisson with a modified rate.
@@ -3330,7 +3432,7 @@ class UnifiedDist:
     def negative_binomial_logits(total_count, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """NegativeBinomialLogits
+        r"""NegativeBinomialLogits
         
         Samples from a NegativeBinomialLogits distribution.
         
@@ -3388,7 +3490,7 @@ class UnifiedDist:
     def negative_binomial_probs(total_count, probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a NegativeBinomial distribution with probabilities.
+        r"""Samples from a NegativeBinomial distribution with probabilities.
         
         The NegativeBinomial distribution models the number of failures before the first success in a sequence of independent Bernoulli trials.  It is characterized by two parameters: 'concentration' (r) and 'rate' (p).  In this implementation, the 'concentration' parameter is derived from 'total_count' and the 'rate' parameter is derived from 'probs'.
         
@@ -3415,7 +3517,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.negative_binomial_probs(concentration=10.0, rate=0.5, sample=True)
+            m.dist.negative_binomial_probs(total_count=10.0, probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomialprobs
         """
@@ -3440,7 +3542,7 @@ class UnifiedDist:
     def normal(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Normal Distribution
+        r"""Normal Distribution
         
         Samples from a Normal (Gaussian) distribution.
         
@@ -3504,7 +3606,7 @@ class UnifiedDist:
     def ordered_logistic(predictor, cutpoints, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """OrderedLogistic
+        r"""OrderedLogistic
         
         A categorical distribution with ordered outcomes. This distribution represents the probability of an event falling into one of several ordered categories, based on a predictor variable and a set of cutpoints. The probability of an event falling into a particular category is determined by the number of categories above it.
         
@@ -3563,7 +3665,7 @@ class UnifiedDist:
     def pareto(scale, alpha, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Pareto Distribution
+        r"""Pareto Distribution
         
         Samples from a Pareto distribution.
         
@@ -3635,7 +3737,7 @@ class UnifiedDist:
     def poisson(rate, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         Creates a Poisson distribution, a discrete probability distribution that models the number of events occurring in a fixed interval of time or space if these events occur with a known average rate and independently of the time since the last event.
         
         .. math::
@@ -3689,7 +3791,7 @@ class UnifiedDist:
     def projected_normal(concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a ProjectedNormal distribution.
+        r"""Samples from a ProjectedNormal distribution.
         
         This distribution over directional data is qualitatively similar to the von
         Mises and von Mises-Fisher distributions, but permits tractable variational
@@ -3757,7 +3859,7 @@ class UnifiedDist:
     def relaxed_bernoulli_logits(temperature, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Relaxed Bernoulli Logits Distribution.
+        r"""Relaxed Bernoulli Logits Distribution.
         
             Represents a relaxed version of the Bernoulli distribution, parameterized by logits and a temperature.
             The temperature parameter controls the sharpness of the distribution.  The distribution is defined
@@ -3812,10 +3914,10 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def right_truncated_distribution(base_dist, high=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
+    def right_truncated_distribution(base_dist, high=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False):
         
 
-        """RightTruncatedDistribution
+        r"""RightTruncatedDistribution
         
         Samples from a right-truncated distribution.
         
@@ -3853,7 +3955,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.right_truncated_distribution(loc=0.0, scale=1.0, sample=True)
+            m.dist.right_truncated_distribution(base_dist = m.dist.normal(0,1, create_obj = True), high=0, sample=True)
         
         Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#righttruncateddistribution
@@ -3878,7 +3980,7 @@ class UnifiedDist:
     @staticmethod
     def sine_skewed(base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
-        """
+        r"""
         Sine-skewing [1] is a procedure for producing a distribution that breaks pointwise symmetry on a torus distribution. The new distribution is called the Sine Skewed X distribution, where X is the name of the (symmetric) base distribution. Torus distributions are distributions with support on products of circles (i.e., :math:`\otimes S^1` where :math:`S^1 = [-pi,pi)`).
         So, a 0-torus is a point, the 1-torus is a circle, and the 2-torus is commonly associated with the donut shape.
         
@@ -3929,7 +4031,7 @@ class UnifiedDist:
     def soft_laplace(loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """SoftLaplace
+        r"""SoftLaplace
         
         Samples from a SoftLaplace distribution.
         
@@ -3995,7 +4097,7 @@ class UnifiedDist:
     def student_t(df, loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Student's t-distribution.
+        r"""Samples from a Student's t-distribution.
         
         The Student's t-distribution is a probability distribution that arises in hypothesis testing involving the mean of a normally distributed population when the population standard deviation is unknown. It is similar to the normal distribution, but has heavier tails, making it more robust to outliers.
         
@@ -4023,7 +4125,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.student_t(loc=0.0, scale=1.0, sample=True)
+            m.dist.student_t(df = 2, loc=0.0, scale=1.0, sample=True)
         
         Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#studentt
@@ -4049,7 +4151,7 @@ class UnifiedDist:
     def truncated_polya_gamma(batch_shape=(), validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """TruncatedPolyaGamma Distribution
+        r"""TruncatedPolyaGamma Distribution
         
         Samples from a TruncatedPolyaGamma distribution.
         
@@ -4103,7 +4205,7 @@ class UnifiedDist:
     def two_sided_truncated_distribution(base_dist, low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         TwoSidedTruncatedDistribution
         
         This distribution truncates a base distribution between two specified lower and upper bounds.
@@ -4148,7 +4250,7 @@ class UnifiedDist:
     def uniform(low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Uniform Distribution
+        r"""Uniform Distribution
         
         Samples from a Uniform distribution, which is a continuous probability distribution
         where all values within a given interval are equally likely.
@@ -4213,7 +4315,7 @@ class UnifiedDist:
     def unit(log_factor, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
             Samples from a Unit distribution.
         
             The Unit distribution is a trivial, non-normalized distribution representing the unit type.
@@ -4272,7 +4374,7 @@ class UnifiedDist:
     def weibull(scale, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Weibull Distribution
+        r"""Weibull Distribution
         
         Samples from a Weibull distribution.
         
@@ -4332,7 +4434,7 @@ class UnifiedDist:
     def wishart(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         Wishart distribution for covariance matrices.
         
         The Wishart distribution is a multivariate distribution used to model positive definite matrices,
@@ -4400,7 +4502,7 @@ class UnifiedDist:
     def wishart_cholesky(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
         WishartCholesky Distribution
         
         The Wishart distribution is a multivariate distribution used as a prior distribution
@@ -4455,7 +4557,7 @@ class UnifiedDist:
     def zero_inflated_poisson(gate, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """
+        r"""
             A Zero Inflated Poisson distribution.
         
             This distribution combines two Poisson processes: one with a rate parameter and another that generates only zeros.
@@ -4483,7 +4585,7 @@ class UnifiedDist:
             Example Usage:
                 from BI import bi
                 m = bi('cpu')
-                m.dist.zero_inflated_poisson(rate=2.0, sample=True)
+                m.dist.zero_inflated_poisson(gate = 0.3, rate=2.0, sample=True)
         
             Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatedpoisson
         """
@@ -4508,7 +4610,7 @@ class UnifiedDist:
     def zero_sum_normal(scale, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """ZeroSumNormal
+        r"""ZeroSumNormal
         
         Samples from a ZeroSumNormal distribution, which is a Normal distribution where one or more axes are constrained to sum to zero.
         
@@ -4538,9 +4640,9 @@ class UnifiedDist:
             When `create_obj=True`: The raw NumPyro distribution object (for advanced use cases).
         
         Example Usage:
-            from num.pyro import bi
+            from BI import bi
             m = bi('cpu')
-            m.dist.zero_sum_normal(scale=1.0, shape=(10,), event=0, mask=None, create_obj=False)
+            m.dist.zero_sum_normal(scale=1.0, event_shape = (2,), sample = True)
         
         Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#zerosumnormal
@@ -4566,7 +4668,7 @@ class UnifiedDist:
     def bernoulli(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Bernoulli distribution.
+        r"""Samples from a Bernoulli distribution.
         
         The Bernoulli distribution models a single trial with two possible outcomes: success or failure.
         It is parameterized by the probability of success, often denoted as 'p'.
@@ -4620,7 +4722,7 @@ class UnifiedDist:
     def binomial(total_count=1, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Binomial distribution.
+        r"""Samples from a Binomial distribution.
         
         The Binomial distribution models the number of successes in a sequence of independent Bernoulli trials.
         It represents the probability of obtaining exactly *k* successes in *n* trials, where each trial has a probability *p* of success.
@@ -4676,7 +4778,7 @@ class UnifiedDist:
     def categorical(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Categorical distribution.
+        r"""Samples from a Categorical distribution.
         
         The Categorical distribution, also known as the multinomial distribution,
         describes the probability of different outcomes from a finite set of possibilities.
@@ -4742,7 +4844,7 @@ class UnifiedDist:
     def geometric(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Geometric distribution.
+        r"""Samples from a Geometric distribution.
         
         The Geometric distribution models the number of failures before the first success in a sequence of Bernoulli trials.
         It is characterized by a single parameter, the probability of success on each trial.
@@ -4792,10 +4894,10 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def mixture(mixing_distribution, component_distributions, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
+    def mixture(mixing_distribution, component_distributions, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,  shape=(), event=0,create_obj=False):
         
 
-        """A marginalized finite mixture of component distributions.
+        r"""A marginalized finite mixture of component distributions.
         
         This distribution represents a mixture of component distributions, where the
         mixing weights are determined by a Categorical distribution. The resulting
@@ -4868,7 +4970,7 @@ class UnifiedDist:
     def multinomial(total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Multinomial distribution.
+        r"""Multinomial distribution.
         
         Samples from a Multinomial distribution, which models the probability of different outcomes in a sequence of independent trials, each with a fixed number of trials and a fixed set of possible outcomes.  It generalizes the binomial distribution to multiple categories.
         
@@ -4923,7 +5025,7 @@ class UnifiedDist:
     def relaxed_bernoulli(temperature, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Relaxed Bernoulli distribution.
+        r"""Samples from a Relaxed Bernoulli distribution.
         
         The Relaxed Bernoulli distribution is a continuous relaxation of the discrete Bernoulli distribution.
         It's useful for variational inference and other applications where a differentiable approximation of the Bernoulli is needed.
@@ -4954,7 +5056,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.relaxed_bernoulli(temperature=1.0, sample=True)
+            m.dist.relaxed_bernoulli(temperature=1.0, probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         Wrapper of: https://num.pyro.ai/en/stable/distributions.html#relaxedbernoulli
         """
@@ -4979,7 +5081,7 @@ class UnifiedDist:
     def truncated_cauchy(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Truncated Cauchy distribution.
+        r"""Samples from a Truncated Cauchy distribution.
         
         The Cauchy distribution, also known as the Lorentz distribution, is a continuous probability distribution
         that appears frequently in various areas of mathematics and physics. It is characterized by its heavy tails,
@@ -5039,7 +5141,7 @@ class UnifiedDist:
     def truncated_distribution(base_dist, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """TruncatedDistribution
+        r"""TruncatedDistribution
         
         Samples from a Truncated Distribution.
         
@@ -5077,7 +5179,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.truncated_distribution(base_dist=m.dist.Normal(loc=0.0, scale=1.0), sample=True)
+            m.dist.truncated_distribution(base_dist = m.dist.normal(0,1, create_obj = True), high=1, low = 0, sample=True)
         
         Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncateddistribution
         """
@@ -5102,7 +5204,7 @@ class UnifiedDist:
     def truncated_normal(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Truncated Normal distribution.
+        r"""Samples from a Truncated Normal distribution.
         
         The Truncated Normal distribution is a normal distribution truncated
         to a specified interval. It is defined by its location (`loc`), scale
@@ -5167,7 +5269,7 @@ class UnifiedDist:
     def zero_inflated_distribution(base_dist, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Generic Zero Inflated distribution.
+        r"""Generic Zero Inflated distribution.
         
         A Zero-Inflated distribution combines a base distribution with a Bernoulli distribution
         to model data with an excess of zero values. It assumes that each observation
@@ -5185,8 +5287,14 @@ class UnifiedDist:
         - $I(x=0)$ is an indicator function that equals 1 if x=0 and 0 otherwise.
         
         Args:
-            base_dist (Distribution): The base distribution.
-        
+            base_dist (Distribution): The base distribution to be zero-inflated (e.g., Poisson,     NegativeBinomial).
+
+            gate (jnp.ndarray, optional): Probability of extra zeros (between 0 and 1).
+
+            gate_logits (jnp.ndarray, optional): Log-odds of extra zeros.
+
+            validate_args (bool, optional): Whether to validate parameter values. Defaults to None.
+
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
                 this is used with `.expand(shape)` to set the distribution's batch shape.
                 When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
@@ -5207,7 +5315,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.zero_inflated_distribution(base_dist=m.dist.Normal(loc=0.0, scale=1.0), sample=True)
+            m.dist.zero_inflated_distribution(base_dist=m.dist.poisson(rate=5, create_obj = True), gate = 0.3, sample=True)
         
         Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflateddistribution
         """
@@ -5232,7 +5340,7 @@ class UnifiedDist:
     def zero_inflated_negative_binomial2(mean, concentration, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
-        """Samples from a Zero-Inflated Negative Binomial 2 distribution.
+        r"""Samples from a Zero-Inflated Negative Binomial 2 distribution.
         
         This distribution combines a Negative Binomial 2 distribution with a binary gate variable.
         Observations are either drawn from the Negative Binomial 2 distribution with probability
@@ -5266,7 +5374,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.zero_inflated_negative_binomial2(mean=2.0, concentration=3.0, sample=True)
+            m.dist.zero_inflated_negative_binomial2(mean=2.0, concentration=3.0, gate = 0.3, sample=True)
         
         Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatednegativebinomial2
         """
@@ -5317,7 +5425,7 @@ class UnifiedDist:
         Example Usage:
             from BI import bi
             m = bi('cpu')
-            m.dist.negative_binomial(total_count=5.0, sample=True)
+            m.dist.negative_binomial(total_count=5.0,probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomial
         """
