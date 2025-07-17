@@ -122,13 +122,14 @@ class NBDA:
 
             self.objects = None
 
-    @partial(jax.jit, static_argnums=(0,)) 
-    def scale_data(self, x):
+    @staticmethod
+    @jax.jit
+    def scale_data(x):
         return (x - x.mean()) / x.std()
 
     @staticmethod
-    def scale_along_time(self,covNV):
-        return vmap(self.scale_data, in_axes = 1, out_axes=1)(covNV)
+    def scale_along_time(covNV):
+        return vmap(NBDA.scale_data, in_axes = 1, out_axes=1)(covNV)
 
     def give_name(self, object, key, names):
         if names is  None:
