@@ -291,7 +291,7 @@ class NBDA:
 
     def import_covNV(self, covV, names = None, scale = True, where = 'both', get_cov_j = True): #covV need to be a 3 dimensional array of shape (num_var, n, t)i.e. A list of matrices of time-varying covariates
         if scale:
-            covV = NBDA.scale_along_time(covV)
+            covV = self.scale_along_time(covV)
         else: 
             print("Not scaling covariates along time can result in correlation between regressions coeffcients in of temporal covariates and the intercepts (i.e. social rate)")
             print("\nAlternative solution would be to add time varying coefficients, but it does affet computational time drastically.")
@@ -366,7 +366,7 @@ class NBDA:
         """
         
         if len(covDV.shape)==3:# A list of matrices of a single time-varying covariate
-            covDV =  NBDA.scale_along_time(covDV)
+            covDV =  self.scale_along_time(covDV)
             covDV = covDV[:, :, :,jnp.newaxis]
 
         elif len(covDV.shape)==4:# A ist of list of matrices of a single time-varying covariate
