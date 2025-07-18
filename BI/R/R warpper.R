@@ -1,11 +1,14 @@
 # This file contain the process to wrap the python code into R functions programatically
 library(magrittr)
 library(reticulate)
+library(jsonlite)
+reticulate::py_install('BayesInference')
 inspect <- import("inspect")
+jnp = import("jax.numpy")
 dirout_path = "./R"
-setwd(dirout_path)
+#setwd(dirout_path)
 bi <- import("BI")
-
+data <- fromJSON("Doc_R.json")
 
 extract_values <- function(param) {
   # Convert to string and extract the text within quotes
@@ -139,8 +142,7 @@ no=c("__class__",
      "__weakref__",
      "sineskewed")
 attrs = attrs[30:length(attrs)]
-library(jsonlite)
-data <- fromJSON("RDoc.json")
+
 for (a in attrs){
   if(!a %in% no){
     obj <- tryCatch(bi$dist[[a]], error = function(e) NULL)
