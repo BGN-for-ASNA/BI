@@ -5,6 +5,9 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
 class diag():
+    """
+    The diag class serves as a comprehensive toolkit for diagnosing and visualizing the results of Bayesian models, particularly those fitted using MCMC samplers like NumPyro or TensorFlow Probability. It is built as a high-level wrapper around the arviz library, simplifying common diagnostic tasks into convenient methods. The class takes a sampler object upon initialization and provides a suite of functions for in-depth model checking, comparison, and visualization.
+    """
 
     def __init__(self, sampler):
         """Initialize the diagnostic class. Currently empty but can be extended for initialization needs."""

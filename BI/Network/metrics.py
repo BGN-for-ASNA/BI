@@ -5,6 +5,10 @@ from jax import vmap
 
 #region Class <comment>
 class met:
+    """Network metrics class for computing various graph metrics using JAX.
+    This class provides methods to compute clustering coefficients, eigenvector centrality, Dijkstra's algorithm for shortest paths, and other network metrics. 
+    It leverages JAX's capabilities for efficient computation on large graphs.
+    """
     def __init__(self):
         pass
     

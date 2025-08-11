@@ -1,6 +1,14 @@
 # %%
 """
-This file wraps NumPyro functions to enable different calls depending on the provided arguments.
+This file wraps NumPyro distribution functions to enable different calls depending on the provided arguments (sampling, model building, etc.). It also generates the documentation for each distribution function.
+
+The file created, `dists.py`, is edited by hand to handle some issues:
+1. The `mask` argument is present twice in some functions, so it is removed.
+2. `*args` and `**kwargs` are not the last arguments in some functions.
+3. Some function names are changed due to camel case conversion to snake case (e.g., `l_k_j` -> `lkj`).
+
+All required changes can be tracked through the VSCode Problems list. `dists.py` is then renamed to `np_dists.py`, which is the file used by BI to import the distributions.
+
 """
 
 import inspect

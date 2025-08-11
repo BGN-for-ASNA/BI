@@ -99,6 +99,9 @@ def mat_to_edgl_jax(mat):
 
 
 class array_manip():
+    """    A class for efficient array manipulations using JAX.
+    This class provides methods for checking symmetry, converting vectors to matrices, extracting triangle elements, and converting matrices to edge lists.
+    """
     def __init__(self) -> None:
         pass
 

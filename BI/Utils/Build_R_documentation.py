@@ -1,4 +1,8 @@
 #%%
+"""
+This script generates R documentation for Python distributions using the `reticulate` package.
+It extracts docstrings from Python classes and methods, converts them into `roxygen2` format, and saves the documentation in a JSON file for later use.
+"""
 from np_dists import UnifiedDist
 import ollama
 dist_classes = {}
