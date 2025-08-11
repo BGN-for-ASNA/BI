@@ -5,6 +5,9 @@ from numpyro import deterministic
 from BI.Utils.np_dists import UnifiedDist as dist
 
 class bnn(activation):
+    """
+    The bnn class is designed to build Bayesian Neural Networks (BNNs). It provides methods for creating network layers with specified prior distributions and activation functions. Additionally, it includes a specific two-layer BNN model for covariance estimation and a utility function to compute a correlation matrix from posterior samples.
+    """
     def __init__(self):
         super().__init__()
 

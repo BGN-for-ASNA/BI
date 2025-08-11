@@ -7,6 +7,8 @@ import re
 
 
 class model_handler():
+    """    The model_handler class is designed to facilitate the management and manipulation of Bayesian models within the BI framework. It provides methods to extract model arguments, variables, and distributions from a given model function. The class also includes functionality to initialize model parameters and bijectors based on the model's structure and the nature of its variables. This class serves as a bridge between raw model definitions and their practical application in Bayesian inference, ensuring that models are correctly configured for fitting and analysis.
+    """
     def __init__(self):
         self.data_on_model = None # Come from data manip data_to_model function
         self.args = None

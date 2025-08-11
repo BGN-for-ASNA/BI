@@ -1,74 +1,95 @@
-import jax
-import jax.numpy as jnp
-from jax import random, vmap
 from BI.Utils.np_dists import UnifiedDist as dist
+import jax.numpy as jnp
 import numpyro.distributions as Dist
-from scipy.spatial.distance import pdist, squareform
-from scipy.cluster.hierarchy import fcluster, linkage
-import numpy as np
+import numpyro
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import pdist, squareform
-
-def gmm(data, K, initial_means): # Here K is the *exact* number of clusters
-    """
-    Gaussian Mixture Model with a fixed number of clusters K.
-    Parameters:
-    - data: Input data points (shape: [N, D] where N is the number of samples and D is the number of features).
-    - K: The exact number of clusters.
-    - initial_means: Initial means for the clusters (shape: [K, D]). If not provided, it is initialized using K-means.
-    Returns:
-    - A model that defines the GMM with K clusters.
-    This model assumes that the data is generated from a mixture of K Gaussian distributions.
-    The model estimates the means, covariances, and mixture weights for each cluster.
-    The number of clusters K is fixed and must be specified in advance.
-    """
-    D = data.shape[1]  # Number of features
-    alpha_prior = 0.5 * jnp.ones(K)
-    w = dist.dirichlet(concentration=alpha_prior, name='weights') 
-
-    with dist.plate("components", K): # Use fixed K
-        mu = dist.multivariatenormal(loc=initial_means, covariance_matrix=0.1*jnp.eye(D), name='mu')        
-        sigma = dist.halfcauchy(1, shape=(D,), event=1, name='sigma')
-        Lcorr = dist.lkjcholesky(dimension=D, concentration=1.0, name='Lcorr')
-
-        scale_tril = sigma[..., None] * Lcorr
-
-    ## 3) marginal mixture over obs (this part remains almost identical)
-    #with numpyro.plate('data', len(data)):
-    #    assignment = numpyro.sample('assignment', dist.Categorical(w),infer={"enumerate": "parallel"}) 
-    #    numpyro.sample('obs', dist.MultivariateNormal(mu[assignment,:][1], sigma[assignment][1]*jnp.eye(D)), obs=data)
-    #    
-    dist.mixturesamefamily(
-        mixing_distribution=dist.categorical(probs=w, create_obj=True),
-        component_distribution=dist.multivariatenormal(loc=mu, scale_tril=scale_tril, create_obj=True),
-        name="obs",
-        obs=data
-    )
-
-
-
 from scipy.stats import multivariate_normal
 import seaborn as sns # Ensure seaborn is imported for palettes
 import matplotlib.pyplot as plt
+import jax
+import numpy as np
 
-def predict_gmm(data,sampler):
+import numpyro
+
+import jax.numpy as jnp
+
+def mix_weights(beta):
+    beta1m_cumprod = jnp.cumprod(1.0 - beta, axis=-1)
+    padded_beta = jnp.pad(beta, (0, 1), constant_values=1.0)
+    padded_cumprod = jnp.pad(beta1m_cumprod, (1, 0), constant_values=1.0)
+    return padded_beta * padded_cumprod
+
+def dpmm(data, T=10):
+    N, D = data.shape  # Number of features
+    data_mean = jnp.mean(data, axis=0)
+    data_std = jnp.std(data, axis=0)*2
+
+    # 1) stick-breaking weights
+    alpha = dist.gamma(1.0, 10.0,name='alpha')
+
+    with numpyro.plate("beta_plate", T - 1):
+        beta = numpyro.sample('beta', Dist.Beta(1, alpha))
+
+    w = numpyro.deterministic("w",mix_weights(beta))
+
+
+    # 2) component parameters
+    with numpyro.plate("components", T):
+        mu = dist.multivariate_normal(loc=data_mean, covariance_matrix=data_std*jnp.eye(D),name='mu')# shape (T, D)        
+        sigma = dist.log_normal(0.0, 1.0,shape=(D,),event=1,name='sigma')# shape (T, D)
+        Lcorr = dist.lkj_cholesky(dimension=D, concentration=1.0,name='Lcorr')# shape (T, D, D)
+
+        scale_tril = sigma[..., None] * Lcorr  # shape (T, D, D)
+
+    # 3) Latent cluster assignments for each data point
+    with numpyro.plate("data", N):
+        # Sample the assignment for each data point
+        z = numpyro.sample("z", Dist.Categorical(w)) # shape (N,)  
+
+        numpyro.sample(
+            "obs",
+            Dist.MultivariateNormal(loc=mu[z], scale_tril=scale_tril[z]),
+            obs=data
+        )  
+
+def dpmm_marginal(data, T=10):
+    # 1) stick-breaking weights
+    alpha = m.dist.gamma(1.0, 10.0,name='alpha')
+    beta = m.dist.beta(1, alpha,name='beta',shape=(T-1,))
+    w = numpyro.deterministic("w",dist.transforms.StickBreakingTransform()(beta))
+
+
+    # 2) component parameters
+    data_mean = jnp.mean(data, axis=0)
+    with numpyro.plate("components", T):
+        mu = m.dist.multivariatenormal(loc=data_mean, covariance_matrix=100.0*jnp.eye(D),name='mu')# shape (T, D)        
+        sigma = m.dist.halfcauchy(1,shape=(D,),event=1,name='sigma')# shape (T, D)
+        Lcorr = m.dist.lkjcholesky(dimension=D, concentration=1.0,name='Lcorr')# shape (T, D, D)
+
+        scale_tril = sigma[..., None] * Lcorr  # shape (T, D, D)
+
+    # 3) marginal mixture over obs
+    m.dist.mixturesamefamily(
+        mixing_distribution=m.dist.categoricalprobs(w,name='cat', create_obj=True),
+        component_distribution=m.dist.multivariatenormal(loc=mu, scale_tril=scale_tril,name='mvn', create_obj=True),
+        name="obs",  
+        obs=data   
+    )
+
+def predict_dpmm(data, sampler):
     """
-    Predicts the GMM density contours based on posterior samples and final labels.
-    
+    Predicts the DPMM density contours based on posterior samples and final labels.
     Parameters:
-    - data: The input data points.
-    - w_samps: Posterior samples of the weights.
-    - mu_samps: Posterior samples of the means.
-    - sigma_samps: Posterior samples of the standard deviations.
-    - Lcorr_samps: Posterior samples of the Cholesky factors for correlation.
-    - final_labels: Cluster labels for each data point.
-    
+    - data: The dataset used for prediction. Shape (N, D).
+    - sampler: The sampler object containing posterior samples.
     Returns:
-    - None (plots the GMM density contours).
+    - array of predicted labels for each data point.
     """
+
     # 1. Calculate posterior mean of all model parameters
     posterior_samples = sampler.get_samples()
-    w_samps = posterior_samples['weights']
+    w_samps = posterior_samples['w']
     mu_samps = posterior_samples['mu']
     Lcorr_samps = posterior_samples['Lcorr']
     sigma_samps = posterior_samples['sigma']
@@ -103,11 +124,13 @@ def predict_gmm(data,sampler):
     distance_threshold = 0.5 
     final_labels = fcluster(Z, t=distance_threshold, criterion='distance')
 
+    num_found_clusters = len(np.unique(final_labels))
+    print(f"Model found {num_found_clusters} clusters.")
+
     return post_mean_w, post_mean_mu, post_mean_cov, final_labels
 
-# --- The core logic for the new plot starts here ---
-def plot_gmm(data,sampler):
-    post_mean_w, post_mean_mu, post_mean_cov, final_labels = predict_gmm(data,sampler)
+def plot_dpmm(data,sampler,figsize=(10, 8), point_size=10):
+    post_mean_w, post_mean_mu, post_mean_cov, final_labels = predict_dpmm(data,sampler)
     # 2. Set up a grid of points to evaluate the GMM density
     x_min, x_max = data[:, 0].min() - 2, data[:, 0].max() + 2
     y_min, y_max = data[:, 1].min() - 2, data[:, 1].max() + 2
@@ -134,7 +157,7 @@ def plot_gmm(data,sampler):
 
     # 4. Create the plot
     plt.style.use('seaborn-v0_8-whitegrid')
-    fig, ax = plt.subplots(figsize=(10, 8))
+    fig, ax = plt.subplots(figsize=figsize)
     fig.patch.set_facecolor('#f0f0f0') 
     ax.set_facecolor('#f0f0f0')
 
@@ -153,7 +176,7 @@ def plot_gmm(data,sampler):
     # === END OF FIX ===
 
     # Plot the data points using the dynamically generated colors
-    ax.scatter(data[:, 0], data[:, 1], c=point_colors, s=15, alpha=0.9, edgecolor='white', linewidth=0.3)
+    ax.scatter(data[:, 0], data[:, 1], c=point_colors, s=point_size, alpha=0.9, edgecolor='white', linewidth=0.3)
 
     # Plot the density contours
     # Using a different colormap for the contours (e.g., 'Blues' or 'Reds') can look nice
@@ -163,10 +186,10 @@ def plot_gmm(data,sampler):
     ax.clabel(contour, inline=True, fontsize=8, fmt='%.2f')
 
     # Final styling touches
-    ax.set_title("GMM Probability Density Contours", fontsize=16)
+    ax.set_title("DPMM Probability Density Contours", fontsize=16)
     ax.set_xlabel("Feature 1")
     ax.set_ylabel("Feature 2")
     ax.grid(True, linestyle=':', color='gray', alpha=0.6)
-    ax.set_aspect('equal', adjustable='box') 
+    #ax.set_aspect('equal', adjustable='box') 
 
     plt.show()

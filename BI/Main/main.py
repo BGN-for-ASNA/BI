@@ -20,13 +20,15 @@ from BI.Data.manip import manip
 from BI.Utils.array import Mgaussian as gaussian
 from BI.Utils.array import factors 
 from BI.SetDevice.set import setup_device
-from BI.Surv.surv import survival
+
 from BI.Utils.link import link
 from BI.Diagnostic.Diag import diag
 from BI.Network.Net import net
 from BI.NBDA.NBDA import NBDA
-from BI.Models.gmm import *
-from BI.Models.dpmm import *
+from BI.Models.surv import survival
+from BI.Models.GMM import *
+from BI.Models.DPMM import *
+from BI.Models.models import models
 from BI.ML.ml import ml
 from BI.BNN.bnn import bnn 
 from numpyro.infer import MCMC, NUTS, Predictive
@@ -60,12 +62,17 @@ class bi(manip):
         self.backend = backend
 
         self.gaussian = gaussian
-        self.survival = survival
+        self.survival = survival(self)
         self.factor = factors
         self.link = link
+
         self.dpmm = dpmm
         self.gmm = gmm    
         self.NBDA = NBDA
+
+        self.models = models(self)
+
+
         self.net = net()
         self.ml= ml()   
         self.bnn= bnn()  
@@ -189,6 +196,7 @@ class bi(manip):
                 progress_bar=progress_bar,
                 jit_model_args=jit_model_args
                 )
+                        
             self.sampler.run(jax.random.PRNGKey(seed), **self.data_on_model)
             self.posteriors = self.sampler.get_samples()
             self.diag = diag(sampler = self.sampler)

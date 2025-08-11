@@ -14,29 +14,8 @@ def jax_LinearOperatorDiag(s, cov):
     vectorized_multiply = vmap(multiply_with_s)
     return jnp.transpose(vectorized_multiply(cov))
 
-#@jit
-#def diag_pre_multiply(v, m):
-#    return jnp.matmul(jnp.diag(v), m)#
-
-#@jit
-#def random_centered_jax(sigma, cor_mat, offset_mat):
-#    """Generate the centered matrix of random factors #
-
-#    Args:
-#        sigma (vector): Prior, vector of length N
-#        cor_mat (2D array): correlation matrix, cholesky_factor_corr of dim N, N
-#        offset_mat (2D array): matrix of offsets, matrix of dim N*k#
-
-#    Returns:
-#        _type_: 2D array
-#    """
-#    return jnp.dot(diag_pre_multiply(sigma, cor_mat), offset_mat)
-
-#@jit
-#def random_centered2(sigma, cor_mat, offset_mat):
-#    return ((sigma[..., None] * cor_mat) @ offset_mat)
-
 class factors:
+    """Class for handling specific factor operations in JAX, including diagonal matrix multiplication and random factor centered generation."""
     def __init__(self) -> None:
         pass
 
@@ -93,6 +72,7 @@ def cov_GPL2(x, sq_eta, sq_rho, sq_sigma):
     return K
 
 class Mgaussian:
+    """Class for handling Gaussian process related operations in JAX, including distance matrix computation and kernel functions (squared exponential, periodic, periodic local)."""
     def __init__(self) -> None:
         pass
     

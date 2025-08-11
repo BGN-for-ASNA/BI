@@ -1,4 +1,9 @@
 #%%
+"""This script generates Python code examples from docstrings of distribution classes in the BI library.
+It uses the `ollama` model to extract code examples and save them in a Python file for testing.
+The generated code examples are designed to be compatible with JAX and the BI library's distribution methods.
+The script also handles potential errors during the execution of the generated code examples.
+"""
 import json
 import ollama
 import inspect

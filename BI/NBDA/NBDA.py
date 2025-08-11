@@ -9,7 +9,11 @@ from functools import partial
 from IPython.display import Markdown
 
 class NBDA:
+    """
+    The NBDA class is a comprehensive framework for conducting Network-Based Diffusion Analysis. It is designed to build, specify, and prepare complex statistical models that analyze how a behavior, trait, or piece of information spreads through a social network over time. The class systematically handles the data preparation and model specification process.
 
+    The core functionality of the class is to disentangle the two primary mechanisms of     diffusion: asocial learning (spontaneous adoption) and social learning (adoption through    influence from network neighbors). It allows for these learning rates to be influenced by a    rich set of covariates.
+    """
     def __init__(self,network=None,status=None,names_network=None,names_status=None): 
         """
         Initialize an NBDA object with network and status arrays.

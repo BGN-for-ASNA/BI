@@ -5,6 +5,9 @@ import inspect
 import jax
 
 class manip():
+    """
+    The manip class serves as a comprehensive data preprocessing and manipulation tool, specifically designed to prepare data for use with JAX-based models. It encapsulates common data transformation tasks, starting from loading data with pandas, applying various encodings and scaling, and finally converting the data into JAX-compatible arrays.
+    """
     def __init__(self):
         """Initialize the manip class with data modification tracking and dtype mapping."""
         self.data_modification = {}
@@ -205,7 +208,7 @@ class manip():
                     result[arg] = jnp.array(self.df[arg], dtype = self.pandas_to_jax_dtype_map_force32.get(varType))
 
         else:
-            return "Error, no"
+            return "Error, no data found"
 
         for k in args_with_defaults.keys():
             result[k] = jnp.array(args_with_defaults[k][0], dtype =self.pandas_to_jax_dtype_map.get(str(args_with_defaults[k][1]) + bit))

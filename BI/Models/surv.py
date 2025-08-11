@@ -4,8 +4,13 @@ import jax.numpy as jnp
 from matplotlib import pyplot as plt
 import arviz as az
 import numpyro
-class survival:
-    def __init__(self):
+from BI.Utils.np_dists import UnifiedDist as dist
+
+class survival():
+    """    The survival class is designed to handle survival analysis data and perform various operations related to time-to-event data. It provides methods for extracting basic information from the dataset, plotting censoring status, converting continuous time data into discrete intervals, calculating cumulative hazards and survival probabilities, and visualizing the results. This class serves as a high-level interface for managing survival data, allowing users to easily analyze and interpret time-to-event outcomes in a structured manner.
+    """
+    def __init__(self, parent):
+        self.parent = parent 
         self.n_patients = None
         self.patients = None
         self.time = None
@@ -22,6 +27,14 @@ class survival:
         self.cov = None
         self.df = None
     
+    @property
+    def df(self):
+        return self.parent.df  # always get from bi
+
+    @df.setter
+    def df(self, value):
+        self.parent.df = value  # always set in bi
+
     def get_basic_info(self, event='event', time='time', cov=None):
         ''' Get basic information about the dataset
 
@@ -218,6 +231,7 @@ class survival:
         elif type(cov) is list:
             for item in cov:
                 self.data_on_model[item] = jnp.array(self.df[item].values)
+        self.parent.data_on_model = self.data_on_model  # update the parent data_on_model
 
     def cum_hazard(self, hazard):
         """
@@ -303,8 +317,8 @@ class survival:
     def plot_surv(self, lambda0 = 'lambda0', beta = 'beta',
                   xlab='Time', ylab='Survival', covlab = 'treated', title = "Bayesian survival model"):
 
-        base_hazard = self.posteriors[lambda0]        
-        met_hazard =self.posteriors[lambda0] * self.posteriors[beta]
+        base_hazard = self.parent.posteriors[lambda0]        
+        met_hazard =self.parent.posteriors[lambda0] * self.parent.posteriors[beta]
 
         fig, (hazard_ax, surv_ax) = plt.subplots(ncols=2, sharex=True, sharey=False, figsize=(16, 6))   
 
@@ -354,3 +368,19 @@ class survival:
     def hazard_rate(self, cov, beta, lambda0):
         lambda_ = numpyro.deterministic('lambda_', jnp.outer(jnp.exp(beta @ cov), lambda0)) 
         return lambda_
+    
+    def model(self,intervals, death, metastasized, exposure):
+        # Parameters priors distributions-------------------------
+        ## Base hazard distribution
+        lambda0 = dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
+        ## Covariate effect distribution
+        beta = dist.normal(0, 1000, shape = (1,),  name='beta')
+        ## Likelihood
+        ### Compute hazard rate based on covariate effect
+        lambda_ = self.hazard_rate(cov = metastasized, beta = beta, lambda0 = lambda0)
+        ### Compute exposure rates
+        mu = exposure * lambda_
+    
+        # Likelihood calculation
+        dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
+
