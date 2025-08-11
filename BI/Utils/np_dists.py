@@ -3,6 +3,7 @@ from jax import random
 import numpyro
 
 class UnifiedDist:
+    """A class to unify various distribution methods and provide a consistent interface for sampling and inference."""
 
     def __init__(self):
         pass

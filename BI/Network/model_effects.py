@@ -9,6 +9,10 @@ import inspect
 from BI.Utils.np_dists import UnifiedDist as dist
 
 class Neteffect(array_manip):
+    """Neteffect class for managing and computing network effects in Bayesian models.
+    This class extends the array_manip class to provide functionalities specific to network effects, including initialization, logit transformation, and methods for handling random effects and network structures.
+    It includes methods for computing sender-receiver effects, dyadic effects, and block models, allowing for flexible modeling of network interactions.
+    """
     def __init__(self) -> None:
         pass
 
