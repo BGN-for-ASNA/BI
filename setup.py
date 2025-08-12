@@ -1,6 +1,6 @@
 import setuptools 
 import os
-VERSION = '0.0.13' 
+VERSION = '0.0.14' 
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
