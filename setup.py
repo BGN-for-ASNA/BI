@@ -11,6 +11,7 @@ setuptools.setup(
         name="BayesInference", 
         version=VERSION,
         author="Sebastian Sosa",
+        author_email="bi@s-sosa.com",  # Add your email here
         description="GNU GENERAL PUBLIC LICENSE",
         long_description=long_description,
         long_description_content_type="text/markdown",

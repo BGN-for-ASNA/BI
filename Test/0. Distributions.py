@@ -5,7 +5,7 @@ newPath = os.path.dirname(os.path.abspath(""))
 if newPath not in sys.path:
     sys.path.append(newPath)
 from BI import bi
-
+#%%
 import jax.numpy as jnp
 m = bi('cpu')
 errors = []
