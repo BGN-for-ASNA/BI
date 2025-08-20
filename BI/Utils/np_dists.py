@@ -51,6 +51,14 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a
                 sample site. This is essential for building complex distributions like `MixtureSameFamily`.
         
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+            validate_args (bool, optional): Whether to enable validation of distribution parameters. Defaults to `None`.
+
         Returns:
             When `sample=False`: A NumPyro AsymmetricLaplace distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the AsymmetricLaplace distribution (for direct sampling).
@@ -119,7 +127,13 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
         Returns:
             When `sample=False`: A NumPyro AsymmetricLaplaceQuantile distribution object
                 (for model building).
@@ -188,7 +202,13 @@ class UnifiedDist:
                 distribution object instead of creating a sample site. This is
                 essential for building complex distributions like `MixtureSameFamily`.
                 Defaults to False.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
         Returns:
             When `sample=False`: A NumPyro BernoulliLogits distribution object (for
                 model building).
@@ -259,7 +279,13 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             BernoulliProbs: A NumPyro BernoulliProbs distribution object (for model
                 building).
@@ -328,7 +354,13 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample
                 site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             Beta: A NumPyro Beta distribution object (for model building).
             jnp.ndarray: A JAX array of samples drawn from the Beta distribution (for direct sampling).
@@ -387,7 +419,13 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro BetaBinomial distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the BetaBinomial distribution (for direct sampling).
@@ -451,7 +489,13 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution
                 object instead of creating a sample site. This is essential for
                 building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             A NumPyro BetaProportion distribution object (for model building).
             A JAX array of samples drawn from the BetaProportion distribution
@@ -513,7 +557,13 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro BinomialLogits distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the BinomialLogits distribution (for direct sampling).
@@ -569,7 +619,13 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro BinomialProbs distribution object (for model building).
         
@@ -625,11 +681,22 @@ class UnifiedDist:
         
         Args:
             loc (Union[float, Array]): Mean of the distribution.
+
             correlation (Union[float, Array]): Correlation between variables.
+
             conditional_precision (Union[float, Array]): Precision of the distribution.
+
             adj_matrix (Union[Array, scipy.sparse.spmatrix]): Adjacency matrix defining the graph.
             is_sparse (bool): Whether the adjacency matrix is sparse. Defaults to False.
+
             validate_args (bool): Whether to validate arguments. Defaults to None.
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         """
 
         
@@ -670,7 +737,13 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro CategoricalLogits distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the CategoricalLogits distribution (for direct sampling) when `sample=True`.
@@ -734,7 +807,13 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro CategoricalProbs distribution object (for model building).
             JAX array of samples drawn from the CategoricalProbs distribution (for
@@ -796,7 +875,13 @@ class UnifiedDist:
         
             create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample
                 site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Cauchy distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Cauchy distribution (for direct sampling).
@@ -857,7 +942,13 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro Chi2 distribution object (when `sample=False`).
             JAX array of samples drawn from the Chi2 distribution (when `sample=True`).
@@ -918,7 +1009,13 @@ class UnifiedDist:
         :param covariance_rfft: Real part of the real fast Fourier transform of
             :code:`covariance_row`, the first row of the circulant covariance matrix
             :math:`\boldsymbol{C}`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         References:
         
         1. Wikipedia. (n.d.). Circulant matrix. Retrieved March 6, 2025, from
@@ -970,7 +1067,8 @@ class UnifiedDist:
         
         Args:
             v (jnp.ndarray): The location of the point mass.
-        
+            log_density (float, optional): The log probability density of the point mass. This is primarily for creating distributions that are non-normalized or for specific advanced use cases. For a standard delta distribution, this should be 0. Defaults to 0.0.    
+            event_dim (int, optional): The number of rightmost dimensions of `v` to interpret as event dimensions. Defaults to 0.
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
             event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
@@ -978,7 +1076,13 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro Delta distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Delta distribution (for direct sampling) when `sample=True`.
@@ -1038,7 +1142,12 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
         
         Returns:
             NumPyro Dirichlet distribution object (for model building) when `sample=False`.
@@ -1071,52 +1180,72 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def dirichlet_multinomial(concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
-        
+    def dirichlet_multinomial(concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0, create_obj=False):
+        r"""Dirichlet-Multinomial Distribution.
+    
+        Creates a Dirichlet-Multinomial compound distribution, which is a Multinomial
+        distribution with a Dirichlet prior on its probabilities. It is often used in
+        Bayesian statistics to model count data where the proportions of categories are
+        uncertain.
 
-        r"""DirichletMultinomial
-        
-        Samples from a DirichletMultinomial distribution.
-        
-        This distribution combines a Dirichlet distribution (for the probabilities of categories)
-        and a Multinomial distribution (for the counts within each category).  The Dirichlet
-        distribution acts as a prior on the probabilities, allowing for a flexible and
-        informative model.
-        
+        The probability mass function is given by:
+
         .. math::
-           P(x | \alpha, n) = \frac{n!}{x_1! x_2! \cdots x_k!} \frac{\Gamma(\alpha)}{\Gamma(\alpha_1) \Gamma(\alpha_2) \cdots \Gamma(\alpha_k)}
-        
+            P(\mathbf{x} | \boldsymbol{\alpha}, n) = \frac{n!}{\prod_{i=1}^k x_i!} \frac{\Gamma(\sum_{i=1}^k \alpha_i)}{\Gamma(n + \sum_{i=1}^k \alpha_i)} \prod_{i=1}^k \frac{\Gamma(x_i + \alpha_i)}{\Gamma(\alpha_i)}
+
+        where :math:`\mathbf{x}` is a vector of counts, :math:`n` is the total number of
+        trials (`total_count`), and :math:`\boldsymbol{\alpha}` is the `concentration`
+        parameter vector for the Dirichlet prior.
+    
         Args:
-            concentration (jnp.ndarray): Concentration parameter (alpha) for the Dirichlet distribution.
-                Shape: (..., K), where K is the number of categories.
-        
-            shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape. When
-                `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX
-                array of the given shape.
-        
-            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-            mask (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+            concentration (jnp.ndarray): The concentration parameter (alpha) for the Dirichlet prior. Values must be positive. The last dimension is interpreted as the number of categories.
+            total_count (int, jnp.ndarray, optional): The total number of trials (n). This must be a non-negative integer. Defaults to 1.
+            validate_args (bool, optional): Whether to enable validation of distribution parameters. Defaults to `None`.
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+            mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations. If provided, events with a `True` mask will be conditioned on `obs`, while the remaining events will be treated as latent variables. Defaults to `None`.
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`. Defaults to 0.
+            shape (tuple, optional): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to `False`.
         
         Returns:
-            When `sample=False`: A NumPyro DirichletMultinomial distribution object (for model building).
-            When `sample=True`: A JAX array of samples drawn from the DirichletMultinomial distribution (for direct sampling).
-            When `create_obj=True`: The raw NumPyro distribution object (for advanced use cases).
-        
+            numpyro.primitives.Messenger: A NumPyro sample site object when used in a model context (`sample=False`).
+            jnp.ndarray: A JAX array of samples drawn from the Dirichlet-Multinomial distribution (for direct sampling, `sample=True`).
+            numpyro.distributions.Distribution: The raw NumPyro distribution object (if `create_obj=True`).
+    
         Example Usage:
             from BI import bi
+            import jax.numpy as jnp
             m = bi('cpu')
-            m.dist.dirichlet_multinomial(concentration=jnp.array([1.0, 1.0, 1.0]), total_count=10, sample=True)
         
+            # Direct sampling
+            # Sample a single vector of counts for 10 trials from 3 categories
+            counts = m.dist.dirichlet_multinomial(
+                concentration=jnp.array([1.0, 1.0, 1.0]),
+                total_count=10,
+                sample=True
+            )
+        
+            # Usage within a model
+            def my_model(obs_data=None):
+                # Define a prior on the concentration parameter
+                alpha = m.dist.half_cauchy(scale=jnp.ones(5), name='alpha', shape=(5,))
+
+                # Model observed counts
+                with m.plate('data', len(obs_data)):
+                    y = m.dist.dirichlet_multinomial(
+                        concentration=alpha,
+                        total_count=100,
+                        name='y',
+                        obs=obs_data
+                    )
+    
         Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#dirichletmultinomial
         """
 
-           
         d = numpyro.distributions.conjugate.DirichletMultinomial(concentration=concentration, total_count=total_count, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
@@ -1131,7 +1260,7 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
+    
     @staticmethod
     def discrete_uniform(low=0, high=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
@@ -1161,7 +1290,13 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a
                 sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro DiscreteUniform distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Discrete Uniform distribution (for direct sampling).
@@ -1228,10 +1363,14 @@ class UnifiedDist:
 
             shape (tuple, optional): The shape of the output tensor. Defaults to None.
 
-            sample_shape (tuple, optional): The shape of the samples to draw. Defaults to None.
-            
             validate_args (bool, optional): Whether to validate the arguments. Defaults to True.
 
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Example usage:
             from BI import bi
             m = bi('cpu')        
@@ -1274,12 +1413,22 @@ class UnifiedDist:
         
         Args:
             t (jnp.ndarray): Discretized time steps.
+
             sde_fn (callable): A function that takes the current state and time as input and returns the drift and diffusion coefficients.
             init_dist (Distribution): The initial distribution of the system.
+
             shape (tuple, optional): The shape of the output tensor. Defaults to None.
+
             sample_shape (tuple, optional): The shape of the samples to draw. Defaults to None.
+
             validate_args (bool, optional): Whether to validate the arguments. Defaults to True.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             jnp.ndarray: Samples drawn from the Euler–Maruyama distribution.
         
@@ -1327,7 +1476,13 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Exponential distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Exponential distribution (for direct sampling).
@@ -1383,7 +1538,13 @@ class UnifiedDist:
     
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro FoldedDistribution distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the FoldedDistribution distribution (for direct sampling) when `sample=True`.
@@ -1444,9 +1605,13 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
-        
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             Gamma: A NumPyro Gamma distribution object (for model building).
         
@@ -1512,7 +1677,13 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro GammaPoisson distribution object (for model
                 building).
@@ -1569,13 +1740,25 @@ class UnifiedDist:
         
         Args:
             marginal_dist (Distribution): Distribution whose last batch axis is to be coupled.
+
             correlation_matrix (array_like, optional): Correlation matrix of the coupling multivariate normal distribution. Defaults to None.
+
             correlation_cholesky (array_like, optional): Correlation Cholesky factor of the coupling multivariate normal distribution. Defaults to None.
+
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
             event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
             mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
+
             create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `Mi  xtureSameFamily`. Defaults to False.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro GaussianCopula distribution object: When `sample=False` (for model building).
             JAX array: When `sample=True` (for direct sampling).
@@ -1629,7 +1812,11 @@ class UnifiedDist:
     
         Args:
             concentration1 (jnp.ndarray): The first shape parameter of the Beta distribution.
+
             concentration0 (jnp.ndarray): The second shape parameter of the Beta distribution.
+
+            correlation_matrix (array_like, optional): Correlation matrix of the coupling multivariate normal distribution. Defaults to None.
+            
             correlation_cholesky (jnp.ndarray): The Cholesky decomposition of the correlation matrix.
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
                 this is used with `.expand(shape)` to set the distribution's batch shape.
@@ -1642,7 +1829,13 @@ class UnifiedDist:
     
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample
                 site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             GaussianCopulaBeta: A NumPyro GaussianCopulaBeta distribution object (for model building).
             jnp.ndarray: A JAX array of samples drawn from the GaussianCopulaBeta distribution (for direct sampling).
@@ -1679,53 +1872,68 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gaussian_random_walk(scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
-        
+    def gaussian_random_walk(scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0, create_obj=False):
+        r"""Gaussian Random Walk Distribution.
+    
+        Creates a distribution over a Gaussian random walk of a specified number of steps.
+        This is a discrete-time stochastic process where the value at each step is the
+        previous value plus a Gaussian-distributed increment. The distribution is over
+        the entire path.
 
-        r"""GaussianRandomWalk
-        
-        Samples from a Gaussian Random Walk distribution.
-        
-        A Gaussian Random Walk is a stochastic process where each step is a Gaussian-distributed increment.
-        It can be thought of as a discrete-time version of a Brownian motion.
-        
         .. math::
-           X_{t} = \sum_{i=1}^{t} \epsilon_i
-        
-        where :math:`\epsilon_i \sim \mathcal{N}(0, \sigma^2)` are independent Gaussian random variables.
-        
+            X_t = X_{t-1} + \epsilon_t, \quad \text{where} \quad \epsilon_t \sim \mathcal{N}(0, \sigma^2)
+
+        with the initial state :math:`X_0 = 0`. The resulting sample is a vector of
+        length `num_steps`, representing the path :math:`(X_1, X_2, \dots, X_{\text{num\_steps}})`.
+    
         Args:
-            scale (float): The standard deviation of the Gaussian increments.
-        
-            shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-            mask (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
-        
+            scale (float, jnp.ndarray, optional): The standard deviation (:math:`\sigma`) of the Gaussian increments. Must be positive. Defaults to 1.0.
+            num_steps (int, optional): The number of steps in the random walk, which determines the event shape of the distribution. Must be positive. Defaults to 1.
+            validate_args (bool, optional): Whether to enable validation of distribution parameters. Defaults to `None`.
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+            mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations. If provided, events with a `True` mask will be conditioned on `obs`, while the remaining events will be treated as latent variables. Defaults to `None`.
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`. Defaults to 0.
+            shape (tuple, optional): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to `False`.
         
         Returns:
-            When `sample=False`: A NumPyro GaussianRandomWalk distribution object (for model building).
-            When `sample=True`: A JAX array of samples drawn from the GaussianRandomWalk distribution (for direct sampling).
-            When `create_obj=True`: The raw NumPyro distribution object (for advanced use cases).
-        
-        
+            numpyro.primitives.Messenger: A NumPyro sample site object when used in a model context (`sample=False`).
+            jnp.ndarray: A JAX array of samples drawn from the GaussianRandomWalk distribution (for direct sampling, `sample=True`).
+            numpyro.distributions.Distribution: The raw NumPyro distribution object (if `create_obj=True`).
+    
         Example Usage:
             from BI import bi
+            import jax.numpy as jnp
             m = bi('cpu')
-            m.dist.gaussian_random_walk(scale=1.0, sample=True)
-        
-        Wrapper of:
-        https://num.pyro.ai/en/stable/distributions.html#gaussianrandomwalk
-        """
+            
+            # Direct sampling of a random walk with 100 steps
+            path = m.dist.gaussian_random_walk(scale=0.5, num_steps=100, sample=True)
+            
+            # Usage within a model for a latent time series
+            def my_model(data=None):
+                # Prior on the volatility of the random walk
+                volatility = m.dist.half_cauchy(scale=1.0, name='volatility')
+                
+                # The latent random walk
+                latent_process = m.dist.gaussian_random_walk(
+                    scale=volatility,
+                    num_steps=len(data) if data is not None else 10,
+                    name='latent_process'
+                )
+                
+                # Observation model
+                # Assumes the observed data is the latent process plus some noise
+                obs_noise = m.dist.half_cauchy(scale=1.0, name='obs_noise')
+                with m.plate('time', len(data) if data is not None else 10):
+                    return m.dist.normal(loc=latent_process, scale=obs_noise, obs=data, name='obs')
 
-           
-        d = numpyro.distributions.continuous.GaussianRandomWalk(scale=scale, num_steps=num_steps, validate_args=validate_args)
+        Wrapper of:
+            https://num.pyro.ai/en/stable/distributions.html#gaussianrandomwalk
+        """
+        d = numpyro.distributions.continuous.GaussianRandomWalk(scale=scale,    num_steps=num_steps, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
             return d.sample(seed_key,   sample_shape=shape)
@@ -1739,7 +1947,7 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
+    
     @staticmethod
     def gaussian_state_space(num_steps, transition_matrix, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
@@ -1758,18 +1966,32 @@ class UnifiedDist:
         
         Args:
             num_steps (int): Number of steps.
+
             transition_matrix (jnp.ndarray): State space transition matrix :math:`\mathbf{A}`.
+
             covariance_matrix (jnp.ndarray, optional): Covariance of the innovation noise
                 :math:`\boldsymbol{\epsilon}`. Defaults to None.
+
             precision_matrix (jnp.ndarray, optional): Precision matrix of the innovation noise
                 :math:`\boldsymbol{\epsilon}`. Defaults to None.
+
             scale_tril (jnp.ndarray, optional): Scale matrix of the innovation noise
                 :math:`\boldsymbol{\epsilon}`. Defaults to None.
+
             shape (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
+
             event (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
+
             mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
+
             create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. Defaults to False.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro GaussianStateSpace distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the GaussianStateSpace distribution (for direct sampling).
@@ -1827,7 +2049,13 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro GeometricLogits distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the GeometricLogits distribution (for direct sampling) when `sample=True`.
@@ -1881,7 +2109,13 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro GeometricProbs distribution object (for model building).
             JAX array of samples drawn from the GeometricProbs distribution (for direct sampling).
@@ -1941,7 +2175,13 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro Gompertz distribution object: When `sample=False` (for model building).
             JAX array: When `sample=True` (for direct sampling).
@@ -2001,7 +2241,13 @@ class UnifiedDist:
         
             create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample
                 site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Gumbel distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Gumbel distribution (for direct sampling).
@@ -2053,7 +2299,13 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro HalfCauchy distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the HalfCauchy distribution (for direct sampling).
@@ -2111,7 +2363,13 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a
                 sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro HalfNormal distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the HalfNormal distribution (for direct sampling).
@@ -2155,20 +2413,31 @@ class UnifiedDist:
         
         Args:
             support (numpyro.distributions.constraints.Constraint): The support of this distribution.
+
             batch_shape (tuple): Batch shape of this distribution. It is usually safe to
                 set `batch_shape=()`.
+
             event_shape (tuple): Event shape of this distribution.
+
             shape (tuple): A multi-purpose argument for shaping. When `sample=False`
                 (model building), this is used with `.expand(shape)` to set the
                 distribution's batch shape. When `sample=True` (direct sampling), this is
                 used as `sample_shape` to draw a raw JAX array of the given shape.
             event (int): The number of batch dimensions to reinterpret as event dimensions
                 (used in model building).
+
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
+
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro ImproperUniform distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the ImproperUniform distribution (for direct sampling).
@@ -2229,7 +2498,13 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro InverseGamma distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the InverseGamma distribution (for direct sampling).
@@ -2286,7 +2561,13 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Kumaraswamy distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Kumaraswamy distribution (for direct sampling).
@@ -2336,7 +2617,9 @@ class UnifiedDist:
             dimension (int): The dimension of the correlation matrices.
         
             concentration (ndarray): The concentration/shape parameter of the distribution (often referred to as eta). Must be positive.
-        
+
+            sample_method (str): Either “cvine” or “onion”. Both methods are proposed in [1] and offer the same distribution over correlation matrices. But they are different in how to generate samples. Defaults to “onion”.
+
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
                 with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this
                 is used as `sample_shape` to draw a raw JAX array of the given shape.
@@ -2347,7 +2630,13 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro LKJ distribution object (for model building).
         
@@ -2393,10 +2682,31 @@ class UnifiedDist:
         covariance structure.
         
         Args:
+            dimension (int): The dimension of the correlation matrices.
+
             concentration (float): A parameter controlling the concentration of the distribution
                 around the identity matrix. Higher values indicate greater concentration.
                 Must be greater than 1.
+
+            shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
+                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this
+                is used as `sample_shape` to draw a raw JAX array of the given shape.
         
+            event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+            mask (jnp.ndarray, bool): Optional boolean array to mask observations.
+        
+            create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
+                This is essential for building complex distributions like `MixtureSameFamily`.
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Attributes:
             concentration (float): The concentration parameter.
         """
@@ -2444,7 +2754,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a
                 sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Laplace distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Laplace distribution (for direct sampling).
@@ -2509,7 +2827,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro LeftTruncatedDistribution distribution object (for model building).
         
@@ -2557,12 +2883,22 @@ class UnifiedDist:
             loc (jnp.ndarray): Location parameter.
             scale (jnp.ndarray): Scale parameter.
         
-        Args:
             shape (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
+
             event (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
+
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
+
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro Levy distribution object: When `sample=False` (for model building).
             JAX array: When `sample=True` (for direct sampling).
@@ -2621,7 +2957,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample
                 site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro LogNormal distribution object (for model building).
             JAX array of samples drawn from the LogNormal distribution (for direct sampling).
@@ -2677,7 +3021,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro LogUniform distribution object (for model building) when `sample=False`.
         
@@ -2735,7 +3087,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro Logistic distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Logistic distribution (for direct sampling) when `sample=True`.
@@ -2787,9 +3147,19 @@ class UnifiedDist:
         
         Parameters:
             loc (jnp.ndarray): Mean vector.
+
             cov_factor (jnp.ndarray): Matrix used to construct the covariance matrix.
+
             cov_diag (jnp.ndarray): Diagonal elements of the covariance matrix.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Example Usage:
             from BI import bi
             m = bi('cpu')
@@ -2850,7 +3220,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro LowerTruncatedPowerLaw distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the LowerTruncatedPowerLaw distribution (for direct sampling).
@@ -2913,7 +3291,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro MatrixNormal distribution object (for model building).
         
@@ -2995,8 +3381,17 @@ class UnifiedDist:
         **Parameters:**
         
         *   **mixing_distribution**:  A `Categorical` distribution representing the mixing weights.
+
         *   **component_distributions**: A list of distributions representing the components of the mixture.
-        
+                
+        *   **sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+        *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+        *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+        *   **name (str, optional)**:  The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         **Returns:**
         
         *   **When `sample=False`**: A NumPyro MixtureGeneral distribution object (for model building).
@@ -3056,18 +3451,30 @@ class UnifiedDist:
         
         Args:
             *   **Distribution Args**:
-                *   `loc` (jnp.ndarray): The location parameter of the component distribution.
-                *   `scale` (jnp.ndarray): The scale parameter of the component distribution.
+                *   **mixing_distribution**:  A `Categorical` distribution representing the mixing weights.
+
+                *   **component_distributions**: A list of distributions representing the components of the mixture.
         
             *   **Sampling / Modeling Args**:
                 *   `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
                     with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
                     used as `sample_shape` to draw a raw JAX array of the given shape.
+
                 *   `event` (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
                 *   `mask` (jnp.ndarray, bool): Optional boolean array to mask observations.
+
                 *   `create_obj` (bool): If True, returns the raw NumPyro distribution object instead of creating a sample
                     site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+
+                *   **sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+                *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+                *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+                *   **name (str, optional)**:  The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
+            
         Returns:
             *   **When `sample=False`**: A NumPyro MixtureSameFamily distribution object (for model building).
             *   **When `sample=True`**: A JAX array of samples drawn from the MixtureSameFamily distribution (for direct sampling).
@@ -3130,7 +3537,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro MultinomialLogits distribution object (for model building).
         
@@ -3193,7 +3608,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro MultinomialProbs distribution object (for model building).
             JAX array of samples drawn from the MultinomialProbs distribution (for direct sampling).
@@ -3262,7 +3685,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro MultivariateNormal distribution object (for model building).
         
@@ -3334,7 +3765,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro MultivariateStudentT distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the MultivariateStudentT distribution (for direct sampling).
@@ -3401,7 +3840,15 @@ class UnifiedDist:
                 mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
                 create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+                sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+                seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+                obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+                name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
             Returns:
                 NumPyro NegativeBinomial2 distribution object: When `sample=False` (for model building).
                 jnp.ndarray: A JAX array of samples drawn from the NegativeBinomial2 distribution (for direct sampling).
@@ -3456,7 +3903,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NegativeBinomialLogits: A NumPyro NegativeBinomialLogits distribution object (for model building).
         
@@ -3501,8 +3956,9 @@ class UnifiedDist:
            P(k) = \binom{k + r - 1}{k} p^r (1 - p)^k
         
         Args:
-            concentration (jnp.ndarray): The concentration parameter, derived from total_count.
-            rate (jnp.ndarray): The rate parameter, derived from probs.
+            total_count (jnp.ndarray):  A numeric vector, matrix, or array representing the parameter.
+
+            probs (jnp.ndarray): A numeric vector representing event probabilities. Must sum to 1.
         
             shape (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
         
@@ -3511,7 +3967,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample  site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro NegativeBinomialProbs distribution object (for model building).
             JAX array of samples drawn from the NegativeBinomialProbs distribution (for direct sampling).
@@ -3572,7 +4036,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a
                 sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Normal distribution object (for model building).
         
@@ -3633,7 +4105,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro OrderedLogistic distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the OrderedLogistic distribution (for direct sampling).
@@ -3700,7 +4180,15 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Pareto distribution object (for model
                 building).
@@ -3748,7 +4236,7 @@ class UnifiedDist:
         
         Args:
             rate (jnp.ndarray): The rate parameter, representing the average number of events.
-        
+            is_sparse (bool, optional): Indicates whether the `rate` parameter is sparse. If `True`, a specialized sparse sampling implementation is used, which can be more efficient for models with many zero-rate components (e.g., zero-inflated models). Defaults to `False`.
         Args:
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
                 with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
@@ -3760,7 +4248,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Poisson distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Poisson distribution (for direct sampling).
@@ -3822,7 +4318,15 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro ProjectedNormal distribution object (for
                 model building).
@@ -3885,7 +4389,15 @@ class UnifiedDist:
         
                 create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample
                     site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+                sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+                seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+                obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+                name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
             Returns:
                 RelaxedBernoulliLogits: A NumPyro RelaxedBernoulliLogits distribution object (for model building).
                 jnp.ndarray: A JAX array of samples drawn from the RelaxedBernoulliLogits distribution (for direct sampling).
@@ -3928,8 +4440,15 @@ class UnifiedDist:
         effectively creating a distribution that is only supported up to that point. This is useful for modeling data
         where observations are only possible within a certain range.
         
+        The probability density function (PDF) of the truncated distribution is:
+
         .. math::
-           f(x) = \frac{f(x)}{P(X \le high)}
+            f_{\text{trunc}}(x) = \frac{f_{\text{base}}(x)}{F_{\text{base}}(\text{high})} \quad \text{for } x \le \text{high}
+
+        where :math:`f_{\text{base}}(x)` is the PDF of the base distribution and
+        :math:`F_{\text{base}}(\text{high})` is the cumulative distribution function (CDF)
+        of the base distribution evaluated at `high`.
+    
         
         where :math:`f(x)` is the probability density function (PDF) of the base distribution and :math:`P(X \le high)` is the
         cumulative distribution function (CDF) of the base distribution evaluated at `high`.
@@ -3937,6 +4456,8 @@ class UnifiedDist:
         Args:
             base_dist: The base distribution to truncate.  Must be a univariate distribution with real support.
         
+            high (float, jnp.ndarray, optional): The upper truncation point. The support of the new distribution is :math:`(-\infty, \text{high}]`. Defaults to 0.0.
+            
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
                 with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
                 used as `sample_shape` to draw a raw JAX array of the given shape.
@@ -3947,7 +4468,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro RightTruncatedDistribution distribution object (for model building).
         
@@ -3981,6 +4510,105 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
+    def sine_bivariate_vonmises(phi_loc, psi_loc, phi_concentration, psi_concentration, correlation=None, weighted_correlation=None,    validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0, create_obj=False):
+        r"""Sine Bivariate Von Mises Distribution
+
+        A unimodal distribution for two dependent angles on the 2-torus
+        (:math:`S^1 \otimes S^1`), which is useful for modeling coupled angles like
+        torsion angles in peptide chains. [1]
+
+        The probability density function is given by:
+
+        .. math::
+            C^{-1}\exp(\kappa_1\cos(x_1-\mu_1) + \kappa_2\cos(x_2 -\mu_2) + \rho\sin(x_1 - \mu_1)\sin(x_2 - \mu_2))
+
+        where the normalization constant :math:`C` is:
+
+        .. math::
+            C = (2\pi)^2 \sum_{i=0}^{\infty} \binom{2i}{i} \left(\frac{\rho^2}{4\kappa_1\kappa_2}\right)^i I_i(\kappa_1)I_i(\kappa_2)
+
+        Here, :math:`I_i(\cdot)` is the modified Bessel function of the first kind,
+        :math:`\mu`'s are the locations, :math:`\kappa`'s are the concentrations,
+        and :math:`\rho` represents the correlation between the angles :math:`x_1` and :math:`x_2`.
+
+        Args:
+            phi_loc (jnp.ndarray): The location parameter for the first angle (phi).
+            psi_loc (jnp.ndarray): The location parameter for the second angle (psi).
+            phi_concentration (jnp.ndarray): The concentration parameter for the first angle (phi). Must be positive.
+            psi_concentration (jnp.ndarray): The concentration parameter for the second angle (psi). Must be positive.
+            correlation (jnp.ndarray, optional): The correlation parameter between the two angles. One of `correlation` or `weighted_correlation` must be specified.
+            weighted_correlation (jnp.ndarray, optional): An alternative correlation parameter. One of `correlation` or `weighted_correlation` must be specified.
+            validate_args (bool, optional): Whether to enable validation of distribution parameters. Defaults to `None`.
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+            mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations. If provided, events with a `True` mask will be conditioned on `obs`, while the remaining events will be treated as latent variables. Defaults to `None`.
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution,   bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+            shape (tuple, optional): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to  set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            event (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+            create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for  building complex distributions like `MixtureSameFamily`. Defaults to `False`.
+
+        Returns:
+            numpyro.primitives.Messenger: A NumPyro sample site object when used in a model context (`sample=False`).
+            jnp.ndarray: A JAX array of samples drawn from the SineBivariateVonMises distribution (for direct sampling, `sample=True`).
+            numpyro.distributions.Distribution: The raw NumPyro distribution object (if `create_obj=True`).
+
+        Example Usage:
+            from BI import bi
+            import jax.numpy as jnp
+            m = bi('cpu')
+
+            # Direct sampling
+            samples = m.dist.sine_bivariate_vonmises(
+                phi_loc=0.0,
+                psi_loc=jnp.pi,
+                phi_concentration=1.0,
+                psi_concentration=1.0,
+                correlation=0.5,
+                sample=True,
+                shape=(10,)
+            )
+
+            # Usage within a model
+            def my_model():
+                angles = m.dist.sine_bivariate_vonmises(
+                    phi_loc=0.0,
+                    psi_loc=0.0,
+                    phi_concentration=2.0,
+                    psi_concentration=2.0,
+                    weighted_correlation=0.9,
+                    name='angles'
+                )
+                # ... rest of the model
+
+        Wrapper of:
+            https://num.pyro.ai/en/stable/distributions.html#sinebivariatevonmises
+        """
+
+        d = numpyro.distributions.directional.SineBivariateVonMises(
+            phi_loc=phi_loc,
+            psi_loc=psi_loc,
+            phi_concentration=phi_concentration,
+            psi_concentration=psi_concentration,
+            correlation=correlation,
+            weighted_correlation=weighted_correlation,
+            validate_args=validate_args
+        )
+        if sample:
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key, sample_shape=shape)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {'obs_mask': mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
+
+    @staticmethod
     def sine_skewed(base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
         r"""
@@ -3993,11 +4621,15 @@ class UnifiedDist:
         
         *   **base\_dist:** Base density on a d-dimensional torus. Supported base distributions include: 1D :class:`~numpyro.distributions.VonMises`, :class:`~numnumpyro.distributions.SineBivariateVonMises`, 1D :class:`~numpyro.distributions.ProjectedNormal`, and :class:`~numpyro.distributions.Uniform` (-pi, pi).
         *   **skewness:** Skewness of the distribution.
-        
-        **Attributes:**
-        
-        *   **mean:** Mean of the base distribution.
-        
+                
+        *   **sample (bool, optional):** A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+        *   **seed (int, optional):** An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+        *   **obs (jnp.ndarray, optional):** The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+        *   **name (str, optional):** The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         **PDF:**
         
         The probability density function (PDF) of the Sine Skewed X distribution is not explicitly defined here, but it is derived from the base distribution and the skewness parameter.
@@ -4065,7 +4697,15 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution
                 object instead of creating a sample site. This is essential for
                 building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro SoftLaplace distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the SoftLaplace distribution (for direct sampling).
@@ -4119,7 +4759,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro StudentT distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the StudentT distribution (for direct sampling).
@@ -4173,7 +4821,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro TruncatedPolyaGamma distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the TruncatedPolyaGamma distribution (for direct sampling).
@@ -4223,9 +4879,19 @@ class UnifiedDist:
         
         Args:
             base_dist: The base distribution to truncate.
+
             low: The lower bound for truncation.
+
             high: The upper bound for truncation.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro TwoSidedTruncatedDistribution distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the TwoSidedTruncatedDistribution distribution (for direct sampling).
@@ -4279,7 +4945,15 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object
                 instead of creating a sample site. This is essential for building
                 complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro Uniform distribution object (for model building) when `sample=False`.
         
@@ -4342,7 +5016,15 @@ class UnifiedDist:
         
                 create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample
                     site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+                sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+                seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+                obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+                name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
             Returns:
                 NumPyro Unit distribution object: When `sample=False` (for model building).
                 jnp.ndarray: A JAX array of samples drawn from the Unit distribution (for direct sampling).
@@ -4402,7 +5084,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro Weibull distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Weibull distribution (for direct sampling) when `sample=True`.
@@ -4470,7 +5160,15 @@ class UnifiedDist:
         
             create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample
                 site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Wishart distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Wishart distribution (for direct sampling).
@@ -4533,12 +5231,24 @@ class UnifiedDist:
         :param concentration: (Tensor) Positive concentration parameter analogous to the
             concentration of a :class:`Gamma` distribution. The concentration must be larger
             than the dimensionality of the scale matrix.
+
         :param scale_matrix: (Tensor, optional) Scale matrix analogous to the inverse rate of a :class:`Gamma`
                 distribution. If not provided, `rate_matrix` or `scale_tril` must be.
+
         :param rate_matrix: (Tensor, optional) Rate matrix anaologous to the rate of a :class:`Gamma`
                 distribution. If not provided, `scale_matrix` or `scale_tril` must be.
+
         :param scale_tril: (Tensor, optional) Cholesky decomposition of the :code:`scale_matrix`.
             If not provided, `scale_matrix` or `rate_matrix` must be.
+                
+        :param sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+        :param seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+        :param obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+        :param name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         """
         
         d = numpyro.distributions.continuous.WishartCholesky(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args)
@@ -4579,7 +5289,15 @@ class UnifiedDist:
                 mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
                 create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+                sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+                seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+                obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+                name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
             Returns:
                 NumPyro ZeroInflatedPoisson distribution object (when `sample=False`).
                 JAX array of samples drawn from the ZeroInflatedPoisson distribution (when `sample=True`).
@@ -4634,7 +5352,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro ZeroSumNormal distribution object (for model building).
         
@@ -4691,7 +5417,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
         
             create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro Bernoulli distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Bernoulli distribution (for direct sampling) when `sample=True`.
@@ -4747,7 +5481,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
         
             create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             Binomial distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Binomial distribution (for direct sampling) when `sample=True`.
@@ -4813,7 +5555,15 @@ class UnifiedDist:
                 create_obj (bool): If True, returns the raw NumPyro distribution
                     object instead of creating a sample site. This is essential for
                     building complex distributions like `MixtureSameFamily`.
-        
+                
+                sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+                seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+                obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+                name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Categorical distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Categorical distribution (for direct sampling).
@@ -4866,7 +5616,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
         
             create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Geometric distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Geometric distribution (for direct sampling).
@@ -4930,7 +5688,15 @@ class UnifiedDist:
                 create_obj (bool): If True, returns the raw NumPyro distribution
                     object instead of creating a sample site. This is essential for
                     building complex distributions like `MixtureSameFamily`.
-        
+                
+                sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+                seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+                obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+                name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Mixture distribution object (for model
                 building).
@@ -4987,6 +5753,8 @@ class UnifiedDist:
         
             logits (jnp.ndarray, optional): Event log probabilities.
         
+            total_count_max (int, optional): An optional integer providing an upper bound on `total_count`. This is used for performance optimization with `lax.scan` when `total_count` is a dynamic JAX tracer, helping to avoid recompilation.
+
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
             event (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
@@ -4994,7 +5762,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
         
             create_obj (bool, optional): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro Multinomial distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the Multinomial distribution (for direct sampling).
@@ -5039,7 +5815,11 @@ class UnifiedDist:
         
         Args:
             temperature (float): The temperature parameter.
-        
+
+            probs (jnp.ndarray, optional): The probability of success. Must be in the interval `[0, 1]`. Only one of `probs` or `logits` can be specified.
+            
+            logits (jnp.ndarray, optional): The log-odds of success. Only one of `probs` or `logits` can be specified.
+
             shape (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
                 with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
                 used as `sample_shape` to draw a raw JAX array of the given shape.
@@ -5050,7 +5830,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro RelaxedBernoulli distribution object (for model building) when `sample=False`.
             A JAX array of samples drawn from the RelaxedBernoulli distribution (for direct sampling) when `sample=True`.
@@ -5108,7 +5896,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro TruncatedCauchy distribution object (for model building) when `sample=False`.
         
@@ -5173,7 +5969,15 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of
                 creating a sample site. This is essential for building complex distributions
                 like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro TruncatedDistribution distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the TruncatedDistribution distribution (for direct sampling).
@@ -5237,7 +6041,15 @@ class UnifiedDist:
             create_obj (bool): If True, returns the raw NumPyro distribution
                 object instead of creating a sample site. This is essential for
                 building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro TruncatedNormal distribution object (for model building).
             JAX array of samples drawn from the TruncatedNormal distribution (for
@@ -5309,7 +6121,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro ZeroInflatedDistribution distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the ZeroInflatedDistribution distribution (for direct sampling).
@@ -5368,7 +6188,15 @@ class UnifiedDist:
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site.
                 This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             When `sample=False`: A NumPyro ZeroInflatedNegativeBinomial2 distribution object (for model building).
             When `sample=True`: A JAX array of samples drawn from the ZeroInflatedNegativeBinomial2 distribution (for direct sampling).
@@ -5419,7 +6247,15 @@ class UnifiedDist:
             mask (jnp.ndarray, bool): Optional boolean array to mask observations.
         
             create_obj (bool): If True, returns the raw NumPyro distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-        
+                
+            sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the NumPyro model context. If `False`, it will create a `numpyro.sample` site within a model. Defaults to `False`.
+            
+            seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by NumPyro's inference engine. Defaults to 0.
+
+            obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+    
+            name (str, optional): The name of the sample site in a NumPyro model. This is used to uniquely identify the random variable. Defaults to 'x'.
+            
         Returns:
             NumPyro NegativeBinomial distribution object (for model building).
             JAX array of samples drawn from the NegativeBinomial distribution (for direct sampling).
