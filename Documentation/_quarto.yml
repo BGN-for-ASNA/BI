@@ -1,58 +1,79 @@
 project:
-  type: book
+  type: website
+  
 
-book:
-  title: "BI documentation"
-  author: "Sebastian Sosa"
-  date: "09/09/2024"
-  repo-url: https://github.com/BGN-for-ASNA/ASNA_reliability
-  downloads: [pdf, epub]
-  sharing: [twitter, facebook]
-  cover-image: cover.png
+website:
+  title: "Bayesian Inference (BI)"
+  repo-url: https://github.com/BGN-for-ASNA/BI
+  navbar:
+    left:
+      - href: get started.qmd
+        text: Get started
+      - href: 0. Introduction.qmd
+        text: Models
+      - text: Help
+        menu:
+            - text: Report a Bug
+              icon: bug 
+              href:  https://github.com/BGN-for-ASNA/BI/issues
+            - text: Ask a Question
+              icon: chat-dots 
+              href:  https://github.com/BGN-for-ASNA/BI/discussions
+    background: primary
 
-  chapters:
-    - index.qmd
-    - 0. Introduction.qmd
-    - 1. Linear Regression for continuous variable.qmd
-    - 2. Multiple continuous Variables.qmd
-    - 3. Interaction between continuous variables.qmd
-    - 4. Categorical variable.qmd
-    - 5. Binomial model.qmd
-    - 6. Beta binomial model.qmd
-    - 7. Poisson model.qmd
-    - 8. Gamma-Poisson.qmd
-    - 9. Multinomial model.qmd
-    - 10. Dirichlet model (wip).qmd
-    - 11. Zero inflated.qmd
-    - 12. Survival analysis.qmd
-    - 13. Varying intercepts.qmd
-    - 14. Varying slopes.qmd
-    - 15. Gaussian processes.qmd
-    - 16. Measuring error.qmd
-    - 17. Missing data (wip).qmd
-    - 18. Latent variable (wip).qmd
-    - 19. PCA.qmd
-    - 20. GMM.qmd
-    - 21. DPMM.qmd
-    - 22. Network model.qmd
-    - 23. Network with block model.qmd 
-    - 24. Network control for data collection biases (wip).qmd
-    - 25. Network Metrics.qmd
-    - 26. Network Based Diffusion analysis (wip).qmd
-    - 27. BNN.qmd
+    tools:
+      - icon: twitter
+        href: https://twitter.com
+      - icon: github
+        href:  https://github.com/BGN-for-ASNA/BI
 
-
-
-bibliography: references.bib
+  sidebar:
+    - title: "Models"
+      collapse-level: 1
+      contents:
+        - 0. Introduction.qmd
+        - 1. Linear Regression for continuous variable.qmd
+        - 2. Multiple continuous Variables.qmd
+        - 3. Interaction between continuous variables.qmd
+        - 4. Categorical variable.qmd
+        - 5. Binomial model.qmd
+        - 6. Beta binomial model.qmd
+        - 7. Poisson model.qmd
+        - 8. Gamma-Poisson.qmd
+        - 9. Multinomial model.qmd
+        - 10. Dirichlet model (wip).qmd
+        - 11. Zero inflated.qmd
+        - 12. Survival analysis.qmd
+        - 13. Varying intercepts.qmd
+        - 14. Varying slopes.qmd
+        - 15. Gaussian processes.qmd
+        - 16. Measuring error.qmd
+        - 17. Missing data (wip).qmd
+        - 18. Latent variable (wip).qmd
+        - 19. PCA.qmd
+        - 20. GMM.qmd
+        - 21. DPMM.qmd
+        - 22. Network model.qmd
+        - 23. Network with block model.qmd
+        - 24. Network control for data collection biases (wip).qmd
+        - 25. Network Metrics.qmd
+        - 26. Network Based Diffusion analysis (wip).qmd
+        - 27. BNN.qmd
+  page-navigation: true
 
 format:
   html:
-    theme: Morph
-    backgroundcolor: "#ffffff"
+    theme:       
+      dark: solar
+      light: Morph
     code-copy: true
     highlight-style: monokai
     include-after-body: tooltip-scripts.html
+    toc: true
+    toc-location: right
   pdf:
     pdf-engine: xelatex
     header-includes:
       - \usepackage{unicode-math}
+
+bibliography: references.bib
