@@ -1,29 +1,31 @@
 ---
 title: "Binomial Model"
-description: "Modeling a binary outcome (e.g., success/failure) based on one or more predictor variables."
+description: "Modeling binary outcomes (e.g., successes/failures) based on one or more predictor variables."
 categories: [Classification, Regression, GLM]
 image: "Figures/binomial.svg"
 order: 6
 ---
 
 ## General Principles
-To model the relationship between a binary dependent variable—e.g., success/failure, yes/no, or 1/0—and one or more independent variables, we can use a _Binomial model_.
 
+To model the relationship between a binary dependent variable—e.g., counts of successes/failures, yes/no, or 1/0—and one or more independent variables, we can use a *Binomial model*.
 
 ## Considerations
-::: callout-caution
-- We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- The first link function is the _logit_. The _logit_ link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution $\in[0,1]$.
+::: callout-note
+-   We have the same considerations as for [Regression for continuous variable](1.%20Linear%20Regression%20for%20continuous%20variable.qmd).
 
+-   This is the first model for which we need a link function: e.g., the *logit* function. The *logit* link function converts the linear combination of predictor variables into probabilities, making it suitable for modeling the probability of binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring that model predictions fall within the bounds of the binomial distribution's success parameter $\in(0,1)$.
 :::
 
 ## Example
-Below is an example code snippet that demonstrates Bayesian binomial regression using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (*pulled_left*), which represents which side individuals pulled. The goal is to evaluate the probability of pulling the left side. This example is based on @mcelreath2018statistical.
+
+Below is an example code snippet that demonstrates Bayesian binomial regression using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (*pulled_left*), which represents which lever each chimpanzee pulled in an experimental setup. The goal is to evaluate the probability of pulling the left side. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ### Python
-```python
+
+``` python
 from BI import bi
 
 # setup platform------------------------------------------------
@@ -38,18 +40,21 @@ m.data_to_model(['pulled_left'])
 # Define model ------------------------------------------------
 def model(pulled_left):
     a = m.dist.normal( 0, 10, shape=(1,), name = 'a')
-    m.binomial(logits=a[0], obs=pulled_left)
+    m.binomial(
+    total_count = 1,
+    logits=a[0],
+    obs=pulled_left)
 
 # Run sampler ------------------------------------------------
 m.fit(model, num_samples=500)
 
 # Diagnostic ------------------------------------------------
 m.summary()
-
 ```
 
 ### R
-```R
+
+``` r
 library(BI)
 
 # setup platform------------------------------------------------
@@ -64,7 +69,9 @@ model <- function(pulled_left){
   # Parameters priors distributions
   alpha = bi.dist.normal( 0, 10, name = 'alpha')
   # Likelihood
-  m$binomial(logits = alpha, obs=pulled_left)
+  m$binomial(total_count = 1, 
+  logits = alpha, 
+  obs=pulled_left)
 }
 
 
@@ -73,40 +80,20 @@ m$run(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
-
-
 ```
 :::
 
 ## Mathematical Details
-### *Frequentist formulation*
-We model the relationship between the independent variable ($X_i$) and the binary dependent variable ($Y_i$) using the following equation:
-$$
-logit(Y_i) = \alpha + \beta X_i
-$$
-
-Where:
-
-- $Y_i$ is the probability of success (i.e., the probability of the binary outcome being 1) for observation *i*.
-  
-- $logit(Y_i)$ is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation *i*.
-  
-- $\alpha$ is the intercept term.
-
-- $\beta$ is the regression coefficient.
-
-- $X_i$ is the value of the independent variable for observation *i*.
-
-
 ### *Bayesian formulation*
-[<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
+
+We can express the Bayesian Binomial regression model including prior distributions as follows:
 
 $$
-Y_i \sim Binomial(n = 1, p_i)
+Y_i \sim Binomial(N_i, p_i)
 $$
 
 $$
-logit(p_i) \sim \alpha + \beta X_i
+logit(p_i) = \alpha + \beta X_i
 $$
 
 $$
@@ -119,30 +106,28 @@ $$
 
 Where:
 
-- $Y_i$ is the probability of success (i.e., the probability of the binary outcome being 1) for observation *i*.
+-   $Y_i$ is the count of successes for observation *i* (often a binary 0 or 1).
+   
+-   $N_i$ is the count of trials for observation *i* (1 in the case of binary outcomes, as in the example for `total_count` above).
 
-- $p_i$ is the probability of success (0 <= $p_i$ <= 1) for observation *i*, the probability of a success.
+-   $p_i$ is the probability of success (0 \< $p_i$ \< 1) for observation *i*, the probability of a success.
 
-- $logit(p_i)$ is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation *i*.
-- 
-- $n = 1$ represents the number of trials in the binomial distribution (binary outcome).
+-   $logit(p_i)$ is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation *i*.
 
-- $\beta$ and $\alpha$ are the  regression coefficient and intercept, respectively.
-
+-   $\beta$ and $\alpha$ are the regression coefficient and intercept, respectively.
 
 ## Notes
+
 ::: callout-note
+-   We can apply multiple variables similarly to [chapter 2](2.%20Multiple%20continuous%20variables.qmd).
 
-- We can apply multiple variables similarly to [chapter 2](2.&#32;Multiple&#32;continuous&#32;variables.qmd).
+-   We can apply interaction terms similarly to [chapter 3](3.%20Interaction%20between%20continuous%20variables.qmd).
 
-- We can apply interaction terms similarly to [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+-   We can apply categorical variables similarly to [chapter 4](4.%20Categorical%20variable.qmd).
 
-- We can apply categorical variables similarly to [chapter 4](4.&#32;Categorical&#32;variable.qmd).
+-   Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (*pulled_left*), which represents which side individuals pulled, and three independent variables (*actor*, *side*, *cond*). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as for the different conditions.
 
-- Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (*pulled_left*), which represents which side individuals pulled, and three independent variables (*actor*, *side*, *cond*). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as the different conditions.
-
-
-```python
+``` python
 from BI import bi
 m = bi(platform='cpu')
 m.data('../resources/data/chimpanzees.csv', sep=';')
@@ -155,7 +140,7 @@ def model(actor, treatment, pulled_left):
     a = m.dist.normal(0, 1.5, shape = (7,), name='a')
     b = m.dist.normal(0, 0.5, shape = (4,), name='b')
     p = a[actor] + b[treatment]
-    m.lk("y", m.dist.binomial(1, logits=p), obs=pulled_left)
+    m.lk("y", m.dist.binomial(total_count = 1, logits=p), obs=pulled_left)
 
 # Run sampler ------------------------------------------------
 m.fit(model)
@@ -165,5 +150,6 @@ m.summary()
 :::
 
 ## Reference(s)
+
 ::: {#refs}
 :::
