@@ -106,35 +106,16 @@ m$summary() # Get posterior distribution
 :::
 
 ## Mathematical Details
-### *Frequentist formulation*
-We model the relationship between the predictor variable ($X_i$) and the count outcome variable ($Y_i$) using the following equation:
-
-$$
-\log(\lambda_i) = \alpha + \beta  X_i
-$$
-
-Where:
-
-- $\lambda_i$ is the mean rate parameter of the Poisson distribution (expected count) for observation *i*, modeled as the exponential function of the linear combination of predictors.
-
-- $\log(\lambda_i)$ is the log of the mean rate parameter for observation *i*, ensuring it is positive.
-
-- $\beta$ is the regression coefficient.
-
-- $\alpha$ is the intercept term.
-
-- $X_i$ is the value of the independent variable for observation *i*.
-
 
 ### *Bayesian formulation*
 In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
-Y \sim Poisson(\lambda_i)
+Y_i \sim Poisson(\lambda_i)
 $$
 
 $$
-\log(\lambda_i) = \alpha + \beta X_i
+\lambda_i = \exp(\alpha + \beta X_i)
 $$
 
 $$
@@ -149,13 +130,9 @@ Where:
 
 - $Y_i$ is the dependent variable for observation *i*.
 
-- $\lambda_i$ is the mean rate parameter of the Poisson distribution for observation *i*, modeled as the exponential function of the linear combination of predictors.
-
-- $\log(\lambda_i)$ is the log of the mean rate parameter for observation *i*.
+- $\lambda_i$ is the positive-constrained rate parameter of the Poisson distribution for observation *i*, modeled as the exponential function of the linear combination of predictors.
 
 - $\alpha$ and $\beta$ are the prior distributions for the intercept and the regression coefficients, respectively.
-
-- $\lambda_i$ is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.
 
 - $X_i$ is the value of the independent variable for observation *i*.
 

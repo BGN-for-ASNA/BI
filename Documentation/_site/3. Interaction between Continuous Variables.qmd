@@ -1,0 +1,175 @@
+---
+title: "Interaction Terms in Regression"
+description: "Modeling how the effect of one independent variable on the outcome changes based on the value of another independent variable."
+categories: [Regression, Feature Engineering]
+image: "Figures/interaction plot.svg"
+order: 4
+---
+
+## General Principles
+If you have a case where you believe the effect of one independent variable depends on the value of another independent variable, you can use regression analysis with interaction terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two independent variables (see [note](#Notes) on how this multiplication arises).
+
+## Considerations
+::: callout-note
+- We have the same assumptions as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+
+- We wish to model the relationship between a dependent variable, *Y*, and an independent variable,  $X_1$, whose effect varies as a function of a second independent variable $X_2$. To do this, we explicitly model the hypothesis that the slope between *Y* and $X_1$ depends on (i.e., is conditional on) $X_2$.
+
+- For continuous interactions with normalized data, the intercept becomes the [<span style="color:#0D6EFD">grand mean 🛈</span>]{#grandMean} of the outcome variable.
+
+- The interpretation of slopes estimates is more complex. The coefficient for a non-interaction term reflects the expected change in *Y* when $X_1$ increases by one unit, holding $X_2$ constant at its average value. The coefficient for the interaction term represents how the effect of $X_1$ on *Y* changes depending on the value of $X_2$, and vice versa, showing how the relationship between the two variables influences the outcome *Y*.
+
+- [<span style="color:#0D6EFD">Triptych 🛈</span>]{#triptych} plots are very handy for understanding the impact of interactions, especially when more than two interactions are present.
+
+:::
+
+## Example
+Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the Bayesian Inference (BI) package. The data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption. This example is based on @mcelreath2018statistical.
+
+::: {.panel-tabset group="language"}
+### Python
+```python
+from BI import bi
+
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = files('BI.resources.data') / 'tulips.csv'
+m.data(data_path, sep=';')
+m.scale(['blooms', 'water', 'shade']) # Normalize
+
+
+# Define model ------------------------------------------------
+def model(blooms,shade, water):
+    sigma = m.dist.exponential(1, name = 'sigma', shape = (1,))
+    bws = m.dist.normal(0, 0.25, name = 'bws', shape = (1,))
+    bs = m.dist.normal(0, 0.25, name = 'bs', shape = (1,))
+    bw = m.dist.normal(0, 0.25, name = 'bw', shape = (1,))
+    a = m.dist.normal(0.5, 0.25, name = 'a', shape = (1,))
+    mu = a + bw*water + bs*shade + bws*water*shade
+    m.normal(mu, sigma, obs=blooms)
+
+# Run mcmc ------------------------------------------------
+m.fit(model) # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary()
+```
+
+### R
+```R
+library(BI)
+m=importbi(platform='cpu')
+
+# Load csv file
+m$data(paste(system.file(package = "BI"),"/data/tulips.csv", sep = ''), sep=';')
+m$scale(list('blooms', 'water', 'shade')) # Normalize
+m$data_to_model(list('blooms', 'water', 'shade')) # Send to model (convert to jax array)
+
+# Define model ------------------------------------------------
+model <- function(blooms, water,shade){
+  # Parameter prior distributions
+  alpha = bi.dist.normal( 0.5, 0.25, name = 'a')
+  beta1 = bi.dist.normal( 0,  0.25, name = 'b1')
+  beta2 = bi.dist.normal(  0,  0.25, name = 'b2')
+  beta_interaction_ = bi.dist.normal(  0, 0.25, name = 'bint')
+  sigma = bi.dist.normal(0, 50, name = 's')
+  # Likelihood
+  m$normal(alpha + beta1*water + beta2*shade + beta_interaction_*water*shade, sigma, obs=blooms)
+}
+
+# Run mcmc ------------------------------------------------
+m$run(model) # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m$summary() # Get posterior distributions
+
+
+```
+:::
+
+## Mathematical Details
+## *Frequentist formulation*
+We model the relationship between the input features ($X_1$ and $X_2$) and the target variable ($Y$) using the following equation:
+$$
+𝑌_i = \alpha + \beta_1 𝑋_{[1,i]} + \beta_2 𝑋_{[2,i]} + \beta_3 𝑋_{[1,i]} 𝑋_{[2,i]} + \epsilon_i
+$$
+
+Where:
+
+- $Y_i$ is the dependent variable for observation *i*.
+
+- $\alpha$ is the intercept term.
+
+- $X_{[1,i]}$ and $X_{[2,i]}$ are the values of the two independent variables for observation *i*.
+
+- $\beta_1$ and $\beta_2$ are the coefficients for $X_{1}$ and $X_{2}$, respectively, when the other variable has value 0.
+
+- $\beta_3$ is the coefficient which controls the extent to which the coefficient on one variable depends on the value of the other.
+
+- $\epsilon_i$ is the error term, assumed to be independent and normally distributed.
+
+
+### *Bayesian formulation*
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model as follows:
+
+$$
+Y_i \sim Normal(\alpha + \beta_1 X_{[1,i]} + \beta_2 X_{[2,i]} + \beta_{3} X_{[1,i]} X_{[2,i]}, \sigma)
+$$
+
+$$
+\alpha \sim Normal(0,1)
+$$
+
+$$
+\beta_1 \sim Normal(0,1)
+$$
+
+$$
+\beta_2 \sim Normal(0,1)
+$$
+
+$$
+\beta_{3} \sim Normal(0,1)
+$$
+
+$$
+\sigma \sim Exponential(1)
+$$
+
+Where:
+
+- $Y_i$ is the dependent variable for observation *i*.
+
+- $\alpha$ is the intercept term, which in this case has a unit-normal prior.
+
+- $\beta_1$ and $\beta_2$ are the coefficients for $X_{1}$ and $X_{2}$, respectively, when the other variable has value 0.
+
+- $\beta_3$ is the coefficient which controls the extent to which the coefficient on one variable depends on the value of the other.
+
+- $X_{[1,i]}$ and $X_{[2,i]}$ are the two values of the independent continuous variables for observation *i*.
+
+- $\sigma$ is a standard deviation parameter, which here has an $Exponential$ prior that constrains it to be positive.
+
+## Notes{#Notes}
+::: callout-note
+The interaction term equation:
+$$
+Y_i \sim Normal(\alpha + \beta_1 X_{[1,i]} + \beta_2 X_{[2,i]} + \beta_{3} X_{[1,i]} X_{[2,i]}, \sigma)
+$$
+
+
+can be re-written as:
+$$
+Y_i \sim Normal(\alpha + (\beta_1 + \beta_{3} X_{[2,i]}) X_{[1,i]} + \beta_2 X_{[2,i]}, \sigma)
+$$
+
+simply by factoring the terms with $X_{[1,i]}$ in them. The result is that the coefficient on $X_{[1,i]}$ is written specifically as a linear regression model of $X_{[2,i]}$.
+:::
+
+## Reference(s)
+::: {#refs}
+:::

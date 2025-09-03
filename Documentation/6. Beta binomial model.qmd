@@ -9,7 +9,7 @@ order: 7
 To model the relationship between a binary outcome variable representing success counts and one or more independent variables with [<span style="color:#0D6EFD">overdispersion 🛈</span>]{#overdispersion}, we can use the _Beta-Binomial model_.
 
 ## Considerations
-::: callout-caution 
+::: callout-note 
 - We have the same considerations as for [Binomial regression](5.&#32;Binomial&#32;model.qmd).
 
 - A Beta-Binomial model assumes that each binomial count observation has its own probability of success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.
@@ -104,19 +104,19 @@ m$summary() # Get posterior distribution
 In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
-Y_i \sim BetaBinomial(n_i, \gamma_i, \eta_i)
+Y_i \sim \text{BetaBinomial}(N_i, \gamma_i, \eta_i)
 $$
 
 $$
-\gamma_i = \overline{\rho}   \tau 
+\gamma_i = p_i   \tau 
 $$
 
 $$
-\eta_i = (1 - \overline{\rho} ) \tau 
+\eta_i = (1 - p_i ) \tau 
 $$
 
 $$
-\overline{\rho} = logit(\alpha_i)
+p_i = \text{logit}^{-1}(\alpha + \beta * X_i)
 $$
 
 $$
@@ -124,26 +124,31 @@ $$
 $$
 
 $$
-\alpha \sim Normal(0,1)
+\alpha \sim \text{Normal}(0,1)
 $$
 
 $$
-\phi \sim Exponential(1)
+\beta \sim \text{Normal}(0,1)
+$$
+
+
+$$
+\phi \sim \text{Exponential}(1)
 $$
 
 Where:
 
-- $Y_i$ is the count of successes for the *i*-th observation, which follows a beta-binomial distribution with $n_i$ trials.
+- $Y_i$ is the count of successes for the *i*-th observation, which follows a beta-binomial distribution with $N_i$ trials.
 
-- $\gamma_i$ represents the concentration parameter for the number of successes, derived from the probability of success and scaled by $\tau$.
+- $\gamma_i$ represents the concentration parameter for the number of successes, derived from the probability of success, $p_i$, and scaled by $\tau$.
   
-- $\eta_i$ represents the concentration parameter for failures, derived from the probability of failure $(1 - \overline{\rho} )$ and also scaled by $\tau$.
+- $\eta_i$ represents the concentration parameter for failures, derived from the probability of failure $(1 - p_i)$ and also scaled by $\tau$.
 
-- $\overline{\rho}$ is the probability of success for the *i*-th observation. The logit function transforms the linear predictor α (which can take any real value) into a probability value between 0 and 1. 
+- $p_i$ is the probability of success for the *i*-th observation. The logit function transforms the linear predictor (which can take any real value) into a probability value between 0 and 1. 
   
 - $\tau$ is derived from 𝜙 and is used as a scaling factor for the shape parameters 𝛾 and 𝜂.
   
-- α is a vector of parameters, each representing the effect of group *i* on the success probability.
+- $\beta$ and $\alpha$ are the regression coefficient and intercept, respectively.
 
 - ϕ is a random variable following an exponential distribution with a rate of 1.
 
