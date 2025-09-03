@@ -106,8 +106,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -136,6 +150,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -162,6 +177,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -365,7 +384,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -428,9 +447,9 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
 <p>In some scenarios, the observed data does not directly reflect the underlying structure or factors influencing the outcome. Instead, <em>latent variables</em>—variables that are not directly observed but are inferred from the data—can help model this hidden structure. These latent variables capture unobserved factors that affect the relationship between predictors (<em>X</em>) and the outcome (<em>Y</em>).</p>
 <p>We model the relationship between the predictor variables (<em>X</em>) and the outcome variable (<em>Y</em>) with a latent variable (<em>Z</em>) as follows:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 Y = f(X, Z) + \epsilon
-\]</span></p>
+</span></p>
 <p>Where: - <em>Y</em> is the observed outcome variable. - <em>X</em> is the observed predictor variable(s). - <em>Z</em> is the latent (unobserved) variable, which we aim to infer. - <em>f(X, Z)</em> is the function that relates <em>X</em> and <em>Z</em> to <em>Y</em>. - <em></em> is the error term, typically assumed to be normally distributed with mean 0 and variance <em>^2</em>.</p>
 <p>The latent variable <em>Z</em> can represent various phenomena, such as group-level effects, time-varying trends, or individual-level factors, that are not captured by the observed predictors alone.</p>
 </section>
@@ -506,13 +525,13 @@ Y = f(X, Z) + \epsilon
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <p>We can express the Bayesian latent variable model using probability distributions as follows:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 \begin{aligned}
 &amp; p(Y | X, Z, W, \sigma) = \text{Normal}(X \cdot W + Z, \sigma^2) \\
 &amp; p(Z) = \text{Normal}(0, \tau^2) \\
 &amp; p(W) = \text{Normal}(0, \alpha^2) \\
 \end{aligned}
-\]</span></p>
+</span></p>
 <p>Where: - <em>p(Y | X, Z, W, )</em> is the likelihood function for the observed outcome variable, which depends on both the observed predictor <em>X</em> and the latent variable <em>Z</em>. - <em>p(Z)</em> is the prior distribution for the latent variable <em>Z</em>, often modeled as <em>Normal</em> with a mean of 0 and variance <em>^2</em>. - <em>p(W)</em> is the prior distribution for the regression coefficient(s) <em>W</em>, typically assumed to follow a <em>Normal</em> distribution with mean 0 and variance <em>^2</em>.</p>
 <p>The latent variable <em>Z</em> introduces additional flexibility to the model, capturing unobserved influences on the outcome <em>Y</em>.</p>
 </section>

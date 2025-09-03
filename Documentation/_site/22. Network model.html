@@ -55,7 +55,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -106,8 +126,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -136,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -162,6 +197,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -365,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -386,13 +425,12 @@ window.Quarto = {
   <ul>
   <li><a href="#considerations" id="toc-considerations" class="nav-link active" data-scroll-target="#considerations">Considerations</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
-  <li><a href="#python" id="toc-python" class="nav-link" data-scroll-target="#python">Python</a></li>
-  <li><a href="#r" id="toc-r" class="nav-link" data-scroll-target="#r">R</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
   <ul class="collapse">
   <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><em>Main Formula</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Note(s)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="22.-Network-model.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
     </div>
@@ -448,10 +486,11 @@ Caution
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect:</p>
-</section>
-<section id="python" class="level2">
-<h2 class="anchored" data-anchor-id="python">Python</h2>
+<p>Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect. This example is based on <span class="citation" data-cites="ross2024modelling">Ross, McElreath, and Redhead (<a href="#ref-ross2024modelling" role="doc-biblioref">2024</a>)</span>.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
@@ -499,9 +538,8 @@ Caution
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>m.fit(model2) </span>
 <span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
 <span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-<section id="r" class="level2">
-<h2 class="anchored" data-anchor-id="r">R</h2>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform------------------------------------------------</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importbi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
@@ -556,28 +594,31 @@ Caution
 <span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>summary <span class="ot">=</span>m<span class="sc">$</span><span class="fu">summary</span>()</span>
 <span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>summary[<span class="fu">rownames</span>(summary) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">'focal_effects[0]'</span>, <span class="st">'target_effects[0]'</span>, <span class="st">'block[0]'</span>),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <section id="main-formula" class="level3">
 <h3 class="anchored" data-anchor-id="main-formula"><em>Main Formula</em></h3>
 <p>The simple model that can be built to model link weights between nodes <em>i</em> and <em>j</em> can be defined using a Poisson distribution:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 G_{ij} \sim Poisson(Y_{ij})
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
-\]</span></p>
+</span></p>
 <p>where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_{ij}\)</span> is the weight of the link between <em>i</em> and <em>j</em>.</p></li>
-<li><p><span class="math inline">\(\lambda_i\)</span> is the <span id="senderF"><span style="color:#0D6EFD">sender effect 🛈</span></span>.</p></li>
-<li><p><span class="math inline">\(\pi_j\)</span> is the <span id="receiverF"><span style="color:#0D6EFD">receiver effect 🛈</span></span>.</p></li>
-<li><p><span class="math inline">\(\delta_{ij}\)</span> is the <span id="DyadicF2"><span style="color:#0D6EFD">dyadic effect 🛈</span></span>.</p></li>
+<li><p><span class="math inline">Y_{ij}</span> is the weight of the link between <em>i</em> and <em>j</em>.</p></li>
+<li><p><span class="math inline">\lambda_i</span> is the <span id="senderF"><span style="color:#0D6EFD">sender effect 🛈</span></span>.</p></li>
+<li><p><span class="math inline">\pi_j</span> is the <span id="receiverF"><span style="color:#0D6EFD">receiver effect 🛈</span></span>.</p></li>
+<li><p><span class="math inline">\delta_{ij}</span> is the <span id="DyadicF2"><span style="color:#0D6EFD">dyadic effect 🛈</span></span>.</p></li>
 <li><h3 id="defining-formula-sub-equations-and-prior-distributions" class="anchored"><em>Defining formula sub-equations and prior distributions</em></h3></li>
 </ul>
-<p><span class="math inline">\(\lambda_i\)</span> and <span class="math inline">\(\pi_j\)</span> are varying <a href="./13. Varying intercepts.html">intercepts</a> and <a href="./14. Varying slopes.html">slopes</a> identical to those described in previous chapters and are defined through the following equations:</p>
-<p><span class="math display">\[
+<p><span class="math inline">\lambda_i</span> and <span class="math inline">\pi_j</span> are varying <a href="./13. Varying intercepts.html">intercepts</a> and <a href="./14. Varying slopes.html">slopes</a> identical to those described in previous chapters and are defined through the following equations:</p>
+<p><span class="math display">
 \left(\begin{array}{cc}
 \lambda_i \\
 \pi_j
@@ -595,18 +636,18 @@ L *
 \end{array}\right)
 \end{array}\right)
 \end{array}\right)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma_\lambda \sim Exponential(1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma_\pi \sim Exponential(1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 L \sim LKJ(2)
-\]</span></p>
+</span></p>
 <p>Similarly, for each dyad we can define varying intercepts and slopes to account for the correlation between the propensity to emit and receive links of a dyad:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 \left(\begin{array}{cc}
 \delta_{ij} \\
 \delta_{ji}
@@ -624,16 +665,16 @@ L_\delta *
 \end{array}\right)
 \end{array}\right)
 \end{array}\right)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma_\delta \sim Exponential(1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma_\delta \sim Exponential(1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 L_\delta \sim LKJ(2)
-\]</span></p>
+</span></p>
 </section>
 </section>
 <section id="notes" class="level2">
@@ -649,7 +690,7 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li>Note that any additional covariates can be summed with a regression coefficient to <span class="math inline">\(\lambda_i\)</span>, <span class="math inline">\(\pi_j\)</span> and <span class="math inline">\(\delta_{ij}\)</span>. Of course, for <span class="math inline">\(\lambda_i\)</span> and <span class="math inline">\(\pi_j\)</span>, as they represent nodal effects, these covariates need to be nodal characteristics (e.g., sex, age), whereas for <span class="math inline">\(\delta_{ij}\)</span>, as it represents dyadic effects, these covariates need to be dyadic characteristics (e.g., genetic distances). Considering the previous example, given a vector of nodal characteristics, <em>individual_predictors</em>, and a matrix of dyadic characteristics, <em>kinship</em>, we can incorporate these covariates into the sender-receiver and dyadic effects, respectively, as follows:</li>
+<li>Note that any additional covariates can be summed with a regression coefficient to <span class="math inline">\lambda_i</span>, <span class="math inline">\pi_j</span> and <span class="math inline">\delta_{ij}</span>. Of course, for <span class="math inline">\lambda_i</span> and <span class="math inline">\pi_j</span>, as they represent nodal effects, these covariates need to be nodal characteristics (e.g., sex, age), whereas for <span class="math inline">\delta_{ij}</span>, as it represents dyadic effects, these covariates need to be dyadic characteristics (e.g., genetic distances). Considering the previous example, given a vector of nodal characteristics, <em>individual_predictors</em>, and a matrix of dyadic characteristics, <em>kinship</em>, we can incorporate these covariates into the sender-receiver and dyadic effects, respectively, as follows:</li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> ids.shape[<span class="dv">0</span>]</span>
@@ -688,9 +729,17 @@ Note
 <li><p>We can apply multiple variables as in <a href="./2. Multiple continuous Variables.html">chapter 2: Multiple Continuous Variables</a>.</p></li>
 <li><p>We can apply interaction terms as in <a href="./3. Interaction between continuous variables.html">chapter 3: Interaction Between Continuous Variables</a>.</p></li>
 <li><p>Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of a link — i.e., model binary networks.</p></li>
-<li><p>If the network is undirected, then accounting for the correlation between the propensity to emit and receive links is not necessary, and the terms <span class="math inline">\(\lambda_i\)</span>, <span class="math inline">\(\pi_j\)</span>, and <span class="math inline">\(\delta_{ij}\)</span> are no longer required. (Is it correct?)</p></li>
+<li><p>If the network is undirected, then accounting for the correlation between the propensity to emit and receive links is not necessary, and the terms <span class="math inline">\lambda_i</span>, <span class="math inline">\pi_j</span>, and <span class="math inline">\delta_{ij}</span> are no longer required. (Is it correct?)</p></li>
 <li><p>In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).</p></li>
 </ul>
+</div>
+</div>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-ross2024modelling" class="csl-entry" role="listitem">
+Ross, Cody T, Richard McElreath, and Daniel Redhead. 2024. <span>“Modelling Animal Network Data in r Using STRAND.”</span> <em>Journal of Animal Ecology</em> 93 (3): 254–66.
 </div>
 </div>
 

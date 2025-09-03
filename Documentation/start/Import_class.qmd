@@ -1,0 +1,46 @@
+---
+title: "Import BI class"
+sidebar: start
+---
+
+Before anything, you need to import the BI class. This will allow you to create a BI object that will be used to : 1) import data, 2) define the model, 3) fit the model, 4) summarize the results, and 5) plot the results.
+
+::: {.panel-tabset group="language"}
+## Python
+``` python
+from BI import bi
+m = bi()
+```
+
+## R
+``` R
+library(BayesInference)
+m=importBI(platform='cpu')
+```
+:::
+
+### Arguments:
+
+- *platform:* (str, optional). The hardware platform to use for computation. Options include:
+  
+    - 'cpu': Use CPU(s) for computation
+    - 'gpu': Use GPU(s) for computation
+    - 'tpu': Use TPU(s) for computation
+  
+    Defaults to 'cpu'.
+
+- *cores:* (int, optional). Number of CPU cores to allocate for computation. If None, all available CPU 
+    cores will be used. Only applicable when platform is 'cpu'.
+    
+- *deallocate:* (bool, optional). Whether to deallocate any existing devices before setting up new configuration.
+    Defaults to False.
+
+
+### Examples
+```python
+setup_device(platform='cpu')
+
+setup_device(platform='gpu') # Only for BayesInference[gpu]
+
+setup_device(platform='cpu', cores=4) # Specifying CPU cores
+```

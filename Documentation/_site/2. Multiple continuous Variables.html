@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -176,12 +191,16 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./get started.html"> 
+    <a class="nav-link" href="./start/Installation.html"> 
 <span class="menu-text">Get started</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -235,7 +254,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Linear Regression for a Continuous Variable</span></a>
+ <span class="menu-text">Univariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -449,30 +468,30 @@ window.Quarto = {
 
 <section id="general-principles" class="level2">
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
-<p>To study relationships between multiple continuous independent variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend <a href="./1. Linear Regression for continuous variable.html">Linear Regression for continuous variable</a> by adding a regression coefficient <span class="math inline">\(\beta_x\)</span> for each continuous variable (e.g., <span class="math inline">\(\beta_{weight}\)</span> and <span class="math inline">\(\beta_{age}\)</span>).</p>
+<p>To study relationships between multiple continuous independent variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend <a href="./1. Linear Regression for continuous variable.html">Linear Regression for continuous variable</a> by adding a regression coefficient <span class="math inline">\beta_x</span> for each continuous variable (e.g., <span class="math inline">\beta_{weight}</span> and <span class="math inline">\beta_{age}</span>).</p>
 </section>
 <section id="considerations" class="level2">
 <h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
-<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Caution
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for the <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>The model interpretation of the regression coefficients <span class="math inline">\(\beta_x\)</span> is considered for fixed values of the other independent variable(s)’ regression coefficients—i.e., for a given age, <span class="math inline">\(\beta_{weight}\)</span> represents the expected change in the dependent variable (height) for each one-unit increase in weight, holding all other variable(s) constant (age).</p></li>
+<li><p>The model interpretation of the regression coefficients <span class="math inline">\beta_x</span> is considered for fixed values of the other independent variable(s)’ regression coefficients—i.e., for a given age, <span class="math inline">\beta_{weight}</span> represents the expected change in the dependent variable (height) for each one-unit increase in weight, holding all other variables (e.g., age) constant.</p></li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is example code demonstrating Bayesian multiple linear regression using the Bayesian Inference (BI) package. Data consist of three continuous variables (<em>height</em>, <em>weight</em>, <em>age</em>), and the goal is to estimate the effect of <em>weight</em> and <em>age</em> on <em>height</em>.</p>
+<p>Below is example code demonstrating Bayesian multiple linear regression using the Bayesian Inference (BI) package. Data consist of three continuous variables (<em>height</em>, <em>weight</em>, <em>age</em>), and the goal is to estimate the effect of <em>weight</em> and <em>age</em> on <em>height</em>. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -487,8 +506,8 @@ Caution
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Howell1.csv'</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>] <span class="co"># Manipulate</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>, <span class="st">'age'</span>]) <span class="co"># Scale</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>] <span class="co"># Subset data to adults</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>, <span class="st">'age'</span>]) <span class="co"># Normalize</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(height, weight, age):</span>
@@ -496,7 +515,7 @@ Caution
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'alpha'</span>)    </span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'beta1'</span>)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    beta2 <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'beta2'</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.uniform(<span class="dv">0</span>,<span class="dv">50</span>, name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.uniform(<span class="dv">0</span>, <span class="dv">50</span>, name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    m.normal(alpha <span class="op">+</span> beta1 <span class="op">*</span> weight <span class="op">+</span> beta2 <span class="op">*</span> age, sigma, obs <span class="op">=</span> height)</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
@@ -512,16 +531,16 @@ Caution
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Howell1.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)<span class="co"># Import</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,] <span class="co"># Manipulate</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'age'</span>)) <span class="co"># Scale</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,] <span class="co"># Subset data to adults</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'age'</span>)) <span class="co"># Normalize</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'height'</span>, <span class="st">'age'</span>)) <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight, age){</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  beta1 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b1'</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  beta2 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(  <span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b2'</span>)   </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  beta1 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b1'</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  beta2 <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b2'</span>)   </span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bi.dist.uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">'s'</span>)</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">normal</span>(alpha <span class="sc">+</span> beta1 <span class="sc">*</span> weight <span class="sc">+</span> beta2 <span class="sc">*</span> age, sigma, <span class="at">obs=</span>height)</span>
@@ -540,57 +559,56 @@ Caution
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist formulation</em></h3>
-<p>We model the relationship between the independent variables <span class="math inline">\((X_{1i}, X_{2i}, ..., X_{ni})\)</span> and the dependent variable <em>Y</em> using the following equation:</p>
-<p><span class="math display">\[
-𝑌_i = \alpha +\beta_1  𝑋_{1i} + \beta_2  𝑋_{2i} + ... + \beta_n  𝑋_{ni} + \sigma_i
-\]</span></p>
+<p>We model the relationship between the independent variables <span class="math inline">(X_{1i}, X_{2i}, ..., X_{[K,i]})</span> and the dependent variable <em>Y</em> using the following equation:</p>
+<p><span class="math display">
+𝑌_i = \alpha +\beta_1  𝑋_{[1,i]} + \beta_2  𝑋_{[2,i]} + ... + \beta_n  𝑋_{[K,i]} + \epsilon_i
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(X_{1i}\)</span>, <span class="math inline">\(X_{2i}\)</span>, …, <span class="math inline">\(X_{ni}\)</span> are the values of the independent variables for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_2\)</span>, …, <span class="math inline">\(\beta_n\)</span> are the regression coefficients.</p></li>
-<li><p><span class="math inline">\(\sigma_i\)</span> is the error term for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">Y_i</span> is the dependent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term.</p></li>
+<li><p><span class="math inline">X_{[1,i]}</span>, <span class="math inline">X_{[2,i]}</span>, …, <span class="math inline">X_{[K,i]}</span> are the values of the independent variables for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\beta_1</span>, <span class="math inline">\beta_2</span>, …, <span class="math inline">\beta_K</span> are the regression coefficients.</p></li>
+<li><p><span class="math inline">\epsilon_i</span> is the error term for observation <em>i</em>, and the vector of the error terms, <span class="math inline">\epsilon</span>, are assumed to be independent and identically distributed.</p></li>
 </ul>
 </section>
 <section id="bayesian-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian formulation</em></h3>
 <p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian model as follows:</p>
-<p><span class="math display">\[
-𝑌 \sim Normal(\alpha + \sum_k^n  \beta_k  X, σ²)
-\]</span></p>
-<p><span class="math display">\[
+<p><span class="math display">
+𝑌_i \sim Normal(\alpha + \sum_{k=1}^K  \beta_k  X_{[K,i]}, σ)
+</span></p>
+<p><span class="math display">
 \alpha \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \beta_k \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 σ \sim Uniform(0, 50)
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the prior distribution for the intercept.</p></li>
-<li><p><span class="math inline">\(\beta_k\)</span> are the prior distributions for the <em>k</em> distinct regression coefficients.</p></li>
-<li><p><span class="math inline">\(X_{1i}\)</span>, <span class="math inline">\(X_{2i}\)</span>, …, <span class="math inline">\(X_{ni}\)</span> are the values of the independent variables for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the prior distribution for the standard deviation, ensuring that it is positive.</p></li>
+<li><p><span class="math inline">Y_i</span> is the dependent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term, which in this case has a unit-normal prior.</p></li>
+<li><p><span class="math inline">\beta_k</span> are slope coefficients for the <em>K</em> distinct independent variables, which also have unit-normal priors.</p></li>
+<li><p><span class="math inline">X_{[1,i]}</span>, <span class="math inline">X_{[2,i]}</span>, …, <span class="math inline">X_{[K,i]}</span> are the values of the independent variables for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\sigma</span> is a standard deviation parameter, which here has a <span class="math inline">Uniform</span> prior that constrains it to be positive.</p></li>
 </ul>
 </section>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -874,7 +892,7 @@ tippy('#chol', {
 });
 
 tippy('#uncertainty', {
-  content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+  content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
   allowHTML: true,
   interactive: true,
   delay: 100,
@@ -1598,8 +1616,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./1. Linear Regression for continuous variable.html" class="pagination-link" aria-label="Linear Regression for a Continuous Variable">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Linear Regression for a Continuous Variable</span>
+      <a href="./1. Linear Regression for continuous variable.html" class="pagination-link" aria-label="Univariate Linear Regression">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Univariate Linear Regression</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

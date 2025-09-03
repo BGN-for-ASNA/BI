@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -182,6 +197,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -466,9 +485,9 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>One way to interpret a multinomial model is to consider that we need to build <span class="math inline">\(K - 1\)</span> linear models, where <span class="math inline">\(K\)</span> is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a <span id="simplex"><span style="color:#0D6EFD">simplex 🛈</span></span>. To do this, we convert the regression outputs using the <span id="softmax"><span style="color:#0D6EFD">softmax function 🛈</span></span> (see the “jax.nn.softmax” line in the code).</p></li>
-<li><p>The intercept <span class="math inline">\(\alpha\)</span> captures the difference in the log-odds of the outcome categories; thus, different categories need different intercepts.</p></li>
-<li><p>On the other hand, as we assume that the effect of each predictor on the outcome is consistent across all categories, the regression coefficients <span class="math inline">\(\beta\)</span> are shared across categories.</p></li>
+<li><p>One way to interpret a multinomial model is to consider that we need to build <span class="math inline">K - 1</span> linear models, where <span class="math inline">K</span> is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a <span id="simplex"><span style="color:#0D6EFD">simplex 🛈</span></span>. To do this, we convert the regression outputs using the <span id="softmax"><span style="color:#0D6EFD">softmax function 🛈</span></span> (see the “jax.nn.softmax” line in the code).</p></li>
+<li><p>The intercept <span class="math inline">\alpha</span> captures the difference in the log-odds of the outcome categories; thus, different categories need different intercepts.</p></li>
+<li><p>On the other hand, as we assume that the effect of each predictor on the outcome is consistent across all categories, the regression coefficients <span class="math inline">\beta</span> are shared across categories.</p></li>
 <li><p>The relationship between the predictor variables and the log-odds of each category is modeled linearly, allowing us to interpret the effect of each predictor on the log-odds of each category.</p></li>
 </ul>
 </div>
@@ -476,7 +495,7 @@ Caution
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating a Bayesian multinomial model using the Bayesian Inference (BI) package:</p>
+<p>Below is an example code snippet demonstrating a Bayesian multinomial model using the Bayesian Inference (BI) package. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -553,46 +572,45 @@ Caution
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist formulation</em></h3>
-<p>We model the relationship between the predictor variables (X1, X2, …, Xn) and the categorical outcome variable (<span class="math inline">\(Y_i\)</span>) using the following equation:</p>
-<p><span class="math display">\[
+<p>We model the relationship between the predictor variables (X1, X2, …, Xn) and the categorical outcome variable (<span class="math inline">Y_i</span>) using the following equation:</p>
+<p><span class="math display">
 logit(p_{ik}) = α_k + β X_i
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(p_{ik}\)</span> is the probability of the 𝑖-th observation being in category 𝑘.</p></li>
-<li><p><span class="math inline">\(α_k\)</span> is the intercept for category 𝑘.</p></li>
-<li><p><span class="math inline">\(β\)</span> is the regression coefficients common to all categories.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the vector of independent variables for the 𝑖-th observation.</p></li>
+<li><p><span class="math inline">p_{ik}</span> is the probability of the 𝑖-th observation being in category 𝑘.</p></li>
+<li><p><span class="math inline">α_k</span> is the intercept for category 𝑘.</p></li>
+<li><p><span class="math inline">β</span> is the regression coefficients common to all categories.</p></li>
+<li><p><span class="math inline">X_i</span> is the vector of independent variables for the 𝑖-th observation.</p></li>
 <li><p>A reference category is often chosen to simplify the model.</p></li>
 </ul>
 </section>
 <section id="bayesian-model" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-model"><em>Bayesian model</em></h3>
-<p>In Bayesian multinomial modeling, the likelihood function of the data is specified using a multinomial distribution. The multinomial distribution models the counts of outcomes falling into different categories. For an outcome variable 𝑦 with 𝐾 categories, the multinomial likelihood function is: <span class="math display">\[
+<p>In Bayesian multinomial modeling, the likelihood function of the data is specified using a multinomial distribution. The multinomial distribution models the counts of outcomes falling into different categories. For an outcome variable 𝑦 with 𝐾 categories, the multinomial likelihood function is: <span class="math display">
 Multinomial(y|θ)=\frac{N!}{\prod^K_{k=1}y_k!} \prod_{k=1}^{K} θ_{k}^{y_k}
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(y=(y_1, y_2,…,y_K)\)</span> represents the counts of observations in each of the 𝐾 categories.</p></li>
-<li><p><span class="math inline">\(N\)</span> is the total number of observations or trials.</p></li>
-<li><p><span class="math inline">\(θ=(θ_1,θ_2,…,θ_K)\)</span> is a simplex of category probabilities, with <span class="math inline">\(θ_k\)</span> representing the probability of category 𝑘.</p></li>
-<li><p><span class="math inline">\(\frac{N!}{\prod^K_{k=1}y_k!}\)</span> is the multinomial coefficient that accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.</p></li>
+<li><p><span class="math inline">y=(y_1, y_2,…,y_K)</span> represents the counts of observations in each of the 𝐾 categories.</p></li>
+<li><p><span class="math inline">N</span> is the total number of observations or trials.</p></li>
+<li><p><span class="math inline">θ=(θ_1,θ_2,…,θ_K)</span> is a simplex of category probabilities, with <span class="math inline">θ_k</span> representing the probability of category 𝑘.</p></li>
+<li><p><span class="math inline">\frac{N!}{\prod^K_{k=1}y_k!}</span> is the multinomial coefficient that accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.</p></li>
 </ul>
 </section>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
