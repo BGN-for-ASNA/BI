@@ -78,25 +78,6 @@ m$summary() # Get posterior distributions
 :::
 
 ## Mathematical Details
-### *Frequentist formulation*
-We model the relationship between the independent variable $X$ and the count outcome variable $Y$ using the following equation:
-
-$$
-\log(\lambda_i) = \exp(\text{rates}_i + \alpha + \beta X_i)
-$$
-
-Where:
-
-- $\lambda_i$ is the mean rate parameter of the negative binomial distribution (expected count) for observation *i*.
-  
-- $\log(\lambda_i)$ is the log of the mean rate parameter, ensuring it is positive for observation *i*.
-  
-- $\alpha$ is the intercept term.
-  
-- $\beta$ is the regression coefficient.
-  
-- $X_i$ is the value of the predictor variable for observation *i*.
-
 ### *Bayesian model*
 In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
@@ -105,7 +86,11 @@ Y_i \sim \text{Poisson}(\lambda_i)
 $$
 
 $$
-\log(\lambda_i) = \text{rates}_i + \alpha + \beta X_i
+\lambda_i \sim \text{Gamma}(\mu_i \phi, \phi)
+$$
+
+$$
+\log(\mu_i) = \text{rates}_i + \alpha + \beta X_i
 $$
 
 $$
@@ -116,13 +101,19 @@ $$
 \beta \sim \text{Normal}(0,1)
 $$
 
+$$
+\phi \sim \text{Exponential}(1)
+$$
+
 Where:
 
 - $Y_i$ is the dependent variable for observation *i*. 
   
-- $\lambda_i$ is the mean rate parameter of the Poisson distribution for observation *i*, assuming that each Poisson count observation has its own $rate_i$.
+- $\lambda_i$ is the rate parameter of the Poisson distribution for observation *i*, assuming that each Poisson count observation has its own $rate_i$.
   
-- $\log(\lambda_i)$ is the log of the mean rate parameter for observation *i*, ensuring it is positive.
+- $\mu_i$ is the mean rate parameter.
+- 
+- $\phi$ controls the level of overdispersion in the rates.
   
 - $\alpha$ is the intercept term.
   
