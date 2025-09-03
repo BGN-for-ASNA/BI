@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Modeling how the effect of one predictor on the outcome changes based on the value of another.">
+<meta name="description" content="Modeling how the effect of one independent variable on the outcome changes based on the value of another independent variable.">
 
 <title>Interaction Terms in Regression – Bayesian Inference (BI)</title>
 <style>
@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -176,12 +191,16 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./get started.html"> 
+    <a class="nav-link" href="./start/Installation.html"> 
 <span class="menu-text">Get started</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -235,7 +254,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Linear Regression for a Continuous Variable</span></a>
+ <span class="menu-text">Univariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -412,6 +431,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><em>Bayesian formulation</em></a></li>
   </ul></li>
+  <li><a href="#Notes" id="toc-Notes" class="nav-link" data-scroll-target="#Notes">Notes</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="3.-Interaction-between-continuous-variables.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
@@ -430,7 +450,7 @@ window.Quarto = {
 
 <div>
   <div class="description">
-    Modeling how the effect of one predictor on the outcome changes based on the value of another.
+    Modeling how the effect of one independent variable on the outcome changes based on the value of another independent variable.
   </div>
 </div>
 
@@ -449,25 +469,25 @@ window.Quarto = {
 
 <section id="general-principles" class="level2">
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
-<p>To study the relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables. <!--Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for temperature x humidity. The crossed lines on the graph suggest that there is an interaction effect. --></p>
+<p>If you have a case where you believe the effect of one independent variable depends on the value of another independent variable, you can use regression analysis with interaction terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two independent variables (see <a href="#Notes">note</a> on how this multiplication arises).</p>
 </section>
 <section id="considerations" class="level2">
 <h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
-<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Caution
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same assumptions as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>We wish to model the relationship between dependent variable <em>Y</em> and independent variable <span class="math inline">\(X_1\)</span> to vary as a function of independent variable <span class="math inline">\(X_2\)</span>. To do this, we explicitly model the hypothesis that the slope between <em>Y</em> and <span class="math inline">\(X_1\)</span> depends—is conditional—upon <span class="math inline">\(X_2\)</span>.</p></li>
-<li><p>For continuous interactions with scaled data, the intercept becomes the <span id="grandMean"><span style="color:#0D6EFD">grand mean 🛈</span></span> of the outcome variable.</p></li>
-<li><p>The interpretation of estimates is more complex. The estimate for a non-interaction term reflects the expected change in <em>Y</em> when <span class="math inline">\(X_1\)</span> increases by one unit, holding <span class="math inline">\(X_2\)</span> constant at its average value. The estimate for the interaction term represents how the effect of <span class="math inline">\(X_1\)</span> on <em>Y</em> changes depending on the value of <span class="math inline">\(X_2\)</span>, and vice versa, showing how the relationship between the two variables influences the outcome <em>Y</em>.</p></li>
+<li><p>We wish to model the relationship between a dependent variable, <em>Y</em>, and an independent variable, <span class="math inline">X_1</span>, whose effect varies as a function of a second independent variable <span class="math inline">X_2</span>. To do this, we explicitly model the hypothesis that the slope between <em>Y</em> and <span class="math inline">X_1</span> depends on (i.e., is conditional on) <span class="math inline">X_2</span>.</p></li>
+<li><p>For continuous interactions with normalized data, the intercept becomes the <span id="grandMean"><span style="color:#0D6EFD">grand mean 🛈</span></span> of the outcome variable.</p></li>
+<li><p>The interpretation of slopes estimates is more complex. The coefficient for a non-interaction term reflects the expected change in <em>Y</em> when <span class="math inline">X_1</span> increases by one unit, holding <span class="math inline">X_2</span> constant at its average value. The coefficient for the interaction term represents how the effect of <span class="math inline">X_1</span> on <em>Y</em> changes depending on the value of <span class="math inline">X_2</span>, and vice versa, showing how the relationship between the two variables influences the outcome <em>Y</em>.</p></li>
 <li><p><span id="triptych"><span style="color:#0D6EFD">Triptych 🛈</span></span> plots are very handy for understanding the impact of interactions, especially when more than two interactions are present.</p></li>
 </ul>
 </div>
@@ -475,7 +495,7 @@ Caution
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the Bayesian Inference (BI) package. The data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption.</p>
+<p>Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the Bayesian Inference (BI) package. The data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -490,7 +510,7 @@ Caution
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'tulips.csv'</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>]) <span class="co"># Scale</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>]) <span class="co"># Normalize</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
@@ -515,7 +535,7 @@ Caution
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load csv file</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/tulips.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>)) <span class="co"># Scale</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>)) <span class="co"># Normalize</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'blooms'</span>, <span class="st">'water'</span>, <span class="st">'shade'</span>)) <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
@@ -545,63 +565,84 @@ Caution
 </section>
 <section id="frequentist-formulation" class="level2">
 <h2 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist formulation</em></h2>
-<p>We model the relationship between the input features (<span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>) and the target variable (<span class="math inline">\(Y\)</span>) using the following equation: <span class="math display">\[
-𝑌_i = \alpha + \beta_1 𝑋_{1i} + \beta_2 𝑋_{2i} + \beta_{interaction} 𝑋_{1i} 𝑋_{2i} + \sigma
-\]</span></p>
+<p>We model the relationship between the input features (<span class="math inline">X_1</span> and <span class="math inline">X_2</span>) and the target variable (<span class="math inline">Y</span>) using the following equation: <span class="math display">
+𝑌_i = \alpha + \beta_1 𝑋_{[1,i]} + \beta_2 𝑋_{[2,i]} + \beta_3 𝑋_{[1,i]} 𝑋_{[2,i]} + \epsilon_i
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(X_{1i}\)</span> and <span class="math inline">\(X_{2i}\)</span> are the two values of the independent continuous variables for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> are the regression coefficients for <span class="math inline">\(X_{1}\)</span> and <span class="math inline">\(X_{2}\)</span>, respectively.</p></li>
-<li><p><span class="math inline">\(\beta_{interaction}\)</span> is the regression coefficient for the interaction term <span class="math inline">\((X_{1} X_{2})\)</span>.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the error term, assumed to be normally distributed.</p></li>
+<li><p><span class="math inline">Y_i</span> is the dependent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term.</p></li>
+<li><p><span class="math inline">X_{[1,i]}</span> and <span class="math inline">X_{[2,i]}</span> are the values of the two independent variables for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\beta_1</span> and <span class="math inline">\beta_2</span> are the coefficients for <span class="math inline">X_{1}</span> and <span class="math inline">X_{2}</span>, respectively, when the other variable has value 0.</p></li>
+<li><p><span class="math inline">\beta_3</span> is the coefficient which controls the extent to which the coefficient on one variable depends on the value of the other.</p></li>
+<li><p><span class="math inline">\epsilon_i</span> is the error term, assumed to be independent and normally distributed.</p></li>
 </ul>
-<p>In this context, the interaction term <span class="math inline">\(X_{1i} * X_{2i}\)</span> captures the joint effect of <span class="math inline">\(X_{1i}\)</span> and <span class="math inline">\(X_{2i}\)</span> on the target variable <span class="math inline">\(Y_i\)</span>.</p>
 <section id="bayesian-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian formulation</em></h3>
-<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
-<p><span class="math display">\[
-Y \sim Normal(\alpha + \beta_1 X_{1i} + \beta_2 X_{2i} + \beta_{interaction} X_{1i} X_{2i}, \sigma)
-\]</span></p>
-<p><span class="math display">\[
+<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model as follows:</p>
+<p><span class="math display">
+Y_i \sim Normal(\alpha + \beta_1 X_{[1,i]} + \beta_2 X_{[2,i]} + \beta_{3} X_{[1,i]} X_{[2,i]}, \sigma)
+</span></p>
+<p><span class="math display">
 \alpha \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \beta_1 \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \beta_2 \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
-\beta_{interaction} \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
+\beta_{3} \sim Normal(0,1)
+</span></p>
+<p><span class="math display">
 \sigma \sim Exponential(1)
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the prior distribution for the intercept.</p></li>
-<li><p><span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_2\)</span>, and <span class="math inline">\(\beta_{interaction}\)</span> are the prior distributions for the regression coefficients.</p></li>
-<li><p><span class="math inline">\(X_{1i}\)</span> and <span class="math inline">\(X_{2i}\)</span> are the two values of the independent continuous variables for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the prior distribution for the standard deviation, ensuring it is positive.</p></li>
+<li><p><span class="math inline">Y_i</span> is the dependent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term, which in this case has a unit-normal prior.</p></li>
+<li><p><span class="math inline">\beta_1</span> and <span class="math inline">\beta_2</span> are the coefficients for <span class="math inline">X_{1}</span> and <span class="math inline">X_{2}</span>, respectively, when the other variable has value 0.</p></li>
+<li><p><span class="math inline">\beta_3</span> is the coefficient which controls the extent to which the coefficient on one variable depends on the value of the other.</p></li>
+<li><p><span class="math inline">X_{[1,i]}</span> and <span class="math inline">X_{[2,i]}</span> are the two values of the independent continuous variables for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\sigma</span> is a standard deviation parameter, which here has an <span class="math inline">Exponential</span> prior that constrains it to be positive.</p></li>
 </ul>
 </section>
+</section>
+<section id="Notes" class="level2">
+<h2 class="anchored" data-anchor-id="Notes">Notes</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The interaction term equation: <span class="math display">
+Y_i \sim Normal(\alpha + \beta_1 X_{[1,i]} + \beta_2 X_{[2,i]} + \beta_{3} X_{[1,i]} X_{[2,i]}, \sigma)
+</span></p>
+<p>can be re-written as: <span class="math display">
+Y_i \sim Normal(\alpha + (\beta_1 + \beta_{3} X_{[2,i]}) X_{[1,i]} + \beta_2 X_{[2,i]}, \sigma)
+</span></p>
+<p>simply by factoring the terms with <span class="math inline">X_{[1,i]}</span> in them. The result is that the coefficient on <span class="math inline">X_{[1,i]}</span> is written specifically as a linear regression model of <span class="math inline">X_{[2,i]}</span>.</p>
+</div>
+</div>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -885,7 +926,7 @@ tippy('#chol', {
 });
 
 tippy('#uncertainty', {
-  content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+  content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
   allowHTML: true,
   interactive: true,
   delay: 100,

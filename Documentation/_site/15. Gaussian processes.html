@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -182,6 +197,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -477,7 +496,7 @@ Caution
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist of a continuous dependent variable (<em>total_tools</em>), representing the number of tools invented in the islands, and a continuous independent variable (<em>population</em>), representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance matrix of the islands for the kernel function in order to capture the spatial dependence of the relationship.</p>
+<p>Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist of a continuous dependent variable (<em>total_tools</em>), representing the number of tools invented in the islands, and a continuous independent variable (<em>population</em>), representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance matrix of the islands for the kernel function in order to capture the spatial dependence of the relationship. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -567,19 +586,19 @@ Caution
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <section id="formula" class="level3">
 <h3 class="anchored" data-anchor-id="formula"><em>Formula</em></h3>
-<p>The following equation allows us to evaluate the relationship between the dependent variable <span class="math inline">\(Y\)</span> and the independent variable <span class="math inline">\(X\)</span> while incorporating a GP for variable <span class="math inline">\(Z\)</span>:</p>
-<p><span class="math display">\[
+<p>The following equation allows us to evaluate the relationship between the dependent variable <span class="math inline">Y</span> and the independent variable <span class="math inline">X</span> while incorporating a GP for variable <span class="math inline">Z</span>:</p>
+<p><span class="math display">
 Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
-\]</span></p>
-<p>where: - <span class="math inline">\(Y_i\)</span> is the i-th value for the dependent variable <span class="math inline">\(Y\)</span>.</p>
+</span></p>
+<p>where: - <span class="math inline">Y_i</span> is the i-th value for the dependent variable <span class="math inline">Y</span>.</p>
 <ul>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the i-th value for the independent variable <span class="math inline">\(X\)</span>.</p></li>
-<li><p><span class="math inline">\(\gamma_{Z_i}\)</span> is the Gaussian process i-th value for the independent variable <span class="math inline">\(Z\)</span>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficient term.</p></li>
+<li><p><span class="math inline">X_i</span> is the i-th value for the independent variable <span class="math inline">X</span>.</p></li>
+<li><p><span class="math inline">\gamma_{Z_i}</span> is the Gaussian process i-th value for the independent variable <span class="math inline">Z</span>.</p></li>
 </ul>
-<p>The GP <span class="math inline">\(\gamma_{Z_i}\)</span> follows a multivariate normal distribution:</p>
-<p><span class="math display">\[
+<p>The GP <span class="math inline">\gamma_{Z_i}</span> follows a multivariate normal distribution:</p>
+<p><span class="math display">
 \begin{pmatrix}
     Z_1 \\
     \vdots \\
@@ -593,43 +612,43 @@ Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
 \end{pmatrix},
 K
 \right)
-\]</span></p>
+</span></p>
 <p>where:</p>
 <ul>
-<li><p><span class="math inline">\((Z_1, ..., Z_n)\)</span> represents a collection of all values of the random variable <span class="math inline">\(Z\)</span>.</p></li>
-<li><p><span class="math inline">\((0, ..., 0)\)</span> represents the mean vector of the multivariate normal distribution of the same size as the number of random variables and set to <span id="kernelMean0"><span style="color:#0D6EFD">zero 🛈</span></span>.</p></li>
-<li><p><span class="math inline">\(K\)</span> is the covariance matrix of the random variable <span class="math inline">\(Z\)</span>. Each element <span class="math inline">\(K_{ij}\)</span> of the matrix is given by the kernel function evaluated at the corresponding points: <span class="math inline">\(K_{ij} = k(Z_i, Z_j)\)</span></p></li>
+<li><p><span class="math inline">(Z_1, ..., Z_n)</span> represents a collection of all values of the random variable <span class="math inline">Z</span>.</p></li>
+<li><p><span class="math inline">(0, ..., 0)</span> represents the mean vector of the multivariate normal distribution of the same size as the number of random variables and set to <span id="kernelMean0"><span style="color:#0D6EFD">zero 🛈</span></span>.</p></li>
+<li><p><span class="math inline">K</span> is the covariance matrix of the random variable <span class="math inline">Z</span>. Each element <span class="math inline">K_{ij}</span> of the matrix is given by the kernel function evaluated at the corresponding points: <span class="math inline">K_{ij} = k(Z_i, Z_j)</span></p></li>
 </ul>
-<p><span class="math display">\[
+<p><span class="math display">
 K = \begin{pmatrix}
     k(Z_1, Z_1) &amp; k(Z_1, Z_2) &amp; \cdots &amp; k(Z_1, Z_{n}) \\
     k(Z_2, Z_1) &amp; k(Z_2, Z_2) &amp; \cdots &amp; k(Z_2, Z_{n}) \\
     \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
     k(Z_{n}, Z_1) &amp; k(Z_{n}, Z_2) &amp; \cdots &amp; k(Z_{n}, Z_{n})
 \end{pmatrix}
-\]</span></p>
+</span></p>
 <ul>
 <li>Multiple kernel functions exist and will be discussed in the <a href="#notes">Note(s)</a> section. But the most common one is the quadratic kernel:</li>
 </ul>
-<p><span class="math display">\[
+<p><span class="math display">
 K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(\eta\)</span> is the signal variance, representing the overall variance of the outputs of the Gaussian process. It scales the influence of the kernel function. A larger <span class="math inline">\(\eta^2\)</span> indicates a wider range of values the function can take.</p></li>
-<li><p><span class="math inline">\(p\)</span> determines the rate of decline.</p></li>
-<li><p><span class="math inline">\(D_{ij}\)</span> is the distance between the <span class="math inline">\(i\)</span>-th and <span class="math inline">\(j\)</span>-th points.</p></li>
-<li><p><span class="math inline">\(\delta_{ij}\)</span> is the Kronecker delta, taking a value of one when <span class="math inline">\(i = j\)</span> and zero otherwise, allowing the self-covariance to be included in the calculation.</p></li>
-<li><p><span class="math inline">\(\sigma^2\)</span> is the noise variance, which accounts for the observation noise in the data. It represents the uncertainty or variability in the measurements or outputs at each point. The term effectively adds this noise variance only when <span class="math inline">\(i = j\)</span>, ensuring that the diagonal elements of the covariance matrix represent the total variance at each input point.</p></li>
+<li><p><span class="math inline">\eta</span> is the signal variance, representing the overall variance of the outputs of the Gaussian process. It scales the influence of the kernel function. A larger <span class="math inline">\eta^2</span> indicates a wider range of values the function can take.</p></li>
+<li><p><span class="math inline">p</span> determines the rate of decline.</p></li>
+<li><p><span class="math inline">D_{ij}</span> is the distance between the <span class="math inline">i</span>-th and <span class="math inline">j</span>-th points.</p></li>
+<li><p><span class="math inline">\delta_{ij}</span> is the Kronecker delta, taking a value of one when <span class="math inline">i = j</span> and zero otherwise, allowing the self-covariance to be included in the calculation.</p></li>
+<li><p><span class="math inline">\sigma^2</span> is the noise variance, which accounts for the observation noise in the data. It represents the uncertainty or variability in the measurements or outputs at each point. The term effectively adds this noise variance only when <span class="math inline">i = j</span>, ensuring that the diagonal elements of the covariance matrix represent the total variance at each input point.</p></li>
 </ul>
 </section>
 <section id="bayesian-model" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-model"><em>Bayesian model</em></h3>
 <p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express a Bayesian version of this GP using the following model:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \gamma \sim MVNormal \left(
 \begin{pmatrix}
     0 \\
@@ -638,28 +657,28 @@ Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
 \end{pmatrix},
 K
 \right)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \alpha \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \eta^2 \sim HalfCauchy(0,1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 p^2 \sim HalfCauchy(0,1)
-\]</span></p>
+</span></p>
 <p>where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the i-th value for the dependent variable <span class="math inline">\(Y\)</span>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term with a prior of <span class="math inline">\(Normal(0,1)\)</span>.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient term with a prior of <span class="math inline">\(Normal(0,1)\)</span>.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the i-th value for the independent variable <span class="math inline">\(X\)</span>.</p></li>
-<li><p><span class="math inline">\(\gamma_{Z_i}\)</span> is the Gaussian process i-th value for the independent variable <span class="math inline">\(Z\)</span>.</p></li>
-<li><p><span class="math inline">\(\gamma\)</span> is the latent function modeled by the GP.</p></li>
-<li><p><span class="math inline">\(K_{ij}\)</span> is the kernel function evaluated at the corresponding points, <span class="math inline">\(K_{ij} = k(Z_i, Z_j)\)</span>, with priors of HalfCauchy(0,1) for <span class="math inline">\(\eta^2\)</span> and <span class="math inline">\(p^2\)</span> to ensure positive values.</p></li>
+<li><p><span class="math inline">Y_i</span> is the i-th value for the dependent variable <span class="math inline">Y</span>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term with a prior of <span class="math inline">Normal(0,1)</span>.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficient term with a prior of <span class="math inline">Normal(0,1)</span>.</p></li>
+<li><p><span class="math inline">X_i</span> is the i-th value for the independent variable <span class="math inline">X</span>.</p></li>
+<li><p><span class="math inline">\gamma_{Z_i}</span> is the Gaussian process i-th value for the independent variable <span class="math inline">Z</span>.</p></li>
+<li><p><span class="math inline">\gamma</span> is the latent function modeled by the GP.</p></li>
+<li><p><span class="math inline">K_{ij}</span> is the kernel function evaluated at the corresponding points, <span class="math inline">K_{ij} = k(Z_i, Z_j)</span>, with priors of HalfCauchy(0,1) for <span class="math inline">\eta^2</span> and <span class="math inline">p^2</span> to ensure positive values.</p></li>
 </ul>
 </section>
 </section>
@@ -677,12 +696,12 @@ Note
 <div class="callout-body-container callout-body">
 <p>Common kernel functions include:</p>
 <ul>
-<li><p><em>Radial Basis Function</em> (RBF) or Squared Exponential Kernel: <span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{||x-x'||^2}{2l^2}\right)\]</span></p></li>
-<li><p><em>Rational Quadratic Kernel</em>, this kernel is equivalent to adding together many RBF kernels with different length scales: <span class="math display">\[k(x,x') = \sigma^2 \left(1 + \frac{||x-x'||^2}{2l^2}\right)^{-\alpha}\]</span></p></li>
-<li><p><em>Periodic kernel</em> allows for modeling functions that repeat themselves exactly: <span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right)\]</span></p></li>
+<li><p><em>Radial Basis Function</em> (RBF) or Squared Exponential Kernel: <span class="math display">k(x,x') = \sigma^2 \exp\left(-\frac{||x-x'||^2}{2l^2}\right)</span></p></li>
+<li><p><em>Rational Quadratic Kernel</em>, this kernel is equivalent to adding together many RBF kernels with different length scales: <span class="math display">k(x,x') = \sigma^2 \left(1 + \frac{||x-x'||^2}{2l^2}\right)^{-\alpha}</span></p></li>
+<li><p><em>Periodic kernel</em> allows for modeling functions that repeat themselves exactly: <span class="math display">k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right)</span></p></li>
 <li><p><em>Locally Periodic Kernel</em>:</p></li>
 </ul>
-<p><span class="math display">\[k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right) \exp\left(-\frac{||x-x'||^2}{2l^2}\right)\]</span></p>
+<p><span class="math display">k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right) \exp\left(-\frac{||x-x'||^2}{2l^2}\right)</span></p>
 <ul>
 <li><p>GPs can be extended to classification problems using link functions.</p></li>
 <li><p>Multi-output problems can be addressed using matrix-valued kernels.</p></li>
@@ -699,18 +718,17 @@ Note
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 <p>https://www.cs.toronto.edu/~duvenaud/cookbook/</p>
-
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

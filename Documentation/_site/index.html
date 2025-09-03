@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Welcome to Bayesian Inference (BI) – Bayesian Inference (BI)</title>
+<title>Welcome to Bayesian Inference – Bayesian Inference (BI)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -80,10 +80,10 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-title','listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       page: 18,
     pagination: { item: "<li class='page-item'><a class='page page-link' href='#'></a></li>" },
-      searchColumns: ["listing-title","listing-author","listing-image","listing-description"],
+      searchColumns: ["listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -101,8 +101,22 @@ ul.task-list li input[type="checkbox"] {
   })
   </script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -131,6 +145,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-fixed">
@@ -151,12 +166,16 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./get started.html"> 
+    <a class="nav-link" href="./start/Installation.html"> 
 <span class="menu-text">Get started</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./0. Introduction.html"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -196,14 +215,14 @@ window.Quarto = {
   <ul>
   <li><a href="#gallery-of-models" id="toc-gallery-of-models" class="nav-link active" data-scroll-target="#gallery-of-models">Gallery of Models</a></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
-    </div>
+</nav>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(27)</span></div><div class="category" data-category="Bayesian">Bayesian <span class="quarto-category-count">(6)</span></div><div class="category" data-category="Classification">Classification <span class="quarto-category-count">(3)</span></div><div class="category" data-category="Clustering">Clustering <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Community Detection">Community Detection <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Count Data">Count Data <span class="quarto-category-count">(3)</span></div><div class="category" data-category="Data Collection">Data Collection <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Data Preprocessing">Data Preprocessing <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Deep Learning">Deep Learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Dimensionality Reduction">Dimensionality Reduction <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Factor Analysis">Factor Analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Feature Engineering">Feature Engineering <span class="quarto-category-count">(1)</span></div><div class="category" data-category="GLM">GLM <span class="quarto-category-count">(6)</span></div><div class="category" data-category="Graph Theory">Graph Theory <span class="quarto-category-count">(5)</span></div><div class="category" data-category="Hierarchical Models">Hierarchical Models <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Imputation">Imputation <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Model Validation">Model Validation <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Network Analysis">Network Analysis <span class="quarto-category-count">(5)</span></div><div class="category" data-category="Neural Networks">Neural Networks <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Non-parametric">Non-parametric <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Regression">Regression <span class="quarto-category-count">(14)</span></div><div class="category" data-category="Social transmission">Social transmission <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Structural Equation Modeling">Structural Equation Modeling <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Supervised Learning">Supervised Learning <span class="quarto-category-count">(3)</span></div><div class="category" data-category="Survival Analysis">Survival Analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Time-to-Event">Time-to-Event <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Unsupervised Learning">Unsupervised Learning <span class="quarto-category-count">(3)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Welcome to Bayesian Inference (BI)</h1>
+<h1 class="title">Welcome to Bayesian Inference</h1>
 </div>
 
 
@@ -220,7 +239,7 @@ window.Quarto = {
 </header>
 
 
-<p>Welcome to the BI Documentation model gallery. Here you will find a collection of statistical models and techniques, each with a detailed explanation and examples. Click on any card to explore the topic.</p>
+<p>Welcome to the Bayesian Inference (BI) Documentation model gallery. Here you will find a collection of statistical models and techniques, each with a detailed explanation and examples. Click on any card to explore the topic.</p>
 <p>This gallery provides a quick visual overview to help you find the model you’re looking for. You can use the sidebar for a more structured, chapter-by-chapter view.</p>
 <section id="gallery-of-models" class="level1">
 <h1>Gallery of Models</h1>
@@ -231,14 +250,24 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="Regression,Supervised Learning" data-listing-file-modified-sort="1756562927272" data-listing-reading-time-sort="4" data-listing-word-count-sort="753">
+<div class="g-col-1" data-index="0" data-categories="Regression,Supervised Learning" data-listing-file-modified-sort="1756813769549" data-listing-reading-time-sort="5" data-listing-word-count-sort="823">
 <a href="./1. Linear Regression for continuous variable.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" src="./Figures/1.jpeg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-Linear Regression for a Continuous Variable
+Univariate Linear Regression
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Supervised Learning'); return false;">
+Supervised Learning
+</div>
+</div>
 <div class="card-text listing-description">
 An introduction to linear regression models.
 </div>
@@ -251,7 +280,7 @@ An introduction to linear regression models.
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="Regression,Supervised Learning" data-listing-file-modified-sort="1756562932556" data-listing-reading-time-sort="3" data-listing-word-count-sort="580">
+<div class="g-col-1" data-index="1" data-categories="Regression,Supervised Learning" data-listing-file-modified-sort="1756817147322" data-listing-reading-time-sort="4" data-listing-word-count-sort="620">
 <a href="./2. Multiple continuous Variables.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -259,6 +288,14 @@ An introduction to linear regression models.
 <h5 class="no-anchor card-title listing-title">
 Multiple Linear Regression
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Supervised Learning'); return false;">
+Supervised Learning
+</div>
+</div>
 <div class="card-text listing-description">
 Extending linear regression to model a continuous outcome using multiple predictor variables.
 </div>
@@ -271,16 +308,26 @@ Extending linear regression to model a continuous outcome using multiple predict
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="Regression,Feature Engineering" data-listing-file-modified-sort="1756562937596" data-listing-reading-time-sort="4" data-listing-word-count-sort="770">
+<div class="g-col-1" data-index="2" data-categories="Regression,Feature Engineering" data-listing-file-modified-sort="1756818177393" data-listing-reading-time-sort="5" data-listing-word-count-sort="843">
 <a href="./3. Interaction between continuous variables.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" src="./Figures/interaction plot.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Interaction Terms in Regression
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Feature Engineering'); return false;">
+Feature Engineering
+</div>
+</div>
 <div class="card-text listing-description">
-Modeling how the effect of one predictor on the outcome changes based on the value of another.
+Modeling how the effect of one independent variable on the outcome changes based on the value of another independent variable.
 </div>
 <div class="card-attribution card-text-small start">
 <div class="listing-author">
@@ -291,14 +338,24 @@ Modeling how the effect of one predictor on the outcome changes based on the val
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="3" data-categories="Regression,Supervised Learning" data-listing-file-modified-sort="1756562941800" data-listing-reading-time-sort="4" data-listing-word-count-sort="620">
+<div class="g-col-1" data-index="3" data-categories="Regression,Supervised Learning" data-listing-file-modified-sort="1756818456857" data-listing-reading-time-sort="4" data-listing-word-count-sort="644">
 <a href="./4. Categorical variable.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" src="./Figures/categorical regression.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Regression with Categorical Variables
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Supervised Learning'); return false;">
+Supervised Learning
+</div>
+</div>
 <div class="card-text listing-description">
 Incorporating categorical predictors (factors) into a regression model using dummy variables.
 </div>
@@ -311,14 +368,27 @@ Incorporating categorical predictors (factors) into a regression model using dum
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="4" data-categories="Classification,Regression,GLM" data-listing-file-modified-sort="1756562944976" data-listing-reading-time-sort="4" data-listing-word-count-sort="663">
+<div class="g-col-1" data-index="4" data-categories="Classification,Regression,GLM" data-listing-file-modified-sort="1756818840285" data-listing-reading-time-sort="4" data-listing-word-count-sort="691">
 <a href="./5. Binomial model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" src="./Figures/binomial.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-Binomial Model (Logistic Regression)
+Binomial Model
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+Classification
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+GLM
+</div>
+</div>
 <div class="card-text listing-description">
 Modeling a binary outcome (e.g., success/failure) based on one or more predictor variables.
 </div>
@@ -331,7 +401,7 @@ Modeling a binary outcome (e.g., success/failure) based on one or more predictor
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="5" data-categories="Bayesian,Regression,GLM" data-listing-file-modified-sort="1756562949112" data-listing-reading-time-sort="4" data-listing-word-count-sort="688">
+<div class="g-col-1" data-index="5" data-categories="Bayesian,Regression,GLM" data-listing-file-modified-sort="1756818859777" data-listing-reading-time-sort="4" data-listing-word-count-sort="695">
 <a href="./6. Beta binomial model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -339,8 +409,19 @@ Modeling a binary outcome (e.g., success/failure) based on one or more predictor
 <h5 class="no-anchor card-title listing-title">
 Beta-Binomial Model
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Bayesian'); return false;">
+Bayesian
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+GLM
+</div>
+</div>
 <div class="card-text listing-description">
-Modeling binomial-type data with overdispersion, where the probability of success follows a beta distribution.
+Modeling binomial-type data with overdispersion.
 </div>
 <div class="card-attribution card-text-small start">
 <div class="listing-author">
@@ -351,14 +432,27 @@ Modeling binomial-type data with overdispersion, where the probability of succes
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="6" data-categories="Regression,Count Data,GLM" data-listing-file-modified-sort="1756562952812" data-listing-reading-time-sort="4" data-listing-word-count-sort="669">
+<div class="g-col-1" data-index="6" data-categories="Regression,Count Data,GLM" data-listing-file-modified-sort="1756631340938" data-listing-reading-time-sort="4" data-listing-word-count-sort="676">
 <a href="./7. Poisson model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" src="./Figures/poisson.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Poisson Model
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Count Data'); return false;">
+Count Data
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+GLM
+</div>
+</div>
 <div class="card-text listing-description">
 Modeling count data, such as the number of events occurring in a fixed interval of time or space.
 </div>
@@ -371,7 +465,7 @@ Modeling count data, such as the number of events occurring in a fixed interval 
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="7" data-categories="Regression,Count Data,GLM" data-listing-file-modified-sort="1756562955764" data-listing-reading-time-sort="3" data-listing-word-count-sort="523">
+<div class="g-col-1" data-index="7" data-categories="Regression,Count Data,GLM" data-listing-file-modified-sort="1756631361758" data-listing-reading-time-sort="3" data-listing-word-count-sort="531">
 <a href="./8. Gamma-Poisson.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -379,6 +473,17 @@ Modeling count data, such as the number of events occurring in a fixed interval 
 <h5 class="no-anchor card-title listing-title">
 Gamma-Poisson (Negative Binomial) Model
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Count Data'); return false;">
+Count Data
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+GLM
+</div>
+</div>
 <div class="card-text listing-description">
 An extension of the Poisson model for count data that exhibits overdispersion.
 </div>
@@ -391,14 +496,27 @@ An extension of the Poisson model for count data that exhibits overdispersion.
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="8" data-categories="Classification,Regression,GLM" data-listing-file-modified-sort="1756562958844" data-listing-reading-time-sort="4" data-listing-word-count-sort="650">
+<div class="g-col-1" data-index="8" data-categories="Classification,Regression,GLM" data-listing-file-modified-sort="1756631374854" data-listing-reading-time-sort="4" data-listing-word-count-sort="657">
 <a href="./9. Multinomial model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" src="./Figures/multinomial.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Multinomial Model
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+Classification
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+GLM
+</div>
+</div>
 <div class="card-text listing-description">
 Modeling a categorical dependent variable with more than two nominal outcomes.
 </div>
@@ -411,7 +529,7 @@ Modeling a categorical dependent variable with more than two nominal outcomes.
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="9" data-categories="Bayesian,Classification" data-listing-file-modified-sort="1756562962372" data-listing-reading-time-sort="2" data-listing-word-count-sort="233">
+<div class="g-col-1" data-index="9" data-categories="Bayesian,Classification" data-listing-file-modified-sort="1756631389102" data-listing-reading-time-sort="2" data-listing-word-count-sort="240">
 <a href="./10. Dirichlet model (wip).html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -419,6 +537,14 @@ Modeling a categorical dependent variable with more than two nominal outcomes.
 <h5 class="no-anchor card-title listing-title">
 Dirichlet-Multinomial Model (WIP)
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Bayesian'); return false;">
+Bayesian
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+Classification
+</div>
+</div>
 <div class="card-text listing-description">
 Modeling compositional data or multinomial outcomes with overdispersion.
 </div>
@@ -431,14 +557,27 @@ Modeling compositional data or multinomial outcomes with overdispersion.
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="10" data-categories="Count Data,Regression,GLM" data-listing-file-modified-sort="1756562965996" data-listing-reading-time-sort="4" data-listing-word-count-sort="607">
+<div class="g-col-1" data-index="10" data-categories="Count Data,Regression,GLM" data-listing-file-modified-sort="1756631404722" data-listing-reading-time-sort="4" data-listing-word-count-sort="614">
 <a href="./11. Zero inflated.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" src="./Figures/zero inflated.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Zero-Inflated Models
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Count Data'); return false;">
+Count Data
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+GLM
+</div>
+</div>
 <div class="card-text listing-description">
 Handling count data with an excess of zero counts by combining a count model with a logistic model.
 </div>
@@ -459,6 +598,14 @@ Handling count data with an excess of zero counts by combining a count model wit
 <h5 class="no-anchor card-title listing-title">
 Survival Analysis
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Survival Analysis'); return false;">
+Survival Analysis
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Time-to-Event'); return false;">
+Time-to-Event
+</div>
+</div>
 <div class="card-text listing-description">
 Analyzing time-to-event data, focusing on the duration until an event of interest occurs.
 </div>
@@ -471,14 +618,27 @@ Analyzing time-to-event data, focusing on the duration until an event of interes
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="12" data-categories="Hierarchical Models,Regression,Bayesian" data-listing-file-modified-sort="1756562972288" data-listing-reading-time-sort="3" data-listing-word-count-sort="582">
+<div class="g-col-1" data-index="12" data-categories="Hierarchical Models,Regression,Bayesian" data-listing-file-modified-sort="1756803339922" data-listing-reading-time-sort="3" data-listing-word-count-sort="589">
 <a href="./13. Varying intercepts.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" src="./Figures/Varying intercept.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Varying Intercepts Models
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Hierarchical Models'); return false;">
+Hierarchical Models
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Bayesian'); return false;">
+Bayesian
+</div>
+</div>
 <div class="card-text listing-description">
 Modeling grouped or hierarchical data by allowing the intercept to vary for each group.
 </div>
@@ -491,14 +651,27 @@ Modeling grouped or hierarchical data by allowing the intercept to vary for each
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="13" data-categories="Hierarchical Models,Regression,Bayesian" data-listing-file-modified-sort="1756562975540" data-listing-reading-time-sort="9" data-listing-word-count-sort="1644">
+<div class="g-col-1" data-index="13" data-categories="Hierarchical Models,Regression,Bayesian" data-listing-file-modified-sort="1756803353258" data-listing-reading-time-sort="9" data-listing-word-count-sort="1651">
 <a href="./14. Varying slopes.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" src="./Figures/Varying slopes.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Varying Slopes Models
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Hierarchical Models'); return false;">
+Hierarchical Models
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Bayesian'); return false;">
+Bayesian
+</div>
+</div>
 <div class="card-text listing-description">
 Extending mixed-effects models by allowing the relationship (slope) to vary across different groups.
 </div>
@@ -511,7 +684,7 @@ Extending mixed-effects models by allowing the relationship (slope) to vary acro
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="14" data-categories="Bayesian,Regression,Non-parametric" data-listing-file-modified-sort="1756562978580" data-listing-reading-time-sort="7" data-listing-word-count-sort="1284">
+<div class="g-col-1" data-index="14" data-categories="Bayesian,Regression,Non-parametric" data-listing-file-modified-sort="1756631462482" data-listing-reading-time-sort="7" data-listing-word-count-sort="1291">
 <a href="./15. Gaussian processes.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -519,6 +692,17 @@ Extending mixed-effects models by allowing the relationship (slope) to vary acro
 <h5 class="no-anchor card-title listing-title">
 Gaussian Processes
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Bayesian'); return false;">
+Bayesian
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Non-parametric'); return false;">
+Non-parametric
+</div>
+</div>
 <div class="card-text listing-description">
 A non-parametric Bayesian approach to regression and classification that defines a distribution over functions.
 </div>
@@ -531,7 +715,7 @@ A non-parametric Bayesian approach to regression and classification that defines
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="15" data-categories="Regression,Model Validation" data-listing-file-modified-sort="1756562981672" data-listing-reading-time-sort="3" data-listing-word-count-sort="511">
+<div class="g-col-1" data-index="15" data-categories="Regression,Model Validation" data-listing-file-modified-sort="1756631473374" data-listing-reading-time-sort="3" data-listing-word-count-sort="518">
 <a href="./16. Measuring error.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -539,6 +723,14 @@ A non-parametric Bayesian approach to regression and classification that defines
 <h5 class="no-anchor card-title listing-title">
 Measurement Error Models
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+Regression
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Model Validation'); return false;">
+Model Validation
+</div>
+</div>
 <div class="card-text listing-description">
 Statistical models that explicitly account for errors in the measurement of predictor variables.
 </div>
@@ -559,6 +751,14 @@ Statistical models that explicitly account for errors in the measurement of pred
 <h5 class="no-anchor card-title listing-title">
 Handling Missing Data (WIP)
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Data Preprocessing'); return false;">
+Data Preprocessing
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Imputation'); return false;">
+Imputation
+</div>
+</div>
 <div class="card-text listing-description">
 An overview of strategies for dealing with missing values in a dataset, such as imputation.
 </div>
@@ -579,6 +779,14 @@ An overview of strategies for dealing with missing values in a dataset, such as 
 <h5 class="no-anchor card-title listing-title">
 Latent Variable Models (WIP)
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Structural Equation Modeling'); return false;">
+Structural Equation Modeling
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Factor Analysis'); return false;">
+Factor Analysis
+</div>
+</div>
 <div class="card-text listing-description">
 Models that relate a set of observable variables to a set of unobserved (latent) variables.
 </div>
@@ -591,7 +799,7 @@ Models that relate a set of observable variables to a set of unobserved (latent)
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="18" data-categories="Dimensionality Reduction,Unsupervised Learning" data-listing-file-modified-sort="1756562990880" data-listing-reading-time-sort="4" data-listing-word-count-sort="740">
+<div class="g-col-1" data-index="18" data-categories="Dimensionality Reduction,Unsupervised Learning" data-listing-file-modified-sort="1756635044264" data-listing-reading-time-sort="4" data-listing-word-count-sort="740">
 <a href="./19. PCA.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top"><img data-src="pca1.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
@@ -599,6 +807,14 @@ Models that relate a set of observable variables to a set of unobserved (latent)
 <h5 class="no-anchor card-title listing-title">
 Principal Component Analysis (PCA)
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Dimensionality Reduction'); return false;">
+Dimensionality Reduction
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Unsupervised Learning'); return false;">
+Unsupervised Learning
+</div>
+</div>
 <div class="card-text listing-description">
 A dimensionality reduction technique to transform a large set of variables into a smaller one.
 </div>
@@ -611,14 +827,24 @@ A dimensionality reduction technique to transform a large set of variables into 
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="19" data-categories="Clustering,Unsupervised Learning" data-listing-file-modified-sort="1756562993556" data-listing-reading-time-sort="5" data-listing-word-count-sort="937">
+<div class="g-col-1" data-index="19" data-categories="Clustering,Unsupervised Learning" data-listing-file-modified-sort="1756629977119" data-listing-reading-time-sort="5" data-listing-word-count-sort="937">
 <a href="./20. GMM.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" data-src="./Figures/GMM.jpeg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Gaussian Mixture Models (GMM)
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Clustering'); return false;">
+Clustering
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Unsupervised Learning'); return false;">
+Unsupervised Learning
+</div>
+</div>
 <div class="card-text listing-description">
 A probabilistic model for representing normally distributed subpopulations, often used for clustering.
 </div>
@@ -631,14 +857,27 @@ A probabilistic model for representing normally distributed subpopulations, ofte
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="20" data-categories="Clustering,Bayesian,Non-parametric" data-listing-file-modified-sort="1756563000844" data-listing-reading-time-sort="6" data-listing-word-count-sort="1002">
+<div class="g-col-1" data-index="20" data-categories="Clustering,Unsupervised Learning,Non-parametric" data-listing-file-modified-sort="1756635037440" data-listing-reading-time-sort="6" data-listing-word-count-sort="1002">
 <a href="./21. DPMM.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" data-src="./Figures/DPMM.jpeg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Dirichlet Process Mixture Models (DPMM)
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Clustering'); return false;">
+Clustering
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Unsupervised Learning'); return false;">
+Unsupervised Learning
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Non-parametric'); return false;">
+Non-parametric
+</div>
+</div>
 <div class="card-text listing-description">
 A non-parametric Bayesian clustering method that automatically determines the number of clusters.
 </div>
@@ -651,14 +890,24 @@ A non-parametric Bayesian clustering method that automatically determines the nu
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="21" data-categories="Network Analysis,Graph Theory" data-listing-file-modified-sort="1756563004752" data-listing-reading-time-sort="6" data-listing-word-count-sort="1198">
+<div class="g-col-1" data-index="21" data-categories="Network Analysis,Graph Theory" data-listing-file-modified-sort="1756632209567" data-listing-reading-time-sort="7" data-listing-word-count-sort="1208">
 <a href="./22. Network model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" data-src="./Figures/SRM.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Network Models
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+Network Analysis
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+Graph Theory
+</div>
+</div>
 <div class="card-text listing-description">
 Modeling relationships and interactions between entities as a graph of nodes and edges.
 </div>
@@ -671,14 +920,27 @@ Modeling relationships and interactions between entities as a graph of nodes and
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="22" data-categories="Network Analysis,Graph Theory,Community Detection" data-listing-file-modified-sort="1756563007496" data-listing-reading-time-sort="4" data-listing-word-count-sort="717">
+<div class="g-col-1" data-index="22" data-categories="Network Analysis,Graph Theory,Community Detection" data-listing-file-modified-sort="1756631649645" data-listing-reading-time-sort="4" data-listing-word-count-sort="725">
 <a href="./23. Network with block model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" data-src="./Figures/SRM+BLOCK.svg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Stochastic Block Models (SBM)
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+Network Analysis
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+Graph Theory
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Community Detection'); return false;">
+Community Detection
+</div>
+</div>
 <div class="card-text listing-description">
 A generative model for random graphs used to find communities of nodes with similar connection patterns.
 </div>
@@ -691,7 +953,7 @@ A generative model for random graphs used to find communities of nodes with simi
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="23" data-categories="Network Analysis,Graph Theory,Data Collection" data-listing-file-modified-sort="1756563013260" data-listing-reading-time-sort="4" data-listing-word-count-sort="612">
+<div class="g-col-1" data-index="23" data-categories="Network Analysis,Graph Theory,Data Collection" data-listing-file-modified-sort="1756631671621" data-listing-reading-time-sort="4" data-listing-word-count-sort="618">
 <a href="./24. Network control for data collection biases (wip).html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -699,6 +961,17 @@ A generative model for random graphs used to find communities of nodes with simi
 <h5 class="no-anchor card-title listing-title">
 Controlling for Network Biases
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+Network Analysis
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+Graph Theory
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Data Collection'); return false;">
+Data Collection
+</div>
+</div>
 <div class="card-text listing-description">
 Techniques to account for biases in data collection that can affect the structure and analysis of networks.
 </div>
@@ -711,7 +984,7 @@ Techniques to account for biases in data collection that can affect the structur
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="24" data-categories="Network Analysis,Graph Theory" data-listing-file-modified-sort="1756563016764" data-listing-reading-time-sort="11" data-listing-word-count-sort="2145">
+<div class="g-col-1" data-index="24" data-categories="Network Analysis,Graph Theory" data-listing-file-modified-sort="1756631734133" data-listing-reading-time-sort="11" data-listing-word-count-sort="2150">
 <a href="./25. Network Metrics.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
@@ -719,6 +992,14 @@ Techniques to account for biases in data collection that can affect the structur
 <h5 class="no-anchor card-title listing-title">
 Network Metrics
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+Network Analysis
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+Graph Theory
+</div>
+</div>
 <div class="card-text listing-description">
 An overview of key metrics used to describe and analyze the structure and properties of networks.
 </div>
@@ -731,14 +1012,25 @@ An overview of key metrics used to describe and analyze the structure and proper
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="25" data-categories="Network Analysis,Graph Theory,Social transmission" data-listing-file-modified-sort="1756563020564" data-listing-reading-time-sort="3" data-listing-word-count-sort="410">
+<div class="g-col-1" data-index="25" data-categories="Network Analysis,Graph Theory,Social transmission" data-listing-file-modified-sort="1756631870484" data-listing-reading-time-sort="2" data-listing-word-count-sort="396">
 <a href="./26. Network Based Diffusion analysis (wip).html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-Network-Based Diffusion Analysis
+Network-Based Diffusion Analysis (NBDA)
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+Network Analysis
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+Graph Theory
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Social transmission'); return false;">
+Social transmission
+</div>
+</div>
 <div class="card-text listing-description">
 Modeling how information, behaviors, or diseases spread through a network over time.
 </div>
@@ -751,14 +1043,27 @@ Modeling how information, behaviors, or diseases spread through a network over t
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="26" data-categories="Neural Networks,Bayesian,Deep Learning" data-listing-file-modified-sort="1756563027520" data-listing-reading-time-sort="8" data-listing-word-count-sort="1430">
+<div class="g-col-1" data-index="26" data-categories="Neural Networks,Bayesian,Deep Learning" data-listing-file-modified-sort="1756629601167" data-listing-reading-time-sort="8" data-listing-word-count-sort="1430">
 <a href="./27. BNN.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top">
+<img loading="lazy" data-src="./Figures/BNN.jpeg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
 Bayesian Neural Networks (BNN)
 </h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Neural Networks'); return false;">
+Neural Networks
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Bayesian'); return false;">
+Bayesian
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Deep Learning'); return false;">
+Deep Learning
+</div>
+</div>
 <div class="card-text listing-description">
 Neural networks that incorporate Bayesian inference to quantify uncertainty in their predictions.
 </div>
@@ -1062,7 +1367,7 @@ tippy('#chol', {
 });
 
 tippy('#uncertainty', {
-  content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+  content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
   allowHTML: true,
   interactive: true,
   delay: 100,

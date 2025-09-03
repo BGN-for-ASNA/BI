@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -182,6 +197,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -421,7 +440,7 @@ window.Quarto = {
 <h1 class="title">Dirichlet Process Mixture Models (DPMM)</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Clustering</div>
-    <div class="quarto-category">Bayesian</div>
+    <div class="quarto-category">Unsupervised Learning</div>
     <div class="quarto-category">Non-parametric</div>
   </div>
   </div>
@@ -450,7 +469,7 @@ window.Quarto = {
 <p>To discover group structures or clusters in data without pre-specifying the number of groups, we can use a <strong>Dirichlet Process Mixture Model (DPMM)</strong>. This is a <span style="color:#0D6EFD">non-parametric 🛈</span> clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:</p>
 <ol type="1">
 <li><strong>How many clusters (<code>K</code>) exist</strong>: Unlike algorithms like K-Means, the DPMM infers the most probable number of clusters directly from the data.</li>
-<li><strong>The properties of each cluster</strong>: For each inferred cluster, it estimates its center (mean <span class="math inline">\(\mu\)</span>) and its shape/spread (covariance <span class="math inline">\(\sigma\)</span>).</li>
+<li><strong>The properties of each cluster</strong>: For each inferred cluster, it estimates its center (mean <span class="math inline">\mu</span>) and its shape/spread (covariance <span class="math inline">\sigma</span>).</li>
 <li><strong>The assignment of each data point</strong>: It determines the probability of each data point belonging to each cluster.</li>
 </ol>
 </section>
@@ -470,9 +489,9 @@ Caution
 <li><p>A DPMM is a Bayesian model 🛈 that considers uncertainty in all its parameters. The core idea is to use the Dirichlet Process prior that allows for a potentially infinite number of clusters. In practice, we use a finite approximation called the <span style="color:#0D6EFD">Stick-Breaking Process 🛈</span>.</p></li>
 <li><p>The key parameters and their priors are:</p>
 <ul>
-<li><strong>Concentration</strong> <span class="math inline">\(\alpha\)</span>: This single parameter controls the tendency to create new clusters. A low <code>α</code> favors fewer, larger clusters, while a high <code>α</code> allows for many smaller clusters. We typically place a <code>Gamma</code> prior on <span class="math inline">\(\alpha\)</span> to learn its value from the data.</li>
-<li><strong>Cluster Weights <code>w</code></strong>: Generated via the Stick-Breaking process from <span class="math inline">\(\alpha\)</span>. These are the probabilities of drawing a data point from any given cluster.</li>
-<li><strong>Cluster Parameters (</strong><span class="math inline">\(\mu\)</span>, <span class="math inline">\(\sigma\)</span>): Each potential cluster has a mean <span class="math inline">\(\mu\)</span> and a covariance matrix <span class="math inline">\(\sigma\)</span>. If the data have multiple dimensions, we use a multivariate normal distribution (see chapter, <a href="./14. Varying slopes.html">14</a>). Howver, if the data is one-dimensional, we use a univariate normal distribution.</li>
+<li><strong>Concentration</strong> <span class="math inline">\alpha</span>: This single parameter controls the tendency to create new clusters. A low <code>α</code> favors fewer, larger clusters, while a high <code>α</code> allows for many smaller clusters. We typically place a <code>Gamma</code> prior on <span class="math inline">\alpha</span> to learn its value from the data.</li>
+<li><strong>Cluster Weights <code>w</code></strong>: Generated via the Stick-Breaking process from <span class="math inline">\alpha</span>. These are the probabilities of drawing a data point from any given cluster.</li>
+<li><strong>Cluster Parameters (</strong><span class="math inline">\mu</span>, <span class="math inline">\sigma</span>): Each potential cluster has a mean <span class="math inline">\mu</span> and a covariance matrix <span class="math inline">\sigma</span>. If the data have multiple dimensions, we use a multivariate normal distribution (see chapter, <a href="./14. Varying slopes.html">14</a>). Howver, if the data is one-dimensional, we use a univariate normal distribution.</li>
 </ul></li>
 <li><p>The model is often implemented in its <span style="color:#0D6EFD">marginalized form 🛈</span>. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.</p></li>
 </ul>
@@ -540,8 +559,8 @@ Caution
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<p>This level describes how any single data point, <span class="math inline">\(x_i\)</span>, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster’s specific distribution. We use a truncation level <span class="math inline">\(T\)</span> as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.</p>
-<p><span class="math display">\[\begin{align*}
+<p>This level describes how any single data point, <span class="math inline">x_i</span>, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster’s specific distribution. We use a truncation level <span class="math inline">T</span> as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.</p>
+<p><span class="math display">\begin{align*}
 x_i \mid z_i=k &amp;\sim \text{MultivariateNormal}(\mu_k, \Sigma_{\text{obs}}) \\
 z_i &amp;\sim \text{Categorical}(w) \\
 w &amp;= \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
@@ -549,22 +568,22 @@ w &amp;= \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
 \alpha &amp;\sim \text{Gamma}(1, 10)\\
 \mu_k &amp;\sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \\
 \Sigma_{\text{obs}} &amp;= I_D \\
-\end{align*}\]</span></p>
-<p><strong>Parameter Definitions:</strong> * <strong>Observed Data:</strong> * <span class="math inline">\(x_i\)</span>: The <span class="math inline">\(i\)</span>-th observed D-dimensional data point.</p>
+\end{align*}</span></p>
+<p><strong>Parameter Definitions:</strong> * <strong>Observed Data:</strong> * <span class="math inline">x_i</span>: The <span class="math inline">i</span>-th observed D-dimensional data point.</p>
 <ul>
 <li><strong>Latent Variables (Inferred):</strong>
 <ul>
-<li><p><span class="math inline">\(z_i\)</span>: The integer cluster assignment for the <span class="math inline">\(i\)</span>-th data point.</p></li>
-<li><p><span class="math inline">\(w\)</span>: The vector of mixture weights, where <span class="math inline">\(w_k\)</span> is the probability of belonging to cluster <span class="math inline">\(k\)</span>.</p></li>
-<li><p><span class="math inline">\(\beta_k\)</span>: The set of Beta-distributed random variables for the stick-breaking process.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span>: The concentration parameter, controlling the effective number of clusters.<br>
+<li><p><span class="math inline">z_i</span>: The integer cluster assignment for the <span class="math inline">i</span>-th data point.</p></li>
+<li><p><span class="math inline">w</span>: The vector of mixture weights, where <span class="math inline">w_k</span> is the probability of belonging to cluster <span class="math inline">k</span>.</p></li>
+<li><p><span class="math inline">\beta_k</span>: The set of Beta-distributed random variables for the stick-breaking process.</p></li>
+<li><p><span class="math inline">\alpha</span>: The concentration parameter, controlling the effective number of clusters.<br>
 </p></li>
-<li><p><span class="math inline">\(\mu_k\)</span>: The D-dimensional mean vector of the <span class="math inline">\(k\)</span>-th cluster.</p></li>
+<li><p><span class="math inline">\mu_k</span>: The D-dimensional mean vector of the <span class="math inline">k</span>-th cluster.</p></li>
 </ul></li>
 <li><strong>Hyperparameters (Fixed):</strong>
 <ul>
-<li><span class="math inline">\(\mu_0\)</span>: The prior mean for the cluster centers (e.g., <code>mean(data)</code>).</li>
-<li><span class="math inline">\(\Sigma_0\)</span>: The prior covariance for the cluster centers (e.g., <code>10 * I_D</code>).</li>
+<li><span class="math inline">\mu_0</span>: The prior mean for the cluster centers (e.g., <code>mean(data)</code>).</li>
+<li><span class="math inline">\Sigma_0</span>: The prior covariance for the cluster centers (e.g., <code>10 * I_D</code>).</li>
 </ul></li>
 </ul>
 </section>

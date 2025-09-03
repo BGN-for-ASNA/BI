@@ -106,8 +106,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -136,6 +150,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -162,6 +177,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -365,7 +384,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -428,7 +447,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
 <p>To discover group structures or clusters in data, we can use a <strong>Gaussian Mixture Model (GMM)</strong>. This is a <span style="color:#0D6EFD">parametric 🛈</span> clustering method. A GMM assumes that the data is generated from a mixture of a <strong>pre-specified number (<code>K</code>)</strong> of different Gaussian distributions. The model’s goal is to figure out:</p>
 <ol type="1">
-<li><strong>The properties of each of the <code>K</code> clusters</strong>: For each of the <code>K</code> clusters, it estimates its center (mean <span class="math inline">\(\mu\)</span>) and its shape/spread (covariance <span class="math inline">\(\Sigma\)</span>).</li>
+<li><strong>The properties of each of the <code>K</code> clusters</strong>: For each of the <code>K</code> clusters, it estimates its center (mean <span class="math inline">\mu</span>) and its shape/spread (covariance <span class="math inline">\Sigma</span>).</li>
 <li><strong>The mixture weights</strong>: It estimates the proportion of the data that belongs to each cluster.</li>
 <li><strong>The assignment of each data point</strong>: It determines the probability of each data point belonging to each of the <code>K</code> clusters.</li>
 </ol>
@@ -451,7 +470,7 @@ Caution
 <ul>
 <li><strong>Number of Clusters <code>K</code></strong>: This is a <strong>fixed hyperparameter</strong> that you must choose before running the model. Choosing the right <code>K</code> often involves running the model multiple times and using model comparison criteria (like cross-validation, AIC, or BIC).</li>
 <li><strong>Cluster Weights <code>w</code></strong>: These are the probabilities of drawing a data point from any given cluster. Since there are a fixed number <code>K</code> of them and they must sum to 1, they are typically given a <code>Dirichlet</code> prior. A symmetric <code>Dirichlet</code> prior (e.g., <code>Dirichlet(1, 1, ..., 1)</code>) represents an initial belief that all clusters are equally likely.</li>
-<li><strong>Cluster Parameters (</strong><span class="math inline">\(\boldsymbol{\mu}\)</span>, <span class="math inline">\(\Sigma\)</span>): Each of the <code>K</code> clusters has a mean <span class="math inline">\(\boldsymbol{\mu}\)</span> and a covariance matrix <span class="math inline">\(\Sigma\)</span>. We place priors on these to define our beliefs about their plausible values.</li>
+<li><strong>Cluster Parameters (</strong><span class="math inline">\boldsymbol{\mu}</span>, <span class="math inline">\Sigma</span>): Each of the <code>K</code> clusters has a mean <span class="math inline">\boldsymbol{\mu}</span> and a covariance matrix <span class="math inline">\Sigma</span>. We place priors on these to define our beliefs about their plausible values.</li>
 </ul></li>
 <li><p>Like the DPMM, the model is often implemented in its <span style="color:#0D6EFD">marginalized form 🛈</span>. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.</p></li>
 <li><p>To increase accuracy we run a k-means algorithm to initialize the cluster mean priors.</p></li>
@@ -508,34 +527,34 @@ Caution
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<p>This section describes the generative process for a GMM. For each data point <span class="math inline">\(x_i\)</span>, the model first selects one of the <code>K</code> clusters according to the weights <span class="math inline">\(w\)</span>, and then draws the point from that cluster’s Gaussian distribution.</p>
-<p><span class="math display">\[\begin{align*}
+<p>This section describes the generative process for a GMM. For each data point <span class="math inline">x_i</span>, the model first selects one of the <code>K</code> clusters according to the weights <span class="math inline">w</span>, and then draws the point from that cluster’s Gaussian distribution.</p>
+<p><span class="math display">\begin{align*}
 z_i &amp;\sim \text{Categorical}(w) &amp;&amp; \text{for } i=1, \dots, N \\
 x_i \mid z_i=k &amp;\sim \text{MultivariateNormal}(\mu_k, \Sigma_k) &amp;&amp; \text{for } i=1, \dots, N
-\end{align*}\]</span> <span class="math display">\[
+\end{align*}</span> <span class="math display">
 w \sim \text{Dirichlet}(\alpha_0) \quad \text{(Mixture weights vector for K clusters)}
-\]</span></p>
-<p><span class="math display">\[\begin{align*}
+</span></p>
+<p><span class="math display">\begin{align*}
 \mu_k &amp;\sim \text{MultivariateNormal}(\mu_0, \Sigma_0) &amp;&amp; \text{for } k=1, \dots, K \\
 \sigma_k &amp;\sim \text{HalfCauchy}(1) &amp;&amp; \text{for } k=1, \dots, K \\
 L_{\text{corr}, k} &amp;\sim \text{LKJCholesky}(D, 1.0) &amp;&amp; \text{for } k=1, \dots, K \\
 \Sigma_k &amp;= \text{diag}(\sigma_k) \cdot L_{\text{corr}, k} \cdot L_{\text{corr}, k}^T \cdot \text{diag}(\sigma_k)
-\end{align*}\]</span></p>
-<p><strong>Parameter Definitions:</strong> * <strong>Observed Data:</strong> * <span class="math inline">\(x_i\)</span>: The <span class="math inline">\(i\)</span>-th observed D-dimensional data point.</p>
+\end{align*}</span></p>
+<p><strong>Parameter Definitions:</strong> * <strong>Observed Data:</strong> * <span class="math inline">x_i</span>: The <span class="math inline">i</span>-th observed D-dimensional data point.</p>
 <ul>
 <li><strong>Latent Variables (Inferred):</strong>
 <ul>
-<li><span class="math inline">\(z_i\)</span>: The integer cluster assignment for the <span class="math inline">\(i\)</span>-th data point.</li>
-<li><span class="math inline">\(w\)</span>: The K-dimensional vector of mixture weights.</li>
-<li><span class="math inline">\(\mu_k\)</span>: The D-dimensional mean vector of the <span class="math inline">\(k\)</span>-th cluster.</li>
-<li><span class="math inline">\(\Sigma_k\)</span>: The DxD covariance matrix of the <span class="math inline">\(k\)</span>-th cluster (composed of <span class="math inline">\(\sigma_k\)</span> and <span class="math inline">\(L_{\text{corr},k}\)</span>).</li>
+<li><span class="math inline">z_i</span>: The integer cluster assignment for the <span class="math inline">i</span>-th data point.</li>
+<li><span class="math inline">w</span>: The K-dimensional vector of mixture weights.</li>
+<li><span class="math inline">\mu_k</span>: The D-dimensional mean vector of the <span class="math inline">k</span>-th cluster.</li>
+<li><span class="math inline">\Sigma_k</span>: The DxD covariance matrix of the <span class="math inline">k</span>-th cluster (composed of <span class="math inline">\sigma_k</span> and <span class="math inline">L_{\text{corr},k}</span>).</li>
 </ul></li>
 <li><strong>Hyperparameters (Fixed):</strong>
 <ul>
-<li><span class="math inline">\(K\)</span>: The total number of clusters.</li>
-<li><span class="math inline">\(\alpha_0\)</span>: The concentration parameter vector for the Dirichlet prior on weights (e.g., <code>[1, 1, ..., 1]</code>).</li>
-<li><span class="math inline">\(\mu_0\)</span>: The prior mean for the cluster centers.</li>
-<li><span class="math inline">\(\Sigma_0\)</span>: The prior covariance for the cluster centers.</li>
+<li><span class="math inline">K</span>: The total number of clusters.</li>
+<li><span class="math inline">\alpha_0</span>: The concentration parameter vector for the Dirichlet prior on weights (e.g., <code>[1, 1, ..., 1]</code>).</li>
+<li><span class="math inline">\mu_0</span>: The prior mean for the cluster centers.</li>
+<li><span class="math inline">\Sigma_0</span>: The prior covariance for the cluster centers.</li>
 </ul></li>
 </ul>
 </section>
