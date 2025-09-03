@@ -1,16 +1,17 @@
 project:
   type: website
-  
 
 website:
   title: "Bayesian Inference (BI)"
   repo-url: https://github.com/BGN-for-ASNA/BI
   navbar:
     left:
-      - href: get started.qmd
+      - href: start/Installation.qmd
         text: Get started
       - href: 0. Introduction.qmd
         text: Models
+      - href: api_dist.qmd
+        text: API Reference
       - text: Help
         menu:
             - text: Report a Bug
@@ -28,9 +29,10 @@ website:
         href:  https://github.com/BGN-for-ASNA/BI
 
   sidebar:
+    #- border: true 
     - title: "Models"
       collapse-level: 1
-      contents:
+      contents:      
         - 0. Introduction.qmd
         - 1. Linear Regression for continuous variable.qmd
         - 2. Multiple continuous Variables.qmd
@@ -59,21 +61,44 @@ website:
         - 25. Network Metrics.qmd
         - 26. Network Based Diffusion analysis (wip).qmd
         - 27. BNN.qmd
+    - id: api
+      title: "API Reference"
+      contents:
+        - api_manip.qmd              
+        - api_dist.qmd
+        - api_diag.qmd
+    - id: start
+      title: "Get started"
+      contents:
+        - start/Installation.qmd              
+        - start/Import_class.qmd
+        - start/Import_data.qmd
+        - start/Define model.qmd
+        - start/Fit model.qmd
+        - start/Diagnostics.qmd
+        
   page-navigation: true
+  
 
 format:
   html:
     theme:       
       dark: solar
       light: Morph
+    css: styles.scss  
     code-copy: true
     highlight-style: monokai
     include-after-body: tooltip-scripts.html
     toc: true
     toc-location: right
+    html-math-method: katex
+
   pdf:
     pdf-engine: xelatex
     header-includes:
-      - \usepackage{unicode-math}
+      - \usepackage{amsmath} # amsmath is better than unicode-math for cases
+      - \usepackage{amssymb}
 
 bibliography: references.bib
+
+

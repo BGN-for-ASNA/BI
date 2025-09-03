@@ -2,6 +2,7 @@
 title: "Regression with Categorical Variables"
 description: "Incorporating categorical predictors (factors) into a regression model using dummy variables."
 categories: [Regression, Supervised Learning]
+image: "Figures/categorical regression.svg"
 order: 5
 ---
 
@@ -23,7 +24,7 @@ _Stratification_ involves modeling how the *k* different categories of the indep
 :::
 
 ## Example
-Below is an example of code that demonstrates Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (*kcal_per_g*), representing the caloric value of milk per gram, and a categorical independent variable, representing species clade membership. The goal is to estimate the differences in milk calories between clades.
+Below is an example of code that demonstrates Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (*kcal_per_g*), representing the caloric value of milk per gram, and a categorical independent variable, representing species clade membership. The goal is to estimate the differences in milk calories between clades. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -111,7 +112,7 @@ We can interpret $\beta_i$ as the effect of each category on $Y$ relative to the
 In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
-Y \sim Normal(\alpha +  \beta_k X, \sigma)
+Y \sim Normal(\alpha +  \beta_K X, \sigma)
 $$
 
 $$
@@ -119,7 +120,7 @@ $$
 $$
 
 $$
-\beta_k \sim Normal(0,1)
+\beta_K \sim Normal(0,1)
 $$
 
 $$
@@ -130,13 +131,13 @@ Where:
 
 - $Y_i$ is the dependent variable for observation *i*.
   
-- $\alpha$ is the prior distribution for the intercept.
+- $\alpha$ is the intercept term, which in this case has a unit-normal prior.
   
-- $\beta_k$ are _k_ prior distributions for _k_ regression coefficients.
+- $\beta_K$ are slope coefficients for the _K_ distinct independent variables categories, which also have unit-normal priors.
   
 - $X_i$ is the encoded categorical input variable for observation *i*. 
   
-- $\sigma$ is the prior distribution for the standard deviation, ensuring it is positive.
+- $\sigma$ is a standard deviation parameter, which here has a $Uniform$ prior that constrains it to be positive.
 
 ## Notes
 ::: callout-note
@@ -147,4 +148,5 @@ Where:
 :::
 
 ## Reference(s)
-@mcelreath2018statistical
+::: {#refs}
+:::

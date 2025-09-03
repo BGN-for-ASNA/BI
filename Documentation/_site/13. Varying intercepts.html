@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -182,6 +197,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -467,7 +486,7 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for a continuous variable</a>.</p></li>
-<li><p>The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept <span class="math inline">\(\alpha_k\)</span> is defined based on the <span class="math inline">\(k\)</span> declared groups.</p></li>
+<li><p>The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept <span class="math inline">\alpha_k</span> is defined based on the <span class="math inline">k</span> declared groups.</p></li>
 <li><p>Each intercept has its own prior - i.e., a <span id="hyperP"><span style="color:#0D6EFD">hyper-prior 🛈</span></span>.</p></li>
 <li><p>In the code below, the <em>hyper-prior</em> is <code>a_bar</code>.</p></li>
 </ul>
@@ -476,7 +495,7 @@ Caution
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consists of a dependent variable representing individuals’ survival (<em>surv</em>) and an independent categorical variable (<em>tank</em>), which indicates the tank where the individual was born, with a total of 48 tanks.</p>
+<p>Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consists of a dependent variable representing individuals’ survival (<em>surv</em>) and an independent categorical variable (<em>tank</em>), which indicates the tank where the individual was born, with a total of 48 tanks. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -547,45 +566,45 @@ Caution
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist formulation</em></h3>
-<p>We model the relationship between the independent variable <span class="math inline">\(X\)</span> and the outcome variable <span class="math inline">\(Y\)</span> with varying intercepts <span class="math inline">\(\alpha\)</span> for each group <span class="math inline">\(k\)</span> using the following equation:</p>
-<p><span class="math display">\[
+<p>We model the relationship between the independent variable <span class="math inline">X</span> and the outcome variable <span class="math inline">Y</span> with varying intercepts <span class="math inline">\alpha</span> for each group <span class="math inline">k</span> using the following equation:</p>
+<p><span class="math display">
 Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <span class="math inline">\(i\)</span> in group <span class="math inline">\(k\)</span>.</p></li>
-<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <span class="math inline">\(k\)</span>.</p></li>
-<li><p><span class="math inline">\(X_{ik}\)</span> is the independent variable for observation <span class="math inline">\(i\)</span> in group <span class="math inline">\(k\)</span>.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the error term, typically assumed to be normally distributed and positive.</p></li>
+<li><p><span class="math inline">Y_{ik}</span> is the outcome variable for observation <span class="math inline">i</span> in group <span class="math inline">k</span>.</p></li>
+<li><p><span class="math inline">\alpha_k</span> is the varying intercept for group <span class="math inline">k</span>.</p></li>
+<li><p><span class="math inline">X_{ik}</span> is the independent variable for observation <span class="math inline">i</span> in group <span class="math inline">k</span>.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficient.</p></li>
+<li><p><span class="math inline">\sigma</span> is the error term, typically assumed to be normally distributed and positive.</p></li>
 </ul>
 </section>
 <section id="bayesian-model" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-model">Bayesian Model</h3>
 <p>We can express the Bayesian regression model accounting for <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span> distributions as follows:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 Y_{ik} \sim \text{Normal}(\mu_{ik}, \sigma)
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 \mu_{ik} = \alpha_k + \beta X_{ik}
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 \alpha_k \sim \text{Normal}(\mu_{\alpha_k}, \sigma_{\alpha_k})
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 \beta \sim \text{Normal}(0, 1)
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 \sigma \sim \text{Exponential}(1)
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 \mu_{\alpha_k} \sim \text{Normal}(0, 1)
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 \sigma_{\alpha_k} \sim \text{Exponential}(1)
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_{ik}\)</span> is the outcome variable for observation <span class="math inline">\(i\)</span> in group <span class="math inline">\(k\)</span>.</p></li>
-<li><p><span class="math inline">\(\alpha_k\)</span> is the varying intercept for group <span class="math inline">\(k\)</span>.</p></li>
-<li><p><span class="math inline">\(\mu_{\alpha_k}\)</span> is the overall mean intercept.</p></li>
-<li><p><span class="math inline">\(\sigma_{\alpha_k}\)</span> is the variance of the intercepts across groups.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the standard deviation of the error term.</p></li>
+<li><p><span class="math inline">Y_{ik}</span> is the outcome variable for observation <span class="math inline">i</span> in group <span class="math inline">k</span>.</p></li>
+<li><p><span class="math inline">\alpha_k</span> is the varying intercept for group <span class="math inline">k</span>.</p></li>
+<li><p><span class="math inline">\mu_{\alpha_k}</span> is the overall mean intercept.</p></li>
+<li><p><span class="math inline">\sigma_{\alpha_k}</span> is the variance of the intercepts across groups.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficient.</p></li>
+<li><p><span class="math inline">\sigma</span> is the standard deviation of the error term.</p></li>
 </ul>
 </section>
 </section>
@@ -612,17 +631,16 @@ Note
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

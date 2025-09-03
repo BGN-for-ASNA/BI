@@ -105,8 +105,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -135,6 +149,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -161,6 +176,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -364,7 +383,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -433,8 +452,8 @@ window.Quarto = {
 <p>To model complex, non-linear relationships between variables, we can use multiple approaches including, splines, polynomials, gaussian processes, and neural networks. Here, we will focus on a Bayesian Neural Network (BNN). Think of a neural network as a highly flexible function made of interconnected layers of “neurons.” Each connection between neurons has a weight, and each neuron has a bias. These weights and biases are like a vast set of adjustable knobs. In a standard network, the goal is to find the single best setting for all these knobs to map inputs to outputs. Unlike a standard neural network which learns a single set of optimal weights, a BNN learns distributions over its weights and biases. This allows it to capture not just the relationship in the data, but also its own uncertainty about that relationship. For this, we need to define:</p>
 <ol type="1">
 <li><p><strong>A Network Architecture</strong>, which specifies the number of layers, the number of neurons in each layer, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the structure of our “knobs.”</p></li>
-<li><p><strong>Priors for Arrays of Weights and Biases</strong>. In a simple model like linear regression, we define a prior for each individual parameter (e.g., one prior for the slope <span class="math inline">\(\beta\)</span>). In a neural network, which can have thousands or millions of weights, we don’t define a unique prior for every single one. Instead, we define a prior that acts as a template for an entire <strong>array of parameters</strong>. For example, we might declare that all weights in a specific layer are drawn from the same <code>Normal(0, 1)</code> distribution. This allows us to efficiently specify our beliefs about the entire set of network parameters.</p></li>
-<li><p><strong>An Output Distribution (Likelihood)</strong>, which defines the probability of the data given the network’s predictions. For a continuous variable (regression), this is often a Normal distribution with a variance term <span class="math inline">\(\sigma\)</span> that quantifies the data’s noise around the model’s predictions.</p></li>
+<li><p><strong>Priors for Arrays of Weights and Biases</strong>. In a simple model like linear regression, we define a prior for each individual parameter (e.g., one prior for the slope <span class="math inline">\beta</span>). In a neural network, which can have thousands or millions of weights, we don’t define a unique prior for every single one. Instead, we define a prior that acts as a template for an entire <strong>array of parameters</strong>. For example, we might declare that all weights in a specific layer are drawn from the same <code>Normal(0, 1)</code> distribution. This allows us to efficiently specify our beliefs about the entire set of network parameters.</p></li>
+<li><p><strong>An Output Distribution (Likelihood)</strong>, which defines the probability of the data given the network’s predictions. For a continuous variable (regression), this is often a Normal distribution with a variance term <span class="math inline">\sigma</span> that quantifies the data’s noise around the model’s predictions.</p></li>
 </ol>
 </section>
 <section id="considerations" class="level2">
@@ -450,12 +469,12 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>Like all Bayesian models, BNNs consider <span id="uncertainty"><span style="color:#0D6EFD">model parameter uncertainty 🛈</span></span>. The parameters here are the network’s <strong>weights (W)</strong> and <strong>biases (b)</strong>. We quantify our uncertainty about them through their <span id="posterior"><span style="color:#0D6EFD">posterior distribution 🛈</span></span>. Therefore, we must declare <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for all weights and biases, as well as for the output variance <span class="math inline">\(\sigma\)</span>.</p></li>
+<li><p>Like all Bayesian models, BNNs consider <span id="uncertainty"><span style="color:#0D6EFD">model parameter uncertainty 🛈</span></span>. The parameters here are the network’s <strong>weights (W)</strong> and <strong>biases (b)</strong>. We quantify our uncertainty about them through their <span id="posterior"><span style="color:#0D6EFD">posterior distribution 🛈</span></span>. Therefore, we must declare <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for all weights and biases, as well as for the output variance <span class="math inline">\sigma</span>.</p></li>
 <li><p>Unlike in a linear regression where the coefficient <code>β</code> has a direct interpretation (e.g., the effect of weight on height), the individual weights and biases in a BNN are not directly interpretable. A single weight’s influence is entangled with thousands of other parameters through non-linear functions. Consequently, BNNs are best viewed as powerful <strong>predictive tools</strong> rather than explanatory ones. They excel at learning complex patterns and quantifying predictive uncertainty, but if the goal is to isolate and interpret the effect of a specific variable, a simpler model is often more appropriate.</p></li>
 <li><p>Prior distributions are built following these considerations:</p>
 <ul>
 <li><p>As the data is typically <span id="scaled"><span style="color:#0D6EFD">scaled 🛈</span></span> (see introduction), we can use a standard Normal distribution (mean 0, standard deviation 1) as a weakly-informative prior for all weights and biases. This acts as a form of regularization.</p></li>
-<li><p>Since the output variance <span class="math inline">\(\sigma\)</span> must be positive, we can use a positively-defined distribution, such as the Exponential or Half-Normal.</p></li>
+<li><p>Since the output variance <span class="math inline">\sigma</span> must be positive, we can use a positively-defined distribution, such as the Exponential or Half-Normal.</p></li>
 </ul></li>
 <li><p>BNNs can be used for both regression and classification. The final layer’s activation and the chosen likelihood distribution depend on the task. For binary classification, a sigmoid activation is paired with a Bernoulli likelihood, which requires a <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span> (logit) to connect the linear output of the network to the probability space [0, 1]. For regression, the identity activation is often used with a Gaussian likelihood.</p></li>
 </ul>
@@ -545,38 +564,38 @@ Caution
 <section id="frequentist-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist Formulation</em></h3>
 <p>A standard (non-Bayesian) neural network with one hidden layer is defined by forward propagation:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 h_i = f(X_i W_1 + b_1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \hat{Y}_i = g(h_i W_2 + b_2)
-\]</span></p>
-<p>Where: - <span class="math inline">\(Y_i\)</span> is the predicted output for observation <em>i</em>. - <span class="math inline">\(X_i\)</span> is the input vector for observation <em>i</em>. - <span class="math inline">\(W_1, b_1\)</span> are the weight matrix and bias vector for the hidden layer. - <span class="math inline">\(W_2, b_2\)</span> are the weight matrix and bias vector for the output layer. - <span class="math inline">\(h_i\)</span> is the activation of the hidden layer. - <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span> are activation functions (e.g., ReLU, tanh, sigmoid, identity). - Parameters <span class="math inline">\(W_1, b_1, W_2, b_2\)</span> are learned as single optimal values via optimization.</p>
+</span></p>
+<p>Where: - <span class="math inline">Y_i</span> is the predicted output for observation <em>i</em>. - <span class="math inline">X_i</span> is the input vector for observation <em>i</em>. - <span class="math inline">W_1, b_1</span> are the weight matrix and bias vector for the hidden layer. - <span class="math inline">W_2, b_2</span> are the weight matrix and bias vector for the output layer. - <span class="math inline">h_i</span> is the activation of the hidden layer. - <span class="math inline">f</span> and <span class="math inline">g</span> are activation functions (e.g., ReLU, tanh, sigmoid, identity). - Parameters <span class="math inline">W_1, b_1, W_2, b_2</span> are learned as single optimal values via optimization.</p>
 </section>
 <section id="bayesian-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian Formulation</em></h3>
 <p>In the Bayesian formulation, we place <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span> on all weights and biases and define a likelihood for the output. For a regression task with a one-layer BNN:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 Y_i \sim Normal(\mu_i, \sigma)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \mu_i = g(h_i W_2 + b_2)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 h_i = f(X_i W_1 + b_1)
-\]</span></p>
-<p>The parameters are now distributions: <span class="math display">\[
+</span></p>
+<p>The parameters are now distributions: <span class="math display">
 W_1 \sim Normal(0, 1)
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 b_1 \sim Normal(0, 1)
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 W_2 \sim Normal(0, 1)
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 b_2 \sim Normal(0, 1)
-\]</span> <span class="math display">\[
+</span> <span class="math display">
 \sigma \sim Exponential(1)
-\]</span></p>
-<p>Where: - <span class="math inline">\(Y_i\)</span> is the observed dependent variable for observation <em>i</em>. - <span class="math inline">\(\mu_i\)</span> is the mean predicted by the network, which is itself a distribution because it is a function of the distributions of weights and biases. - <span class="math inline">\(W_1, b_1, W_2, b_2\)</span> are the weights and biases, treated as random variables. - <span class="math inline">\(\sigma\)</span> is the standard deviation of the normal distribution, quantifying observation noise.</p>
+</span></p>
+<p>Where: - <span class="math inline">Y_i</span> is the observed dependent variable for observation <em>i</em>. - <span class="math inline">\mu_i</span> is the mean predicted by the network, which is itself a distribution because it is a function of the distributions of weights and biases. - <span class="math inline">W_1, b_1, W_2, b_2</span> are the weights and biases, treated as random variables. - <span class="math inline">\sigma</span> is the standard deviation of the normal distribution, quantifying observation noise.</p>
 </section>
 </section>
 <section id="notes" class="level2">
@@ -1644,8 +1663,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./26. Network Based Diffusion analysis (wip).html" class="pagination-link" aria-label="Network-Based Diffusion Analysis">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Network-Based Diffusion Analysis</span>
+      <a href="./26. Network Based Diffusion analysis (wip).html" class="pagination-link" aria-label="Network-Based Diffusion Analysis (NBDA)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Network-Based Diffusion Analysis (NBDA)</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

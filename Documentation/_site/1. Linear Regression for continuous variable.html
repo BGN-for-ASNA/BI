@@ -8,7 +8,7 @@
 
 <meta name="description" content="An introduction to linear regression models.">
 
-<title>Linear Regression for a Continuous Variable – Bayesian Inference (BI)</title>
+<title>Univariate Linear Regression – Bayesian Inference (BI)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -176,12 +191,16 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./get started.html"> 
+    <a class="nav-link" href="./start/Installation.html"> 
 <span class="menu-text">Get started</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -214,7 +233,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./1. Linear Regression for continuous variable.html">Linear Regression for a Continuous Variable</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./1. Linear Regression for continuous variable.html">Univariate Linear Regression</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -235,7 +254,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Linear Regression for a Continuous Variable</span></a>
+ <span class="menu-text">Univariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -422,7 +441,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Linear Regression for a Continuous Variable</h1>
+<h1 class="title">Univariate Linear Regression</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Regression</div>
     <div class="quarto-category">Supervised Learning</div>
@@ -452,38 +471,38 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
 <p>To study relationships between a continuous independent variable and a continuous dependent variable (e.g., height and weight), we can use linear regression. Essentially, we draw a line that passes through the point cloud of the two variables being tested. For this, we need to have:</p>
 <ol type="1">
-<li><p>An intercept <span class="math inline">\(\alpha\)</span>, which represents the origin of the line—the expected value of the dependent variable (height) when the independent variable (weight) is equal to zero.</p></li>
-<li><p>A coefficient <span class="math inline">\(\beta\)</span>, which informs us about the slope of the line. In other words, it tells us how much Y (height) increases for each increment of the independent variable (weight).</p></li>
-<li><p>A variance term <span class="math inline">\(\sigma\)</span>, which informs us about the spread of points around the line, i.e., the variance around the prediction.</p></li>
+<li><p>An intercept <span class="math inline">\alpha</span>, which represents the origin of the line—the expected value of the dependent variable (height) when the independent variable (weight) is equal to zero.</p></li>
+<li><p>A coefficient <span class="math inline">\beta</span>, which informs us about the slope of the line. In other words, it tells us how much Y (height) increases for each increment of the independent variable (weight).</p></li>
+<li><p>A standard deviation term <span class="math inline">\sigma</span>, which informs us about the spread of points around the line, i.e., the variance around the prediction.</p></li>
 </ol>
 </section>
 <section id="considerations" class="level2">
 <h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
-<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Caution
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>Bayesian models consider <span id="uncertainty"><span style="color:#0D6EFD">model parameter uncertainty 🛈</span></span>, allowing for the quantification of confidence or uncertainty through the parameters’ <span id="posterior"><span style="color:#0D6EFD">posterior distribution 🛈</span></span>. Therefore, we need to declare <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for each model parameter, in this case for: <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\sigma^2\)</span>.</p></li>
+<li><p>Bayesian models allow us to update our understanding of parameters conditional on an observed data set. This allow us to consider <span id="uncertainty"><span style="color:#0D6EFD">model parameter uncertainty 🛈</span></span>, which quantifies our confidence or uncertainty in the parameters in a form of a <span id="posterior"><span style="color:#0D6EFD">posterior distribution 🛈</span></span>. Therefore, we need to declare <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for each model parameter, in this case for: <span class="math inline">\alpha</span>, <span class="math inline">\beta</span>, and <span class="math inline">\sigma</span>.</p></li>
 <li><p>Prior distributions are built following these considerations:</p>
 <ul>
-<li><p>As the data is <span id="scaled"><span style="color:#0D6EFD">scaled 🛈</span></span> (see introduction), we can use a Normal distribution for <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, with a mean of 0 and a standard deviation of 1.</p></li>
-<li><p>Since <span class="math inline">\(\sigma\)</span> is strictly positive, we can use any distribution that is positively defined, such as the Exponential or Uniform distribution.</p></li>
+<li><p>As the data are <span id="scaled"><span style="color:#0D6EFD">normalized🛈</span></span> (see introduction), we can use a Normal distribution for <span class="math inline">\alpha</span> and <span class="math inline">\beta</span>, with a mean of 0 and a standard deviation of 1. This tends to be a weakly regularizing prior, and weaker priors like a <span class="math inline">Normal(0,10)</span> are also possible.</p></li>
+<li><p>Since <span class="math inline">\sigma</span> must be strictly positive, we must use a distribution with supprt on the positive reals, such as the <em>Exponential</em> or <em>Folded-Normal</em> distribution.</p></li>
 </ul></li>
-<li><p>Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span> (see introduction). This simplifies interpretation, as coefficients represent direct changes in the outcome variable.</p></li>
+<li><p>Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without depending on a non linear <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span> (see introduction). This simplifies interpretation, as coefficients represent direct changes in the outcome variable.</p></li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian linear regression using the Bayesian Inference (BI) package. Data consist of two continuous variables (height and weight), and the goal is to estimate the effect of weight on height.</p>
+<p>Below is an example code snippet demonstrating <em>Bayesian linear regression</em> using the Bayesian Inference (<strong>BI</strong>) package. Data consist of two continuous variables (height and weight), and the goal is to estimate the effect of weight on height. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -498,8 +517,8 @@ Caution
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Howell1.csv'</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>] <span class="co"># Manipulate</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>]) <span class="co"># Scale</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>] <span class="co"># Subset data to adults</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'weight'</span>]) <span class="co"># Normalize</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(weight, height):    </span>
@@ -522,10 +541,10 @@ Caution
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Howell1.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter data frame</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,] <span class="co"># Subset data to adults</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'weight'</span>)) </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'weight'</span>))  <span class="co"># Normalize</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert data to JAX arrays</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'height'</span>))</span>
@@ -554,39 +573,39 @@ Caution
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist Formulation</em></h3>
-<p>The following equation allows us to draw a line: <span class="math display">\[
-Y_i = \alpha + \beta  X_i + \sigma_i
-\]</span></p>
+<p>The following equation describe the frequentist formulation of linear regression: <span class="math display">
+Y_i = \alpha + \beta  X_i + \epsilon_i
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the input variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\sigma_i\)</span> is the error term for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">Y_i</span> is the dependent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficient.</p></li>
+<li><p><span class="math inline">X_i</span> is the input variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\epsilon_i</span> is the error term for observation <em>i</em>, and the vector of the error terms, <span class="math inline">\epsilon</span>, are assumed to be independent and identically distributed.</p></li>
 </ul>
 </section>
 <section id="bayesian-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian Formulation</em></h3>
 <p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express a Bayesian version of this regression model using the following model:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 Y_i \sim Normal(\alpha + \beta   X_i, \sigma)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \alpha \sim Normal(0, 1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \beta \sim Normal(0, 1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma \sim Uniform(0, 50)
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the dependent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are the intercept and regression coefficient, respectively.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the input variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the standard deviation of the normal distribution, which describes the variance in the relationship between the dependent variable <span class="math inline">\(Y\)</span> and the independent variable <span class="math inline">\(X\)</span>.</p></li>
+<li><p><span class="math inline">Y_i</span> is the dependent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\alpha</span> and <span class="math inline">\beta</span> are the intercept and regression coefficient, respectively.</p></li>
+<li><p><span class="math inline">X_i</span> is the indepenent variable for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\sigma</span> is the standard deviation of the normal distribution, which describes the variance in the relationship between the dependent variable <span class="math inline">Y</span> and the independent variable <span class="math inline">X</span>.</p></li>
 </ul>
 </section>
 </section>
@@ -602,23 +621,22 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>We can observe a difference between the <em>Frequentist</em> and the <em>Bayesian</em> formulation regarding the error term. Indeed, in the <em>Frequentist</em> formulation, the error term <span class="math inline">\(\sigma_i\)</span> represents random fluctuations around the predicted values. This assumption leads to point estimates for <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, without accounting for uncertainty in these estimates. In contrast, the <em>Bayesian</em> formulation treats <span class="math inline">\(\sigma\)</span> as a parameter with its own prior distribution. This allows us to incorporate our uncertainty about the error term into the model.</p>
+<p>We observe a difference between the <em>Frequentist</em> and the <em>Bayesian</em> formulation regarding the error term. Indeed, in the <em>Frequentist</em> formulation, the error terms <span class="math inline">\epsilon</span> represents residual fluctuations around the predicted values. This assumption leads to point estimates for <span class="math inline">\alpha</span> and <span class="math inline">\beta</span>. In contrast, the <em>Bayesian</em> formulation treats <span class="math inline">\sigma</span> as a parameter with its own prior distribution. This allows us to incorporate our uncertainty about the error term into the model.</p>
 </div>
 </div>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -902,7 +920,7 @@ tippy('#chol', {
 });
 
 tippy('#uncertainty', {
-  content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+  content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
   allowHTML: true,
   interactive: true,
   delay: 100,

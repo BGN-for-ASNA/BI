@@ -1,0 +1,34 @@
+---
+title: "Installation"
+sidebar: start
+---
+
+# Installation
+
+You can run BI on python or R. For R users you need to have installed python and the R [**reticulate**](https://rstudio.github.io/reticulate/).
+
+
+::: {.panel-tabset group="language"}
+## Python
+``` python
+pip install BayesInference # For CPU support
+pip install BayesInference[gpu] # For GPU support 
+```
+
+## R
+``` R
+package.install(BayesianInference)
+```
+:::
+
+::: callout-note
+* As reticulate use it's own python environment, you need to install the python version of BI through reticulate. You can do this by running the following command in R:
+  
+    ``` R
+    reticulate::py_install("BayesianInference", pip = TRUE)
+    ```
+
+* GPU support is only available for linux and WSL2 systems.
+
+
+:::

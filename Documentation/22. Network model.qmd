@@ -2,6 +2,7 @@
 title: "Network Models"
 description: "Modeling relationships and interactions between entities as a graph of nodes and edges."
 categories: [Network Analysis, Graph Theory]
+image: "Figures/SRM.svg"
 order: 23
 ---
 
@@ -13,8 +14,9 @@ A network represents the relationships (links) between entities (nodes). These l
 :::
 
 ## Example
-Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect:
+Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect. This example is based on @ross2024modelling.
 
+::: {.panel-tabset group="language"}
 ## Python
 ```Python
 from BI import bi
@@ -123,6 +125,7 @@ summary =m$summary()
 summary[rownames(summary) %in% c('focal_effects[0]', 'target_effects[0]', 'block[0]'),]
 
 ```
+:::
 
 ## Mathematical Details
 
@@ -267,4 +270,8 @@ summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 -   If the network is undirected, then accounting for the correlation between the propensity to emit and receive links is not necessary, and the terms $\lambda_i$, $\pi_j$, and $\delta_{ij}$ are no longer required. (Is it correct?)
 
 -   In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).
+:::
+
+## Reference(s)
+::: {#refs}
 :::

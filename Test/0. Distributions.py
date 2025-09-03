@@ -5,11 +5,11 @@ newPath = os.path.dirname(os.path.abspath(""))
 if newPath not in sys.path:
     sys.path.append(newPath)
 from BI import bi
-#%%
+
 import jax.numpy as jnp
 m = bi('cpu')
 errors = []
-
+#%%
 try:
     m.dist.asymmetric_laplace(loc=0.0, scale=1.0, asymmetry=1.0, sample=True)
 except Exception as e:
@@ -588,4 +588,12 @@ except Exception as e:
 
 print(errors)
 
+# %%
+m.dist.gaussian_copula(
+    marginal_dist = m.dist.beta(2.0, 5.0, create_obj = True), 
+    correlation_matrix = jnp.array([[1.0, 0.7],[0.7, 1.0]]), 
+    sample = True,
+    shape = ()
+
+)
 # %%

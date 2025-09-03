@@ -1,30 +1,30 @@
 ---
 title: "Interaction Terms in Regression"
-description: "Modeling how the effect of one predictor on the outcome changes based on the value of another."
+description: "Modeling how the effect of one independent variable on the outcome changes based on the value of another independent variable."
 categories: [Regression, Feature Engineering]
+image: "Figures/interaction plot.svg"
 order: 4
 ---
 
 ## General Principles
-To study the relationships between two independent continuous variables and their interaction effect on a dependent variable (e.g., temperature and humidity affecting energy consumption), we can use Regression Analysis with Interaction Terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two continuous variables.
-<!--Parallel lines indicate that there is no interaction effect, while different slopes suggest that one might be present. Below is the plot for temperature x humidity. The crossed lines on the graph suggest that there is an interaction effect. -->
+If you have a case where you believe the effect of one independent variable depends on the value of another independent variable, you can use regression analysis with interaction terms. In this approach, we extend the simple linear regression model to include an interaction term (a multiplication) between the two independent variables (see [note](#Notes) on how this multiplication arises).
 
 ## Considerations
-::: callout-caution
+::: callout-note
 - We have the same assumptions as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- We wish to model the relationship between dependent variable *Y* and independent variable $X_1$ to vary as a function of independent variable $X_2$. To do this, we explicitly model the hypothesis that the slope between *Y* and $X_1$ depends—is conditional—upon $X_2$.
+- We wish to model the relationship between a dependent variable, *Y*, and an independent variable,  $X_1$, whose effect varies as a function of a second independent variable $X_2$. To do this, we explicitly model the hypothesis that the slope between *Y* and $X_1$ depends on (i.e., is conditional on) $X_2$.
 
-- For continuous interactions with scaled data, the intercept becomes the [<span style="color:#0D6EFD">grand mean 🛈</span>]{#grandMean} of the outcome variable.
+- For continuous interactions with normalized data, the intercept becomes the [<span style="color:#0D6EFD">grand mean 🛈</span>]{#grandMean} of the outcome variable.
 
-- The interpretation of estimates is more complex. The estimate for a non-interaction term reflects the expected change in *Y* when $X_1$ increases by one unit, holding $X_2$ constant at its average value. The estimate for the interaction term represents how the effect of $X_1$ on *Y* changes depending on the value of $X_2$, and vice versa, showing how the relationship between the two variables influences the outcome *Y*.
+- The interpretation of slopes estimates is more complex. The coefficient for a non-interaction term reflects the expected change in *Y* when $X_1$ increases by one unit, holding $X_2$ constant at its average value. The coefficient for the interaction term represents how the effect of $X_1$ on *Y* changes depending on the value of $X_2$, and vice versa, showing how the relationship between the two variables influences the outcome *Y*.
 
 - [<span style="color:#0D6EFD">Triptych 🛈</span>]{#triptych} plots are very handy for understanding the impact of interactions, especially when more than two interactions are present.
 
 :::
 
 ## Example
-Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the Bayesian Inference (BI) package. The data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption.
+Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the Bayesian Inference (BI) package. The data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -39,7 +39,7 @@ m = bi(platform='cpu')
 from importlib.resources import files
 data_path = files('BI.resources.data') / 'tulips.csv'
 m.data(data_path, sep=';')
-m.scale(['blooms', 'water', 'shade']) # Scale
+m.scale(['blooms', 'water', 'shade']) # Normalize
 
 
 # Define model ------------------------------------------------
@@ -66,7 +66,7 @@ m=importbi(platform='cpu')
 
 # Load csv file
 m$data(paste(system.file(package = "BI"),"/data/tulips.csv", sep = ''), sep=';')
-m$scale(list('blooms', 'water', 'shade')) # Scale
+m$scale(list('blooms', 'water', 'shade')) # Normalize
 m$data_to_model(list('blooms', 'water', 'shade')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
@@ -95,7 +95,7 @@ m$summary() # Get posterior distributions
 ## *Frequentist formulation*
 We model the relationship between the input features ($X_1$ and $X_2$) and the target variable ($Y$) using the following equation:
 $$
-𝑌_i = \alpha + \beta_1 𝑋_{1i} + \beta_2 𝑋_{2i} + \beta_{interaction} 𝑋_{1i} 𝑋_{2i} + \sigma
+𝑌_i = \alpha + \beta_1 𝑋_{[1,i]} + \beta_2 𝑋_{[2,i]} + \beta_3 𝑋_{[1,i]} 𝑋_{[2,i]} + \epsilon_i
 $$
 
 Where:
@@ -104,21 +104,20 @@ Where:
 
 - $\alpha$ is the intercept term.
 
-- $X_{1i}$ and $X_{2i}$ are the two values of the independent continuous variables for observation *i*.
+- $X_{[1,i]}$ and $X_{[2,i]}$ are the values of the two independent variables for observation *i*.
 
-- $\beta_1$ and $\beta_2$ are the regression coefficients for $X_{1}$ and $X_{2}$, respectively.
+- $\beta_1$ and $\beta_2$ are the coefficients for $X_{1}$ and $X_{2}$, respectively, when the other variable has value 0.
 
-- $\beta_{interaction}$ is the regression coefficient for the interaction term $(X_{1} X_{2})$.
+- $\beta_3$ is the coefficient which controls the extent to which the coefficient on one variable depends on the value of the other.
 
-- $\sigma$ is the error term, assumed to be normally distributed.
+- $\epsilon_i$ is the error term, assumed to be independent and normally distributed.
 
-In this context, the interaction term $X_{1i} * X_{2i}$ captures the joint effect of $X_{1i}$ and $X_{2i}$ on the target variable $Y_i$.
 
 ### *Bayesian formulation*
-In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
+In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model as follows:
 
 $$
-Y \sim Normal(\alpha + \beta_1 X_{1i} + \beta_2 X_{2i} + \beta_{interaction} X_{1i} X_{2i}, \sigma)
+Y_i \sim Normal(\alpha + \beta_1 X_{[1,i]} + \beta_2 X_{[2,i]} + \beta_{3} X_{[1,i]} X_{[2,i]}, \sigma)
 $$
 
 $$
@@ -134,7 +133,7 @@ $$
 $$
 
 $$
-\beta_{interaction} \sim Normal(0,1)
+\beta_{3} \sim Normal(0,1)
 $$
 
 $$
@@ -145,13 +144,32 @@ Where:
 
 - $Y_i$ is the dependent variable for observation *i*.
 
-- $\alpha$ is the prior distribution for the intercept.
+- $\alpha$ is the intercept term, which in this case has a unit-normal prior.
 
-- $\beta_1$,  $\beta_2$, and $\beta_{interaction}$ are the prior distributions for the regression coefficients.
+- $\beta_1$ and $\beta_2$ are the coefficients for $X_{1}$ and $X_{2}$, respectively, when the other variable has value 0.
 
-- $X_{1i}$ and $X_{2i}$ are the two values of the independent continuous variables for observation *i*.
+- $\beta_3$ is the coefficient which controls the extent to which the coefficient on one variable depends on the value of the other.
 
-- $\sigma$ is the prior distribution for the standard deviation, ensuring it is positive.
+- $X_{[1,i]}$ and $X_{[2,i]}$ are the two values of the independent continuous variables for observation *i*.
+
+- $\sigma$ is a standard deviation parameter, which here has an $Exponential$ prior that constrains it to be positive.
+
+## Notes{#Notes}
+::: callout-note
+The interaction term equation:
+$$
+Y_i \sim Normal(\alpha + \beta_1 X_{[1,i]} + \beta_2 X_{[2,i]} + \beta_{3} X_{[1,i]} X_{[2,i]}, \sigma)
+$$
+
+
+can be re-written as:
+$$
+Y_i \sim Normal(\alpha + (\beta_1 + \beta_{3} X_{[2,i]}) X_{[1,i]} + \beta_2 X_{[2,i]}, \sigma)
+$$
+
+simply by factoring the terms with $X_{[1,i]}$ in them. The result is that the coefficient on $X_{[1,i]}$ is written specifically as a linear regression model of $X_{[2,i]}$.
+:::
 
 ## Reference(s)
-@mcelreath2018statistical
+::: {#refs}
+:::

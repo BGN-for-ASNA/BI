@@ -9,7 +9,7 @@ class manip():
     The manip class serves as a comprehensive data preprocessing and manipulation tool, specifically designed to prepare data for use with JAX-based models. It encapsulates common data transformation tasks, starting from loading data with pandas, applying various encodings and scaling, and finally converting the data into JAX-compatible arrays.
     """
     def __init__(self):
-        """Initialize the manip class with data modification tracking and dtype mapping."""
+        """## Initialize the manip class with data modification tracking and dtype mapping"""
         self.data_modification = {}
         self.pandas_to_jax_dtype_map = {
             'int64': jnp.int64,
@@ -30,13 +30,13 @@ class manip():
 
     # Import data----------------------------
     def data(self, path, **kwargs):
-        """Load data from CSV file.
+        """## Load data from CSV file.
         
-        Args:
-            path (str): Path to the CSV file
-            **kwargs: Additional arguments for pd.read_csv
+        ### Args:
+            - *path* (str): Path to the CSV file
+            - * **kwargs*: Additional arguments for pd.read_csv
             
-        Returns:
+        ### Returns:
             pd.DataFrame: Loaded dataframe
         """
         self.data_original_path = path
@@ -46,13 +46,13 @@ class manip():
         return self.df
 
     def OHE(self, cols = 'all'):
-        """Perform one-hot encoding on specified columns.
+        """## Perform one-hot encoding on specified columns
         
-        Args:
-            cols (str or list): Columns to encode. Use 'all' for all object-type columns
+        ### Args:
+            - *cols* (str or list): Columns to encode. Use 'all' for all object-type columns
             
-        Returns:
-            pd.DataFrame: DataFrame with encoded columns
+        ### Returns:
+            - *pd.DataFrame*: DataFrame with encoded columns
         """
         if cols == 'all':
             colCat = list(self.df.select_dtypes(['object']).columns)    
@@ -71,13 +71,13 @@ class manip():
         return OHE
 
     def index(self, cols = 'all'):
-        """Create index encoding for categorical columns.
+        """## Create index encoding for categorical columns
         
-        Args:
-            cols (str or list): Columns to encode. Use 'all' for all object-type columns
+        ### Args:
+            - *cols* (str or list): Columns to encode. Use 'all' for all object-type columns
             
-        Returns:
-            pd.DataFrame: DataFrame with encoded columns
+        ### Returns:
+            - *pd.DataFrame*: DataFrame with encoded columns
         """
         self.index_map = {}
         if cols == 'all':
@@ -104,17 +104,17 @@ class manip():
     
     @jax.jit
     def scale_var(self, x):
-        """JAX-jitted function to scale/standardize a single variable."""
+        """## JAX-jitted function to scale/standardize a single variable"""
         return (x - x.mean()) / x.std()
 
     def scale(self, data = 'all'):
-        """Standardize specified columns.
+        """## Standardize specified columns.
         
-        Args:
-            data (str or list): Columns to standardize. Use 'all' for all columns
+        ### Args:
+            - *data* (str or list): Columns to standardize. Use 'all' for all columns
             
-        Returns:
-            pd.DataFrame: Standardized dataframe
+        ### Returns:
+            - *pd.DataFrame*: Standardized dataframe
         """        
         if type(data) == str:
             return self.scale_var(data)
@@ -135,14 +135,14 @@ class manip():
         return self.df
     
     def to_float(self, cols = 'all', type = 'float32'):
-        """Convert specified columns to float type.
+        """## Convert specified columns to float type
         
-        Args:
-            cols (str or list): Columns to convert. Use 'all' for all columns
-            type (str): Float type to convert to (default: float32)
+        ### Args:
+            - *cols* (str or list): Columns to convert. Use 'all' for all columns
+            - *type* (str): Float type to convert to (default: float32)
             
-        Returns:
-            pd.DataFrame: Converted dataframe
+        ### Returns:
+            - *pd.DataFrame*: Converted dataframe
         """        
         if cols == 'all':
             for col in self.df.columns:                
@@ -158,14 +158,14 @@ class manip():
         return self.df
 
     def to_int(self, cols = 'all', type = 'int32'):
-        """Convert specified columns to integer type.
+        """## Convert specified columns to integer type
         
-        Args:
-            cols (str or list): Columns to convert. Use 'all' for all columns
-            type (str): Integer type to convert to (default: int32)
+        ### Args:
+            - *cols* (str or list): Columns to convert. Use 'all' for all columns
+            - *type* (str): Integer type to convert to (default: int32)
             
-        Returns:
-            pd.DataFrame: Converted dataframe
+        ### Returns:
+            - *pd.DataFrame*: Converted dataframe
         """
         if cols == 'all':
             for col in self.df.columns:                
@@ -179,14 +179,14 @@ class manip():
         self.data_modification['int'] = cols # store info of scaled columns
 
     def pd_to_jax(self, model, bit = None):
-        """Convert pandas dataframe to JAX compatible format for a model.
+        """## Convert pandas dataframe to JAX compatible format for a model.
         
-        Args:
-            model: JAX model to prepare data for
-            bit (str): Bit precision for numbers (default: 32)
+        ### Args:
+            - *model*: JAX model to prepare data for
+            - *bit* (str): Bit precision for numbers (default: 32)
             
-        Returns:
-            dict: JAX formatted dictionary
+        ### Returns:
+            - *dict*: JAX formatted dictionary
         """        
         params = inspect.signature(model).parameters
         args_without_defaults = []
@@ -216,13 +216,13 @@ class manip():
         return result     
 
     def data_to_model(self, cols):
-        """Prepare data for model input in JAX format.
+        """## Prepare data for model input in JAX format
         
-        Args:
-            cols (list): List of columns to include in model data
+        ### Args:
+            - *cols* (list): List of columns to include in model data
             
-        Returns:
-            dict: JAX formatted dictionary
+        ### Returns:
+            - *dict*: JAX formatted dictionary
         """       
         jax_dict = {}
         for col in cols:

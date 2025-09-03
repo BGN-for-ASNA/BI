@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -182,6 +197,10 @@ window.Quarto = {
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -452,7 +471,7 @@ window.Quarto = {
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating a Bayesian measurement error model using the Bayesian Inference (BI) package. The data consist of three continuous variables (marriage rate, divorce rate, age), and the goal is to estimate the effect of age and marriage rate on the divorce rate while considering that the divorce rate has a measurement error.</p>
+<p>Below is an example code snippet demonstrating a Bayesian measurement error model using the Bayesian Inference (BI) package. The data consist of three continuous variables (marriage rate, divorce rate, age), and the goal is to estimate the effect of age and marriage rate on the divorce rate while considering that the divorce rate has a measurement error. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -500,27 +519,27 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <section id="bayesian-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian formulation</em></h3>
-<p><span class="math display">\[
+<p><span class="math display">
 D_i^* \sim Normal(D_i, \sigma_i)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 D_i \sim Normal(\mu_i, \sigma)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \mu_i = \alpha + \beta_A A_i + \beta_M M_i
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \sigma \sim Normal(1)
-\]</span></p>
+</span></p>
 <p>where:</p>
 <ul>
-<li><p><span class="math inline">\(D_i^*\)</span> is the observed divorce rate.</p></li>
-<li><p><span class="math inline">\(D_i\)</span> is the true divorce rate.</p></li>
-<li><p><span class="math inline">\(\mu_i\)</span> is the mean of the true divorce rate.</p></li>
-<li><p><span class="math inline">\(\sigma\)</span> is the standard deviation of the true divorce rate.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(\beta_A\)</span> is the regression coefficient for age.</p></li>
-<li><p><span class="math inline">\(\beta_M\)</span> is the regression coefficient for marriage rate.</p></li>
+<li><p><span class="math inline">D_i^*</span> is the observed divorce rate.</p></li>
+<li><p><span class="math inline">D_i</span> is the true divorce rate.</p></li>
+<li><p><span class="math inline">\mu_i</span> is the mean of the true divorce rate.</p></li>
+<li><p><span class="math inline">\sigma</span> is the standard deviation of the true divorce rate.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term.</p></li>
+<li><p><span class="math inline">\beta_A</span> is the regression coefficient for age.</p></li>
+<li><p><span class="math inline">\beta_M</span> is the regression coefficient for marriage rate.</p></li>
 </ul>
 </section>
 </section>
@@ -542,17 +561,16 @@ Note
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

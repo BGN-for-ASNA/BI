@@ -1,0 +1,38 @@
+---
+title: "Import Data and handle it"
+sidebar: start
+---
+
+The BI class can import data from a csv file or from a dictionary for data that can't be stored in a tabular format.
+
+## Import tabular data from a csv file
+::: {.panel-tabset group="language"}
+## Python
+``` python
+m.data(data_path, sep=';') 
+```
+## R
+``` R
+m$data(data_path,  sep=';')
+```
+:::
+
+## Import non tabular data
+First you need to create our own dictionary with the data.
+::: {.panel-tabset group="language"}
+## Python
+``` python
+m.data_on_model = dict(
+    ID1 = Value1,
+    ID2 = Value2, 
+)
+
+```
+## R
+``` R
+keys <- c("ID1","ID2")
+values <- list(Value1,Value2)
+data = py_dict(keys, values, convert = TRUE)
+m$data_on_model=data
+```
+:::

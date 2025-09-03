@@ -1,7 +1,8 @@
 ---
-title: "Linear Regression for a Continuous Variable"
+title: "Univariate Linear Regression"
 description: "An introduction to linear regression models."
 categories: [Regression, Supervised Learning]
+image: "Figures/1.jpeg"
 order: 2
 ---
 
@@ -13,28 +14,28 @@ To study relationships between a continuous independent variable and a continuou
 
 2) A coefficient $\beta$, which informs us about the slope of the line. In other words, it tells us how much Y (height) increases for each increment of the independent variable (weight).
 
-3) A variance term $\sigma$, which informs us about the spread of points around the line, i.e., the variance around the prediction.
+3) A standard deviation term $\sigma$, which informs us about the spread of points around the line, i.e., the variance around the prediction.
 
 
 ## Considerations
 
-::: callout-caution
--   Bayesian models consider [<span style="color:#0D6EFD">model parameter uncertainty 🛈</span>]{#uncertainty}, allowing for the quantification of confidence or uncertainty through the parameters' [<span style="color:#0D6EFD">posterior distribution 🛈</span>]{#posterior}. Therefore, we need to declare [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for each model parameter, in this case for: $\alpha$, $\beta$, and $\sigma^2$.
+::: callout-note
+-   Bayesian models allow us to update our understanding of parameters conditional on an observed data set. This allow us to consider [<span style="color:#0D6EFD">model parameter uncertainty 🛈</span>]{#uncertainty}, which quantifies our confidence or uncertainty in the parameters in a form of a [<span style="color:#0D6EFD">posterior distribution 🛈</span>]{#posterior}. Therefore, we need to declare [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for each model parameter, in this case for: $\alpha$, $\beta$, and $\sigma$.
 
 - Prior distributions are built following these considerations:
 
-  - As the data is [<span style="color:#0D6EFD">scaled 🛈</span>]{#scaled} (see introduction), we can use a Normal distribution for $\alpha$ and $\beta$, with a mean of 0 and a standard deviation of 1.
+  - As the data are [<span style="color:#0D6EFD">normalized🛈</span>]{#scaled} (see introduction), we can use a Normal distribution for $\alpha$ and $\beta$, with a mean of 0 and a standard deviation of 1. This tends to be a weakly regularizing prior, and weaker priors like a $Normal(0,10)$ are also possible.
 
-  - Since $\sigma$ is strictly positive, we can use any distribution that is positively defined, such as the Exponential or Uniform distribution.
+  - Since $\sigma$ must be strictly positive, we must use a distribution with supprt on the positive reals, such as the *Exponential* or *Folded-Normal* distribution.
 
-- Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without needing a [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF} (see introduction). This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
+- Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without depending on a non linear [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF} (see introduction). This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
 
 
 :::
 
 ## Example
 
-Below is an example code snippet demonstrating Bayesian linear regression using the Bayesian Inference (BI) package. Data consist of two continuous variables (height and weight), and the goal is to estimate the effect of weight on height.
+Below is an example code snippet demonstrating *Bayesian linear regression* using the Bayesian Inference (**BI**) package. Data consist of two continuous variables (height and weight), and the goal is to estimate the effect of weight on height. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -50,8 +51,8 @@ m = bi(platform='cpu')
 from importlib.resources import files
 data_path = files('BI.resources.data') / 'Howell1.csv'
 m.data(data_path, sep=';') 
-m.df = m.df[m.df.age > 18] # Manipulate
-m.scale(['weight']) # Scale
+m.df = m.df[m.df.age > 18] # Subset data to adults
+m.scale(['weight']) # Normalize
 
 # Define model ------------------------------------------------
 def model(weight, height):    
@@ -77,10 +78,10 @@ m=importbi(platform='cpu')
 m$data(paste(system.file(package = "BI"),"/data/Howell1.csv", sep = ''), sep=';')
 
 # Filter data frame
-m$df = m$df[m$df$age > 18,]
+m$df = m$df[m$df$age > 18,] # Subset data to adults
 
 # Scale
-m$scale(list('weight')) 
+m$scale(list('weight'))  # Normalize
 
 # Convert data to JAX arrays
 m$data_to_model(list('weight', 'height'))
@@ -109,9 +110,9 @@ m$summary()
 
 ### *Frequentist Formulation*
 
-The following equation allows us to draw a line:
+The following equation describe the frequentist formulation of linear regression:
 $$
-Y_i = \alpha + \beta  X_i + \sigma_i
+Y_i = \alpha + \beta  X_i + \epsilon_i
 $$
 
 Where:
@@ -124,7 +125,7 @@ Where:
 
 -   $X_i$ is the input variable for observation *i*.
 
--   $\sigma_i$ is the error term for observation *i*.
+-   $\epsilon_i$ is the error term for observation *i*, and the vector of the error terms, $\epsilon$, are assumed to be independent and identically distributed.
 
 ### *Bayesian Formulation*
 
@@ -152,16 +153,18 @@ Where:
 
 -   $\alpha$ and $\beta$ are the intercept and regression coefficient, respectively.
 
--   $X_i$ is the input variable for observation *i*.
+-   $X_i$ is the indepenent variable for observation *i*.
 
 -   $\sigma$ is the standard deviation of the normal distribution, which describes the variance in the relationship between the dependent variable $Y$ and the independent variable $X$.
 
 
 ## Notes
 ::: callout-note
-We can observe a difference between the *Frequentist* and the *Bayesian* formulation regarding the error term. Indeed, in the *Frequentist* formulation, the error term $\sigma_i$ represents random fluctuations around the predicted values. This assumption leads to point estimates for $\alpha$ and $\beta$, without accounting for uncertainty in these estimates. In contrast, the *Bayesian* formulation treats $\sigma$ as a parameter with its own prior distribution. This allows us to incorporate our uncertainty about the error term into the model.
+We observe a difference between the *Frequentist* and the *Bayesian* formulation regarding the error term. Indeed, in the *Frequentist* formulation, the error terms $\epsilon$ represents residual fluctuations around the predicted values. This assumption leads to point estimates for $\alpha$ and $\beta$. In contrast, the *Bayesian* formulation treats $\sigma$ as a parameter with its own prior distribution. This allows us to incorporate our uncertainty about the error term into the model.
 :::
 
 ## Reference(s)
 
-@mcelreath2018statistical
+
+::: {#refs}
+:::

@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Modeling binomial-type data with overdispersion, where the probability of success follows a beta distribution.">
+<meta name="description" content="Modeling binomial-type data with overdispersion.">
 
 <title>Beta-Binomial Model – Bayesian Inference (BI)</title>
 <style>
@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -176,12 +191,16 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./get started.html"> 
+    <a class="nav-link" href="./start/Installation.html"> 
 <span class="menu-text">Get started</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -235,7 +254,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Linear Regression for a Continuous Variable</span></a>
+ <span class="menu-text">Univariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -259,7 +278,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Binomial Model (Logistic Regression)</span></a>
+ <span class="menu-text">Binomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -430,7 +449,7 @@ window.Quarto = {
 
 <div>
   <div class="description">
-    Modeling binomial-type data with overdispersion, where the probability of success follows a beta distribution.
+    Modeling binomial-type data with overdispersion.
   </div>
 </div>
 
@@ -466,10 +485,10 @@ Caution
 <ul>
 <li><p>We have the same considerations as for <a href="./5. Binomial model.html">Binomial regression</a>.</p></li>
 <li><p>A Beta-Binomial model assumes that each binomial count observation has its own probability of success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.</p></li>
-<li><p>A Beta distribution has two parameters: the rates for each probability and a shape parameter θ. θ influences how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, which determine the concentration of probability around 0 and 1.</p>
+<li><p>A Beta distribution has two parameters: the rates for each probability and a shape parameter θ. θ influences how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, <span class="math inline">\alpha</span> and <span class="math inline">\beta</span>, which determine the concentration of probability around 0 and 1.</p>
 <ul>
 <li>If both are equal to or greater than 1, the distribution is bell-shaped and centered around 0.5.</li>
-<li>If <span class="math inline">\(\alpha &gt; \beta\)</span>, the distribution is skewed toward 1, and if <span class="math inline">\(\beta &gt; \alpha\)</span>, it is skewed toward 0. Thus, the shape parameters <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\eta\)</span> provide flexibility in modeling various types of prior beliefs about probabilities.</li>
+<li>If <span class="math inline">\alpha &gt; \beta</span>, the distribution is skewed toward 1, and if <span class="math inline">\beta &gt; \alpha</span>, it is skewed toward 0. Thus, the shape parameters <span class="math inline">\gamma</span> and <span class="math inline">\eta</span> provide flexibility in modeling various types of prior beliefs about probabilities.</li>
 </ul></li>
 </ul>
 </div>
@@ -483,7 +502,7 @@ Caution
 <li><p>One independent categorical variable representing individuals’ gender (gid).</p></li>
 <li><p>Additionally, we have the number of applications (applications) per gender, which will be used to account for independent rates.</p></li>
 </ol>
-<p>The goal is to evaluate whether the probability of admission is different between genders, while accounting for differences in the number of applications between genders.</p>
+<p>The goal is to evaluate whether the probability of admission is different between genders, while accounting for differences in the number of applications between genders. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -555,34 +574,34 @@ Caution
 <section id="bayesian-model" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-model"><em>Bayesian Model</em></h3>
 <p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
-<p><span class="math display">\[
+<p><span class="math display">
 Y_i \sim BetaBinomial(n_i, \gamma_i, \eta_i)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \gamma_i = \overline{\rho}   \tau
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \eta_i = (1 - \overline{\rho} ) \tau
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \overline{\rho} = logit(\alpha_i)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \tau = \phi + 2
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \alpha \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \phi \sim Exponential(1)
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the count of successes for the <em>i</em>-th observation, which follows a beta-binomial distribution with <span class="math inline">\(n_i\)</span> trials.</p></li>
-<li><p><span class="math inline">\(\gamma_i\)</span> represents the concentration parameter for the number of successes, derived from the probability of success and scaled by <span class="math inline">\(\tau\)</span>.</p></li>
-<li><p><span class="math inline">\(\eta_i\)</span> represents the concentration parameter for failures, derived from the probability of failure <span class="math inline">\((1 - \overline{\rho} )\)</span> and also scaled by <span class="math inline">\(\tau\)</span>.</p></li>
-<li><p><span class="math inline">\(\overline{\rho}\)</span> is the probability of success for the <em>i</em>-th observation. The logit function transforms the linear predictor α (which can take any real value) into a probability value between 0 and 1.</p></li>
-<li><p><span class="math inline">\(\tau\)</span> is derived from 𝜙 and is used as a scaling factor for the shape parameters 𝛾 and 𝜂.</p></li>
+<li><p><span class="math inline">Y_i</span> is the count of successes for the <em>i</em>-th observation, which follows a beta-binomial distribution with <span class="math inline">n_i</span> trials.</p></li>
+<li><p><span class="math inline">\gamma_i</span> represents the concentration parameter for the number of successes, derived from the probability of success and scaled by <span class="math inline">\tau</span>.</p></li>
+<li><p><span class="math inline">\eta_i</span> represents the concentration parameter for failures, derived from the probability of failure <span class="math inline">(1 - \overline{\rho} )</span> and also scaled by <span class="math inline">\tau</span>.</p></li>
+<li><p><span class="math inline">\overline{\rho}</span> is the probability of success for the <em>i</em>-th observation. The logit function transforms the linear predictor α (which can take any real value) into a probability value between 0 and 1.</p></li>
+<li><p><span class="math inline">\tau</span> is derived from 𝜙 and is used as a scaling factor for the shape parameters 𝛾 and 𝜂.</p></li>
 <li><p>α is a vector of parameters, each representing the effect of group <em>i</em> on the success probability.</p></li>
 <li><p>ϕ is a random variable following an exponential distribution with a rate of 1.</p></li>
 </ul>
@@ -590,17 +609,16 @@ Y_i \sim BetaBinomial(n_i, \gamma_i, \eta_i)
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -884,7 +902,7 @@ tippy('#chol', {
 });
 
 tippy('#uncertainty', {
-  content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+  content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
   allowHTML: true,
   interactive: true,
   delay: 100,
@@ -1608,8 +1626,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./5. Binomial model.html" class="pagination-link" aria-label="Binomial Model (Logistic Regression)">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Binomial Model (Logistic Regression)</span>
+      <a href="./5. Binomial model.html" class="pagination-link" aria-label="Binomial Model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Binomial Model</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

@@ -8,7 +8,7 @@
 
 <meta name="description" content="Modeling a binary outcome (e.g., success/failure) based on one or more predictor variables.">
 
-<title>Binomial Model (Logistic Regression) – Bayesian Inference (BI)</title>
+<title>Binomial Model – Bayesian Inference (BI)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -126,8 +126,22 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -156,6 +170,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="styles.scss">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -176,12 +191,16 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./get started.html"> 
+    <a class="nav-link" href="./start/Installation.html"> 
 <span class="menu-text">Get started</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
@@ -214,7 +233,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./5. Binomial model.html">Binomial Model (Logistic Regression)</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./5. Binomial model.html">Binomial Model</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -235,7 +254,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Linear Regression for a Continuous Variable</span></a>
+ <span class="menu-text">Univariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -259,7 +278,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Binomial Model (Logistic Regression)</span></a>
+ <span class="menu-text">Binomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -385,7 +404,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -422,7 +441,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Binomial Model (Logistic Regression)</h1>
+<h1 class="title">Binomial Model</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Classification</div>
     <div class="quarto-category">Regression</div>
@@ -467,14 +486,14 @@ Caution
 <div class="callout-body-container callout-body">
 <ul>
 <li><p>We have the same considerations as for <a href="./1. Linear Regression for continuous variable.html">Regression for continuous variable</a>.</p></li>
-<li><p>The first link function is the <em>logit</em>. The <em>logit</em> link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution <span class="math inline">\(\in[0,1]\)</span>.</p></li>
+<li><p>The first link function is the <em>logit</em>. The <em>logit</em> link function in the Bayesian binomial model converts the linear combination of predictor variables into probabilities, making it suitable for modeling binary outcomes. It helps to estimate the relationship between predictors and the probability of success, ensuring results fall within the bounds of the binomial distribution <span class="math inline">\in[0,1]</span>.</p></li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet that demonstrates Bayesian binomial regression using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents which side individuals pulled. The goal is to evaluate the probability of pulling the left side.</p>
+<p>Below is an example code snippet that demonstrates Bayesian binomial regression using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (<em>pulled_left</em>), which represents which side individuals pulled. The goal is to evaluate the probability of pulling the left side. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -534,39 +553,41 @@ Caution
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <section id="frequentist-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist formulation</em></h3>
-<p>We model the relationship between the independent variable (<span class="math inline">\(X_i\)</span>) and the binary dependent variable (<span class="math inline">\(Y_i\)</span>) using the following equation: <span class="math display">\[
+<p>We model the relationship between the independent variable (<span class="math inline">X_i</span>) and the binary dependent variable (<span class="math inline">Y_i</span>) using the following equation: <span class="math display">
 logit(Y_i) = \alpha + \beta X_i
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the probability of success (i.e., the probability of the binary outcome being 1) for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(\alpha\)</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\(\beta\)</span> is the regression coefficient.</p></li>
-<li><p><span class="math inline">\(X_i\)</span> is the value of the independent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(logit(Y_i)\)</span> is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">Y_i</span> is the probability of success (i.e., the probability of the binary outcome being 1) for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">logit(Y_i)</span> is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficient.</p></li>
+<li><p><span class="math inline">X_i</span> is the value of the independent variable for observation <em>i</em>.</p></li>
 </ul>
 </section>
 <section id="bayesian-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian formulation</em></h3>
 <p><span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
-<p><span class="math display">\[
-Y_i \sim Binomial(n = 1, p)
-\]</span></p>
-<p><span class="math display">\[
-logit(p) \sim \alpha + \beta X_i
-\]</span></p>
-<p><span class="math display">\[
+<p><span class="math display">
+Y_i \sim Binomial(n = 1, p_i)
+</span></p>
+<p><span class="math display">
+logit(p_i) \sim \alpha + \beta X_i
+</span></p>
+<p><span class="math display">
 \alpha \sim Normal(0,1)
-\]</span></p>
-<p><span class="math display">\[
+</span></p>
+<p><span class="math display">
 \beta \sim Normal(0,1)
-\]</span></p>
+</span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">\(Y_i\)</span> is the probability of success (i.e., the probability of the binary outcome being 1) for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\(n = 1\)</span> represents the number of trials in the binomial distribution (binary outcome).</p></li>
-<li><p><span class="math inline">\(\beta\)</span> and <span class="math inline">\(\alpha\)</span> are the prior distributions for the regression coefficient and intercept, respectively.</p></li>
-<li><p><span class="math inline">\(logit\)</span> is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">Y_i</span> is the probability of success (i.e., the probability of the binary outcome being 1) for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">p_i</span> is the probability of success (0 &lt;= <span class="math inline">p_i</span> &lt;= 1) for observation <em>i</em>, the probability of a success.</p></li>
+<li><p><span class="math inline">logit(p_i)</span> is the log-odds of success, calculated as the log of the odds ratio of success. Through this link function, the relationship between the independent variables and the log-odds of success is modeled linearly, allowing us to interpret the effect of each independent variable on the log-odds of success for observation <em>i</em>.</p></li>
+<li></li>
+<li><p><span class="math inline">n = 1</span> represents the number of trials in the binomial distribution (binary outcome).</p></li>
+<li><p><span class="math inline">\beta</span> and <span class="math inline">\alpha</span> are the regression coefficient and intercept, respectively.</p></li>
 </ul>
 </section>
 </section>
@@ -611,17 +632,16 @@ Note
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span></p>
-
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
+</div>
+</div>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
-McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC.
-</div>
-</div></section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -905,7 +925,7 @@ tippy('#chol', {
 });
 
 tippy('#uncertainty', {
-  content: "<span style='color: white;'>Model parameters uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+  content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
   allowHTML: true,
   interactive: true,
   delay: 100,
