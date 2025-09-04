@@ -626,887 +626,446 @@ Ross, Cody T, Richard McElreath, and Daniel Redhead. 2024. <span>“Modelling An
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
-
 <script src="https://unpkg.com/tippy.js@6"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-
 <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-
-
 <script>
-
 function convertMarkdownToHTML(markdown) {
-
   const options = {
-
     breaks: true,
-
     gfm: true,
-
   };
-
   const htmlContent = marked.parse(markdown, options);
-
   return htmlContent;
-
 }
 
-
-
 tippy('#Uncertainty', {
-
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#priorKnowledge', {
-
   content: convertMarkdownToHTML('When data are sparse or noisy, incorporating prior knowledge through the prior distribution can improve the model’s performance. This is especially useful in fields where previous research or expert opinion is available.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#Flexibility', {
-
   content: convertMarkdownToHTML('Bayesian approaches naturally extend to complex settings such as hierarchical models, models with latent variables, or situations with missing data. Their ability to blend different sources of information makes them ideal for modern, data-rich applications.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#PPCs', {
-
   content: convertMarkdownToHTML('PPCs involve generating *dummy data* (or simulated observations) from the posterior predictive distribution and comparing these simulated datasets with the actual observed data.By comparing summary statistics (e.g., means, variances) or visualizations (e.g., histograms, scatter plots) between \( y^{\text{rep}} \) and the observed data, we can assess if our model is capable of reproducing key features of the data.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#HPDI', {
-
   content: convertMarkdownToHTML('HPDI is a metric that describe the distribution of a parameter. The Highest Posterior Density Interval is the narrowest interval that contains a specified proportion (e.g., 95%) of the posterior probability. HPDIs are especially useful when the posterior distribution is skewed or multimodal as it help in understanding the uncertainty of parameter estimates and in communicating the degree of uncertainty in predictions.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#convDiag', {
-
   content: convertMarkdownToHTML('Convergence diagnostics are statistical tools and methods used to assess whether a Markov Chain Monte Carlo (MCMC) algorithm has sufficiently explored the target posterior distribution in Bayesian analysis. They help ensure that the chain has stabilized and that samples are reliable for inference.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#ESS', {
-
   content: convertMarkdownToHTML('ESS estimates how many independent samples our MCMC chain is equivalent to. Low ESS values indicate that samples are highly correlated, which might affect the reliability of posterior summaries.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#Rhat', {
-
   content: convertMarkdownToHTML('Rhat compares the variance between multiple chains to the variance within each chain. Values close to 1 (typically below 1.1) indicate good convergence.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
 
-
-
   tippy('#TP', {
-
     content: convertMarkdownToHTML('Trace plots are graphical tools used in MCMC diagnostics to visualize the sampled values of a parameter over iterations. They help assess the convergence and mixing behavior of the Markov chain.'),
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
-
-
 
   tippy('#AutoCor', {
-
     content: convertMarkdownToHTML('Autocorrelation plots visualize the correlation between samples in an MCMC chain as a function of the lag (distance between samples). They help assess how dependent the samples are and whether the chain is mixing efficiently.'),
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
-
-
 
   tippy('#DesPlot', {
-
     content: convertMarkdownToHTML('Density plots visualize the estimated posterior distribution of a parameter based on MCMC samples. They provide a smoothed representation of the distribution, helping assess central tendency, spread, and shape.'),
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
-
-
-
-
 
 
 
 tippy('#DP', {
-
   content: convertMarkdownToHTML('A dependent variable  is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#IP', {
-
   content: convertMarkdownToHTML('An independent variable is the variable that is manipulated or controlled in an analysis to observe its effect on a dependent variable. It represents the input or cause in a cause-and-effect relationship and is often denoted as X in statistical models.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#lk', {
-
   content: convertMarkdownToHTML('Likelihood is a statistical concept representing the probability of observing a given set of data, assuming specific values of the *parameters* in a model.It is not the same as probability; instead, it measures how well a model with certain parameters explains the observed data.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#pdist', {
-
   content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilities are assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variable takes finite or infinite values.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#intercept ', {
-
   content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as α in linear models.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#slope ', {
-
   content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
-
 
 
 tippy('#prior', {
-
   content: convertMarkdownToHTML('Priors are distributions that represent the value of the parameter before conditioning it on the data.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#BT', {
-
   content: '<span style="color: white;">Bayes\' Theorem describes how to update the probability of a hypothesis given new evidence. It states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use ofBayesian updating to improve the accuracy of the model.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
 
-
-
 tippy('#BUpdating', {
-
     content: '<span style="color: white;">Bayesian updating is the iterative process of refining beliefs by applying Bayes\' Theorem as new data becomes available.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
 
 
 
-
-
-
-
 tippy('#overdispersion', {
-
   content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#linkF', {
-
     content: '<span style="color: white;">The link function is a key component of the generalized linear model (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges. For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link (used in logistic regression), the coefficients relate to the log - odds of the outcome.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#simplex', {
-
   content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
   
-
 tippy('#triptych', {
-
     content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
     
-
 tippy('#hyperP', {
-
   content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#cov', {
-
     content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#centerRF', {
-
   content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#NodeF', {
-
     content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#DyadicF', {
-
     content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#senderF', {
-
     content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#receiverF', {
-
     content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#DyadicF2', {
-
     content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#expoB', {
-
     content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#censoB', {
-
     content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#assor', {
-
     content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#disassor', {
-
     content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
-
 
 
 tippy('#chol', {
-
   content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#uncertainty', {
-
   content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#posterior', {
-
   content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#scaled', {
-
   content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#grandMean', {
-
   content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their mean levels. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#ohe', {
-
   content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#indices', {
-
   content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#softmax', {
-
   content: `
-
   <span style='color: white;'>
-
     takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
-
     then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
-
     The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
-
     <strong>Formula:</strong><br>
-
     $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#kernel', {
-
   content: `
-
   <span style='color: white;'>
-
     A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
-
     in a higher-dimensional feature space without explicitly transforming them. 
-
     The kernel function allows for non-linear relationships by mapping input space to feature space, 
-
     where linear techniques can then be applied. 
-
     Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#kernelMean0', {
-
   content: `
-
   <span style='color: white;'>
-
     GP mean is usually set to zero as by setting the mean to zero, 
-
     we center the distribution around the origin. 
-
     This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
-
     can be thought of as deviations from this mean.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#signAmbiguity', {
-
   content: `
-
   <span style='color: white;'>
-
     PCA identifies directions (principal components) that capture the maximum variance in the data. However, the orientation of these components is not unique; both a vector and its negation represent the same principal direction. This means that if 𝑤 is a principal component, −𝑤 is equally valid.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#MatCov', {
-
   content: `
-
   <span style='color: white;'>
-
     A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
-
   </span>
-
   `, allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
     onShow(instance) {
-
       MathJax.typesetPromise([instance.reference]).then(() => {
-
         // Optional: if you want to do something after the typesetting
-
       });
-
     },
-
 });
-
-
 
 tippy('#RFcentered', {
-
   content: `
-
   <span style='color: white;'>
-
     The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
-
   </span>
-
   `, allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
     onShow(instance) {
-
       MathJax.typesetPromise([instance.reference]).then(() => {
-
         // Optional: if you want to do something after the typesetting
-
       });
-
     },
-
 });
 
-
-
 tippy('#LKJcorr', {
-
       content: `
-
   <span style='color: white;'>
-
     The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
 
-
-
 </script>
-
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

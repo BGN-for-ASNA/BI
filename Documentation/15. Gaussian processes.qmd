@@ -137,7 +137,7 @@ $$
     \vdots \\
     Z_{n}
 \end{pmatrix}
-\sim MVNormal \left(
+\sim \text{MVNormal} \left(
 \begin{pmatrix}
     0 \\
     \vdots \\
@@ -192,7 +192,7 @@ Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
 $$
 
 $$
-\gamma \sim MVNormal \left(
+\gamma \sim \text{MVNormal} \left(
 \begin{pmatrix}
     0 \\
     \vdots \\
@@ -207,24 +207,24 @@ K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
 $$
 
 $$
-\alpha \sim Normal(0,1)
+\alpha \sim \text{Normal}(0,1)
 $$
 
 $$
-\eta^2 \sim HalfCauchy(0,1)
+\eta^2 \sim \text{HalfCauchy}(0,1)
 $$
 
 $$
-p^2 \sim HalfCauchy(0,1)
+p^2 \sim \text{HalfCauchy}(0,1)
 $$
 
 where:
 
 - $Y_i$ is the i-th value for the dependent variable $Y$.
 
-- $\alpha$ is the intercept term with a prior of $Normal(0,1)$.
+- $\alpha$ is the intercept term with a prior of $\text{Normal}(0,1)$.
 
-- $\beta$ is the regression coefficient term with a prior of $Normal(0,1)$.
+- $\beta$ is the regression coefficient term with a prior of $\text{Normal}(0,1)$.
 
 - $X_i$ is the i-th value for the independent variable $X$.
 
