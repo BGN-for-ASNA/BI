@@ -123,14 +123,14 @@ In Bayesian survival analysis, we define priors for each parameter:
 
 1.  **Hazard Function**:
     The hazard rate at time $t$ for an individual is given by:
-    $$Y_i(t) = Poisson(\lambda(t) * censoring(t))$$
+    $$Y_i(t) = \text{Poisson}(\lambda(t) * censoring(t))$$
     $$\lambda(t) = \lambda_0(t)\exp(x\beta)$$
 
-    $$ \beta \sim Normal(\mu_\beta, \sigma^2_\beta) $$
+    $$ \beta \sim \text{Normal}(\mu_\beta, \sigma^2_\beta) $$
 
-    $$\mu_\beta \sim Normal(0, 10^2)$$
+    $$\mu_\beta \sim \text{Normal}(0, 10^2)$$
 
-    $$\sigma^2_\beta \sim Uniform(0, 10)$$
+    $$\sigma^2_\beta \sim \text{Uniform}(0, 10)$$
 
     Where:
 
@@ -145,14 +145,14 @@ In Bayesian survival analysis, we define priors for each parameter:
 
     -   $\lambda(t)$: Hazard function at time $t$.
 
-    -   $\lambda_0(t)$: Baseline hazard function (e.g., exponential or Weibull).
+    -   $\lambda_0(t)$: Baseline hazard function (e.g., $Exponential$ or $Weibull$).
 
     -   $x$: Covariates (e.g., age, treatment).
 
-    -   $\beta$: Regression coefficients capturing the effect of $x$ on the hazard are assigned a normal prior.
+    -   $\beta$: Regression coefficients capturing the effect of $x$ on the hazard are assigned a prior with a $Normal$ distribution.
 
-    -   $\mu_\beta$: Mean of the normal distribution.
+    -   $\mu_\beta$: Mean of the $Normal$ distribution.
 
-    -   $\sigma^2_\beta$: Variance of the normal distribution.
+    -   $\sigma^2_\beta$: Variance of the $Normal$ distribution.
 
 ## Reference(s)

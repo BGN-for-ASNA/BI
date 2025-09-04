@@ -143,7 +143,7 @@ Where:
 In the Bayesian formulation, we place [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} on all weights and biases and define a likelihood for the output. For a regression task with a one-layer BNN:
 
 $$
-Y_i \sim Normal(\mu_i, \sigma)
+Y_i \sim \text{Normal}(\mu_i, \sigma)
 $$
 
 $$
@@ -156,19 +156,19 @@ $$
 
 The parameters are now distributions:
 $$
-W_1 \sim Normal(0, 1)
+W_1 \sim \text{Normal}(0, 1)
 $$
 $$
-b_1 \sim Normal(0, 1)
+b_1 \sim \text{Normal}(0, 1)
 $$
 $$
-W_2 \sim Normal(0, 1)
+W_2 \sim \text{Normal}(0, 1)
 $$
 $$
-b_2 \sim Normal(0, 1)
+b_2 \sim \text{Normal}(0, 1)
 $$
 $$
-\sigma \sim Exponential(1)
+\sigma \sim \text{Exponential}(1)
 $$
 
 Where:
@@ -181,6 +181,7 @@ Where:
 ::: callout-note
 - The primary difference between a *Frequentist* and *Bayesian* neural network lies in how parameters are treated. In the frequentist approach, weights and biases are point estimates found by minimizing a loss function (e.g., via gradient descent). Techniques like *Dropout* or *L2 regularization* are often used to prevent overfitting, which can be interpreted as approximations to a Bayesian treatment. In contrast, the *Bayesian* formulation does not seek a single best set of weights. Instead, it uses methods like MCMC or Variational Inference to approximate the entire posterior distribution for every weight and bias. This provides a principled and direct way to quantify model uncertainty.
 - While present an example of non-linear regression, the Bayesian Neural Network can be used for linear regressions as well (keeping in mind that interpretation of the weights are impossible).
+- 
 ```python
 from BI import bi
 

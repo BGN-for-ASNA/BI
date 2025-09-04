@@ -134,7 +134,7 @@ summary[rownames(summary) %in% c('focal_effects[0]', 'target_effects[0]', 'block
 The simple model that can be built to model link weights between nodes *i* and *j* can be defined using a Poisson distribution:
 
 $$
-G_{ij} \sim Poisson(Y_{ij})
+G_{ij} \sim \text{Poisson}(Y_{ij})
 $$ 
 
 $$
@@ -161,7 +161,7 @@ $$
 \pi_j 
 \end{array}\right) 
 \sim 
-MultivariateNormal\left(\begin{array}{cc} 
+\text{MultivariateNormal}\left(\begin{array}{cc} 
 \left(\begin{array}{cc} 
 \sigma_\lambda \\
 \sigma_\pi
@@ -176,15 +176,15 @@ L *
 $$
 
 $$
-\sigma_\lambda \sim Exponential(1)
+\sigma_\lambda \sim \text{Exponential}(1)
 $$
 
 $$
-\sigma_\pi \sim Exponential(1)
+\sigma_\pi \sim \text{Exponential}(1)
 $$
 
 $$
-L \sim LKJ(2)
+L \sim \text{LKJ}(2)
 $$
 
 Similarly, for each dyad we can define varying intercepts and slopes to account for the correlation between the propensity to emit and receive links of a dyad:
@@ -195,7 +195,7 @@ $$
 \delta_{ji}
 \end{array}\right) 
 \sim 
-MultivariateNormal\left(\begin{array}{cc} 
+\text{MultivariateNormal}\left(\begin{array}{cc} 
 \left(\begin{array}{cc} 
 \sigma_\delta \\
 \sigma_\delta
@@ -210,15 +210,15 @@ L_\delta *
 $$
 
 $$
-\sigma_\delta \sim Exponential(1)
+\sigma_\delta \sim \text{Exponential}(1)
 $$
 
 $$
-\sigma_\delta \sim Exponential(1)
+\sigma_\delta \sim \text{Exponential}(1)
 $$
 
 $$
-L_\delta \sim LKJ(2)
+L_\delta \sim \text{LKJ}(2)
 $$
 
 ## Note(s)

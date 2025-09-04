@@ -1868,8 +1868,7 @@ class UnifiedDist:
         d = numpyro.distributions.copula.GaussianCopula(marginal_dist=marginal_dist, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            with numpyro.handlers.seed(rng_seed=seed_key):
-                return numpyro.sample(name, d, sample_shape=shape)
+            return d.sample(seed_key,   sample_shape=shape)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1948,8 +1947,7 @@ class UnifiedDist:
         d = numpyro.distributions.copula.GaussianCopulaBeta(concentration1=concentration1, concentration0=concentration0, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            with numpyro.handlers.seed(rng_seed=seed_key):
-                return numpyro.sample(name, d, sample_shape=shape)
+            return d.sample(seed_key,   sample_shape=shape)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2098,8 +2096,8 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.GaussianStateSpace(num_steps=num_steps, transition_matrix=transition_matrix, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
-            with numpyro.handlers.seed(rng_seed=seed_key):
-                return numpyro.sample(name, d, sample_shape=shape)
+            seed_key = random.PRNGKey(seed)
+            return d.sample(seed_key,   sample_shape=shape)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3905,7 +3903,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def negative_binomial(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
+    def negative_binomial2(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,    shape=(), event=0,create_obj=False):
         
 
         r"""### 

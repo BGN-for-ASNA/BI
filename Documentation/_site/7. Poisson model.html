@@ -428,7 +428,6 @@ window.Quarto = {
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><em>Frequentist formulation</em></a></li>
   <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><em>Bayesian formulation</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
@@ -573,29 +572,14 @@ $$
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<section id="frequentist-formulation" class="level3">
-<h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist formulation</em></h3>
-<p>We model the relationship between the predictor variable (<span class="math inline">X_i</span>) and the count outcome variable (<span class="math inline">Y_i</span>) using the following equation:</p>
-<p><span class="math display">
-\log(\lambda_i) = \alpha + \beta  X_i
-</span></p>
-<p>Where:</p>
-<ul>
-<li><p><span class="math inline">\lambda_i</span> is the mean rate parameter of the Poisson distribution (expected count) for observation <em>i</em>, modeled as the exponential function of the linear combination of predictors.</p></li>
-<li><p><span class="math inline">\log(\lambda_i)</span> is the log of the mean rate parameter for observation <em>i</em>, ensuring it is positive.</p></li>
-<li><p><span class="math inline">\beta</span> is the regression coefficient.</p></li>
-<li><p><span class="math inline">\alpha</span> is the intercept term.</p></li>
-<li><p><span class="math inline">X_i</span> is the value of the independent variable for observation <em>i</em>.</p></li>
-</ul>
-</section>
 <section id="bayesian-formulation" class="level3">
 <h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian formulation</em></h3>
 <p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
 <p><span class="math display">
-Y \sim Poisson(\lambda_i)
+Y_i \sim Poisson(\lambda_i)
 </span></p>
 <p><span class="math display">
-\log(\lambda_i) = \alpha + \beta X_i
+\lambda_i = \exp(\alpha + \beta X_i)
 </span></p>
 <p><span class="math display">
 \alpha \sim Normal(0, 1)
@@ -606,10 +590,8 @@ Y \sim Poisson(\lambda_i)
 <p>Where:</p>
 <ul>
 <li><p><span class="math inline">Y_i</span> is the dependent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\lambda_i</span> is the mean rate parameter of the Poisson distribution for observation <em>i</em>, modeled as the exponential function of the linear combination of predictors.</p></li>
-<li><p><span class="math inline">\log(\lambda_i)</span> is the log of the mean rate parameter for observation <em>i</em>.</p></li>
+<li><p><span class="math inline">\lambda_i</span> is the positive-constrained rate parameter of the Poisson distribution for observation <em>i</em>, modeled as the exponential function of the linear combination of predictors.</p></li>
 <li><p><span class="math inline">\alpha</span> and <span class="math inline">\beta</span> are the prior distributions for the intercept and the regression coefficients, respectively.</p></li>
-<li><p><span class="math inline">\lambda_i</span> is the mean rate parameter of the Poisson distribution, modeled as the exponential function of the linear combination of predictors.</p></li>
 <li><p><span class="math inline">X_i</span> is the value of the independent variable for observation <em>i</em>.</p></li>
 </ul>
 </section>
@@ -630,7 +612,65 @@ Note
 <li><p>We can apply multiple variables similarly to <a href="2. Multiple continuous variables.qmd">chapter 2</a>.</p></li>
 <li><p>We can apply interaction terms similarly to <a href="./3. Interaction between continuous variables.html">chapter 3</a>.</p></li>
 <li><p>We can apply categorical variables similarly to <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
+<li><p>Bellow is an example code snippet demonstrating a Bayesian Poisson model wiht an <em>offset</em> term using the Bayesian Inference (BI) package. A Poisson model with an offset is a statistical method used to analyze count data when the opportunities for those counts to occur are not uniform. In essence, it allows for the modeling of rates rather than simple counts. This is particularly useful in fields like epidemiology, ecology, and quality control, where events are counted over varying periods of time, space, or other measures of exposure.</p></li>
 </ul>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device ------------------------------------------------</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>) <span class="co"># Import</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Sim dat Gamma poisson.csv'</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'log_days'</span>, <span class="st">'monastery'</span>, <span class="st">'y'</span>]) <span class="co"># Send to model (convert to jax array)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(log_days, monastery, y):</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'b'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> m.jnp.exp(log_days <span class="op">+</span> a <span class="op">+</span> b <span class="op">*</span> monastery)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    m.poisson(rate <span class="op">=</span> l, obs<span class="op">=</span>y)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>m.fit(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>m.summary() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform------------------------------------------------</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importbi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Sim dat Gamma poisson.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">','</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'log_days'</span>, <span class="st">'monastery'</span>, <span class="st">'y'</span> )) <span class="co"># Send to model (convert to jax array)</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(log_days, monastery, y){</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'beta'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">exp</span>(log_days <span class="sc">+</span> alpha <span class="sc">+</span> beta <span class="sc">*</span> monastery)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">poisson</span>(<span class="at">rate=</span>l, <span class="at">obs=</span>y)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
@@ -647,887 +687,446 @@ McElreath, Richard. 2018. <em>Statistical Rethinking: A Bayesian Course with Exa
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
-
 <script src="https://unpkg.com/tippy.js@6"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-
 <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-
-
 <script>
-
 function convertMarkdownToHTML(markdown) {
-
   const options = {
-
     breaks: true,
-
     gfm: true,
-
   };
-
   const htmlContent = marked.parse(markdown, options);
-
   return htmlContent;
-
 }
 
-
-
 tippy('#Uncertainty', {
-
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#priorKnowledge', {
-
   content: convertMarkdownToHTML('When data are sparse or noisy, incorporating prior knowledge through the prior distribution can improve the model’s performance. This is especially useful in fields where previous research or expert opinion is available.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#Flexibility', {
-
   content: convertMarkdownToHTML('Bayesian approaches naturally extend to complex settings such as hierarchical models, models with latent variables, or situations with missing data. Their ability to blend different sources of information makes them ideal for modern, data-rich applications.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#PPCs', {
-
   content: convertMarkdownToHTML('PPCs involve generating *dummy data* (or simulated observations) from the posterior predictive distribution and comparing these simulated datasets with the actual observed data.By comparing summary statistics (e.g., means, variances) or visualizations (e.g., histograms, scatter plots) between \( y^{\text{rep}} \) and the observed data, we can assess if our model is capable of reproducing key features of the data.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#HPDI', {
-
   content: convertMarkdownToHTML('HPDI is a metric that describe the distribution of a parameter. The Highest Posterior Density Interval is the narrowest interval that contains a specified proportion (e.g., 95%) of the posterior probability. HPDIs are especially useful when the posterior distribution is skewed or multimodal as it help in understanding the uncertainty of parameter estimates and in communicating the degree of uncertainty in predictions.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#convDiag', {
-
   content: convertMarkdownToHTML('Convergence diagnostics are statistical tools and methods used to assess whether a Markov Chain Monte Carlo (MCMC) algorithm has sufficiently explored the target posterior distribution in Bayesian analysis. They help ensure that the chain has stabilized and that samples are reliable for inference.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#ESS', {
-
   content: convertMarkdownToHTML('ESS estimates how many independent samples our MCMC chain is equivalent to. Low ESS values indicate that samples are highly correlated, which might affect the reliability of posterior summaries.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#Rhat', {
-
   content: convertMarkdownToHTML('Rhat compares the variance between multiple chains to the variance within each chain. Values close to 1 (typically below 1.1) indicate good convergence.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
 
-
-
   tippy('#TP', {
-
     content: convertMarkdownToHTML('Trace plots are graphical tools used in MCMC diagnostics to visualize the sampled values of a parameter over iterations. They help assess the convergence and mixing behavior of the Markov chain.'),
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
-
-
 
   tippy('#AutoCor', {
-
     content: convertMarkdownToHTML('Autocorrelation plots visualize the correlation between samples in an MCMC chain as a function of the lag (distance between samples). They help assess how dependent the samples are and whether the chain is mixing efficiently.'),
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
-
-
 
   tippy('#DesPlot', {
-
     content: convertMarkdownToHTML('Density plots visualize the estimated posterior distribution of a parameter based on MCMC samples. They provide a smoothed representation of the distribution, helping assess central tendency, spread, and shape.'),
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
-
-
-
-
 
 
 
 tippy('#DP', {
-
   content: convertMarkdownToHTML('A dependent variable  is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#IP', {
-
   content: convertMarkdownToHTML('An independent variable is the variable that is manipulated or controlled in an analysis to observe its effect on a dependent variable. It represents the input or cause in a cause-and-effect relationship and is often denoted as X in statistical models.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#lk', {
-
   content: convertMarkdownToHTML('Likelihood is a statistical concept representing the probability of observing a given set of data, assuming specific values of the *parameters* in a model.It is not the same as probability; instead, it measures how well a model with certain parameters explains the observed data.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#pdist', {
-
   content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilities are assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variable takes finite or infinite values.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#intercept ', {
-
   content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as α in linear models.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#slope ', {
-
   content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
-
 
 
 tippy('#prior', {
-
   content: convertMarkdownToHTML('Priors are distributions that represent the value of the parameter before conditioning it on the data.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#BT', {
-
   content: '<span style="color: white;">Bayes\' Theorem describes how to update the probability of a hypothesis given new evidence. It states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use ofBayesian updating to improve the accuracy of the model.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
 
-
-
 tippy('#BUpdating', {
-
     content: '<span style="color: white;">Bayesian updating is the iterative process of refining beliefs by applying Bayes\' Theorem as new data becomes available.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
 
 
 
-
-
-
-
 tippy('#overdispersion', {
-
   content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#linkF', {
-
     content: '<span style="color: white;">The link function is a key component of the generalized linear model (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges. For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link (used in logistic regression), the coefficients relate to the log - odds of the outcome.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#simplex', {
-
   content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
   
-
 tippy('#triptych', {
-
     content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
     
-
 tippy('#hyperP', {
-
   content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#cov', {
-
     content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#centerRF', {
-
   content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#NodeF', {
-
     content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#DyadicF', {
-
     content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#senderF', {
-
     content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#receiverF', {
-
     content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#DyadicF2', {
-
     content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#expoB', {
-
     content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#censoB', {
-
     content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#assor', {
-
     content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#disassor', {
-
     content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
-
 
 
 tippy('#chol', {
-
   content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#uncertainty', {
-
   content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#posterior', {
-
   content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#scaled', {
-
   content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#grandMean', {
-
   content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their mean levels. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#ohe', {
-
   content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#indices', {
-
   content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#softmax', {
-
   content: `
-
   <span style='color: white;'>
-
     takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
-
     then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
-
     The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
-
     <strong>Formula:</strong><br>
-
     $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#kernel', {
-
   content: `
-
   <span style='color: white;'>
-
     A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
-
     in a higher-dimensional feature space without explicitly transforming them. 
-
     The kernel function allows for non-linear relationships by mapping input space to feature space, 
-
     where linear techniques can then be applied. 
-
     Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#kernelMean0', {
-
   content: `
-
   <span style='color: white;'>
-
     GP mean is usually set to zero as by setting the mean to zero, 
-
     we center the distribution around the origin. 
-
     This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
-
     can be thought of as deviations from this mean.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#signAmbiguity', {
-
   content: `
-
   <span style='color: white;'>
-
     PCA identifies directions (principal components) that capture the maximum variance in the data. However, the orientation of these components is not unique; both a vector and its negation represent the same principal direction. This means that if 𝑤 is a principal component, −𝑤 is equally valid.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#MatCov', {
-
   content: `
-
   <span style='color: white;'>
-
     A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
-
   </span>
-
   `, allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
     onShow(instance) {
-
       MathJax.typesetPromise([instance.reference]).then(() => {
-
         // Optional: if you want to do something after the typesetting
-
       });
-
     },
-
 });
-
-
 
 tippy('#RFcentered', {
-
   content: `
-
   <span style='color: white;'>
-
     The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
-
   </span>
-
   `, allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
     onShow(instance) {
-
       MathJax.typesetPromise([instance.reference]).then(() => {
-
         // Optional: if you want to do something after the typesetting
-
       });
-
     },
-
 });
 
-
-
 tippy('#LKJcorr', {
-
       content: `
-
   <span style='color: white;'>
-
     The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
 
-
-
 </script>
-
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
