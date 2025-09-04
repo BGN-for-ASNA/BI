@@ -111,7 +111,7 @@ m$summary() # Get posterior distribution
 In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
-Y_i \sim Poisson(\lambda_i)
+Y_i \sim \text{Poisson}(\lambda_i)
 $$
 
 $$
@@ -119,18 +119,18 @@ $$
 $$
 
 $$
-\alpha \sim Normal(0, 1)
+\alpha \sim \text{Normal}(0, 1)
 $$
 
 $$
-\beta \sim Normal(0, 1)
+\beta \sim \text{Normal}(0, 1)
 $$
 
 Where:
 
 - $Y_i$ is the dependent variable for observation *i*.
 
-- $\lambda_i$ is the positive-constrained rate parameter of the Poisson distribution for observation *i*, modeled as the exponential function of the linear combination of predictors.
+- $\lambda_i$ is the positive-constrained rate parameter of the $Poisson$ distribution for observation *i*, modeled as the exponential function of the linear combination of predictors.
 
 - $\alpha$ and $\beta$ are the prior distributions for the intercept and the regression coefficients, respectively.
 
@@ -145,7 +145,66 @@ Where:
 
 - We can apply categorical variables similarly to [chapter 4](4.&#32;Categorical&#32;variable.qmd).
 
+- Bellow is an example code snippet demonstrating a Bayesian Poisson model wiht an *offset* term using the Bayesian Inference (BI) package. A Poisson model with an offset is a statistical method used to analyze count data when the opportunities for those counts to occur are not uniform. In essence, it allows for the modeling of rates rather than simple counts. This is particularly useful in fields like epidemiology, ecology, and quality control, where events are counted over varying periods of time, space, or other measures of exposure.
 
+::: {.panel-tabset group="language"}
+### Python
+```python
+from BI import bi
+# Setup device ------------------------------------------------
+m = bi(platform='cpu') # Import
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = files('BI.resources.data') / 'Sim dat Gamma poisson.csv'
+m.data(data_path, sep=',') 
+m.data_to_model(['log_days', 'monastery', 'y']) # Send to model (convert to jax array)
+
+# Define model ------------------------------------------------
+def model(log_days, monastery, y):
+    a = m.dist.normal(0, 1, name = 'a', shape=(1,))
+    b = m.dist.normal(0, 1, name = 'b', shape=(1,))
+    l = m.jnp.exp(log_days + a + b * monastery)
+    m.poisson(rate = l, obs=y)
+# Run MCMC ------------------------------------------------
+m.fit(model) # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
+```
+
+### R
+```R
+library(BI)
+
+# Setup platform------------------------------------------------
+m=importbi(platform='cpu')
+
+# Import data ------------------------------------------------
+m$data(paste(system.file(package = "BI"),"/data/Sim dat Gamma poisson.csv", sep = ''), sep=',')
+m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to jax array)
+
+# Define model ------------------------------------------------
+model <- function(log_days, monastery, y){
+  # Parameter prior distributions
+  alpha = bi.dist.normal(0, 1, name='alpha', shape=c(1))
+  beta = bi.dist.normal(0, 1, name='beta', shape=c(1))
+  l = jnp$exp(log_days + alpha + beta * monastery)
+  # Likelihood
+  m$poisson(rate=l, obs=y)
+}
+
+# Run MCMC ------------------------------------------------
+m$run(model) # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m$summary() # Get posterior distributions
+
+
+
+```
+:::
 ## Reference(s)
 ::: {#refs}
 :::

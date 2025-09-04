@@ -113,19 +113,19 @@ We can interpret $\beta_i$ as the effect of each category on $Y$ relative to the
 In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
-Y \sim Normal(\alpha +  \beta_K X, \sigma)
+Y \sim \text{Normal}(\alpha +  \beta_K X, \sigma)
 $$
 
 $$
-\alpha \sim Normal(0,1)
+\alpha \sim \text{Normal}(0,1)
 $$
 
 $$
-\beta_K \sim Normal(0,1)
+\beta_K \sim \text{Normal}(0,1)
 $$
 
 $$
-\sigma \sim Exponential(1)
+\sigma \sim \text{Exponential}(1)
 $$
 
 Where:
@@ -138,7 +138,7 @@ Where:
   
 - $X_i$ is the encoded categorical input variable for observation *i*. 
   
-- $\sigma$ is a standard deviation parameter, which here has a $Uniform$ prior that constrains it to be positive.
+- $\sigma$ is a standard deviation parameter, which here has a $Exponential$ prior that constrains it to be positive.
 
 ## Notes
 ::: callout-note

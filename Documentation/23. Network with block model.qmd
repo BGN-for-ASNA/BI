@@ -55,24 +55,6 @@ def model(idx, result_outcomes,
 
 m.fit(model) 
 summary = m.summary()
-summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
-
-    m.poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr), obs=result_outcomes)
-
-m.data_on_model = dict(
-    idx=idx,
-    Any=Any-1, 
-    Merica=Merica-1, 
-    Quantum=Quantum-1,
-    result_outcomes=m.net.mat_to_edgl(data['outcomes']), 
-    kinship=m.net.mat_to_edgl(kinship),
-    focal_individual_predictors=data['individual_predictors'],
-    target_individual_predictors=data['individual_predictors']
-)
-
-m.fit(model3) 
-summary = m.summary()
-summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 ```
 
 ## Mathematical Details
