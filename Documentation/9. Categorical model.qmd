@@ -1,13 +1,13 @@
 ---
-title: "Multinomial Model"
+title: "Categorical Model"
 description: "Modeling a categorical dependent variable with more than two nominal outcomes."
 categories: [Classification, Regression, GLM]
 image: "Figures/multinomial.svg"
-order: 10
+order: 11
 ---
 
 ## General Principles
-To model the relationship between a categorical outcome variable with more than two categories and one or more independent variables, we can use a _Multinomial_ model. 
+To model the relationship between a outcome variable in which each observation is a single choice from a set of more than two categories and one or more independent variables, we can use a *Categorical* model. 
 
 
 ## Considerations
@@ -15,7 +15,7 @@ To model the relationship between a categorical outcome variable with more than 
 ::: callout-caution 
 - We have the same considerations as for [Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
   
-- One way to interpret a multinomial model is to consider that we need to build $K - 1$ linear models, where $K$ is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a [<span style="color:#0D6EFD">simplex 🛈</span>]{#simplex}. To do this, we convert the regression outputs using the [<span style="color:#0D6EFD">softmax function 🛈</span>]{#softmax} (see the "jax.nn.softmax" line in the code). 
+- One way to interpret a *Categorical* model is to consider that we need to build $K - 1$ linear models, where $K$ is the number of categories. Once we get the linear prediction for each category, we can convert these predictions to probabilities by building a [<span style="color:#0D6EFD">simplex 🛈</span>]{#simplex}. To do this, we convert the regression outputs using the [<span style="color:#0D6EFD">softmax function 🛈</span>]{#softmax} (see the "jax.nn.softmax" line in the code). 
 
 - The intercept $\alpha$ captures the difference in the log-odds of the outcome categories; thus, different categories need different intercepts.
   
@@ -26,7 +26,7 @@ To model the relationship between a categorical outcome variable with more than 
 :::
 
 ## Example
-Below is an example code snippet demonstrating a Bayesian multinomial model using the Bayesian Inference (BI) package. This example is based on @mcelreath2018statistical.
+Below is an example code snippet demonstrating a Bayesian Categorical model using the Bayesian Inference (BI) package. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -80,7 +80,7 @@ m$data_on_model = py_dict(keys, values, convert = TRUE)
 model <- function(income, career){
   # Parameter prior distributions
   alpha = bi.dist.normal(0, 1, name='alpha', shape = c(2))
-  beta = bi.dist.halfnormal(0.5, name='beta')
+  beta = bi.dist.normal(0.5, name='beta')
   
   s_1 = alpha[0] + beta * income[0]
   s_2 = alpha[1] + beta * income[1]
@@ -89,11 +89,11 @@ model <- function(income, career){
   p = jax$nn$softmax(jnp$stack(list(s_1, s_2, s_3)))
 
   # Likelihood
-  m$categorical(probs=p[career], obs=career)
+  bi.dist.categorical(probs=p[career], obs=career)
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
@@ -101,44 +101,31 @@ m$summary() # Get posterior distribution
 ```
 :::
 
-## Mathematical Details
-### *Frequentist formulation*
-We model the relationship between the predictor variables (X1, X2, ..., Xn) and the categorical outcome variable ($Y_i$) using the following equation:
-
-$$
-logit(p_{ik}) = α_k + β X_i 
-$$
-
-Where:
-
-
-- $p_{ik}$ is the probability of the 𝑖-th observation being in category 𝑘.
-
-- $α_k$ is the intercept for category 𝑘.
-  
-- $β$ is the regression coefficients common to all categories.
-  
-- $X_i$ is the vector of independent variables for the 𝑖-th observation.
-  
-- A reference category is often chosen to simplify the model.
-
-
-### *Bayesian model*
-In Bayesian multinomial modeling, the likelihood function of the data is specified using a multinomial distribution. The multinomial distribution models the counts of outcomes falling into different categories. For an outcome variable 
+## Mathematical Details 
+We can model a *Categorical* model using a $Categorical distribution$. The multinomial distribution models the counts of outcomes falling into different categories. For an outcome variable 
 𝑦 with 𝐾 categories, the multinomial likelihood function is:
+
 $$
-Multinomial(y|θ)=\frac{N!}{\prod^K_{k=1}y_k!} \prod_{k=1}^{K} θ_{k}^{y_k}
+Y_i \sim \text{Categorical}(\theta_i) \\
+\theta_i = \text{Softmax}(\phi_i) \\
+\phi_{[i,1]} = \alpha_1 + \beta_1 X_i \\
+\phi_{[i,2]} = \alpha_2 + \beta_2 X_i \\
+... \\
+\phi_{[i,k]} = 0 \\
+\alpha_{k} \sim \text{Normal}(0,1) \\
+\beta_{k} \sim \text{Normal}(0.1)
 $$
 
 Where:
 
-- $y=(y_1, y_2,…,y_K)$ represents the counts of observations in each of the 𝐾 categories.
+- $Y_i$ is the dependent categorical variable for observation *i* indicating the category of the observation.
   
-- $N$ is the total number of observations or trials.
+- $\theta_i$ is a vector unique to each observation, *i*, which gives the probability of observing *i* in category *k*. 
   
-- $θ=(θ_1,θ_2,…,θ_K)$ is a simplex of category probabilities, with $θ_k$ representing the probability of category 𝑘.
+- $\phi_i$ give the linear model for each of the $k$ categories. Note that we use the softmax function to ensure that that the probabilities $\theta_i$ form a [<span style="color:#0D6EFD">simplex 🛈</span>]{#simplex}.
   
-- $\frac{N!}{\prod^K_{k=1}y_k!}$ is the multinomial coefficient that accounts for the number of ways to arrange the observations into the categories. This coefficient ensures that the likelihood function properly accounts for the permutations of the counts across different categories.
+- Each element of $\phi_i$ is obtained by applying a linear regression model with its own respective intercept $\alpha_k$ and slope coefficient $\beta_k$. To ensure the model is identifiable, one category, *K*, is arbitrarily chosen as a reference or baseline category. The linear predictor for this reference category is set to zero. The coefficients for the other categories then represent the change in the log-odds of being in that category versus the reference category.
+
 
 ## Reference(s)
 ::: {#refs}

@@ -76,7 +76,7 @@ model <- function(height, weight, age){
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distributions
@@ -135,7 +135,7 @@ Where:
   
 - $X_{[1,i]}$, $X_{[2,i]}$, ..., $X_{[K,i]}$ are the values of the independent variables for observation *i*.
   
-- $\sigma$ is a standard deviation parameter, which here has a $Uniform$ prior that constrains it to be positive.
+- $\sigma$ is a standard deviation parameter, which here has a Uniform prior that constrains it to be positive.
 
 ## Reference(s)
 ::: {#refs}

@@ -3,7 +3,7 @@ title: "Varying Slopes Models"
 description: "Extending mixed-effects models by allowing the relationship (slope) to vary across different groups."
 categories: [Hierarchical Models, Regression, Bayesian]
 image: "Figures/Varying slopes.svg"
-order: 15
+order: 17
 ---
 
 ## General Principles
@@ -99,7 +99,7 @@ model <- function(cafe, afternoon, wait, N_cafes = as.integer(20) ){
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution

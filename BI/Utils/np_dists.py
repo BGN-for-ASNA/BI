@@ -2313,7 +2313,8 @@ class UnifiedDist:
         The Gumbel distribution is a continuous probability distribution named after German mathematician Carl Gumbel.
         It is often used to model the distribution of maximum values in a sequence of independent random variables.
         
-        $$   f(x) = \frac{1}{s} e^{-(x - \mu) / s} e^{-e^{- (x - \mu) / s}}
+        $$   
+        f(x) = \frac{1}{s} e^{-(x - \mu) / s} e^{-e^{- (x - \mu) / s}}
         $$
         
         #### Args:

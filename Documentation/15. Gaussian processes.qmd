@@ -2,7 +2,7 @@
 title: "Gaussian Processes"
 description: "A non-parametric Bayesian approach to regression and classification that defines a distribution over functions."
 categories: [Bayesian, Regression, Non-parametric]
-order: 16
+order: 18
 ---
 
 ## General Principles
@@ -100,7 +100,7 @@ model <- function(Dmat, population, society, total_tools){
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution

@@ -3,7 +3,7 @@ title: "Gaussian Mixture Models (GMM)"
 description: "A probabilistic model for representing normally distributed subpopulations, often used for clustering."
 categories: [Clustering, Unsupervised Learning]
 image: "Figures/GMM.jpeg"
-order: 21
+order: 23
 ---
 
 ## General Principles
@@ -83,10 +83,8 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 This section describes the generative process for a GMM. For each data point $x_i$, the model first selects one of the `K` clusters according to the weights $w$, and then draws the point from that cluster's Gaussian distribution.
 $$
-\begin{align*}
-z_i &\sim \text{Categorical}(w) && \text{for } i=1, \dots, N \\
-x_i \mid z_i=k &\sim \text{MultivariateNormal}(\mu_k, \Sigma_k) && \text{for } i=1, \dots, N
-\end{align*}
+z_i \sim \text{Categorical}(w)  \text{for } i=1, \dots, N \\
+x_i \mid z_i=k \sim \text{MultivariateNormal}(\mu_k, \Sigma_k)  \text{for } i=1, \dots, N
 $$
 
 $$
@@ -94,12 +92,10 @@ w \sim \text{Dirichlet}(\alpha_0) \quad \text{(Mixture weights vector for K clus
 $$
 
 $$
-\begin{align*}
-\mu_k &\sim \text{MultivariateNormal}(\mu_0, \Sigma_0) && \text{for } k=1, \dots, K \\
-\sigma_k &\sim \text{HalfCauchy}(1) && \text{for } k=1, \dots, K \\
-L_{\text{corr}, k} &\sim \text{LKJCholesky}(D, 1.0) && \text{for } k=1, \dots, K \\
-\Sigma_k &= \text{diag}(\sigma_k) \cdot L_{\text{corr}, k} \cdot L_{\text{corr}, k}^T \cdot \text{diag}(\sigma_k)
-\end{align*}
+\mu_k \sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \text{for } k=1, \dots, K \\
+\sigma_k \sim \text{HalfCauchy}(1)  \text{for } k=1, \dots, K \\
+L_{\text{corr}, k} \sim \text{LKJCholesky}(D, 1.0)  \text{for } k=1, \dots, K \\
+\Sigma_k = \text{diag}(\sigma_k) \cdot L_{\text{corr}, k} \cdot L_{\text{corr}, k}^T \cdot \text{diag}(\sigma_k)
 $$
 
 

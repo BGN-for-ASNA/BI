@@ -272,7 +272,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with Categorical Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -294,21 +294,30 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
+ <span class="menu-text">8. Poisson model with and offset.qmd</span>
+  </li>
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Gamma-Poisson (Negative Binomial) Model</span></a>
+ <span class="menu-text">Gamma-Poisson Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./9. Multinomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./9. Categorical model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Multinomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet-Multinomial Model (WIP)</span></a>
+ <span class="menu-text">Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -588,7 +597,7 @@ Caution
 <span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>summary <span class="ot">=</span>m<span class="sc">$</span><span class="fu">summary</span>()</span>
@@ -604,7 +613,7 @@ Caution
 <h3 class="anchored" data-anchor-id="main-formula"><em>Main Formula</em></h3>
 <p>The simple model that can be built to model link weights between nodes <em>i</em> and <em>j</em> can be defined using a Poisson distribution:</p>
 <p><span class="math display">
-G_{ij} \sim Poisson(Y_{ij})
+G_{ij} \sim \text{Poisson}(Y_{ij})
 </span></p>
 <p><span class="math display">
 log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
@@ -624,7 +633,7 @@ log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
 \pi_j
 \end{array}\right)
 \sim
-MultivariateNormal\left(\begin{array}{cc}
+\text{MultivariateNormal}\left(\begin{array}{cc}
 \left(\begin{array}{cc}
 \sigma_\lambda \\
 \sigma_\pi
@@ -638,13 +647,13 @@ L *
 \end{array}\right)
 </span></p>
 <p><span class="math display">
-\sigma_\lambda \sim Exponential(1)
+\sigma_\lambda \sim \text{Exponential}(1)
 </span></p>
 <p><span class="math display">
-\sigma_\pi \sim Exponential(1)
+\sigma_\pi \sim \text{Exponential}(1)
 </span></p>
 <p><span class="math display">
-L \sim LKJ(2)
+L \sim \text{LKJ}(2)
 </span></p>
 <p>Similarly, for each dyad we can define varying intercepts and slopes to account for the correlation between the propensity to emit and receive links of a dyad:</p>
 <p><span class="math display">
@@ -653,7 +662,7 @@ L \sim LKJ(2)
 \delta_{ji}
 \end{array}\right)
 \sim
-MultivariateNormal\left(\begin{array}{cc}
+\text{MultivariateNormal}\left(\begin{array}{cc}
 \left(\begin{array}{cc}
 \sigma_\delta \\
 \sigma_\delta
@@ -667,13 +676,13 @@ L_\delta *
 \end{array}\right)
 </span></p>
 <p><span class="math display">
-\sigma_\delta \sim Exponential(1)
+\sigma_\delta \sim \text{Exponential}(1)
 </span></p>
 <p><span class="math display">
-\sigma_\delta \sim Exponential(1)
+\sigma_\delta \sim \text{Exponential}(1)
 </span></p>
 <p><span class="math display">
-L_\delta \sim LKJ(2)
+L_\delta \sim \text{LKJ}(2)
 </span></p>
 </section>
 </section>
@@ -763,6 +772,14 @@ function convertMarkdownToHTML(markdown) {
   const htmlContent = marked.parse(markdown, options);
   return htmlContent;
 }
+
+tippy('#Elasticity', {
+  content: convertMarkdownToHTML('The elasticity of the response variable with respect to the exposure is the percent change in the response with respect to a percent change in the exposure. For example, an elasticity of 1.0 means that doubling the exposure time will double the response'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
 
 tippy('#Uncertainty', {
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),

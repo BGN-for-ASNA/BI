@@ -19,6 +19,7 @@ m$data(data_path,  sep=';')
 
 ## Import non tabular data
 First you need to create our own dictionary with the data.
+
 ::: {.panel-tabset group="language"}
 ## Python
 ``` python
@@ -28,6 +29,7 @@ m.data_on_model = dict(
 )
 
 ```
+
 ## R
 ``` R
 keys <- c("ID1","ID2")
@@ -36,3 +38,13 @@ data = py_dict(keys, values, convert = TRUE)
 m$data_on_model=data
 ```
 :::
+
+## Handle data
+For tabular data, you ca use some functions to manipulate the data:
+
+-   **Perform one-hot encoding** ```OHE```: One-hot encoding is a technique that converts categorical variables into binary variables. This is useful when you have a large number of categories and want to use them as features in a model.
+
+-   **Create index encoding for categorical columns** ```index```: Index encoding is a technique that assigns a unique integer value to each category in a categorical variable. This is useful when you have a large number of categories and want to use them as features in a model.
+
+-   **Scale** ```scale```: Standardize the data by subtracting the mean and dividing by the standard deviation.
+
