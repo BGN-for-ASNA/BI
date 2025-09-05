@@ -3,7 +3,7 @@ title: "Dirichlet Process Mixture Models (DPMM)"
 description: "A non-parametric Bayesian clustering method that automatically determines the number of clusters."
 categories: [Clustering, Unsupervised Learning, Non-parametric]
 image: "Figures/DPMM.jpeg"
-order: 22
+order: 24
 ---
 
 ## General Principles
@@ -21,9 +21,11 @@ To discover group structures or clusters in data without pre-specifying the numb
 
 -   The key parameters and their priors are:
 
-    -   **Concentration** $\alpha$: This single parameter controls the tendency to create new clusters. A low `α` favors fewer, larger clusters, while a high `α` allows for many smaller clusters. We typically place a `Gamma` prior on $\alpha$ to learn its value from the data.
-    -   **Cluster Weights `w`**: Generated via the Stick-Breaking process from $\alpha$. These are the probabilities of drawing a data point from any given cluster.
-    -   **Cluster Parameters (**$\mu$, $\sigma$): Each potential cluster has a mean $\mu$ and a covariance matrix $\sigma$. If the data have multiple dimensions, we use a multivariate normal distribution (see chapter, [14](14.%20Varying%20slopes.qmd)). Howver, if the data is one-dimensional, we use a univariate normal distribution.
+    - **Concentration** $\alpha$: This single parameter controls the tendency to create new clusters. A low `α` favors fewer, larger clusters, while a high `α` allows for many smaller clusters. We typically place a `Gamma` prior on $\alpha$ to learn its value from the data.
+- 
+    - **Cluster Weights `w`**: Generated via the Stick-Breaking process from $\alpha$. These are the probabilities of drawing a data point from any given cluster.
+  
+    - **Cluster Parameters (**$\mu$, $\sigma$): Each potential cluster has a mean $\mu$ and a covariance matrix $\sigma$. If the data have multiple dimensions, we use a multivariate normal distribution (see chapter, [14](14.%20Varying%20slopes.qmd)). Howver, if the data is one-dimensional, we use a univariate normal distribution.
 
 -   The model is often implemented in its [marginalized form 🛈]{style="color:#0D6EFD"}. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.
 :::
@@ -93,17 +95,17 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 This level describes how any single data point, $x_i$, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster's specific distribution. We use a truncation level $T$ as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.
 
-$$
+
 \begin{align*}
-x_i \mid z_i=k &\sim \text{MultivariateNormal}(\mu_k, \Sigma_{\text{obs}}) \\
-z_i &\sim \text{Categorical}(w) \\
-w &= \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
-\beta_k &\sim \text{Beta}(1, \alpha) \\
-\alpha &\sim \text{Gamma}(1, 10)\\
-\mu_k &\sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \\
-\Sigma_{\text{obs}} &= I_D \\
+x_i \mid z_i=k \sim \text{MultivariateNormal}(\mu_k, \Sigma_{\text{obs}}) \\
+z_i \sim \text{Categorical}(w) \\
+w = \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
+\beta_k \sim \text{Beta}(1, \alpha) \\
+\alpha \sim \text{Gamma}(1, 10)\\
+\mu_k \sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \\
+\Sigma_{\text{obs}} = I_D \\
 \end{align*}
-$$
+
 
 
 **Parameter Definitions:**

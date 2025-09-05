@@ -252,7 +252,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with Categorical Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -274,21 +274,30 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
+ <span class="menu-text">8. Poisson model with and offset.qmd</span>
+  </li>
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Gamma-Poisson (Negative Binomial) Model</span></a>
+ <span class="menu-text">Gamma-Poisson Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./9. Multinomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./9. Categorical model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Multinomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet-Multinomial Model (WIP)</span></a>
+ <span class="menu-text">Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -527,19 +536,19 @@ Caution
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<p>This section describes the generative process for a GMM. For each data point <span class="math inline">x_i</span>, the model first selects one of the <code>K</code> clusters according to the weights <span class="math inline">w</span>, and then draws the point from that cluster’s Gaussian distribution.</p>
-<p><span class="math display">\begin{align*}
-z_i &amp;\sim \text{Categorical}(w) &amp;&amp; \text{for } i=1, \dots, N \\
-x_i \mid z_i=k &amp;\sim \text{MultivariateNormal}(\mu_k, \Sigma_k) &amp;&amp; \text{for } i=1, \dots, N
-\end{align*}</span> <span class="math display">
+<p>This section describes the generative process for a GMM. For each data point <span class="math inline">x_i</span>, the model first selects one of the <code>K</code> clusters according to the weights <span class="math inline">w</span>, and then draws the point from that cluster’s Gaussian distribution. <span class="math display">
+z_i \sim \text{Categorical}(w)  \text{for } i=1, \dots, N \\
+x_i \mid z_i=k \sim \text{MultivariateNormal}(\mu_k, \Sigma_k)  \text{for } i=1, \dots, N
+</span></p>
+<p><span class="math display">
 w \sim \text{Dirichlet}(\alpha_0) \quad \text{(Mixture weights vector for K clusters)}
 </span></p>
-<p><span class="math display">\begin{align*}
-\mu_k &amp;\sim \text{MultivariateNormal}(\mu_0, \Sigma_0) &amp;&amp; \text{for } k=1, \dots, K \\
-\sigma_k &amp;\sim \text{HalfCauchy}(1) &amp;&amp; \text{for } k=1, \dots, K \\
-L_{\text{corr}, k} &amp;\sim \text{LKJCholesky}(D, 1.0) &amp;&amp; \text{for } k=1, \dots, K \\
-\Sigma_k &amp;= \text{diag}(\sigma_k) \cdot L_{\text{corr}, k} \cdot L_{\text{corr}, k}^T \cdot \text{diag}(\sigma_k)
-\end{align*}</span></p>
+<p><span class="math display">
+\mu_k \sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \text{for } k=1, \dots, K \\
+\sigma_k \sim \text{HalfCauchy}(1)  \text{for } k=1, \dots, K \\
+L_{\text{corr}, k} \sim \text{LKJCholesky}(D, 1.0)  \text{for } k=1, \dots, K \\
+\Sigma_k = \text{diag}(\sigma_k) \cdot L_{\text{corr}, k} \cdot L_{\text{corr}, k}^T \cdot \text{diag}(\sigma_k)
+</span></p>
 <p><strong>Parameter Definitions:</strong> * <strong>Observed Data:</strong> * <span class="math inline">x_i</span>: The <span class="math inline">i</span>-th observed D-dimensional data point.</p>
 <ul>
 <li><strong>Latent Variables (Inferred):</strong>
@@ -598,6 +607,14 @@ function convertMarkdownToHTML(markdown) {
   const htmlContent = marked.parse(markdown, options);
   return htmlContent;
 }
+
+tippy('#Elasticity', {
+  content: convertMarkdownToHTML('The elasticity of the response variable with respect to the exposure is the percent change in the response with respect to a percent change in the exposure. For example, an elasticity of 1.0 means that doubling the exposure time will double the response'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
 
 tippy('#Uncertainty', {
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),

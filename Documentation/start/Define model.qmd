@@ -2,3 +2,32 @@
 title: "Define model"
 sidebar: start
 ---
+
+You can define your model by declaring a new function. The function should take the data as input and return the predicted values.
+
+::: {.panel-tabset group="language"}
+## Python
+``` python
+def model(Y, X):
+    # Define the model here
+    a = m.dist.normal(0, 1, name = 'a')
+    b = m.dist.normal(1, 1, name = 'b')
+    s = m.dist.exponential(1 name = 's')
+    
+    # Return the predicted values
+    m.dist.normal(a + b * X, obs = Y)
+```
+
+## R
+``` R
+model <- function(Y, X){
+  # Define the model here
+    a = m.dist.normal(0, 1, name = 'a')
+    b = m.dist.normal(1, 1, name = 'b')
+    s = m.dist.exponential(1 name = 's')
+    m.dist.normal(a + b * X, obs = Y)
+}
+```
+:::
+
+Note the additional ```obs``` argument when declaring the likelihood function. This argument is used to specify the observed data. 

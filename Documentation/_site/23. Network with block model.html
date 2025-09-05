@@ -272,7 +272,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with Categorical Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -294,21 +294,30 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
+ <span class="menu-text">8. Poisson model with and offset.qmd</span>
+  </li>
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Gamma-Poisson (Negative Binomial) Model</span></a>
+ <span class="menu-text">Gamma-Poisson Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./9. Multinomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./9. Categorical model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Multinomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet-Multinomial Model (WIP)</span></a>
+ <span class="menu-text">Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -526,25 +535,7 @@ Caution
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>summary.loc[[<span class="st">'focal_effects[0]'</span>, <span class="st">'target_effects[0]'</span>, <span class="st">'dyad_effects[0]'</span>]]</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    m.poisson(jnp.exp(B_any <span class="op">+</span> B_Merica <span class="op">+</span> B_Quantum <span class="op">+</span> sender_receiver <span class="op">+</span> dr), obs<span class="op">=</span>result_outcomes)</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    idx<span class="op">=</span>idx,</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    Any<span class="op">=</span>Any<span class="op">-</span><span class="dv">1</span>, </span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    Merica<span class="op">=</span>Merica<span class="op">-</span><span class="dv">1</span>, </span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    Quantum<span class="op">=</span>Quantum<span class="op">-</span><span class="dv">1</span>,</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    result_outcomes<span class="op">=</span>m.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    kinship<span class="op">=</span>m.net.mat_to_edgl(kinship),</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors<span class="op">=</span>data[<span class="st">'individual_predictors'</span>],</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors<span class="op">=</span>data[<span class="st">'individual_predictors'</span>]</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>m.fit(model3) </span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>summary.loc[[<span class="st">'focal_effects[0]'</span>, <span class="st">'target_effects[0]'</span>, <span class="st">'dyad_effects[0]'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
@@ -641,6 +632,14 @@ function convertMarkdownToHTML(markdown) {
   const htmlContent = marked.parse(markdown, options);
   return htmlContent;
 }
+
+tippy('#Elasticity', {
+  content: convertMarkdownToHTML('The elasticity of the response variable with respect to the exposure is the percent change in the response with respect to a percent change in the exposure. For example, an elasticity of 1.0 means that doubling the exposure time will double the response'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
 
 tippy('#Uncertainty', {
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),

@@ -8,7 +8,7 @@
 
 <meta name="description" content="Incorporating categorical predictors (i.e., factor variables) into a regression model using dummy variables.">
 
-<title>Regression with Categorical Variables – Bayesian Inference (BI)</title>
+<title>Regression with a Categorical Independent Variables – Bayesian Inference (BI)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -233,7 +233,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./4. Categorical variable.html">Regression with Categorical Variables</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./4. Categorical variable.html">Regression with a Categorical Independent Variables</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -272,7 +272,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Regression with Categorical Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -294,21 +294,30 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
+ <span class="menu-text">8. Poisson model with and offset.qmd</span>
+  </li>
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Gamma-Poisson (Negative Binomial) Model</span></a>
+ <span class="menu-text">Gamma-Poisson Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./9. Multinomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./9. Categorical model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Multinomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet-Multinomial Model (WIP)</span></a>
+ <span class="menu-text">Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -441,7 +450,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Regression with Categorical Variables</h1>
+<h1 class="title">Regression with a Categorical Independent Variables</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Regression</div>
     <div class="quarto-category">Supervised Learning</div>
@@ -494,7 +503,7 @@ Caution
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example of code that demonstrates Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (<em>kcal_per_g</em>), representing the caloric value of milk per gram, and a categorical independent variable, representing species clade membership. The goal is to estimate the differences in milk calories between clades. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
+<p>Below is an example of code that demonstrates Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (<em>kcal_per_g</em>), representing the caloric value of milk per gram, a categorical independent variable (<em>index_clade</em>), representing species clade membership, and a continuous independent variable (<em>mass</em>), representing the mass of individuals in the clade. The goal is to estimate the differences in milk calories between clades. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
@@ -518,7 +527,7 @@ Caution
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.bi.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">4</span>,), name <span class="op">=</span> <span class="st">'a'</span>) <span class="co"># shape based on the number of clades</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.bi.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">4</span>,), name <span class="op">=</span> <span class="st">'b'</span>)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> m.bi.dist.exponential( <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'s'</span>)    </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a[index_clade]<span class="op">+</span>b[index_clade]<span class="op">*</span>Age</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a[index_clade]<span class="op">+</span>b[index_clade]<span class="op">*</span>mass</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    m.normal(mu, s, obs<span class="op">=</span>kcal_per_g)</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
@@ -548,7 +557,7 @@ Caution
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -595,7 +604,7 @@ Y \sim \text{Normal}(\alpha +  \beta_K X, \sigma)
 <li><p><span class="math inline">\alpha</span> is the intercept term, which in this case has a unit-normal prior.</p></li>
 <li><p><span class="math inline">\beta_K</span> are slope coefficients for the <em>K</em> distinct independent variables categories, which also have unit-normal priors.</p></li>
 <li><p><span class="math inline">X_i</span> is the encoded categorical input variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\sigma</span> is a standard deviation parameter, which here has a <span class="math inline">Exponential</span> prior that constrains it to be positive.</p></li>
+<li><p><span class="math inline">\sigma</span> is a standard deviation parameter, which here has a Exponential prior that constrains it to be positive.</p></li>
 </ul>
 </section>
 </section>
@@ -646,6 +655,14 @@ function convertMarkdownToHTML(markdown) {
   const htmlContent = marked.parse(markdown, options);
   return htmlContent;
 }
+
+tippy('#Elasticity', {
+  content: convertMarkdownToHTML('The elasticity of the response variable with respect to the exposure is the percent change in the response with respect to a percent change in the exposure. For example, an elasticity of 1.0 means that doubling the exposure time will double the response'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
 
 tippy('#Uncertainty', {
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),

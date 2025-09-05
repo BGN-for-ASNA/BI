@@ -125,16 +125,16 @@ class diag():
         """        
         self.autocor = az.plot_autocorr(self.trace , var_names=self.priors_name, *args, **kwargs)
 
-    def traces(self, *args, **kwargs):
-        """Create trace plots for MCMC chains.
-        
-        Args:
-            *args, **kwargs: Additional arguments for arviz.plot_trace
-            
-        Returns:
-            fig: Trace plots
-        """        
-        self.traces =  az.plot_trace(self.trace, compact=False, *args, **kwargs)
+    #def traces(self, *args, **kwargs):
+    #    """Create trace plots for MCMC chains.
+    #    
+    #    Args:
+    #        *args, **kwargs: Additional arguments for arviz.plot_trace
+    #        
+    #    Returns:
+    #        fig: Trace plots
+    #    """        
+    #    self.traces =  az.plot_trace(self.trace, compact=False, *args, **kwargs)
 
     def rank(self, *args, **kwargs):
         """Create rank plots for MCMC chains.
@@ -166,6 +166,7 @@ class diag():
             var_names = self.priors_name
         if list is None:
             list = self.trace
+        az.Numba.disable_numba()
         self.forest = az.plot_forest(list, var_names = var_names,  kind = kind, ess = ess, *args, **kwargs)
         return self.forest
     
@@ -194,7 +195,7 @@ class diag():
         self.rhat = az.rhat(self.trace, *args, **kwargs)
         return self.rhat 
 
-    def  ess(self, *args, **kwargs):
+    def ess(self, *args, **kwargs):
         """Calculate effective sample size (ESS).
         
         Args:
@@ -267,7 +268,6 @@ class diag():
             fig: ESS evolution plot
         """        
         self.ess_plot = az.plot_ess(self.trace, var_names=self.priors_name, kind="evolution")
-        return self.ess_plot
     
     def model_checks(self):
         """Perform comprehensive model diagnostics.

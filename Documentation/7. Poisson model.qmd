@@ -18,18 +18,13 @@ This is a special shape of the binomial distribution; it is useful because it mo
 
 - We have the second [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}: _log_. The _log_ link ensures that _λ_ is always positive.
 
-- To invert the log link function and linearly model the relationship between the predictor variables and the log of the mean rate parameter, we can apply the exponential function (see comment in code).
+- The dependent variable in a Poisson regression must be a non-negative count.
 
-<!--
-- The parameter $λ$ is the expected value, but it’s also commonly thought of as a rate. $λ$ is equal to an expected number of events, $µ$, per unit time or distance, $\tau$. This implies that $λ = µ/τ$, which lets us redefine the link
+- To invert the log link function and linearly model the relationship between the predictor variables and the log of the mean rate parameter, we can apply the $exponential$ function (see comment in code).
+
+- A key assumption of the $Poisson$ distribution is that the mean and variance of the count variable are equal. If the variance is greater than the mean, a condition known as overdispersion, a [Gamma-Poisson model](8.&#32;Gamma-Poisson.qmd) might be more appropriate.
 
 
-$$
-log(\lambda_i) = log(\tau_i) + \alpha + \beta x_i
-$$
-
-- The offset $τ_i$ scales the expected number of events for each case $i$.
--->
 :::
 
 ## Example
@@ -64,7 +59,7 @@ def model(cid, population, total_tools):
     a = m.dist.normal(3, 0.5, shape= (2,), name='a')
     b = m.dist.normal(0, 0.2, shape=(2,), name='b')
     l = jnp.exp(a[cid] + b[cid]*population)
-    m.poisson(l, obs=total_tools)
+    m.dist.poisson(l, obs=total_tools)
 
 # Run sampler ------------------------------------------------
 m.fit(model)
@@ -93,11 +88,11 @@ model <- function(total_tools, population, cid){
   beta = bi.dist.normal(0, 0.2, name='beta', shape = c(2))
   l = jnp$exp(alpha[cid] + beta[cid]*population)
   # Likelihood
-  m$poisson(l, obs=total_tools)
+  m.dist.poisson(l, obs=total_tools)
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
@@ -115,7 +110,7 @@ Y_i \sim \text{Poisson}(\lambda_i)
 $$
 
 $$
-\lambda_i = \exp(\alpha + \beta X_i)
+log(\lambda_i) = \alpha + \beta X_i
 $$
 
 $$
@@ -130,9 +125,9 @@ Where:
 
 - $Y_i$ is the dependent variable for observation *i*.
 
-- $\lambda_i$ is the positive-constrained rate parameter of the $Poisson$ distribution for observation *i*, modeled as the exponential function of the linear combination of predictors.
+- $\log()$ is the **log link function**. This function links the log of the mean of the response variable, $\lambda_i$, to the linear predictor, $\alpha + \beta X_i$. The logarithm is the canonical link function for the Poisson distribution. It ensures that the predicted mean, $\lambda_i = \exp(\alpha + \beta X_i)$, will always be positive, as required for a Poisson rate parameter. 
 
-- $\alpha$ and $\beta$ are the prior distributions for the intercept and the regression coefficients, respectively.
+- $\alpha$ and $\beta$ are the intercept and regression coefficient, respectively, with their associated prior distributions. 
 
 - $X_i$ is the value of the independent variable for observation *i*.
 
@@ -145,66 +140,7 @@ Where:
 
 - We can apply categorical variables similarly to [chapter 4](4.&#32;Categorical&#32;variable.qmd).
 
-- Bellow is an example code snippet demonstrating a Bayesian Poisson model wiht an *offset* term using the Bayesian Inference (BI) package. A Poisson model with an offset is a statistical method used to analyze count data when the opportunities for those counts to occur are not uniform. In essence, it allows for the modeling of rates rather than simple counts. This is particularly useful in fields like epidemiology, ecology, and quality control, where events are counted over varying periods of time, space, or other measures of exposure.
 
-::: {.panel-tabset group="language"}
-### Python
-```python
-from BI import bi
-# Setup device ------------------------------------------------
-m = bi(platform='cpu') # Import
-
-# Import Data & Data Manipulation ------------------------------------------------
-# Import
-from importlib.resources import files
-data_path = files('BI.resources.data') / 'Sim dat Gamma poisson.csv'
-m.data(data_path, sep=',') 
-m.data_to_model(['log_days', 'monastery', 'y']) # Send to model (convert to jax array)
-
-# Define model ------------------------------------------------
-def model(log_days, monastery, y):
-    a = m.dist.normal(0, 1, name = 'a', shape=(1,))
-    b = m.dist.normal(0, 1, name = 'b', shape=(1,))
-    l = m.jnp.exp(log_days + a + b * monastery)
-    m.poisson(rate = l, obs=y)
-# Run MCMC ------------------------------------------------
-m.fit(model) # Optimize model parameters through MCMC sampling
-
-# Summary ------------------------------------------------
-m.summary() # Get posterior distributions
-```
-
-### R
-```R
-library(BI)
-
-# Setup platform------------------------------------------------
-m=importbi(platform='cpu')
-
-# Import data ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/Sim dat Gamma poisson.csv", sep = ''), sep=',')
-m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to jax array)
-
-# Define model ------------------------------------------------
-model <- function(log_days, monastery, y){
-  # Parameter prior distributions
-  alpha = bi.dist.normal(0, 1, name='alpha', shape=c(1))
-  beta = bi.dist.normal(0, 1, name='beta', shape=c(1))
-  l = jnp$exp(log_days + alpha + beta * monastery)
-  # Likelihood
-  m$poisson(rate=l, obs=y)
-}
-
-# Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
-
-# Summary ------------------------------------------------
-m$summary() # Get posterior distributions
-
-
-
-```
-:::
 ## Reference(s)
 ::: {#refs}
 :::

@@ -272,7 +272,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with Categorical Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -294,21 +294,30 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
+ <span class="menu-text">8. Poisson model with and offset.qmd</span>
+  </li>
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Gamma-Poisson (Negative Binomial) Model</span></a>
+ <span class="menu-text">Gamma-Poisson Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./9. Multinomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./9. Categorical model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Multinomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet-Multinomial Model (WIP)</span></a>
+ <span class="menu-text">Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -547,7 +556,7 @@ Note
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -576,16 +585,16 @@ Note
 <h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian formulation</em></h3>
 <p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian model as follows:</p>
 <p><span class="math display">
-𝑌_i \sim Normal(\alpha + \sum_{k=1}^K  \beta_k  X_{[K,i]}, σ)
+𝑌_i \sim \text{Normal}(\alpha + \sum_{k=1}^K  \beta_k  X_{[K,i]}, σ)
 </span></p>
 <p><span class="math display">
-\alpha \sim Normal(0,1)
+\alpha \sim \text{Normal}(0,1)
 </span></p>
 <p><span class="math display">
-\beta_k \sim Normal(0,1)
+\beta_k \sim \text{Normal}(0,1)
 </span></p>
 <p><span class="math display">
-σ \sim Uniform(0, 50)
+σ \sim \text{Uniform}(0, 50)
 </span></p>
 <p>Where:</p>
 <ul>
@@ -593,7 +602,7 @@ Note
 <li><p><span class="math inline">\alpha</span> is the intercept term, which in this case has a unit-normal prior.</p></li>
 <li><p><span class="math inline">\beta_k</span> are slope coefficients for the <em>K</em> distinct independent variables, which also have unit-normal priors.</p></li>
 <li><p><span class="math inline">X_{[1,i]}</span>, <span class="math inline">X_{[2,i]}</span>, …, <span class="math inline">X_{[K,i]}</span> are the values of the independent variables for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\sigma</span> is a standard deviation parameter, which here has a <span class="math inline">Uniform</span> prior that constrains it to be positive.</p></li>
+<li><p><span class="math inline">\sigma</span> is a standard deviation parameter, which here has a Uniform prior that constrains it to be positive.</p></li>
 </ul>
 </section>
 </section>
@@ -625,6 +634,14 @@ function convertMarkdownToHTML(markdown) {
   const htmlContent = marked.parse(markdown, options);
   return htmlContent;
 }
+
+tippy('#Elasticity', {
+  content: convertMarkdownToHTML('The elasticity of the response variable with respect to the exposure is the percent change in the response with respect to a percent change in the exposure. For example, an elasticity of 1.0 means that doubling the exposure time will double the response'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
 
 tippy('#Uncertainty', {
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),

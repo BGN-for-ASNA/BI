@@ -3,7 +3,7 @@ title: "Network Models"
 description: "Modeling relationships and interactions between entities as a graph of nodes and edges."
 categories: [Network Analysis, Graph Theory]
 image: "Figures/SRM.svg"
-order: 23
+order: 25
 ---
 
 A network represents the relationships (links) between entities (nodes). These links can be weighted (weighted network) or unweighted (binary network), directed (directed network) or undirected (undirected network). Regardless of their type, networks generate links shared by nodes, leading to data dependency when modeling the network. One proposed solution is to model network links with random [intercepts](13.%20Varying%20intercepts.qmd) and [slopes](14.%20Varying%20slopes.qmd). By adding such parameters to the model, we can account for the correlations between node link relationships.
@@ -117,7 +117,7 @@ model <- function(idx, idxShape, result_outcomes,focal_individual_predictors, ta
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 summary =m$summary()

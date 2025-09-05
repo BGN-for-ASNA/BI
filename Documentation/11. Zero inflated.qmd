@@ -3,7 +3,7 @@ title: "Zero-Inflated Models"
 description: "Handling count data with an excess of zero counts by combining a count model with a logistic model."
 categories: [Count Data, Regression, GLM]
 image: "Figures/zero inflated.svg"
-order: 12
+order: 14
 ---
 
 ## General Principles
@@ -84,7 +84,7 @@ model <- function(y){
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
