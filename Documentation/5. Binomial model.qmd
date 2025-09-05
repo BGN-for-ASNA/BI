@@ -40,10 +40,7 @@ m.data_to_model(['pulled_left'])
 # Define model ------------------------------------------------
 def model(pulled_left):
     a = m.dist.normal( 0, 10, shape=(1,), name = 'a')
-    m.binomial(
-    total_count = 1,
-    logits=a[0],
-    obs=pulled_left)
+    m.binomial(total_count = 1, logits=a[0], obs=pulled_left)
 
 # Run sampler ------------------------------------------------
 m.fit(model, num_samples=500)
@@ -69,14 +66,12 @@ model <- function(pulled_left){
   # Parameters priors distributions
   alpha = bi.dist.normal( 0, 10, name = 'alpha')
   # Likelihood
-  m$binomial(total_count = 1, 
-  logits = alpha, 
-  obs=pulled_left)
+  m$binomial(total_count = 1, logits = alpha, obs=pulled_left)
 }
 
 
 # Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
@@ -140,12 +135,39 @@ def model(actor, treatment, pulled_left):
     a = m.dist.normal(0, 1.5, shape = (7,), name='a')
     b = m.dist.normal(0, 0.5, shape = (4,), name='b')
     p = a[actor] + b[treatment]
-    m.lk("y", m.dist.binomial(total_count = 1, logits=p), obs=pulled_left)
+    m.dist.binomial(total_count = 1, logits=p, obs=pulled_left)
 
 # Run sampler ------------------------------------------------
 m.fit(model)
 # Diagnostic ------------------------------------------------
 m.summary()
+```
+
+``` r
+library(BI)
+
+# setup platform------------------------------------------------
+m=importbi(platform='cpu')
+
+# import data ------------------------------------------------
+m$data(paste(system.file(package = "BI"),"/data/chimpanzees.csv", sep = ''), sep=';')
+m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
+
+# Define model ------------------------------------------------
+model <- function(pulled_left){
+  # Parameters priors distributions
+  a = bi.dist.normal( 0, 1.5, name = 'a')
+  b = bi.dist.normal( 0, 0.5, name = 'b')
+  p = a[actor] + b[treatment]
+  # Likelihood
+  m$binomial(total_count = 1, logits = alpha, obs=pulled_left)
+}
+
+# Run MCMC ------------------------------------------------
+m$fit(model) # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m$summary() # Get posterior distribution
 ```
 :::
 

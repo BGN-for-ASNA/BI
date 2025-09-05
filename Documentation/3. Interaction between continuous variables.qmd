@@ -82,7 +82,7 @@ model <- function(blooms, water,shade){
 }
 
 # Run mcmc ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distributions
@@ -152,7 +152,7 @@ Where:
 
 - $X_{[1,i]}$ and $X_{[2,i]}$ are the two values of the independent continuous variables for observation *i*.
 
-- $\sigma$ is a standard deviation parameter, which here has an $Exponential$ prior that constrains it to be positive.
+- $\sigma$ is a standard deviation parameter, which here has an Exponential prior that constrains it to be positive.
 
 ## Notes{#Notes}
 ::: callout-note

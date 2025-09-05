@@ -272,7 +272,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with Categorical Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -294,21 +294,30 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
+ <span class="menu-text">8. Poisson model with and offset.qmd</span>
+  </li>
+        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Gamma-Poisson (Negative Binomial) Model</span></a>
+ <span class="menu-text">Gamma-Poisson Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./9. Multinomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./9. Categorical model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Multinomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet-Multinomial Model (WIP)</span></a>
+ <span class="menu-text">Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -574,7 +583,7 @@ Caution
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">run</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -604,7 +613,7 @@ Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
     \vdots \\
     Z_{n}
 \end{pmatrix}
-\sim MVNormal \left(
+\sim \text{MVNormal} \left(
 \begin{pmatrix}
     0 \\
     \vdots \\
@@ -649,7 +658,7 @@ K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
 Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
 </span></p>
 <p><span class="math display">
-\gamma \sim MVNormal \left(
+\gamma \sim \text{MVNormal} \left(
 \begin{pmatrix}
     0 \\
     \vdots \\
@@ -662,19 +671,19 @@ K
 K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
 </span></p>
 <p><span class="math display">
-\alpha \sim Normal(0,1)
+\alpha \sim \text{Normal}(0,1)
 </span></p>
 <p><span class="math display">
-\eta^2 \sim HalfCauchy(0,1)
+\eta^2 \sim \text{HalfCauchy}(0,1)
 </span></p>
 <p><span class="math display">
-p^2 \sim HalfCauchy(0,1)
+p^2 \sim \text{HalfCauchy}(0,1)
 </span></p>
 <p>where:</p>
 <ul>
 <li><p><span class="math inline">Y_i</span> is the i-th value for the dependent variable <span class="math inline">Y</span>.</p></li>
-<li><p><span class="math inline">\alpha</span> is the intercept term with a prior of <span class="math inline">Normal(0,1)</span>.</p></li>
-<li><p><span class="math inline">\beta</span> is the regression coefficient term with a prior of <span class="math inline">Normal(0,1)</span>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term with a prior of <span class="math inline">\text{Normal}(0,1)</span>.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficient term with a prior of <span class="math inline">\text{Normal}(0,1)</span>.</p></li>
 <li><p><span class="math inline">X_i</span> is the i-th value for the independent variable <span class="math inline">X</span>.</p></li>
 <li><p><span class="math inline">\gamma_{Z_i}</span> is the Gaussian process i-th value for the independent variable <span class="math inline">Z</span>.</p></li>
 <li><p><span class="math inline">\gamma</span> is the latent function modeled by the GP.</p></li>
@@ -745,6 +754,14 @@ function convertMarkdownToHTML(markdown) {
   const htmlContent = marked.parse(markdown, options);
   return htmlContent;
 }
+
+tippy('#Elasticity', {
+  content: convertMarkdownToHTML('The elasticity of the response variable with respect to the exposure is the percent change in the response with respect to a percent change in the exposure. For example, an elasticity of 1.0 means that doubling the exposure time will double the response'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
 
 tippy('#Uncertainty', {
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),

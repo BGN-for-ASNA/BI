@@ -1,22 +1,22 @@
 ---
-title: "Gamma-Poisson (Negative Binomial) Model"
+title: "Gamma-Poisson Model"
 description: "An extension of the Poisson model for count data that exhibits overdispersion."
 categories: [Regression, Count Data, GLM]
-order: 9
+order: 10
 ---
 
-## General Principles
+## General Principles 
 To model the relationship between a count outcome variable and one or more independent variables with [<span style="color:#0D6EFD">overdispersion 🛈</span>]{#overdispersion}, we can use the _Negative Binomial model_. 
 
 ## Considerations
 ::: callout-caution 
 - We have the same considerations as for the [Poisson model](7.&#32;Poisson&#32;model.qmd).
   
-- Overdispersion is handled because the Negative Binomial model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is `log_days`).
+- Overdispersion is handled because the Gamma-Poisson model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is `log_days`).
 :::
 
 ## Example
-Below is an example code snippet demonstrating a Bayesian Gamma-Poisson model using the Bayesian Inference (BI) package. This example is based on @mcelreath2018statistical.
+Below is an example code snippet demonstrating a Bayesian Gamma-Poisson model using the Bayesian Inference (BI) package. 
 
 ::: {.panel-tabset group="language"}
 ### Python
@@ -36,8 +36,10 @@ m.data_to_model(['log_days', 'monastery', 'y']) # Send to model (convert to jax 
 def model(log_days, monastery, y):
     a = m.dist.normal(0, 1, name = 'a', shape=(1,))
     b = m.dist.normal(0, 1, name = 'b', shape=(1,))
-    l = m.jnp.exp(log_days + a + b * monastery)
-    m.poisson(rate = l, obs=y)
+    phi = m.dist.exponential(1, name = 'phi', shape=(1,))
+    mu = m.jnp.exp(log_days + a + b * monastery)
+    Lambda =  m.dist.gamma(rate = mu*phi, concentration = phi, name = 'Lambda')
+    m.dist.poisson(rate = Lambda, obs=y)
 # Run MCMC ------------------------------------------------
 m.fit(model) # Optimize model parameters through MCMC sampling
 
@@ -61,13 +63,15 @@ model <- function(log_days, monastery, y){
   # Parameter prior distributions
   alpha = bi.dist.normal(0, 1, name='alpha', shape=c(1))
   beta = bi.dist.normal(0, 1, name='beta', shape=c(1))
-  l = jnp$exp(log_days + alpha + beta * monastery)
+  phi = bi.dist.exponential(1, name='phi', shape=c(1))
+  mu = jnp$exp(log_days + alpha + beta * monastery)
+  Lambda =  m.dist.gamma(rate = mu*phi, concentration = phi, name = 'Lambda')
   # Likelihood
-  m$poisson(rate=l, obs=y)
+  m$poisson(rate=Lambda, obs=y)
 }
 
 # Run MCMC ------------------------------------------------
-m$run(model) # Optimize model parameters through MCMC sampling
+m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distributions
@@ -133,5 +137,3 @@ Where:
 :::
 
 ## Reference(s)
-::: {#refs} 
-:::
