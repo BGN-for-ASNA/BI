@@ -1,7 +1,8 @@
 ---
 title: "Beta-Binomial Model"
-description: "Modeling binomial-type data with overdispersion."
+description: "Modeling binary outcomes (e.g., successes/failures) across multiple independent trials when the success probability itself is uncertain."
 categories: [Bayesian, Regression, GLM]
+image: "Figures/6.png"
 order: 7
 ---
 
@@ -50,14 +51,31 @@ m.df["gid"] = (m.df["applicant.gender"] != "male").astype(int)
 
 # Define model ------------------------------------------------
 def model(gid, applications, admit):
-    phi = m.dist.exponential(1,  name = 'phi')
-    alpha = m.dist.normal( 0., 1.5, shape=(2,), name = 'alpha')
-    theta =  phi + 2
+    # Prior for overall concentration scaling (positive, via exponential)
+    phi = m.dist.exponential(1, name='phi')
+    
+    # Priors for group-level intercepts (two groups, normal-distributed)
+    alpha = m.dist.normal(0., 1.5, shape=(2,), name='alpha')
+    
+    # Shifted concentration scale (avoids too small values)
+    theta = phi + 2
+    
+    # Group-specific mean success probability (mapped to [0,1] with sigmoid)
     pbar = jax.nn.sigmoid(alpha[gid])
-    concentration1 = pbar*theta
+    
+    # Beta distribution parameter for "successes"
+    concentration1 = pbar * theta
+    
+    # Beta distribution parameter for "failures"
     concentration0 = (1 - pbar) * theta
-
-    m.dist.betabinomial(total_count = applications, concentration1 = concentration1, concentration0 = concentration0, obs=admit)
+    
+    # Likelihood: admissions modeled with Beta-Binomial
+    m.dist.betabinomial(
+        total_count=applications,
+        concentration1=concentration1,
+        concentration0=concentration0,
+        obs=admit
+    )
 
 # Run MCMC ------------------------------------------------
 m.fit(model) # Optimize model parameters through MCMC sampling
