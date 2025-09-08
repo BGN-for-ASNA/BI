@@ -49,6 +49,78 @@ class factors:
         #return jnp.dot(factors.diag_pre_multiply(sigma, cor_mat), offset_mat).T
         return (factors.diag_pre_multiply(sigma, cor_mat) @ offset_mat).T
 
+
+    @staticmethod 
+    @jit   
+    def random_effect(N_groups, global_intercept, global_slope):
+        """Defines and samples from a hierarchical model for group-level parameters.
+
+        This function models group-specific intercepts and slopes as being drawn
+        from a common, shared distribution defined by global (hyper)parameters.
+        This approach, known as partial pooling, allows groups to share statistical
+        strength, leading to more robust estimates, especially for groups with sparse data.
+
+        The model structure is as follows:
+        1.  Priors are defined for the scale of variation among groups (group_std).
+        2.  A prior is placed on the correlation between group-level intercepts and slopes
+            using the LKJCholesky distribution. This models the idea that a group with a
+            higher-than-average intercept might also have a systematically higher or lower slope.
+        3.  These components are combined to construct a covariance matrix for the groups.
+        4.  Group-level intercepts and slopes are jointly sampled from a single
+            Multivariate Normal distribution, centered around the global parameters.
+
+        Args:
+            N_groups (int): The total number of groups in the dataset.
+            global_intercept (jnp.ndarray): The hyperparameter representing the mean of all
+                                      group-level intercepts.
+            global_slope (jnp.ndarray): The hyperparameter representing the mean of all
+                                  group-level slopes.
+
+        Returns:
+            jax.numpy.ndarray: A `(N_groups, 2)` array where each row contains the sampled [intercept, slope] pair for a group.
+        """
+        # --- Step 1: Define Priors for Group-Level Variation ---
+
+        # Prior on the standard deviations of the group-level parameters.
+        # We model the variation for intercepts and slopes separately. An Exponential
+        # prior is chosen as it's a weakly informative prior for scale parameters,
+        # constraining them to be positive. Shape=(2,) corresponds to [std_intercept, std_slope].
+        group_std = sample('group_std', dist.exponential(1.0).expand([2]))
+
+        # Prior on the correlation matrix for group intercepts and slopes.
+        # LKJCholesky is an efficient way to define a prior over correlation matrices.
+        # A concentration parameter > 1 (e.g., 2.0) pushes the model towards weaker
+        # correlations, preventing overfitting. We model a 2x2 correlation matrix
+        # for the [intercept, slope] relationship. 'L_corr' is the Cholesky factor.
+        L_corr = sample('L_corr', dist.lkj_cholesky(2, concentration=2.0))
+
+        # --- Step 2: Construct the Group-Level Covariance Matrix ---
+
+        # The covariance matrix (Σ) determines the scale and correlation of the
+        # multivariate normal distribution for the group parameters. It is constructed
+        # from the standard deviations (σ) and the correlation matrix (Ω) using the
+        # formula: Σ = diag(σ) @ Ω @ diag(σ).
+        # We use the Cholesky factor (L) of Ω where Ω = L @ L.T for efficiency.
+        group_cov = jnp.diag(group_std) @ L_corr @ jnp.transpose(L_corr) @ jnp.diag(group_std)
+
+        # --- Step 3: Sample Group-Level Parameters ---
+
+        # Define the mean vector for the multivariate normal distribution. This is the
+        # "center" from which our group parameters will deviate. It is composed of the
+        # global (population-level) intercept and slope.
+        global_mean = jnp.stack([global_intercept, global_slope])
+
+        # Sample the specific intercept and slope offsets for each of the N_groups from a
+        # Multivariate Normal distribution. This joint sampling captures the learned
+        # correlation between the two parameters. The result `group_params` will have a
+        # shape of (N_groups, 2).
+        group_params = sample(
+            'group_params',
+            dist.multivariate_normal(loc=global_mean, covariance_matrix=group_cov)
+                 .expand([N_groups])
+        )
+
+        return group_params
     
 # Gaussian process related functions ----------------------------------------
 @jit
