@@ -66,50 +66,71 @@ class met:
             eigenvector (jax.numpy.ndarray): Dominant   eigenvector.
             eigenvalue (float): Dominant eigenvalue.
         """
-        def cond_fn(state):
-            # Condition to continue iterating
-            i, b_k, b_k1, _ = state
-            return (i < num_iter) & (jnp.linalg.norm(b_k1 - b_k) >= tol)
-
+        # Define the condition function for the while loop
+        def condition_fn(state):
+            i, prev_vec, current_vec, _ = state
+            # Continue if iteration count is not exceeded AND the change is above tolerance
+            return (i < num_iter) & (jnp.linalg.norm(current_vec - prev_vec) >= tol)
+    
+        # Define the body function for one loop iteration
         def body_fn(state):
-            # Perform one step of the power iteration
-            i, b_k, b_k1, m = state
-            b_k = b_k1
-            b_k1 = jnp.dot(m, b_k)
-            b_k1 = b_k1 / jnp.linalg.norm(b_k1)
-            return (i + 1, b_k, b_k1, m)
-
-        # Initialize the state
+            i, _, current_vec, matrix = state
+            # The "current" vector becomes the "previous" vector for the next step
+            prev_vec_next = current_vec
+            
+            # Calculate the new "current" vector
+            current_vec_next = jnp.dot(matrix, prev_vec_next)
+            current_vec_next = current_vec_next / jnp.linalg.norm(current_vec_next)
+            
+            return (i + 1, prev_vec_next, current_vec_next, matrix)
+    
+        # --- Initialize the state for the loop ---
         n = m.shape[0]
-        b_k = jnp.ones(n)
-        b_k1 = jnp.dot(m, b_k)
-        b_k1 = b_k1 / jnp.linalg.norm(b_k1)
-        state = (0, b_k, b_k1, m)
-
+        # Start with a vector of ones
+        initial_guess = jnp.ones(n)
+        # Perform the first iteration explicitly to have a "previous" and "current" vector
+        initial_current_vec = jnp.dot(m, initial_guess)
+        initial_current_vec = initial_current_vec / jnp.linalg.norm(initial_current_vec)
+    
+        # The initial state tuple: (iteration, prev_vector, current_vector, matrix)
+        initial_state = (0, initial_guess, initial_current_vec, m)
+    
         # Run the while loop
-        final_state = lax.while_loop(cond_fn, body_fn,  state)
-        _, _, b_k1, _ = final_state
-
+        final_state = lax.while_loop(condition_fn, body_fn, initial_state)
+        
+        # Unpack the final eigenvector from the state
+        _, _, eigenvector, _ = final_state
+    
         # Compute the dominant eigenvalue
-        eigenvalue = jnp.dot(b_k1, jnp.dot(m, b_k1)) /  jnp.dot(b_k1, b_k1)
-        return b_k1, eigenvalue
+        eigenvalue = jnp.dot(eigenvector, jnp.dot(m, eigenvector)) / jnp.dot(eigenvector, eigenvector)
+        
+        return eigenvector, eigenvalue
 
     @staticmethod
-    @jit
-    def eigenvector(m, num_iter=300, tol=1e-6):
+    def eigenvector(m, weighted=True, num_iter=1000, tol=1e-6):
         """
         Compute the eigenvector centrality of a graph using the power iteration algorithm.
 
         Args:
             m (jax.numpy.ndarray): Input square matrix.
-            max_iter (int): Maximum number of iterations.
+            weighted (bool): Whether to consider edge weights.
+            num_iter (int): Maximum number of iterations.
             tol (float): Tolerance for convergence.
 
         Returns:
             eigenvector_centrality (jax.numpy.ndarray): Eigenvector centrality of each node.
         """
-        eigenvector, eigenvalue = met.power_iteration(m, num_iter=num_iter, tol=tol)
-        return eigenvector
+        adj_matrix = m
+
+        if not weighted:
+            adj_matrix = (m > 0).astype(jnp.float32)
+
+        n = adj_matrix.shape[0]
+        matrix_for_iteration = adj_matrix.T + jnp.identity(n)
+
+        eigenvector_val, _ = power_iteration(matrix_for_iteration, num_iter=num_iter, tol=tol)
+        return eigenvector_val
+
 
     ## Dijkstra----------------------------------------------------------------------------------
     @staticmethod 
