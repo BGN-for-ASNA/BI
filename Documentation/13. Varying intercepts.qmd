@@ -96,29 +96,9 @@ m$summary() # Get posterior distribution
 :::
 
 ## Mathematical Details
-### *Frequentist formulation*
+
 We model the relationship between the independent variable $X$ and the outcome variable $Y$ with varying intercepts $\alpha$ for each group $k$ using the following equation:
 
-
-$$
-Y_{ik} = \alpha_k + \beta X_{ik} + \sigma
-$$
-
-Where:
-
-- $Y_{ik}$ is the outcome variable for observation $i$ in group $k$.
-
-- $\alpha_k$ is the varying intercept for group $k$.
-
-- $X_{ik}$ is the independent variable for observation $i$ in group $k$.
-
-- $\beta$ is the regression coefficient.
-
-- $\sigma$ is the error term, typically assumed to be normally distributed and positive.
-
-### Bayesian Model
-
-We can express the Bayesian regression model accounting for [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} distributions as follows:
 
 $$
 Y_{ik} \sim \text{Normal}(\mu_{ik}, \sigma)
@@ -127,7 +107,7 @@ $$
 \mu_{ik} = \alpha_k + \beta X_{ik}
 $$
 $$
-\alpha_k \sim \text{Normal}(\mu_{\alpha_k}, \sigma_{\alpha_k}) 
+\alpha_k \sim \text{Normal}(\mu_{\alpha}, \sigma_{\alpha}) 
 $$
 $$
 \beta \sim \text{Normal}(0, 1)
@@ -136,10 +116,10 @@ $$
 \sigma \sim \text{Exponential}(1)
 $$
 $$
-\mu_{\alpha_k} \sim \text{Normal}(0, 1)
+\mu_{\alpha} \sim \text{Normal}(0, 1)
 $$
 $$
-\sigma_{\alpha_k} \sim \text{Exponential}(1)
+\sigma_{\alpha} \sim \text{Exponential}(1)
 $$
 
 Where:
@@ -154,7 +134,7 @@ Where:
 
 - $\beta$ is the regression coefficient.
 
-- $\sigma is a standard deviation parameter, which here has a $Exponential$ prior that constrains it to be positive.
+- $\sigma$ is a standard deviation parameter, which here has a $Exponential$ prior that constrains it to be positive.
 
 ## Notes
 ::: callout-note 

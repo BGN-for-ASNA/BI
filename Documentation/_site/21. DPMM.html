@@ -734,7 +734,7 @@ Caution
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <p>This level describes how any single data point, <span class="math inline">x_i</span>, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster’s specific distribution. We use a truncation level <span class="math inline">T</span> as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.</p>
-<p><span class="math display">\begin{align*}
+<p><span class="math display">
 x_i \mid z_i=k \sim \text{MultivariateNormal}(\mu_k, \Sigma_{\text{obs}}) \\
 z_i \sim \text{Categorical}(w) \\
 w = \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
@@ -742,7 +742,7 @@ w = \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
 \alpha \sim \text{Gamma}(1, 10)\\
 \mu_k \sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \\
 \Sigma_{\text{obs}} = I_D \\
-\end{align*}</span></p>
+</span></p>
 <p><strong>Parameter Definitions:</strong> * <strong>Observed Data:</strong> * <span class="math inline">x_i</span>: The <span class="math inline">i</span>-th observed D-dimensional data point.</p>
 <ul>
 <li><strong>Latent Variables (Inferred):</strong>

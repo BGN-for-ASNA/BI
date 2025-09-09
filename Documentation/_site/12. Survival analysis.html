@@ -577,11 +577,7 @@ window.Quarto = {
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a></li>
   <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations">Considerations</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
-  <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><em>Frequentist formulation</em></a></li>
-  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><em>Bayesian formulation</em></a></li>
-  </ul></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="12.-Survival-analysis.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
@@ -631,13 +627,13 @@ window.Quarto = {
 </section>
 <section id="considerations" class="level2">
 <h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
-<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Caution
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -657,7 +653,7 @@ Caution
 <h2 class="anchored" data-anchor-id="example">Example</h2>
 <p>Here’s an example of a Bayesian survival analysis using the <strong>Bayesian Inference (BI)</strong> package. The data come from a clinical trial of mastectomy for breast cancer. The goal is to estimate the effect of the <code>metastasized</code> covariate, coded as 0 (no metastasis) and 1 (metastasis), on the survival outcome <code>event</code> for each patient. Time is continuous and censoring is indicated by the event variable.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
@@ -705,62 +701,56 @@ Caution
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot hazards and survival function ------------------------------------------------</span></span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>m.plot_surv()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 </div>
 </div>
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<section id="frequentist-formulation" class="level3">
-<h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist formulation</em></h3>
-<p>The Cox proportional hazards model can be expressed as: <span class="math display">
-h(t | X) = h_0(t) \exp(\beta^T X)
+<p>The model is defined as follows:</p>
+<p><span class="math display">
+dN_i(t) \sim \text{Poisson}(\lambda_i(t)Y_i(t)dt)
+</span></p>
+<p><span class="math display">
+\lambda_i(t) = \lambda_{0}(t)\exp(X_i\beta)
+</span></p>
+<p>The hierarchical priors for the regression coefficients are:</p>
+<p><span class="math display">
+\beta \sim \text{Normal}(\mu_\beta, \sigma^2_\beta)
+</span></p>
+<p><span class="math display">
+\mu_\beta \sim \text{Normal}(0, 100)
+</span></p>
+<p><span class="math display">
+\sigma^2_\beta \sim \text{InverseGamma}(0.1, 0.1)
 </span></p>
 <ul>
-<li><p>Where:</p>
+<li>Where:
 <ul>
-<li><p><span class="math inline">h(t | X)</span> is the hazard at time <span class="math inline">t</span> for covariates <span class="math inline">X</span>.</p></li>
-<li><p><span class="math inline">h_0(t)</span> is the baseline hazard function (e.g., exponential, Weibull).</p></li>
-<li><p><span class="math inline">X</span> represents the covariates (such as age, treatment).</p></li>
-<li><p><span class="math inline">\beta</span> are the regression coefficients to be estimated.</p></li>
+<li><p><span class="math inline">N_i(t)</span> is the counting process for subject <span class="math inline">i</span>, which counts the number of observed events up to time <span class="math inline">t</span>. For survival analysis, this is typically 0 or 1.</p></li>
+<li><p><span class="math inline">dN_i(t)</span> is the increment of the process over a small interval <span class="math inline">dt</span>, indicating if an event occurred for subject <span class="math inline">i</span> at time <span class="math inline">t</span>.</p></li>
+<li><p><strong><span class="math inline">Y_i(t)</span> is the at-risk indicator</strong>, taking a value of 1 if subject <em>i</em> is under observation and has not yet experienced an event just prior to time <em>t</em>, and 0 otherwise. This indicator is the mechanism that handles censoring:</p>
+<ul>
+<li>If a subject is <strong>censored</strong> at time <span class="math inline">t'</span>, their at-risk indicator <span class="math inline">Y_i(t)</span> remains 1 up to <span class="math inline">t'</span>, signifying they were at risk during this period.</li>
+<li>At the moment of censoring <span class="math inline">t'</span>, no event is recorded (the counting process <span class="math inline">N_i(t)</span> does not increment).</li>
+<li>For all subsequent times <span class="math inline">t &gt; t'</span>, the indicator <span class="math inline">Y_i(t)</span> switches to 0, effectively removing the individual from the risk set for any future calculations.</li>
 </ul></li>
-<li><p>Censoring is accounted for by multiplying the hazard function by a factor that depends on the censoring distribution, usually modeled as independent censoring with a rate δ(t):</p>
+<li><p><span class="math inline">\lambda_i(t)</span> is the hazard rate for subject <span class="math inline">i</span> at time <span class="math inline">t</span>.</p></li>
+<li><p><span class="math inline">\lambda_{0}(t)</span> is the baseline hazard rate function at time <span class="math inline">t</span>. A key assumption is that this baseline hazard is the same for all subjects.</p></li>
+<li><p><span class="math inline">X_i</span> is the covariates for subject <span class="math inline">i</span>.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficients.</p></li>
+</ul></li>
+<li><strong>Priors:</strong>
 <ul>
-<li><span class="math inline">Y_i(t) = Poisson(h(t | X) * δ(t))</span></li>
+<li><p>We assign prior distributions to the unknown parameters. The regression coefficients <span class="math inline">\beta</span> are given a Normal prior.</p></li>
+<li><p>The hyperparameters of the <span class="math inline">\beta</span> prior, <span class="math inline">\mu_\beta</span> and <span class="math inline">\sigma^2_\beta</span>, are themselves given vague priors to be learned from the data.</p></li>
+<li><p>The baseline hazard <span class="math inline">\lambda_0(t)</span> is also treated as an unknown parameter and is often modeled non-parametrically, for instance, using a gamma process or as a piecewise constant function, where priors are placed on the hazard level in each time interval.</p></li>
 </ul></li>
 </ul>
-</section>
-<section id="bayesian-formulation" class="level3">
-<h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian formulation</em></h3>
-<p>In Bayesian survival analysis, we define priors for each parameter:</p>
-<ol type="1">
-<li><p><strong>Hazard Function</strong>: The hazard rate at time <span class="math inline">t</span> for an individual is given by: <span class="math display">Y_i(t) = \text{Poisson}(\lambda(t) * censoring(t))</span> <span class="math display">\lambda(t) = \lambda_0(t)\exp(x\beta)</span></p>
-<p><span class="math display"> \beta \sim \text{Normal}(\mu_\beta, \sigma^2_\beta) </span></p>
-<p><span class="math display">\mu_\beta \sim \text{Normal}(0, 10^2)</span></p>
-<p><span class="math display">\sigma^2_\beta \sim \text{Uniform}(0, 10)</span></p>
-<p>Where:</p>
-<ul>
-<li><p><span class="math inline">Y_i(t)</span> is the status of the <span class="math inline">i</span>-th subject at time <span class="math inline">t</span> coded as a binary variable: <span class="math display">
-Y_i(t) =
-\begin{cases}
-1 &amp; \text{if subject } i \text{ died at time $t$  }, \\
-0 &amp; \text{otherwise.}
-\end{cases}
-</span></p></li>
-<li><p><span class="math inline">\lambda(t)</span>: Hazard function at time <span class="math inline">t</span>.</p></li>
-<li><p><span class="math inline">\lambda_0(t)</span>: Baseline hazard function (e.g., <span class="math inline">Exponential</span> or <span class="math inline">Weibull</span>).</p></li>
-<li><p><span class="math inline">x</span>: Covariates (e.g., age, treatment).</p></li>
-<li><p><span class="math inline">\beta</span>: Regression coefficients capturing the effect of <span class="math inline">x</span> on the hazard are assigned a prior with a <span class="math inline">Normal</span> distribution.</p></li>
-<li><p><span class="math inline">\mu_\beta</span>: Mean of the <span class="math inline">Normal</span> distribution.</p></li>
-<li><p><span class="math inline">\sigma^2_\beta</span>: Variance of the <span class="math inline">Normal</span> distribution.</p></li>
-</ul></li>
-</ol>
-</section>
+<p>The key assumption of this model is that the hazard ratios are constant over time. Censoring is typically handled in the likelihood function used for estimation, not by multiplying the hazard function by a factor. The data for each subject <span class="math inline">i</span> is represented by a tuple <span class="math inline">(t_i, \delta_i, X_i)</span>, where <span class="math inline">t_i</span> is the observed time (either event or censoring time), <span class="math inline">\delta_i</span> is an event indicator (1 if the event was observed, 0 if censored), and <span class="math inline">X_i</span> is the vector of covariates.</p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
+<p>https://en.wikipedia.org/wiki/Proportional_hazards_model https://www.mathworks.com/help/stats/cox-proportional-hazard-regression.html https://www.pymc.io/projects/examples/en/latest/survival_analysis/survival_analysis.html https://vflores-io.github.io/posts/20240924_numpyro_logreg_surv_analysis/np01_logreg_surv_analysis/</p>
 
 
 </section>

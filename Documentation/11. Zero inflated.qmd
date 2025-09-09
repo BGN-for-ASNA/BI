@@ -9,10 +9,6 @@ order: 14
 ## General Principles
 Zero-Inflated Regression models are used when the outcome variable is a count variable with an excess of zero counts. These models combine a count model (e.g., Poisson or Negative Binomial) with a separate model for predicting the probability of excess zeros.
 
-## Considerations
-::: callout-caution
-- In Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for $W_{1\pi}, W_{2\pi}, ..., W_{n\pi}$, $W_{1\lambda}, W_{2\lambda}, ..., W_{n\lambda}$, $b_\pi$, and $b_\lambda$.
-:::
 
 ## Example
 
@@ -47,7 +43,7 @@ def model(y):
     ap = dist.normal(-1.5, 1, name='ap')
     p = expit(ap)
     lambda_ = jnp.exp(al)
-    m.zeroinflatedpoisson(p, lambda_, obs=y)
+    m.zero_inflated_poisson(p, lambda_, obs=y)
 
 # Run MCMC ------------------------------------------------
 m.fit(model)
@@ -94,79 +90,44 @@ m$summary() # Get posterior distribution
 :::
 
 # Mathematical Details
-### *Frequentist formulation*
-We model the relationship between the independent variable $X$ and the count outcome variable $Y$ using two components:
 
-1) A logistic regression model to predict the probability of an excess zero.
-2) A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.
+We model the relationship between the independent variable $X$ and the count outcome variable $Y$. The model assumes that the data-generating process has two states: a "zero" state that generates only zero counts, and a "Poisson" state that generates counts from a Poisson distribution.
 
-The overall model can be represented as follows:
+The model has two main components:
 
 $$
-\begin{aligned}
-& \text{logit}(\pi) = \alpha_\pi + \beta_\pi X_i \\
-& \text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X_i\\
-& Y_i \sim \begin{cases}
-0 & \text{with probability } \pi \\
-\text{CountModel}(\lambda) & \text{with probability } (1 - \pi)
+Y_i \sim \text{ZIPoisson}(\pi_i, \lambda_i) \sim
+\begin{cases}
+\pi + (1 - \pi_i) \times \text{Poisson}(0 | \lambda_i) & \text{if } y = 0 \\
+(1 - \pi_i) \times \text{Poisson}(y | \lambda_i) & \text{if } y > 0
 \end{cases}
-\end{aligned}
 $$
 
-Where:
+1.  $\pi + (1 - \pi_i) \times \text{Poisson}(0 | \lambda_i)$ A logistic regression model to predict the probability, $\pi_i$, of an observation being in the "zero" state (an excess zero). Where, the probability of getting a zero (y=0) is the sum of two chances: the probability of a structural zero ($\pi$) plus the probability of not being a structural zero (1-$\pi$) and then getting a zero from the Poisson distribution anyway.
 
-- $\pi$ is the probability of an excess zero.
+2.  $(1 - \pi_i) \times \text{Poisson}(y | \lambda_i)$ A Poisson regression model to predict the expected count, $\lambda_i$, for observations in the "Poisson" state. Where, the probability of getting a non-zero count (y>0) is simply the probability of not being a structural zero (1-$\pi$) multiplied by the probability of the Poisson distribution giving you that specific count.
 
-- $\lambda$ is the mean rate parameter of the count model.
-
-- $\alpha_\pi$ and $\beta_\pi$ are respectively the intercept and the regression coefficient for the logistic model.
-
-- $\alpha_\lambda$ and $\beta_\lambda$ are respectively the intercept and the regression coefficient for the count model.
-
-- $X_i$ are the independent variables' values for observation *i*.
-
-### *Bayesian formulation*
-In the Bayesian formulation, we define each parameter with [<span style="color:#0D6EFD">priors 🛈</span>]{#prior}. We can express the Bayesian regression model accounting for prior distributions as follows:
+The parameters $\pi_i$ and $\lambda_i$ are modeled as functions of the independent variable $X_i$:
 
 $$
-Y\sim \text{ZIPoisson}(\pi,\lambda)
+\text{logit}(\pi_i) = \alpha_\pi + \beta_\pi X_i
 $$
 
 $$
-\text{logit}(\pi) = \alpha_\pi + \beta_\pi X
+\log(\lambda_i) = \alpha_\lambda + \beta_\lambda X_i
 $$
 
-$$
-\text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X
-$$
+We can assign prior distributions to the model parameters with weakly informative Normal priors:
 
 $$
-\alpha_\pi \sim \text{Normal}(0,1)
+\begin{align*}
+\alpha_\pi &\sim \text{Normal}(0, 1) \\
+\beta_\pi &\sim \text{Normal}(0, 1) \\
+\alpha_\lambda &\sim \text{Normal}(0, 1) \\
+\beta_\lambda &\sim \text{Normal}(0, 1)
+\end{align*}
 $$
 
-$$
-\beta_\pi \sim \text{Normal}(0,1)
-$$
-
-$$
-\alpha_\lambda \sim \text{Normal}(0,1)
-$$
-
-$$
-\beta_\lambda \sim \text{Normal}(0,1)
-$$
-
-Where:
-
-- $\pi$ is the probability of an excess zero.
-
-- $\lambda$ is the mean rate parameter of the count model.
-
-- $\alpha_\pi$ and $\beta_\pi$ are respectively the intercept and the regression coefficient for the logistic model.
-
-- $\alpha_\lambda$ and $\beta_\lambda$ are respectively the intercept and the regression coefficient for the count model.
-
-- $X_i$ are the independent variables' values for observation *i*.
 
 ## Reference(s)
 ::: {#refs}

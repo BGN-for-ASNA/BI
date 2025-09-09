@@ -52,7 +52,10 @@ class factors:
 
     @staticmethod 
     @jit   
-    def random_effect(N_groups, global_intercept, global_slope):
+    def varying_slopes_centered(N_groups, global_intercept, global_slope,
+    group_std =  m.dist.exponential(1, shape=(N_groups,),  name = 'group_std'),
+    L_corr = m.dist.lkj(2, 2, name = 'L_corr'),
+    ):
         """Defines and samples from a hierarchical model for group-level parameters.
 
         This function models group-specific intercepts and slopes as being drawn
@@ -71,57 +74,41 @@ class factors:
 
         Args:
             N_groups (int): The total number of groups in the dataset.
-            global_intercept (jnp.ndarray): The hyperparameter representing the mean of all
-                                      group-level intercepts.
-            global_slope (jnp.ndarray): The hyperparameter representing the mean of all
-                                  group-level slopes.
+            global_intercept (jnp.ndarray): The hyperparameter representing the mean of all group-level intercepts.
+            global_slope (jnp.ndarray): The hyperparameter representing the mean of all group-level slopes.
+            group_std (jnp.ndarray): The standard deviations of the group-level parameters.
+            L_corr (jnp.ndarray): The Cholesky factor of the correlation matrix for the group-level parameters.
 
         Returns:
             jax.numpy.ndarray: A `(N_groups, 2)` array where each row contains the sampled [intercept, slope] pair for a group.
         """
-        # --- Step 1: Define Priors for Group-Level Variation ---
 
-        # Prior on the standard deviations of the group-level parameters.
-        # We model the variation for intercepts and slopes separately. An Exponential
-        # prior is chosen as it's a weakly informative prior for scale parameters,
-        # constraining them to be positive. Shape=(2,) corresponds to [std_intercept, std_slope].
-        group_std = sample('group_std', dist.exponential(1.0).expand([2]))
+        group_cov = jnp.outer(group_std, group_std) * Rho
 
-        # Prior on the correlation matrix for group intercepts and slopes.
-        # LKJCholesky is an efficient way to define a prior over correlation matrices.
-        # A concentration parameter > 1 (e.g., 2.0) pushes the model towards weaker
-        # correlations, preventing overfitting. We model a 2x2 correlation matrix
-        # for the [intercept, slope] relationship. 'L_corr' is the Cholesky factor.
-        L_corr = sample('L_corr', dist.lkj_cholesky(2, concentration=2.0))
-
-        # --- Step 2: Construct the Group-Level Covariance Matrix ---
-
-        # The covariance matrix (Σ) determines the scale and correlation of the
-        # multivariate normal distribution for the group parameters. It is constructed
-        # from the standard deviations (σ) and the correlation matrix (Ω) using the
-        # formula: Σ = diag(σ) @ Ω @ diag(σ).
-        # We use the Cholesky factor (L) of Ω where Ω = L @ L.T for efficiency.
-        group_cov = jnp.diag(group_std) @ L_corr @ jnp.transpose(L_corr) @ jnp.diag(group_std)
-
-        # --- Step 3: Sample Group-Level Parameters ---
-
-        # Define the mean vector for the multivariate normal distribution. This is the
-        # "center" from which our group parameters will deviate. It is composed of the
-        # global (population-level) intercept and slope.
-        global_mean = jnp.stack([global_intercept, global_slope])
-
-        # Sample the specific intercept and slope offsets for each of the N_groups from a
-        # Multivariate Normal distribution. This joint sampling captures the learned
-        # correlation between the two parameters. The result `group_params` will have a
-        # shape of (N_groups, 2).
-        group_params = sample(
-            'group_params',
-            dist.multivariate_normal(loc=global_mean, covariance_matrix=group_cov)
-                 .expand([N_groups])
-        )
-
-        return group_params
+        group_params =  m.dist.multivariate_normal(jnp.stack([global_intercept, global_slope]), cov, shape = [N_groups], name = 'group_params')    
+        varying_intercept, varying_intercept = global_intercept[:, 0], global_slope[:, 1]
+        return  varying_intercept, varying_intercept
     
+    @staticmethod
+    def varying_intercept(
+        group,
+        alpha,
+        a_bar = m.dist.normal( 0., 1.5,  name = 'a_bar'),
+        sigma = m.dist.exponential( 1,  name = 'sigma')):
+        """Varying intercepts model.
+        Args:
+            group (array): Array of group indices.
+            alpha (array): Group-level intercepts.
+            a_bar (float, optional): Hyperparameter for the mean of the group-level intercepts. Defaults to m.dist.normal( 0., 1.5,  name = 'a_bar').
+            sigma (float, optional): Hyperparameter for the standard deviation of the group-level intercepts. Defaults to m.dist.exponential( 1,  name = 'sigma').
+        Returns:
+            array: Group-level intercepts sampled from a normal distribution with mean a_bar and standard deviation sigma.
+        """ 
+        alpha = m.dist.normal( a_bar, sigma, shape= group.shape, name = 'alpha')
+        return alpha[group]
+
+
+
 # Gaussian process related functions ----------------------------------------
 @jit
 def cov_GPL2(x, sq_eta, sq_rho, sq_sigma):

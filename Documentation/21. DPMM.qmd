@@ -2,7 +2,7 @@
 title: "Dirichlet Process Mixture Models (DPMM)"
 description: "A non-parametric Bayesian clustering method that automatically determines the number of clusters."
 categories: [Clustering, Unsupervised Learning, Non-parametric]
-image: "Figures/DPMM.jpeg"
+image: "Figures/20.png"
 order: 24
 ---
 
@@ -96,7 +96,7 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 This level describes how any single data point, $x_i$, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster's specific distribution. We use a truncation level $T$ as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.
 
 
-\begin{align*}
+$$
 x_i \mid z_i=k \sim \text{MultivariateNormal}(\mu_k, \Sigma_{\text{obs}}) \\
 z_i \sim \text{Categorical}(w) \\
 w = \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
@@ -104,7 +104,7 @@ w = \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
 \alpha \sim \text{Gamma}(1, 10)\\
 \mu_k \sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \\
 \Sigma_{\text{obs}} = I_D \\
-\end{align*}
+$$
 
 
 

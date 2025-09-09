@@ -15,11 +15,13 @@ To model the relationship between a binary outcome variable representing success
 
 - A Beta-Binomial model assumes that each binomial count observation has its own probability of success. The model estimates the distribution of probabilities of success across cases, instead of a single probability of success.
   
-- A Beta distribution has two parameters: the rates for each probability and a shape parameter θ. θ influences how probabilities are distributed between 0 and 1. Specifically, it consists of two parameters, $\alpha$ and $\beta$, which determine the concentration of probability around 0 and 1.
+- A Beta distribution is a continuous probability distribution defined on the interval. It is characterized by two positive shape parameters, commonly denoted as α and β, which control the shape of the distribution. In the context of the provided equations, $\gamma$ and $\eta$ serve as these shape parameters. These parameters determine the shape of the distribution, allowing it to model a wide variety of random variables representing proportions or probabilities. How the $\gamma$ and $\eta$ parameters influence the distribution's shape can be summarized as follows:
 
-  - If both are equal to or greater than 1, the distribution is bell-shaped and centered around 0.5. 
-  - If $\alpha > \beta$, the distribution is skewed toward 1, and if $\beta > \alpha$, it is skewed toward 0.
-Thus, the shape parameters $\gamma$ and $\eta$ provide flexibility in modeling various types of prior beliefs about probabilities.
+*   When $\gamma$ > 1 and $\eta$ > 1, the distribution is unimodal (bell-shaped), with the peak becoming sharper as the values of $\gamma$  and $\eta$ increase. If $\gamma$ and $\eta$ are equal and greater than 1, the distribution is symmetrical and centered around 0.5.
+*   If $\gamma$ < 1 and $\eta$ < 1, the distribution is U-shaped, with peaks at both 0 and 1.
+*   The skewness of the distribution is determined by the relative values of $\gamma$ and $\eta$. If $\gamma$ > $\eta$, the distribution is skewed toward 1 (left-skewed), meaning more of the probability mass is concentrated on higher values. Conversely, if $\eta$ > $\gamma$, the distribution is skewed toward 0 (right-skewed), with more probability mass on lower values. The mean of the distribution is given by $\gamma$ / ($\gamma$ + $\eta$).
+
+Therefore, by adjusting the shape parameters $\gamma$ and $\eta$, the Beta distribution offers significant flexibility in modeling various types of prior beliefs about probabilities.
   
 :::
 
