@@ -595,12 +595,9 @@ window.Quarto = {
    
   <ul>
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations">Considerations</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><em>Frequentist formulation</em></a></li>
-  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><em>Bayesian formulation</em></a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
   </ul></li>
   </ul>
@@ -643,24 +640,6 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
 <p>Zero-Inflated Regression models are used when the outcome variable is a count variable with an excess of zero counts. These models combine a count model (e.g., Poisson or Negative Binomial) with a separate model for predicting the probability of excess zeros.</p>
 </section>
-<section id="considerations" class="level2">
-<h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
-<div class="callout callout-style-default callout-caution callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Caution
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ul>
-<li>In Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for <span class="math inline">W_{1\pi}, W_{2\pi}, ..., W_{n\pi}</span>, <span class="math inline">W_{1\lambda}, W_{2\lambda}, ..., W_{n\lambda}</span>, <span class="math inline">b_\pi</span>, and <span class="math inline">b_\lambda</span>.</li>
-</ul>
-</div>
-</div>
-</section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
 <p>Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson regression using the Bayesian Inference (BI) package. The data represent the production of books in a monastery (y), which is affected by the number of days that individuals work, as well as the number of days individuals drink. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
@@ -694,7 +673,7 @@ Caution
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    ap <span class="op">=</span> dist.normal(<span class="op">-</span><span class="fl">1.5</span>, <span class="dv">1</span>, name<span class="op">=</span><span class="st">'ap'</span>)</span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> expit(ap)</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> jnp.exp(al)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    m.zeroinflatedpoisson(p, lambda_, obs<span class="op">=</span>y)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    m.zero_inflated_poisson(p, lambda_, obs<span class="op">=</span>y)</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>m.fit(model)</span>
@@ -740,66 +719,35 @@ Caution
 </section>
 <section id="mathematical-details" class="level1">
 <h1>Mathematical Details</h1>
-<section id="frequentist-formulation" class="level3">
-<h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist formulation</em></h3>
-<p>We model the relationship between the independent variable <span class="math inline">X</span> and the count outcome variable <span class="math inline">Y</span> using two components:</p>
-<ol type="1">
-<li>A logistic regression model to predict the probability of an excess zero.</li>
-<li>A count model (e.g., Poisson or Negative Binomial) to predict the count outcome.</li>
-</ol>
-<p>The overall model can be represented as follows:</p>
+<p>We model the relationship between the independent variable <span class="math inline">X</span> and the count outcome variable <span class="math inline">Y</span>. The model assumes that the data-generating process has two states: a “zero” state that generates only zero counts, and a “Poisson” state that generates counts from a Poisson distribution.</p>
+<p>The model has two main components:</p>
 <p><span class="math display">
-\begin{aligned}
-&amp; \text{logit}(\pi) = \alpha_\pi + \beta_\pi X_i \\
-&amp; \text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X_i\\
-&amp; Y_i \sim \begin{cases}
-0 &amp; \text{with probability } \pi \\
-\text{CountModel}(\lambda) &amp; \text{with probability } (1 - \pi)
+Y_i \sim \text{ZIPoisson}(\pi_i, \lambda_i) \sim
+\begin{cases}
+\pi + (1 - \pi_i) \times \text{Poisson}(0 | \lambda_i) &amp; \text{if } y = 0 \\
+(1 - \pi_i) \times \text{Poisson}(y | \lambda_i) &amp; \text{if } y &gt; 0
 \end{cases}
-\end{aligned}
 </span></p>
-<p>Where:</p>
-<ul>
-<li><p><span class="math inline">\pi</span> is the probability of an excess zero.</p></li>
-<li><p><span class="math inline">\lambda</span> is the mean rate parameter of the count model.</p></li>
-<li><p><span class="math inline">\alpha_\pi</span> and <span class="math inline">\beta_\pi</span> are respectively the intercept and the regression coefficient for the logistic model.</p></li>
-<li><p><span class="math inline">\alpha_\lambda</span> and <span class="math inline">\beta_\lambda</span> are respectively the intercept and the regression coefficient for the count model.</p></li>
-<li><p><span class="math inline">X_i</span> are the independent variables’ values for observation <em>i</em>.</p></li>
-</ul>
-</section>
-<section id="bayesian-formulation" class="level3">
-<h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian formulation</em></h3>
-<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
+<ol type="1">
+<li><p><span class="math inline">\pi + (1 - \pi_i) \times \text{Poisson}(0 | \lambda_i)</span> A logistic regression model to predict the probability, <span class="math inline">\pi_i</span>, of an observation being in the “zero” state (an excess zero). Where, the probability of getting a zero (y=0) is the sum of two chances: the probability of a structural zero (<span class="math inline">\pi</span>) plus the probability of not being a structural zero (1-<span class="math inline">\pi</span>) and then getting a zero from the Poisson distribution anyway.</p></li>
+<li><p><span class="math inline">(1 - \pi_i) \times \text{Poisson}(y | \lambda_i)</span> A Poisson regression model to predict the expected count, <span class="math inline">\lambda_i</span>, for observations in the “Poisson” state. Where, the probability of getting a non-zero count (y&gt;0) is simply the probability of not being a structural zero (1-<span class="math inline">\pi</span>) multiplied by the probability of the Poisson distribution giving you that specific count.</p></li>
+</ol>
+<p>The parameters <span class="math inline">\pi_i</span> and <span class="math inline">\lambda_i</span> are modeled as functions of the independent variable <span class="math inline">X_i</span>:</p>
 <p><span class="math display">
-Y\sim \text{ZIPoisson}(\pi,\lambda)
+\text{logit}(\pi_i) = \alpha_\pi + \beta_\pi X_i
 </span></p>
 <p><span class="math display">
-\text{logit}(\pi) = \alpha_\pi + \beta_\pi X
+\log(\lambda_i) = \alpha_\lambda + \beta_\lambda X_i
 </span></p>
+<p>We can assign prior distributions to the model parameters with weakly informative Normal priors:</p>
 <p><span class="math display">
-\text{log}(\lambda) = \alpha_\lambda + \beta_\lambda X
+\begin{align*}
+\alpha_\pi &amp;\sim \text{Normal}(0, 1) \\
+\beta_\pi &amp;\sim \text{Normal}(0, 1) \\
+\alpha_\lambda &amp;\sim \text{Normal}(0, 1) \\
+\beta_\lambda &amp;\sim \text{Normal}(0, 1)
+\end{align*}
 </span></p>
-<p><span class="math display">
-\alpha_\pi \sim \text{Normal}(0,1)
-</span></p>
-<p><span class="math display">
-\beta_\pi \sim \text{Normal}(0,1)
-</span></p>
-<p><span class="math display">
-\alpha_\lambda \sim \text{Normal}(0,1)
-</span></p>
-<p><span class="math display">
-\beta_\lambda \sim \text{Normal}(0,1)
-</span></p>
-<p>Where:</p>
-<ul>
-<li><p><span class="math inline">\pi</span> is the probability of an excess zero.</p></li>
-<li><p><span class="math inline">\lambda</span> is the mean rate parameter of the count model.</p></li>
-<li><p><span class="math inline">\alpha_\pi</span> and <span class="math inline">\beta_\pi</span> are respectively the intercept and the regression coefficient for the logistic model.</p></li>
-<li><p><span class="math inline">\alpha_\lambda</span> and <span class="math inline">\beta_\lambda</span> are respectively the intercept and the regression coefficient for the count model.</p></li>
-<li><p><span class="math inline">X_i</span> are the independent variables’ values for observation <em>i</em>.</p></li>
-</ul>
-</section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
