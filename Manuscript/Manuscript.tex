@@ -326,7 +326,7 @@ These pre-built \textit{JAX} functions provide tailored model components for com
 \vspace{-\parskip}\vspace{0pt}
 
 \begin{lstlisting}[language=Python]
-# Numpyro version of rendom centered effect ----------------------------------------
+# Numpyro version of random centered effect ----------------------------------------
 a = numpyro.sample("a", dist.Normal(5, 2))
     b = numpyro.sample("b", dist.Normal(-1, 0.5))
     sigma_cafe = numpyro.sample("sigma_cafe", dist.Exponential(1).expand([2]))
@@ -339,7 +339,7 @@ a = numpyro.sample("a", dist.Normal(5, 2))
     )
 a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
 
-# TFP version of rendom centered effect ----------------------------------------
+# TFP version of random centered effect ----------------------------------------
 alpha = yield Root(tfd.Sample(tfd.Normal(loc=5.0, scale=2.0), sample_shape=1))
 beta = yield Root(tfd.Sample(tfd.Normal(loc=-1.0, scale=0.5), sample_shape=1))
 sigma = yield Root(tfd.Sample(tfd.Exponential(rate=1.0), sample_shape=1))
@@ -349,7 +349,7 @@ Rho = yield Root(tfd.LKJ(dimension=2, concentration=2.0))
 Mu = tf.concat([alpha, beta], axis=-1)
 scale = tf.linalg.LinearOperatorDiag(sigma_alpha_beta).matmul(tf.squeeze(Rho))
 
-# BI version of rendom centered effect----------------------------------------
+# BI version of random centered effect----------------------------------------
 Sigma = dist.exponential(1, (ni,), name = 'Sigma_individual')
 L = dist.lkjcholesky(1, (ni,), name = 'L_individual', shape = (ni,)) 
 Z = dist.normal(0, 1, name = 'z_individual', shape = (ni,K))

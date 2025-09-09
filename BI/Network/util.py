@@ -3,13 +3,13 @@ from numpyro import sample as lk
 from numpyro import deterministic
 from BI.Utils.np_dists import UnifiedDist as dist
 from BI.Utils.array import Mgaussian
-from BI.Utils.array import factors
+from BI.Utils.array import effects
 import jax 
 from jax import jit
 import jax.numpy as jnp
 
 gaussian = Mgaussian()
-factor = factors()
+effects = effects()
 
 from jax import vmap
 #' Test
