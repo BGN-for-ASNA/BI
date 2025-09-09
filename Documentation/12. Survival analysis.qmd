@@ -19,7 +19,7 @@ Key concepts include:
 
 ## Considerations
 
-::: callout-caution
+::: callout-note
 - Bayesian models provide a framework to account for [<span style="color:#0D6EFD">uncertainty 🛈</span>]{#uncertainty} in parameter estimates through posterior distributions. You will need to define [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for all model parameters, such as baseline hazard, covariate effects, and variance terms.
 
 - In survival analysis:
@@ -86,73 +86,67 @@ print(m.summary())
 m.plot_surv()
 ```
 
-### R
 
-```r
-
-```
 
 :::
 
 ## Mathematical Details
 
-### *Frequentist formulation*
+The model is defined as follows:
 
-The Cox proportional hazards model can be expressed as:
 $$
-h(t | X) = h_0(t) \exp(\beta^T X)
+dN_i(t) \sim \text{Poisson}(\lambda_i(t)Y_i(t)dt)
+$$
+
+$$
+\lambda_i(t) = \lambda_{0}(t)\exp(X_i\beta)
+$$
+
+The hierarchical priors for the regression coefficients are:
+
+$$
+\beta \sim \text{Normal}(\mu_\beta, \sigma^2_\beta)
+$$
+
+$$
+\mu_\beta \sim \text{Normal}(0, 100)
+$$
+
+$$
+\sigma^2_\beta \sim \text{InverseGamma}(0.1, 0.1)
 $$
 
 -   Where:
+    -   $N_i(t)$ is the counting process for subject $i$, which counts the number of observed events up to time $t$. For survival analysis, this is typically 0 or 1.
+  
+    -   $dN_i(t)$ is the increment of the process over a small interval $dt$, indicating if an event occurred for subject $i$ at time $t$.
 
-    -   $h(t | X)$ is the hazard at time $t$ for covariates $X$.
+    *   **$Y_i(t)$ is the at-risk indicator**, taking a value of 1 if subject *i* is under observation and has not yet experienced an event just prior to time *t*, and 0 otherwise. This indicator is the mechanism that handles censoring:
+        *   If a subject is **censored** at time $t'$, their at-risk indicator $Y_i(t)$ remains 1 up to $t'$, signifying they were at risk during this period.
+        *   At the moment of censoring $t'$, no event is recorded (the counting process $N_i(t)$ does not increment).
+        *   For all subsequent times $t > t'$, the indicator $Y_i(t)$ switches to 0, effectively removing the individual from the risk set for any future calculations.
 
-    -   $h_0(t)$ is the baseline hazard function (e.g., exponential, Weibull).
+    -   $\lambda_i(t)$ is the hazard rate for subject $i$ at time $t$.
 
-    -   $X$ represents the covariates (such as age, treatment).
+    -   $\lambda_{0}(t)$ is the baseline hazard rate function at time $t$. A key assumption is that this baseline hazard is the same for all subjects.
 
-    -   $\beta$ are the regression coefficients to be estimated.
+    -   $X_i$ is the covariates for subject $i$.
 
--   Censoring is accounted for by multiplying the hazard function by a factor that depends on the censoring distribution, usually modeled as independent censoring with a rate δ(t):
+    -   $\beta$ is the regression coefficients. 
 
-    -   $Y_i(t) = Poisson(h(t | X) * δ(t))$
+-   **Priors:**
+    -   We assign prior distributions to the unknown parameters. The regression coefficients $\beta$ are given a Normal prior.
 
-### *Bayesian formulation*
+    -   The hyperparameters of the $\beta$ prior, $\mu_\beta$ and $\sigma^2_\beta$, are themselves given vague priors to be learned from the data.
 
-In Bayesian survival analysis, we define priors for each parameter:
+    -   The baseline hazard $\lambda_0(t)$ is also treated as an unknown parameter and is often modeled non-parametrically, for instance, using a gamma process or as a piecewise constant function, where priors are placed on the hazard level in each time interval.
 
-1.  **Hazard Function**:
-    The hazard rate at time $t$ for an individual is given by:
-    $$Y_i(t) = \text{Poisson}(\lambda(t) * censoring(t))$$
-    $$\lambda(t) = \lambda_0(t)\exp(x\beta)$$
 
-    $$ \beta \sim \text{Normal}(\mu_\beta, \sigma^2_\beta) $$
-
-    $$\mu_\beta \sim \text{Normal}(0, 10^2)$$
-
-    $$\sigma^2_\beta \sim \text{Uniform}(0, 10)$$
-
-    Where:
-
-    -   $Y_i(t)$ is the status of the $i$-th subject at time $t$ coded as a binary variable:
-        $$
-        Y_i(t) = 
-        \begin{cases} 
-        1 & \text{if subject } i \text{ died at time $t$  }, \\ 
-        0 & \text{otherwise.}
-        \end{cases}
-        $$
-
-    -   $\lambda(t)$: Hazard function at time $t$.
-
-    -   $\lambda_0(t)$: Baseline hazard function (e.g., $Exponential$ or $Weibull$).
-
-    -   $x$: Covariates (e.g., age, treatment).
-
-    -   $\beta$: Regression coefficients capturing the effect of $x$ on the hazard are assigned a prior with a $Normal$ distribution.
-
-    -   $\mu_\beta$: Mean of the $Normal$ distribution.
-
-    -   $\sigma^2_\beta$: Variance of the $Normal$ distribution.
+The key assumption of this model is that the hazard ratios are constant over time. Censoring is typically handled in the likelihood function used for estimation, not by multiplying the hazard function by a factor. The data for each subject $i$ is represented by a tuple $(t_i, \delta_i, X_i)$, where $t_i$ is the observed time (either event or censoring time), $\delta_i$ is an event indicator (1 if the event was observed, 0 if censored), and $X_i$ is the vector of covariates.
 
 ## Reference(s)
+https://en.wikipedia.org/wiki/Proportional_hazards_model
+https://www.mathworks.com/help/stats/cox-proportional-hazard-regression.html
+https://www.pymc.io/projects/examples/en/latest/survival_analysis/survival_analysis.html
+https://vflores-io.github.io/posts/20240924_numpyro_logreg_surv_analysis/np01_logreg_surv_analysis/
+
