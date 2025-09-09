@@ -18,7 +18,7 @@ import random as pyrand
 
 from BI.Data.manip import manip
 from BI.Utils.array import Mgaussian as gaussian
-from BI.Utils.array import factors 
+from BI.Utils.array import effects 
 from BI.SetDevice.set import setup_device
 
 from BI.Utils.link import link
@@ -63,7 +63,7 @@ class bi(manip):
 
         self.gaussian = gaussian
         self.survival = survival(self)
-        self.factor = factors
+        self.effects = effects
         self.link = link
 
         self.dpmm = dpmm

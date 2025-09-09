@@ -14,7 +14,7 @@ def jax_LinearOperatorDiag(s, cov):
     vectorized_multiply = vmap(multiply_with_s)
     return jnp.transpose(vectorized_multiply(cov))
 
-class factors:
+class effects:
     """Class for handling specific factor operations in JAX, including diagonal matrix multiplication and random factor centered generation."""
     def __init__(self) -> None:
         pass
@@ -51,62 +51,71 @@ class factors:
 
 
     @staticmethod 
-    @jit   
-    def varying_slopes_centered(N_groups, global_intercept, global_slope,
-    group_std =  m.dist.exponential(1, shape=(N_groups,),  name = 'group_std'),
-    L_corr = m.dist.lkj(2, 2, name = 'L_corr'),
+    def varying_effects(
+        N_group, 
+        global_intercept, 
+        global_slope,
+        group_std =  None,
+        L_corr = None,
+        sample=False,
     ):
-        """Defines and samples from a hierarchical model for group-level parameters.
 
-        This function models group-specific intercepts and slopes as being drawn
-        from a common, shared distribution defined by global (hyper)parameters.
-        This approach, known as partial pooling, allows groups to share statistical
-        strength, leading to more robust estimates, especially for groups with sparse data.
+        # 1. Handle default hyperpriors.
+        if group_std is None:
+            group_std = dist.exponential(1, shape=(2,),  name = 'group_std', sample = sample)
+            
+        if L_corr is None:
+            L_corr = dist.lkj(2, 2, name = 'L_corr', sample = sample)
 
-        The model structure is as follows:
-        1.  Priors are defined for the scale of variation among groups (group_std).
-        2.  A prior is placed on the correlation between group-level intercepts and slopes
-            using the LKJCholesky distribution. This models the idea that a group with a
-            higher-than-average intercept might also have a systematically higher or lower slope.
-        3.  These components are combined to construct a covariance matrix for the groups.
-        4.  Group-level intercepts and slopes are jointly sampled from a single
-            Multivariate Normal distribution, centered around the global parameters.
+        cov = jnp.outer(group_std, group_std) * L_corr
 
-        Args:
-            N_groups (int): The total number of groups in the dataset.
-            global_intercept (jnp.ndarray): The hyperparameter representing the mean of all group-level intercepts.
-            global_slope (jnp.ndarray): The hyperparameter representing the mean of all group-level slopes.
-            group_std (jnp.ndarray): The standard deviations of the group-level parameters.
-            L_corr (jnp.ndarray): The Cholesky factor of the correlation matrix for the group-level parameters.
-
-        Returns:
-            jax.numpy.ndarray: A `(N_groups, 2)` array where each row contains the sampled [intercept, slope] pair for a group.
-        """
-
-        group_cov = jnp.outer(group_std, group_std) * Rho
-
-        group_params =  m.dist.multivariate_normal(jnp.stack([global_intercept, global_slope]), cov, shape = [N_groups], name = 'group_params')    
-        varying_intercept, varying_intercept = global_intercept[:, 0], global_slope[:, 1]
-        return  varying_intercept, varying_intercept
+        group_params =  dist.multivariate_normal(
+            jnp.stack([global_intercept, global_slope]), 
+            cov, 
+            shape = (N_group,), 
+            name = 'group_params', 
+            sample = sample
+        )    
+        varying_intercept, varying_slope= group_params[:, 0], group_params[:, 1]
+        #varying_intercept = group_params[:, 0][group]
+        #varying_slope = group_params[:, 1][group]
+        return  varying_intercept, varying_slope
     
     @staticmethod
     def varying_intercept(
         group,
-        alpha,
-        a_bar = m.dist.normal( 0., 1.5,  name = 'a_bar'),
-        sigma = m.dist.exponential( 1,  name = 'sigma')):
-        """Varying intercepts model.
-        Args:
-            group (array): Array of group indices.
-            alpha (array): Group-level intercepts.
-            a_bar (float, optional): Hyperparameter for the mean of the group-level intercepts. Defaults to m.dist.normal( 0., 1.5,  name = 'a_bar').
-            sigma (float, optional): Hyperparameter for the standard deviation of the group-level intercepts. Defaults to m.dist.exponential( 1,  name = 'sigma').
-        Returns:
-            array: Group-level intercepts sampled from a normal distribution with mean a_bar and standard deviation sigma.
-        """ 
-        alpha = m.dist.normal( a_bar, sigma, shape= group.shape, name = 'alpha')
-        return alpha[group]
+        a_bar=None,
+        sigma=None,
+        sample=False
+    ):
+        """
+        Varying intercepts model.
 
+        This function defines a group-level intercept for each unique group,
+        with the intercepts themselves being drawn from a shared distribution.
+
+        Args:
+            group (array): An array of integer indices specifying the group for each observation.
+            alpha (array): An array of the group-level intercepts for each observation.
+            a_bar (distribution, optional): The hyperprior for the mean of the group-level intercepts.If None, defaults to a Normal(0, 1.5) distribution.
+            sigma (distribution, optional): The hyperprior for the standard deviation of the group-level intercepts. f None, defaults to an Exponential(1) distribution.
+
+        Returns:
+            array: An array of the appropriate group-level intercepts for each observation.
+        """
+        # 1. Handle default hyperpriors.
+        if a_bar is None:
+            a_bar = dist.normal(0., 1.5, name='a_bar',sample=sample)
+        if sigma is None:
+            sigma = dist.exponential(1, name='sigma',sample=sample)
+
+
+        # 2. Define the distribution for the group-level intercepts ('alpha')
+        # There is one alpha for each unique group.
+        alpha = dist.normal(a_bar, sigma, shape=group.shape, name='alpha',sample=sample)
+
+        # 3. Return the specific intercept corresponding to the group of each observation
+        return alpha[group]
 
 
 # Gaussian process related functions ----------------------------------------
