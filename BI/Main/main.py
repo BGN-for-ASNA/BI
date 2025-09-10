@@ -15,6 +15,7 @@ import numpy as np
 import jax.random as random
 import numpy as np
 import random as pyrand
+import functools
 
 from BI.Data.manip import manip
 from BI.Utils.array import Mgaussian as gaussian
@@ -89,6 +90,7 @@ class bi(manip):
             self.sampler = mcmc_tfp()
             jax.config.update("jax_enable_x64", False)
 
+
     def fit(self, 
             model = None, 
             obs=None,
@@ -146,6 +148,9 @@ class bi(manip):
             jit_model_args: Whether to JIT model arguments.
             seed: Random seed.
         """
+
+
+
         if model is None:
             if self.nbdaModel == False:
                 print( "Argument model can't be None")
@@ -155,7 +160,10 @@ class bi(manip):
                 self.model_name = 'NBDA' 
         else:
             self.model = model
-            self.model_name = model.__name__
+            if isinstance(model, functools.partial):
+                self.model_name = model.func.__name__
+            else:
+                self.model_name = model.__name__
 
         if self.nbdaModel == False:
             if self.data_on_model is None :
@@ -168,6 +176,9 @@ class bi(manip):
             if 'initial_means' not in self.data_on_model:
                 self.ml.KMEANS(self.data_on_model['data'], n_clusters=self.data_on_model['K'])
                 self.data_on_model['initial_means'] = self.ml.results['centroids']
+
+        # Handling static argument for varying effects
+
 
         if self.backend == 'numpyro':
             from BI.Samplers.mcmc_numpyro import mcmc_numpyro

@@ -29,7 +29,7 @@ To model the relationship between a dependent variable and an independent variab
 Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consists of a dependent variable representing individuals' survival (*surv*) and an independent categorical variable (*tank*), which indicates the tank where the individual was born, with a total of 48 tanks. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
-## Python
+## Python (Raw)
 ```python
 from BI import bi
 import numpy as np
@@ -59,6 +59,34 @@ m.fit(model)
 # Diagnostic ------------------------------------------------
 m.summary()
 ```
+## Python (Build in function)
+```python
+from BI import bi
+import numpy as np
+
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = files('BI.resources.data') / 'reedfrogs.csv'
+m.data(data_path, sep=';') 
+# Manipulate
+m.df["tank"] = np.arange(m.df.shape[0]) 
+
+# Define model ------------------------------------------------
+def model(tank, surv, density):
+    alpha = m.effects.varying_intercept(group=tank,group_name = 'tank')
+    m.dist.binomial(total_count = density, logits = alpha, obs=surv)
+
+# Run sampler ------------------------------------------------
+m.fit(model) 
+
+# Diagnostic ------------------------------------------------
+m.summary()
+```
+
 ## R
 
 ```R

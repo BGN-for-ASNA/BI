@@ -33,7 +33,7 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 ### Simulated data
 
 ::: {.panel-tabset group="language"}
-## Python
+## Python (Raw)
 
 ``` python
 from BI import bi
@@ -65,6 +65,40 @@ m.fit(model)
 
 ```
 
+## Python (Build in function)
+
+``` python
+from BI import bi
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = files('BI.resources.data') / 'Sim data multivariatenormal.csv'
+m.data(data_path, sep=',') 
+
+# Define model ------------------------------------------------
+def model(cafe, wait, N_cafes, afternoon):
+    a = m.dist.normal(5, 2,  name = 'a')
+    b = m.dist.normal(-1, 0.5, name = 'b')
+    sigma = m.dist.exponential( 1,  name = 'sigma')
+
+    varying_intercept, varying_slope = m.effects.varying_effects(
+        N_group = N_cafes,
+        group = cafe,
+        global_intercept= a,
+        global_slope= b,
+        group_name = 'cafe')
+    
+
+    mu = varying_intercept + varying_slope* afternoon
+    m.dist.normal(mu, sigma, obs=wait)
+
+# Run sampler ------------------------------------------------
+m.fit(model) 
+
+```
 ## R
 
 ``` r
