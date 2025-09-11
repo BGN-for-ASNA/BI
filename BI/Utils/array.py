@@ -47,7 +47,7 @@ class effects:
             _type_: 2D array
         """
         #return jnp.dot(factors.diag_pre_multiply(sigma, cor_mat), offset_mat).T
-        return (factors.diag_pre_multiply(sigma, cor_mat) @ offset_mat).T
+        return (effects.diag_pre_multiply(sigma, cor_mat) @ offset_mat).T
 
 
     @staticmethod 
