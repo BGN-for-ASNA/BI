@@ -161,7 +161,7 @@
     "text": "Within networks, nodes can belong to different categories, and these categories can potentially affect the propensity for node interactions. For example, nodes can have different sex categories, and the propensity to interact with nodes of the same sex can be higher than with nodes of different sexes. To model the propensity for interaction between nodes based on the categories they belong to, we can use a stochastic block model approach.",
     "crumbs": [
       "Models",
-      "Stochastic Block Models (SBM)"
+      "Stochastic Block Models"
     ]
   },
   {
@@ -172,7 +172,7 @@
     "text": "Considerations\n\n\n\n\n\n\nCaution\n\n\n\n\nWe consider predefined groups here, with the goal of evaluating the propensity for interaction between nodes within each group.\nIn addition to the block model(s) being tested, we need to include a block where all individuals are considered as belonging to the same group (Any in the example). This allows us to assess whether interaction tendencies differ between groups or if the propensity to interact is uniform across all individuals.",
     "crumbs": [
       "Models",
-      "Stochastic Block Models (SBM)"
+      "Stochastic Block Models"
     ]
   },
   {
@@ -183,7 +183,7 @@
     "text": "Example\nBelow is an example code snippet demonstrating a Bayesian network model using the stochastic block model approach. The data is identical to the Network model example, with the addition of covariates Any, Merica, and Quantum, representing the block membership of each node. This example is based on Ross, McElreath, and Redhead (2024).\nfrom BI import bi\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\nm.data_on_model = dict(\n    idx = idx,\n    Any = Any-1, \n    Merica = Merica-1, \n    Quantum = Quantum-1,\n    result_outcomes = m.net.mat_to_edgl(data['outcomes']), \n    kinship = m.net.mat_to_edgl(kinship),\n    focal_individual_predictors = data['individual_predictors'],\n    target_individual_predictors = data['individual_predictors']\n\n\ndef model(idx, result_outcomes, \n    exposure,\n    kinship, \n    focal_individual_predictors, target_individual_predictors, \n    Any, Merica, Quantum):\n      # Block ---------------------------------------\n      B_any = m.net.block_model(Any,1)\n      B_Merica = m.net.block_model(Merica,3)\n      B_Quantum = m.net.block_model(Quantum,2)\n\n      ## SR shape =  N individuals---------------------------------------\n      sr =  m.net.sender_receiver(focal_individual_predictors,target_individual_predictors)\n\n      # Dyadic shape = N dyads--------------------------------------  \n      dr = m.net.dyadic_effect(dyadic_predictors)\n\n      m.dist.poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr), obs = result_outcomes, name= 'latent network' )\n\n\n\nm.fit(model) \nsummary = m.summary()",
     "crumbs": [
       "Models",
-      "Stochastic Block Models (SBM)"
+      "Stochastic Block Models"
     ]
   },
   {
@@ -194,7 +194,7 @@
     "text": "Mathematical Details\n\nMain Formula\nThe model’s block structure can be represented by the following formula. Note that the sender-receiver and dyadic effects are not represented here, as they are already accounted for in the Network model chapter:\n\nG_{ij} \\sim \\text{Poisson}(Y_{ij})\n\n\n\\log(Y_{ij}) = B_{ij} + B_{ji}\n\nwhere:\n\nB_{ij} is the link probability between category i and j.\nB_{ji} is the link probability between category j to i.\n\n\n\nDefining formula sub-equations and prior distributions\nTo account for all link probabilities between categories, we can define a square matrix B as follows: the off-diagonal elements represent the link probabilities between categories i and j, while the diagonal elements represent the link probabilities within category i.\n\nB_{i,j} =\n\\begin{bmatrix}\na_{1,1} & a_{1,2} & \\cdots & a_{1,j} \\\\\na_{2,1} & a_{2,2} & \\cdots & a_{2,j} \\\\\n\\vdots  & \\vdots  & \\ddots & \\vdots  \\\\\na_{i,1} & a_{i,2} & \\cdots & a_{i,j}\n\\end{bmatrix}\n\nWhere:\n\nB[i,j] is the link probability between category i and j when i \\neq j.\nB[i,j] is the link probability within category i when i = j.\n\nAs we consider the link probability within categories to be higher than the link probabilities between categories, we define different priors for the diagonal and the off-diagonal. Priors should also depend on sample size, N, so that the resultant network density approximates empirical networks. Basic priors could be:\n\n\\beta_{k \\rightarrow k} \\sim \\text{Normal}\\left(\\text{Logit}\\left(\\frac{0.1}{\\sqrt{N_k}}\\right), 1.5\\right)\n\n\n\\beta_{k \\rightarrow \\tilde{k}} \\sim \\text{Normal}\\left(\\text{Logit}\\left(\\frac{0.01}{0.5 \\sqrt{N_k} + 0.5 \\sqrt{N_{\\tilde{k}}}}\\right), 1.5\\right)\n\nwhere:\n\nk \\rightarrow k indicates a diagonal element.\nk \\rightarrow \\tilde{k} indicates an off-diagonal element.",
     "crumbs": [
       "Models",
-      "Stochastic Block Models (SBM)"
+      "Stochastic Block Models"
     ]
   },
   {
@@ -205,7 +205,7 @@
     "text": "Note(s)\n\n\n\n\n\n\nNote\n\n\n\n\nBy defining this block model within our network model, we are estimating assortativity 🛈 and disassortativity 🛈 for categorical variables.\nSimilarly, for continuous variables, we can generate a block model that includes all continuous variables.",
     "crumbs": [
       "Models",
-      "Stochastic Block Models (SBM)"
+      "Stochastic Block Models"
     ]
   },
   {
@@ -216,7 +216,7 @@
     "text": "Reference(s)\n\n\nRoss, Cody T, Richard McElreath, and Daniel Redhead. 2024. “Modelling Animal Network Data in r Using STRAND.” Journal of Animal Ecology 93 (3): 254–66.",
     "crumbs": [
       "Models",
-      "Stochastic Block Models (SBM)"
+      "Stochastic Block Models"
     ]
   },
   {
@@ -302,17 +302,6 @@
     "title": "Zero-Inflated Models",
     "section": "",
     "text": "Zero-Inflated Regression models are used when the outcome variable is a count variable with an excess of zero counts. These models combine a count model (e.g., Poisson or Negative Binomial) with a separate model for predicting the probability of excess zeros.",
-    "crumbs": [
-      "Models",
-      "Zero-Inflated Models"
-    ]
-  },
-  {
-    "objectID": "11. Zero inflated.html#considerations",
-    "href": "11. Zero inflated.html#considerations",
-    "title": "Zero-Inflated Models",
-    "section": "Considerations",
-    "text": "Considerations\n\n\n\n\n\n\nCaution\n\n\n\n\nIn Bayesian Zero-Inflated regression, we consider uncertainty in the model parameters and provide a full posterior distribution over them. We need to declare prior distributions for W_{1\\pi}, W_{2\\pi}, ..., W_{n\\pi}, W_{1\\lambda}, W_{2\\lambda}, ..., W_{n\\lambda}, b_\\pi, and b_\\lambda.",
     "crumbs": [
       "Models",
       "Zero-Inflated Models"
@@ -763,7 +752,7 @@
     "href": "index.html",
     "title": "Welcome to Bayesian Inference",
     "section": "",
-    "text": "Welcome to the Bayesian Inference (BI) Documentation model gallery. Here you will find a collection of statistical models and techniques, each with a detailed explanation and examples. Click on any card to explore the topic.\nThis gallery provides a quick visual overview to help you find the model you’re looking for. You can use the sidebar for a more structured, chapter-by-chapter view.\n\nGallery of Models\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nUnivariate Linear Regression\n\n\n\nRegression\n\nSupervised Learning\n\n\n\nAn introduction to linear regression models.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMultiple Linear Regression\n\n\n\nRegression\n\nSupervised Learning\n\n\n\nExtending linear regression to model a continuous outcome using multiple predictor variables.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nInteraction Terms in Regression\n\n\n\nRegression\n\nFeature Engineering\n\n\n\nModeling how the effect of one independent variable on the outcome changes based on the value of another independent variable.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nRegression with a Categorical Independent Variables\n\n\n\nRegression\n\nSupervised Learning\n\n\n\nIncorporating categorical predictors (i.e., factor variables) into a regression model using dummy variables.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBinomial Model\n\n\n\nClassification\n\nRegression\n\nGLM\n\n\n\nModeling binary outcomes (e.g., successes/failures) across multiple independent trials.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBeta-Binomial Model\n\n\n\nBayesian\n\nRegression\n\nGLM\n\n\n\nModeling binary outcomes (e.g., successes/failures) across multiple independent trials when the success probability itself is uncertain.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPoisson Model\n\n\n\nRegression\n\nCount Data\n\nGLM\n\n\n\nModeling count data, such as the number of events occurring in a fixed interval of time or space.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGamma-Poisson Model\n\n\n\nRegression\n\nCount Data\n\nGLM\n\n\n\nAn extension of the Poisson model for count data that exhibits overdispersion.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCategorical Model\n\n\n\nClassification\n\nRegression\n\nGLM\n\n\n\nModeling a categorical dependent variable with more than two nominal outcomes.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMultinomial Model\n\n\n\nBayesian\n\nClassification\n\n\n\nModeling the counts of outcomes across multiple categorical trials.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDirichlet Model\n\n\n\nBayesian\n\nClassification\n\n\n\nModeling uncertainty about the probabilities of categories themselves.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nZero-Inflated Models\n\n\n\nCount Data\n\nRegression\n\nGLM\n\n\n\nHandling count data with an excess of zero counts by combining a count model with a logistic model.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSurvival Analysis\n\n\n\nSurvival Analysis\n\nTime-to-Event\n\n\n\nAnalyzing time-to-event data, focusing on the duration until an event of interest occurs.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVarying Intercepts Models\n\n\n\nHierarchical Models\n\nRegression\n\nBayesian\n\n\n\nModeling grouped or hierarchical data by allowing the intercept to vary for each group.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVarying Slopes Models\n\n\n\nHierarchical Models\n\nRegression\n\nBayesian\n\n\n\nExtending mixed-effects models by allowing the relationship (slope) to vary across different groups.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGaussian Processes\n\n\n\nBayesian\n\nRegression\n\nNon-parametric\n\n\n\nA non-parametric Bayesian approach to regression and classification that defines a distribution over functions.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMeasurement Error Models\n\n\n\nRegression\n\nModel Validation\n\n\n\nStatistical models that explicitly account for errors in the measurement of predictor variables.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nHandling Missing Data (WIP)\n\n\n\nData Preprocessing\n\nImputation\n\n\n\nAn overview of strategies for dealing with missing values in a dataset, such as imputation.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nLatent Variable Models (WIP)\n\n\n\nStructural Equation Modeling\n\nFactor Analysis\n\n\n\nModels that relate a set of observable variables to a set of unobserved (latent) variables.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPrincipal Component Analysis (PCA)\n\n\n\nDimensionality Reduction\n\nUnsupervised Learning\n\n\n\nA dimensionality reduction technique to transform a large set of variables into a smaller one.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGaussian Mixture Models (GMM)\n\n\n\nClustering\n\nUnsupervised Learning\n\n\n\nA probabilistic model for representing normally distributed subpopulations, often used for clustering.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDirichlet Process Mixture Models (DPMM)\n\n\n\nClustering\n\nUnsupervised Learning\n\nNon-parametric\n\n\n\nA non-parametric Bayesian clustering method that automatically determines the number of clusters.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNetwork Models\n\n\n\nNetwork Analysis\n\nGraph Theory\n\n\n\nModeling relationships and interactions between entities as a graph of nodes and edges.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStochastic Block Models (SBM)\n\n\n\nNetwork Analysis\n\nGraph Theory\n\nCommunity Detection\n\n\n\nA generative model for random graphs used to find communities of nodes with similar connection patterns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nControlling for Network Biases\n\n\n\nNetwork Analysis\n\nGraph Theory\n\nData Collection\n\n\n\nTechniques to account for biases in data collection that can affect the structure and analysis of networks.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNetwork Metrics\n\n\n\nNetwork Analysis\n\nGraph Theory\n\n\n\nAn overview of key metrics used to describe and analyze the structure and properties of networks.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNetwork-Based Diffusion Analysis (NBDA)\n\n\n\nNetwork Analysis\n\nGraph Theory\n\nSocial transmission\n\n\n\nModeling how information, behaviors, or diseases spread through a network over time.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBayesian Neural Networks (BNN)\n\n\n\nNeural Networks\n\nBayesian\n\nDeep Learning\n\n\n\nNeural networks that incorporate Bayesian inference to quantify uncertainty in their predictions.\n\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Welcome to the Bayesian Inference (BI) Documentation model gallery. Here you will find a collection of statistical models and techniques, each with a detailed explanation and examples. Click on any card to explore the topic.\nThis gallery provides a quick visual overview to help you find the model you’re looking for. You can use the sidebar for a more structured, chapter-by-chapter view.\n\nGallery of Models\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nUnivariate Linear Regression\n\n\n\nRegression\n\nSupervised Learning\n\n\n\nAn introduction to linear regression models.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMultivariate Linear Regression\n\n\n\nRegression\n\nSupervised Learning\n\n\n\nExtending linear regression to model a continuous outcome using multiple predictor variables.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nInteraction Terms in Regression\n\n\n\nRegression\n\nFeature Engineering\n\n\n\nModeling how the effect of one independent variable on the outcome changes based on the value of another independent variable.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nRegression with a Categorical Independent Variables\n\n\n\nRegression\n\nSupervised Learning\n\n\n\nIncorporating categorical predictors (i.e., factor variables) into a regression model using dummy variables.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBinomial Model\n\n\n\nClassification\n\nRegression\n\nGLM\n\n\n\nModeling binary outcomes (e.g., successes/failures) across multiple independent trials.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBeta-Binomial Model\n\n\n\nBayesian\n\nRegression\n\nGLM\n\n\n\nModeling binary outcomes (e.g., successes/failures) across multiple independent trials when the success probability itself is uncertain.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPoisson Model\n\n\n\nRegression\n\nCount Data\n\nGLM\n\n\n\nModeling count data, such as the number of events occurring in a fixed interval of time or space.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPoisson Model with an Offset\n\n\n\nRegression\n\nSupervised Learning\n\nCount Data\n\n\n\nModeling count data that has been collected over different levels of exposure using an offset.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGamma-Poisson Model\n\n\n\nRegression\n\nCount Data\n\nGLM\n\n\n\nAn extension of the Poisson model for count data that exhibits overdispersion.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCategorical Model\n\n\n\nClassification\n\nRegression\n\nGLM\n\n\n\nModeling a categorical dependent variable with more than two nominal outcomes.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMultinomial Model\n\n\n\nBayesian\n\nClassification\n\n\n\nModeling the counts of outcomes across multiple categorical trials.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDirichlet Model\n\n\n\nBayesian\n\nClassification\n\n\n\nModeling uncertainty about the probabilities of categories themselves.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nZero-Inflated Models\n\n\n\nCount Data\n\nRegression\n\nGLM\n\n\n\nHandling count data with an excess of zero counts by combining a count model with a logistic model.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSurvival Analysis\n\n\n\nSurvival Analysis\n\nTime-to-Event\n\n\n\nAnalyzing time-to-event data, focusing on the duration until an event of interest occurs.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVarying Intercepts Models\n\n\n\nHierarchical Models\n\nRegression\n\nBayesian\n\n\n\nModeling grouped or hierarchical data by allowing the intercept to vary for each group.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVarying Slopes Models\n\n\n\nHierarchical Models\n\nRegression\n\nBayesian\n\n\n\nExtending mixed-effects models by allowing the relationship (slope) to vary across different groups.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGaussian Processes\n\n\n\nBayesian\n\nRegression\n\nNon-parametric\n\n\n\nA non-parametric Bayesian approach to regression and classification that defines a distribution over functions.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMeasurement Error Models\n\n\n\nRegression\n\nModel Validation\n\n\n\nStatistical models that explicitly account for errors in the measurement of predictor variables.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nHandling Missing Data (WIP)\n\n\n\nData Preprocessing\n\nImputation\n\n\n\nAn overview of strategies for dealing with missing values in a dataset, such as imputation.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nLatent Variable Models (WIP)\n\n\n\nStructural Equation Modeling\n\nFactor Analysis\n\n\n\nModels that relate a set of observable variables to a set of unobserved (latent) variables.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPrincipal Component Analysis\n\n\n\nDimensionality Reduction\n\nUnsupervised Learning\n\n\n\nA dimensionality reduction technique to transform a large set of variables into a smaller one.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGaussian Mixture Models\n\n\n\nClustering\n\nUnsupervised Learning\n\n\n\nA probabilistic model for representing normally distributed subpopulations, often used for clustering.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDirichlet Process Mixture Models\n\n\n\nClustering\n\nUnsupervised Learning\n\nNon-parametric\n\n\n\nA non-parametric Bayesian clustering method that automatically determines the number of clusters.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNetwork Models\n\n\n\nNetwork Analysis\n\nGraph Theory\n\n\n\nModeling relationships and interactions between entities as a graph of nodes and edges.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStochastic Block Models\n\n\n\nNetwork Analysis\n\nGraph Theory\n\nCommunity Detection\n\n\n\nA generative model for random graphs used to find communities of nodes with similar connection patterns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nControlling for Network Biases\n\n\n\nNetwork Analysis\n\nGraph Theory\n\nData Collection\n\n\n\nTechniques to account for biases in data collection that can affect the structure and analysis of networks.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNetwork Metrics\n\n\n\nNetwork Analysis\n\nGraph Theory\n\n\n\nAn overview of key metrics used to describe and analyze the structure and properties of networks.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNetwork-Based Diffusion Analysis\n\n\n\nNetwork Analysis\n\nGraph Theory\n\nSocial transmission\n\n\n\nModeling how information, behaviors, or diseases spread through a network over time.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nBayesian Neural Networks\n\n\n\nNeural Networks\n\nBayesian\n\nDeep Learning\n\n\n\nNeural networks that incorporate Bayesian inference to quantify uncertainty in their predictions.\n\n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "5. Binomial model.html",
@@ -1054,78 +1043,78 @@
   {
     "objectID": "27. BNN.html",
     "href": "27. BNN.html",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "Bayesian Neural Networks",
     "section": "",
     "text": "To model complex, non-linear relationships between variables, we can use multiple approaches including, splines, polynomials, gaussian processes, and neural networks. Here, we will focus on a Bayesian Neural Network (BNN). Think of a neural network as a highly flexible function made of interconnected layers of “neurons.” Each connection between neurons has a weight, and each neuron has a bias. These weights and biases are like a vast set of adjustable knobs. In a standard network, the goal is to find the single best setting for all these knobs to map inputs to outputs. Unlike a standard neural network which learns a single set of optimal weights, a BNN learns distributions over its weights and biases. This allows it to capture not just the relationship in the data, but also its own uncertainty about that relationship. For this, we need to define:\n\nA Network Architecture, which specifies the number of layers, the number of neurons in each layer, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the structure of our “knobs.”\nPriors for Arrays of Weights and Biases. In a simple model like linear regression, we define a prior for each individual parameter (e.g., one prior for the slope \\beta). In a neural network, which can have thousands or millions of weights, we don’t define a unique prior for every single one. Instead, we define a prior that acts as a template for an entire array of parameters. For example, we might declare that all weights in a specific layer are drawn from the same Normal(0, 1) distribution. This allows us to efficiently specify our beliefs about the entire set of network parameters.\nAn Output Distribution (Likelihood), which defines the probability of the data given the network’s predictions. For a continuous variable (regression), this is often a Normal distribution with a variance term \\sigma that quantifies the data’s noise around the model’s predictions.",
     "crumbs": [
       "Models",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks"
     ]
   },
   {
     "objectID": "27. BNN.html#general-principles",
     "href": "27. BNN.html#general-principles",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "Bayesian Neural Networks",
     "section": "",
     "text": "To model complex, non-linear relationships between variables, we can use multiple approaches including, splines, polynomials, gaussian processes, and neural networks. Here, we will focus on a Bayesian Neural Network (BNN). Think of a neural network as a highly flexible function made of interconnected layers of “neurons.” Each connection between neurons has a weight, and each neuron has a bias. These weights and biases are like a vast set of adjustable knobs. In a standard network, the goal is to find the single best setting for all these knobs to map inputs to outputs. Unlike a standard neural network which learns a single set of optimal weights, a BNN learns distributions over its weights and biases. This allows it to capture not just the relationship in the data, but also its own uncertainty about that relationship. For this, we need to define:\n\nA Network Architecture, which specifies the number of layers, the number of neurons in each layer, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the structure of our “knobs.”\nPriors for Arrays of Weights and Biases. In a simple model like linear regression, we define a prior for each individual parameter (e.g., one prior for the slope \\beta). In a neural network, which can have thousands or millions of weights, we don’t define a unique prior for every single one. Instead, we define a prior that acts as a template for an entire array of parameters. For example, we might declare that all weights in a specific layer are drawn from the same Normal(0, 1) distribution. This allows us to efficiently specify our beliefs about the entire set of network parameters.\nAn Output Distribution (Likelihood), which defines the probability of the data given the network’s predictions. For a continuous variable (regression), this is often a Normal distribution with a variance term \\sigma that quantifies the data’s noise around the model’s predictions.",
     "crumbs": [
       "Models",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks"
     ]
   },
   {
     "objectID": "27. BNN.html#considerations",
     "href": "27. BNN.html#considerations",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "Bayesian Neural Networks",
     "section": "Considerations",
     "text": "Considerations\n\n\n\n\n\n\nCaution\n\n\n\n\nLike all Bayesian models, BNNs consider model parameter uncertainty 🛈. The parameters here are the network’s weights (W) and biases (b). We quantify our uncertainty about them through their posterior distribution 🛈. Therefore, we must declare prior distributions 🛈 for all weights and biases, as well as for the output variance \\sigma.\nUnlike in a linear regression where the coefficient β has a direct interpretation (e.g., the effect of weight on height), the individual weights and biases in a BNN are not directly interpretable. A single weight’s influence is entangled with thousands of other parameters through non-linear functions. Consequently, BNNs are best viewed as powerful predictive tools rather than explanatory ones. They excel at learning complex patterns and quantifying predictive uncertainty, but if the goal is to isolate and interpret the effect of a specific variable, a simpler model is often more appropriate.\nPrior distributions are built following these considerations:\n\nAs the data is typically scaled 🛈 (see introduction), we can use a standard Normal distribution (mean 0, standard deviation 1) as a weakly-informative prior for all weights and biases. This acts as a form of regularization.\nSince the output variance \\sigma must be positive, we can use a positively-defined distribution, such as the Exponential or Half-Normal.\n\nBNNs can be used for both regression and classification. The final layer’s activation and the chosen likelihood distribution depend on the task. For binary classification, a sigmoid activation is paired with a Bernoulli likelihood, which requires a link function 🛈 (logit) to connect the linear output of the network to the probability space [0, 1]. For regression, the identity activation is often used with a Gaussian likelihood.",
     "crumbs": [
       "Models",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks"
     ]
   },
   {
     "objectID": "27. BNN.html#example",
     "href": "27. BNN.html#example",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "Bayesian Neural Networks",
     "section": "Example",
     "text": "Example\nBelow is an example code snippet demonstrating a Bayesian Neural Network for regression using the Bayesian Inference (BI) package. Data consist of two continuous variables (height and weight), and the goal is to predict height from weight using a non-linear model.\n\nPythonR\n\n\nfrom BI import bi\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Import Data & Data Manipulation ------------------------------------------------\n# Import\nfrom importlib.resources import files\ndata_path = files('BI.resources.data') / 'Howell1.csv'\nm.data(data_path, sep=';') \nm.df = m.df[m.df.age &gt; 18] # Manipulate\nm.scale(['weight']) # Scale\n\n# Define model ------------------------------------------------\ndef model(weight, height):\n    # Define the BNN architecture and get its output (mu)\n    # 1 input -&gt; 10 hidden neurons (tanh) -&gt; 1 output neuron (identity)\n    # Priors for weights/biases are Normal(0,1) by default\n    mu = m.bnn(x=weight, n_neurons=[10, 1], activations=['tanh', 'identity'], name='bnn')\n\n    # Prior for the output standard deviation\n    s = m.dist.exponential(1, name='s')\n    \n    # Likelihood\n    m.normal(mu, s, obs=height)\n\n# Run mcmc ------------------------------------------------\nm.fit(model)  # Approximate posterior distributions for weights, biases, and sigma\n\n# Summary ------------------------------------------------\nm.summary() # Get posterior distributions\n\n\nlibrary(BI)\nm=importbi(platform='cpu')\n\n# Load csv file\nm$data(paste(system.file(package = \"BI\"),\"/data/Howell1.csv\", sep = ''), sep=';')\n\n# Filter data frame\nm$df = m$df[m$df$age &gt; 18,]\n\n# Scale\nm$scale(list('weight')) \n\n# Convert data to JAX arrays\nm$data_to_model(list('weight', 'height'))\n\n# Define model ------------------------------------------------\nmodel &lt;- function(height, weight){\n  # Define the BNN architecture\n  # 1 input -&gt; 10 hidden neurons (tanh) -&gt; 1 output neuron (identity)\n  # Priors for weights/biases are Normal(0,1) by default\n  mu &lt;- bi$bnn(x = weight, n_neurons = list(10, 1), activations = list('tanh', 'identity'), name = 'bnn')\n\n  # Prior for the output standard deviation\n  s = bi$dist$exponential(1, name = 's')\n  \n  # Likelihood\n  m$normal(mu, s, obs = height)\n}\n\n# Run mcmc ------------------------------------------------\nm$fit(model) # Approximate posterior distributions\n\n# Summary ------------------------------------------------\nm$summary()",
     "crumbs": [
       "Models",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks"
     ]
   },
   {
     "objectID": "27. BNN.html#mathematical-details",
     "href": "27. BNN.html#mathematical-details",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "Bayesian Neural Networks",
     "section": "Mathematical Details",
     "text": "Mathematical Details\n\nFrequentist Formulation\nA standard (non-Bayesian) neural network with one hidden layer is defined by forward propagation:\n\nh_i = f(X_i W_1 + b_1)\n\n\n\\hat{Y}_i = g(h_i W_2 + b_2)\n\nWhere: - Y_i is the predicted output for observation i. - X_i is the input vector for observation i. - W_1, b_1 are the weight matrix and bias vector for the hidden layer. - W_2, b_2 are the weight matrix and bias vector for the output layer. - h_i is the activation of the hidden layer. - f and g are activation functions (e.g., ReLU, tanh, sigmoid, identity). - Parameters W_1, b_1, W_2, b_2 are learned as single optimal values via optimization.\n\n\nBayesian Formulation\nIn the Bayesian formulation, we place priors 🛈 on all weights and biases and define a likelihood for the output. For a regression task with a one-layer BNN:\n\nY_i \\sim \\text{Normal}(\\mu_i, \\sigma)\n\n\n\\mu_i = g(h_i W_2 + b_2)\n\n\nh_i = f(X_i W_1 + b_1)\n\nThe parameters are now distributions: \nW_1 \\sim \\text{Normal}(0, 1)\n \nb_1 \\sim \\text{Normal}(0, 1)\n \nW_2 \\sim \\text{Normal}(0, 1)\n \nb_2 \\sim \\text{Normal}(0, 1)\n \n\\sigma \\sim \\text{Exponential}(1)\n\nWhere: - Y_i is the observed dependent variable for observation i. - \\mu_i is the mean predicted by the network, which is itself a distribution because it is a function of the distributions of weights and biases. - W_1, b_1, W_2, b_2 are the weights and biases, treated as random variables. - \\sigma is the standard deviation of the normal distribution, quantifying observation noise.",
     "crumbs": [
       "Models",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks"
     ]
   },
   {
     "objectID": "27. BNN.html#notes",
     "href": "27. BNN.html#notes",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "Bayesian Neural Networks",
     "section": "Notes",
     "text": "Notes\n\n\n\n\n\n\nNote\n\n\n\n\nThe primary difference between a Frequentist and Bayesian neural network lies in how parameters are treated. In the frequentist approach, weights and biases are point estimates found by minimizing a loss function (e.g., via gradient descent). Techniques like Dropout or L2 regularization are often used to prevent overfitting, which can be interpreted as approximations to a Bayesian treatment. In contrast, the Bayesian formulation does not seek a single best set of weights. Instead, it uses methods like MCMC or Variational Inference to approximate the entire posterior distribution for every weight and bias. This provides a principled and direct way to quantify model uncertainty.\nWhile present an example of non-linear regression, the Bayesian Neural Network can be used for linear regressions as well (keeping in mind that interpretation of the weights are impossible).\n\n\nfrom BI import bi\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Import Data & Data Manipulation ------------------------------------------------\n# Import\nfrom importlib.resources import files\ndata_path = files('BI.resources.data') / 'Howell1.csv'\nm.data(data_path, sep=';') \nm.df = m.df[m.df.age &gt; 18] # Manipulate\nm.scale(['weight']) # Scale\n\n# Define model ------------------------------------------------\ndef model(weight, height):\n    # Define the BNN architecture and get its output (mu)\n    # 1 input -&gt; 10 hidden neurons (tanh) -&gt; 1 output neuron (identity)\n    # Priors for weights/biases are Normal(0,1) by default\n    mu = m.bnn(x=weight, n_neurons=[10, 1], activations=['tanh', 'identity'], name='bnn')\n\n    # Prior for the output standard deviation\n    s = m.dist.exponential(1, name='s')\n    \n    # Likelihood\n    m.normal(mu, s, obs=height)\n\n# Run mcmc ------------------------------------------------\nm.fit(model)  # Approximate posterior distributions for weights, biases, and sigma\n\n# Summary ------------------------------------------------\nm.summary() # Get posterior distributions",
     "crumbs": [
       "Models",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks"
     ]
   },
   {
     "objectID": "27. BNN.html#references",
     "href": "27. BNN.html#references",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "Bayesian Neural Networks",
     "section": "Reference(s)",
     "text": "Reference(s)\n(neal1995bayesian?)",
     "crumbs": [
       "Models",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks"
     ]
   },
   {
@@ -1268,7 +1257,7 @@
     "text": "To discover group structures or clusters in data without pre-specifying the number of groups, we can use a Dirichlet Process Mixture Model (DPMM). This is a non-parametric 🛈 clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:\n\nHow many clusters (K) exist: Unlike algorithms like K-Means, the DPMM infers the most probable number of clusters directly from the data.\nThe properties of each cluster: For each inferred cluster, it estimates its center (mean \\mu) and its shape/spread (covariance \\sigma).\nThe assignment of each data point: It determines the probability of each data point belonging to each cluster.",
     "crumbs": [
       "Models",
-      "Dirichlet Process Mixture Models (DPMM)"
+      "Dirichlet Process Mixture Models"
     ]
   },
   {
@@ -1279,7 +1268,7 @@
     "text": "To discover group structures or clusters in data without pre-specifying the number of groups, we can use a Dirichlet Process Mixture Model (DPMM). This is a non-parametric 🛈 clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:\n\nHow many clusters (K) exist: Unlike algorithms like K-Means, the DPMM infers the most probable number of clusters directly from the data.\nThe properties of each cluster: For each inferred cluster, it estimates its center (mean \\mu) and its shape/spread (covariance \\sigma).\nThe assignment of each data point: It determines the probability of each data point belonging to each cluster.",
     "crumbs": [
       "Models",
-      "Dirichlet Process Mixture Models (DPMM)"
+      "Dirichlet Process Mixture Models"
     ]
   },
   {
@@ -1290,7 +1279,7 @@
     "text": "Considerations\n\n\n\n\n\n\nCaution\n\n\n\n\nA DPMM is a Bayesian model 🛈 that considers uncertainty in all its parameters. The core idea is to use the Dirichlet Process prior that allows for a potentially infinite number of clusters. In practice, we use a finite approximation called the Stick-Breaking Process 🛈.\nThe key parameters and their priors are:\n\nConcentration \\alpha: This single parameter controls the tendency to create new clusters. A low α favors fewer, larger clusters, while a high α allows for many smaller clusters. We typically place a Gamma prior on \\alpha to learn its value from the data.\n\n\nCluster Weights w: Generated via the Stick-Breaking process from \\alpha. These are the probabilities of drawing a data point from any given cluster.\nCluster Parameters (\\mu, \\sigma): Each potential cluster has a mean \\mu and a covariance matrix \\sigma. If the data have multiple dimensions, we use a multivariate normal distribution (see chapter, 14). Howver, if the data is one-dimensional, we use a univariate normal distribution.\n\nThe model is often implemented in its marginalized form 🛈. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.",
     "crumbs": [
       "Models",
-      "Dirichlet Process Mixture Models (DPMM)"
+      "Dirichlet Process Mixture Models"
     ]
   },
   {
@@ -1301,7 +1290,7 @@
     "text": "Example\nBelow is an example of a DPMM implemented in BI. The goal is to cluster a synthetic dataset into its underlying groups. The code first generates data with 4 distinct centers and then applies the DPMM to recover these clusters.\n\nPythonR\n\n\nfrom BI import bi\nfrom sklearn.datasets import make_blobs\n\n# Generate synthetic data\ndata, true_labels = make_blobs(\n    n_samples=500, centers=8, cluster_std=0.8,\n    center_box=(-10,10), random_state=101\n)\n\n#  The model\ndef dpmm(data, T=10):\n    N, D = data.shape  # Number of features\n    data_mean = jnp.mean(data, axis=0)\n    data_std = jnp.std(data, axis=0)*2\n\n    # 1) stick-breaking weights\n    alpha = dist.gamma(1.0, 10.0,name='alpha')\n\n    with m.plate(\"beta_plate\", T - 1):\n        beta = m.dist.Beta(1, alpha))\n\n    w = numpyro.deterministic(\"w\",mix_weights(beta))\n\n\n    # 2) component parameters\n    with m.plate(\"components\", T):\n        mu = m.dist.multivariatenormal(loc=data_mean, covariance_matrix=data_std*jnp.eye(D),name='mu')# shape (T, D)        \n        sigma = m.dist.lognormal(0.0, 1.0,shape=(D,),event=1,name='sigma')# shape (T, D)\n        Lcorr = m.dist.lkjcholesky(dimension=D, concentration=1.0,name='Lcorr')# shape (T, D, D)\n\n        scale_tril = sigma[..., None] * Lcorr  # shape (T, D, D)\n\n    # 3) Latent cluster assignments for each data point\n    with m.plate(\"data\", N):\n        # Sample the assignment for each data point\n        z = m.dist.Categorical(w) # shape (N,)  \n\n        # Sample the data point from the assigned component\n        m.dist.MultivariateNormal(loc=mu[z], scale_tril=scale_tril[z],\n            obs=data\n        )  \n\nm.data_on_model = dict(data=data)\nm.fit(dpmm)  # Optimize model parameters through MCMC sampling\nm.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM",
     "crumbs": [
       "Models",
-      "Dirichlet Process Mixture Models (DPMM)"
+      "Dirichlet Process Mixture Models"
     ]
   },
   {
@@ -1312,7 +1301,7 @@
     "text": "Mathematical Details\nThis level describes how any single data point, x_i, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster’s specific distribution. We use a truncation level T as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.\n\nx_i \\mid z_i=k \\sim \\text{MultivariateNormal}(\\mu_k, \\Sigma_{\\text{obs}}) \\\\\nz_i \\sim \\text{Categorical}(w) \\\\\nw = \\text{StickBreaking}(\\beta_1, ..., \\beta_{T-1}) \\\\\n\\beta_k \\sim \\text{Beta}(1, \\alpha) \\\\\n\\alpha \\sim \\text{Gamma}(1, 10)\\\\\n\\mu_k \\sim \\text{MultivariateNormal}(\\mu_0, \\Sigma_0)  \\\\\n\\Sigma_{\\text{obs}} = I_D \\\\\n\nParameter Definitions: * Observed Data: * x_i: The i-th observed D-dimensional data point.\n\nLatent Variables (Inferred):\n\nz_i: The integer cluster assignment for the i-th data point.\nw: The vector of mixture weights, where w_k is the probability of belonging to cluster k.\n\\beta_k: The set of Beta-distributed random variables for the stick-breaking process.\n\\alpha: The concentration parameter, controlling the effective number of clusters.\n\n\\mu_k: The D-dimensional mean vector of the k-th cluster.\n\nHyperparameters (Fixed):\n\n\\mu_0: The prior mean for the cluster centers (e.g., mean(data)).\n\\Sigma_0: The prior covariance for the cluster centers (e.g., 10 * I_D).",
     "crumbs": [
       "Models",
-      "Dirichlet Process Mixture Models (DPMM)"
+      "Dirichlet Process Mixture Models"
     ]
   },
   {
@@ -1323,7 +1312,7 @@
     "text": "Notes\n\n\n\n\n\n\nNote\n\n\n\nThe primary advantage of the DPMM over methods like K-Means or a GMM is the automatic inference of the number of clusters. Instead of running the model multiple times with different values of K and comparing them, the DPMM explores different numbers of clusters as part of its fitting process. The posterior distribution of the weights w reveals which components are “active” (have significant weight) and thus gives a probabilistic estimate of the number of clusters supported by the data.",
     "crumbs": [
       "Models",
-      "Dirichlet Process Mixture Models (DPMM)"
+      "Dirichlet Process Mixture Models"
     ]
   },
   {
@@ -1334,7 +1323,7 @@
     "text": "Reference(s)\nGershman and Blei (2012)",
     "crumbs": [
       "Models",
-      "Dirichlet Process Mixture Models (DPMM)"
+      "Dirichlet Process Mixture Models"
     ]
   },
   {
@@ -1345,7 +1334,7 @@
     "text": "The principle idea behind Network Based Diffusion analysis (NBDA) is that if social transmission is involved in the spread of a novel behavior through a group, then that spread is expected to follow a social network links Hasenjager, Leadbeater, and Hoppitt (2021). The basic model underlying NBDA states that at time t an individual, i, learns the behavior of interest with a specific rate formula.\nIn principle NBDA can be consider as a survival analysis, so we have the same concepts as in chapter 12:\n\nWhere the baseline hazard (e.g. the hazard when all covariates are zero) is the asocial hazard.\nWhere the covariate is the sum of links toward informed individuals (i.e. individuals that acquired the behavior of interest at time t-1).\nThus the Hazard Function which account for the network links weights covariate can thus be consider as the social rate of learning the behavior.",
     "crumbs": [
       "Models",
-      "Network-Based Diffusion Analysis (NBDA)"
+      "Network-Based Diffusion Analysis"
     ]
   },
   {
@@ -1356,7 +1345,7 @@
     "text": "The principle idea behind Network Based Diffusion analysis (NBDA) is that if social transmission is involved in the spread of a novel behavior through a group, then that spread is expected to follow a social network links Hasenjager, Leadbeater, and Hoppitt (2021). The basic model underlying NBDA states that at time t an individual, i, learns the behavior of interest with a specific rate formula.\nIn principle NBDA can be consider as a survival analysis, so we have the same concepts as in chapter 12:\n\nWhere the baseline hazard (e.g. the hazard when all covariates are zero) is the asocial hazard.\nWhere the covariate is the sum of links toward informed individuals (i.e. individuals that acquired the behavior of interest at time t-1).\nThus the Hazard Function which account for the network links weights covariate can thus be consider as the social rate of learning the behavior.",
     "crumbs": [
       "Models",
-      "Network-Based Diffusion Analysis (NBDA)"
+      "Network-Based Diffusion Analysis"
     ]
   },
   {
@@ -1367,7 +1356,7 @@
     "text": "Considerations\n\n\n\n\n\n\nCaution\n\n\n\n\nThere are two main NBDA variants: order-of-acquisition diffusion analysis (OADA), which takes as data the order in which individuals acquired the target behaviour, and time-of-acquisition diffusion analysis (TADA), which uses the times of acquisition of the target behaviour.",
     "crumbs": [
       "Models",
-      "Network-Based Diffusion Analysis (NBDA)"
+      "Network-Based Diffusion Analysis"
     ]
   },
   {
@@ -1378,7 +1367,7 @@
     "text": "Example\nBelow is an example code snippet demonstrating Bayesian Multiplex network model using the Bayesian Inference (BI) package Nightingale et al. (2015):\n\nPython",
     "crumbs": [
       "Models",
-      "Network-Based Diffusion Analysis (NBDA)"
+      "Network-Based Diffusion Analysis"
     ]
   },
   {
@@ -1389,7 +1378,7 @@
     "text": "Mathematical Details\n\nFormulation\nThere are two parameters of interest in the basic time of acquisition diffusion analysis model: the rate of social transmission be-tween individuals per unit of network connection,s, and the baseline rate of trait performance in the absence of social transmission, λ_0.\n\n\\lambda_i(t) = \\lambda_0(t) (1- z_i(t))  \\left[ s \\sum_{j = 1}^{N} a_{ij} z_j (t_{-1}) + 1 \\right]\n\nWhere:\n\n\\lambda_i(t) is the rate at which individuals i acquire the task solution at time t.\n\\lambda_0(t) is a baseline acquisition function determining the distribution of latencies to acquisition in the absence of social transmission (that is, through asocial learning). It can be specify by an exponential or Weibull distrbution.\nz_i(t) gives the status (1 = informed, 0 = naïve) of individual i at time t.\ns is the regression coefficients capturing the effect of x on the hazard have an assigned a normal prior.\n(1- z_i(t)) and z_j (-1) terms ensure that the task solution is only transmitted from informed to uninformed individuals:\n\n\nz_j(t) =  Y_i \\sim \\begin{cases}\n0, & \\text{if j is naive} \\\\\n1, & \\text{if j is informed}\n\\end{cases}",
     "crumbs": [
       "Models",
-      "Network-Based Diffusion Analysis (NBDA)"
+      "Network-Based Diffusion Analysis"
     ]
   },
   {
@@ -1400,7 +1389,7 @@
     "text": "Notes\n\n\n\n\n\n\nNote",
     "crumbs": [
       "Models",
-      "Network-Based Diffusion Analysis (NBDA)"
+      "Network-Based Diffusion Analysis"
     ]
   },
   {
@@ -1411,7 +1400,7 @@
     "text": "Reference(s)\n\n\nHasenjager, Matthew J., Ellouise Leadbeater, and William Hoppitt. 2021. “Detecting and Quantifying Social Transmission Using Network-Based Diffusion Analysis.” Journal of Animal Ecology 90 (1): 8–26. https://doi.org/https://doi.org/10.1111/1365-2656.13307.\n\n\nNightingale, Glenna, Neeltje J Boogert, Kevin N Laland, and Will Hoppitt. 2015. “Quantifying Diffusion in Social Networks: A Bayesian Approach.” Animal Social Networks, 38–52.",
     "crumbs": [
       "Models",
-      "Network-Based Diffusion Analysis (NBDA)"
+      "Network-Based Diffusion Analysis"
     ]
   },
   {
@@ -2209,78 +2198,133 @@
   {
     "objectID": "19. PCA.html",
     "href": "19. PCA.html",
-    "title": "Principal Component Analysis (PCA)",
+    "title": "Principal Component Analysis",
     "section": "",
-    "text": "Principal Component Analysis (PCA) is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto the first coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.\nIn Bayesian PCA, uncertainty in the model parameters is explicitly taken into account by using a probabilistic framework. This allows us to not only estimate the principal components but also quantify the uncertainty around them and avoid overfitting by incorporating prior knowledge.\n\n\n\nReduce dimensionality while retaining as much variance as possible.\nInfer posterior distributions over the principal components, instead of point estimates, by incorporating prior distributions over the parameters.\n\n\n\n\n\nDimensionality Reduction: Bayesian PCA is commonly used to reduce the dimensionality of high-dimensional datasets while incorporating uncertainty about the latent structure.\nData Visualization: By projecting data into a lower-dimensional space, PCA helps in visualizing high-dimensional datasets in 2D or 3D plots.\nNoise Modeling: Bayesian PCA provides an advantage over classical PCA by explicitly modeling noise and accounting for uncertainty in the data.\nFeature Extraction: The latent variables learned by Bayesian PCA can serve as new features for downstream tasks, such as classification or clustering.\nLatent Variable Modeling: The latent variables learned by Bayesian PCA can serve as new features for downstream tasks, such as classification or clustering.",
+    "text": "Principal Component Analysis (PCA) (Tipping and Bishop 1999) is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto the first coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.\nIn Bayesian PCA, uncertainty in the model parameters is explicitly taken into account by using a probabilistic framework. This allows us to not only estimate the principal components but also quantify the uncertainty around them and avoid overfitting by incorporating prior knowledge.\nPCA is employed for dimensionality reduction, particularly in scenarios involving high-dimensional datasets, as it effectively reduces complexity while explicitly accounting for uncertainty in the underlying latent structure. This approach also plays a crucial role in data visualization, enabling the projection of intricate, high-dimensional data into more interpretable 2D or 3D representations. Additionally, PCA excels in feature extraction, where the latent variables it identifies can be repurposed as informative features for subsequent tasks, such as classification or clustering. By modeling latent variables, it further enhances the interpretability and utility of the data for a variety of analytical applications.",
     "crumbs": [
       "Models",
-      "Principal Component Analysis (PCA)"
+      "Principal Component Analysis"
     ]
   },
   {
     "objectID": "19. PCA.html#general-principles",
     "href": "19. PCA.html#general-principles",
-    "title": "Principal Component Analysis (PCA)",
+    "title": "Principal Component Analysis",
     "section": "",
-    "text": "Principal Component Analysis (PCA) is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto the first coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.\nIn Bayesian PCA, uncertainty in the model parameters is explicitly taken into account by using a probabilistic framework. This allows us to not only estimate the principal components but also quantify the uncertainty around them and avoid overfitting by incorporating prior knowledge.\n\n\n\nReduce dimensionality while retaining as much variance as possible.\nInfer posterior distributions over the principal components, instead of point estimates, by incorporating prior distributions over the parameters.\n\n\n\n\n\nDimensionality Reduction: Bayesian PCA is commonly used to reduce the dimensionality of high-dimensional datasets while incorporating uncertainty about the latent structure.\nData Visualization: By projecting data into a lower-dimensional space, PCA helps in visualizing high-dimensional datasets in 2D or 3D plots.\nNoise Modeling: Bayesian PCA provides an advantage over classical PCA by explicitly modeling noise and accounting for uncertainty in the data.\nFeature Extraction: The latent variables learned by Bayesian PCA can serve as new features for downstream tasks, such as classification or clustering.\nLatent Variable Modeling: The latent variables learned by Bayesian PCA can serve as new features for downstream tasks, such as classification or clustering.",
+    "text": "Principal Component Analysis (PCA) (Tipping and Bishop 1999) is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto the first coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.\nIn Bayesian PCA, uncertainty in the model parameters is explicitly taken into account by using a probabilistic framework. This allows us to not only estimate the principal components but also quantify the uncertainty around them and avoid overfitting by incorporating prior knowledge.\nPCA is employed for dimensionality reduction, particularly in scenarios involving high-dimensional datasets, as it effectively reduces complexity while explicitly accounting for uncertainty in the underlying latent structure. This approach also plays a crucial role in data visualization, enabling the projection of intricate, high-dimensional data into more interpretable 2D or 3D representations. Additionally, PCA excels in feature extraction, where the latent variables it identifies can be repurposed as informative features for subsequent tasks, such as classification or clustering. By modeling latent variables, it further enhances the interpretability and utility of the data for a variety of analytical applications.",
     "crumbs": [
       "Models",
-      "Principal Component Analysis (PCA)"
+      "Principal Component Analysis"
     ]
   },
   {
     "objectID": "19. PCA.html#considerations",
     "href": "19. PCA.html#considerations",
-    "title": "Principal Component Analysis (PCA)",
+    "title": "Principal Component Analysis",
     "section": "Considerations",
-    "text": "Considerations\nIn Bayesian PCA, we assume prior distributions for the latent variables Z and the principal component loadings W. We place Gaussian priors on both Z and W and learn their posterior distributions using the observed data X.\nThis approach differs from traditional PCA by allowing the posterior distributions to reflect uncertainty in the model parameters.",
+    "text": "Considerations\n\n\n\n\n\n\nNote\n\n\n\n\nIn Bayesian PCA, we assume prior distributions for the latent variables Z and the principal component loadings W. We place Gaussian priors on both Z and W and learn their posterior distributions using the observed data X.\nRobustness to Outliers: Standard PCA are sensitive to outliers due to the assumption of Gaussian noise. Robust variants of Robust Bayesian PCA address this by employing heavy-tailed distributions for the noise model, such as the Student’s t-distribution, which reduces the influence of outliers (Archambeau, Delannay, and Verleysen 2006).\nAutomatic Dimensionality Selection: Through techniques like Automatic Relevance Determination (ARD), Bayesian PCA can automatically determine the effective dimensionality of the latent space. Priors are placed on the relevance of each principal component, and components that are not supported by the data are effectively “switched off’ (Bishop 1998).\nSparsity for High-Dimensional Data: In high-dimensional settings, it is often desirable for the principal components to be influenced by only a subset of the original features, leading to more interpretable results. Sparse Bayesian PCA achieves this by placing sparsity-inducing priors (e.g., Laplacian or spike-and-slab priors) on the loading (Sigg and Buhmann 2008).",
     "crumbs": [
       "Models",
-      "Principal Component Analysis (PCA)"
+      "Principal Component Analysis"
     ]
   },
   {
-    "objectID": "19. PCA.html#example",
-    "href": "19. PCA.html#example",
-    "title": "Principal Component Analysis (PCA)",
-    "section": "Example",
-    "text": "Example\nHere is an example code snippet demonstrating Bayesian PCA using TensorFlow Probability:\n\nfrom main import *\nimport seaborn as sns\n\nm = bi(platform='cpu')\n\n# Data simulation -------------------------------------------\n\nplt.style.use(\"ggplot\")\nwarnings.filterwarnings('ignore')\n\nnum_datapoints = 5000\ndata_dim = 2\nlatent_dim = 1\nstddv_datapoints = 0.5\n\n# Simulate data\ndef sim_data(data_dim, latent_dim, num_datapoints, stddv_datapoints, seed = 0): \n    w = bi.dist.normal(0, 1, shape=(data_dim, latent_dim), name='w', sample=True, seed=seed)\n    z = bi.dist.normal(0, 1, shape=(latent_dim, num_datapoints), name='z', sample=True, seed=seed)\n    x = bi.dist.normal(w @ z, stddv_datapoints, name='x', sample=True, seed=seed)\n    return w, z, x\n\nactual_w, actual_z, x_train =sim_data(data_dim, latent_dim, num_datapoints, stddv_datapoints, seed = 20)\nplt.scatter(x_train[0, :], x_train[1, :], color='blue', alpha=0.1)\nplt.axis([-20, 20, -20, 20])\nplt.title(\"Dataset\")\nplt.show()\n\n\n# Model using simulated data\ndef model(x_train, data_dim, latent_dim, num_datapoints, stddv_datapoints, seed = 0): \n    w = bi.dist.normal(0, 1, shape=(data_dim, latent_dim), name='w')\n    z = bi.dist.normal(0, 1, shape=(latent_dim, num_datapoints), name='z')\n    lk('Y', Normal(w @ z, stddv_datapoints), obs = x_train)  \n    \nm.data_on_model = dict(\n    x_train = x_train, \n    data_dim = data_dim, \n    latent_dim = latent_dim, \n    num_datapoints = num_datapoints, \n    stddv_datapoints = stddv_datapoints\n)\n\nm.fit(model) \nsummary = m.summary()\nreal_data = jnp.concatenate([actual_w.flatten(), actual_z.flatten()]) # concatenate the actual values of w and z\nposteriors = summary.iloc[:,0]\n\n\nplt.figure(figsize=(8, 6))\nplt.plot(real_data, posteriors, marker='o', linestyle='None', color='b', label='Posteriors')",
+    "objectID": "19. PCA.html#standard-pca",
+    "href": "19. PCA.html#standard-pca",
+    "title": "Principal Component Analysis",
+    "section": "Standard PCA",
+    "text": "Standard PCA\ndef model(x_train, data_dim, latent_dim, num_datapoints): \n    # Gaussian prior for the principal component 'W'.\n    w = m.dist.normal(0, 1, shape=(data_dim, latent_dim), name='w')\n\n    # Gaussian prior on the latent variables 'Z'\n    z = m.dist.normal(0, 1, shape=(latent_dim, num_datapoints), name='z')\n\n    # Exponential prior on the noise variance 'epsilon'\n    epsilon = m.dist.exponential(1, name='epsilon')\n\n    # Likelihood\n    m.dist.normal(w @ z , epsilon, obs = x_train)",
     "crumbs": [
       "Models",
-      "Principal Component Analysis (PCA)"
+      "Principal Component Analysis"
+    ]
+  },
+  {
+    "objectID": "19. PCA.html#pca-with-ard",
+    "href": "19. PCA.html#pca-with-ard",
+    "title": "Principal Component Analysis",
+    "section": "PCA with ARD",
+    "text": "PCA with ARD\n\nfrom BI import bi\nimport jax.numpy as jnp\n\nm = bi(platform='cpu')\n\ndef model_final(X, data_dim, latent_dim, num_datapoints):\n    # --- Automatic Dimensionality Selection using an ARD Prior ---\n    # There is one 'alpha' for each latent dimension.\n    # This 'alpha' acts as a prior on the \"relevance\" of each principal component. A large alpha will signal low relevance.\n    alpha = m.dist.gamma(.05, 1e-3, shape=(latent_dim,), name='alpha')\n\n    # Gaussian prior for the principal component 'W'.\n    # The precision (1 / variance) of the weights for each component is controlled by its corresponding 'alpha'.\n    w = m.dist.normal(0, 1. / jnp.sqrt(alpha)[None, :], shape=(data_dim, latent_dim), name='w')\n\n    # Gaussian prior on the latent variables 'Z'\n    z = m.dist.normal(0, 1., shape=(latent_dim, num_datapoints), name='z')\n\n    # Noise model\n    # We assume the noise is Gaussian, but we don't know its variance. So, we place a Gamma prior on the precision (1 / variance) to learn it from the data.\n    precision = m.dist.gamma(1.0, 1.0, name='precision')\n    # We convert the learned precision into a standard deviation for use in the likelihood.\n    stddv = 1. / jnp.sqrt(precision)\n\n    # Likelihood\n    # 'X' is modeled as a linear projection of the latents (w @ z) plus Gaussian noise.\n    m.dist.normal(w @ z, stddv, obs=X)\n\nsummary = m.summary()\nm.fit(model_final)",
+    "crumbs": [
+      "Models",
+      "Principal Component Analysis"
+    ]
+  },
+  {
+    "objectID": "19. PCA.html#robust-pca",
+    "href": "19. PCA.html#robust-pca",
+    "title": "Principal Component Analysis",
+    "section": "Robust PCA",
+    "text": "Robust PCA\ndef model_robust(x_train, data_dim, latent_dim, num_datapoints):\n    \"\"\"\n    Robust Bayesian PCA model using a Student's t-distribution for the likelihood.\n    \"\"\"\n    # --- Standard Priors for W and Z ---\n    w = m.dist.normal(0, 1., shape=(data_dim, latent_dim), name='w')\n    z = m.dist.normal(0, 1., shape=(latent_dim, num_datapoints), name='z')\n\n    # --- Robustness to Outliers via a Heavy-Tailed Noise Model ---\n    # This defines the prior on the scale (similar to standard deviation) of the noise.\n    sigma = m.dist.halfcauchy(1.0, name='sigma')\n\n    # This is a prior on the \"degrees of freedom\" ('nu') of the Student's t-distribution.\n    # This parameter controls the \"heaviness\" of the tails. A small 'nu' means\n    # heavier tails, making the model more robust to outliers. By learning this\n    # parameter, the model can adapt its robustness to the data.\n    nu = m.dist.gamma(2.0, 0.1, name='nu')\n\n    # This is the key line for this model. The likelihood is a Student's t-distribution.\n    # As your description states, this \"heavy-tailed distribution... reduces the\n    # influence of outliers\" by treating them as more plausible events than a\n    # Gaussian distribution would, thus preventing them from skewing the results.\n    m.dist.studentt(df=nu, loc=w @ z, scale=sigma, obs=x_train)",
+    "crumbs": [
+      "Models",
+      "Principal Component Analysis"
+    ]
+  },
+  {
+    "objectID": "19. PCA.html#sparse-pca",
+    "href": "19. PCA.html#sparse-pca",
+    "title": "Principal Component Analysis",
+    "section": "Sparse PCA",
+    "text": "Sparse PCA\ndef model_sparse(x_train, data_dim, latent_dim, num_datapoints):\n    \"\"\"\n    Sparse Bayesian PCA model using a Laplace prior on the weights (w).\n    \"\"\"\n    # --- Sparsity for High-Dimensional Data via a Sparsity-Inducing Prior ---\n\n    # This is the first part of a hierarchical prior (known as the Bayesian Lasso).\n    # We place a prior on 'lambda_', which will control the scale of our Laplace prior.\n    # This allows the model to learn the appropriate level of sparsity from the data.\n    lambda_ = m.dist.gamma(1.0, 1.0, shape=(latent_dim,), name='lambda')\n\n    # This is the key line for this model. We place a Laplace prior on the loadings 'W'.\n    # As your description states, this is a \"sparsity-inducing prior\". The Laplace\n    # distribution is sharply peaked at zero, which encourages many of the weight\n    # values in 'W' to be exactly zero, leading to \"more interpretable results\".\n    w = m.dist.laplace(0., 1. / lambda_[None, :], shape=(data_dim, latent_dim), name='w')\n\n    # --- Standard Model Components ---\n    \n    # We place a standard Gaussian prior on the latent variables 'Z', as described\n    # in the note: \"We place Gaussian priors on both Z and W...\".\n    z = m.dist.normal(0., 1., shape=(latent_dim, num_datapoints), name='z')\n    \n    # This section defines the standard Gaussian noise model, which is separate\n    # from the sparsity-inducing prior on the weights.\n    precision = m.dist.gamma(1.0, 1.0, name='precision')\n    stddv = 1. / jnp.sqrt(precision)\n\n    # This is the standard likelihood, same as in the ARD model. The generative story\n    # is unchanged, but the prior on 'W' now enforces the desired sparsity property.\n    m.dist.normal(w @ z, stddv, obs=x_train)",
+    "crumbs": [
+      "Models",
+      "Principal Component Analysis"
+    ]
+  },
+  {
+    "objectID": "19. PCA.html#sparse-robust-pca-with-ard",
+    "href": "19. PCA.html#sparse-robust-pca-with-ard",
+    "title": "Principal Component Analysis",
+    "section": "Sparse robust PCA with ARD",
+    "text": "Sparse robust PCA with ARD\n\ndef model_sparse_robust_ard(x_train, data_dim, latent_dim, num_datapoints):\n    \"\"\"\n    A combined Sparse, Robust Bayesian PCA model with Automatic Relevance Determination (ARD).\n\n    - Sparsity: Achieved with a Laplace prior on the weights 'w'.\n    - Robustness: Achieved with a Student's t-distribution for the likelihood.\n    - ARD: Achieved by placing a hierarchical prior on the scale of the Laplace\n      distribution, allowing entire latent dimensions to be pruned.\n    \"\"\"\n    # --- ARD and Sparsity-Inducing Prior on w ---\n    \n    # This is the ARD component. We define a relevance parameter 'lambda_' for each\n    # latent dimension. A large lambda will signal that the corresponding\n    # component is not relevant and should be shrunk away.\n    # The Gamma prior ensures lambda_ is positive.\n    lambda_ = m.dist.gamma(1.0, 1.0, shape=(latent_dim,), name='lambda')\n\n    # This is the Sparsity component. We use a Laplace prior for the weights 'w'.\n    # The COMBINED effect happens here: the scale of the Laplace distribution is\n    # controlled by the ARD parameter 'lambda_'. If a component is irrelevant\n    # (large lambda_), the scale becomes small, and the Laplace prior aggressively\n    # forces the weights in that column of 'w' to zero.\n    # This gives us both sparsity and automatic dimensionality selection.\n    w = m.dist.laplace(0., 1. / lambda_[None, :], shape=(data_dim, latent_dim), name='w')\n\n    # --- Standard Prior for Z ---\n    \n    # The prior on the latent variables 'Z' remains a standard Gaussian.\n    z = m.dist.normal(0., 1., shape=(latent_dim, num_datapoints), name='z')\n\n    # --- Robustness to Outliers via a Heavy-Tailed Noise Model ---\n    \n    # Prior on the scale of the Student's t-distribution.\n    sigma = m.dist.halfcauchy(1.0, name='sigma')\n\n    # Prior on the degrees of freedom 'nu', which controls the robustness.\n    nu = m.dist.gamma(2.0, 0.1, name='nu')\n\n    # The likelihood is the Student's t-distribution, which makes the entire\n    # model robust to outliers in the observed data 'x_train'.\n    m.dist.studentt(df=nu, loc=w @ z, scale=sigma, obs=x_train)\n:::",
+    "crumbs": [
+      "Models",
+      "Principal Component Analysis"
     ]
   },
   {
     "objectID": "19. PCA.html#mathematical-details",
     "href": "19. PCA.html#mathematical-details",
-    "title": "Principal Component Analysis (PCA)",
+    "title": "Principal Component Analysis",
     "section": "Mathematical Details",
-    "text": "Mathematical Details\n\nFormulation\nGiven an observed data matrix X \\in \\mathbb{R}^{N \\times D} (where N is the number of samples and D is the number of dimensions), we assume the data is generated by a lower-dimensional latent variable model:\n\nX = ZW^T + \\epsilon\n\n\nZ \\sim \\mathcal{N}(0, I)\n\n\nW \\sim \\mathcal{N}(0, I)\n\n\n\\epsilon \\sim \\mathcal{N}(0, \\sigma^2 I)\n\nWhere:\n\nX is the observed data matrix.\nZ \\in \\mathbb{R}^{N \\times K} is the latent variable matrix (latent features with K \\ll D). Z is defined by a Normal distribution with mean 0 and variance 1.\nW \\in \\mathbb{R}^{D \\times K} is the matrix of principal components (projection matrix). W is defined by a Normal distribution with mean 0 and variance 1.\n\\epsilon is Gaussian noise, assumed to be normally distributed: \\epsilon \\sim \\mathcal{N}(0, \\sigma^2 I).",
+    "text": "Mathematical Details\nWe assume the observed data matrix X is centered and arranged with features as rows and samples as columns, X \\in \\mathbb{R}^{D \\times N}. The generative model projects the data into a lower-dimensional space with K latent variables, K \\ll D. : \nX_{dn} \\sim \\text{Normal}((WZ)_{dn}, \\sigma)\n\nwhere :\n\nX is the observed data matrix.\nZ \\in \\mathbb{R}^{N \\times K} is the latent variable matrix (latent features) with K \\ll D. Z is defined by a Normal distribution with mean 0 and variance 1.\nW \\in \\mathbb{R}^{D \\times K} is the matrix of principal components (projection matrix). W is defined by a Normal distribution with mean 0 and variance 1.\n\\epsilon \\in \\mathbb{R}^{N \\times D} is Gaussian noise matrix, assumed to be normally distributed centered at 0 as data is assumed to be centered.\n\nThe likelihood and priors are defined element-wise for d=1...D, n=1...N, and k=1...K. for the following models:\n\nStandard PCA\n\nX_{dn} \\sim \\text{Normal}((WZ)_{dn}, \\sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Normal}(0, 1)\n \n\\sigma \\sim \\text{Exponential}(1)\n\n\n\nPCA with ARD\nIn PCA with Automatic Relevance Determination (ARD), the variance of the prior on each column of W is controlled by a unique relevance parameter \\alpha_k.\n\nX_{dn} \\sim \\text{Normal}((WZ)_{dn}, \\sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Normal}(0, \\alpha_k^{-1})\n \n\\alpha_k \\sim \\text{Gamma}(0.05, 10^{-3})\n\n\n\\sigma \\sim \\text{Normal}(0, \\tau^{-1})\n\n\n\\tau \\sim \\text{Gamma}(1, 1)\n\nWhere:\n\n\\alpha \\in \\mathbb{R}^{K} is the relevance parameter vector. Each element \\alpha_k controls the precision (inverse variance) of the weights for the k-th principal component. If a component is not supported by the data, its corresponding \\alpha_k will become large, forcing the weights in the k-th column of W towards zero and effectively “switching off” that component.\n\\tau is the noise precision (inverse variance) of the data.\n\n\n\nRobust PCA\nIn Robust PCA, the model is modified to handle outliers by using a heavy-tailed distribution for the likelihood:\n\nX_{dn} \\sim \\text{StudentT}(\\nu, (WZ)_{dn}, \\sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Normal}(0, 1)\n \n\\nu \\sim \\text{Gamma}(2, 0.1)\n \n\\sigma \\sim \\text{HalfCauchy}(1)\n\nWhere:\n\n\\nu is the degrees of freedom of the Student’s t-distribution. It controls the “heaviness” of the tails. Small values of \\nu lead to greater robustness. By placing a prior on it, we allow the model to learn the appropriate level of robustness from the data.\n\\sigma is the scale parameter of the Student’s t-distribution, which is analogous to the standard deviation in a Normal distribution.\n\n\n\nSparse PCA\nIn Sparse PCA, a Laplace prior is placed on the weights W to induce sparsity.\n\nX_{dn} \\sim \\text{Normal}((WZ)_{dn}, sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Laplace}(0, \\lambda_k^{-1})\n \n\\lambda_k \\sim \\text{Gamma}(1, 1)\n\n\n\\sigma \\sim \\text{Normal}(0, \\tau^{-1})\n \n\\tau \\sim \\text{Gamma}(1, 1)\n\nwhere:\n\n\\lambda \\in \\mathbb{R}^{K} is the sparsity control vector. Each element \\lambda_k is the rate parameter (inverse scale) for the Laplace prior on the k-th column of W. A larger \\lambda_k enforces stronger sparsity on that component.\n\\tau is the noise precision (inverse variance) of the data.\n\n\n\nSparse Robust PCA with ARD\nThis model combines all three features: a sparsity-inducing prior, a robust likelihood, and automatic relevance determination.\n\nX_{dn} \\sim \\text{StudentT}(\\nu, (WZ)_{dn}, \\sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Laplace}(0, \\lambda_k^{-1})\n \n\\lambda_k \\sim \\text{Gamma}(1, 1)\n \n\\nu \\sim \\text{Gamma}(2, 0.1)\n \n\\sigma \\sim \\text{HalfCauchy}(1)",
     "crumbs": [
       "Models",
-      "Principal Component Analysis (PCA)"
+      "Principal Component Analysis"
+    ]
+  },
+  {
+    "objectID": "19. PCA.html#robust-pca-1",
+    "href": "19. PCA.html#robust-pca-1",
+    "title": "Principal Component Analysis",
+    "section": "Robust PCA",
+    "text": "Robust PCA\n\nX = WZ + \\epsilon\n\n\nW \\sim \\text{Normal}(0, I)\n\n\nZ \\sim \\text{Normal}(0, I)\n\n\n\\nu \\sim \\text{Gamma}(2, 0.1)\n\n\n\\sigma \\sim \\text{HalfCauchy}(1)\n\n\n\\epsilon \\sim \\text{StudentT}(\\nu, 0, \\sigma I)\n\nWhere: - X is the observed data matrix.\n\nZ \\in \\mathbb{R}^{K \\times N} is the latent variable matrix.\nW \\in \\mathbb{R}^{D \\times K} is the matrix of principal components.\n\\epsilon is the noise, which is now assumed to follow a Student’s t-distribution. This distribution has heavier tails than a Gaussian, making the model robust to outliers.\n\\nu is the degrees of freedom of the Student’s t-distribution. It controls the “heaviness” of the tails. Small values of \\nu lead to greater robustness. By placing a prior on it, we allow the model to learn the appropriate level of robustness from the data.\n\\sigma is the scale parameter of the Student’s t-distribution, which is analogous to the standard deviation in a Normal distribution.\n\n\nSparse PCA\n\nX = WZ + \\epsilon\n\n\n\\lambda_k \\sim \\text{Gamma}(1, 1) \\quad \\text{for } k=1, \\dots, K\n\n\nW_{\\cdot k} \\sim \\text{Laplace}(0, \\lambda_k^{-1} I)\n\n\nZ \\sim \\text{Normal}(0, I)\n\n\n\\tau \\sim \\text{Gamma}(1, 1)\n\n\n\\epsilon \\sim \\text{Normal}(0, \\tau^{-1} I)\n\n\nX is the observed data matrix.\nZ \\in \\mathbb{R}^{K \\times N} is the latent variable matrix.\nW \\in \\mathbb{R}^{D \\times K} is the matrix of principal components. Its prior is now a Laplace distribution, which has a sharp peak at zero. This encourages many of the individual elements in W to be exactly zero, leading to sparse and more interpretable principal components.\n\\lambda \\in \\mathbb{R}^{K} is the sparsity control vector. Each element \\lambda_k is the rate parameter (inverse scale) for the Laplace prior on the k-th column of W. A larger \\lambda_k enforces stronger sparsity on that component.\n\\tau is the noise precision.\n\\epsilon is Gaussian noise.\n\n\n\nSparse Robust PCA with ARD\n\nX = WZ + \\epsilon\n\n\n\\lambda_k \\sim \\text{Gamma}(1, 1) \\quad \\text{for } k=1, \\dots, K\n\n\nW_{\\cdot k} \\sim \\text{Laplace}(0, \\lambda_k^{-1} I)\n\n\nZ \\sim \\text{Normal}(0, I)\n\n\n\\nu \\sim \\text{Gamma}(2, 0.1)\n\n\n\\sigma \\sim \\text{HalfCauchy}(1)\n\n\n\\epsilon \\sim \\text{StudentT}(\\nu, 0, \\sigma I)\n\nWhere: - X is the observed data matrix.\n\nZ \\in \\mathbb{R}^{K \\times N} is the latent variable matrix.\nW \\in \\mathbb{R}^{D \\times K} is the matrix of principal components. Its prior is a Laplace distribution to induce sparsity, making individual feature contributions more interpretable.\n\\epsilon is the noise, assumed to follow a Student’s t-distribution. This provides robustness by making the model less sensitive to outliers.\n\\lambda \\in \\mathbb{R}^{K} is the ARD relevance and sparsity control vector. Each element \\lambda_k serves a dual purpose:\n\nIt acts as the rate parameter (inverse scale) for the Laplace prior, controlling the degree of sparsity for the k-th principal component.\nIt serves as the Automatic Relevance Determination parameter. If a component is not supported by the data, the model will learn a large value for its corresponding \\lambda_k, which aggressively shrinks all weights in that column of W to zero, effectively pruning the entire component from the model.\n\n\\nu is the degrees of freedom of the Student’s t-distribution, controlling the model’s level of robustness.\n\\sigma is the scale parameter of the Student’s t-distribution noise model.",
+    "crumbs": [
+      "Models",
+      "Principal Component Analysis"
     ]
   },
   {
     "objectID": "19. PCA.html#note",
     "href": "19. PCA.html#note",
-    "title": "Principal Component Analysis (PCA)",
+    "title": "Principal Component Analysis",
     "section": "Note",
-    "text": "Note\n\nTo account for sign ambiguity 🛈 in PCA, we can align the signs of the estimated parameters with the true parameters before comparison. To do this, calculate the dot product between the true and estimated parameters. If it is negative, multiply the estimated parameters by -1 to align them with the true parameters. Below, a code snippet highlights how to do this:\n\n\ntrue_params = jnp.array(real_data)      \nestimated_params = jnp.array(posteriors) \n\n# Compute dot product\ndot_product = jnp.dot(true_params, estimated_params)\n\n# Align signs if necessary\nif dot_product &lt; 0:\n    estimated_params = -estimated_params\n\n# Plot the aligned parameters\nplt.scatter(true_params, estimated_params, alpha=0.7)\nplt.plot([min(true_params), max(true_params)], [min(true_params), max(true_params)], 'r--')\nplt.xlabel('True Parameters')\nplt.ylabel('Estimated Parameters')\nplt.title('True vs. Estimated Parameters After Sign Alignment')\nplt.show()",
+    "text": "Note\n\nTo account for sign ambiguity 🛈 in PCA, we can align the signs of the estimated parameters with the true parameters before comparison. To do this, calculate the dot product between the true and estimated parameters. If it is negative, multiply the estimated parameters by -1 to align them with the true parameters. Below, a code snippet highlights how to do this:\n\n\ntrue_params = jnp.array(real_data)      \nestimated_params = jnp.array(m.posteriors) \n\n# Compute dot product\ndot_product = jnp.dot(true_params, estimated_params)\n\n# Align signs if necessary\nif dot_product &lt; 0:\n    estimated_params = -estimated_params\n\n# Plot the aligned parameters\nplt.scatter(true_params, estimated_params, alpha=0.7)\nplt.plot([min(true_params), max(true_params)], [min(true_params), max(true_params)], 'r--')\nplt.xlabel('True Parameters')\nplt.ylabel('Estimated Parameters')\nplt.title('True vs. Estimated Parameters After Sign Alignment')\nplt.show()",
     "crumbs": [
       "Models",
-      "Principal Component Analysis (PCA)"
+      "Principal Component Analysis"
     ]
   },
   {
     "objectID": "19. PCA.html#references",
     "href": "19. PCA.html#references",
-    "title": "Principal Component Analysis (PCA)",
+    "title": "Principal Component Analysis",
     "section": "Reference(s)",
-    "text": "Reference(s)\nhttps://www.tensorflow.org/probability/examples/Probabilistic_PCA",
+    "text": "Reference(s)\n\n\nArchambeau, Cédric, Nicolas Delannay, and Michel Verleysen. 2006. “Robust Probabilistic Projections.” In Proceedings of the 23rd International Conference on Machine Learning, 33–40.\n\n\nBishop, Christopher. 1998. “Bayesian Pca.” Advances in Neural Information Processing Systems 11.\n\n\nSigg, Christian D, and Joachim M Buhmann. 2008. “Expectation-Maximization for Sparse and Non-Negative PCA.” In Proceedings of the 25th International Conference on Machine Learning, 960–67.\n\n\nTipping, Michael E, and Christopher M Bishop. 1999. “Probabilistic Principal Component Analysis.” Journal of the Royal Statistical Society Series B: Statistical Methodology 61 (3): 611–22.",
     "crumbs": [
       "Models",
-      "Principal Component Analysis (PCA)"
+      "Principal Component Analysis"
     ]
   },
   {
@@ -2368,7 +2412,7 @@
     "text": "To discover group structures or clusters in data, we can use a Gaussian Mixture Model (GMM). This is a parametric 🛈 clustering method. A GMM assumes that the data is generated from a mixture of a pre-specified number (K) of different Gaussian distributions. The model’s goal is to figure out:\n\nThe properties of each of the K clusters: For each of the K clusters, it estimates its center (mean \\mu) and its shape/spread (covariance \\Sigma).\nThe mixture weights: It estimates the proportion of the data that belongs to each cluster.\nThe assignment of each data point: It determines the probability of each data point belonging to each of the K clusters.",
     "crumbs": [
       "Models",
-      "Gaussian Mixture Models (GMM)"
+      "Gaussian Mixture Models"
     ]
   },
   {
@@ -2379,7 +2423,7 @@
     "text": "To discover group structures or clusters in data, we can use a Gaussian Mixture Model (GMM). This is a parametric 🛈 clustering method. A GMM assumes that the data is generated from a mixture of a pre-specified number (K) of different Gaussian distributions. The model’s goal is to figure out:\n\nThe properties of each of the K clusters: For each of the K clusters, it estimates its center (mean \\mu) and its shape/spread (covariance \\Sigma).\nThe mixture weights: It estimates the proportion of the data that belongs to each cluster.\nThe assignment of each data point: It determines the probability of each data point belonging to each of the K clusters.",
     "crumbs": [
       "Models",
-      "Gaussian Mixture Models (GMM)"
+      "Gaussian Mixture Models"
     ]
   },
   {
@@ -2390,7 +2434,7 @@
     "text": "Considerations\n\n\n\n\n\n\nCaution\n\n\n\n\nA GMM is a Bayesian model 🛈 that considers uncertainty in all its parameters, except for the number of clusters, K, which must be fixed in advance.\nThe key parameters and their priors are:\n\nNumber of Clusters K: This is a fixed hyperparameter that you must choose before running the model. Choosing the right K often involves running the model multiple times and using model comparison criteria (like cross-validation, AIC, or BIC).\nCluster Weights w: These are the probabilities of drawing a data point from any given cluster. Since there are a fixed number K of them and they must sum to 1, they are typically given a Dirichlet prior. A symmetric Dirichlet prior (e.g., Dirichlet(1, 1, ..., 1)) represents an initial belief that all clusters are equally likely.\nCluster Parameters (\\boldsymbol{\\mu}, \\Sigma): Each of the K clusters has a mean \\boldsymbol{\\mu} and a covariance matrix \\Sigma. We place priors on these to define our beliefs about their plausible values.\n\nLike the DPMM, the model is often implemented in its marginalized form 🛈. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.\nTo increase accuracy we run a k-means algorithm to initialize the cluster mean priors.",
     "crumbs": [
       "Models",
-      "Gaussian Mixture Models (GMM)"
+      "Gaussian Mixture Models"
     ]
   },
   {
@@ -2401,7 +2445,7 @@
     "text": "Example\nBelow is an example of a GMM implemented in BI. The goal is to cluster a synthetic dataset into a pre-specified K=4 groups.\n\nPythonR\n\n\nfrom BI import bi\nfrom sklearn.datasets import make_blobs\n\n# Generate synthetic data\ndata, true_labels = make_blobs(\n    n_samples=500, centers=8, cluster_std=0.8,\n    center_box=(-10,10), random_state=101\n)\n\n\n#  The model\ndef gmm(data, K, initial_means): # Here K is the *exact* number of clusters\n    D = data.shape[1]  # Number of features\n    alpha_prior = 0.5 * jnp.ones(K)\n    w = dist.dirichlet(concentration=alpha_prior, name='weights') \n\n    with dist.plate(\"components\", K): # Use fixed K\n        mu = dist.multivariatenormal(loc=initial_means, covariance_matrix=0.1*jnp.eye(D), name='mu')        \n        sigma = dist.halfcauchy(1, shape=(D,), event=1, name='sigma')\n        Lcorr = dist.lkjcholesky(dimension=D, concentration=1.0, name='Lcorr')\n\n        scale_tril = sigma[..., None] * Lcorr\n\n    dist.mixturesamefamily(\n        mixing_distribution=dist.categorical(probs=w, create_obj=True),\n        component_distribution=dist.multivariatenormal(loc=mu, scale_tril=scale_tril, create_obj=True),\n        name=\"obs\",\n        obs=data\n    )\n\nm.data_on_model = {\"data\": data,\"K\": 4 }\nm.fit(gmm) # Optimize model parameters through MCMC sampling\nm.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM",
     "crumbs": [
       "Models",
-      "Gaussian Mixture Models (GMM)"
+      "Gaussian Mixture Models"
     ]
   },
   {
@@ -2412,7 +2456,7 @@
     "text": "Mathematical Details\nThis section describes the generative process for a GMM. For each data point x_i, the model first selects one of the K clusters according to the weights w, and then draws the point from that cluster’s Gaussian distribution. \nz_i \\sim \\text{Categorical}(w)  \\text{for } i=1, \\dots, N \\\\\nx_i \\mid z_i=k \\sim \\text{MultivariateNormal}(\\mu_k, \\Sigma_k)  \\text{for } i=1, \\dots, N\n\n\nw \\sim \\text{Dirichlet}(\\alpha_0) \\quad \\text{(Mixture weights vector for K clusters)}\n\n\n\\mu_k \\sim \\text{MultivariateNormal}(\\mu_0, \\Sigma_0)  \\text{for } k=1, \\dots, K \\\\\n\\sigma_k \\sim \\text{HalfCauchy}(1)  \\text{for } k=1, \\dots, K \\\\\nL_{\\text{corr}, k} \\sim \\text{LKJCholesky}(D, 1.0)  \\text{for } k=1, \\dots, K \\\\\n\\Sigma_k = \\text{diag}(\\sigma_k) \\cdot L_{\\text{corr}, k} \\cdot L_{\\text{corr}, k}^T \\cdot \\text{diag}(\\sigma_k)\n\nParameter Definitions: * Observed Data: * x_i: The i-th observed D-dimensional data point.\n\nLatent Variables (Inferred):\n\nz_i: The integer cluster assignment for the i-th data point.\nw: The K-dimensional vector of mixture weights.\n\\mu_k: The D-dimensional mean vector of the k-th cluster.\n\\Sigma_k: The DxD covariance matrix of the k-th cluster (composed of \\sigma_k and L_{\\text{corr},k}).\n\nHyperparameters (Fixed):\n\nK: The total number of clusters.\n\\alpha_0: The concentration parameter vector for the Dirichlet prior on weights (e.g., [1, 1, ..., 1]).\n\\mu_0: The prior mean for the cluster centers.\n\\Sigma_0: The prior covariance for the cluster centers.",
     "crumbs": [
       "Models",
-      "Gaussian Mixture Models (GMM)"
+      "Gaussian Mixture Models"
     ]
   },
   {
@@ -2423,7 +2467,7 @@
     "text": "Notes\n\n\n\n\n\n\nNote\n\n\n\nThe primary challenge of the GMM compared to the DPMM is the need to manually specify the number of clusters K. If the chosen K is too small, the model may merge distinct clusters. If K is too large, it may split natural clusters into meaningless sub-groups. Therefore, applying a GMM often involves an outer loop of model selection where one fits the model for a range of K values and uses a scoring metric to select the best one.",
     "crumbs": [
       "Models",
-      "Gaussian Mixture Models (GMM)"
+      "Gaussian Mixture Models"
     ]
   },
   {
@@ -2434,7 +2478,7 @@
     "text": "Reference(s)\nC. M. Bishop (2006). Pattern Recognition and Machine Learning. Springer. (Chapter 9)",
     "crumbs": [
       "Models",
-      "Gaussian Mixture Models (GMM)"
+      "Gaussian Mixture Models"
     ]
   },
   {
@@ -2461,7 +2505,7 @@
   {
     "objectID": "2. Multiple continuous Variables.html",
     "href": "2. Multiple continuous Variables.html",
-    "title": "Multiple Linear Regression",
+    "title": "Multivariate Linear Regression",
     "section": "",
     "text": "To study relationships between multiple continuous independent variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend Linear Regression for continuous variable by adding a regression coefficient \\beta_x for each continuous variable (e.g., \\beta_{weight} and \\beta_{age}).",
     "crumbs": [
@@ -2472,7 +2516,7 @@
   {
     "objectID": "2. Multiple continuous Variables.html#general-principles",
     "href": "2. Multiple continuous Variables.html#general-principles",
-    "title": "Multiple Linear Regression",
+    "title": "Multivariate Linear Regression",
     "section": "",
     "text": "To study relationships between multiple continuous independent variables (e.g., the effect of weight and age on height), we can use a multiple regression approach. Essentially, we extend Linear Regression for continuous variable by adding a regression coefficient \\beta_x for each continuous variable (e.g., \\beta_{weight} and \\beta_{age}).",
     "crumbs": [
@@ -2483,7 +2527,7 @@
   {
     "objectID": "2. Multiple continuous Variables.html#considerations",
     "href": "2. Multiple continuous Variables.html#considerations",
-    "title": "Multiple Linear Regression",
+    "title": "Multivariate Linear Regression",
     "section": "Considerations",
     "text": "Considerations\n\n\n\n\n\n\nNote\n\n\n\n\nWe have the same considerations as for the Regression for continuous variable.\nThe model interpretation of the regression coefficients \\beta_x is considered for fixed values of the other independent variable(s)’ regression coefficients—i.e., for a given age, \\beta_{weight} represents the expected change in the dependent variable (height) for each one-unit increase in weight, holding all other variables (e.g., age) constant.",
     "crumbs": [
@@ -2494,7 +2538,7 @@
   {
     "objectID": "2. Multiple continuous Variables.html#example",
     "href": "2. Multiple continuous Variables.html#example",
-    "title": "Multiple Linear Regression",
+    "title": "Multivariate Linear Regression",
     "section": "Example",
     "text": "Example\nBelow is example code demonstrating Bayesian multiple linear regression using the Bayesian Inference (BI) package. Data consist of three continuous variables (height, weight, age), and the goal is to estimate the effect of weight and age on height. This example is based on McElreath (2018).\n\nPythonR\n\n\nfrom BI import bi\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Import Data & Data Manipulation ------------------------------------------------\nfrom importlib.resources import files\n# Import\ndata_path = files('BI.resources.data') / 'Howell1.csv'\nm.data(data_path, sep=';') \nm.df = m.df[m.df.age &gt; 18] # Subset data to adults\nm.scale(['weight', 'age']) # Normalize\n\n# Define model ------------------------------------------------\ndef model(height, weight, age):\n    # Parameter prior distributions\n    alpha = m.dist.normal(0, 0.5, name = 'alpha')    \n    beta1 = m.dist.normal(0, 0.5, name = 'beta1')\n    beta2 = m.dist.normal(0, 0.5, name = 'beta2')\n    sigma = m.dist.uniform(0, 50, name = 'sigma')\n    # Likelihood\n    m.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)\n\n# Run MCMC ------------------------------------------------\nm.fit(model) # Optimize model parameters through MCMC sampling\n\n# Summary ------------------------------------------------\nm.summary()\n\n\nlibrary(BI)\nm=importbi(platform='cpu')\n\n# Import Data & Data Manipulation ------------------------------------------------\nm$data(paste(system.file(package = \"BI\"),\"/data/Howell1.csv\", sep = ''), sep=';')# Import\nm$df = m$df[m$df$age &gt; 18,] # Subset data to adults\nm$scale(list('weight', 'age')) # Normalize\nm$data_to_model(list('weight', 'height', 'age')) # Send to model (convert to jax array)\n\n# Define model ------------------------------------------------\nmodel &lt;- function(height, weight, age){\n  # Parameter prior distributions\n  alpha = bi.dist.normal(0, 0.5, name = 'a')\n  beta1 = bi.dist.normal(0, 0.5, name = 'b1')\n  beta2 = bi.dist.normal(0, 0.5, name = 'b2')   \n  sigma = bi.dist.uniform(0, 50, name = 's')\n  # Likelihood\n  m$normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)\n}\n\n# Run MCMC ------------------------------------------------\nm$fit(model) # Optimize model parameters through MCMC sampling\n\n# Summary ------------------------------------------------\nm$summary() # Get posterior distributions",
     "crumbs": [
@@ -2505,7 +2549,7 @@
   {
     "objectID": "2. Multiple continuous Variables.html#mathematical-details",
     "href": "2. Multiple continuous Variables.html#mathematical-details",
-    "title": "Multiple Linear Regression",
+    "title": "Multivariate Linear Regression",
     "section": "Mathematical Details",
     "text": "Mathematical Details\n\nFrequentist formulation\nWe model the relationship between the independent variables (X_{1i}, X_{2i}, ..., X_{[K,i]}) and the dependent variable Y using the following equation:\n\n𝑌_i = \\alpha +\\beta_1  𝑋_{[1,i]} + \\beta_2  𝑋_{[2,i]} + ... + \\beta_n  𝑋_{[K,i]} + \\epsilon_i\n\nWhere:\n\nY_i is the dependent variable for observation i.\n\\alpha is the intercept term.\nX_{[1,i]}, X_{[2,i]}, …, X_{[K,i]} are the values of the independent variables for observation i.\n\\beta_1, \\beta_2, …, \\beta_K are the regression coefficients.\n\\epsilon_i is the error term for observation i, and the vector of the error terms, \\epsilon, are assumed to be independent and identically distributed.\n\n\n\nBayesian formulation\nIn the Bayesian formulation, we define each parameter with priors 🛈. We can express the Bayesian model as follows:\n\n𝑌_i \\sim \\text{Normal}(\\alpha + \\sum_{k=1}^K  \\beta_k  X_{[K,i]}, σ)\n\n\n\\alpha \\sim \\text{Normal}(0,1)\n\n\n\\beta_k \\sim \\text{Normal}(0,1)\n\n\nσ \\sim \\text{Uniform}(0, 50)\n\nWhere:\n\nY_i is the dependent variable for observation i.\n\\alpha is the intercept term, which in this case has a unit-normal prior.\n\\beta_k are slope coefficients for the K distinct independent variables, which also have unit-normal priors.\nX_{[1,i]}, X_{[2,i]}, …, X_{[K,i]} are the values of the independent variables for observation i.\n\\sigma is a standard deviation parameter, which here has a Uniform prior that constrains it to be positive.",
     "crumbs": [
@@ -2516,7 +2560,7 @@
   {
     "objectID": "2. Multiple continuous Variables.html#references",
     "href": "2. Multiple continuous Variables.html#references",
-    "title": "Multiple Linear Regression",
+    "title": "Multivariate Linear Regression",
     "section": "Reference(s)",
     "text": "Reference(s)\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian Course with Examples in r and Stan. Chapman; Hall/CRC.",
     "crumbs": [
@@ -2600,5 +2644,147 @@
       "Models",
       "Gaussian Processes"
     ]
+  },
+  {
+    "objectID": "19. PCA.html#example",
+    "href": "19. PCA.html#example",
+    "title": "Principal Component Analysis",
+    "section": "Example",
+    "text": "Example\nHere is an example code snippet demonstrating Bayesian PCA using BI:\n\nStandard PCAPCA with ARDRobust PCASparse PCASparse robust PCA with ARD\n\n\ndef model(x_train, data_dim, latent_dim, num_datapoints): \n    # Gaussian prior for the principal component 'W'.\n    w = m.dist.normal(0, 1, shape=(data_dim, latent_dim), name='w')\n\n    # Gaussian prior on the latent variables 'Z'\n    z = m.dist.normal(0, 1, shape=(latent_dim, num_datapoints), name='z')\n\n    # Exponential prior on the noise variance 'epsilon'\n    epsilon = m.dist.exponential(1, name='epsilon')\n\n    # Likelihood\n    m.dist.normal(w @ z , epsilon, obs = x_train)  \n\nm.data_on_model = dict(\n    x_train=x_train_h,\n    data_dim=data_dim,\n    latent_dim=4,\n    num_datapoints=num_datapoints\n)\nm.fit(model)\n\n\n\nfrom BI import bi\nimport jax.numpy as jnp\n\nm = bi(platform='cpu')\n\ndef model_ARD(X, data_dim, latent_dim, num_datapoints):\n    # --- Automatic Dimensionality Selection using an ARD Prior ---\n    # There is one 'alpha' for each latent dimension.\n    # This 'alpha' acts as a prior on the \"relevance\" of each principal component. A large alpha will signal low relevance.\n    alpha = m.dist.gamma(.05, 1e-3, shape=(latent_dim,), name='alpha')\n\n    # Gaussian prior for the principal component 'W'.\n    # The precision (1 / variance) of the weights for each component is controlled by its corresponding 'alpha'.\n    w = m.dist.normal(0, 1. / jnp.sqrt(alpha)[None, :], shape=(data_dim, latent_dim), name='w')\n\n    # Gaussian prior on the latent variables 'Z'\n    z = m.dist.normal(0, 1., shape=(latent_dim, num_datapoints), name='z')\n\n    # Noise model\n    # We assume the noise is Gaussian, but we don't know its variance. So, we place a Gamma prior on the precision (1 / variance) to learn it from the data.\n    precision = m.dist.gamma(1.0, 1.0, name='precision')\n    # We convert the learned precision into a standard deviation for use in the likelihood.\n    stddv = 1. / jnp.sqrt(precision)\n\n    # Likelihood\n    # 'X' is modeled as a linear projection of the latents (w @ z) plus Gaussian noise.\n    m.dist.normal(w @ z, stddv, obs=X)\n\nm.data_on_model = dict(\n    x_train=x_train_h,\n    data_dim=data_dim,\n    latent_dim=4,\n    num_datapoints=num_datapoints\n)\nm.fit(model_ARD)\nm.summary()\n\n\ndef model_robust(x_train, data_dim, latent_dim, num_datapoints):\n    \"\"\"\n    Robust Bayesian PCA model using a Student's t-distribution for the likelihood.\n    \"\"\"\n    # --- Standard Priors for W and Z ---\n    w = m.dist.normal(0, 1., shape=(data_dim, latent_dim), name='w')\n    z = m.dist.normal(0, 1., shape=(latent_dim, num_datapoints), name='z')\n\n    # --- Robustness to Outliers via a Heavy-Tailed Noise Model ---\n    # This defines the prior on the scale (similar to standard deviation) of the noise.\n    sigma = m.dist.halfcauchy(1.0, name='sigma')\n\n    # This is a prior on the \"degrees of freedom\" ('nu') of the Student's t-distribution.\n    # This parameter controls the \"heaviness\" of the tails. A small 'nu' means\n    # heavier tails, making the model more robust to outliers. By learning this\n    # parameter, the model can adapt its robustness to the data.\n    nu = m.dist.gamma(2.0, 0.1, name='nu')\n\n    # This is the key line for this model. The likelihood is a Student's t-distribution.\n    # As your description states, this \"heavy-tailed distribution... reduces the\n    # influence of outliers\" by treating them as more plausible events than a\n    # Gaussian distribution would, thus preventing them from skewing the results.\n    m.dist.studentt(df=nu, loc=w @ z, scale=sigma, obs=x_train)\n\nm.data_on_model = dict(\n    x_train=x_train_h,\n    data_dim=data_dim,\n    latent_dim=4,\n    num_datapoints=num_datapoints\n)\nm.fit(model_robust)\nm.summary()\n\n\ndef model_sparse(x_train, data_dim, latent_dim, num_datapoints):\n    \"\"\"\n    Sparse Bayesian PCA model using a Laplace prior on the weights (w).\n    \"\"\"\n    # --- Sparsity for High-Dimensional Data via a Sparsity-Inducing Prior ---\n\n    # This is the first part of a hierarchical prior (known as the Bayesian Lasso).\n    # We place a prior on 'lambda_', which will control the scale of our Laplace prior.\n    # This allows the model to learn the appropriate level of sparsity from the data.\n    lambda_ = m.dist.gamma(1.0, 1.0, shape=(latent_dim,), name='lambda')\n\n    # This is the key line for this model. We place a Laplace prior on the loadings 'W'.\n    # As your description states, this is a \"sparsity-inducing prior\". The Laplace\n    # distribution is sharply peaked at zero, which encourages many of the weight\n    # values in 'W' to be exactly zero, leading to \"more interpretable results\".\n    w = m.dist.laplace(0., 1. / lambda_[None, :], shape=(data_dim, latent_dim), name='w')\n\n    # --- Standard Model Components ---\n    \n    # We place a standard Gaussian prior on the latent variables 'Z', as described\n    # in the note: \"We place Gaussian priors on both Z and W...\".\n    z = m.dist.normal(0., 1., shape=(latent_dim, num_datapoints), name='z')\n    \n    # This section defines the standard Gaussian noise model, which is separate\n    # from the sparsity-inducing prior on the weights.\n    precision = m.dist.gamma(1.0, 1.0, name='precision')\n    stddv = 1. / jnp.sqrt(precision)\n\n    # This is the standard likelihood, same as in the ARD model. The generative story\n    # is unchanged, but the prior on 'W' now enforces the desired sparsity property.\n    m.dist.normal(w @ z, stddv, obs=x_train)\n\nm.data_on_model = dict(\n    x_train=x_train_h,\n    data_dim=data_dim,\n    latent_dim=4,\n    num_datapoints=num_datapoints\n)\nm.fit(model_sparse)\nm.summary()\n\n\n\ndef model_sparse_robust_ard(x_train, data_dim, latent_dim, num_datapoints):\n    \"\"\"\n    A combined Sparse, Robust Bayesian PCA model with Automatic Relevance Determination (ARD).\n\n    - Sparsity: Achieved with a Laplace prior on the weights 'w'.\n    - Robustness: Achieved with a Student's t-distribution for the likelihood.\n    - ARD: Achieved by placing a hierarchical prior on the scale of the Laplace\n      distribution, allowing entire latent dimensions to be pruned.\n    \"\"\"\n    # --- ARD and Sparsity-Inducing Prior on w ---\n    \n    # This is the ARD component. We define a relevance parameter 'lambda_' for each\n    # latent dimension. A large lambda will signal that the corresponding\n    # component is not relevant and should be shrunk away.\n    # The Gamma prior ensures lambda_ is positive.\n    lambda_ = m.dist.gamma(1.0, 1.0, shape=(latent_dim,), name='lambda')\n\n    # This is the Sparsity component. We use a Laplace prior for the weights 'w'.\n    # The COMBINED effect happens here: the scale of the Laplace distribution is\n    # controlled by the ARD parameter 'lambda_'. If a component is irrelevant\n    # (large lambda_), the scale becomes small, and the Laplace prior aggressively\n    # forces the weights in that column of 'w' to zero.\n    # This gives us both sparsity and automatic dimensionality selection.\n    w = m.dist.laplace(0., 1. / lambda_[None, :], shape=(data_dim, latent_dim), name='w')\n\n    # --- Standard Prior for Z ---\n    \n    # The prior on the latent variables 'Z' remains a standard Gaussian.\n    z = m.dist.normal(0., 1., shape=(latent_dim, num_datapoints), name='z')\n\n    # --- Robustness to Outliers via a Heavy-Tailed Noise Model ---\n    \n    # Prior on the scale of the Student's t-distribution.\n    sigma = m.dist.halfcauchy(1.0, name='sigma')\n\n    # Prior on the degrees of freedom 'nu', which controls the robustness.\n    nu = m.dist.gamma(2.0, 0.1, name='nu')\n\n    # The likelihood is the Student's t-distribution, which makes the entire\n    # model robust to outliers in the observed data 'x_train'.\n    m.dist.studentt(df=nu, loc=w @ z, scale=sigma, obs=x_train)\n\nm.data_on_model = dict(\n    x_train=x_train_h,\n    data_dim=data_dim,\n    latent_dim=4,\n    num_datapoints=num_datapoints\n)\nm.fit(model_sparse_robust_ard)\nm.summary()",
+    "crumbs": [
+      "Models",
+      "Principal Component Analysis"
+    ]
+  },
+  {
+    "objectID": "19. PCA.html#end-of-corrected-section",
+    "href": "19. PCA.html#end-of-corrected-section",
+    "title": "Principal Component Analysis",
+    "section": "(End of Corrected Section)",
+    "text": "(End of Corrected Section)\n\n4. Correction for “Note” on Sign Ambiguity\nYour explanation is correct, but the code snippet will only work if the parameters are scalars. For PCA loadings (W), you need to align each principal component (column) individually.\nSuggested Code Snippet Replacement:\n# Assume true_W and estimated_W are both (D, K) matrices\n# D = data_dim, K = latent_dim\ntrue_W = ...\nestimated_W = ...\n\naligned_W = estimated_W.copy()\n\n# Iterate through each principal component (column)\nfor k in range(latent_dim):\n    # Compute dot product for this component\n    dot_product = jnp.dot(true_W[:, k], aligned_W[:, k])\n    \n    # Align sign if necessary\n    if dot_product &lt; 0:\n        aligned_W[:, k] = -aligned_W[:, k]\n\n# Now aligned_W has its columns' signs aligned with true_W\n# You can proceed with plotting or comparison\nprint(\"Signs aligned.\")",
+    "crumbs": [
+      "Models",
+      "Principal Component Analysis"
+    ]
+  },
+  {
+    "objectID": "19. PCA.html#mathematical-details-1",
+    "href": "19. PCA.html#mathematical-details-1",
+    "title": "Principal Component Analysis",
+    "section": "Mathematical Details",
+    "text": "Mathematical Details\nWe assume the observed data matrix X is centered and arranged with features as rows and samples as columns, X \\in \\mathbb{R}^{D \\times N}. The generative model projects the data into a lower-dimensional space with K latent variables, K \\ll D. : \nX_{dn} \\sim \\text{Normal}((WZ)_{dn}, \\sigma)\n\nwhere :\n\nX is the observed data matrix.\nZ \\in \\mathbb{R}^{N \\times K} is the latent variable matrix (latent features) with K \\ll D. Z is defined by a Normal distribution with mean 0 and variance 1.\nW \\in \\mathbb{R}^{D \\times K} is the matrix of principal components (projection matrix). W is defined by a Normal distribution with mean 0 and variance 1.\n\\epsilon \\in \\mathbb{R}^{N \\times D} is Gaussian noise matrix, assumed to be normally distributed centered at 0 as data is assumed to be centered.\n\nThe likelihood and priors are defined element-wise for d=1...D, n=1...N, and k=1...K. for the following models:\n\nStandard PCA\n\nX_{dn} \\sim \\text{Normal}((WZ)_{dn}, \\sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Normal}(0, 1)\n \n\\sigma \\sim \\text{Exponential}(1)\n\n\n\nPCA with ARD\nIn PCA with Automatic Relevance Determination (ARD), the variance of the prior on each column of W is controlled by a unique relevance parameter \\alpha_k.\n\nX_{dn} \\sim \\text{Normal}((WZ)_{dn}, \\sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Normal}(0, \\alpha_k^{-1})\n \n\\alpha_k \\sim \\text{Gamma}(0.05, 10^{-3})\n\n\n\\sigma \\sim \\text{Normal}(0, \\tau^{-1})\n\n\n\\tau \\sim \\text{Gamma}(1, 1)\n\nWhere:\n\n\\alpha \\in \\mathbb{R}^{K} is the relevance parameter vector. Each element \\alpha_k controls the precision (inverse variance) of the weights for the k-th principal component. If a component is not supported by the data, its corresponding \\alpha_k will become large, forcing the weights in the k-th column of W towards zero and effectively “switching off” that component.\n\\tau is the noise precision (inverse variance) of the data.\n\n\n\nRobust PCA\nIn Robust PCA, the model is modified to handle outliers by using a heavy-tailed distribution for the likelihood:\n\nX_{dn} \\sim \\text{StudentT}(\\nu, (WZ)_{dn}, \\sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Normal}(0, 1)\n \n\\nu \\sim \\text{Gamma}(2, 0.1)\n \n\\sigma \\sim \\text{HalfCauchy}(1)\n\nWhere:\n\n\\nu is the degrees of freedom of the Student’s t-distribution. It controls the “heaviness” of the tails. Small values of \\nu lead to greater robustness. By placing a prior on it, we allow the model to learn the appropriate level of robustness from the data.\n\\sigma is the scale parameter of the Student’s t-distribution, which is analogous to the standard deviation in a Normal distribution.\n\n\n\nSparse PCA\nIn Sparse PCA, a Laplace prior is placed on the weights W to induce sparsity.\n\nX_{dn} \\sim \\text{Normal}((WZ)_{dn}, sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Laplace}(0, \\lambda_k^{-1})\n \n\\lambda_k \\sim \\text{Gamma}(1, 1)\n\n\n\\sigma \\sim \\text{Normal}(0, \\tau^{-1})\n \n\\tau \\sim \\text{Gamma}(1, 1)\n\nwhere:\n\n\\lambda \\in \\mathbb{R}^{K} is the sparsity control vector. Each element \\lambda_k is the rate parameter (inverse scale) for the Laplace prior on the k-th column of W. A larger \\lambda_k enforces stronger sparsity on that component.\n\\tau is the noise precision (inverse variance) of the data.\n\n\n\nSparse Robust PCA with ARD\nThis model combines all three features: a sparsity-inducing prior, a robust likelihood, and automatic relevance determination.\n\nX_{dn} \\sim \\text{StudentT}(\\nu, (WZ)_{dn}, \\sigma)\n \nZ_{kn} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Laplace}(0, \\lambda_k^{-1}) \\quad \\text{for each column } k\n \n\\lambda_k \\sim \\text{Gamma}(1, 1) \\quad (\\text{ARD and sparsity control})\n \n\\nu \\sim \\text{Gamma}(2, 0.1) \\quad (\\text{degrees of freedom})\n \n\\sigma \\sim \\text{HalfCauchy}(1) \\quad (\\text{scale})",
+    "crumbs": [
+      "Models",
+      "Principal Component Analysis"
+    ]
+  },
+  {
+    "objectID": "19. PCA.html#mathematical-details-2",
+    "href": "19. PCA.html#mathematical-details-2",
+    "title": "Principal Component Analysis",
+    "section": "Mathematical Details",
+    "text": "Mathematical Details\nWe assume the observed data matrix X is arranged with samples as rows and features as columns, X \\in \\mathbb{R}^{N \\times D}. The generative model is:\n\nX = ZW^T + \\epsilon\n\nwhere Z \\in \\mathbb{R}^{N \\times K} is the latent variable matrix, W \\in \\mathbb{R}^{D \\times K} is the loading matrix, and \\epsilon \\in \\mathbb{R}^{N \\times D} is the noise matrix.\n\nStandard PCA\nThe likelihood and priors are defined element-wise for n=1...N, d=1...D, and k=1...K.\n\nX_{nd} \\sim \\text{Normal}((ZW^T)_{nd}, \\sigma^2)\n \nZ_{nk} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Normal}(0, 1)\n \n\\sigma^2 \\sim \\text{Exponential}(1)\n\n\n\nPCA with ARD\nThe prior on each column of W (each principal component) is controlled by a unique relevance parameter \\alpha_k.\n\nX_{nd} \\sim \\text{Normal}((ZW^T)_{nd}, \\tau^{-1})\n \nZ_{nk} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Normal}(0, \\alpha_k^{-1}) \\quad \\text{for each column } k\n \n\\alpha_k \\sim \\text{Gamma}(0.05, 10^{-3})\n \n\\tau \\sim \\text{Gamma}(1, 1) \\quad (\\text{noise precision})\n\n\n\nRobust PCA\nThe Gaussian likelihood is replaced with a heavy-tailed Student’s t-distribution.\n\nX_{nd} \\sim \\text{StudentT}(\\nu, (ZW^T)_{nd}, \\sigma)\n \nZ_{nk} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Normal}(0, 1)\n \n\\nu \\sim \\text{Gamma}(2, 0.1) \\quad (\\text{degrees of freedom})\n \n\\sigma \\sim \\text{HalfCauchy}(1) \\quad (\\text{scale})\n\n\n\nSparse PCA\nA Laplace prior is placed on the weights W to induce sparsity.\n\nX_{nd} \\sim \\text{Normal}((ZW^T)_{nd}, \\tau^{-1})\n \nZ_{nk} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Laplace}(0, \\lambda_k^{-1}) \\quad \\text{for each column } k\n \n\\lambda_k \\sim \\text{Gamma}(1, 1) \\quad (\\text{sparsity control})\n \n\\tau \\sim \\text{Gamma}(1, 1) \\quad (\\text{noise precision})\n\n\n\nSparse Robust PCA with ARD\nThis model combines all three features: a sparsity-inducing prior, a robust likelihood, and automatic relevance determination.\n\nX_{nd} \\sim \\text{StudentT}(\\nu, (ZW^T)_{nd}, \\sigma)\n \nZ_{nk} \\sim \\text{Normal}(0, 1)\n \nW_{dk} \\sim \\text{Laplace}(0, \\lambda_k^{-1}) \\quad \\text{for each column } k\n \n\\lambda_k \\sim \\text{Gamma}(1, 1) \\quad (\\text{ARD and sparsity control})\n \n\\nu \\sim \\text{Gamma}(2, 0.1) \\quad (\\text{degrees of freedom})\n \n\\sigma \\sim \\text{HalfCauchy}(1) \\quad (\\text{scale})",
+    "crumbs": [
+      "Models",
+      "Principal Component Analysis"
+    ]
+  },
+  {
+    "objectID": "8.Poisson mode with offset.html",
+    "href": "8.Poisson mode with offset.html",
+    "title": "Poisson Model with an Offset",
+    "section": "",
+    "text": "When we want to model count data, where the counts are observed over different periods or areas of exposure, we use a Poisson model with an offset. This is a type of generalized linear model used for modeling count data and contingency tables.\nAn offset is a predictor variable with a coefficient that is fixed at 1. It is used to account for the “exposure” variable, which represents the opportunity for an event to occur. For instance, if we are counting the number of sick individuals in different cities, the population of each city would be the exposure variable. A city with a larger population is expected to have more sick individuals. The offset accounts for this by essentially modeling the rate of events per unit of exposure."
+  },
+  {
+    "objectID": "8.Poisson mode with offset.html#general-principles",
+    "href": "8.Poisson mode with offset.html#general-principles",
+    "title": "Poisson Model with an Offset",
+    "section": "",
+    "text": "When we want to model count data, where the counts are observed over different periods or areas of exposure, we use a Poisson model with an offset. This is a type of generalized linear model used for modeling count data and contingency tables.\nAn offset is a predictor variable with a coefficient that is fixed at 1. It is used to account for the “exposure” variable, which represents the opportunity for an event to occur. For instance, if we are counting the number of sick individuals in different cities, the population of each city would be the exposure variable. A city with a larger population is expected to have more sick individuals. The offset accounts for this by essentially modeling the rate of events per unit of exposure."
+  },
+  {
+    "objectID": "8.Poisson mode with offset.html#considerations",
+    "href": "8.Poisson mode with offset.html#considerations",
+    "title": "Poisson Model with an Offset",
+    "section": "Considerations",
+    "text": "Considerations\n\n\n\n\n\n\nCaution\n\n\n\n\nThe dependent variable in a Poisson regression must be a non-negative count.\nThe exposure variable used as an offset cannot contain zeros.\nA key assumption of the Poisson distribution is that the mean and variance of the count variable are equal. If the variance is greater than the mean, a condition known as overdispersion, a Negative Binomial regression might be more appropriate.\nThe logarithm of the exposure variable is typically used as the offset. This is because Poisson regression models the logarithm of the expected count. By including the log of the exposure as an offset, we are effectively modeling the rate."
+  },
+  {
+    "objectID": "8.Poisson mode with offset.html#example",
+    "href": "8.Poisson mode with offset.html#example",
+    "title": "Poisson Model with an Offset",
+    "section": "Example",
+    "text": "Example\nBelow is an example of code that demonstrates a Bayesian Poisson regression with an offset. The data consists of the number of elephant aggressions (agressions), the age of the elephants (age), and the number of years they have been observed (years_obs). The goal is to model the rate of aggressions per year, accounting for the age of the elephants.\n\nPythonR\n\n\nfrom main import*\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Import Data & Data Manipulation ------------------------------------------------\n# Import\nfrom importlib.resources import files\ndata_path = files('BI.resources.data') / 'elephants.csv'\nm.data(data_path, sep=',') \nm.log(['years_obs']) # Log transform the exposure variable\nm.data_to_model(['agressions', 'age', \"log_years_obs\"]) # Send to model\n\n# Define model ------------------------------------------------\ndef model(agressions, age, log_years_obs):\n    a = m.bi.dist.normal(0, 1, name = 'a') \n    b = m.bi.dist.normal(0, 0.5, name = 'b')\n    log_lambda = a + b * age + log_years_obs # Add offset to the linear model\n    m.poisson(m.bi.numpy.exp(log_lambda), obs=agressions)\n\n\n# Run mcmc ------------------------------------------------\nm.fit(model) # Optimize model parameters through MCMC sampling\n\n# Summary ------------------------------------------------\nm.summary()\n\n\nlibrary(BI)\nm=importbi(platform='cpu')\n\n# Load csv file\nm$data(paste(system.file(package = \"BI\"),\"/data/elephants.csv\", sep = ''), sep=',')\nm$log(list('years_obs')) # Log transform the exposure variable\nm$data_to_model(list('agressions', 'age', 'log_years_obs')) # Send to model\n\n# Define model ------------------------------------------------\nmodel &lt;- function(agressions, age, log_years_obs){\n  # Parameter prior distributions\n  a = bi.dist.normal(0, 1, name = 'a')\n  b = bi.dist.normal(0, 0.5, name = 'b')\n  # Likelihood\n  log_lambda = a + b * age + log_years_obs # Add offset to the linear model\n  m$poisson(exp(log_lambda), obs=agressions)\n}\n\n# Run mcmc ------------------------------------------------\nm$fit(model) # Optimize model parameters through MCMC sampling\n\n# Summary ------------------------------------------------\nm$summary() # Get posterior distributions"
+  },
+  {
+    "objectID": "8.Poisson mode with offset.html#mathematical-details",
+    "href": "8.Poisson mode with offset.html#mathematical-details",
+    "title": "Poisson Model with an Offset",
+    "section": "Mathematical Details",
+    "text": "Mathematical Details\n\nFrequentist formulation\nWe model the relationship between the independent variables (X) and the expected count (λ) using the following equation:\n\n\\log(\\lambda_i) = \\alpha + \\beta X_i + \\log(\\text{exposure}_i)\n\nWhere:\n\n\\lambda_i is the expected count for observation i.\n\\alpha is the intercept term.\n\\beta is the regression coefficient for the independent variable.\nX_i is the value of the independent variable for observation i.\n\\log(\\text{exposure}_i) is the offset, which is the natural logarithm of the exposure for observation i.\n\nThe number of observed counts Y_i is assumed to follow a Poisson distribution with mean \\lambda_i:\n\nY_i \\sim \\text{Poisson}(\\lambda_i)\n\n\n\nBayesian formulation\nIn the Bayesian framework, we assign prior distributions to the model parameters. The model can be expressed as:\n\nY_i \\sim \\text{Poisson}(\\lambda_i)\n\n\n\\log(\\lambda_i) = \\alpha + \\beta X_i + \\log(\\text{exposure}_i)\n\n\n\\alpha \\sim \\text{Normal}(0,1)\n\n\n\\beta \\sim \\text{Normal}(0,1)\n\nWhere:\n\nY_i is the observed count for observation i.\n\\lambda_i is the expected count.\n\\alpha is the intercept with a unit-normal prior.\n\\beta is the slope coefficient with a unit-normal prior.\nX_i is the independent variable.\n\\log(\\text{exposure}_i) is the offset."
+  },
+  {
+    "objectID": "8.Poisson mode with offset.html#notes",
+    "href": "8.Poisson mode with offset.html#notes",
+    "title": "Poisson Model with an Offset",
+    "section": "Notes",
+    "text": "Notes\n\n\n\n\n\n\nNote\n\n\n\n\nThe use of an offset is crucial when the goal is to compare rates of events rather than absolute counts.\nIt is a common practice to use the natural logarithm of the exposure variable as the offset."
+  },
+  {
+    "objectID": "8.Poisson mode with offset.html#references",
+    "href": "8.Poisson mode with offset.html#references",
+    "title": "Poisson Model with an Offset",
+    "section": "Reference(s)",
+    "text": "Reference(s)"
+  },
+  {
+    "objectID": "8. Poisson mode with offset.html",
+    "href": "8. Poisson mode with offset.html",
+    "title": "Poisson Model with an Offset",
+    "section": "",
+    "text": "When we want to model count data, where the counts are observed over different periods or areas of exposure, we use a Poisson model with an offset. This is a type of generalized linear model used for modeling count data and contingency tables.\nAn offset is a predictor variable with a coefficient that is fixed at 1. It is used to account for the “exposure” variable, which represents the opportunity for an event to occur. For instance, if we are counting the number of sick individuals in different cities, the population of each city would be the exposure variable. A city with a larger population is expected to have more sick individuals. The offset accounts for this by essentially modeling the rate of events per unit of exposure."
+  },
+  {
+    "objectID": "8. Poisson mode with offset.html#general-principles",
+    "href": "8. Poisson mode with offset.html#general-principles",
+    "title": "Poisson Model with an Offset",
+    "section": "",
+    "text": "When we want to model count data, where the counts are observed over different periods or areas of exposure, we use a Poisson model with an offset. This is a type of generalized linear model used for modeling count data and contingency tables.\nAn offset is a predictor variable with a coefficient that is fixed at 1. It is used to account for the “exposure” variable, which represents the opportunity for an event to occur. For instance, if we are counting the number of sick individuals in different cities, the population of each city would be the exposure variable. A city with a larger population is expected to have more sick individuals. The offset accounts for this by essentially modeling the rate of events per unit of exposure."
+  },
+  {
+    "objectID": "8. Poisson mode with offset.html#considerations",
+    "href": "8. Poisson mode with offset.html#considerations",
+    "title": "Poisson Model with an Offset",
+    "section": "Considerations",
+    "text": "Considerations\n\n\n\n\n\n\nNote\n\n\n\n\nThe dependent variable in a Poisson regression must be a non-negative count.\nThe exposure variable used as an offset cannot contain zeros.\nA key assumption of the Poisson distribution is that the mean and variance of the count variable are equal. If the variance is greater than the mean, a condition known as overdispersion, a Negative Binomial regression might be more appropriate.\nThe logarithm of the exposure variable is typically used as the offset. This is because Poisson regression models the logarithm of the expected count. By including the log of the exposure as an offset, we are effectively modeling the rate."
+  },
+  {
+    "objectID": "8. Poisson mode with offset.html#example",
+    "href": "8. Poisson mode with offset.html#example",
+    "title": "Poisson Model with an Offset",
+    "section": "Example",
+    "text": "Example\nBelow is an example of code that demonstrates a Bayesian Poisson regression with an offset. The data consists of the number of elephant aggressions (agressions), the age of the elephants (age), and the number of years they have been observed (years_obs). The goal is to model the rate of aggressions per year, accounting for the age of the elephants.\n\nPythonR\n\n\nfrom main import*\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Import Data & Data Manipulation ------------------------------------------------\n# Import\nfrom importlib.resources import files\ndata_path = files('BI.resources.data') / 'elephants.csv'\nm.data(data_path, sep=',') \nm.log(['years_obs']) # Log transform the exposure variable\nm.data_to_model(['agressions', 'age', \"log_years_obs\"]) # Send to model\n\n# Define model ------------------------------------------------\ndef model(agressions, age, log_years_obs):\n    a = m.bi.dist.normal(0, 1, name = 'a') \n    b = m.bi.dist.normal(0, 0.5, name = 'b')\n    log_lambda = a + b * age + log_years_obs # Add offset to the linear model\n    m.poisson(m.bi.numpy.exp(log_lambda), obs=agressions)\n\n\n# Run mcmc ------------------------------------------------\nm.fit(model) # Optimize model parameters through MCMC sampling\n\n# Summary ------------------------------------------------\nm.summary()\n\n\nlibrary(BI)\nm=importbi(platform='cpu')\n\n# Load csv file\nm$data(paste(system.file(package = \"BI\"),\"/data/elephants.csv\", sep = ''), sep=',')\nm$log(list('years_obs')) # Log transform the exposure variable\nm$data_to_model(list('agressions', 'age', 'log_years_obs')) # Send to model\n\n# Define model ------------------------------------------------\nmodel &lt;- function(agressions, age, log_years_obs){\n  # Parameter prior distributions\n  a = bi.dist.normal(0, 1, name = 'a')\n  b = bi.dist.normal(0, 0.5, name = 'b')\n  # Likelihood\n  log_lambda = a + b * age + log_years_obs # Add offset to the linear model\n  m$poisson(exp(log_lambda), obs=agressions)\n}\n\n# Run mcmc ------------------------------------------------\nm$fit(model) # Optimize model parameters through MCMC sampling\n\n# Summary ------------------------------------------------\nm$summary() # Get posterior distributions"
+  },
+  {
+    "objectID": "8. Poisson mode with offset.html#mathematical-details",
+    "href": "8. Poisson mode with offset.html#mathematical-details",
+    "title": "Poisson Model with an Offset",
+    "section": "Mathematical Details",
+    "text": "Mathematical Details\n\nFrequentist formulation\nWe model the relationship between the independent variables (X) and the expected count (λ) using the following equation:\n\n\\log(\\lambda_i) = \\alpha + \\beta X_i + \\log(\\text{exposure}_i)\n\nWhere:\n\n\\lambda_i is the expected count for observation i.\n\\alpha is the intercept term.\n\\beta is the regression coefficient for the independent variable.\nX_i is the value of the independent variable for observation i.\n\\log(\\text{exposure}_i) is the offset, which is the natural logarithm of the exposure for observation i.\n\nThe number of observed counts Y_i is assumed to follow a Poisson distribution with mean \\lambda_i:\n\nY_i \\sim \\text{Poisson}(\\lambda_i)\n\n\n\nBayesian formulation\nIn the Bayesian framework, we assign prior distributions to the model parameters. The model can be expressed as:\n\nY_i \\sim \\text{Poisson}(\\lambda_i)\n\n\n\\log(\\lambda_i) = \\alpha + \\beta X_i + \\log(\\text{exposure}_i)\n\n\n\\alpha \\sim \\text{Normal}(0,1)\n\n\n\\beta \\sim \\text{Normal}(0,1)\n\nWhere:\n\nY_i is the observed count for observation i.\n\\lambda_i is the expected count.\n\\alpha is the intercept with a unit-normal prior.\n\\beta is the slope coefficient with a unit-normal prior.\nX_i is the independent variable.\n\\log(\\text{exposure}_i) is the offset."
+  },
+  {
+    "objectID": "8. Poisson mode with offset.html#notes",
+    "href": "8. Poisson mode with offset.html#notes",
+    "title": "Poisson Model with an Offset",
+    "section": "Notes",
+    "text": "Notes\n\n\n\n\n\n\nNote\n\n\n\n\nThe use of an offset is crucial when the goal is to compare rates of events rather than absolute counts.\nIt is a common practice to use the natural logarithm of the exposure variable as the offset."
+  },
+  {
+    "objectID": "8. Poisson mode with offset.html#references",
+    "href": "8. Poisson mode with offset.html#references",
+    "title": "Poisson Model with an Offset",
+    "section": "Reference(s)",
+    "text": "Reference(s)"
   }
 ]

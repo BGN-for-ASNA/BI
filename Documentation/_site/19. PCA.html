@@ -8,7 +8,7 @@
 
 <meta name="description" content="A dimensionality reduction technique to transform a large set of variables into a smaller one.">
 
-<title>Principal Component Analysis (PCA) – Bayesian Inference (BI)</title>
+<title>Principal Component Analysis – Bayesian Inference (BI)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -56,7 +56,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -375,7 +395,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./19. PCA.html">Principal Component Analysis (PCA)</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./19. PCA.html">Principal Component Analysis</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -402,7 +422,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./2. Multiple continuous Variables.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Linear Regression</span></a>
+ <span class="menu-text">Multivariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -436,8 +456,11 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">8. Poisson model with and offset.qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Poisson Model with an Offset</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
@@ -513,19 +536,19 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./19. PCA.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Principal Component Analysis (PCA)</span></a>
+ <span class="menu-text">Principal Component Analysis</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./20. GMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Gaussian Mixture Models (GMM)</span></a>
+ <span class="menu-text">Gaussian Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Process Mixture Models (DPMM)</span></a>
+ <span class="menu-text">Dirichlet Process Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -537,7 +560,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./23. Network with block model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Stochastic Block Models (SBM)</span></a>
+ <span class="menu-text">Stochastic Block Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -555,13 +578,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Bayesian Neural Networks (BNN)</span></a>
+ <span class="menu-text">Bayesian Neural Networks</span></a>
   </div>
 </li>
     </ul>
@@ -574,16 +597,16 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a>
-  <ul class="collapse">
-  <li><a href="#goal" id="toc-goal" class="nav-link" data-scroll-target="#goal">Goal:</a></li>
-  <li><a href="#use-cases" id="toc-use-cases" class="nav-link" data-scroll-target="#use-cases">Use Cases</a></li>
-  </ul></li>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a></li>
   <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations">Considerations</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#formulation" id="toc-formulation" class="nav-link" data-scroll-target="#formulation">Formulation</a></li>
+  <li><a href="#standard-pca-1" id="toc-standard-pca-1" class="nav-link" data-scroll-target="#standard-pca-1">Standard PCA</a></li>
+  <li><a href="#pca-with-ard-1" id="toc-pca-with-ard-1" class="nav-link" data-scroll-target="#pca-with-ard-1">PCA with ARD</a></li>
+  <li><a href="#robust-pca-1" id="toc-robust-pca-1" class="nav-link" data-scroll-target="#robust-pca-1">Robust PCA</a></li>
+  <li><a href="#sparse-pca-1" id="toc-sparse-pca-1" class="nav-link" data-scroll-target="#sparse-pca-1">Sparse PCA</a></li>
+  <li><a href="#sparse-robust-pca-with-ard-1" id="toc-sparse-robust-pca-with-ard-1" class="nav-link" data-scroll-target="#sparse-robust-pca-with-ard-1">Sparse Robust PCA with ARD</a></li>
   </ul></li>
   <li><a href="#note" id="toc-note" class="nav-link" data-scroll-target="#note">Note</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
@@ -596,7 +619,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Principal Component Analysis (PCA)</h1>
+<h1 class="title">Principal Component Analysis</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Dimensionality Reduction</div>
     <div class="quarto-category">Unsupervised Learning</div>
@@ -624,112 +647,339 @@ window.Quarto = {
 
 <section id="general-principles" class="level2">
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
-<p><strong>Principal Component Analysis (PCA)</strong> is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto the first coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.</p>
+<p><strong>Principal Component Analysis (PCA)</strong> <span class="citation" data-cites="tipping1999probabilistic">(<a href="#ref-tipping1999probabilistic" role="doc-biblioref">Tipping and Bishop 1999</a>)</span> is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto the first coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.</p>
 <p>In <strong>Bayesian PCA</strong>, uncertainty in the model parameters is explicitly taken into account by using a probabilistic framework. This allows us to not only estimate the principal components but also quantify the uncertainty around them and avoid overfitting by incorporating prior knowledge.</p>
-<section id="goal" class="level3">
-<h3 class="anchored" data-anchor-id="goal">Goal:</h3>
-<ul>
-<li><p><strong>Reduce dimensionality</strong> while retaining as much variance as possible.</p></li>
-<li><p><strong>Infer posterior distributions</strong> over the principal components, instead of point estimates, by incorporating prior distributions over the parameters.</p></li>
-</ul>
-</section>
-<section id="use-cases" class="level3">
-<h3 class="anchored" data-anchor-id="use-cases">Use Cases</h3>
-<ul>
-<li><p><strong>Dimensionality Reduction</strong>: Bayesian PCA is commonly used to reduce the dimensionality of high-dimensional datasets while incorporating uncertainty about the latent structure.</p></li>
-<li><p><strong>Data Visualization</strong>: By projecting data into a lower-dimensional space, PCA helps in visualizing high-dimensional datasets in 2D or 3D plots.</p></li>
-<li><p><strong>Noise Modeling</strong>: Bayesian PCA provides an advantage over classical PCA by explicitly modeling noise and accounting for uncertainty in the data.</p></li>
-<li><p><strong>Feature Extraction</strong>: The latent variables learned by Bayesian PCA can serve as new features for downstream tasks, such as classification or clustering.</p></li>
-<li><p><strong>Latent Variable Modeling</strong>: The latent variables learned by Bayesian PCA can serve as new features for downstream tasks, such as classification or clustering.</p></li>
-</ul>
-</section>
+<p>PCA is employed for <em>dimensionality reduction</em>, particularly in scenarios involving high-dimensional datasets, as it effectively reduces complexity while explicitly accounting for uncertainty in the underlying latent structure. This approach also plays a crucial role in <em>data visualization</em>, enabling the projection of intricate, high-dimensional data into more interpretable 2D or 3D representations. Additionally, PCA excels in <em>feature extraction</em>, where the latent variables it identifies can be repurposed as informative features for subsequent tasks, such as classification or clustering. By modeling latent variables, it further enhances the interpretability and utility of the data for a variety of analytical applications.</p>
 </section>
 <section id="considerations" class="level2">
 <h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
-<p>In <strong>Bayesian PCA</strong>, we assume prior distributions for the latent variables <em>Z</em> and the principal component loadings <em>W</em>. We place Gaussian priors on both <em>Z</em> and <em>W</em> and learn their posterior distributions using the observed data <em>X</em>.</p>
-<p>This approach differs from traditional PCA by allowing the posterior distributions to reflect uncertainty in the model parameters.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>In <strong>Bayesian PCA</strong>, we assume prior distributions for the latent variables <em>Z</em> and the principal component loadings <em>W</em>. We place Gaussian priors on both <em>Z</em> and <em>W</em> and learn their posterior distributions using the observed data <em>X</em>.</p></li>
+<li><p><strong>Robustness to Outliers:</strong> Standard PCA are sensitive to outliers due to the assumption of Gaussian noise. Robust variants of <strong>Robust Bayesian PCA</strong> address this by employing heavy-tailed distributions for the noise model, such as the Student’s t-distribution, which reduces the influence of outliers <span class="citation" data-cites="archambeau2006robust">(<a href="#ref-archambeau2006robust" role="doc-biblioref">Archambeau, Delannay, and Verleysen 2006</a>)</span>.</p></li>
+<li><p><strong>Automatic Dimensionality Selection:</strong> Through techniques like Automatic Relevance Determination (ARD), Bayesian PCA can automatically determine the effective dimensionality of the latent space. Priors are placed on the relevance of each principal component, and components that are not supported by the data are effectively “switched off’ <span class="citation" data-cites="bishop1998bayesian">(<a href="#ref-bishop1998bayesian" role="doc-biblioref">Bishop 1998</a>)</span>.</p></li>
+<li><p><strong>Sparsity for High-Dimensional Data:</strong> In high-dimensional settings, it is often desirable for the principal components to be influenced by only a subset of the original features, leading to more interpretable results. Sparse Bayesian PCA achieves this by placing sparsity-inducing priors (e.g., Laplacian or spike-and-slab priors) on the loading <span class="citation" data-cites="sigg2008expectation">(<a href="#ref-sigg2008expectation" role="doc-biblioref">Sigg and Buhmann 2008</a>)</span>.</p></li>
+</ul>
+</div>
+</div>
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Here is an example code snippet demonstrating Bayesian PCA using TensorFlow Probability:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> main <span class="im">import</span> <span class="op">*</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<p>Here is an example code snippet demonstrating Bayesian PCA using BI:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Standard PCA</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">PCA with ARD</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Robust PCA</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Sparse PCA</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-5" role="tab" aria-controls="tabset-1-5" aria-selected="false">Sparse robust PCA with ARD</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(x_train, data_dim, latent_dim, num_datapoints): </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Gaussian prior for the principal component 'W'.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(data_dim, latent_dim), name<span class="op">=</span><span class="st">'w'</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Data simulation -------------------------------------------</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"ggplot"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">'ignore'</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>num_datapoints <span class="op">=</span> <span class="dv">5000</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>data_dim <span class="op">=</span> <span class="dv">2</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>latent_dim <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>stddv_datapoints <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sim_data(data_dim, latent_dim, num_datapoints, stddv_datapoints, seed <span class="op">=</span> <span class="dv">0</span>): </span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(data_dim, latent_dim), name<span class="op">=</span><span class="st">'w'</span>, sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span>seed)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(latent_dim, num_datapoints), name<span class="op">=</span><span class="st">'z'</span>, sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span>seed)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> bi.dist.normal(w <span class="op">@</span> z, stddv_datapoints, name<span class="op">=</span><span class="st">'x'</span>, sample<span class="op">=</span><span class="va">True</span>, seed<span class="op">=</span>seed)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> w, z, x</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>actual_w, actual_z, x_train <span class="op">=</span>sim_data(data_dim, latent_dim, num_datapoints, stddv_datapoints, seed <span class="op">=</span> <span class="dv">20</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>plt.scatter(x_train[<span class="dv">0</span>, :], x_train[<span class="dv">1</span>, :], color<span class="op">=</span><span class="st">'blue'</span>, alpha<span class="op">=</span><span class="fl">0.1</span>)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>plt.axis([<span class="op">-</span><span class="dv">20</span>, <span class="dv">20</span>, <span class="op">-</span><span class="dv">20</span>, <span class="dv">20</span>])</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Dataset"</span>)</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Model using simulated data</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(x_train, data_dim, latent_dim, num_datapoints, stddv_datapoints, seed <span class="op">=</span> <span class="dv">0</span>): </span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(data_dim, latent_dim), name<span class="op">=</span><span class="st">'w'</span>)</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(latent_dim, num_datapoints), name<span class="op">=</span><span class="st">'z'</span>)</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    lk(<span class="st">'Y'</span>, Normal(w <span class="op">@</span> z, stddv_datapoints), obs <span class="op">=</span> x_train)  </span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    x_train <span class="op">=</span> x_train, </span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    data_dim <span class="op">=</span> data_dim, </span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    latent_dim <span class="op">=</span> latent_dim, </span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    num_datapoints <span class="op">=</span> num_datapoints, </span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    stddv_datapoints <span class="op">=</span> stddv_datapoints</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>real_data <span class="op">=</span> jnp.concatenate([actual_w.flatten(), actual_z.flatten()]) <span class="co"># concatenate the actual values of w and z</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>posteriors <span class="op">=</span> summary.iloc[:,<span class="dv">0</span>]</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>plt.plot(real_data, posteriors, marker<span class="op">=</span><span class="st">'o'</span>, linestyle<span class="op">=</span><span class="st">'None'</span>, color<span class="op">=</span><span class="st">'b'</span>, label<span class="op">=</span><span class="st">'Posteriors'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Gaussian prior on the latent variables 'Z'</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, shape<span class="op">=</span>(latent_dim, num_datapoints), name<span class="op">=</span><span class="st">'z'</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Exponential prior on the noise variance 'epsilon'</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    epsilon <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">'epsilon'</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(w <span class="op">@</span> z , epsilon, obs <span class="op">=</span> x_train)  </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    x_train<span class="op">=</span>x_train_h,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    data_dim<span class="op">=</span>data_dim,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    latent_dim<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    num_datapoints<span class="op">=</span>num_datapoints</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>m.fit(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model_ARD(X, data_dim, latent_dim, num_datapoints):</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Automatic Dimensionality Selection using an ARD Prior ---</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># There is one 'alpha' for each latent dimension.</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This 'alpha' acts as a prior on the "relevance" of each principal component. A large alpha will signal low relevance.</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.gamma(<span class="fl">.05</span>, <span class="fl">1e-3</span>, shape<span class="op">=</span>(latent_dim,), name<span class="op">=</span><span class="st">'alpha'</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Gaussian prior for the principal component 'W'.</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The precision (1 / variance) of the weights for each component is controlled by its corresponding 'alpha'.</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">1.</span> <span class="op">/</span> jnp.sqrt(alpha)[<span class="va">None</span>, :], shape<span class="op">=</span>(data_dim, latent_dim), name<span class="op">=</span><span class="st">'w'</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Gaussian prior on the latent variables 'Z'</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">1.</span>, shape<span class="op">=</span>(latent_dim, num_datapoints), name<span class="op">=</span><span class="st">'z'</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Noise model</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We assume the noise is Gaussian, but we don't know its variance. So, we place a Gamma prior on the precision (1 / variance) to learn it from the data.</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    precision <span class="op">=</span> m.dist.gamma(<span class="fl">1.0</span>, <span class="fl">1.0</span>, name<span class="op">=</span><span class="st">'precision'</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We convert the learned precision into a standard deviation for use in the likelihood.</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    stddv <span class="op">=</span> <span class="fl">1.</span> <span class="op">/</span> jnp.sqrt(precision)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 'X' is modeled as a linear projection of the latents (w @ z) plus Gaussian noise.</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(w <span class="op">@</span> z, stddv, obs<span class="op">=</span>X)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    x_train<span class="op">=</span>x_train_h,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    data_dim<span class="op">=</span>data_dim,</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    latent_dim<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    num_datapoints<span class="op">=</span>num_datapoints</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>m.fit(model_ARD)</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model_robust(x_train, data_dim, latent_dim, num_datapoints):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Robust Bayesian PCA model using a Student's t-distribution for the likelihood.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Standard Priors for W and Z ---</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">1.</span>, shape<span class="op">=</span>(data_dim, latent_dim), name<span class="op">=</span><span class="st">'w'</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">1.</span>, shape<span class="op">=</span>(latent_dim, num_datapoints), name<span class="op">=</span><span class="st">'z'</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Robustness to Outliers via a Heavy-Tailed Noise Model ---</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This defines the prior on the scale (similar to standard deviation) of the noise.</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.halfcauchy(<span class="fl">1.0</span>, name<span class="op">=</span><span class="st">'sigma'</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This is a prior on the "degrees of freedom" ('nu') of the Student's t-distribution.</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This parameter controls the "heaviness" of the tails. A small 'nu' means</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># heavier tails, making the model more robust to outliers. By learning this</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># parameter, the model can adapt its robustness to the data.</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    nu <span class="op">=</span> m.dist.gamma(<span class="fl">2.0</span>, <span class="fl">0.1</span>, name<span class="op">=</span><span class="st">'nu'</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This is the key line for this model. The likelihood is a Student's t-distribution.</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># As your description states, this "heavy-tailed distribution... reduces the</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># influence of outliers" by treating them as more plausible events than a</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Gaussian distribution would, thus preventing them from skewing the results.</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    m.dist.studentt(df<span class="op">=</span>nu, loc<span class="op">=</span>w <span class="op">@</span> z, scale<span class="op">=</span>sigma, obs<span class="op">=</span>x_train)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    x_train<span class="op">=</span>x_train_h,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    data_dim<span class="op">=</span>data_dim,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    latent_dim<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    num_datapoints<span class="op">=</span>num_datapoints</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>m.fit(model_robust)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model_sparse(x_train, data_dim, latent_dim, num_datapoints):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Sparse Bayesian PCA model using a Laplace prior on the weights (w).</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Sparsity for High-Dimensional Data via a Sparsity-Inducing Prior ---</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This is the first part of a hierarchical prior (known as the Bayesian Lasso).</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We place a prior on 'lambda_', which will control the scale of our Laplace prior.</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This allows the model to learn the appropriate level of sparsity from the data.</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> m.dist.gamma(<span class="fl">1.0</span>, <span class="fl">1.0</span>, shape<span class="op">=</span>(latent_dim,), name<span class="op">=</span><span class="st">'lambda'</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This is the key line for this model. We place a Laplace prior on the loadings 'W'.</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># As your description states, this is a "sparsity-inducing prior". The Laplace</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># distribution is sharply peaked at zero, which encourages many of the weight</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># values in 'W' to be exactly zero, leading to "more interpretable results".</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> m.dist.laplace(<span class="fl">0.</span>, <span class="fl">1.</span> <span class="op">/</span> lambda_[<span class="va">None</span>, :], shape<span class="op">=</span>(data_dim, latent_dim), name<span class="op">=</span><span class="st">'w'</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Standard Model Components ---</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We place a standard Gaussian prior on the latent variables 'Z', as described</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># in the note: "We place Gaussian priors on both Z and W...".</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> m.dist.normal(<span class="fl">0.</span>, <span class="fl">1.</span>, shape<span class="op">=</span>(latent_dim, num_datapoints), name<span class="op">=</span><span class="st">'z'</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This section defines the standard Gaussian noise model, which is separate</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># from the sparsity-inducing prior on the weights.</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    precision <span class="op">=</span> m.dist.gamma(<span class="fl">1.0</span>, <span class="fl">1.0</span>, name<span class="op">=</span><span class="st">'precision'</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    stddv <span class="op">=</span> <span class="fl">1.</span> <span class="op">/</span> jnp.sqrt(precision)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This is the standard likelihood, same as in the ARD model. The generative story</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># is unchanged, but the prior on 'W' now enforces the desired sparsity property.</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(w <span class="op">@</span> z, stddv, obs<span class="op">=</span>x_train)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    x_train<span class="op">=</span>x_train_h,</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    data_dim<span class="op">=</span>data_dim,</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    latent_dim<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    num_datapoints<span class="op">=</span>num_datapoints</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>m.fit(model_sparse)</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-5" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-5-tab">
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model_sparse_robust_ard(x_train, data_dim, latent_dim, num_datapoints):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">    A combined Sparse, Robust Bayesian PCA model with Automatic Relevance Determination (ARD).</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">    - Sparsity: Achieved with a Laplace prior on the weights 'w'.</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">    - Robustness: Achieved with a Student's t-distribution for the likelihood.</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">    - ARD: Achieved by placing a hierarchical prior on the scale of the Laplace</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">      distribution, allowing entire latent dimensions to be pruned.</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- ARD and Sparsity-Inducing Prior on w ---</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This is the ARD component. We define a relevance parameter 'lambda_' for each</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># latent dimension. A large lambda will signal that the corresponding</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># component is not relevant and should be shrunk away.</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The Gamma prior ensures lambda_ is positive.</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> m.dist.gamma(<span class="fl">1.0</span>, <span class="fl">1.0</span>, shape<span class="op">=</span>(latent_dim,), name<span class="op">=</span><span class="st">'lambda'</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This is the Sparsity component. We use a Laplace prior for the weights 'w'.</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The COMBINED effect happens here: the scale of the Laplace distribution is</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># controlled by the ARD parameter 'lambda_'. If a component is irrelevant</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># (large lambda_), the scale becomes small, and the Laplace prior aggressively</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># forces the weights in that column of 'w' to zero.</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This gives us both sparsity and automatic dimensionality selection.</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> m.dist.laplace(<span class="fl">0.</span>, <span class="fl">1.</span> <span class="op">/</span> lambda_[<span class="va">None</span>, :], shape<span class="op">=</span>(data_dim, latent_dim), name<span class="op">=</span><span class="st">'w'</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Standard Prior for Z ---</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The prior on the latent variables 'Z' remains a standard Gaussian.</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> m.dist.normal(<span class="fl">0.</span>, <span class="fl">1.</span>, shape<span class="op">=</span>(latent_dim, num_datapoints), name<span class="op">=</span><span class="st">'z'</span>)</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Robustness to Outliers via a Heavy-Tailed Noise Model ---</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Prior on the scale of the Student's t-distribution.</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.halfcauchy(<span class="fl">1.0</span>, name<span class="op">=</span><span class="st">'sigma'</span>)</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Prior on the degrees of freedom 'nu', which controls the robustness.</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    nu <span class="op">=</span> m.dist.gamma(<span class="fl">2.0</span>, <span class="fl">0.1</span>, name<span class="op">=</span><span class="st">'nu'</span>)</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The likelihood is the Student's t-distribution, which makes the entire</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># model robust to outliers in the observed data 'x_train'.</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    m.dist.studentt(df<span class="op">=</span>nu, loc<span class="op">=</span>w <span class="op">@</span> z, scale<span class="op">=</span>sigma, obs<span class="op">=</span>x_train)</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    x_train<span class="op">=</span>x_train_h,</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    data_dim<span class="op">=</span>data_dim,</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    latent_dim<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>    num_datapoints<span class="op">=</span>num_datapoints</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>m.fit(model_sparse_robust_ard)</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 <p><img src="pca1.png" class="img-fluid"></p>
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<section id="formulation" class="level3">
-<h3 class="anchored" data-anchor-id="formulation">Formulation</h3>
-<p>Given an observed data matrix <span class="math inline">X \in \mathbb{R}^{N \times D}</span> (where <em>N</em> is the number of samples and <em>D</em> is the number of dimensions), we assume the data is generated by a lower-dimensional latent variable model:</p>
+<p>We assume the observed data matrix <span class="math inline">X</span> is centered and arranged with features as rows and samples as columns, <span class="math inline">X \in \mathbb{R}^{D \times N}</span>. The generative model projects the data into a lower-dimensional space with <span class="math inline">K</span> latent variables, <span class="math inline">K \ll D</span>. : <span class="math display">
+X_{dn} \sim \text{Normal}((WZ)_{dn}, \sigma)
+</span></p>
+<p>where :</p>
+<ul>
+<li><p><span class="math inline">X</span> is the observed data matrix.</p></li>
+<li><p><span class="math inline">Z \in \mathbb{R}^{N \times K}</span> is the latent variable matrix (latent features) with <span class="math inline">K \ll D</span>. <span class="math inline">Z</span> is defined by a Normal distribution with mean 0 and variance 1.</p></li>
+<li><p><span class="math inline">W \in \mathbb{R}^{D \times K}</span> is the matrix of principal components (<em>projection matrix</em>). <span class="math inline">W</span> is defined by a Normal distribution with mean 0 and variance 1.</p></li>
+<li><p><span class="math inline">\epsilon \in \mathbb{R}^{N \times D}</span> is Gaussian noise matrix, assumed to be normally distributed centered at 0 as data is assumed to be centered.</p></li>
+</ul>
+<p>The likelihood and priors are defined element-wise for <span class="math inline">d=1...D</span>, <span class="math inline">n=1...N</span>, and <span class="math inline">k=1...K</span>. for the following models:</p>
+<section id="standard-pca-1" class="level3">
+<h3 class="anchored" data-anchor-id="standard-pca-1">Standard PCA</h3>
 <p><span class="math display">
-X = ZW^T + \epsilon
+X_{dn} \sim \text{Normal}((WZ)_{dn}, \sigma)
+</span> <span class="math display">
+Z_{kn} \sim \text{Normal}(0, 1)
+</span> <span class="math display">
+W_{dk} \sim \text{Normal}(0, 1)
+</span> <span class="math display">
+\sigma \sim \text{Exponential}(1)
+</span></p>
+</section>
+<section id="pca-with-ard-1" class="level3">
+<h3 class="anchored" data-anchor-id="pca-with-ard-1">PCA with ARD</h3>
+<p>In PCA with Automatic Relevance Determination (ARD), the variance of the prior on each column of <span class="math inline">W</span> is controlled by a unique relevance parameter <span class="math inline">\alpha_k</span>.</p>
+<p><span class="math display">
+X_{dn} \sim \text{Normal}((WZ)_{dn}, \sigma)
+</span> <span class="math display">
+Z_{kn} \sim \text{Normal}(0, 1)
+</span> <span class="math display">
+W_{dk} \sim \text{Normal}(0, \alpha_k^{-1})
+</span> <span class="math display">
+\alpha_k \sim \text{Gamma}(0.05, 10^{-3})
 </span></p>
 <p><span class="math display">
-Z \sim \mathcal{N}(0, I)
+\sigma \sim \text{Normal}(0, \tau^{-1})
 </span></p>
 <p><span class="math display">
-W \sim \mathcal{N}(0, I)
-</span></p>
-<p><span class="math display">
-\epsilon \sim \mathcal{N}(0, \sigma^2 I)
+\tau \sim \text{Gamma}(1, 1)
 </span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">X</span> is the observed data matrix.</p></li>
-<li><p><span class="math inline">Z \in \mathbb{R}^{N \times K}</span> is the latent variable matrix (latent features with <span class="math inline">K \ll D</span>). <span class="math inline">Z</span> is defined by a Normal distribution with mean 0 and variance 1.</p></li>
-<li><p><span class="math inline">W \in \mathbb{R}^{D \times K}</span> is the matrix of principal components (<em>projection matrix</em>). <span class="math inline">W</span> is defined by a Normal distribution with mean 0 and variance 1.</p></li>
-<li><p><span class="math inline">\epsilon</span> is Gaussian noise, assumed to be normally distributed: <span class="math inline">\epsilon \sim \mathcal{N}(0, \sigma^2 I)</span>.</p></li>
+<li><p><span class="math inline">\alpha \in \mathbb{R}^{K}</span> is the <strong>relevance parameter vector</strong>. Each element <span class="math inline">\alpha_k</span> controls the precision (inverse variance) of the weights for the <em>k</em>-th principal component. If a component is not supported by the data, its corresponding <span class="math inline">\alpha_k</span> will become large, forcing the weights in the <em>k</em>-th column of <span class="math inline">W</span> towards zero and effectively “switching off” that component.</p></li>
+<li><p><span class="math inline">\tau</span> is the <strong>noise precision</strong> (inverse variance) of the data.</p></li>
 </ul>
+</section>
+<section id="robust-pca-1" class="level3">
+<h3 class="anchored" data-anchor-id="robust-pca-1">Robust PCA</h3>
+<p>In Robust PCA, the model is modified to handle outliers by using a heavy-tailed distribution for the likelihood:</p>
+<p><span class="math display">
+X_{dn} \sim \text{StudentT}(\nu, (WZ)_{dn}, \sigma)
+</span> <span class="math display">
+Z_{kn} \sim \text{Normal}(0, 1)
+</span> <span class="math display">
+W_{dk} \sim \text{Normal}(0, 1)
+</span> <span class="math display">
+\nu \sim \text{Gamma}(2, 0.1)
+</span> <span class="math display">
+\sigma \sim \text{HalfCauchy}(1)
+</span></p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\nu</span> is the <strong>degrees of freedom</strong> of the Student’s t-distribution. It controls the “heaviness” of the tails. Small values of <span class="math inline">\nu</span> lead to greater robustness. By placing a prior on it, we allow the model to learn the appropriate level of robustness from the data.</p></li>
+<li><p><span class="math inline">\sigma</span> is the <strong>scale parameter</strong> of the Student’s t-distribution, which is analogous to the standard deviation in a Normal distribution.</p></li>
+</ul>
+</section>
+<section id="sparse-pca-1" class="level3">
+<h3 class="anchored" data-anchor-id="sparse-pca-1">Sparse PCA</h3>
+<p>In Sparse PCA, a Laplace prior is placed on the weights <span class="math inline">W</span> to induce sparsity.</p>
+<p><span class="math display">
+X_{dn} \sim \text{Normal}((WZ)_{dn}, sigma)
+</span> <span class="math display">
+Z_{kn} \sim \text{Normal}(0, 1)
+</span> <span class="math display">
+W_{dk} \sim \text{Laplace}(0, \lambda_k^{-1})
+</span> <span class="math display">
+\lambda_k \sim \text{Gamma}(1, 1)
+</span></p>
+<p><span class="math display">
+\sigma \sim \text{Normal}(0, \tau^{-1})
+</span> <span class="math display">
+\tau \sim \text{Gamma}(1, 1)
+</span></p>
+<p>where:</p>
+<ul>
+<li><p><span class="math inline">\lambda \in \mathbb{R}^{K}</span> is the <strong>sparsity control vector</strong>. Each element <span class="math inline">\lambda_k</span> is the rate parameter (inverse scale) for the Laplace prior on the <em>k</em>-th column of <span class="math inline">W</span>. A larger <span class="math inline">\lambda_k</span> enforces stronger sparsity on that component.</p></li>
+<li><p><span class="math inline">\tau</span> is the <strong>noise precision</strong> (inverse variance) of the data.</p></li>
+</ul>
+</section>
+<section id="sparse-robust-pca-with-ard-1" class="level3">
+<h3 class="anchored" data-anchor-id="sparse-robust-pca-with-ard-1">Sparse Robust PCA with ARD</h3>
+<p>This model combines all three features: a sparsity-inducing prior, a robust likelihood, and automatic relevance determination.</p>
+<p><span class="math display">
+X_{dn} \sim \text{StudentT}(\nu, (WZ)_{dn}, \sigma)
+</span> <span class="math display">
+Z_{kn} \sim \text{Normal}(0, 1)
+</span> <span class="math display">
+W_{dk} \sim \text{Laplace}(0, \lambda_k^{-1})
+</span> <span class="math display">
+\lambda_k \sim \text{Gamma}(1, 1)
+</span> <span class="math display">
+\nu \sim \text{Gamma}(2, 0.1)
+</span> <span class="math display">
+\sigma \sim \text{HalfCauchy}(1)
+</span></p>
 </section>
 </section>
 <section id="note" class="level2">
@@ -737,29 +987,42 @@ W \sim \mathcal{N}(0, I)
 <ul>
 <li>To account for <strong><span id="signAmbiguity"><span style="color:#0D6EFD">sign ambiguity 🛈</span></span></strong> in PCA, we can align the signs of the estimated parameters with the true parameters before comparison. To do this, calculate the dot product between the true and estimated parameters. If it is negative, multiply the estimated parameters by -1 to align them with the true parameters. Below, a code snippet highlights how to do this:</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>true_params <span class="op">=</span> jnp.array(real_data)      </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>estimated_params <span class="op">=</span> jnp.array(posteriors) </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute dot product</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>dot_product <span class="op">=</span> jnp.dot(true_params, estimated_params)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Align signs if necessary</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> dot_product <span class="op">&lt;</span> <span class="dv">0</span>:</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    estimated_params <span class="op">=</span> <span class="op">-</span>estimated_params</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the aligned parameters</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plt.scatter(true_params, estimated_params, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>plt.plot([<span class="bu">min</span>(true_params), <span class="bu">max</span>(true_params)], [<span class="bu">min</span>(true_params), <span class="bu">max</span>(true_params)], <span class="st">'r--'</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'True Parameters'</span>)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Estimated Parameters'</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'True vs. Estimated Parameters After Sign Alignment'</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>true_params <span class="op">=</span> jnp.array(real_data)      </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>estimated_params <span class="op">=</span> jnp.array(m.posteriors) </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute dot product</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>dot_product <span class="op">=</span> jnp.dot(true_params, estimated_params)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Align signs if necessary</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> dot_product <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    estimated_params <span class="op">=</span> <span class="op">-</span>estimated_params</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the aligned parameters</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>plt.scatter(true_params, estimated_params, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>plt.plot([<span class="bu">min</span>(true_params), <span class="bu">max</span>(true_params)], [<span class="bu">min</span>(true_params), <span class="bu">max</span>(true_params)], <span class="st">'r--'</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'True Parameters'</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Estimated Parameters'</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'True vs. Estimated Parameters After Sign Alignment'</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><img src="pca2.png" class="img-fluid"></p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p>https://www.tensorflow.org/probability/examples/Probabilistic_PCA</p>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-archambeau2006robust" class="csl-entry" role="listitem">
+Archambeau, Cédric, Nicolas Delannay, and Michel Verleysen. 2006. <span>“Robust Probabilistic Projections.”</span> In <em>Proceedings of the 23rd International Conference on Machine Learning</em>, 33–40.
+</div>
+<div id="ref-bishop1998bayesian" class="csl-entry" role="listitem">
+Bishop, Christopher. 1998. <span>“Bayesian Pca.”</span> <em>Advances in Neural Information Processing Systems</em> 11.
+</div>
+<div id="ref-sigg2008expectation" class="csl-entry" role="listitem">
+Sigg, Christian D, and Joachim M Buhmann. 2008. <span>“Expectation-Maximization for Sparse and Non-Negative PCA.”</span> In <em>Proceedings of the 25th International Conference on Machine Learning</em>, 960–67.
+</div>
+<div id="ref-tipping1999probabilistic" class="csl-entry" role="listitem">
+Tipping, Michael E, and Christopher M Bishop. 1999. <span>“Probabilistic Principal Component Analysis.”</span> <em>Journal of the Royal Statistical Society Series B: Statistical Methodology</em> 61 (3): 611–22.
+</div>
+</div>
 
 
 </section>
@@ -1633,8 +1896,8 @@ tippy('#LKJcorr', {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./20. GMM.html" class="pagination-link" aria-label="Gaussian Mixture Models (GMM)">
-        <span class="nav-page-text">Gaussian Mixture Models (GMM)</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./20. GMM.html" class="pagination-link" aria-label="Gaussian Mixture Models">
+        <span class="nav-page-text">Gaussian Mixture Models</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
