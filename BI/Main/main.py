@@ -148,7 +148,10 @@ class bi(manip):
             jit_model_args: Whether to JIT model arguments.
             seed: Random seed.
         """
-
+        if obs is None:
+            obs = self.data_on_model
+        else:
+            self.data_on_model = obs
 
 
         if model is None:
@@ -177,8 +180,25 @@ class bi(manip):
                 self.ml.KMEANS(self.data_on_model['data'], n_clusters=self.data_on_model['K'])
                 self.data_on_model['initial_means'] = self.ml.results['centroids']
 
-        # Handling static argument for varying effects
+        if self.model_name == 'pca':
+            self.model = model.get_model(model.type)
+            tmp = self.data_on_model.keys()
 
+            if 'X' not in tmp:
+                return print('X is required')
+            else:
+                self.data_on_model['X']=self.data_on_model['X'].T
+            if 'data_dim' not in tmp:
+                self.data_on_model['data_dim'] = self.data_on_model['X'].shape[0]
+            if 'latent_dim' not in tmp:
+                self.data_on_model['latent_dim'] = self.data_on_model['X'].shape[0]
+            if 'num_data_points' not in tmp:
+                self.data_on_model['num_data_points'] = self.data_on_model['X'].shape[1]
+            # Init pca class with data
+            self.models.pca=self.models.pca(
+                X = self.data_on_model['X'], 
+                latent_dim = self.data_on_model['latent_dim'],
+                type = model.type)  
 
         if self.backend == 'numpyro':
             from BI.Samplers.mcmc_numpyro import mcmc_numpyro
@@ -231,7 +251,13 @@ class bi(manip):
                 trace[name] = samp
             self.posteriors = trace
             self.get_history()
+        if self.model_name == 'pca':
+            self.models.pca.posterior = self.posteriors
+            self.models.pca.get_attributes(self.models.pca.X.T)
 
+
+
+    # Random number generator ----------------------------------------------------------------
     def randint(self, low, high, shape):
         """
         Generate random integers in the given range.

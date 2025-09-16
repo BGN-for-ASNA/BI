@@ -32,7 +32,26 @@ Here is an example code snippet demonstrating Bayesian PCA using BI:
 
 ::: {.panel-tabset group="language"}
 
-## Standard PCA 
+## Build in functions
+```python
+
+from BI import bi,jnp
+m=bi()
+m.data('iris.csv', sep=',') # Data is already scaled
+m.data_on_model = dict(
+    X=jnp.array(m.df.iloc[:,0:-2].values)
+)
+m.fit(m.models.pca(type="ARD"), progress_bar=False) # or robust, sparse, classic, sparse_robust_ard
+m.models.pca.plot(
+    X=m.df.iloc[:,0:-2].values,
+    y=m.df.iloc[:,-2].values, 
+    feature_names=m.df.columns[0:-2], 
+    target_names=m.df.iloc[:,-1].unique(),
+    color_var=m.df.iloc[:,0].values,
+    shape_var=m.df.iloc[:,-2].values
+)
+```
+## Standard  
 ```python
 def model(x_train, data_dim, latent_dim, num_datapoints): 
     # Gaussian prior for the principal component 'W'.
@@ -56,7 +75,7 @@ m.data_on_model = dict(
 m.fit(model)
 ```
 
-## PCA with ARD
+## With ARD
 ```python
 
 from BI import bi
@@ -97,7 +116,7 @@ m.fit(model_ARD)
 m.summary()
 ```
 
-## Robust PCA
+## Robust 
 ```python
 def model_robust(x_train, data_dim, latent_dim, num_datapoints):
     """
@@ -133,7 +152,7 @@ m.fit(model_robust)
 m.summary()
 ```
 
-## Sparse PCA
+## Sparse 
 ```python
 def model_sparse(x_train, data_dim, latent_dim, num_datapoints):
     """
@@ -177,7 +196,7 @@ m.fit(model_sparse)
 m.summary()
 ```
 
-## Sparse robust PCA with ARD
+## Sparse robust with ARD
 ```python
 
 def model_sparse_robust_ard(x_train, data_dim, latent_dim, num_datapoints):
@@ -230,11 +249,12 @@ m.data_on_model = dict(
 )
 m.fit(model_sparse_robust_ard)
 m.summary()
+
 ```
 :::
 
 
-![](pca1.png)
+
 
 ## Mathematical Details
 

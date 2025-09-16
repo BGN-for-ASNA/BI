@@ -66,8 +66,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./13. Varying intercepts.html" rel="next">
-<link href="./11. Zero inflated.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -152,7 +150,7 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.scss">
+<link rel="stylesheet" href="MyStyles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
@@ -402,7 +400,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./2. Multiple continuous Variables.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multiple Linear Regression</span></a>
+ <span class="menu-text">Multivariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -436,8 +434,11 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">8. Poisson model with and offset.qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Poisson Model with an Offset</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
@@ -513,19 +514,19 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./19. PCA.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Principal Component Analysis (PCA)</span></a>
+ <span class="menu-text">Principal Component Analysis</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./20. GMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Gaussian Mixture Models (GMM)</span></a>
+ <span class="menu-text">Gaussian Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Process Mixture Models (DPMM)</span></a>
+ <span class="menu-text">Dirichlet Process Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -537,7 +538,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./23. Network with block model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Stochastic Block Models (SBM)</span></a>
+ <span class="menu-text">Stochastic Block Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -555,13 +556,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis (NBDA)</span></a>
+ <span class="menu-text">Network-Based Diffusion Analysis</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Bayesian Neural Networks (BNN)</span></a>
+ <span class="menu-text">Bayesian Neural Networks</span></a>
   </div>
 </li>
     </ul>
@@ -656,50 +657,99 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'mastectomy.csv'</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>m.df.metastasized <span class="op">=</span> (m.df.metastasized <span class="op">==</span> <span class="st">"yes"</span>).astype(np.int64)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>m.df.event <span class="op">=</span> jnp.array(m.df.event.values, dtype<span class="op">=</span>jnp.int32)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">## Create survival object</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>m.surv_object(time<span class="op">=</span><span class="st">'time'</span>, event<span class="op">=</span><span class="st">'event'</span>, cov<span class="op">=</span><span class="st">'metastasized'</span>, interval_length<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot censoring ------------------------------------------------</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m.plot_censoring(cov<span class="op">=</span><span class="st">'metastasized'</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Model ------------------------------------------------</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(intervals, death, metastasized, exposure):</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameter prior distributions-------------------------</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Base hazard distribution</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    lambda0 <span class="op">=</span> m.dist.gamma(<span class="fl">0.01</span>, <span class="fl">0.01</span>, shape<span class="op">=</span> intervals.shape, name <span class="op">=</span> <span class="st">'lambda0'</span>)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Covariate effect distribution</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1000</span>, shape <span class="op">=</span> (<span class="dv">1</span>,),  name<span class="op">=</span><span class="st">'beta'</span>)</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">### Likelihood</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">#### Compute hazard rate based on covariate effect</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> m.hazard_rate(cov <span class="op">=</span> metastasized, beta <span class="op">=</span> beta, lambda0 <span class="op">=</span> lambda0)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">#### Compute exposure rates</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> exposure <span class="op">*</span> lambda_</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood calculation</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> m.poisson(mu <span class="op">+</span> jnp.finfo(mu.dtype).tiny, obs <span class="op">=</span> death)</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>m.fit(model, num_samples<span class="op">=</span><span class="dv">500</span>) </span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(m.summary())</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot hazards and survival function ------------------------------------------------</span></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>m.plot_surv()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="4dedcad3" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'mastectomy.csv'</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>m.df.metastasized <span class="op">=</span> (m.df.metastasized <span class="op">==</span> <span class="st">"yes"</span>).astype(np.int64)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>m.df.event <span class="op">=</span> jnp.array(m.df.event.values, dtype<span class="op">=</span>jnp.int32)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">## Create survival object</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>m.models.survival.surv_object(time<span class="op">=</span><span class="st">'time'</span>, event<span class="op">=</span><span class="st">'event'</span>, cov<span class="op">=</span><span class="st">'metastasized'</span>, interval_length<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot censoring ------------------------------------------------</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>m.models.survival.plot_censoring(cov<span class="op">=</span><span class="st">'metastasized'</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Model ------------------------------------------------</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(intervals, death, metastasized, exposure):</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Parameter prior distributions-------------------------</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Base hazard distribution</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    lambda0 <span class="op">=</span> m.dist.gamma(<span class="fl">0.01</span>, <span class="fl">0.01</span>, shape<span class="op">=</span> intervals.shape, name <span class="op">=</span> <span class="st">'lambda0'</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Covariate effect distribution</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1000</span>, shape <span class="op">=</span> (<span class="dv">1</span>,),  name<span class="op">=</span><span class="st">'beta'</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">### Likelihood</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">#### Compute hazard rate based on covariate effect</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> m.models.survival.hazard_rate(cov <span class="op">=</span> metastasized, beta <span class="op">=</span> beta, lambda0 <span class="op">=</span> lambda0)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">#### Compute exposure rates</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> exposure <span class="op">*</span> lambda_</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood calculation</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> m.dist.poisson(mu <span class="op">+</span> jnp.finfo(mu.dtype).tiny, obs <span class="op">=</span> death)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>m.fit(model, num_samples<span class="op">=</span><span class="dv">500</span>) </span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(m.summary())</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot hazards and survival function ------------------------------------------------</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>m.models.survival.plot_surv()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>jax.local_device_count 16</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:01&lt;30:44,  1.85s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   2%|▏         | 17/1000 [00:01&lt;01:22, 11.88it/s, 511 steps of size 3.10e-01. acc. prob=0.73]warmup:   3%|▎         | 26/1000 [00:02&lt;01:00, 16.20it/s, 1023 steps of size 2.40e-01. acc. prob=0.75]warmup:   3%|▎         | 32/1000 [00:02&lt;00:51, 18.87it/s, 1023 steps of size 1.81e-01. acc. prob=0.75]warmup:   4%|▎         | 37/1000 [00:02&lt;00:45, 21.28it/s, 1023 steps of size 2.14e-01. acc. prob=0.76]warmup:   4%|▍         | 42/1000 [00:02&lt;00:41, 23.04it/s, 1023 steps of size 1.96e-01. acc. prob=0.76]warmup:   5%|▍         | 46/1000 [00:02&lt;00:39, 24.44it/s, 1023 steps of size 1.96e-01. acc. prob=0.76]warmup:   5%|▌         | 50/1000 [00:03&lt;00:37, 25.02it/s, 1023 steps of size 3.66e-01. acc. prob=0.77]warmup:   5%|▌         | 54/1000 [00:03&lt;00:35, 26.39it/s, 1023 steps of size 3.20e-01. acc. prob=0.77]warmup:   6%|▌         | 59/1000 [00:03&lt;00:32, 28.92it/s, 1023 steps of size 3.07e-01. acc. prob=0.77]warmup:   6%|▋         | 64/1000 [00:03&lt;00:28, 32.36it/s, 1023 steps of size 2.25e-01. acc. prob=0.77]warmup:   7%|▋         | 68/1000 [00:03&lt;00:29, 31.49it/s, 259 steps of size 2.89e-01. acc. prob=0.78] warmup:   7%|▋         | 72/1000 [00:03&lt;00:29, 31.54it/s, 1023 steps of size 2.84e-01. acc. prob=0.78]warmup:   8%|▊         | 76/1000 [00:03&lt;00:29, 31.12it/s, 545 steps of size 3.32e-01. acc. prob=0.78] warmup:   8%|▊         | 80/1000 [00:03&lt;00:29, 30.94it/s, 1023 steps of size 2.87e-01. acc. prob=0.78]warmup:   8%|▊         | 84/1000 [00:04&lt;00:29, 30.74it/s, 1023 steps of size 2.11e-01. acc. prob=0.78]warmup:   9%|▉         | 88/1000 [00:04&lt;00:29, 30.81it/s, 1023 steps of size 2.77e-01. acc. prob=0.78]warmup:   9%|▉         | 92/1000 [00:04&lt;00:29, 31.05it/s, 1023 steps of size 2.37e-01. acc. prob=0.78]warmup:  10%|▉         | 96/1000 [00:04&lt;00:28, 31.70it/s, 511 steps of size 1.45e-01. acc. prob=0.78] warmup:  10%|█         | 100/1000 [00:04&lt;00:29, 30.63it/s, 1023 steps of size 3.19e-01. acc. prob=0.78]warmup:  11%|█         | 108/1000 [00:04&lt;00:21, 41.50it/s, 1023 steps of size 7.73e-03. acc. prob=0.76]warmup:  11%|█▏        | 113/1000 [00:04&lt;00:23, 37.51it/s, 511 steps of size 1.37e-02. acc. prob=0.77] warmup:  12%|█▏        | 118/1000 [00:04&lt;00:22, 39.86it/s, 1023 steps of size 5.59e-03. acc. prob=0.77]warmup:  12%|█▏        | 123/1000 [00:05&lt;00:24, 36.11it/s, 1023 steps of size 8.42e-03. acc. prob=0.77]warmup:  13%|█▎        | 127/1000 [00:05&lt;00:23, 36.40it/s, 511 steps of size 7.60e-03. acc. prob=0.77] warmup:  13%|█▎        | 131/1000 [00:05&lt;00:23, 36.44it/s, 120 steps of size 5.34e-03. acc. prob=0.77]warmup:  14%|█▎        | 135/1000 [00:05&lt;00:24, 34.95it/s, 511 steps of size 1.41e-02. acc. prob=0.77]warmup:  14%|█▍        | 142/1000 [00:05&lt;00:20, 42.79it/s, 511 steps of size 1.08e-02. acc. prob=0.77]warmup:  15%|█▍        | 147/1000 [00:05&lt;00:21, 39.26it/s, 511 steps of size 7.07e-03. acc. prob=0.77]warmup:  15%|█▌        | 152/1000 [00:05&lt;00:22, 38.23it/s, 1 steps of size 1.15e-02. acc. prob=0.77]  warmup:  16%|█▌        | 156/1000 [00:06&lt;00:23, 36.66it/s, 1023 steps of size 6.54e-03. acc. prob=0.77]warmup:  16%|█▌        | 160/1000 [00:06&lt;00:25, 33.30it/s, 511 steps of size 9.59e-03. acc. prob=0.77] warmup:  16%|█▋        | 164/1000 [00:06&lt;00:23, 34.88it/s, 255 steps of size 3.04e-03. acc. prob=0.77]warmup:  17%|█▋        | 168/1000 [00:06&lt;00:23, 35.26it/s, 22 steps of size 5.74e-03. acc. prob=0.77] warmup:  17%|█▋        | 172/1000 [00:06&lt;00:23, 35.12it/s, 1023 steps of size 7.16e-03. acc. prob=0.77]warmup:  18%|█▊        | 178/1000 [00:06&lt;00:21, 37.96it/s, 1023 steps of size 8.95e-03. acc. prob=0.77]warmup:  18%|█▊        | 182/1000 [00:06&lt;00:21, 37.37it/s, 1023 steps of size 9.84e-03. acc. prob=0.77]warmup:  19%|█▊        | 186/1000 [00:06&lt;00:23, 34.84it/s, 511 steps of size 1.15e-02. acc. prob=0.77] warmup:  19%|█▉        | 192/1000 [00:07&lt;00:21, 37.47it/s, 1023 steps of size 5.10e-03. acc. prob=0.77]warmup:  20%|█▉        | 196/1000 [00:07&lt;00:21, 37.04it/s, 511 steps of size 4.71e-03. acc. prob=0.77] warmup:  20%|██        | 200/1000 [00:07&lt;00:22, 35.89it/s, 1023 steps of size 1.14e-02. acc. prob=0.77]warmup:  20%|██        | 204/1000 [00:07&lt;00:22, 35.78it/s, 918 steps of size 2.70e-03. acc. prob=0.77] warmup:  21%|██        | 208/1000 [00:07&lt;00:24, 32.89it/s, 511 steps of size 1.45e-02. acc. prob=0.78]warmup:  21%|██▏       | 213/1000 [00:07&lt;00:23, 34.09it/s, 1023 steps of size 4.43e-03. acc. prob=0.77]warmup:  22%|██▏       | 218/1000 [00:07&lt;00:22, 34.65it/s, 1023 steps of size 4.88e-03. acc. prob=0.77]warmup:  22%|██▏       | 224/1000 [00:07&lt;00:19, 39.72it/s, 325 steps of size 9.97e-03. acc. prob=0.78] warmup:  23%|██▎       | 229/1000 [00:08&lt;00:18, 40.98it/s, 511 steps of size 1.27e-02. acc. prob=0.78]warmup:  24%|██▎       | 235/1000 [00:08&lt;00:17, 43.45it/s, 1023 steps of size 5.87e-03. acc. prob=0.78]warmup:  24%|██▍       | 240/1000 [00:08&lt;00:17, 43.38it/s, 511 steps of size 1.08e-02. acc. prob=0.78] warmup:  25%|██▍       | 246/1000 [00:08&lt;00:16, 45.49it/s, 1023 steps of size 8.32e-03. acc. prob=0.78]warmup:  25%|██▌       | 251/1000 [00:08&lt;00:18, 41.57it/s, 511 steps of size 8.59e-02. acc. prob=0.78] warmup:  26%|██▌       | 258/1000 [00:08&lt;00:15, 47.40it/s, 511 steps of size 6.43e-03. acc. prob=0.77]warmup:  26%|██▋       | 263/1000 [00:08&lt;00:15, 47.23it/s, 452 steps of size 1.75e-03. acc. prob=0.77]warmup:  27%|██▋       | 268/1000 [00:08&lt;00:18, 40.31it/s, 383 steps of size 3.32e-03. acc. prob=0.77]warmup:  27%|██▋       | 273/1000 [00:09&lt;00:18, 38.46it/s, 1023 steps of size 2.94e-03. acc. prob=0.78]warmup:  28%|██▊       | 277/1000 [00:09&lt;00:19, 36.85it/s, 1023 steps of size 6.71e-03. acc. prob=0.78]warmup:  28%|██▊       | 282/1000 [00:09&lt;00:18, 38.10it/s, 511 steps of size 2.18e-03. acc. prob=0.78] warmup:  29%|██▊       | 286/1000 [00:09&lt;00:19, 35.90it/s, 511 steps of size 3.08e-03. acc. prob=0.78]warmup:  29%|██▉       | 290/1000 [00:09&lt;00:19, 36.62it/s, 78 steps of size 9.80e-03. acc. prob=0.78] warmup:  30%|██▉       | 296/1000 [00:09&lt;00:18, 38.80it/s, 1023 steps of size 5.75e-03. acc. prob=0.78]warmup:  30%|███       | 300/1000 [00:09&lt;00:20, 34.25it/s, 1023 steps of size 6.19e-03. acc. prob=0.78]warmup:  30%|███       | 304/1000 [00:09&lt;00:22, 31.37it/s, 1023 steps of size 7.34e-03. acc. prob=0.78]warmup:  31%|███       | 309/1000 [00:10&lt;00:21, 32.61it/s, 1023 steps of size 4.85e-03. acc. prob=0.78]warmup:  31%|███▏      | 314/1000 [00:10&lt;00:19, 35.46it/s, 511 steps of size 8.49e-03. acc. prob=0.78] warmup:  32%|███▏      | 319/1000 [00:10&lt;00:17, 38.28it/s, 1023 steps of size 8.18e-03. acc. prob=0.78]warmup:  32%|███▎      | 325/1000 [00:10&lt;00:16, 40.90it/s, 1023 steps of size 3.88e-03. acc. prob=0.78]warmup:  33%|███▎      | 330/1000 [00:10&lt;00:16, 41.13it/s, 511 steps of size 6.02e-03. acc. prob=0.78] warmup:  34%|███▎      | 335/1000 [00:10&lt;00:17, 37.29it/s, 1023 steps of size 6.27e-03. acc. prob=0.78]warmup:  34%|███▍      | 339/1000 [00:10&lt;00:18, 35.44it/s, 1023 steps of size 5.74e-03. acc. prob=0.78]warmup:  34%|███▍      | 344/1000 [00:10&lt;00:17, 37.17it/s, 511 steps of size 5.34e-03. acc. prob=0.78] warmup:  35%|███▌      | 350/1000 [00:11&lt;00:15, 41.28it/s, 511 steps of size 3.78e-03. acc. prob=0.78]warmup:  36%|███▌      | 355/1000 [00:11&lt;00:16, 39.75it/s, 1023 steps of size 7.21e-03. acc. prob=0.78]warmup:  36%|███▌      | 360/1000 [00:11&lt;00:15, 41.43it/s, 511 steps of size 7.81e-03. acc. prob=0.78] warmup:  36%|███▋      | 365/1000 [00:11&lt;00:15, 40.54it/s, 511 steps of size 7.92e-03. acc. prob=0.78]warmup:  37%|███▋      | 370/1000 [00:11&lt;00:17, 35.39it/s, 1023 steps of size 4.79e-03. acc. prob=0.78]warmup:  37%|███▋      | 374/1000 [00:11&lt;00:19, 31.54it/s, 1023 steps of size 6.31e-03. acc. prob=0.78]warmup:  38%|███▊      | 379/1000 [00:11&lt;00:17, 35.54it/s, 1023 steps of size 5.67e-03. acc. prob=0.78]warmup:  38%|███▊      | 383/1000 [00:12&lt;00:16, 36.53it/s, 511 steps of size 7.62e-03. acc. prob=0.78] warmup:  39%|███▊      | 387/1000 [00:12&lt;00:17, 35.88it/s, 511 steps of size 7.83e-03. acc. prob=0.78]warmup:  39%|███▉      | 392/1000 [00:12&lt;00:15, 38.67it/s, 511 steps of size 6.43e-03. acc. prob=0.78]warmup:  40%|███▉      | 396/1000 [00:12&lt;00:17, 34.66it/s, 1023 steps of size 6.79e-03. acc. prob=0.78]warmup:  40%|████      | 400/1000 [00:12&lt;00:19, 31.52it/s, 1023 steps of size 6.64e-03. acc. prob=0.78]warmup:  40%|████      | 404/1000 [00:12&lt;00:19, 29.99it/s, 1023 steps of size 6.32e-03. acc. prob=0.78]warmup:  41%|████      | 408/1000 [00:12&lt;00:22, 25.87it/s, 511 steps of size 7.74e-03. acc. prob=0.78] warmup:  41%|████      | 411/1000 [00:13&lt;00:23, 24.67it/s, 511 steps of size 9.35e-03. acc. prob=0.78]warmup:  42%|████▏     | 415/1000 [00:13&lt;00:21, 26.75it/s, 511 steps of size 1.04e-02. acc. prob=0.78]warmup:  42%|████▏     | 419/1000 [00:13&lt;00:20, 28.85it/s, 511 steps of size 9.44e-03. acc. prob=0.78]warmup:  42%|████▏     | 424/1000 [00:13&lt;00:17, 33.35it/s, 511 steps of size 7.60e-03. acc. prob=0.78]warmup:  43%|████▎     | 428/1000 [00:13&lt;00:16, 33.85it/s, 511 steps of size 7.05e-03. acc. prob=0.78]warmup:  43%|████▎     | 432/1000 [00:13&lt;00:16, 34.21it/s, 511 steps of size 8.42e-03. acc. prob=0.78]warmup:  44%|████▎     | 437/1000 [00:13&lt;00:15, 36.45it/s, 511 steps of size 6.43e-03. acc. prob=0.78]warmup:  44%|████▍     | 441/1000 [00:13&lt;00:18, 30.88it/s, 511 steps of size 5.41e-03. acc. prob=0.78]warmup:  44%|████▍     | 445/1000 [00:14&lt;00:18, 29.82it/s, 511 steps of size 5.47e-03. acc. prob=0.78]warmup:  45%|████▍     | 449/1000 [00:14&lt;00:18, 29.52it/s, 511 steps of size 3.48e-03. acc. prob=0.78]warmup:  45%|████▌     | 453/1000 [00:14&lt;00:17, 31.35it/s, 511 steps of size 4.69e-03. acc. prob=0.78]warmup:  46%|████▌     | 457/1000 [00:14&lt;00:16, 32.23it/s, 1023 steps of size 2.72e-03. acc. prob=0.78]warmup:  46%|████▌     | 461/1000 [00:14&lt;00:17, 31.43it/s, 1023 steps of size 6.29e-03. acc. prob=0.78]warmup:  46%|████▋     | 465/1000 [00:14&lt;00:16, 31.69it/s, 1023 steps of size 5.07e-03. acc. prob=0.78]warmup:  47%|████▋     | 469/1000 [00:14&lt;00:16, 31.76it/s, 1023 steps of size 4.45e-03. acc. prob=0.78]warmup:  48%|████▊     | 475/1000 [00:14&lt;00:13, 37.87it/s, 511 steps of size 1.37e-02. acc. prob=0.78] warmup:  48%|████▊     | 479/1000 [00:15&lt;00:14, 35.87it/s, 511 steps of size 9.35e-03. acc. prob=0.78]warmup:  48%|████▊     | 484/1000 [00:15&lt;00:14, 36.39it/s, 1023 steps of size 3.13e-03. acc. prob=0.78]warmup:  49%|████▉     | 488/1000 [00:15&lt;00:14, 34.33it/s, 511 steps of size 7.75e-03. acc. prob=0.78] warmup:  49%|████▉     | 493/1000 [00:15&lt;00:14, 35.58it/s, 1023 steps of size 8.00e-03. acc. prob=0.78]warmup:  50%|████▉     | 498/1000 [00:15&lt;00:12, 39.03it/s, 511 steps of size 7.65e-03. acc. prob=0.78] sample:  50%|█████     | 503/1000 [00:15&lt;00:12, 39.80it/s, 511 steps of size 6.52e-03. acc. prob=0.93]sample:  51%|█████     | 508/1000 [00:15&lt;00:11, 42.19it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  51%|█████▏    | 513/1000 [00:15&lt;00:12, 39.32it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  52%|█████▏    | 518/1000 [00:16&lt;00:11, 40.40it/s, 297 steps of size 6.52e-03. acc. prob=0.96]sample:  52%|█████▏    | 523/1000 [00:16&lt;00:11, 40.66it/s, 511 steps of size 6.52e-03. acc. prob=0.97]sample:  53%|█████▎    | 528/1000 [00:16&lt;00:11, 41.82it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  53%|█████▎    | 533/1000 [00:16&lt;00:10, 42.62it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  54%|█████▍    | 538/1000 [00:16&lt;00:10, 43.13it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  54%|█████▍    | 543/1000 [00:16&lt;00:10, 43.25it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  55%|█████▍    | 548/1000 [00:16&lt;00:10, 43.28it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  55%|█████▌    | 553/1000 [00:16&lt;00:10, 41.38it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  56%|█████▌    | 558/1000 [00:17&lt;00:11, 40.17it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  56%|█████▋    | 563/1000 [00:17&lt;00:11, 39.66it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample:  57%|█████▋    | 568/1000 [00:17&lt;00:10, 40.13it/s, 511 steps of size 6.52e-03. acc. prob=0.96] sample:  57%|█████▋    | 573/1000 [00:17&lt;00:10, 39.57it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  58%|█████▊    | 578/1000 [00:17&lt;00:10, 41.16it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  58%|█████▊    | 583/1000 [00:17&lt;00:10, 40.08it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  59%|█████▉    | 589/1000 [00:17&lt;00:09, 42.88it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  59%|█████▉    | 594/1000 [00:17&lt;00:09, 43.20it/s, 353 steps of size 6.52e-03. acc. prob=0.95]sample:  60%|█████▉    | 599/1000 [00:18&lt;00:09, 40.11it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  60%|██████    | 604/1000 [00:18&lt;00:10, 37.26it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  61%|██████    | 608/1000 [00:18&lt;00:10, 36.72it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  61%|██████    | 612/1000 [00:18&lt;00:10, 37.17it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  62%|██████▏   | 617/1000 [00:18&lt;00:09, 39.21it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  62%|██████▏   | 622/1000 [00:18&lt;00:09, 40.81it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  63%|██████▎   | 627/1000 [00:18&lt;00:09, 39.53it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  63%|██████▎   | 631/1000 [00:18&lt;00:09, 38.47it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  64%|██████▎   | 636/1000 [00:18&lt;00:08, 41.20it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  64%|██████▍   | 641/1000 [00:19&lt;00:08, 41.34it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  65%|██████▍   | 646/1000 [00:19&lt;00:08, 41.16it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  65%|██████▌   | 651/1000 [00:19&lt;00:08, 41.82it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  66%|██████▌   | 656/1000 [00:19&lt;00:08, 42.83it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  66%|██████▌   | 661/1000 [00:19&lt;00:07, 43.21it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  67%|██████▋   | 666/1000 [00:19&lt;00:07, 42.55it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  67%|██████▋   | 671/1000 [00:19&lt;00:07, 43.21it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  68%|██████▊   | 676/1000 [00:19&lt;00:07, 44.93it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  68%|██████▊   | 682/1000 [00:19&lt;00:06, 46.65it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  69%|██████▊   | 687/1000 [00:20&lt;00:06, 44.96it/s, 767 steps of size 6.52e-03. acc. prob=0.95]sample:  69%|██████▉   | 692/1000 [00:20&lt;00:06, 45.13it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  70%|██████▉   | 697/1000 [00:20&lt;00:06, 45.29it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  70%|███████   | 702/1000 [00:20&lt;00:06, 45.51it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  71%|███████   | 707/1000 [00:20&lt;00:06, 45.53it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  71%|███████   | 712/1000 [00:20&lt;00:06, 41.88it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  72%|███████▏  | 717/1000 [00:20&lt;00:07, 40.15it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  72%|███████▏  | 722/1000 [00:21&lt;00:08, 33.54it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  73%|███████▎  | 726/1000 [00:21&lt;00:08, 31.12it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  73%|███████▎  | 730/1000 [00:21&lt;00:08, 31.26it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample:  73%|███████▎  | 734/1000 [00:21&lt;00:08, 32.59it/s, 511 steps of size 6.52e-03. acc. prob=0.95] sample:  74%|███████▍  | 738/1000 [00:21&lt;00:07, 33.84it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  74%|███████▍  | 743/1000 [00:21&lt;00:07, 36.62it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  75%|███████▍  | 748/1000 [00:21&lt;00:06, 37.71it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  75%|███████▌  | 752/1000 [00:21&lt;00:06, 37.63it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  76%|███████▌  | 756/1000 [00:21&lt;00:06, 37.60it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  76%|███████▌  | 761/1000 [00:22&lt;00:06, 39.67it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  77%|███████▋  | 766/1000 [00:22&lt;00:06, 37.45it/s, 1023 steps of size 6.52e-03. acc. prob=0.94]sample:  77%|███████▋  | 771/1000 [00:22&lt;00:05, 38.60it/s, 511 steps of size 6.52e-03. acc. prob=0.94] sample:  78%|███████▊  | 776/1000 [00:22&lt;00:05, 39.50it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  78%|███████▊  | 780/1000 [00:22&lt;00:06, 34.75it/s, 1023 steps of size 6.52e-03. acc. prob=0.94]sample:  78%|███████▊  | 785/1000 [00:22&lt;00:05, 36.71it/s, 511 steps of size 6.52e-03. acc. prob=0.94] sample:  79%|███████▉  | 789/1000 [00:22&lt;00:05, 36.71it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  79%|███████▉  | 794/1000 [00:22&lt;00:05, 38.81it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  80%|███████▉  | 798/1000 [00:23&lt;00:05, 37.42it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  80%|████████  | 802/1000 [00:23&lt;00:05, 34.24it/s, 1023 steps of size 6.52e-03. acc. prob=0.94]sample:  81%|████████  | 807/1000 [00:23&lt;00:05, 36.75it/s, 511 steps of size 6.52e-03. acc. prob=0.94] sample:  81%|████████  | 812/1000 [00:23&lt;00:04, 38.78it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  82%|████████▏ | 817/1000 [00:23&lt;00:04, 39.55it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  82%|████████▏ | 822/1000 [00:23&lt;00:04, 40.93it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  83%|████████▎ | 827/1000 [00:23&lt;00:04, 42.29it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  83%|████████▎ | 832/1000 [00:23&lt;00:03, 43.48it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  84%|████████▍ | 838/1000 [00:24&lt;00:03, 45.53it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  84%|████████▍ | 843/1000 [00:24&lt;00:03, 45.85it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  85%|████████▍ | 848/1000 [00:24&lt;00:03, 45.97it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  85%|████████▌ | 853/1000 [00:24&lt;00:03, 45.94it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  86%|████████▌ | 858/1000 [00:24&lt;00:03, 45.57it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  86%|████████▋ | 863/1000 [00:24&lt;00:03, 45.15it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  87%|████████▋ | 868/1000 [00:24&lt;00:02, 44.46it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  87%|████████▋ | 873/1000 [00:24&lt;00:02, 44.26it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  88%|████████▊ | 878/1000 [00:24&lt;00:02, 43.90it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  88%|████████▊ | 883/1000 [00:25&lt;00:02, 45.56it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  89%|████████▉ | 888/1000 [00:25&lt;00:02, 45.92it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  89%|████████▉ | 893/1000 [00:25&lt;00:02, 46.33it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  90%|████████▉ | 898/1000 [00:25&lt;00:02, 43.82it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample:  90%|█████████ | 903/1000 [00:25&lt;00:02, 44.71it/s, 511 steps of size 6.52e-03. acc. prob=0.95] sample:  91%|█████████ | 908/1000 [00:25&lt;00:02, 42.75it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  91%|█████████▏| 913/1000 [00:25&lt;00:01, 43.79it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  92%|█████████▏| 918/1000 [00:25&lt;00:02, 40.04it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  92%|█████████▏| 923/1000 [00:25&lt;00:01, 41.81it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  93%|█████████▎| 929/1000 [00:26&lt;00:01, 44.40it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  93%|█████████▎| 934/1000 [00:26&lt;00:01, 45.00it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  94%|█████████▍| 939/1000 [00:26&lt;00:01, 45.22it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  94%|█████████▍| 944/1000 [00:26&lt;00:01, 44.88it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  95%|█████████▍| 949/1000 [00:26&lt;00:01, 45.23it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  95%|█████████▌| 954/1000 [00:26&lt;00:01, 43.65it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  96%|█████████▌| 959/1000 [00:26&lt;00:00, 44.41it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  96%|█████████▋| 964/1000 [00:26&lt;00:00, 44.73it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  97%|█████████▋| 969/1000 [00:26&lt;00:00, 45.11it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  97%|█████████▋| 974/1000 [00:27&lt;00:00, 45.45it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  98%|█████████▊| 979/1000 [00:27&lt;00:00, 45.68it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  98%|█████████▊| 984/1000 [00:27&lt;00:00, 45.98it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  99%|█████████▉| 989/1000 [00:27&lt;00:00, 46.20it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  99%|█████████▉| 994/1000 [00:27&lt;00:00, 41.63it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample: 100%|█████████▉| 999/1000 [00:27&lt;00:00, 43.03it/s, 511 steps of size 6.52e-03. acc. prob=0.95] sample: 100%|██████████| 1000/1000 [00:27&lt;00:00, 36.10it/s, 511 steps of size 6.52e-03. acc. prob=0.95]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 mean    sd  hdi_5.5%  hdi_94.5%
+beta[0]          0.77  0.48       0.0       1.49
+lambda0[0]       0.00  0.00       0.0       0.00
+lambda0[1]       0.00  0.00       0.0       0.01
+lambda0[2]       0.00  0.01       0.0       0.01
+lambda0[3]       0.00  0.01       0.0       0.01
+...               ...   ...       ...        ...
+lambda_[43, 71]  0.00  0.01       0.0       0.00
+lambda_[43, 72]  0.00  0.02       0.0       0.00
+lambda_[43, 73]  0.00  0.02       0.0       0.00
+lambda_[43, 74]  0.00  0.01       0.0       0.00
+lambda_[43, 75]  0.00  0.03       0.0       0.00
+
+[3421 rows x 4 columns]</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/sosa/work/.venv/lib/python3.12/site-packages/arviz/plots/hdiplot.py:166: FutureWarning: hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
+  hdi_data = hdi(y, hdi_prob=hdi_prob, circular=circular, multimodal=False, **hdi_kwargs)
+/home/sosa/work/.venv/lib/python3.12/site-packages/arviz/plots/hdiplot.py:166: FutureWarning: hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
+  hdi_data = hdi(y, hdi_prob=hdi_prob, circular=circular, multimodal=False, **hdi_kwargs)
+/home/sosa/work/.venv/lib/python3.12/site-packages/arviz/plots/hdiplot.py:166: FutureWarning: hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
+  hdi_data = hdi(y, hdi_prob=hdi_prob, circular=circular, multimodal=False, **hdi_kwargs)
+/home/sosa/work/.venv/lib/python3.12/site-packages/arviz/plots/hdiplot.py:166: FutureWarning: hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
+  hdi_data = hdi(y, hdi_prob=hdi_prob, circular=circular, multimodal=False, **hdi_kwargs)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="12. Survival analysis_files/figure-html/cell-2-output-5.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="12. Survival analysis_files/figure-html/cell-2-output-6.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1617,18 +1667,6 @@ tippy('#LKJcorr', {
     }
   });
   </script>
-<nav class="page-navigation">
-  <div class="nav-page nav-page-previous">
-      <a href="./11. Zero inflated.html" class="pagination-link" aria-label="Zero-Inflated Models">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Zero-Inflated Models</span>
-      </a>          
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="./13. Varying intercepts.html" class="pagination-link" aria-label="Varying Intercepts Models">
-        <span class="nav-page-text">Varying Intercepts Models</span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
 </div> <!-- /content -->
 
 
