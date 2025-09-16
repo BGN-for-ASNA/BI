@@ -1,6 +1,11 @@
 project:
   type: website
 
+execute:
+  startup: _setup.py
+
+#execute: false
+
 website:
   title: "Bayesian Inference (BI)"
   repo-url: https://github.com/BGN-for-ASNA/BI
@@ -79,7 +84,7 @@ website:
         - start/Fit model.qmd
         - start/Diagnostics.ipynb
         
-  page-navigation: true
+  page-navigation: false
   
 
 format:
@@ -87,7 +92,7 @@ format:
     theme:       
       dark: solar
       light: Morph
-    css: styles.scss  
+    css: MyStyles.css
     code-copy: true
     highlight-style: monokai
     include-after-body: tooltip-scripts.html
@@ -97,9 +102,11 @@ format:
 
   pdf:
     pdf-engine: xelatex
+    #keep-tex: true
     header-includes:
       - \usepackage{amsmath} # amsmath is better than unicode-math for cases
       - \usepackage{amssymb}
+
 
 bibliography: references.bib
 
