@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>NetExplorer</title>
+    <script src="d3-min.js"></script>
+    <script src="d3-tip.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body style="background-color: lightgray;">
+    <div id="network-container">
+        <script>
+
+        // Create tooltip content function
+        function createTooltipContent(d) {
+            var content = 'id : ' + d.id;
+            content += '<p/>size(size) : ' + d.sizeValue;
+            content += '<p/>age(color) : ' + d.colorValue;
+            content += '<p/>strength(stroke color) : ' + d.strokeColValue;
+            content += '<p/>strength(stroke width) : ' + d.strokeWValue;
+            content += '<p/>group(shape) : ' + d.shapeValue;
+            return content;
+        }
+
+        // Get data function
+        function getData() {
+            let json = { 'nodes':[
+{
+'id':'Node_1',
+'size':4.802857225639665,
+'color':'#0000ff',
+'strokeCol':'#55aa00',
+'strokeW':0.2797064039425238,
+'shape':0,
+'opacity':1,
+'layers':1,'sizeValue':'4.802857225639665','colorValue':'21','strokeWValue':'0.2797064039425238','shapeValue':'A'},
+{
+'id':'Node_5',
+'size':1.6239780813448106,
+'color':'#0000ff',
+'strokeCol':'#aad400',
+'strokeW':0.6467903667112945,
+'shape':5,
+'opacity':1,
+'layers':1,'sizeValue':'1.6239780813448106','colorValue':'21','strokeWValue':'0.6467903667112945','shapeValue':'C'},
+{
+'id':'Node_8',
+'size':3.404460046972835,
+'color':'#2400da',
+'strokeCol':'#e2f000',
+'strokeW':0.9539969835279999,
+'shape':3,
+'opacity':1,
+'layers':1,'sizeValue':'3.404460046972835','colorValue':'31','strokeWValue':'0.9539969835279999','shapeValue':'B'},
+{
+'id':'Node_6',
+'size':1.2323344486727978,
+'color':'#4800b6',
+'strokeCol':'#389c00',
+'strokeW':0.2534717113185624,
+'shape':3,
+'opacity':1,
+'layers':1,'sizeValue':'1.2323344486727978','colorValue':'40','strokeWValue':'0.2534717113185624','shapeValue':'B'},
+{
+'id':'Node_9',
+'size':3.832290311184182,
+'color':'#6d0091',
+'strokeCol':'#ffff00',
+'strokeW':0.9690688297671034,
+'shape':3,
+'opacity':1,
+'layers':1,'sizeValue':'3.832290311184182','colorValue':'41','strokeWValue':'0.9690688297671034','shapeValue':'B'},
+{
+'id':'Node_0',
+'size':2.49816047538945,
+'color':'#6d0091',
+'strokeCol':'#c6e200',
+'strokeW':0.8066583652537123,
+'shape':0,
+'opacity':1,
+'layers':1,'sizeValue':'2.49816047538945','colorValue':'41','strokeWValue':'0.8066583652537123','shapeValue':'A'},
+{
+'id':'Node_2',
+'size':3.9279757672456204,
+'color':'#91006d',
+'strokeCol':'#71b800',
+'strokeW':0.5628109945722505,
+'shape':0,
+'opacity':1,
+'layers':1,'sizeValue':'3.9279757672456204','colorValue':'43','strokeWValue':'0.5628109945722505','shapeValue':'A'},
+{
+'id':'Node_3',
+'size':3.3946339367881464,
+'color':'#b60048',
+'strokeCol':'#8dc600',
+'strokeW':0.6331731119758383,
+'shape':5,
+'opacity':1,
+'layers':1,'sizeValue':'3.3946339367881464','colorValue':'49','strokeWValue':'0.6331731119758383','shapeValue':'C'},
+{
+'id':'Node_7',
+'size':4.46470458309974,
+'color':'#da0024',
+'strokeCol':'#1c8e00',
+'strokeW':0.1585464336867516,
+'shape':5,
+'opacity':1,
+'layers':1,'sizeValue':'4.46470458309974','colorValue':'52','strokeWValue':'0.1585464336867516','shapeValue':'C'},
+{
+'id':'Node_4',
+'size':1.624074561769746,
+'color':'#ff0000',
+'strokeCol':'#008000',
+'strokeW':0.14180537144799796,
+'shape':5,
+'opacity':1,
+'layers':1,'sizeValue':'1.624074561769746','colorValue':'57','strokeWValue':'0.14180537144799796','shapeValue':'C'},
+
+],
+'links':[
+{
+'source':'Node_0',
+'target':'Node_8',
+'colorL':'#6d0091',
+'lOpacity':1,
+'weigth':0.37079047883509275,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_1',
+'target':'Node_5',
+'colorL':'#0000ff',
+'lOpacity':1,
+'weigth':0.9174392973699883,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_1',
+'target':'Node_6',
+'colorL':'#0000ff',
+'lOpacity':1,
+'weigth':0.3156057016002752,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_1',
+'target':'Node_7',
+'colorL':'#0000ff',
+'lOpacity':1,
+'weigth':0.2304053848821008,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_1',
+'target':'Node_8',
+'colorL':'#0000ff',
+'lOpacity':1,
+'weigth':0.5405074842498068,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_2',
+'target':'Node_0',
+'colorL':'#91006d',
+'lOpacity':1,
+'weigth':0.3178497443603504,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_2',
+'target':'Node_7',
+'colorL':'#91006d',
+'lOpacity':1,
+'weigth':0.6701767396848052,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_3',
+'target':'Node_2',
+'colorL':'#b60048',
+'lOpacity':1,
+'weigth':0.2678666593598688,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_3',
+'target':'Node_4',
+'colorL':'#b60048',
+'lOpacity':1,
+'weigth':0.6318036488694176,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_3',
+'target':'Node_5',
+'colorL':'#b60048',
+'lOpacity':1,
+'weigth':0.7098079256580542,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_3',
+'target':'Node_8',
+'colorL':'#b60048',
+'lOpacity':1,
+'weigth':0.30384619767814414,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_3',
+'target':'Node_9',
+'colorL':'#b60048',
+'lOpacity':1,
+'weigth':0.6806555113685049,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_4',
+'target':'Node_0',
+'colorL':'#ff0000',
+'lOpacity':1,
+'weigth':0.2569297861044923,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_4',
+'target':'Node_1',
+'colorL':'#ff0000',
+'lOpacity':1,
+'weigth':0.7218439642922193,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_4',
+'target':'Node_5',
+'colorL':'#ff0000',
+'lOpacity':1,
+'weigth':0.4069597159452327,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_5',
+'target':'Node_1',
+'colorL':'#0000ff',
+'lOpacity':1,
+'weigth':0.8354999801810943,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_5',
+'target':'Node_3',
+'colorL':'#0000ff',
+'lOpacity':1,
+'weigth':0.5766855205204059,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_5',
+'target':'Node_6',
+'colorL':'#0000ff',
+'lOpacity':1,
+'weigth':0.907494182157994,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_5',
+'target':'Node_7',
+'colorL':'#0000ff',
+'lOpacity':1,
+'weigth':0.9103762514469974,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_5',
+'target':'Node_9',
+'colorL':'#0000ff',
+'lOpacity':1,
+'weigth':0.4051268119438306,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_6',
+'target':'Node_9',
+'colorL':'#4800b6',
+'lOpacity':1,
+'weigth':0.6457861536936309,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_7',
+'target':'Node_2',
+'colorL':'#da0024',
+'lOpacity':1,
+'weigth':0.6971515921972502,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_7',
+'target':'Node_8',
+'colorL':'#da0024',
+'lOpacity':1,
+'weigth':0.3018423785145038,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_8',
+'target':'Node_0',
+'colorL':'#2400da',
+'lOpacity':1,
+'weigth':0.3135241787471201,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_8',
+'target':'Node_1',
+'colorL':'#2400da',
+'lOpacity':1,
+'weigth':0.39285972834334093,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_8',
+'target':'Node_3',
+'colorL':'#2400da',
+'lOpacity':1,
+'weigth':0.6846696091424932,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_8',
+'target':'Node_5',
+'colorL':'#2400da',
+'lOpacity':1,
+'weigth':0.691851603070309,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_8',
+'target':'Node_6',
+'colorL':'#2400da',
+'lOpacity':1,
+'weigth':0.6114777430019245,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_9',
+'target':'Node_1',
+'colorL':'#6d0091',
+'lOpacity':1,
+'weigth':0.975709499277201,
+'intralayer':NaN,
+'interlayer':NaN
+},
+{
+'source':'Node_9',
+'target':'Node_2',
+'colorL':'#6d0091',
+'lOpacity':1,
+'weigth':0.4537879522000844,
+'intralayer':NaN,
+'interlayer':NaN
+},
+
+]}
+return json;
+}
+
+// Now we need to set up the visualization
+var graph = getData();
+var width = window.innerWidth;
+var height = window.innerHeight;
+
+// Create SVG
+var svg = d3.select("#network-container").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+// Create tooltip
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("background", "rgba(0,0,0,0.8)")
+    .style("color", "white")
+    .style("padding", "8px")
+    .style("border-radius", "4px")
+    .style("pointer-events", "none")
+    .style("opacity", 0);
+
+// Set up force simulation
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+    .force("charge", d3.forceManyBody().strength(-300))
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+// Create links
+var link = svg.append("g")
+    .attr("class", "links")
+    .selectAll("path")
+    .data(graph.links)
+    .enter().append("path")
+    .attr("stroke", function(d) { return d.colorL; })
+    .attr("stroke-width", function(d) { return Math.sqrt(d.weigth * 3); })
+    .attr("opacity", function(d) { return d.lOpacity; })
+    .attr("fill", "none");
+
+// Create nodes
+var node = svg.append("g")
+    .attr("class", "nodes")
+    .selectAll("path")
+    .data(graph.nodes)
+    .enter().append("path")
+    .attr("d", d3.symbol().type(function(d) { return d3.symbols[d.shape]; }).size(function(d) { return d.size * 100; }))
+    .attr("fill", function(d) { return d.color; })
+    .attr("stroke", function(d) { return d.strokeCol; })
+    .attr("stroke-width", function(d) { return d.strokeW; })
+    .attr("opacity", function(d) { return d.opacity; })
+    .on("mouseover", function(d) {
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+        tooltip.html(createTooltipContent(d))
+            .style("left", (d3.event.pageX + 10) + "px")
+            .style("top", (d3.event.pageY - 10) + "px");
+    })
+    .on("mouseout", function() {
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    })
+    .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
+
+// Add labels
+var labels = svg.append("g")
+    .attr("class", "labels")
+    .selectAll("text")
+    .data(graph.nodes)
+    .enter().append("text")
+    .text(function(d) { return d.id; })
+    .attr("text-anchor", "middle")
+    .attr("dy", ".35em")
+    .style("font-size", "12px")
+    .style("fill", "black");
+
+// Set up the simulation
+simulation
+    .nodes(graph.nodes)
+    .on("tick", ticked);
+
+simulation.force("link")
+    .links(graph.links);
+
+function ticked() {
+    link.attr("d", function(d) {
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = Math.sqrt(dx * dx + dy * dy);
+        return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+    });
+
+    node.attr("transform", function(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+    });
+
+    labels.attr("transform", function(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+    });
+}
+
+function dragstarted(d) {
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+}
+
+function dragged(d) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+}
+
+function dragended(d) {
+    if (!d3.event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+}
+
+
+
+        .on('mouseover.fade', fade(0.1))
+        .on('mouseout.tooltip', function() {
+          tooltip.transition()
+          .duration(100)
+          .style('opacity', 0);
+        })
+        .on('mouseout.fade', fade(1))
+        .on('mousemove', function() {
+          tooltip.style('left', (d3.event.pageX+50) + 'px')
+          .style('top', (d3.event.pageY - 28) + 'px');
+        })
+                .call(d3.drag()
+                      .on('start', dragstarted)
+                      .on('drag', dragged)
+                      .on('end', dragended))
+
+                ;
+
+  // Label ---------------------------------------
+  var texts = svg.selectAll('text.label')
+              .data(graph.nodes)
+              .enter().append('text')
+              .attr('class', 'label')
+              .attr('fill', 'black')
+              .style("font-size",function(d) {  return 10;  })
+              .style('text-anchor', 'middle')
+              .text(function(d) {  return d.id;  })
+              .on('mouseover', focus)
+              .on('mouseover.fade', fade(0.1))
+              .on('mouseout.fade', fade(1))
+              ;
+
+  // Functions------------------
+var Layout = 'Force'
+var dist = 500
+  function ticked(size) {
+    graph.nodes.sort(function(x, y){
+      return d3.ascending(x.size, y.size);
+      })
+
+    if(Layout == 'Circle'){
+      graph.nodes.forEach(function(d, i) {
+        parts = (2*Math.PI)/graph.nodes.length
+        d.x =  width/2 + Math.sin(i*parts)*dist;
+        d.y = height/2 + Math.cos(i*parts)*dist;
+        })
+      }
+    if(Layout == 'Linear'){
+        graph.nodes.forEach(function(d, i) {
+          d.x = i*dist/5 + d.size;
+          d.y = height/2;
+        })
+      }
+
+    if(Layout == "Multilayer"){
+      simulation.force('link', d3.forceLink(link)
+                        .strength(function(d) { return 0.1; })
+        )
+
+        .force('x', d3.forceX().x(function(d) { return 100*Math.random();}))
+        .force('y', d3.forceY().y(function(d) { return d.layers*dist;}))
+    }
+
+      if(Layout == "Force2"){
+         location.reload();
+      }
+
+
+      // Curve
+      link.attr('d', function(d) {
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = Math.sqrt(dx * dx + dy * dy)
+        return 'M' + d.source.x + ',' + d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
+      });
+
+      node.attr('transform', function(d) { return 'translate('+d.x+','+d.y+')'; });
+
+      texts.attr('transform', function(d) { return 'translate('+d.x+','+d.y+')'; });
+  }
+
+
+    function dragstarted(d) {
+      if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+          d.fx = d.x
+          d.fy = d.y
+    }
+
+    function dragged(d) {
+          d.fx = d3.event.x
+          d.fy = d3.event.y
+    }
+
+    function dragended(d) {
+          if (!d3.event.active) simulation.alphaTarget(0)
+              //d.fx = null
+              //d.fy = null
+              d3.select(this).classed("fixed", d.fixed = true);
+    }
+
+    const linkedByIndex = {};
+    graph.links.forEach(d => {linkedByIndex[`${d.source.index},${d.target.index}`] = 1;});
+
+    function isConnected(a, b) {return linkedByIndex[`${a.index},${b.index}`] || linkedByIndex[`${b.index},${a.index}`] || a.index === b.index;}
+
+    function fade(opacity) {
+              return d => {
+                  node.style('stroke-opacity', function (o) {
+                      const thisOpacity = isConnected(d, o) ? 1 : opacity;
+                      this.setAttribute('fill-opacity', thisOpacity);
+                          return thisOpacity;
+                      });
+
+                  link.style('stroke-opacity', o => (o.source === d || o.target === d ? 1 : opacity));
+
+                                      texts.style('stroke-opacity', function (o) {
+                      const thisOpacity = isConnected(d, o) ? 1 : opacity;
+                      this.setAttribute('fill-opacity', thisOpacity);
+                          return thisOpacity;
+                      });
+
+              };}
+
+    function dragsubject() {
+      var i,
+      x = transform.invertX(d3.event.x),
+      y = transform.invertY(d3.event.y),
+      dx,
+      dy;
+      for (i = tempData.nodes.length - 1; i >= 0; --i) {
+        node = tempData.nodes[i];
+        dx = x - node.x;
+        dy = y - node.y;
+
+        if (dx * dx + dy * dy < radius * radius) {
+
+          node.x =  transform.applyX(node.x);
+          node.y = transform.applyY(node.y);
+
+          return node;
+        }
+      }
+    }
+
+    function releasenode(d) {
+      d.fx = null;
+      d.fy = null;
+      simulation.alpha(0.5).restart();
+      ticked(dist = 500)
+    }
+
+  /* Sliders------------------------------------------------------------------------*/
+    /*Node spaces------------------------------------------------------------------------*/
+     /*For force, linear and circular layout------------------------------------------------------*/
+     function changeNodeSpace(size) {
+       if(Layout == 'Force'){
+         simulation.force('charge', d3.forceManyBody()
+                            .strength(function(d) { return forceProperties.charge.strength*size; })
+                            .distanceMax(forceProperties.charge.distanceMax)
+                            .distanceMin(forceProperties.charge.distanceMin))
+      simulation.alpha(0.5).restart();
+       }
+       if(Layout == 'Linear'){
+         var selectedLayout = d3.select(this).property("value")
+         ticked(dist = size)
+       }
+       if(Layout == 'Circle'){
+         var selectedLayout = d3.select(this).property("value")
+         ticked(dist = size)
+       }
+       if(Layout == 'Multilayer'){
+
+         simulation.force('link', d3.forceLink(link)
+                         .strength(function(d) { return 0; })
+         )
+         .force('Y', d3.forceY().y(function(d) { return d.y * size; }))
+
+         simulation.alpha(0.5).restart();
+       }
+     }
+
+     d3.select("#sliderNSpace").on("change", function(d){
+               selectedValue = this.value
+               changeNodeSpace(selectedValue)
+     })
+
+     d3.select("#sliderNSpaceV").on("input", function(d){
+               selectedValue = this.value
+               changeNodeSpace(selectedValue)
+     })
+
+     d3.select("#sliderNSpace2").on("change", function(d){
+               selectedValue = this.value
+               changeNodeSpace(selectedValue)
+     })
+
+     d3.select("#sliderNSpaceV2").on("input", function(d){
+               selectedValue = this.value
+               changeNodeSpace(selectedValue)
+     })
+
+    /*For Multilayer layout------------------------------------------------------------------------*/
+     function changeNodeSpaceH(size) {
+       if(Layout == 'Multilayer'){
+
+         simulation.force('link', d3.forceLink(link)
+                         .strength(function(d) { return 0; })
+         )
+         .force('X', d3.forceX().x(function(d) { return d.x * size; }))
+         simulation.alpha(0.5).restart();
+       }
+     }
+
+     d3.select("#sliderNSpaceH").on("change", function(d){
+               selectedValue = this.value
+               changeNodeSpaceH(selectedValue)
+     })
+
+     d3.select("#sliderNSpaceVH").on("input", function(d){
+               selectedValue = this.value
+               changeNodeSpaceH(selectedValue)
+     })
+
+
+
+    /*Node Size------------------------------------------------------------------------*/
+    function changeSize(size) {
+              node
+              .attr('d', d3.symbol().type( function(d,i) { return d3.symbols[d.shape];} ).size(function(d){return d.size * 100 * size;}))
+    }
+
+    d3.select("#sliderSize").on("change", function(d){
+              selectedValue = this.value
+              changeSize(selectedValue)
+    })
+    d3.select("#sliderSizeV").on("input", function(d){
+              selectedValue = this.value
+              changeSize(selectedValue)
+    })
+    /*Node Width------------------------------------------------------------------------*/
+    function changeNwidth(size) {node.attr('stroke-width', function(d) { return d.strokeW * size; })}
+
+    d3.select("#sliderNWidth").on("change", function(d){
+              selectedValue = this.value
+              changeNwidth(selectedValue)
+    })
+    d3.select("#sliderNWidthV").on("input", function(d){
+              selectedValue = this.value
+              changeNwidth(selectedValue)
+    })
+    /*Node opacity------------------------------------------------------------------------*/
+    function changeNop(size) {node.style('stroke-opacity', function(d) { return d.size * size; })}
+
+    d3.select("#sliderNop").on("change", function(d){
+              selectedValue = this.value
+              changeNop(selectedValue)
+    })
+    d3.select("#sliderNopV").on("input", function(d){
+              selectedValue = this.value
+              changeNop(selectedValue)
+    })
+    /*Label size------------------------------------------------------------------------*/
+    function changeLabelSize(size) {texts.style("font-size",function(d) {  return d.size * size;  })}
+
+    d3.select("#sliderLab").on("change", function(d){
+              selectedValue = this.value
+              changeLabelSize(selectedValue)
+    })
+    d3.select("#sliderLabV").on("input", function(d){
+              selectedValue = this.value
+              changeLabelSize(selectedValue)
+    })
+    /*Links Width ------------------------------------------------------------------------*/
+    function changeLwidth(size) {link.style('stroke-width', function(d) { return d.weigth * size; })}
+
+    d3.select("#sliderLWidth").on("change", function(d){
+              selectedValue = this.value
+              changeLwidth(selectedValue)
+    })
+    d3.select("#sliderLWidthV").on("input", function(d){
+              selectedValue = this.value
+              changeLwidth(selectedValue)
+    })
+      /*Links Opacity------------------------------------------------------------------------*/
+      function changeLOpacity(size) {
+        link.style('opacity', function(d) { return d.weigth * size; })
+      }
+
+      d3.select("#sliderLOpacity").on("change", function(d){
+                selectedValue = this.value
+                changeLOpacity(selectedValue)
+      })
+      d3.select("#sliderLOpacityV").on("input", function(d){
+              selectedValue = this.value
+              changeLOpacity(selectedValue)
+    })
+        /*Links Multilayer Opacity------------------------------------------------------------------------*/
+      function changeLMOpacity(size) {
+         link.style('opacity', function(d) { return d.intralayer * size; })
+       }
+
+       d3.select("#sliderLOpacityM").on("change", function(d){
+                 selectedValue = this.value
+                 changeLMOpacity(selectedValue)
+       })
+       d3.select("#sliderLOpacityMV").on("input", function(d){
+               selectedValue = this.value
+               changeLMOpacity(selectedValue)
+     })
+
+     function changeLMOpacity2(size) {
+         link.style('opacity', function(d) { return d.interlayer * size; })
+       }
+
+       d3.select("#sliderLOpacityM2").on("change", function(d){
+                 selectedValue = this.value
+                 changeLMOpacity2(selectedValue)
+       })
+       d3.select("#sliderLOpacityMV2").on("input", function(d){
+               selectedValue = this.value
+               changeLMOpacity2(selectedValue)
+     })
+      /*Links curves------------------------------------------------------------------------*/
+      function changeLCurve(size) {
+        if(size == 0){
+          link.attr('d', function(d) {
+              var dx = d.target.x - d.source.x,
+                  dy = d.target.y - d.source.y,
+                  dr = Math.sqrt(dx * dx + dy * dy)*100;
+              return 'M' + d.source.x + ',' + d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
+            });
+        }
+        else{
+          link.attr('d', function(d) {
+            var dx = d.target.x - d.source.x,
+                dy = d.target.y - d.source.y,
+                dr = Math.sqrt(dx * dx + dy * dy)/size;
+            return 'M' + d.source.x + ',' + d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
+            });
+        }
+      }
+
+      d3.select("#sliderLCurve").on("change", function(d){
+                selectedValue = this.value
+                changeLCurve(selectedValue)
+      })
+      d3.select("#sliderLCurveV").on("input", function(d){
+              selectedValue = this.value
+              changeLCurve(selectedValue)
+    })
+      /*Change Layouts------------------------------------------------------------------------*/
+      // Create data = list of groups
+      layouts = ["Force", "Circle", "Linear", "Multilayer"]
+
+      // Initialize the button
+      var dropdownButton = d3.select("#dataviz_builtWithD3")
+          .append('select')
+
+      // add the options to the button
+      dropdownButton // Add a button
+        .selectAll('myOptions') // Next 4 lines add 6 options = 6 colors
+             .data(layouts)
+        .enter()
+            .append('option')
+        .text(function (d) { return d; }) // text showed in the menu
+        .attr("value", function (d) { return d; }) // corresponding value returned by the button
+
+        // When the button is changed, run the updateChart function
+      dropdownButton.on("change", function(d) {
+
+      // recover the option that has been chosen
+      var selectedLayout = d3.select(this).property("value")
+
+      // run the updateChart function with this selected option
+          if(selectedLayout == 'Circle'){Layout = 'Circle';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Linear'){Layout = 'Linear';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Force'){Layout = 'Force2';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Multilayer'){Layout = 'Multilayer';simulation.alpha(0.5).restart();}
+
+      })
+
+
+</script>
+</body>
+</html>

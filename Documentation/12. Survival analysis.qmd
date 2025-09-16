@@ -39,9 +39,10 @@ Here’s an example of a Bayesian survival analysis using the **Bayesian Inferen
 
 ### Python
 
-```python
+```{python}
 from BI import bi
-
+import numpy as np
+import jax.numpy as jnp
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
@@ -55,10 +56,10 @@ m.df.metastasized = (m.df.metastasized == "yes").astype(np.int64)
 m.df.event = jnp.array(m.df.event.values, dtype=jnp.int32)
 
 ## Create survival object
-m.surv_object(time='time', event='event', cov='metastasized', interval_length=3)
+m.models.survival.surv_object(time='time', event='event', cov='metastasized', interval_length=3)
 
 # Plot censoring ------------------------------------------------
-m.plot_censoring(cov='metastasized')
+m.models.survival.plot_censoring(cov='metastasized')
 
 # Model ------------------------------------------------
 def model(intervals, death, metastasized, exposure):
@@ -69,12 +70,12 @@ def model(intervals, death, metastasized, exposure):
     beta = m.dist.normal(0, 1000, shape = (1,),  name='beta')
     ### Likelihood
     #### Compute hazard rate based on covariate effect
-    lambda_ = m.hazard_rate(cov = metastasized, beta = beta, lambda0 = lambda0)
+    lambda_ = m.models.survival.hazard_rate(cov = metastasized, beta = beta, lambda0 = lambda0)
     #### Compute exposure rates
     mu = exposure * lambda_
 
     # Likelihood calculation
-    y = m.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
+    y = m.dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
 
 # Run mcmc ------------------------------------------------
 m.fit(model, num_samples=500) 
@@ -83,7 +84,7 @@ m.fit(model, num_samples=500)
 print(m.summary())
 
 # Plot hazards and survival function ------------------------------------------------
-m.plot_surv()
+m.models.survival.plot_surv()
 ```
 
 
