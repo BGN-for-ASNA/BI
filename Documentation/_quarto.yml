@@ -1,5 +1,6 @@
 project:
   type: website
+  
 
 execute:
   startup: _setup.py
@@ -68,23 +69,34 @@ website:
         - 25. Network Metrics.qmd
         - 26. Network Based Diffusion analysis (wip).qmd
         - 27. BNN.qmd
+
     - id: api
       title: "API Reference"
       contents:
         - api_manip.qmd              
         - api_dist.qmd
         - api_diag.qmd
+
     - id: start
+      collapse-level: 2
       title: "Get started"
       contents:
-        - start/Installation.qmd              
-        - start/Import_class.qmd
-        - start/Import_data.qmd
-        - start/Define model.qmd
-        - start/Fit model.qmd
-        - start/Diagnostics.ipynb
-        
-  page-navigation: false
+        - section: "Installation"
+          contents:
+            - start/Installation.qmd     
+        - section: "Pipeline"
+          contents:        
+            - start/Import_class.qmd
+            - start/Import_data.qmd
+            - start/Define model.qmd
+            - start/Fit model.qmd
+            - start/Diagnostics.ipynb
+        - section: "Advance"
+          contents:
+            - Advance/build in functions.qmd
+            - Advance/Build in models.qmd
+
+  page-navigation: true
   
 
 format:
@@ -99,6 +111,13 @@ format:
     toc: true
     toc-location: right
     html-math-method: katex
+    grid:
+      body-width: 1000px
+    code-fold: false 
+    code-summary: "Show code"
+    code-overflow: wrap
+    code-tools: false
+    code-fold-default: show
 
   pdf:
     pdf-engine: xelatex
