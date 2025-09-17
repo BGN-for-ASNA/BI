@@ -1,6 +1,66 @@
 import jax
 from jax import random
 import numpyro
+import matplotlib.pyplot as plt
+import numpyro
+import numpyro.distributions as dist
+from jax import random
+import matplotlib.pyplot as plt
+import jax.numpy as jnp
+
+# Assuming BI is an alias for numpyro
+BI = numpyro
+
+class SampledData:
+    """
+    A wrapper class for a JAX numpy array that adds a .hist() method
+    while preserving all other JAX array functionalities through attribute delegation.
+    """
+
+    def __init__(self, data):
+        """
+        Initializes the SampledJAXArray object.
+
+        Args:
+            data (jnp.ndarray): The sampled JAX array.
+        """
+        self._data = data
+
+    def hist(self, bins='auto', **kwargs):
+        """
+        Plots a histogram of the stored JAX array data.
+
+        Args:
+            bins (int or sequence or str, optional): The number of bins for the histogram.
+                Defaults to 'auto'.
+            **kwargs: Additional keyword arguments passed to matplotlib.pyplot.hist().
+        """
+        plt.hist(self._data, bins=bins, **kwargs)
+        plt.title("Histogram of Sampled Data")
+        plt.xlabel("Value")
+        plt.ylabel("Frequency")
+        plt.show()
+
+    def __getattr__(self, name):
+        """
+        Delegates attribute access to the underlying JAX array.
+        This makes all jax.numpy array methods and attributes available.
+        """
+        # Get the attribute from the underlying JAX array
+        attr = getattr(self._data, name)
+        # If the attribute is a callable method, we need to return it
+        # so it can be called. Otherwise, just return the attribute value.
+        if callable(attr):
+            return attr
+        return attr
+
+    def __repr__(self):
+        """Provides a user-friendly representation of the object."""
+        return f"SampledJAXArray(\n{self._data}\n)"
+
+    def __getitem__(self, idx):
+        """Allows for indexing and slicing directly on the object."""
+        return self._data[idx]
 
 class UnifiedDist:
     """A class to unify various distribution methods and provide a consistent interface for sampling and inference."""
@@ -85,7 +145,8 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.AsymmetricLaplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
+
         else:
             if shape:
                 d = d.expand(shape)
@@ -165,7 +226,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.AsymmetricLaplaceQuantile(loc=loc, scale=scale, quantile=quantile, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -239,7 +300,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.BernoulliLogits(logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -316,7 +377,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.BernoulliProbs(probs=probs, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -393,7 +454,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -464,7 +525,7 @@ class UnifiedDist:
         d = numpyro.distributions.conjugate.BetaBinomial(concentration1=concentration1, concentration0=concentration0, total_count=total_count, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -538,7 +599,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.BetaProportion(mean=mean, concentration=concentration, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -609,7 +670,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.BinomialLogits(logits=logits, total_count=total_count, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -676,7 +737,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.BinomialProbs(probs=probs, total_count=total_count, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -741,7 +802,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.CAR(loc=loc, correlation=correlation, conditional_precision=conditional_precision, adj_matrix=adj_matrix, is_sparse=is_sparse, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -803,7 +864,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.CategoricalLogits(logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -876,7 +937,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.CategoricalProbs(probs=probs, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -947,7 +1008,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Cauchy(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1018,7 +1079,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Chi2(df=df, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1104,7 +1165,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.CirculantNormal(loc=loc, covariance_row=covariance_row, covariance_rfft=covariance_rfft, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1166,7 +1227,7 @@ class UnifiedDist:
         d = numpyro.distributions.distribution.Delta(v=v, log_density=log_density, event_dim=event_dim, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1234,7 +1295,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Dirichlet(concentration=concentration, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1319,7 +1380,7 @@ class UnifiedDist:
         d = numpyro.distributions.conjugate.DirichletMultinomial(concentration=concentration, total_count=total_count, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1387,7 +1448,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.DiscreteUniform(low=low, high=high, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1463,7 +1524,7 @@ class UnifiedDist:
         d = numpyro.distributions.truncated.DoublyTruncatedPowerLaw(alpha=alpha, low=low, high=high, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1526,7 +1587,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.EulerMaruyama(t=t, sde_fn=sde_fn, init_dist=init_dist, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1584,7 +1645,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Exponential(rate=rate, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1648,7 +1709,7 @@ class UnifiedDist:
         d = numpyro.distributions.distribution.FoldedDistribution(base_dist=base_dist, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1719,7 +1780,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Gamma(concentration=concentration, rate=rate, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1791,7 +1852,7 @@ class UnifiedDist:
         d = numpyro.distributions.conjugate.GammaPoisson(concentration=concentration, rate=rate, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1868,7 +1929,7 @@ class UnifiedDist:
         d = numpyro.distributions.copula.GaussianCopula(marginal_dist=marginal_dist, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -1947,7 +2008,7 @@ class UnifiedDist:
         d = numpyro.distributions.copula.GaussianCopulaBeta(concentration1=concentration1, concentration0=concentration0, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2023,7 +2084,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.GaussianRandomWalk(scale=scale,    num_steps=num_steps, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2097,7 +2158,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.GaussianStateSpace(num_steps=num_steps, transition_matrix=transition_matrix, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2162,7 +2223,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.GeometricLogits(logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2223,7 +2284,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.GeometricProbs(probs=probs, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2290,7 +2351,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Gompertz(concentration=concentration, rate=rate, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2357,7 +2418,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Gumbel(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2416,7 +2477,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.HalfCauchy(scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2481,7 +2542,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.HalfNormal(scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2550,7 +2611,7 @@ class UnifiedDist:
         d = numpyro.distributions.distribution.ImproperUniform(support=support, batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2615,7 +2676,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.InverseGamma(concentration=concentration, rate=rate, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2678,7 +2739,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Kumaraswamy(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2750,7 +2811,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.LKJ(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2807,7 +2868,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.LKJCholesky(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2873,7 +2934,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Laplace(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -2945,7 +3006,7 @@ class UnifiedDist:
         d = numpyro.distributions.truncated.LeftTruncatedDistribution(base_dist=base_dist, low=low, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3012,7 +3073,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Levy(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3078,7 +3139,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.LogNormal(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3145,7 +3206,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.LogUniform(low=low, high=high, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3208,7 +3269,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Logistic(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3272,7 +3333,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.LowRankMultivariateNormal(loc=loc, cov_factor=cov_factor, cov_diag=cov_diag, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3343,7 +3404,7 @@ class UnifiedDist:
         d = numpyro.distributions.truncated.LowerTruncatedPowerLaw(alpha=alpha, low=low, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3436,7 +3497,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.MatrixNormal(loc=loc, scale_tril_row=scale_tril_row, scale_tril_column=scale_tril_column, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3506,7 +3567,7 @@ class UnifiedDist:
         d = numpyro.distributions.mixtures.MixtureGeneral(mixing_distribution=mixing_distribution, component_distributions=component_distributions, support=support, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3587,7 +3648,7 @@ class UnifiedDist:
         d = numpyro.distributions.mixtures.MixtureSameFamily(mixing_distribution=mixing_distribution, component_distribution=component_distribution, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3656,7 +3717,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.MultinomialLogits(logits=logits, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3725,7 +3786,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.MultinomialProbs(probs=probs, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3814,7 +3875,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.MultivariateNormal(loc=loc, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3891,7 +3952,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.MultivariateStudentT(df=df, loc=loc, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -3956,7 +4017,7 @@ class UnifiedDist:
         d = numpyro.distributions.conjugate.NegativeBinomial2(mean=mean, concentration=concentration, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4023,7 +4084,7 @@ class UnifiedDist:
         d = numpyro.distributions.conjugate.NegativeBinomialLogits(total_count=total_count, logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4085,7 +4146,7 @@ class UnifiedDist:
         d = numpyro.distributions.conjugate.NegativeBinomialProbs(total_count=total_count, probs=probs, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4155,7 +4216,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Normal(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4221,7 +4282,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.OrderedLogistic(predictor=predictor, cutpoints=cutpoints, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4301,7 +4362,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Pareto(scale=scale, alpha=alpha, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4364,7 +4425,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.Poisson(rate=rate, is_sparse=is_sparse, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4440,7 +4501,7 @@ class UnifiedDist:
         d = numpyro.distributions.directional.ProjectedNormal(concentration=concentration, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4507,7 +4568,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.RelaxedBernoulliLogits(temperature=temperature, logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4590,7 +4651,7 @@ class UnifiedDist:
         d = numpyro.distributions.truncated.RightTruncatedDistribution(base_dist=base_dist, high=high, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4760,7 +4821,7 @@ class UnifiedDist:
         d = numpyro.distributions.directional.SineSkewed(base_dist=base_dist, skewness=skewness, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4837,7 +4898,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.SoftLaplace(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4900,7 +4961,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.StudentT(df=df, loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -4961,7 +5022,7 @@ class UnifiedDist:
         d = numpyro.distributions.truncated.TruncatedPolyaGamma(batch_shape=batch_shape, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5016,7 +5077,7 @@ class UnifiedDist:
         d = numpyro.distributions.truncated.TwoSidedTruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5088,7 +5149,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Uniform(low=low, high=high, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5154,7 +5215,7 @@ class UnifiedDist:
         d = numpyro.distributions.distribution.Unit(log_factor=log_factor, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5223,7 +5284,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Weibull(scale=scale, concentration=concentration, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5297,7 +5358,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Wishart(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5363,7 +5424,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.WishartCholesky(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5424,7 +5485,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.ZeroInflatedPoisson(gate=gate, rate=rate, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5488,7 +5549,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.ZeroSumNormal(scale=scale, event_shape=event_shape, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5550,7 +5611,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.Bernoulli(probs=probs, logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5614,7 +5675,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.Binomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5688,7 +5749,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.Categorical(probs=probs, logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5749,7 +5810,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.Geometric(probs=probs, logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5828,7 +5889,7 @@ class UnifiedDist:
         d = numpyro.distributions.mixtures.Mixture(mixing_distribution=mixing_distribution, component_distributions=component_distributions, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5893,7 +5954,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.Multinomial(total_count=total_count, probs=probs, logits=logits, total_count_max=total_count_max, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -5962,7 +6023,7 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.RelaxedBernoulli(temperature=temperature, probs=probs, logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -6031,7 +6092,7 @@ class UnifiedDist:
         d = numpyro.distributions.truncated.TruncatedCauchy(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -6102,7 +6163,7 @@ class UnifiedDist:
         d = numpyro.distributions.truncated.TruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -6186,7 +6247,7 @@ class UnifiedDist:
         d = numpyro.distributions.truncated.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -6265,7 +6326,7 @@ class UnifiedDist:
         d = numpyro.distributions.discrete.ZeroInflatedDistribution(base_dist=base_dist, gate=gate, gate_logits=gate_logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -6333,7 +6394,7 @@ class UnifiedDist:
         d = numpyro.distributions.conjugate.ZeroInflatedNegativeBinomial2(mean=mean, concentration=concentration, gate=gate, gate_logits=gate_logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
@@ -6393,7 +6454,7 @@ class UnifiedDist:
         d = numpyro.distributions.conjugate.NegativeBinomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args)
         if sample:
             seed_key = random.PRNGKey(seed)
-            return d.sample(seed_key,   sample_shape=shape)
+            return SampledData(d.sample(seed_key,   sample_shape=shape))
         else:
             if shape:
                 d = d.expand(shape)
