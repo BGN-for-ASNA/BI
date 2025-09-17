@@ -1,5 +1,11 @@
 ---
-title: "Welcome to Bayesian Inference "
+title: ""
+format:
+  html:
+    css: IndexStyle.css
+    page-layout: full
+    
+# We keep the listing definition here for the gallery section
 listing:
   categories: true
   contents: 
@@ -32,15 +38,134 @@ listing:
     - "25. Network Metrics.qmd"
     - "26. Network Based Diffusion analysis (wip).qmd"
     - "27. BNN.qmd"
-  type: grid         # This creates the gallery-style layout. [1, 4]
-  grid-columns: 3    # Optional: Adjust the number of columns.
-  sort: "order asc"  # Optional: Sort the items.
+  type: grid
+  grid-columns: 3
+  sort: "order asc"
   page-size: 40
+  fields: [image, title, reading-time, categories, description]
+  image-height: "250"
 ---
 
+# <span class="text-primary">Welcome to Bayesian Inference (BI)</span>
 
-Welcome to the  Bayesian Inference (BI) Documentation model gallery. Here you will find a collection of statistical models and techniques, each with a detailed explanation and examples. Click on any card to explore the topic.
+::: {.panel .welcome-panel}
 
-This gallery provides a quick visual overview to help you find the model you're looking for. You can use the sidebar for a more structured, chapter-by-chapter view.
+## An open-source library for Python and R
 
-# Gallery of Models
+<div class="container">
+
+  <ul style="text-align: left; list-style-position: inside;">
+  <strong class="text-primary">Scalable</strong> - Built on top of Numpyro, TensorFlow Probability and Jax, for cpu, gpu and tpu   vectorization and parallelization.  
+
+  <strong class="text-primary">Flexibility trade-offs</strong> - low-level abstraction coding available but also pre-build function for  high-level of abstraction. 
+
+  <strong class="text-primary">Unified</strong> - One framework for both Python and R.
+
+  <strong class="text-primary">Accessibility</strong> - 30 documented models.
+
+  <strong class="text-primary">Intuitive</strong> - model-building syntax.
+
+  </ul>
+
+<h3>
+  <p >
+  <strong>Analyze. Share. Reproduce.</strong> You have a story to tell with data—tell it with BI.
+  </p>
+  <button class="btn btn-lg btn-primary" type="button" href="#gallery" >Get Started</button>
+</h3>
+</div>
+
+::: 
+
+
+::: {.panel .welcome-show}
+
+<div class="container">
+## A Unified, Scalable, and Accessible Framework
+
+::: {.panel-tabset group="language"}
+### Pipline
+```python
+from BI import bi
+
+# Setup device------------------------------------------------
+m = bi(platform='cpu') # cpu, gpu or : tuple
+
+# Import Data ------------------------------------------------
+m.data(data_path) 
+
+# Define model ------------------------------------------------
+def model(arg1,argb2):
+   pass
+
+# Run mcmc ------------------------------------------------
+m.fit(model) 
+
+# Summary ------------------------------------------------
+m.summary()
+
+# Diagnostics ------------------------------------------------
+m.diag()
+```
+
+### Full Model definition
+```python
+
+def model(kcal_per_g, index_clade):
+    alpha = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'a') # shape based on the number of clades
+    beta = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'b')
+    sigma = m.bi.dist.exponential( 1, name = 's')    
+    mu = a[index_clade]+b[index_clade]*mass
+    m.normal(mu, s, obs=kcal_per_g)
+```
+
+### Prebuilt function for complex models
+```R
+def model(kcal_per_g, index_clade):
+    alpha = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'a') # shape based on the number of clades
+    beta = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'b')
+    sigma = m.bi.dist.exponential( 1, name = 's')    
+    mu = a[index_clade]+b[index_clade]*mass
+    m.normal(mu, s, obs=kcal_per_g)
+```
+:::
+
+</div>
+:::
+
+
+# <span class="text-primary" id="#gallery">Gallery</span>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 1. The element we want to watch for
+  const gallerySection = document.querySelector('#gallery');
+
+  // 2. The element we will add a class to (the main body)
+  const body = document.body;
+
+  // Only run the script if the gallery section actually exists on the page
+  if (gallerySection) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // 3. If the gallery is on screen...
+        if (entry.isIntersecting) {
+          // ...add the class to the body.
+          body.classList.add('gallery-in-view');
+        }else {
+          // ...otherwise, remove the class to SHOW the categories again.
+          body.classList.remove('gallery-in-view');
+        }
+      });
+    }, { 
+      // Trigger when 10% of the gallery is visible
+      threshold: 0.1 
+    });
+
+    // 5. Start watching the gallery section.
+    observer.observe(gallerySection);
+  }
+
+});
+</script>

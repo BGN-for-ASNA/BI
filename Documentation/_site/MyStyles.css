@@ -1,144 +1,122 @@
+/* styles.css */
+
+
 /*
-  ==================================================================
-  GENERAL SETUP FOR ALL PAGES
-  ==================================================================
-  This makes the main container full-width to remove outer blank space.
+==================================================================
+1. THEME VARIABLES
+Light theme is the default.
+==================================================================
 */
-body #quarto-content {
-  max-width: 100% !important;
-  width: 100% !important;
-  display: grid;
-  gap: 2rem;
-  padding: 0 2rem;
-  box-sizing: border-box;
+
+/* Light Theme (Default) */
+:root {
+  --card-bg-color: #002B36;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --card-hover-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  --title-text-color: #e2e8f0;
+  --category-boder-color: #002B36;
+  --category-text-color: #e2e8f0;
+  --category-hover-bg-color: #002B36;
+  /* Slightly adjusted for italic style */
+  --tooltip-bg-color: rgba(7, 54, 66, 0.95);
+  --tooltip-text-color: #e2e8f0;
+  --grid-bg-color: #002B36;
+
+
+}
+
+/* Dark Theme (Activated by Quarto's theme switcher) */
+[data-theme="light"] {
+  --card-bg-color: #FFFFFF;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --card-hover-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  --title-text-color: #1a1a1a;
+  --category-text-color: #5a5a5a;
+  /* Slightly adjusted for italic style */
+  --category-hover-bg-color: #f0f0f0;
+  --tooltip-bg-color: rgba(248, 249, 250, 0.92);
+  --tooltip-text-color: #1a1a1a;
 }
 
 /*
-  ==================================================================
-  LAYOUT 1: For Article pages (that HAVE a left sidebar)
-  ==================================================================
-  This rule only applies if #quarto-content contains #quarto-sidebar.
+==================================================================
+GENERAL SETUP & LAYOUT (No changes)
+==================================================================
 */
-body #quarto-content:has(#quarto-sidebar) {
-  grid-template-columns: 2fr 5fr 2fr 0.01fr;
-  /* Three-column layout */
-}
-
-/* Place content into the 3 columns */
-body #quarto-content:has(#quarto-sidebar)>#quarto-sidebar {
-  grid-column: 1;
-}
-
-body #quarto-content:has(#quarto-sidebar)>main#quarto-document-content {
-  grid-column: 2;
-}
-
-body #quarto-content:has(#quarto-sidebar)>#quarto-margin-sidebar {
-  grid-column: 3;
-}
-
-nav.page-navigation {
-  /* This tells the element to start at grid line 1 and end at the very last one */
-  grid-column: 5;
-  width: 100%;
-  background-color: #002B36;
-  max-width: 900px;
-  /* Set a max-width to control its size */
-  margin: 0 auto;
-  /* Center it horizontally */
-  padding: 2rem 0;
-      /* Give it some vertical breathing room */
-}
-/*
-  ==================================================================
-  LAYOUT 2: For Gallery/Index pages (that DO NOT have a left sidebar)
-  ==================================================================
-  This rule only applies if #quarto-content DOES NOT contain #quarto-sidebar.
-*/
-body #quarto-content:not(:has(#quarto-sidebar)) {
-  grid-template-columns: 0.5fr 6fr 0.5fr 2fr;
-  /* Two-column layout */
-}
-
-/* Place content into the 2 columns */
-body #quarto-content:not(:has(#quarto-sidebar))>main#quarto-document-content {
-  grid-column: 2;
-}
-
-body #quarto-content:not(:has(#quarto-sidebar))>#quarto-margin-sidebar {
-  grid-column: 4;
-}
 
 /*
-  ==================================================================
-  1. THE MAIN CARD CONTAINER
-  This creates the modern "floating" card effect.
-  ==================================================================
+==================================================================
+2. THE MAIN CARD CONTAINER (No changes)
+==================================================================
 */
 .quarto-grid-item.card {
-  background-color: #073642; /* A slightly lighter, rich dark blue */
-  border: none;              /* Remove default borders */
-  border-radius: 12px;       /* Softer, modern rounded corners */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Subtle shadow for depth */
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animations */
-  overflow: hidden;          /* Ensures the image respects the rounded corners */
-  position: relative;        /* CRITICAL: This is the anchor for the tooltip */
+  background-color: var(--card-bg-color);
+  border: none;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  position: relative;
 }
 
-/* Make the card "lift up" on hover for a nice interactive feel */
 .quarto-grid-item.card:hover {
-  transform: translateY(-8px); /* Lifts the card up */
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* A more pronounced shadow */
+  transform: translateY(-8px);
+  box-shadow: var(--card-hover-shadow);
 }
-
 
 /*
-  ==================================================================
-  2. CARD CONTENT STYLING (TITLE & CATEGORIES)
-  Refined styles for the text elements inside the card.
-  ==================================================================
+==================================================================
+3. CARD CONTENT STYLING (TITLE & CATEGORIES)
+==================================================================
 */
+.listing-reading-time{
+  color: var(--category-text-color);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.75rem 1rem 0.5rem;
+
+}
 .listing-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #ffffff;
-  padding: 0.75rem 1rem 0.5rem; /* Better padding around the title */
-  margin: 0;                   /* Remove default margins */
-  border-bottom: none;         /* Remove the old border */
+  color: var(--title-text-color);
+  padding: 0.75rem 1rem 0.5rem;
+  margin: 0;
+  border-bottom: none;
 }
 
 .listing-categories {
-  padding: 0 1rem 0.75rem;     /* Add padding to the container for the tags */
+  padding: 0 1rem 0.75rem;
 }
 
 .listing-category {
   display: inline-block;
-  background-color: #268bd2;   /* A vibrant, modern blue */
-  color: #ffffff;
+  color: var(--category-text-color);
   font-size: 0.7rem;
-  font-weight: 600;
-  padding: 4px 10px;           /* More balanced padding for the "pill" shape */
-  border-radius: 12px;
+  font-weight: 500;
+  /* Adjusted font-weight for better italic readability */
+  padding: 4px 8px;
+  /* Adjusted padding slightly */
+  border-radius: 8px;
+  /* Softened the radius */
   margin: 4px 4px 4px 0;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  /* === CHANGED HERE === */
+  font-style: italic;
+  border: none;
+  /* Explicitly remove border */
 }
 
 .listing-category:hover {
-  background-color: #1e6a9e;   /* A darker shade for hover */
+  background-color: var(--category-hover-bg-color);
 }
 
-
 /*
-  ==================================================================
-  3. THE TOOLTIP ON HOVER LOGIC
-  This is the core of your request.
-  ==================================================================
-*/
-
-/*
-  By default, the description is completely invisible and non-interactive.
-  It's positioned absolutely to cover the entire card.
+==================================================================
+4. THE TOOLTIP ON HOVER LOGIC (No changes)
+==================================================================
 */
 .listing-description {
   position: absolute;
@@ -146,46 +124,29 @@ body #quarto-content:not(:has(#quarto-sidebar))>#quarto-margin-sidebar {
   left: 0;
   width: 100%;
   height: 100%;
-
-  /* A semi-transparent overlay */
-  background: rgba(7, 54, 66, 0.95);
-  
-  /* Use backdrop-filter for a modern "frosted glass" effect (optional but nice) */
+  background: var(--tooltip-bg-color);
   backdrop-filter: blur(4px);
-
-  /* Hide it by default */
   opacity: 0;
   visibility: hidden;
-  
-  /* Use Flexbox to perfectly center the text inside */
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  /* Smooth fade-in/out animation */
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  
-  /* Reset these from your old style */
   border-top: none;
   padding-top: 0;
   margin-top: 0;
 }
 
-/*
-  CRITICAL: When you hover over the PARENT CARD, the description inside it
-  becomes visible and fades in.
-*/
 .quarto-grid-item.card:hover .listing-description {
   opacity: 1;
   visibility: visible;
 }
 
-/* Style the paragraph text inside the tooltip for readability */
 .listing-description p {
-  font-size: 0.9rem; /* Make it a bit bigger and more readable */
+  font-size: 1.2rem;
   line-height: 1.6;
-  color: #e2e8f0;    /* A bright, soft white */
+  color: var(--tooltip-text-color);
   text-align: center;
-  padding: 1rem;     /* Add some space around the text */
+  padding: 1rem;
   margin: 0;
 }
