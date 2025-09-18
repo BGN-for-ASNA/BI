@@ -68,9 +68,7 @@ listing:
   </ul>
 
 <h3>
-  <p >
-  <strong>Analyze. Share. Reproduce.</strong> You have a story to tell with data—tell it with BI.
-  </p>
+
   <button class="btn btn-lg btn-primary" type="button" href="#gallery" >Get Started</button>
 </h3>
 </div>
@@ -120,13 +118,20 @@ def model(kcal_per_g, index_clade):
 ```
 
 ### Prebuilt function for complex models
-```R
+```python
 def model(kcal_per_g, index_clade):
     alpha = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'a') # shape based on the number of clades
     beta = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'b')
     sigma = m.bi.dist.exponential( 1, name = 's')    
     mu = a[index_clade]+b[index_clade]*mass
     m.normal(mu, s, obs=kcal_per_g)
+```
+
+### Direct visualization of  distributions
+```{python}
+from BI import bi
+m = bi()
+m.dist.normal( 0, 1, name = 'a', shape=(100,4), sample = True).hist()
 ```
 :::
 

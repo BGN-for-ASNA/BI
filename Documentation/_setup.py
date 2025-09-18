@@ -11,3 +11,4 @@ class LastOnlyTQDM(tqdm_auto):
 
 # Patch NumPyro's tqdm globally
 numpyro.util.tqdm = LastOnlyTQDM
+
