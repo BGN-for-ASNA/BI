@@ -1,66 +1,11 @@
-import jax
-from jax import random
-import numpyro
-import matplotlib.pyplot as plt
-import numpyro
+from BI.Utils.SampledData import SampledData as SampledData
 import numpyro.distributions as dist
-from jax import random
 import matplotlib.pyplot as plt
 import jax.numpy as jnp
+from jax import random
+import numpyro
+import jax
 
-# Assuming BI is an alias for numpyro
-BI = numpyro
-
-class SampledData:
-    """
-    A wrapper class for a JAX numpy array that adds a .hist() method
-    while preserving all other JAX array functionalities through attribute delegation.
-    """
-
-    def __init__(self, data):
-        """
-        Initializes the SampledJAXArray object.
-
-        Args:
-            data (jnp.ndarray): The sampled JAX array.
-        """
-        self._data = data
-
-    def hist(self, bins='auto', **kwargs):
-        """
-        Plots a histogram of the stored JAX array data.
-
-        Args:
-            bins (int or sequence or str, optional): The number of bins for the histogram.
-                Defaults to 'auto'.
-            **kwargs: Additional keyword arguments passed to matplotlib.pyplot.hist().
-        """
-        plt.hist(self._data, bins=bins, **kwargs)
-        plt.title("Histogram of Sampled Data")
-        plt.xlabel("Value")
-        plt.ylabel("Frequency")
-        plt.show()
-
-    def __getattr__(self, name):
-        """
-        Delegates attribute access to the underlying JAX array.
-        This makes all jax.numpy array methods and attributes available.
-        """
-        # Get the attribute from the underlying JAX array
-        attr = getattr(self._data, name)
-        # If the attribute is a callable method, we need to return it
-        # so it can be called. Otherwise, just return the attribute value.
-        if callable(attr):
-            return attr
-        return attr
-
-    def __repr__(self):
-        """Provides a user-friendly representation of the object."""
-        return f"SampledJAXArray(\n{self._data}\n)"
-
-    def __getitem__(self, idx):
-        """Allows for indexing and slicing directly on the object."""
-        return self._data[idx]
 
 class UnifiedDist:
     """A class to unify various distribution methods and provide a consistent interface for sampling and inference."""
