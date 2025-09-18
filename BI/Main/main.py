@@ -23,7 +23,7 @@ from BI.Utils.array import effects
 from BI.SetDevice.set import setup_device
 
 from BI.Utils.link import link
-from BI.Diagnostic.Diag import diag
+from BI.Diagnostic.Diag2 import diagWIP as diag
 from BI.Network.Net import net
 from BI.NBDA.NBDA import NBDA
 from BI.Models.surv import survival
@@ -273,7 +273,7 @@ class bi(manip):
         return pyrand.randint(low, high, shape)
 
     # Get posteriors ----------------------------------------------------------------------------
-    def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
+    def summary(self, round_to=2, kind="all", hdi_prob=0.89, *args, **kwargs): 
         """
         Generate a summary of the posterior distribution.
         

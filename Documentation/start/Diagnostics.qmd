@@ -1,0 +1,108 @@
+---
+title: "Model Diagnostic"
+sidebar: start
+---
+
+The BI class can compute model diagnostics for a given model.
+
+Lets concider the following model for a linear regression:
+
+$$
+Y_i \sim \text{Normal}(\alpha + \beta   X_i, \sigma)
+$$
+
+$$
+\alpha \sim \text{Normal}(0, 1)
+$$
+
+$$
+\beta \sim \text{Normal}(0, 1)
+$$
+
+$$
+\sigma \sim \text{Uniform}(0, 50)
+$$
+
+```{python}
+from BI import bi
+import jax.numpy as jnp
+# setup platform------------------------------------------------
+m = bi(platform='cpu')
+
+# import data ------------------------------------------------
+m.data('Howell1.csv', sep=';') 
+m.df = m.df[m.df.age > 18]
+m.scale(data=['weight'])
+
+
+ # define model ------------------------------------------------
+def model(weight, height):    
+    a = m.dist.normal( 178, 20, name = 'a')
+    b = m.dist.log_normal(  0, 1, name = 'b')   
+    s = m.dist.uniform( 0, 50, name = 's')
+    m.dist.normal(a + b * weight , s, obs=height, shape=(weight.shape[0],))
+
+# Run sampler ------------------------------------------------
+m.fit(model, num_samples=500,num_chains=4) 
+m.summary()
+```
+
+# List of all available diagnostics
+
+For additional documentation check the [diagnostics API reference](../api_diag.qmd)
+
+## Predictions from model base on specific data value
+```{python}
+m.sample() # Predictions from model base on data in data_on_model
+m.sample(data=dict(weight=jnp.array([0.4])), remove_obs=False)# Predictions from a given value
+```
+
+
+## Forest plot of estimated values
+```{python}
+m.diag.forest()
+```
+
+## Density plots of the posterior distribution
+```{python}
+m.diag.density()
+```
+
+## Posterior distribution plots
+```{python}
+m.diag.posterior()
+```
+
+## Trace plots for MCMC chains
+```{python}
+m.diag.plot_trace()
+```
+
+## Pairwise plots of the posterior distribution
+```{python}
+m.diag.pair()
+```
+
+## Plot autocorrelation of the MCMC chains
+```{python}
+m.diag.autocor()
+```
+
+
+## Create rank plots for MCMC chains
+```{python}
+m.diag.rank()
+```
+
+## Evolution of effective sample size across iterations
+```{python}
+m.diag.plot_ess()
+```
+## Pareto-smoothed
+```{python}
+m.diag.loo()
+```
+##  Widely applicable information criterion
+```{python}
+m.diag.WAIC()
+```
