@@ -1,25 +1,15 @@
 import arviz as az
-import seaborn as sns
+
 import jax.numpy as jnp
 from jax.scipy.special import logsumexp
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-import plotly.colors as pcolors
-import plotly.graph_objects as go
-import plotly.express as px
-import plotly.figure_factory as ff
 import numpy as np
 import jax.numpy as jnp
 import itertools
 import scipy.stats as stats
 import re
-from plotly.colors import n_colors
-import seaborn as sns
-import matplotlib.pyplot as plt
-
+from BI.Utils.ImportManager import LazyImporter
 class diagWIP():
     """
     The diag class serves as a comprehensive toolkit for diagnosing and visualizing the results of Bayesian models, 
@@ -46,6 +36,14 @@ class diagWIP():
         else:
             self.num_chains = 0
             self.colors = []
+
+        go=importer.schedule_import("plotly.graph_objects", "go")
+        px=importer.schedule_import("plotly.express", "px")
+        ff=importer.schedule_import("plotly.figure_factory", "ff")
+        n_colors=importer.schedule_import("plotly.colors", "n_colors")
+        make_subplots=importer.schedule_import("plotly.subplots", "make_subplots")
+        sns=importer.schedule_import("seaborn", "sns")
+        plt=importer.schedule_import("matplotlib.pyplot", "plt")
     #
     #  Diagnostic with ARVIZ ----------------------------------------------------------------------------
     def to_az(self, backend="numpyro", sample_stats_name=['target_log_prob','log_accept_ratio','has_divergence','energy']):

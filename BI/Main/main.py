@@ -1,19 +1,23 @@
 
 import inspect
 import ast
-import warnings
-import arviz as az
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpyro
-import time as tm
-from jax import jit
-from jax import vmap
-import jax.numpy as jnp
-import jax as jax
-import numpy as np
+
+
+
+
 import jax.random as random
-import numpy as np
+import jax.numpy as jnp
+from jax import vmap
+from jax import jit
+import jax 
+
+from numpyro.infer import MCMC, NUTS, Predictive
+from numpyro.handlers import condition
+import numpyro
+
+import arviz as az
+
+
 import random as pyrand
 import functools
 
@@ -32,8 +36,7 @@ from BI.Models.DPMM import *
 from BI.Models.models import models
 from BI.ML.ml import ml
 from BI.BNN.bnn import bnn 
-from numpyro.infer import MCMC, NUTS, Predictive
-from numpyro.handlers import condition
+
 
 
 class bi(manip):

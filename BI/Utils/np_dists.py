@@ -1,11 +1,11 @@
-from BI.Utils.SampledData import SampledData as SampledData
+
 import numpyro.distributions as dist
 import matplotlib.pyplot as plt
 import jax.numpy as jnp
 from jax import random
 import numpyro
 import jax
-
+from BI.Utils.SampledData import SampledData as SampledData
 
 class UnifiedDist:
     """A class to unify various distribution methods and provide a consistent interface for sampling and inference."""

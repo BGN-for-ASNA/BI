@@ -1,14 +1,21 @@
-import plotly.graph_objects as go
-import plotly.express as px
-import plotly.figure_factory as ff
+from BI.Utils.ImportManager import LazyImporter
 import numpy as np
 import jax.numpy as jnp
+from jax import tree_util
 import itertools
 import scipy.stats as stats
-import re
-from plotly.colors import n_colors
-import seaborn as sns
-import matplotlib.pyplot as plt
+
+# Create a global instance of the importer
+importer = LazyImporter()
+
+# Schedule the heavy libraries for background import as soon as this module is loaded
+importer.schedule_import("plotly.graph_objects", "go")
+importer.schedule_import("plotly.express", "px")
+importer.schedule_import("plotly.figure_factory", "ff")
+importer.schedule_import("plotly.colors", "n_colors")
+importer.schedule_import("seaborn", "sns")
+importer.schedule_import("matplotlib.pyplot", "plt")
+
 class SampledData:
     """
     A wrapper for a JAX numpy array that adds interactive plotting methods using Plotly
@@ -26,8 +33,8 @@ class SampledData:
         self._data = jnp.asarray(data)
 
     def _wrap_result(self, result):
-        """Wraps the result in a SampledData object if it's a JAX array."""
-        if isinstance(result, jnp.ndarray):
+        """Wraps the result in a SampledData object if it's a JAX array with dimension > 0."""
+        if isinstance(result, jnp.ndarray) and result.ndim > 0:
             return SampledData(result)
         return result
 
@@ -36,6 +43,23 @@ class SampledData:
         if isinstance(other, SampledData):
             return other._data
         return other
+
+    def _tree_flatten(self):
+        """
+        Tells JAX how to flatten the object.
+        Returns a tuple of array leaves and a tuple of non-array metadata.
+        """
+        children = (self._data,)  # The JAX arrays to be traced
+        aux_data = None           # Any static data you need to reconstruct the class
+        return (children, aux_data)
+
+    @classmethod
+    def _tree_unflatten(cls, aux_data, children):
+        """
+        Tells JAX how to reconstruct the object from leaves and metadata.
+        """
+        # aux_data is None, children is a tuple containing the new JAX array
+        return cls(children[0])
 
     def __repr__(self):
         return f"SampledData({self._data})"
@@ -46,16 +70,19 @@ class SampledData:
         nbinsx=30, xaxis_title="Value", yaxis_title="Frequency", 
         template="plotly_white", 
         interactive = True,
-        figsize=(6, 4),
-        **kwargs
+        figsize=(6, 4),**kwargs
     ):
         if interactive:
             """Interactive histogram visualization."""
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
 
             fig = go.Figure()
 
             if self._data.ndim == 1:
-                fig.add_trace(go.Histogram(x=np.array(self._data), nbinsx=nbinsx, **kwargs))
+                 fig.add_trace(go.Histogram(x=np.array(self._data), nbinsx=nbinsx, **kwargs))
 
             elif self._data.ndim == 2:
                 for i in range(self._data.shape[1]):
@@ -86,19 +113,22 @@ class SampledData:
                             name=f"Group {g}, Time {t}"
                         ))
             fig.update_layout(title=title, template=template,
-                              xaxis_title=xaxis_title, yaxis_title=yaxis_title)
+                             xaxis_title=xaxis_title, yaxis_title=yaxis_title)
             fig.show()
         else:
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
+            
             plt.figure(figsize=figsize)
             if self._data.ndim == 1:
-                sns.histplot(self._data, bins=nbinsx, kde=False)
+               sns.histplot(self._data, bins=nbinsx, kde=False)
             elif self._data.ndim == 2:
-                for i in range(self._data.shape[1]):
-                    sns.histplot(self._data[:, i], bins=nbinsx, kde=False, label=f"Var {i}", alpha=0.5)
-                plt.legend()
+               for i in range(self._data.shape[1]):
+                   sns.histplot(self._data[:, i], bins=nbinsx, kde=False, label=f"Var {i}", alpha=0.5)
+               plt.legend()
             plt.title(title)
             plt.show()
- 
+
 
     def corr_heatmap(self, title="Correlation Matrix", template="plotly_white", digits=5, interactive = True, figsize=(6, 5), **kwargs):
         """
@@ -107,6 +137,10 @@ class SampledData:
         The y-axis is inverted to match standard matrix representation.
         """
         if interactive:
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
             if self._data.ndim != 2:
                 raise ValueError(f"Correlation heatmap is only supported for 2D data. Your data has   {self.  _data.ndim} dimensions.")
             
@@ -128,12 +162,12 @@ class SampledData:
             
             # Use the original correlation matrix for colors and the formatted text for annotations
             fig = ff.create_annotated_heatmap(
-                z=corr_matrix, 
-                x=x, 
-                y=y, 
-                annotation_text=formatted_text, # Use the string-formatted matrix here
-                colorscale='Viridis', 
-                **kwargs
+               z=corr_matrix, 
+               x=x, 
+               y=y, 
+               annotation_text=formatted_text, # Use the string-formatted matrix here
+               colorscale='Viridis', 
+               **kwargs
             )
             
             # Invert the y-axis to have Var 0 at the bottom
@@ -143,6 +177,8 @@ class SampledData:
             fig.show()
 
         else:
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
             if self._data.ndim != 2:
                 raise ValueError("Heatmap requires 2D data.")
             plt.figure(figsize=figsize)
@@ -153,7 +189,10 @@ class SampledData:
 
     def boxplot(self, title="Boxplot of Matrix Samples", template="plotly_white", interactive = True,figsize=(6, 4),  **kwargs):
         if interactive:
-            
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
             if  self._data.ndim != 2:
                 raise ValueError("Boxplot requires 2D data.")
             fig = go.Figure()
@@ -162,7 +201,8 @@ class SampledData:
             fig.update_layout(title=title, template=template)
             fig.show()
         else:
-            
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
             if  self._data.ndim != 2:
                 raise ValueError("Boxplot requires 2D data.")
             plt.figure(figsize=figsize)
@@ -172,7 +212,10 @@ class SampledData:
 
     def violinplot(self, title="Violin Plot of Matrix Samples", template="plotly_white", interactive = True, figsize=(6, 4), **kwargs):
         if interactive:
-            
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
             if  self._data.ndim != 2:
                 raise ValueError("Violin plot requires 2D data.")
             fig = go.Figure()
@@ -181,7 +224,8 @@ class SampledData:
             fig.update_layout(title=title, template=template)
             fig.show()
         else:
-            
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
             if self._data.ndim != 2:
                 raise ValueError("Violin plot requires 2D data.")
             plt.figure(figsize=figsize)
@@ -191,6 +235,10 @@ class SampledData:
 
     def pairplot(self, max_vars=5, title="Pairwise Scatter Plots", interactive = True):
         if interactive:
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
             if  self._data.ndim != 2:
                 raise ValueError("Pairplot requires 2D data.")
             n_vars = min( self._data.shape[1], max_vars)
@@ -206,7 +254,8 @@ class SampledData:
             fig.update_layout(title=title)
             fig.show()
         else:
-            
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
             if self._data.ndim != 2:
                 raise ValueError("Pairplot requires 2D data.")
             n_vars = min(self._data.shape[1], max_vars)
@@ -218,7 +267,11 @@ class SampledData:
 
     def timeseries(self, credible_interval=0.9, title="Sampled Time Series", interactive = True,figsize=(8, 4)):
         if interactive:
-            
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
+
             if  self._data.ndim != 2:
                 raise ValueError("Timeseries requires shape [n_samples, n_time].")
             mean =  self._data.mean(axis=0)
@@ -232,7 +285,8 @@ class SampledData:
             fig.update_layout(title=title)
             fig.show()
         else:
-            
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
             if self._data.ndim != 2:
                 raise ValueError("Timeseries requires shape [n_samples, n_time].")
             mean = self._data.mean(axis=0)
@@ -248,7 +302,10 @@ class SampledData:
 
     def scatter3d(self, title="3D Scatter of Samples", interactive = True,figsize=(6, 5)):
         if interactive:
-            
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
             if self._data.ndim != 2 or self._data.shape[1] < 3:
                 raise ValueError("Need shape [n_samples, >=3] for 3D scatter.")
             fig = go.Figure(data=[go.Scatter3d(
@@ -259,7 +316,8 @@ class SampledData:
             fig.update_layout(title=title)
             fig.show()
         else:
-            
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
             if self._data.ndim != 2 or self._data.shape[1] < 3:
                 raise ValueError("Need shape [n_samples, >=3] for 3D scatter.")
             from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
@@ -271,7 +329,10 @@ class SampledData:
 
     def traceplot(self, title="Trace Plot of Samples", interactive = True,figsize=(10, 6)):
         if interactive:
-            
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
             if  self._data.ndim != 2:
                 raise ValueError("Trace plot requires [n_samples, n_chains/variables].")
             fig = go.Figure()
@@ -280,7 +341,8 @@ class SampledData:
             fig.update_layout(title=title, xaxis_title="Iteration", yaxis_title="Value")
             fig.show()
         else:
-            
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
             if self._data.ndim != 2:
                 raise ValueError("Trace plot requires [n_samples, n_chains/variables].")
             plt.figure(figsize=figsize)
@@ -294,7 +356,10 @@ class SampledData:
     
     def autocorr(self, lags=50, title="Autocorrelation Plot", interactive = True,figsize=(8, 4)):
         if interactive:
-            
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
             if  self._data.ndim == 1:
                 series =  self._data
                 acf = [np.corrcoef(series[:-k], series[k:])[0, 1] if k > 0 else 1 for k in range(lags)]
@@ -312,7 +377,8 @@ class SampledData:
             else:
                 raise ValueError("Autocorrelation requires 1D or 2D data.")
         else:
-            
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
             plt.figure(figsize=figsize)
             if self._data.ndim == 1:
                 series = self._data
@@ -337,7 +403,11 @@ class SampledData:
         """
         Visualizes the distribution of the data using a density plot.
         """
-        print(f"Displaying: {title}")
+        import plotly.graph_objects as go
+        import plotly.express as px
+        import plotly.figure_factory as ff
+        from plotly.colors import n_colors
+
         if self._data.ndim > 2:
             raise ValueError(f"Density plot is only supported for 1D or 2D data. Your data has {self._data.ndim} dimensions.")
 
@@ -354,6 +424,10 @@ class SampledData:
         
     def ridgeline(self, title="Ridgeline Plot", template="plotly_white",interactive = True,category_labels=None, offset=2):
         if interactive:
+            go=importer.get_module("go")
+            px=importer.get_module("px")
+            ff=importer.get_module("ff")
+            n_colors=importer.get_module("n_colors")
             if self._data.ndim  not in [2, 3]:
                 raise ValueError(f"Ridgeline plot requires 2D or 3D data. Your data has {self._data.ndim}       dimensions.")
 
@@ -382,6 +456,8 @@ class SampledData:
             )
             
         else:
+            sns=importer.get_module("sns")
+            plt=importer.get_module("plt")
             if self._data.ndim != 2:
                 raise ValueError("Ridgeline requires 2D [samples, categories].")
             n_samples, n_categories = self._data.shape
@@ -405,7 +481,10 @@ class SampledData:
         """
         Visualizes 3D data as a surface plot.
         """
-        print(f"Displaying: {title}")
+        import plotly.graph_objects as go
+        import plotly.express as px
+        import plotly.figure_factory as ff
+        from plotly.colors import n_colors
         if self._data.ndim != 2:
             raise ValueError(f"3D Surface plot is only supported for 2D data. Your data has {self._data.ndim} dimensions.")
 
@@ -424,7 +503,10 @@ class SampledData:
         """
         Creates a posterior predictive check plot.
         """
-        print(f"Displaying: {title}")
+        import plotly.graph_objects as go
+        import plotly.express as px
+        import plotly.figure_factory as ff
+        from plotly.colors import n_colors
         if self._data.ndim != 2:
             raise ValueError(f"PPC plot expects 2D sampled data [n_draws, n_observations]. Your data has {self._data.ndim} dimensions.")
 
@@ -603,419 +685,55 @@ class SampledData:
     def __setitem__(self, idx, value):
         self._data = self._data.at[idx].set(self._extract_data(value))
 
-    # ================== ARRAY PROPERTIES ==================
+    def __getattr__(self, name):
+        """
+        Dynamically delegates attribute access to the underlying JAX array.
+        This is the most direct and robust way to mimic the array's behavior.
+        """
+        attr = getattr(self._data, name)
 
-    @property
-    def shape(self):
-        return self._data.shape
-    @property
-    def dtype(self):
-        return self._data.dtype
-    @property
-    def ndim(self):
-        return self._data.ndim
-    @property
-    def size(self):
-        return self._data.size
-    @property
-    def T(self):
-        return SampledData(self._data.T)
-    @property
-    def real(self):
-        return SampledData(self._data.real)
-    @property
-    def imag(self):
-        return SampledData(self._data.imag)
-    @property
-    def flat(self):
-        for item in self._data.flat:
-            yield item
+        if callable(attr):
+            # If the attribute is a method (like .sum(), .reshape()), return
+            # a new function that calls the original method and wraps the result.
+            def wrapper(*args, **kwargs):
+                unwrapped_args = [self._extract_data(arg) for arg in args]
+                unwrapped_kwargs = {k: self._extract_data(v) for k, v in kwargs.items()}
 
-    # ================== ARRAY MANIPULATION METHODS ==================
-
-    # Shape manipulation
-    def reshape(self, *args, **kwargs):
-        return SampledData(self._data.reshape(*args, **kwargs))
-    def resize(self, *args, **kwargs):
-        return SampledData(jnp.resize(self._data, *args, **kwargs))
-    def flatten(self, *args, **kwargs):
-        return SampledData(self._data.flatten(*args, **kwargs))
-    def ravel(self, *args, **kwargs):
-        return SampledData(self._data.ravel(*args, **kwargs))
-    def squeeze(self, *args, **kwargs):
-        return SampledData(jnp.squeeze(self._data, *args, **kwargs))
-    def expand_dims(self, axis):
-        return SampledData(jnp.expand_dims(self._data, axis))
-    def transpose(self, *args, **kwargs):
-        return SampledData(jnp.transpose(self._data, *args, **kwargs))
-    def swapaxes(self, axis1, axis2):
-        return SampledData(jnp.swapaxes(self._data, axis1, axis2))
-    def moveaxis(self, source, destination):
-        return SampledData(jnp.moveaxis(self._data, source, destination))
-    def rollaxis(self, axis, start=0):
-        return SampledData(jnp.rollaxis(self._data, axis, start))
-
-    # Array joining
-    def concatenate(self, others, axis=0):
-        arrays = [self._data] + [self._extract_data(other) for other in others]
-        return SampledData(jnp.concatenate(arrays, axis=axis))
-    def append(self, values, axis=None):
-        return SampledData(jnp.append(self._data, self._extract_data(values), axis))
-    def insert(self, obj, values, axis=None):
-        return SampledData(jnp.insert(self._data, obj, self._extract_data(values), axis))
-
-    # Array splitting
-    def split(self, indices_or_sections, axis=0):
-        results = jnp.split(self._data, indices_or_sections, axis)
-        return [SampledData(r) for r in results]
-    def hsplit(self, indices_or_sections):
-        results = jnp.hsplit(self._data, indices_or_sections)
-        return [SampledData(r) for r in results]
-    def vsplit(self, indices_or_sections):
-        results = jnp.vsplit(self._data, indices_or_sections)
-        return [SampledData(r) for r in results]
-
-    # Tiling
-    def tile(self, reps):
-        return SampledData(jnp.tile(self._data, reps))
-    def repeat(self, repeats, axis=None):
-        return SampledData(jnp.repeat(self._data, repeats, axis))
-
-    # Padding
-    def pad(self, pad_width, mode='constant', **kwargs):
-        return SampledData(jnp.pad(self._data, pad_width, mode, **kwargs))
-
-    # Flipping and rotation
-    def flip(self, axis=None):
-        return SampledData(jnp.flip(self._data, axis))
-    def fliplr(self):
-        return SampledData(jnp.fliplr(self._data))
-    def flipud(self):
-        return SampledData(jnp.flipud(self._data))
-    def rot90(self, k=1, axes=(0, 1)):
-        return SampledData(jnp.rot90(self._data, k, axes))
-    def roll(self, shift, axis=None):
-        return SampledData(jnp.roll(self._data, shift, axis))
-
-    # ================== MATHEMATICAL FUNCTIONS ==================
-
-    # Trigonometric functions
-    def sin(self):
-        return SampledData(jnp.sin(self._data))
-    def cos(self):
-        return SampledData(jnp.cos(self._data))
-    def tan(self):
-        return SampledData(jnp.tan(self._data))
-    def arcsin(self):
-        return SampledData(jnp.arcsin(self._data))
-    def arccos(self):
-        return SampledData(jnp.arccos(self._data))
-    def arctan(self):
-        return SampledData(jnp.arctan(self._data))
-    def arctan2(self, other):
-        return SampledData(jnp.arctan2(self._data, self._extract_data(other)))
-    def sinh(self):
-        return SampledData(jnp.sinh(self._data))
-    def cosh(self):
-        return SampledData(jnp.cosh(self._data))
-    def tanh(self):
-        return SampledData(jnp.tanh(self._data))
-    def arcsinh(self):
-        return SampledData(jnp.arcsinh(self._data))
-    def arccosh(self):
-        return SampledData(jnp.arccosh(self._data))
-    def arctanh(self):
-        return SampledData(jnp.arctanh(self._data))
-    def degrees(self):
-        return SampledData(jnp.degrees(self._data))
-    def radians(self):
-        return SampledData(jnp.radians(self._data))
-
-    # Exponential and logarithmic functions
-    def exp(self):
-        return SampledData(jnp.exp(self._data))
-    def exp2(self):
-        return SampledData(jnp.exp2(self._data))
-    def expm1(self):
-        return SampledData(jnp.expm1(self._data))
-    def log(self):
-        return SampledData(jnp.log(self._data))
-    def log2(self):
-        return SampledData(jnp.log2(self._data))
-    def log10(self):
-        return SampledData(jnp.log10(self._data))
-    def log1p(self):
-        return SampledData(jnp.log1p(self._data))
-    def power(self, exponent):
-        return SampledData(jnp.power(self._data, self._extract_data(exponent)))
-    def sqrt(self):
-        return SampledData(jnp.sqrt(self._data))
-    def square(self):
-        return SampledData(jnp.square(self._data))
-    def cbrt(self):
-        return SampledData(jnp.cbrt(self._data))
-
-    # Rounding functions
-    def round(self, decimals=0):
-        return SampledData(jnp.round(self._data, decimals))
-    def rint(self):
-        return SampledData(jnp.rint(self._data))
-    def ceil(self):
-        return SampledData(jnp.ceil(self._data))
-    def floor(self):
-        return SampledData(jnp.floor(self._data))
-    def trunc(self):
-        return SampledData(jnp.trunc(self._data))
-    def fix(self):
-        return SampledData(jnp.fix(self._data))
-
-    # Complex number functions
-    def angle(self):
-        return SampledData(jnp.angle(self._data))
-    def conj(self):
-        return SampledData(jnp.conj(self._data))
-    def conjugate(self):
-        return SampledData(jnp.conjugate(self._data))
-
-    # Absolute and sign functions
-    def fabs(self):
-        return SampledData(jnp.fabs(self._data))
-    def sign(self):
-        return SampledData(jnp.sign(self._data))
-    def copysign(self, other):
-        return SampledData(jnp.copysign(self._data, self._extract_data(other)))
-
-    # ================== STATISTICAL FUNCTIONS ==================
-
-    def sum(self, axis=None, dtype=None, keepdims=False):
-        result = jnp.sum(self._data, axis=axis, dtype=dtype, keepdims=keepdims)
-        return self._wrap_result(result)
-    def prod(self, axis=None, dtype=None, keepdims=False):
-        result = jnp.prod(self._data, axis=axis, dtype=dtype, keepdims=keepdims)
-        return self._wrap_result(result)
-    def mean(self, axis=None, dtype=None, keepdims=False):
-        result = jnp.mean(self._data, axis=axis, dtype=dtype, keepdims=keepdims)
-        return self._wrap_result(result)
-    def average(self, axis=None, weights=None):
-        weights = self._extract_data(weights) if weights is not None else None
-        result = jnp.average(self._data, axis=axis, weights=weights)
-        return self._wrap_result(result)
-    def std(self, axis=None, dtype=None, ddof=0, keepdims=False):
-        result = jnp.std(self._data, axis=axis, dtype=dtype, ddof=ddof, keepdims=keepdims)
-        return self._wrap_result(result)
-    def var(self, axis=None, dtype=None, ddof=0, keepdims=False):
-        result = jnp.var(self._data, axis=axis, dtype=dtype, ddof=ddof, keepdims=keepdims)
-        return self._wrap_result(result)
-    def median(self, axis=None, keepdims=False):
-        result = jnp.median(self._data, axis=axis, keepdims=keepdims)
-        return self._wrap_result(result)
-    def percentile(self, q, axis=None, keepdims=False):
-        result = jnp.percentile(self._data, q, axis=axis, keepdims=keepdims)
-        return self._wrap_result(result)
-    def quantile(self, q, axis=None, keepdims=False):
-        result = jnp.quantile(self._data, q, axis=axis, keepdims=keepdims)
-        return self._wrap_result(result)
-
-    # Extrema finding
-    def min(self, axis=None, keepdims=False):
-        result = jnp.min(self._data, axis=axis, keepdims=keepdims)
-        return self._wrap_result(result)
-    def max(self, axis=None, keepdims=False):
-        result = jnp.max(self._data, axis=axis, keepdims=keepdims)
-        return self._wrap_result(result)
-    def argmin(self, axis=None, keepdims=False):
-        result = jnp.argmin(self._data, axis=axis, keepdims=keepdims)
-        return self._wrap_result(result)
-    def argmax(self, axis=None, keepdims=False):
-        result = jnp.argmax(self._data, axis=axis, keepdims=keepdims)
-        return self._wrap_result(result)
-    def ptp(self, axis=None, keepdims=False):
-        result = jnp.ptp(self._data, axis=axis, keepdims=keepdims)
-        return self._wrap_result(result)
-
-    # Cumulative functions
-    def cumsum(self, axis=None, dtype=None):
-        return SampledData(jnp.cumsum(self._data, axis=axis, dtype=dtype))
-    def cumprod(self, axis=None, dtype=None):
-        return SampledData(jnp.cumprod(self._data, axis=axis, dtype=dtype))
-
-    # Differences
-    def diff(self, n=1, axis=-1):
-        return SampledData(jnp.diff(self._data, n=n, axis=axis))
-    def gradient(self, *varargs, **kwargs):
-        result = jnp.gradient(self._data, *varargs, **kwargs)
-        return [SampledData(r) for r in result] if isinstance(result, list) else SampledData(result)
-
-    # Correlation and covariance
-    def corrcoef(self, y=None, rowvar=True):
-        y_data = self._extract_data(y) if y is not None else None
-        return SampledData(jnp.corrcoef(self._data, y_data, rowvar=rowvar))
-    def cov(self, y=None, rowvar=True, ddof=None):
-        y_data = self._extract_data(y) if y is not None else None
-        return SampledData(jnp.cov(self._data, y_data, rowvar=rowvar, ddof=ddof))
-
-    # Histograms
-    def histogram(self, bins=10, range=None, weights=None, density=None):
-        weights = self._extract_data(weights) if weights is not None else None
-        hist, bin_edges = jnp.histogram(self._data, bins=bins, range=range,
-                                       weights=weights, density=density)
-        return SampledData(hist), SampledData(bin_edges)
-
-    # ================== SORTING AND SEARCHING ==================
-
-    def sort(self, axis=-1, kind=None, order=None):
-        return SampledData(jnp.sort(self._data, axis=axis, kind=kind, order=order))
-    def argsort(self, axis=-1, kind=None, order=None):
-        return SampledData(jnp.argsort(self._data, axis=axis, kind=kind, order=order))
-    def lexsort(self, axis=-1):
-        return SampledData(jnp.lexsort(self._data, axis=axis))
-    def partition(self, kth, axis=-1):
-        return SampledData(jnp.partition(self._data, kth, axis=axis))
-    def argpartition(self, kth, axis=-1):
-        return SampledData(jnp.argpartition(self._data, kth, axis=axis))
-    def searchsorted(self, v, side='left', sorter=None):
-        v_data = self._extract_data(v)
-        sorter_data = self._extract_data(sorter) if sorter is not None else None
-        return SampledData(jnp.searchsorted(self._data, v_data, side=side, sorter=sorter_data))
-
-    # Finding elements
-    def where(self, condition, x=None, y=None):
-        x_data = self._extract_data(x) if x is not None else None
-        y_data = self._extract_data(y) if y is not None else None
-        if x_data is None and y_data is None:
-            result = jnp.where(condition)
-            return tuple(SampledData(r) for r in result)
+                result = attr(*unwrapped_args, **unwrapped_kwargs)
+                return self._wrap_result(result)
+            return wrapper
         else:
-            return SampledData(jnp.where(condition, x_data, y_data))
-    def nonzero(self):
-        result = jnp.nonzero(self._data)
-        return tuple(SampledData(r) for r in result)
+            # If the attribute is a property (like .T, .shape), just return its value,
+            # wrapping it if it's an array.
+            return self._wrap_result(attr)
 
-    # ================== LOGICAL FUNCTIONS ==================
+    def __dir__(self):
+            # Start with the attributes of this class
+            own_attrs = set(super().__dir__())
+            # Add the attributes from the wrapped data object
+            data_attrs = set(dir(self._data))
+            return sorted(list(own_attrs | data_attrs))
 
-    def all(self, axis=None, keepdims=False):
-        return jnp.all(self._data, axis=axis, keepdims=keepdims)
-    def any(self, axis=None, keepdims=False):
-        return jnp.any(self._data, axis=axis, keepdims=keepdims)
-    def logical_and(self, other):
-        return SampledData(jnp.logical_and(self._data, self._extract_data(other)))
-    def logical_or(self, other):
-        return SampledData(jnp.logical_or(self._data, self._extract_data(other)))
-    def logical_not(self):
-        return SampledData(jnp.logical_not(self._data))
-    def logical_xor(self, other):
-        return SampledData(jnp.logical_xor(self._data, self._extract_data(other)))
+    # --- ADD THIS METHOD ---
+    def __jax_array__(self):
+        """
+        Allows the class to be treated as a JAX array directly.
+        This is the key to robust compatibility with transformations like vmap.
+        """
+        return self._data
+        
+    # --- KEEP YOUR PYTREE METHODS ---
+    def _tree_flatten(self):
+        children = (self._data,)
+        aux_data = None
+        return (children, aux_data)
 
-    # Truth value testing
-    def isfinite(self):
-        return SampledData(jnp.isfinite(self._data))
-    def isinf(self):
-        return SampledData(jnp.isinf(self._data))
-    def isnan(self):
-        return SampledData(jnp.isnan(self._data))
-    def isposinf(self):
-        return SampledData(jnp.isposinf(self._data))
-    def isneginf(self):
-        return SampledData(jnp.isneginf(self._data))
-    def iscomplex(self):
-        return SampledData(jnp.iscomplexobj(self._data))
-    def isreal(self):
-        return SampledData(jnp.isrealobj(self._data))
+    @classmethod
+    def _tree_unflatten(cls, aux_data, children):
+        return cls(children[0])
 
-    # Array comparison
-    def allclose(self, other, rtol=1e-05, atol=1e-08, equal_nan=False):
-        return jnp.allclose(self._data, self._extract_data(other), rtol=rtol, atol=atol, equal_nan=equal_nan)
-
-    # ================== LINEAR ALGEBRA ==================
-
-    def dot(self, other):
-        return self._wrap_result(jnp.dot(self._data, self._extract_data(other)))
-    def vdot(self, other):
-        return self._wrap_result(jnp.vdot(self._data, self._extract_data(other)))
-    def inner(self, other):
-        return self._wrap_result(jnp.inner(self._data, self._extract_data(other)))
-    def outer(self, other):
-        return self._wrap_result(jnp.outer(self._data, self._extract_data(other)))
-    def tensordot(self, other, axes=2):
-        return self._wrap_result(jnp.tensordot(self._data, self._extract_data(other), axes=axes))
-    def einsum(self, *operands, **kwargs):
-        return self._wrap_result(jnp.einsum(self._data, *[self._extract_data(op) for op in operands], **kwargs))
-    def linalg_det(self):
-        return self._wrap_result(jnp.linalg.det(self._data))
-    def linalg_slogdet(self):
-        sign, logdet = jnp.linalg.slogdet(self._data)
-        return self._wrap_result(sign), self._wrap_result(logdet)
-    def linalg_eig(self):
-        w, v = jnp.linalg.eig(self._data)
-        return self._wrap_result(w), self._wrap_result(v)
-    def linalg_eigh(self):
-        w, v = jnp.linalg.eigh(self._data)
-        return self._wrap_result(w), self._wrap_result(v)
-    def linalg_eigvals(self):
-        return self._wrap_result(jnp.linalg.eigvals(self._data))
-    def linalg_eigvalsh(self):
-        return self._wrap_result(jnp.linalg.eigvalsh(self._data))
-    def linalg_inv(self):
-        return self._wrap_result(jnp.linalg.inv(self._data))
-    def linalg_lstsq(self, b, rcond=None):
-        x, res, rank, s = jnp.linalg.lstsq(self._data, self._extract_data(b), rcond=rcond)
-        return self._wrap_result(x), self._wrap_result(res), self._wrap_result(rank), self._wrap_result(s)
-    def linalg_matrix_power(self, n):
-        return self._wrap_result(jnp.linalg.matrix_power(self._data, n))
-    def linalg_matrix_rank(self):
-        return self._wrap_result(jnp.linalg.matrix_rank(self._data))
-    def linalg_norm(self, ord=None, axis=None, keepdims=False):
-        return self._wrap_result(jnp.linalg.norm(self._data, ord=ord, axis=axis, keepdims=keepdims))
-    def linalg_pinv(self):
-        return self._wrap_result(jnp.linalg.pinv(self._data))
-    def linalg_qr(self, mode='reduced'):
-        q, r = jnp.linalg.qr(self._data, mode=mode)
-        return self._wrap_result(q), self._wrap_result(r)
-    def linalg_solve(self, b):
-        return self._wrap_result(jnp.linalg.solve(self._data, self._extract_data(b)))
-    def linalg_svd(self, full_matrices=True, compute_uv=True):
-        if compute_uv:
-            u, s, vh = jnp.linalg.svd(self._data, full_matrices=full_matrices, compute_uv=compute_uv)
-            return self._wrap_result(u), self._wrap_result(s), self._wrap_result(vh)
-        else:
-            s = jnp.linalg.svd(self._data, full_matrices=full_matrices, compute_uv=compute_uv)
-            return self._wrap_result(s)
-
-    # ================== FAST FOURIER TRANSFORM (FFT) ==================
-
-    def fft(self, n=None, axis=-1, norm=None):
-        return self._wrap_result(jnp.fft.fft(self._data, n=n, axis=axis, norm=norm))
-    def ifft(self, n=None, axis=-1, norm=None):
-        return self._wrap_result(jnp.fft.ifft(self._data, n=n, axis=axis, norm=norm))
-    def fft2(self, s=None, axes=(-2, -1), norm=None):
-        return self._wrap_result(jnp.fft.fft2(self._data, s=s, axes=axes, norm=norm))
-    def ifft2(self, s=None, axes=(-2, -1), norm=None):
-        return self._wrap_result(jnp.fft.ifft2(self._data, s=s, axes=axes, norm=norm))
-    def fftn(self, s=None, axes=None, norm=None):
-        return self._wrap_result(jnp.fft.fftn(self._data, s=s, axes=axes, norm=norm))
-    def ifftn(self, s=None, axes=None, norm=None):
-        return self._wrap_result(jnp.fft.ifftn(self._data, s=s, axes=axes, norm=norm))
-    def rfft(self, n=None, axis=-1, norm=None):
-        return self._wrap_result(jnp.fft.rfft(self._data, n=n, axis=axis, norm=norm))
-    def irfft(self, n=None, axis=-1, norm=None):
-        return self._wrap_result(jnp.fft.irfft(self._data, n=n, axis=axis, norm=norm))
-    def rfft2(self, s=None, axes=(-2, -1), norm=None):
-        return self._wrap_result(jnp.fft.rfft2(self._data, s=s, axes=axes, norm=norm))
-    def irfft2(self, s=None, axes=(-2, -1), norm=None):
-        return self._wrap_result(jnp.fft.irfft2(self._data, s=s, axes=axes, norm=norm))
-    def rfftn(self, s=None, axes=None, norm=None):
-        return self._wrap_result(jnp.fft.rfftn(self._data, s=s, axes=axes, norm=norm))
-    def irfftn(self, s=None, axes=None, norm=None):
-        return self._wrap_result(jnp.fft.irfftn(self._data, s=s, axes=axes, norm=norm))
-    def hfft(self, n=None, axis=-1, norm=None):
-        return self._wrap_result(jnp.fft.hfft(self._data, n=n, axis=axis, norm=norm))
-    def ihfft(self, n=None, axis=-1, norm=None):
-        return self._wrap_result(jnp.fft.ihfft(self._data, n=n, axis=axis, norm=norm))
-    def fftfreq(self, d=1.0):
-        return self._wrap_result(jnp.fft.fftfreq(self.size, d=d))
-    def rfftfreq(self, d=1.0):
-        return self._wrap_result(jnp.fft.rfftfreq(self.size, d=d))
-    def fftshift(self, axes=None):
-        return self._wrap_result(jnp.fft.fftshift(self._data, axes=axes))
-    def ifftshift(self, axes=None):
-        return self._wrap_result(jnp.fft.ifftshift(self._data, axes=axes))
+tree_util.register_pytree_node(
+    SampledData,
+    lambda x: x._tree_flatten(),    # The flatten function is the instance method
+    SampledData._tree_unflatten     # The unflatten function is the class method
+)
