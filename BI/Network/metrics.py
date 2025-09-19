@@ -12,130 +12,110 @@ class met:
     def __init__(self):
         pass
     
-
+    @jit
+    def normalize(x, m):
+        return x / (m.shape[0]-1)
+        
     # Network utils
     # Nodal measures----------------------------------------------------------------------------------
     ## Clustering_coefficient----------------------------------------------------------------------------------
     @staticmethod 
-    def triangles_and_degree_iter(adj_matrix, nodes=None):
-        """Compute triangles and degrees for nodes in the graph."""
-        num_nodes = adj_matrix.shape[0]
-        if nodes is None:
-            nodes = jnp.arange(num_nodes)
-        results = []
+    @jax.jit
+    def triangles_and_degree(adj_matrix):
+        """
+        Computes the number of triangles and the degree for each node in    a graph.
+        This function is optimized for JAX and is JIT-compatible.
+        """
+        # Ensure the adjacency matrix is boolean for logical operations
+        adj_matrix_bool = adj_matrix > 0
 
-        for v in nodes:
-            v_nbrs = jnp.where(adj_matrix[v] > 0)[0]
-            vs = jnp.setdiff1d(v_nbrs, jnp.array([v]))
-            gen_degree = jnp.array([
-                jnp.sum(jnp.logical_and(adj_matrix[w], adj_matrix[v])) for w in vs
-            ])
-            ntriangles = jnp.sum(gen_degree)
-            results.append((v, len(vs), ntriangles, gen_degree))
-        return results
+        # Calculate the degree of each node
+        degrees = jnp.sum(adj_matrix_bool, axis=1)
 
-    @staticmethod 
-    def clustering(adj_matrix, nodes=None):
-        """Compute unweighted clustering coefficient for nodes in the graph."""
-        td_iter = met.triangles_and_degree_iter(adj_matrix, nodes)
-        num_nodes = adj_matrix.shape[0]
-        clusterc = jnp.zeros(num_nodes)
+        # Compute the number of triangles for each node
+        # This is equivalent to the diagonal of the cube of the     adjacency matrix
+        num_triangles = jnp.diag(jnp.linalg.matrix_power(adj_matrix_bool.   astype(jnp.int32), 3)) / 2
 
-        for v, d, t, _ in td_iter:
-            clusterc = clusterc.at[v].set(0 if t == 0 else t / (d * (d - 1)))
+        return degrees, num_triangles
+
+    @jax.jit
+    def clustering_coefficient(adj_matrix):
+        """
+        Computes the clustering coefficient for each node in the graph.
+        This function is optimized for JAX and is JIT-compatible.
+        """
+        degrees, num_triangles = met.triangles_and_degree(adj_matrix)
+
+        # To avoid division by zero for nodes with degree less than 2,
+        # we calculate the denominator and use jnp.where to handle these    cases.
+        denominator = degrees * (degrees - 1)
+
+        # The clustering coefficient is set to 0 where the denominator  is 0.
+        clusterc = jnp.where(denominator > 0, 2 * num_triangles /   denominator, 0)
+
         return clusterc
-
 
     @staticmethod 
     def cc(m, nodes=None):
-        return met.clustering(m, nodes=nodes) 
+        return met.clustering_coefficient(m) 
 
     ## eigenvector----------------------------------------------------------------------------------
-    @staticmethod 
+    @staticmethod
     @jit
-    def power_iteration(m, num_iter=100, tol=1e-6):
-        """
-        Compute the dominant eigenvector of a matrix A  using the power iteration algorithm.
+    def power_iteration(A, num_iter=1000, tol=1e-6):
+        # ensure float64 to match numpy/networkx precision
+        A = jnp.asarray(A, dtype=jnp.float64)
+        n = A.shape[0]
 
-        Args:
-            m (jax.numpy.ndarray): Input square matrix.
-            num_iter (int): Maximum number of   iterations.
-            tol (float): Tolerance for convergence.
+        # start with normalized vector of ones (float64)
+        v0 = jnp.ones(n, dtype=jnp.float64)
+        v0 = v0 / jnp.linalg.norm(v0)
 
-        Returns:
-            eigenvector (jax.numpy.ndarray): Dominant   eigenvector.
-            eigenvalue (float): Dominant eigenvalue.
-        """
-        # Define the condition function for the while loop
-        def condition_fn(state):
-            i, prev_vec, current_vec, _ = state
-            # Continue if iteration count is not exceeded AND the change is above tolerance
-            return (i < num_iter) & (jnp.linalg.norm(current_vec - prev_vec) >= tol)
-    
-        # Define the body function for one loop iteration
+        def cond_fn(state):
+            i, prev_v = state
+            v = jnp.dot(A, prev_v)
+            v = v / jnp.linalg.norm(v)
+            return (i < num_iter) & (jnp.linalg.norm(v - prev_v) >= tol)
+
         def body_fn(state):
-            i, _, current_vec, matrix = state
-            # The "current" vector becomes the "previous" vector for the next step
-            prev_vec_next = current_vec
-            
-            # Calculate the new "current" vector
-            current_vec_next = jnp.dot(matrix, prev_vec_next)
-            current_vec_next = current_vec_next / jnp.linalg.norm(current_vec_next)
-            
-            return (i + 1, prev_vec_next, current_vec_next, matrix)
-    
-        # --- Initialize the state for the loop ---
-        n = m.shape[0]
-        # Start with a vector of ones
-        initial_guess = jnp.ones(n)
-        # Perform the first iteration explicitly to have a "previous" and "current" vector
-        initial_current_vec = jnp.dot(m, initial_guess)
-        initial_current_vec = initial_current_vec / jnp.linalg.norm(initial_current_vec)
-    
-        # The initial state tuple: (iteration, prev_vector, current_vector, matrix)
-        initial_state = (0, initial_guess, initial_current_vec, m)
-    
-        # Run the while loop
-        final_state = lax.while_loop(condition_fn, body_fn, initial_state)
-        
-        # Unpack the final eigenvector from the state
-        _, _, eigenvector, _ = final_state
-    
-        # Compute the dominant eigenvalue
-        eigenvalue = jnp.dot(eigenvector, jnp.dot(m, eigenvector)) / jnp.dot(eigenvector, eigenvector)
-        
-        return eigenvector, eigenvalue
+            i, prev_v = state
+            v = jnp.dot(A, prev_v)
+            v = v / jnp.linalg.norm(v)
+            return (i + 1, v)
+
+        init_state = (0, v0)
+        _, v = lax.while_loop(cond_fn, body_fn, init_state)
+
+        # Rayleigh quotient for eigenvalue (real-valued)
+        eigenvalue = jnp.dot(v, jnp.dot(A, v)) / jnp.dot(v, v)
+        return v, eigenvalue
 
     @staticmethod
-    def eigenvector(m, weighted=True, num_iter=1000, tol=1e-6):
+    def eigenvector(adj_matrix, weighted=True, use_transpose=True,
+                    add_self_loops=False, num_iter=1000, tol=1e-6):
         """
-        Compute the eigenvector centrality of a graph using the power iteration algorithm.
-
-        Args:
-            m (jax.numpy.ndarray): Input square matrix.
-            weighted (bool): Whether to consider edge weights.
-            num_iter (int): Maximum number of iterations.
-            tol (float): Tolerance for convergence.
-
-        Returns:
-            eigenvector_centrality (jax.numpy.ndarray): Eigenvector centrality of each node.
+        Compute eigenvector centrality. Arguments to match NetworkX behavior:
+         - use_transpose: set True for iterating with A.T (incoming edges convention).
+         - add_self_loops: set True only if you intentionally want self-loops.
         """
-        adj_matrix = m
+        A = jnp.asarray(adj_matrix, dtype=jnp.float64)
 
         if not weighted:
-            adj_matrix = (m > 0).astype(jnp.float32)
+            A = (A > 0).astype(jnp.float64)
 
-        n = adj_matrix.shape[0]
-        matrix_for_iteration = adj_matrix.T + jnp.identity(n)
+        M = A.T if use_transpose else A
+        if add_self_loops:
+            M = M + jnp.eye(M.shape[0], dtype=jnp.float64)
 
-        eigenvector_val, _ = power_iteration(matrix_for_iteration, num_iter=num_iter, tol=tol)
-        return eigenvector_val
-
-
+        v, _ = met.power_iteration(M, num_iter=num_iter, tol=tol)
+        # normalize to L2 (NetworkX normalizes similarly)
+        v = v / jnp.linalg.norm(v)
+        return v
+    
     ## Dijkstra----------------------------------------------------------------------------------
     @staticmethod 
     @jit
-    def dijkstra(adjacency_matrix, source):
+    def dijkstra_jax(adjacency_matrix, source):
         """
         Compute the shortest path from a source node to all other nodes using Dijkstra's algorithm.
 
@@ -195,7 +175,7 @@ class met:
 
     @staticmethod 
     def dijkstra(m,  source):
-        return met.dijkstra(m, source)
+        return met.dijkstra_jax(m, source)
     
 
     ## Strength----------------------------------------------------------------------------------
@@ -215,8 +195,12 @@ class met:
         return met.outstrength_jit(x) +  met.instrength_jit(x)
 
     @staticmethod 
-    def strength(m):
-        return met.strength_jit(m)
+    def strength(m, sym = False):
+        if sym :
+            return met.outstrength_jit(m)
+        else:
+            return met.strength_jit(m)
+
     
     @staticmethod 
     def outstrength(m):
@@ -242,19 +226,36 @@ class met:
     @staticmethod 
     @jit
     def degree_jit(x):
-        return met.indegree_jit(x) +met.outdegree_jit(x)
+        return met.indegree_jit(x) + met.outdegree_jit(x)
 
     @staticmethod 
-    def degree(m):
-        return met.degree_jit(m)
+    def degree(m, sym = False, normalize=False):
+        # normalized by dividing by the maximum possible degree in a simple graph n-1 where n is the number of nodes in G.
+        if sym :
+            degree =  met.indegree_jit(m)
+        else:
+            degree = met.degree_jit(m)
+
+        if normalize:
+            return met.normalize(degree,m)
+        else:
+            return degree
     
     @staticmethod 
-    def indegree(m):
-        return met.indegree_jit(m)
+    def indegree(m, normalize=False):
+        degree =  met.indegree_jit(m)
+        if normalize:
+            return met.normalize(degree,m)
+        else:
+            return degree
     
     @staticmethod 
-    def outdegree(m):
-        return met.outdegree_jit(m)
+    def outdegree(m, normalize=False):
+        degree = met.outdegree_jit(m)
+        if normalize:
+            return met.normalize(degree,m)
+        else:
+            return degree
     
     # Global measures----------------------------------------------------------------------------------
     @staticmethod
