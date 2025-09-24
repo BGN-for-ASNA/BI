@@ -10,6 +10,15 @@ import itertools
 import scipy.stats as stats
 import re
 from BI.Utils.ImportManager import LazyImporter
+import plotly.colors as pcolors
+from plotly.subplots import make_subplots
+importer = LazyImporter()
+importer.schedule_import("plotly.graph_objects", "go")
+importer.schedule_import("plotly.express", "px")
+importer.schedule_import("plotly.figure_factory", "ff")
+importer.schedule_import("plotly.colors", "n_colors")
+importer.schedule_import("seaborn", "sns")
+importer.schedule_import("matplotlib.pyplot", "plt")
 class diagWIP():
     """
     The diag class serves as a comprehensive toolkit for diagnosing and visualizing the results of Bayesian models, 
@@ -37,13 +46,6 @@ class diagWIP():
             self.num_chains = 0
             self.colors = []
 
-        go=importer.schedule_import("plotly.graph_objects", "go")
-        px=importer.schedule_import("plotly.express", "px")
-        ff=importer.schedule_import("plotly.figure_factory", "ff")
-        n_colors=importer.schedule_import("plotly.colors", "n_colors")
-        make_subplots=importer.schedule_import("plotly.subplots", "make_subplots")
-        sns=importer.schedule_import("seaborn", "sns")
-        plt=importer.schedule_import("matplotlib.pyplot", "plt")
     #
     #  Diagnostic with ARVIZ ----------------------------------------------------------------------------
     def to_az(self, backend="numpyro", sample_stats_name=['target_log_prob','log_accept_ratio','has_divergence','energy']):
@@ -383,7 +385,9 @@ class diagWIP():
             fig: ESS evolution plot
         """        
         self.ess_plot = az.plot_ess(self.trace, var_names=self.priors_name, kind="evolution")
+
     def rank(self, *args, **kwargs):
+        plt=importer.get_module("plt")
         """Create rank plots for MCMC chains.
         
         Args:
@@ -414,6 +418,8 @@ class diagWIP():
     
     def pair(self, var_names=None, colorscale="Viridis", max_points=1000, 
              point_color='rgba(40, 150, 200, 0.4)'):
+        go=importer.get_module("go")
+        
         if var_names is None: var_names = self.priors_name
         n_vars = len(var_names)
         df = pd.DataFrame({k: self.posterior_samples[k].flatten() for k in var_names})
@@ -447,34 +453,61 @@ class diagWIP():
 
         return fig
     
-    # ... other plotting functions (plot_trace, posterior, autocor, forest, density, model_checks) remain the same ...
+ 
     def plot_trace(self, var_names=None):
+        go = importer.get_module("go")
         if var_names is None:
             var_names = self.priors_name
+
+        # --- THIS IS THE CORRECTED LINE ---
+        # Create an interleaved list of subplot titles
+        subplot_titles = [f'{var} {suffix}' for var in var_names for suffix in ['Trace', 'Posterior Distribution']]
+
         fig = make_subplots(rows=len(var_names), cols=2, 
-                            subplot_titles=[f'{var} Trace' for var in var_names] + 
-                                         [f'{var} Rank (All Chains)' for var in var_names])
+                            subplot_titles=subplot_titles)
+
         for i, var in enumerate(var_names):
             samples_per_chain = self.posterior_samples[var]
+
+            # Trace plot (column 1)
             for chain_idx in range(self.num_chains):
                 color = self.colors[chain_idx % len(self.colors)]
                 fig.add_trace(go.Scatter(y=samples_per_chain[chain_idx], mode='lines', 
-                                         name=f'{var} chain {chain_idx}', 
+                                         name=f'Chain {chain_idx}', 
                                          legendgroup=f'chain{chain_idx}',
-                                         line=dict(color=color), showlegend=(i==0)), 
+                                         line=dict(color=color), 
+                                         showlegend=(i==0)), 
                               row=i+1, col=1)
-            all_samples = samples_per_chain.flatten()
-            fig.add_trace(go.Histogram(x=all_samples, name=f'{var} rank', nbinsx=30,
-                                       marker_color='grey'), row=i+1, col=2)
-        fig.update_layout(height=300*len(var_names), title_text="Trace and Rank Plots")
+
+            # Histogram (column 2)
+            for chain_idx in range(self.num_chains):
+                color = self.colors[chain_idx % len(self.colors)]
+                fig.add_trace(go.Histogram(x=self.posterior_samples[var][chain_idx], 
+                                           name=f'Chain {chain_idx}',
+                                           legendgroup=f'chain{chain_idx}',
+                                           marker_color=color,
+                                           showlegend=False, 
+                                           opacity=0.6,
+                                           nbinsx=50), 
+                              row=i+1, col=2)
+
+        fig.update_layout(height=300*len(var_names), 
+                          title_text="Trace and Posterior Plots",
+                          barmode='overlay')
 
         return fig
 
-    def posterior(self, var_names=None, figsize=(800, 400)):
+    def posterior(self, var_names=None, figsize=(800, 400), hdi_prob=0.94):
+        go = importer.get_module("go")
+        import numpy  
+        
         if var_names is None:
             var_names = self.priors_name
+            
         fig = make_subplots(rows=1, cols=len(var_names), subplot_titles=var_names)
+        
         for i, var in enumerate(var_names):
+            # Plot the histograms for each chain first
             for chain_idx in range(self.num_chains):
                 color = self.colors[chain_idx % len(self.colors)]
                 fig.add_trace(go.Histogram(x=self.posterior_samples[var][chain_idx], 
@@ -483,13 +516,42 @@ class diagWIP():
                                            marker_color=color,
                                            showlegend=(i==0),
                                            opacity=0.6,
-                                           nbinsx=50), row=1, col=i+1)
+                                           nbinsx=50), 
+                              row=1, col=i+1)
+            
+            # --- New section for adding vertical lines ---
+            
+            # Combine all chains to get overall posterior summary statistics
+            all_samples = self.posterior_samples[var].flatten()
+            
+            # Calculate mean
+            mean_val = np.mean(all_samples)
+            
+            # Calculate HDI using percentiles (Equal-Tailed Interval approximation)
+            tail_prob = (1 - hdi_prob) / 2
+            hdi_lower, hdi_upper = np.percentile(all_samples, [tail_prob * 100, (1 - tail_prob) * 100])
+
+            # Add vertical line for the mean
+            fig.add_vline(x=mean_val, line_dash="dash", line_color="black", 
+                          annotation_text="", annotation_position="top right",
+                          row=1, col=i+1)
+
+            # Add vertical lines for the HDI
+            fig.add_vline(x=hdi_lower, line_dash="dot", line_color="firebrick", 
+                          annotation_text=f"", annotation_position="top left",
+                          row=1, col=i+1)
+            fig.add_vline(x=hdi_upper, line_dash="dot", line_color="firebrick", 
+                          annotation_text=f"", annotation_position="top right",
+                          row=1, col=i+1)
+            # --- End of new section ---
+
         fig.update_layout(title_text="Posterior Distributions (Overlaid Chains)", 
                           width=figsize[0], height=figsize[1], barmode='overlay')
 
         return fig
-
+    
     def autocor(self, var_names=None):
+        go=importer.get_module("go")
         if var_names is None:
             var_names = self.priors_name
         fig = make_subplots(rows=len(var_names), cols=1, subplot_titles=[f"Autocorrelation of {var}" for var in var_names])
@@ -508,29 +570,87 @@ class diagWIP():
         return fig
 
     def forest(self, var_names=None, hdi_prob=0.95):
+        go = importer.get_module("go")
+        import numpy as np
+        import arviz as az
+        import plotly.express as px
+
+
         if var_names is None:
             var_names = self.priors_name
-        y_labels, means, hdi_lower, hdi_upper = [], [], [], []
-        for var in var_names:
-            all_samples = self.posterior_samples[var].flatten()
-            y_labels.append(var)
-            means.append(np.mean(all_samples))
-            hdi = az.hdi(np.array(all_samples), hdi_prob=hdi_prob)
-            hdi_lower.append(hdi[0])
-            hdi_upper.append(hdi[1])
+            
         fig = go.Figure()
-        error_upper = np.array(hdi_upper) - np.array(means)
-        error_lower = np.array(means) - np.array(hdi_lower)
-        fig.add_trace(go.Scatter(
-            x=means, y=y_labels,
-            error_x=dict(type='data', symmetric=False, array=error_upper, arrayminus=error_lower),
-            mode='markers', marker=dict(color='blue'), name='Mean and HDI'
-        ))
-        fig.update_layout(title_text=f'Forest Plot (Mean and {hdi_prob*100}% HDI across all chains)')
+        
+        # Use a qualitative color sequence for distinct colors
+        colors = px.colors.qualitative.Plotly
+        
+        # --- Loop through each variable to draw its distribution and error bar ---
+        for i, var in enumerate(var_names):
+            color = colors[i % len(colors)]
+            all_samples = self.posterior_samples[var].flatten()
+            
+            # --- 1. Add the horizontal violin trace for the distribution shape ---
+            fig.add_trace(go.Violin(
+                x=all_samples,
+                y=[var],
+                name=var,
+                legendgroup=var,
+                orientation='h',
+                side='both',
+                points=False,
+                # Use a robust styling with a light, semi-transparent fill
+                fillcolor=color,
+                opacity=0.4,
+                line_width=0, # Remove the outline for a softer "cloud" look
+                spanmode='hard' # Ensures the violin covers the full range of data
+            ))
+
+            # --- 2. Calculate stats and add the mean/HDI marker on top ---
+            mean_val = np.mean(all_samples)
+            hdi = az.hdi(np.array(all_samples), hdi_prob=hdi_prob)
+            hdi_lower, hdi_upper = hdi[0], hdi[1]
+
+            error_upper = hdi_upper - mean_val
+            error_lower = mean_val - hdi_lower
+
+            fig.add_trace(go.Scatter(
+                x=[mean_val], 
+                y=[var],
+                mode='markers',
+                legendgroup=var,
+                name=var, # Assign name for hover info
+                marker=dict(color=color, size=8),
+                error_x=dict(
+                    type='data', 
+                    symmetric=False, 
+                    array=[error_upper], 
+                    arrayminus=[error_lower],
+                    width=4,
+                    color=color # Explicitly color the error bar
+                ),
+                # Hide this from the legend; the violin trace already created an entry
+                showlegend=False 
+            ))
+        
+        fig.add_vline(x=0, line_dash="dash", line_color="black", 
+              annotation_text="", annotation_position="top right")
+        # --- 3. Update the overall layout ---
+        fig.update_layout(
+            title_text=f'Forest Plot (Posterior Distributions and {hdi_prob*100:.1f}% HDI)',
+            xaxis_title="Parameter Value",
+            yaxis_title="Parameter",
+            violingap=0.1, # Add a small gap between plots
+            plot_bgcolor='white'
+        )
+        # Reverse y-axis so the first variable appears at the top
+        fig.update_yaxes(autorange="reversed")
 
         return fig
 
     def density(self, var_names=None, shade=0.4):
+        sns=importer.get_module("sns")
+        plt=importer.get_module("plt")
+        go=importer.get_module("go")
         if var_names is None:
             var_names = self.priors_name
         fig = make_subplots(rows=len(var_names), cols=1, subplot_titles=[f"Density of {var}" for var in var_names])

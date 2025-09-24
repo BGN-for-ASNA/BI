@@ -9,18 +9,18 @@ order: 16
 
 ## General Principles
 
-To model the relationship between a dependent variable and an independent variable while allowing for different intercepts across groups or clusters, we can use a *Varying Intercepts* model. This approach is particularly useful when data is grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.
+To model the relationship between a dependent variable and an independent variable while allowing for different intercepts across groups or clusters, we can use a *Varying Intercepts* model. This approach is particularly useful when data are grouped (e.g., by subject, location, or time period) and we expect the baseline level of the outcome to vary across these groups.
 
 ## Considerations
 
-::: callout-caution
+::: callout-note
 - We have the same considerations as for [Regression for a continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
 - The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $\alpha_k$ is defined based on the $k$ declared groups.
 
 - Each intercept has its own prior - i.e., a [<span style="color:#0D6EFD">hyper-prior 🛈</span>]{#hyperP}.
 
-- In the code below, the *hyper-prior* is ```a_bar```.
+- In the code below, the intercept ```alpha``` for each of the $k$ declared groups shares two *hyper-priors*, ```a_bar``` and ```sigma```, which are respectively modeled by a Normal and an Exponential distribution.
 
 :::
 
@@ -77,7 +77,7 @@ m.df["tank"] = np.arange(m.df.shape[0])
 
 # Define model ------------------------------------------------
 def model(tank, surv, density):
-    alpha = m.effects.varying_intercept(group=tank,group_name = 'tank')
+    alpha = m.effects.varying_intercept(N_groups=48,group_id=tank, group_name = 'tank')
     m.dist.binomial(total_count = density, logits = alpha, obs=surv)
 
 # Run sampler ------------------------------------------------
@@ -125,44 +125,49 @@ m$summary() # Get posterior distribution
 
 ## Mathematical Details
 
-We model the relationship between the independent variable $X$ and the outcome variable $Y$ with varying intercepts $\alpha$ for each group $k$ using the following equation:
+We model the relationship between the independent variable $X$ and the outcome variable $Y$ while accounting for varying intercepts $\alpha$ for each group where $k(i)$ give us group belonging for observation $i$, using the following equation:
 
 
 $$
-Y_{ik} \sim \text{Normal}(\mu_{ik}, \sigma)
+Y_{i} \sim \text{Normal}(\mu_{i}, \sigma)
 $$
 $$
-\mu_{ik} = \alpha_k + \beta X_{ik}
+\mu_{i} = \alpha_{[k(i)]} + \beta X_{i}
 $$
-$$
-\alpha_k \sim \text{Normal}(\mu_{\alpha}, \sigma_{\alpha}) 
-$$
+
 $$
 \beta \sim \text{Normal}(0, 1)
 $$
+
 $$
 \sigma \sim \text{Exponential}(1)
 $$
+
 $$
-\mu_{\alpha} \sim \text{Normal}(0, 1)
+\alpha_{[k]} \sim \text{Normal}(\bar{\alpha}, \varsigma) 
+$$
+
+$$
+\bar{\alpha} \sim \text{Normal}(0, 1)
 $$
 $$
-\sigma_{\alpha} \sim \text{Exponential}(1)
+\varsigma \sim \text{Exponential}(1)
 $$
 
 Where:
 
-- $Y_{ik}$ is the outcome variable for observation $i$ in group $k$.
+- $Y_{i}$ is the outcome variable for observation $i$.
 
-- $\alpha_k$ is the varying intercept for group $k$.
-
-- $\mu_{\alpha_k}$ is the overall mean intercept.
-
-- $\sigma_{\alpha_k}$ is the variance of the intercepts across groups.
+- $\alpha_{[k(i)]}$ is the varying intercept corresponding to the group $k$ of observation $i%$.
 
 - $\beta$ is the regression coefficient.
 
-- $\sigma$ is a standard deviation parameter, which here has a $Exponential$ prior that constrains it to be positive.
+- $\sigma$ is a standard deviation parameter, which here has an Exponential prior that constrains it to be positive.
+
+- $\bar{\alpha}$ is the overall mean intercept.
+
+- $\varsigma$ is the variance of the intercepts across groups.
+
 
 ## Notes
 ::: callout-note 

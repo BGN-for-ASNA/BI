@@ -41,9 +41,9 @@ m.data_on_model = dict(
 def model(y):
     al = dist.normal(1, 0.5, name='al')
     ap = dist.normal(-1.5, 1, name='ap')
-    p = expit(ap)
+    p = m.link.inv_logit(ap)
     lambda_ = jnp.exp(al)
-    m.zero_inflated_poisson(p, lambda_, obs=y)
+    m.dist.zero_inflated_poisson(p, lambda_, obs=y)
 
 # Run MCMC ------------------------------------------------
 m.fit(model)
@@ -74,7 +74,7 @@ m$data_on_model = data
 model <- function(y){
   al = bi.dist.normal(1, 0.5, name='al', shape=c(1))
   ap = bi.dist.normal(-1, 1, name='ap', shape=c(1))
-  p = jax$scipy$special$expit(ap)
+  p = m$link$invert_logit(ap)
   lambda_ = jnp$exp(al)
   m$zeroinflatedpoisson(p, lambda_, obs=y)
 }
@@ -93,24 +93,32 @@ m$summary() # Get posterior distribution
 
 We model the relationship between the independent variable $X$ and the count outcome variable $Y$. The model assumes that the data-generating process has two states: a "zero" state that generates only zero counts, and a "Poisson" state that generates counts from a Poisson distribution.
 
-The model has two main components:
+The overall model has two main linear models ($\pi_i$ and $\lambda_i$):
 
 $$
-Y_i \sim \text{ZIPoisson}(\pi_i, \lambda_i) \sim
+Y_i \sim \text{ZIPoisson}(\pi_i, \lambda_i)
+$$
+
+Where the mass probability mass function $\text{ZIPoisson}(\pi_i, \lambda_i)$  is given by:
+
+$$
+P(Y_i | \pi_i, \lambda_i) = 
 \begin{cases}
-\pi + (1 - \pi_i) \times \text{Poisson}(0 | \lambda_i) & \text{if } y = 0 \\
-(1 - \pi_i) \times \text{Poisson}(y | \lambda_i) & \text{if } y > 0
+\pi_i + (1 - \pi_i) \times \text{Poisson}(0 | \lambda_i) & \text{if } Y_i = 0 \\
+(1 - \pi_i) \times \text{Poisson}(Y_i | \lambda_i) & \text{if } Y_i > 0
 \end{cases}
 $$
 
-1.  $\pi + (1 - \pi_i) \times \text{Poisson}(0 | \lambda_i)$ A logistic regression model to predict the probability, $\pi_i$, of an observation being in the "zero" state (an excess zero). Where, the probability of getting a zero (y=0) is the sum of two chances: the probability of a structural zero ($\pi$) plus the probability of not being a structural zero (1-$\pi$) and then getting a zero from the Poisson distribution anyway.
+1.  $\pi_i$ A logistic regression model to predict the probability of a structural zero.
 
-2.  $(1 - \pi_i) \times \text{Poisson}(y | \lambda_i)$ A Poisson regression model to predict the expected count, $\lambda_i$, for observations in the "Poisson" state. Where, the probability of getting a non-zero count (y>0) is simply the probability of not being a structural zero (1-$\pi$) multiplied by the probability of the Poisson distribution giving you that specific count.
+2.  $\lambda_i$ is a Poisson regression conditional on the outcome not resulting from a structural zero.
 
-The parameters $\pi_i$ and $\lambda_i$ are modeled as functions of the independent variable $X_i$:
+Jointly these two parameters allow us to estimate the probability of getting a zero ($Y_i = 0$) as the sum of two processes: the probability of a structural zero ($\pi_i$) plus the probability of not being a structural zero ($1 - \pi_i$) and then getting a zero from the Poisson distribution anyway.
+
+The parameters $\pi_i$ and $\lambda_i$ can be modeled as functions of an independent variable $X_i$:
 
 $$
-\text{logit}(\pi_i) = \alpha_\pi + \beta_\pi X_i
+\text{logit}(\pi_i) = \alpha_\pi + \beta_\pi_ X_i
 $$
 
 $$

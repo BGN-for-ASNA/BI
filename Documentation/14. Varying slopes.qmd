@@ -15,7 +15,7 @@ This approach is useful when we expect the relationship between predictors and t
 
 ## Considerations
 
-::: callout-caution
+::: callout-note
 -   We have the same considerations as for [12. Varying intercepts](13.%20Varying%20intercepts.qmd).
 
 -   The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [<span style="color:#0D6EFD">matrix of covariance 🛈</span>]{#MatCov}.
@@ -141,47 +141,15 @@ m$summary() # Get posterior distribution
 :::
 
 ## Mathematical Details
-
-### *Formula*
-
-We model the relationship between the independent variable $X$ and the outcome variable $Y$ with varying intercepts ($\alpha$) and varying slopes ($\beta$) for each group ($k$) using the following equation:
-
-
-$$
-Y_{ik} = \alpha_k + \beta_k X_{ik} + \sigma
-$$
-
-Where:
-
-- $Y_{ik}$ is the outcome variable for observation $i$ in group $k$.
-
-- $X_{ik}$ is the independent variable for observation $i$ in group $k$.
-
-- $\alpha_k$ is the varying intercept for group $k$.
-
-- $\beta_k$ is the varying regression coefficient for group $k$.
-
-- $\sigma$ is the error term, assumed to be strictly positive.
-
-### *Bayesian Model*
-
+###  Centered parameterization
 We can express the Bayesian regression model accounting for prior distributions as follows:
 
 $$
-Y_{ik} \sim \text{Normal}(\mu_{ik} , \sigma)
+Y_{i} \sim \text{Normal}(\mu_{i} , \sigma)
 $$ 
 $$
-\mu_{ik} = \alpha_k + \beta_k X_{ik} 
+\mu_{i} = \alpha_{k(i)} + \beta_{k(i)} X_{i} 
 $$ 
-$$
-\alpha_k \sim Normal(0,1) 
-$$ 
-$$
-\beta_k \sim Normal(0,1)
-$$ 
-$$
-\sigma \sim Exponential(1)
-$$
 
 The varying intercepts ($\alpha_k$) and slopes ($\beta_k$) are modeled using a *Multivariate Normal distribution*:
 
@@ -191,42 +159,75 @@ $$
 \beta_k 
 \end{pmatrix} \sim \text{MultivariateNormal}\left( 
 \begin{pmatrix} 
-0 \\ 
-0 
+\bar{\alpha} \\ 
+\bar{\beta}
 \end{pmatrix}, 
-\begin{pmatrix} 
-\sigma_\alpha^2 & \rho_{\alpha\beta} \sigma_\alpha \sigma_\beta \\ 
-\rho_{\alpha\beta} \sigma_\alpha \sigma_\beta & \sigma_\beta^2
-\end{pmatrix} 
+\text{diag}(\varsigma) ~ \Omega ~ \text{diag}(\varsigma)
 \right) 
 $$
 
+$$ 
+\bar{\alpha} \sim \text{Normal}(0, 1)
+$$ 
+$$  
+\bar{\beta} \sim \text{Normal}(0, 1)
+$$ 
+$$ 
+\varsigma \sim  \text{Exponential}(1)
+$$ 
+$$ 
+\Omega \sim \text{LKJ}(\eta) 
+$$ 
+
 Where:
 
-- $\left(\begin{array}{cc} 0 \\ 0 \end{array}\right)$ is the prior for the average intercept.
+- $\left(\begin{array}{cc} \bar{\alpha} \\ \bar{\beta} \end{array}\right)$ is a vector composed from concatenating a parameter for the global intercept and a parameter vector of the global slopes.
 
-- $\left(\begin{array}{cc} \sigma_\alpha^2 & \rho_{\alpha\beta} \sigma_\alpha \sigma_\beta \\ \rho_{\alpha\beta} \sigma_\alpha \sigma_\beta & \sigma_\beta^2 \end{array}\right)$ is the covariance matrix which specifies the variance and covariance of $\alpha_k$ and $\beta_k$,
+- $\varsigma$ is a vector giving the standard deviation of the random effects for the intercept and slopes across groups.
 
-- where:
-  - $\sigma_\alpha^2$ is the variance of $\alpha_k$.
-  - $\sigma_\beta^2$ is the variance of $\beta_k$.
-  - $\rho_{\alpha\beta} \sigma_\alpha \sigma_\beta$ is the covariance between $\alpha_k$ and $\beta_k$.
-  
+- $\Omega$ is the correlation matrix.
+
+###  Non-centered parameterization
 For computational reasons, it is often better to implement a [<span style="color:#0D6EFD">non-centered parameterization 🛈</span>]{#RFcentered} that is equivalent to the *Multivariate Normal distribution* approach:
 
 $$
 \left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
-\sim 
+=
 \left(\begin{array}{cc} 
-\sigma_\alpha\\
-\sigma_\beta
-\end{array}\right) \circ 
+\bar{\alpha} \\ 
+\bar{\beta}
+\end{array}\right) + \varsigma\circ 
+\left(
 L \cdot
-\left(\begin{array}{cc} 
+\left(
+\begin{array}{cc} 
 \widehat{\alpha}_k \\
 \widehat{\beta}_k
-\end{array}\right)
+\end{array}
+\right)
+\right)
 $$
+
+$$ 
+\bar{\alpha} \sim \text{Normal}(0, 1)
+$$ 
+$$  
+\bar{\beta} \sim \text{Normal}(0, 1)
+$$ 
+$$ 
+\varsigma \sim  \text{Exponential}(1)
+$$ 
+$$ 
+L \sim \text{LKJ Cholesky}(\eta) 
+$$ 
+
+$$ 
+\widehat{\alpha}_k \sim \text{Exponential}(1)
+$$ 
+
+$$ 
+\widehat{\beta}_k \sim \text{Exponential}(1)
+$$ 
 
 - Where:
 
@@ -234,171 +235,165 @@ $$
 
   - $\sigma_\beta \sim \text{Exponential}(1)$ is the prior standard deviation among slopes.
 
-  - $L \sim \text{LKJcorr}(\eta)$ is the prior for the correlation matrix using the [<span style="color:#0D6EFD">Cholesky Factor 🛈</span>]{#LKJcorr}
-
-The full non-centered version of the model is thus:
+  - $L \sim \text{LKJcorr}(\eta)$ is the a cholesky factor of the correlation matrix matrix using the [<span style="color:#0D6EFD">Cholesky Factor 🛈</span>]{#LKJcorr}
 
 
-$$
-Y_{ik} \sim \text{Normal}(\mu_{ik} , \sigma) \\
-$$
-
-$$
-\mu_{ik} =   \alpha_k + \beta_k X_{ik} \\
-$$
-
-$$
-\left(\begin{array}{cc} \alpha_k \\ \beta_k\end{array}\right)
-\sim 
-\left(\begin{array}{cc} 
-\sigma_\alpha\\
-\sigma_\beta
-\end{array}\right) \circ 
-L \cdot
-\left(\begin{array}{cc} 
-\widehat{\alpha}_k \\
-\widehat{\beta}_k
-\end{array}\right)
-$$
-
-$$
-\alpha \sim \text{Normal}(0,1)
-$$ 
-$$ 
-\beta \sim \text{Normal}(0,1)
-$$ 
-$$ 
-\sigma_\alpha \sim \text{Exponential}(1)
-$$ 
-
-$$ 
-\sigma_\beta \sim \text{Exponential}(1)
-$$ 
-
-$$ 
-L \sim \text{LKJcorr}(2)
-$$ 
-
-
-## *Multivariate Model with One Random Slope for Each Variable*
+### *Multivariate Model with One Random Slope for Each Variable*
 
 We can apply a multivariate model similarly to [Chapter 2](2.%20Multiple%20continuous%20variable.qmd). In this case, we apply the same principle, but with a covariance matrix with a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ observations in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
 
 $$
-p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) 
+Y_{i}  \sim \text{Normal}(\mu_i , \sigma) 
 $$
 
 $$
-\mu_i =   \alpha_i + \beta_{1i} X_{1i}  + \beta_{2i} X_{2i} 
+\mu_i =   \alpha_i + \beta_{k(i)} X_{1i}  + \gamma_{k(i)} X_{2i} 
 $$
+
+<br>
 
 $$ 
 \begin{pmatrix} 
-\alpha_{i}\\ 
-\beta_{1i}\\ 
-\beta_{2i} 
+\alpha\\ 
+\beta\\ 
+\gamma
 \end{pmatrix} 
 \sim \begin{pmatrix} 
-\sigma_{\alpha}\\ 
-\sigma_{\beta_1}\\ 
-\sigma_{\beta_2} 
-\end{pmatrix} \circ L \cdot \begin{pmatrix} 
-\widehat{\alpha}_{i} \\ 
-\widehat{\beta}_{1i} \\ 
-\widehat{\beta}_{2i} 
-\end{pmatrix} 
-$$
-
-$$
-\sigma_{\alpha} \sim \text{Exponential}(1)
-$$ 
-$$
-\sigma_{\beta_1} \sim \text{Exponential}(1)
-$$ 
-$$
-\sigma_{\beta_2} \sim \text{Exponential}(1) 
-$$ 
-
-$$ 
-L \sim \text{LKJcorr}(2)
-$$
-
-## *Multivariate Random Slopes on a Single Variable*
-
-For more than two varying effects, we apply the same principle but with a covariance matrix for each varying effect that is summed to generate the varying intercept and slope. For example, if we want to generate random slopes for $i$ actors and $k$ groups, we can define the formula as follows:
-
-$$
-p(Y_{i} |\mu_i , \sigma) \sim \text{Normal}(\mu_i , \sigma) \\
-$$
-
-$$
-\mu_i =   \alpha_i + \beta_{i} X_i 
-$$ 
-$$ 
-\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]}
-$$ 
-$$
-\beta_{i} = \beta + \beta_{actor[i]} + \beta_{group[i]} 
-$$
-
-$$
-\alpha \sim \text{Normal}(0,1)
-$$ 
-
-$$
-\beta \sim \text{Normal}(0,1) 
-$$
-
-$$ 
+\bar{\alpha}\\ 
+\bar{\beta}\\ 
+\bar{\gamma} 
+\end{pmatrix} + \varsigma \circ
+\left(
+L \cdot 
 \begin{pmatrix} 
-\alpha_{\text{actor}} \\ 
-\beta_{\text{actor}} 
+\widehat{\alpha}_{k} \\ 
+\widehat{\beta}_{k} \\ 
+\widehat{\gamma}_{k} 
+\end{pmatrix} 
+\right)
+$$
+
+$$ 
+\bar{\alpha} \sim \text{Normal}(0, 1)
+$$ 
+$$  
+\bar{\beta} \sim \text{Normal}(0, 1)
+$$ 
+
+$$  
+\bar{\gamma} \sim \text{Normal}(0, 1)
+$$ 
+
+$$ 
+\varsigma \sim  \text{Exponential}(1)
+$$ 
+$$ 
+L \sim \text{LKJ Cholesky}(2) 
+$$ 
+
+$$ 
+\widehat{\alpha}_k \sim \text{Exponential}(1)
+$$ 
+
+$$ 
+\widehat{\beta}_k \sim \text{Exponential}(1)
+$$ 
+
+$$ 
+\widehat{\gamma}_k \sim \text{Exponential}(1)
+$$ 
+
+### *Multivariate Random Slopes on a Single Variable*
+
+For more than two varying effects ($k$ and $g$), we apply the same principle but with a covariance matrix for each varying effect that is summed to generate the varying intercept and slope. For example, if we want to generate random slopes for $i$ actors and $k$ groups, we can define the formula as follows:
+
+$$
+Y_{i} \sim \text{Normal}(\mu_i , \sigma) \\
+$$
+
+$$
+\mu_i = \left( \alpha_{k(i)} + \pi_{g(i)} \right) + \left( \beta_{k(i)} + \gamma_{g(i)} \right) X_i 
+$$ 
+
+<br>
+
+$$
+\begin{pmatrix} 
+\alpha_{k} \\ 
+\beta_{k} 
 \end{pmatrix} 
 \sim 
 \begin{pmatrix} 
-\sigma_{\alpha a} \\ 
-\sigma_{\beta a} 
-\end{pmatrix} \circ L_a \cdot \begin{pmatrix} 
-\widehat{\alpha}_{ka} \\ 
-\widehat{\beta}_{ka} 
+\bar{\alpha} \\ 
+\bar{\beta} 
 \end{pmatrix} 
+\varsigma
+\circ 
+\left(
+L_{k} \cdot 
+\begin{pmatrix} 
+\widehat{\alpha}_{k} \\ 
+\widehat{\beta}_{k} 
+\end{pmatrix} 
+\right)
 $$
 
 $$
-\sigma_{\alpha a} \sim \text{Exponential}(1)
+\bar{\alpha}  \sim \text{Normal}(0, 1)
 $$ 
 $$
-\sigma_{\beta a} \sim \text{Exponential}(1)
+\bar{\beta} \sim \text{Normal}(0, 1)
 $$ 
 $$
-L_{a} \sim \text{LKJcorr}(2)
+L_{k} \sim \text{LKJ Cholesky}(2)
 $$
+
+$$
+\hat{\alpha}  \sim \text{Exponential}(1)
+$$ 
+$$
+\hat{\beta} \sim \text{Exponential}(1)
+$$ 
+
+<br>
 
 $$ 
 \begin{pmatrix} 
-\alpha_{\text{group}} \\ 
-\beta_{\text{group}} 
+\pi_{g} \\ 
+\gamma_{g} 
 \end{pmatrix} 
 \sim  
 \begin{pmatrix} 
-\sigma_{\alpha g} \\ 
-\sigma_{\beta g} 
-\end{pmatrix} \circ L_g \cdot 
+\bar{\pi} \\ 
+\bar{\gamma} 
+\end{pmatrix}  + \varsigma \circ
+\left(
+L_g \cdot 
 \begin{pmatrix} 
-\widehat{\alpha}_{kg} \\ 
-\widehat{\beta}_{kg} 
+\widehat{\pi}_{g} \\ 
+\widehat{\gamma}_{g} 
 \end{pmatrix} 
+\right)
 $$
 
 $$
-\sigma_{\alpha g} \sim \text{Exponential}(1)
+\bar{\pi}  \sim \text{Normal}(0, 1)
 $$ 
 $$
-\sigma_{\beta g} \sim \text{Exponential}(1) 
+\bar{\gamma} \sim \text{Normal}(0, 1)
+$$ 
+
+$$
+L_{g} \sim \text{LKJ Cholesky}(2)
+$$
+
+$$
+\hat{\alpha}  \sim \text{Exponential}(1)
 $$ 
 $$
-L_{g} \sim LKJcorr(2)
-$$
+\hat{\beta} \sim \text{Exponential}(1)
+$$ 
+
 
 ## Notes
 
@@ -412,96 +407,93 @@ $$
 
 
 $$
-p(Y_{i} |n , p_i) \sim \text{Binomial}(n = 1, p_i) \\
+Y_{i} \sim \text{Binomial}(n = 1, p_i) \\
 $$
 
 $$
-\text{logit}(p_i)=   \alpha_i + \beta_{1i}X_{1i}  + \beta_{2i} X_{1i}X_{2i}
+\text{logit}(p_i) = \left( \alpha_{k(i)} + \pi_{g(i)} \right) + \left( \beta_{k(i)} + \gamma_{g(i)} \right) X_i 
 $$ 
+
+<br>
+
 $$
-\alpha_i = \alpha + \alpha_{actor[i]} + \alpha_{group[i]}
-$$ 
-$$
-\beta_{1i} = \beta_1 + \beta_{1, actor[i]} + \beta_{1, group[i]}
-$$ 
-$$
-\beta_{2i} = \beta_2 + \beta_{2, actor[i]} + \beta_{2, group[i]}
+\begin{pmatrix} 
+\alpha_{k} \\ 
+\beta_{k} 
+\end{pmatrix} 
+\sim 
+\begin{pmatrix} 
+\bar{\alpha} \\ 
+\bar{\beta} 
+\end{pmatrix} 
+\varsigma
+\circ 
+\left(
+L_{k} \cdot 
+\begin{pmatrix} 
+\widehat{\alpha}_{k} \\ 
+\widehat{\beta}_{k} 
+\end{pmatrix} 
+\right)
 $$
 
 $$
-\alpha \sim \text{Normal}(0,1)
+\bar{\alpha}  \sim \text{Normal}(0, 1)
 $$ 
 $$
-\beta_1 \sim \text{Normal}(0,1)
+\bar{\beta} \sim \text{Normal}(0, 1)
+$$ 
 $$
+L_{k} \sim \text{LKJ Cholesky}(2)
 $$
-\beta_2 \sim \text{Normal}(0,1)
+
 $$
+\hat{\alpha}  \sim \text{Exponential}(1)
+$$ 
+$$
+\hat{\beta} \sim \text{Exponential}(1)
+$$ 
+
+<br>
 
 $$ 
 \begin{pmatrix} 
-\alpha_{\text{actor}} \\ 
-\beta_{1, \text{actor}} \\ 
-\beta_{2, \text{actor}} 
+\pi_{g} \\ 
+\gamma_{g} 
 \end{pmatrix} 
 \sim  
 \begin{pmatrix} 
-\sigma_{\alpha a} \\ 
-\sigma_{\beta_1 a} \\ 
-\sigma_{\beta_2 a} 
-\end{pmatrix} \circ L_a \cdot 
+\bar{\pi} \\ 
+\bar{\gamma} 
+\end{pmatrix}  + \varsigma \circ
+\left(
+L_g \cdot 
 \begin{pmatrix} 
-\widehat{\alpha}_{ka} \\ 
-\widehat{\beta}_{1,ka} \\ 
-\widehat{\beta}_{2,ka} 
+\widehat{\pi}_{g} \\ 
+\widehat{\gamma}_{g} 
 \end{pmatrix} 
+\right)
 $$
 
 $$
-\sigma_{\alpha a} \sim \text{Exponential}(1) 
+\bar{\pi}  \sim \text{Normal}(0, 1)
+$$ 
+$$
+\bar{\gamma} \sim \text{Normal}(0, 1)
+$$ 
+
+$$
+L_{g} \sim \text{LKJ Cholesky}(2)
 $$
 
 $$
-\sigma_{\beta_1 a} \sim \text{Exponential}(1) 
+\hat{\alpha}  \sim \text{Exponential}(1)
 $$ 
 $$
-\sigma_{\beta_2 a} \sim \text{Exponential}(1) 
+\hat{\beta} \sim \text{Exponential}(1)
 $$ 
-$$
-L_{a} \sim LKJcorr(2)
-$$
 
-$$ 
-\begin{pmatrix} 
-\alpha_{\text{group}} \\ 
-\beta_{1, \text{group}} \\ 
-\beta_{2, \text{group}} 
-\end{pmatrix} 
-\sim  
-\begin{pmatrix} 
-\sigma_{\alpha g} \\ 
-\sigma_{\beta_1 g} \\ 
-\sigma_{\beta_2 g} 
-\end{pmatrix} \circ L_g \cdot 
-\begin{pmatrix} 
-\widehat{\alpha}_{kg} \\ 
-\widehat{\beta}_{1,kg} \\ 
-\widehat{\beta}_{2,kg} 
-\end{pmatrix} 
-$$
-
-$$
-\sigma_{\alpha g} \sim \text{Exponential}(1)
-$$
-$$
-\sigma_{\beta_1 g} \sim \text{Exponential}(1) 
-$$ 
-$$
-\sigma_{\beta_2 g} \sim \text{Exponential}(1)
-$$ 
-$$
-L_{g} \sim LKJcorr(2)
-$$
+<br>
 
 ``` python
 from main import *

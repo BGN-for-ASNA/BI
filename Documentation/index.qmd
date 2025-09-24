@@ -69,7 +69,7 @@ listing:
 
 <h3>
 
-  <button class="btn btn-lg btn-primary" type="button" href="#gallery" >Get Started</button>
+  <button class="btn btn-lg btn-primary" type="button" href="./start/Installation.html" >Get Started</button>
 </h3>
 </div>
 
@@ -117,17 +117,23 @@ def model(kcal_per_g, index_clade):
     m.normal(mu, s, obs=kcal_per_g)
 ```
 
-### Prebuilt function for complex models
+### Prebuilt function
 ```python
 def model(kcal_per_g, index_clade):
-    alpha = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'a') # shape based on the number of clades
-    beta = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'b')
-    sigma = m.bi.dist.exponential( 1, name = 's')    
-    mu = a[index_clade]+b[index_clade]*mass
-    m.normal(mu, s, obs=kcal_per_g)
+    a = m.dist.normal(5, 2,  name = 'a')
+    b = m.dist.normal(-1, 0.5, name = 'b')
+    sigma = m.dist.exponential( 1,  name = 'sigma')
+
+    varying_intercept, varying_slope = m.effects.varying_effects(
+      N_group = N_cafes,
+      group = cafe,
+      global_intercept= a,
+      global_slope= b,
+      group_name = 'cafe'
+    )
 ```
 
-### Direct visualization of  distributions
+### Distributions visualization
 ```{python}
 from BI import bi
 m = bi()
