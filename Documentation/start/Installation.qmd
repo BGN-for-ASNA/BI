@@ -1,9 +1,13 @@
 ---
 title: "Installation"
 sidebar: start
+format:
+  html:
+    code-fold: false
+    code-tools: false
+    include-after-body: disable-codefold.html
 ---
 
-# Installation
 
 You can run BI on python or R. For R users you need to have installed python and the R [**reticulate**](https://rstudio.github.io/reticulate/).
 
@@ -11,12 +15,14 @@ You can run BI on python or R. For R users you need to have installed python and
 ::: {.panel-tabset group="language"}
 ## Python
 ``` python
+#| code-fold: false
 pip install BayesInference # For CPU support
 pip install BayesInference[gpu] # For GPU support 
 ```
 
 ## R
 ``` R
+#| code-fold: false
 package.install(BayesianInference)
 ```
 :::
@@ -32,3 +38,8 @@ package.install(BayesianInference)
 
 
 :::
+
+<script>
+// Disable Quarto code folding scripts
+window.quartoDisableCodeFolding = true;
+</script>

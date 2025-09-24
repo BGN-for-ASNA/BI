@@ -148,7 +148,7 @@ class SampledData:
             # The function expects self._data to be samples [n_samples, n_variables]
             if self._data.shape[0] < 2:
                 raise ValueError("Cannot calculate correlation with fewer than 2 samples.")
-            corr_matrix = np.corrcoef(self._data, rowvar=False)
+            corr_matrix = self._data
         
             # --- FIX 2: Format annotations into strings for consistent display ---
             formatted_text = np.full(corr_matrix.shape, "", dtype=object)
@@ -377,7 +377,6 @@ class SampledData:
             else:
                 raise ValueError("Autocorrelation requires 1D or 2D data.")
         else:
-            sns=importer.get_module("sns")
             plt=importer.get_module("plt")
             plt.figure(figsize=figsize)
             if self._data.ndim == 1:
@@ -425,8 +424,6 @@ class SampledData:
     def ridgeline(self, title="Ridgeline Plot", template="plotly_white",interactive = True,category_labels=None, offset=2):
         if interactive:
             go=importer.get_module("go")
-            px=importer.get_module("px")
-            ff=importer.get_module("ff")
             n_colors=importer.get_module("n_colors")
             if self._data.ndim  not in [2, 3]:
                 raise ValueError(f"Ridgeline plot requires 2D or 3D data. Your data has {self._data.ndim}       dimensions.")
@@ -456,7 +453,6 @@ class SampledData:
             )
             
         else:
-            sns=importer.get_module("sns")
             plt=importer.get_module("plt")
             if self._data.ndim != 2:
                 raise ValueError("Ridgeline requires 2D [samples, categories].")
