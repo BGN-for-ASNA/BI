@@ -86,6 +86,19 @@ m$summary() # Get posterior distributions
 ```
 :::
 
+::: callout-caution
+For R users, if you create the regression coefficient in a single call:
+
+```python
+betas = bi.dist.normal(0, 0.5, name = 'regression_coefficients', shape = (2,))
+```
+
+you need to index them starting by 0:
+
+```python
+ m$normal(alpha + betas[0] * weight + betas[1] * age, sigma, obs=height)
+``` 
+:::
 
 ## Mathematical Details
 ### *Frequentist formulation*

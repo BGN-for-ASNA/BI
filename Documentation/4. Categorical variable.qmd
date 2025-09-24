@@ -13,7 +13,7 @@ _Stratification_ involves modeling how the *k* different categories of the indep
 
 
 ## Considerations
-::: callout-caution
+::: callout-note
 - We have the same considerations as for [Regression for a Continuous Variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
  
 - As we generate regression coefficients for each *k* category, we need to specify a prior with a shape equal to the number of categories *k* in the code (see comments in the code).
@@ -85,6 +85,10 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 # Summary ------------------------------------------------
 m$summary() # Get posterior distributions
 ```
+:::
+
+::: callout-caution
+For R users, when working with indices you have to ensure 1) that indices are intergers (i.e. ```as.integer(index_clade)```) and, 2) that indices start at 0 (i.e. ```as.integer(index_clade)-1```).
 :::
 
 ## Mathematical Details
