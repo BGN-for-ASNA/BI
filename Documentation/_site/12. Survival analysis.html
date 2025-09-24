@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -22,9 +22,8 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -35,7 +34,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -68,18 +67,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="./">
 <link href="./13. Varying intercepts.html" rel="next">
 <link href="./11. Zero inflated.html" rel="prev">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-5cc8395b10573f07cfedf58f7a45f761.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-785e6f9f9cefe4638bba3361deac6afc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -155,167 +153,7 @@ window.Quarto = {
 <link rel="stylesheet" href="MyStyles.css">
 </head>
 
-<body class="nav-sidebar floating nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
-    const toggleBodyColorMode = (bsSheetEl) => {
-      const mode = bsSheetEl.getAttribute("data-mode");
-      const bodyEl = window.document.querySelector("body");
-      if (mode === "dark") {
-        bodyEl.classList.add("quarto-dark");
-        bodyEl.classList.remove("quarto-light");
-      } else {
-        bodyEl.classList.add("quarto-light");
-        bodyEl.classList.remove("quarto-dark");
-      }
-    }
-    const toggleBodyColorPrimary = () => {
-      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
-      if (bsSheetEl) {
-        toggleBodyColorMode(bsSheetEl);
-      }
-    }
-    const setColorSchemeToggle = (alternate) => {
-      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
-      for (let i=0; i < toggles.length; i++) {
-        const toggle = toggles[i];
-        if (toggle) {
-          if (alternate) {
-            toggle.classList.add("alternate");
-          } else {
-            toggle.classList.remove("alternate");
-          }
-        }
-      }
-    };
-    const toggleColorMode = (alternate) => {
-      // Switch the stylesheets
-      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
-      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
-      manageTransitions('#quarto-margin-sidebar .nav-link', false);
-      if (alternate) {
-        // note: dark is layered on light, we don't disable primary!
-        enableStylesheet(alternateStylesheets);
-        for (const sheetNode of alternateStylesheets) {
-          if (sheetNode.id === "quarto-bootstrap") {
-            toggleBodyColorMode(sheetNode);
-          }
-        }
-      } else {
-        disableStylesheet(alternateStylesheets);
-        enableStylesheet(primaryStylesheets)
-        toggleBodyColorPrimary();
-      }
-      manageTransitions('#quarto-margin-sidebar .nav-link', true);
-      // Switch the toggles
-      setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
-      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
-        manageTransitions("body", false);
-        window.scrollTo(0, 1);
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-          manageTransitions("body", true);
-        }, 40);
-      }
-    }
-    const disableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        stylesheet.rel = 'disabled-stylesheet';
-      }
-    }
-    const enableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
-          stylesheet.rel = 'stylesheet';
-        }
-      }
-    }
-    const manageTransitions = (selector, allowTransitions) => {
-      const els = window.document.querySelectorAll(selector);
-      for (let i=0; i < els.length; i++) {
-        const el = els[i];
-        if (allowTransitions) {
-          el.classList.remove('notransition');
-        } else {
-          el.classList.add('notransition');
-        }
-      }
-    }
-    const isFileUrl = () => {
-      return window.location.protocol === 'file:';
-    }
-    const hasAlternateSentinel = () => {
-      let styleSentinel = getColorSchemeSentinel();
-      if (styleSentinel !== null) {
-        return styleSentinel === "alternate";
-      } else {
-        return false;
-      }
-    }
-    const setStyleSentinel = (alternate) => {
-      const value = alternate ? "alternate" : "default";
-      if (!isFileUrl()) {
-        window.localStorage.setItem("quarto-color-scheme", value);
-      } else {
-        localAlternateSentinel = value;
-      }
-    }
-    const getColorSchemeSentinel = () => {
-      if (!isFileUrl()) {
-        const storageValue = window.localStorage.getItem("quarto-color-scheme");
-        return storageValue != null ? storageValue : localAlternateSentinel;
-      } else {
-        return localAlternateSentinel;
-      }
-    }
-    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
-      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
-      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
-      let newTheme = '';
-      if(authorPrefersDark) {
-        newTheme = isAlternate ? baseTheme : alternateTheme;
-      } else {
-        newTheme = isAlternate ? alternateTheme : baseTheme;
-      }
-      const changeGiscusTheme = () => {
-        // From: https://github.com/giscus/giscus/issues/336
-        const sendMessage = (message) => {
-          const iframe = document.querySelector('iframe.giscus-frame');
-          if (!iframe) return;
-          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
-        }
-        sendMessage({
-          setConfig: {
-            theme: newTheme
-          }
-        });
-      }
-      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
-      if (isGiscussLoaded) {
-        changeGiscusTheme();
-      }
-    };
-    const authorPrefersDark = true;
-    const darkModeDefault = authorPrefersDark;
-    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
-    // Dark / light mode switch
-    window.quartoToggleColorScheme = () => {
-      // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
-      toggleColorMode(toAlternate);
-      setStyleSentinel(toAlternate);
-      toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
-    };
-    // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
-      toggleColorMode(true);
-    } else {
-      toggleColorMode(false);
-    }
-  </script>
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -588,7 +426,6 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Survival Analysis</h1>
@@ -659,7 +496,7 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="94ca0827" class="cell" data-execution_count="1">
+<div id="e66b8cb7" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
@@ -706,55 +543,55 @@ Note
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot hazards and survival function ------------------------------------------------</span></span>
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>m.models.survival.plot_surv()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 16</code></pre>
+<pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:01&lt;21:55,  1.32s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   2%|▏         | 17/1000 [00:01&lt;01:00, 16.11it/s, 511 steps of size 3.10e-01. acc. prob=0.73]warmup:   3%|▎         | 26/1000 [00:01&lt;00:48, 19.93it/s, 1023 steps of size 2.40e-01. acc. prob=0.75]warmup:   3%|▎         | 32/1000 [00:01&lt;00:44, 21.52it/s, 1023 steps of size 1.81e-01. acc. prob=0.75]warmup:   4%|▎         | 37/1000 [00:02&lt;00:41, 23.16it/s, 1023 steps of size 2.14e-01. acc. prob=0.76]warmup:   4%|▍         | 41/1000 [00:02&lt;00:38, 24.70it/s, 1023 steps of size 1.34e-01. acc. prob=0.76]warmup:   4%|▍         | 45/1000 [00:02&lt;00:37, 25.57it/s, 1023 steps of size 1.30e-01. acc. prob=0.76]warmup:   5%|▍         | 49/1000 [00:02&lt;00:37, 25.06it/s, 511 steps of size 2.34e-01. acc. prob=0.77] warmup:   5%|▌         | 53/1000 [00:02&lt;00:35, 26.47it/s, 1023 steps of size 2.20e-01. acc. prob=0.77]warmup:   6%|▌         | 58/1000 [00:02&lt;00:32, 28.86it/s, 1023 steps of size 2.18e-01. acc. prob=0.77]warmup:   6%|▋         | 63/1000 [00:02&lt;00:28, 32.39it/s, 1023 steps of size 1.44e-01. acc. prob=0.77]warmup:   7%|▋         | 67/1000 [00:03&lt;00:31, 29.55it/s, 1023 steps of size 3.00e-01. acc. prob=0.78]warmup:   7%|▋         | 71/1000 [00:03&lt;00:29, 31.80it/s, 1023 steps of size 1.85e-01. acc. prob=0.77]warmup:   8%|▊         | 75/1000 [00:03&lt;00:30, 29.91it/s, 1023 steps of size 3.07e-01. acc. prob=0.78]warmup:   8%|▊         | 79/1000 [00:03&lt;00:29, 31.27it/s, 1023 steps of size 2.08e-01. acc. prob=0.78]warmup:   8%|▊         | 83/1000 [00:03&lt;00:29, 30.99it/s, 1023 steps of size 1.76e-01. acc. prob=0.78]warmup:   9%|▊         | 87/1000 [00:03&lt;00:29, 30.50it/s, 1023 steps of size 1.90e-01. acc. prob=0.78]warmup:   9%|▉         | 91/1000 [00:03&lt;00:29, 30.62it/s, 1023 steps of size 1.77e-01. acc. prob=0.78]warmup:  10%|▉         | 95/1000 [00:04&lt;00:29, 30.22it/s, 1023 steps of size 3.06e-01. acc. prob=0.78]warmup:  10%|▉         | 99/1000 [00:04&lt;00:28, 31.24it/s, 66 steps of size 2.78e-01. acc. prob=0.78]  warmup:  11%|█         | 107/1000 [00:04&lt;00:21, 41.84it/s, 511 steps of size 4.40e-03. acc. prob=0.76]warmup:  11%|█         | 112/1000 [00:04&lt;00:24, 36.08it/s, 1023 steps of size 7.15e-03. acc. prob=0.77]warmup:  12%|█▏        | 118/1000 [00:04&lt;00:22, 39.76it/s, 1023 steps of size 5.59e-03. acc. prob=0.77]warmup:  12%|█▏        | 123/1000 [00:04&lt;00:23, 37.66it/s, 1023 steps of size 8.42e-03. acc. prob=0.77]warmup:  13%|█▎        | 128/1000 [00:04&lt;00:23, 37.07it/s, 1023 steps of size 5.76e-03. acc. prob=0.77]warmup:  13%|█▎        | 132/1000 [00:04&lt;00:23, 36.92it/s, 1023 steps of size 9.63e-03. acc. prob=0.77]warmup:  14%|█▍        | 138/1000 [00:05&lt;00:20, 42.55it/s, 77 steps of size 9.70e-03. acc. prob=0.77]  warmup:  14%|█▍        | 143/1000 [00:05&lt;00:20, 42.34it/s, 511 steps of size 4.42e-03. acc. prob=0.77]warmup:  15%|█▍        | 148/1000 [00:05&lt;00:22, 37.27it/s, 1023 steps of size 1.19e-02. acc. prob=0.77]warmup:  15%|█▌        | 152/1000 [00:05&lt;00:22, 37.45it/s, 1 steps of size 1.15e-02. acc. prob=0.77]   warmup:  16%|█▌        | 156/1000 [00:05&lt;00:23, 35.98it/s, 1023 steps of size 6.54e-03. acc. prob=0.77]warmup:  16%|█▌        | 160/1000 [00:05&lt;00:25, 32.42it/s, 511 steps of size 9.59e-03. acc. prob=0.77] warmup:  16%|█▋        | 165/1000 [00:05&lt;00:24, 33.81it/s, 1023 steps of size 5.74e-03. acc. prob=0.77]warmup:  17%|█▋        | 169/1000 [00:05&lt;00:23, 34.72it/s, 1023 steps of size 1.03e-02. acc. prob=0.77]warmup:  17%|█▋        | 174/1000 [00:06&lt;00:21, 38.55it/s, 52 steps of size 6.43e-03. acc. prob=0.77]  warmup:  18%|█▊        | 178/1000 [00:06&lt;00:21, 37.38it/s, 1023 steps of size 8.95e-03. acc. prob=0.77]warmup:  18%|█▊        | 182/1000 [00:06&lt;00:22, 37.08it/s, 1023 steps of size 9.84e-03. acc. prob=0.77]warmup:  19%|█▊        | 186/1000 [00:06&lt;00:23, 34.79it/s, 511 steps of size 1.15e-02. acc. prob=0.77] warmup:  19%|█▉        | 192/1000 [00:06&lt;00:21, 37.46it/s, 1023 steps of size 5.10e-03. acc. prob=0.77]warmup:  20%|█▉        | 196/1000 [00:06&lt;00:21, 36.92it/s, 511 steps of size 4.71e-03. acc. prob=0.77] warmup:  20%|██        | 200/1000 [00:06&lt;00:22, 35.60it/s, 1023 steps of size 1.14e-02. acc. prob=0.77]warmup:  20%|██        | 204/1000 [00:06&lt;00:22, 35.28it/s, 918 steps of size 2.70e-03. acc. prob=0.77] warmup:  21%|██        | 208/1000 [00:07&lt;00:24, 32.28it/s, 511 steps of size 1.45e-02. acc. prob=0.78]warmup:  21%|██        | 212/1000 [00:07&lt;00:23, 34.15it/s, 39 steps of size 6.66e-03. acc. prob=0.77] warmup:  22%|██▏       | 216/1000 [00:07&lt;00:23, 33.77it/s, 235 steps of size 8.72e-03. acc. prob=0.77]warmup:  22%|██▏       | 220/1000 [00:07&lt;00:23, 32.81it/s, 511 steps of size 1.13e-02. acc. prob=0.78]warmup:  23%|██▎       | 228/1000 [00:07&lt;00:18, 41.40it/s, 1023 steps of size 8.55e-03. acc. prob=0.78]warmup:  24%|██▎       | 235/1000 [00:07&lt;00:17, 44.27it/s, 1023 steps of size 5.87e-03. acc. prob=0.78]warmup:  24%|██▍       | 240/1000 [00:07&lt;00:17, 44.52it/s, 511 steps of size 1.08e-02. acc. prob=0.78] warmup:  25%|██▍       | 246/1000 [00:07&lt;00:16, 46.62it/s, 1023 steps of size 8.32e-03. acc. prob=0.78]warmup:  25%|██▌       | 251/1000 [00:08&lt;00:17, 42.30it/s, 511 steps of size 8.59e-02. acc. prob=0.78] warmup:  26%|██▌       | 258/1000 [00:08&lt;00:15, 47.83it/s, 511 steps of size 6.43e-03. acc. prob=0.77]warmup:  26%|██▋       | 263/1000 [00:08&lt;00:15, 47.89it/s, 452 steps of size 1.75e-03. acc. prob=0.77]warmup:  27%|██▋       | 268/1000 [00:08&lt;00:17, 41.74it/s, 383 steps of size 3.32e-03. acc. prob=0.77]warmup:  27%|██▋       | 273/1000 [00:08&lt;00:18, 40.24it/s, 1023 steps of size 2.94e-03. acc. prob=0.78]warmup:  28%|██▊       | 278/1000 [00:08&lt;00:22, 31.46it/s, 1023 steps of size 9.98e-03. acc. prob=0.78]warmup:  28%|██▊       | 283/1000 [00:08&lt;00:21, 33.85it/s, 1023 steps of size 3.82e-03. acc. prob=0.78]warmup:  29%|██▊       | 287/1000 [00:09&lt;00:21, 33.25it/s, 1023 steps of size 5.29e-03. acc. prob=0.78]warmup:  29%|██▉       | 293/1000 [00:09&lt;00:18, 37.63it/s, 511 steps of size 9.51e-03. acc. prob=0.78] warmup:  30%|██▉       | 297/1000 [00:09&lt;00:18, 37.05it/s, 1023 steps of size 8.98e-03. acc. prob=0.78]warmup:  30%|███       | 301/1000 [00:09&lt;00:19, 35.65it/s, 511 steps of size 9.55e-03. acc. prob=0.78] warmup:  30%|███       | 305/1000 [00:09&lt;00:21, 32.92it/s, 511 steps of size 1.06e-02. acc. prob=0.78]warmup:  31%|███       | 309/1000 [00:09&lt;00:20, 33.25it/s, 1023 steps of size 4.85e-03. acc. prob=0.78]warmup:  31%|███▏      | 314/1000 [00:09&lt;00:18, 36.57it/s, 511 steps of size 8.49e-03. acc. prob=0.78] warmup:  32%|███▏      | 319/1000 [00:09&lt;00:17, 39.49it/s, 1023 steps of size 8.18e-03. acc. prob=0.78]warmup:  32%|███▎      | 325/1000 [00:10&lt;00:16, 42.08it/s, 1023 steps of size 3.88e-03. acc. prob=0.78]warmup:  33%|███▎      | 330/1000 [00:10&lt;00:15, 42.58it/s, 511 steps of size 6.02e-03. acc. prob=0.78] warmup:  34%|███▎      | 335/1000 [00:10&lt;00:15, 42.05it/s, 1023 steps of size 6.27e-03. acc. prob=0.78]warmup:  34%|███▍      | 340/1000 [00:10&lt;00:16, 39.42it/s, 511 steps of size 8.40e-03. acc. prob=0.78] warmup:  34%|███▍      | 345/1000 [00:10&lt;00:16, 40.49it/s, 511 steps of size 7.57e-03. acc. prob=0.78]warmup:  35%|███▌      | 351/1000 [00:10&lt;00:15, 42.24it/s, 1023 steps of size 5.46e-03. acc. prob=0.78]warmup:  36%|███▌      | 356/1000 [00:10&lt;00:15, 42.75it/s, 511 steps of size 1.01e-02. acc. prob=0.78] warmup:  36%|███▌      | 361/1000 [00:10&lt;00:14, 44.01it/s, 511 steps of size 8.06e-03. acc. prob=0.78]warmup:  37%|███▋      | 366/1000 [00:11&lt;00:14, 42.78it/s, 511 steps of size 2.87e-03. acc. prob=0.78]warmup:  37%|███▋      | 371/1000 [00:11&lt;00:17, 35.94it/s, 1023 steps of size 4.82e-03. acc. prob=0.78]warmup:  38%|███▊      | 375/1000 [00:11&lt;00:18, 33.33it/s, 511 steps of size 8.08e-03. acc. prob=0.78] warmup:  38%|███▊      | 380/1000 [00:11&lt;00:16, 37.17it/s, 511 steps of size 6.16e-03. acc. prob=0.78]warmup:  38%|███▊      | 385/1000 [00:11&lt;00:16, 38.42it/s, 511 steps of size 4.35e-03. acc. prob=0.78]warmup:  39%|███▉      | 390/1000 [00:11&lt;00:15, 39.50it/s, 511 steps of size 7.12e-03. acc. prob=0.78]warmup:  40%|███▉      | 395/1000 [00:11&lt;00:15, 39.61it/s, 1023 steps of size 4.95e-03. acc. prob=0.78]warmup:  40%|████      | 400/1000 [00:11&lt;00:16, 36.68it/s, 1023 steps of size 6.64e-03. acc. prob=0.78]warmup:  40%|████      | 404/1000 [00:12&lt;00:16, 35.86it/s, 1023 steps of size 6.32e-03. acc. prob=0.78]warmup:  41%|████      | 408/1000 [00:12&lt;00:16, 36.41it/s, 511 steps of size 7.74e-03. acc. prob=0.78] warmup:  41%|████▏     | 413/1000 [00:12&lt;00:15, 38.48it/s, 511 steps of size 6.38e-03. acc. prob=0.78]warmup:  42%|████▏     | 419/1000 [00:12&lt;00:13, 42.95it/s, 511 steps of size 9.44e-03. acc. prob=0.78]warmup:  42%|████▎     | 425/1000 [00:12&lt;00:12, 45.09it/s, 511 steps of size 7.25e-03. acc. prob=0.78]warmup:  43%|████▎     | 430/1000 [00:12&lt;00:12, 44.33it/s, 511 steps of size 5.66e-03. acc. prob=0.78]warmup:  44%|████▎     | 435/1000 [00:12&lt;00:12, 45.32it/s, 511 steps of size 5.46e-03. acc. prob=0.78]warmup:  44%|████▍     | 440/1000 [00:12&lt;00:13, 42.24it/s, 1023 steps of size 8.05e-03. acc. prob=0.78]warmup:  44%|████▍     | 445/1000 [00:13&lt;00:14, 39.62it/s, 511 steps of size 5.47e-03. acc. prob=0.78] warmup:  45%|████▌     | 450/1000 [00:13&lt;00:15, 36.33it/s, 1023 steps of size 4.58e-03. acc. prob=0.78]warmup:  45%|████▌     | 454/1000 [00:13&lt;00:14, 36.76it/s, 1023 steps of size 6.60e-03. acc. prob=0.78]warmup:  46%|████▌     | 458/1000 [00:13&lt;00:14, 36.58it/s, 1023 steps of size 4.95e-03. acc. prob=0.78]warmup:  46%|████▌     | 462/1000 [00:13&lt;00:14, 37.10it/s, 511 steps of size 1.10e-02. acc. prob=0.78] warmup:  47%|████▋     | 466/1000 [00:13&lt;00:15, 34.05it/s, 1023 steps of size 9.29e-03. acc. prob=0.78]warmup:  47%|████▋     | 470/1000 [00:13&lt;00:15, 34.23it/s, 1023 steps of size 8.06e-03. acc. prob=0.78]warmup:  48%|████▊     | 477/1000 [00:13&lt;00:12, 41.97it/s, 1023 steps of size 2.99e-03. acc. prob=0.78]warmup:  48%|████▊     | 482/1000 [00:14&lt;00:12, 40.26it/s, 511 steps of size 1.06e-02. acc. prob=0.78] warmup:  49%|████▊     | 487/1000 [00:14&lt;00:13, 37.47it/s, 1023 steps of size 9.14e-03. acc. prob=0.78]warmup:  49%|████▉     | 492/1000 [00:14&lt;00:12, 40.45it/s, 425 steps of size 4.86e-03. acc. prob=0.78] warmup:  50%|████▉     | 497/1000 [00:14&lt;00:11, 42.43it/s, 247 steps of size 4.69e-03. acc. prob=0.78]sample:  50%|█████     | 503/1000 [00:14&lt;00:11, 45.17it/s, 511 steps of size 6.52e-03. acc. prob=0.93]sample:  51%|█████     | 509/1000 [00:14&lt;00:10, 47.13it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  51%|█████▏    | 514/1000 [00:14&lt;00:10, 44.91it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  52%|█████▏    | 520/1000 [00:14&lt;00:10, 46.75it/s, 511 steps of size 6.52e-03. acc. prob=0.97]sample:  52%|█████▎    | 525/1000 [00:14&lt;00:10, 46.97it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  53%|█████▎    | 530/1000 [00:15&lt;00:09, 47.25it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  54%|█████▎    | 535/1000 [00:15&lt;00:09, 47.27it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  54%|█████▍    | 540/1000 [00:15&lt;00:09, 47.09it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  55%|█████▍    | 545/1000 [00:15&lt;00:09, 47.27it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  55%|█████▌    | 550/1000 [00:15&lt;00:09, 47.32it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  56%|█████▌    | 555/1000 [00:15&lt;00:09, 47.40it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  56%|█████▌    | 560/1000 [00:15&lt;00:09, 44.85it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  56%|█████▋    | 565/1000 [00:15&lt;00:10, 41.96it/s, 767 steps of size 6.52e-03. acc. prob=0.95]sample:  57%|█████▋    | 570/1000 [00:15&lt;00:09, 43.44it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  57%|█████▊    | 575/1000 [00:16&lt;00:10, 42.26it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  58%|█████▊    | 580/1000 [00:16&lt;00:09, 43.19it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  58%|█████▊    | 585/1000 [00:16&lt;00:09, 44.52it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  59%|█████▉    | 591/1000 [00:16&lt;00:08, 47.20it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  60%|█████▉    | 597/1000 [00:16&lt;00:08, 48.18it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  60%|██████    | 602/1000 [00:16&lt;00:08, 45.47it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  61%|██████    | 607/1000 [00:16&lt;00:08, 46.09it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  61%|██████    | 612/1000 [00:16&lt;00:08, 46.49it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  62%|██████▏   | 617/1000 [00:16&lt;00:08, 46.94it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  62%|██████▏   | 622/1000 [00:17&lt;00:08, 46.93it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  63%|██████▎   | 627/1000 [00:17&lt;00:08, 44.83it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  63%|██████▎   | 632/1000 [00:17&lt;00:08, 43.28it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  64%|██████▍   | 638/1000 [00:17&lt;00:07, 45.70it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  64%|██████▍   | 644/1000 [00:17&lt;00:07, 44.68it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample:  65%|██████▍   | 649/1000 [00:17&lt;00:07, 45.44it/s, 511 steps of size 6.52e-03. acc. prob=0.95] sample:  65%|██████▌   | 654/1000 [00:17&lt;00:07, 45.77it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  66%|██████▌   | 659/1000 [00:17&lt;00:07, 45.98it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  66%|██████▋   | 664/1000 [00:18&lt;00:07, 46.14it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  67%|██████▋   | 669/1000 [00:18&lt;00:07, 46.68it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  68%|██████▊   | 675/1000 [00:18&lt;00:06, 48.52it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  68%|██████▊   | 680/1000 [00:18&lt;00:06, 48.33it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  69%|██████▊   | 686/1000 [00:18&lt;00:06, 49.93it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  69%|██████▉   | 691/1000 [00:18&lt;00:06, 47.93it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  70%|██████▉   | 696/1000 [00:18&lt;00:06, 47.75it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  70%|███████   | 701/1000 [00:18&lt;00:06, 47.82it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  71%|███████   | 706/1000 [00:18&lt;00:06, 47.72it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  71%|███████   | 711/1000 [00:19&lt;00:06, 45.23it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  72%|███████▏  | 716/1000 [00:19&lt;00:06, 45.79it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  72%|███████▏  | 721/1000 [00:19&lt;00:06, 43.84it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  73%|███████▎  | 726/1000 [00:19&lt;00:06, 45.00it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  73%|███████▎  | 731/1000 [00:19&lt;00:06, 44.24it/s, 255 steps of size 6.52e-03. acc. prob=0.95]sample:  74%|███████▎  | 736/1000 [00:19&lt;00:05, 45.19it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  74%|███████▍  | 741/1000 [00:19&lt;00:05, 45.87it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  75%|███████▍  | 746/1000 [00:19&lt;00:05, 46.38it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  75%|███████▌  | 751/1000 [00:19&lt;00:05, 46.67it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  76%|███████▌  | 756/1000 [00:20&lt;00:05, 46.96it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  76%|███████▌  | 761/1000 [00:20&lt;00:05, 47.18it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  77%|███████▋  | 766/1000 [00:20&lt;00:05, 44.61it/s, 1023 steps of size 6.52e-03. acc. prob=0.94]sample:  77%|███████▋  | 771/1000 [00:20&lt;00:05, 45.28it/s, 511 steps of size 6.52e-03. acc. prob=0.94] sample:  78%|███████▊  | 776/1000 [00:20&lt;00:04, 45.91it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  78%|███████▊  | 781/1000 [00:20&lt;00:05, 41.63it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  79%|███████▊  | 786/1000 [00:20&lt;00:04, 43.34it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  79%|███████▉  | 791/1000 [00:20&lt;00:04, 44.47it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  80%|███████▉  | 796/1000 [00:20&lt;00:04, 42.77it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  80%|████████  | 801/1000 [00:21&lt;00:04, 41.74it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  81%|████████  | 806/1000 [00:21&lt;00:04, 41.16it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  81%|████████  | 811/1000 [00:21&lt;00:04, 42.75it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  82%|████████▏ | 816/1000 [00:21&lt;00:04, 43.94it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  82%|████████▏ | 821/1000 [00:21&lt;00:03, 44.89it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  83%|████████▎ | 826/1000 [00:21&lt;00:03, 45.54it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  83%|████████▎ | 831/1000 [00:21&lt;00:03, 46.01it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  84%|████████▎ | 837/1000 [00:21&lt;00:03, 47.77it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  84%|████████▍ | 842/1000 [00:21&lt;00:03, 47.73it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  85%|████████▍ | 847/1000 [00:22&lt;00:03, 47.77it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  85%|████████▌ | 852/1000 [00:22&lt;00:03, 47.54it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  86%|████████▌ | 857/1000 [00:22&lt;00:03, 47.62it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  86%|████████▌ | 862/1000 [00:22&lt;00:02, 47.68it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  87%|████████▋ | 867/1000 [00:22&lt;00:02, 47.67it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  87%|████████▋ | 872/1000 [00:22&lt;00:02, 47.50it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  88%|████████▊ | 877/1000 [00:22&lt;00:02, 47.64it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  88%|████████▊ | 883/1000 [00:22&lt;00:02, 48.88it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  89%|████████▉ | 888/1000 [00:22&lt;00:02, 48.48it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  89%|████████▉ | 893/1000 [00:22&lt;00:02, 48.14it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  90%|████████▉ | 898/1000 [00:23&lt;00:02, 45.31it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample:  90%|█████████ | 903/1000 [00:23&lt;00:02, 45.92it/s, 511 steps of size 6.52e-03. acc. prob=0.95] sample:  91%|█████████ | 908/1000 [00:23&lt;00:02, 43.93it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  91%|█████████▏| 913/1000 [00:23&lt;00:01, 44.97it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  92%|█████████▏| 918/1000 [00:23&lt;00:02, 41.00it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  92%|█████████▏| 923/1000 [00:23&lt;00:01, 42.73it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  93%|█████████▎| 929/1000 [00:23&lt;00:01, 45.46it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  93%|█████████▎| 934/1000 [00:23&lt;00:01, 45.88it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  94%|█████████▍| 939/1000 [00:24&lt;00:01, 46.32it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  94%|█████████▍| 944/1000 [00:24&lt;00:01, 46.74it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  95%|█████████▍| 949/1000 [00:24&lt;00:01, 46.83it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  95%|█████████▌| 954/1000 [00:24&lt;00:01, 44.79it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  96%|█████████▌| 959/1000 [00:24&lt;00:00, 45.55it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  96%|█████████▋| 964/1000 [00:24&lt;00:00, 46.14it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  97%|█████████▋| 969/1000 [00:24&lt;00:00, 46.58it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  97%|█████████▋| 974/1000 [00:24&lt;00:00, 46.73it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  98%|█████████▊| 979/1000 [00:24&lt;00:00, 46.99it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  98%|█████████▊| 984/1000 [00:25&lt;00:00, 46.97it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  99%|█████████▉| 989/1000 [00:25&lt;00:00, 47.11it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  99%|█████████▉| 994/1000 [00:25&lt;00:00, 42.29it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample: 100%|█████████▉| 999/1000 [00:25&lt;00:00, 43.62it/s, 511 steps of size 6.52e-03. acc. prob=0.95] sample: 100%|██████████| 1000/1000 [00:25&lt;00:00, 39.39it/s, 511 steps of size 6.52e-03. acc. prob=0.95]
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;08:58,  1.85it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   2%|▏         | 20/1000 [00:00&lt;00:24, 39.38it/s, 1023 steps of size 2.66e-01. acc. prob=0.74]warmup:   3%|▎         | 30/1000 [00:00&lt;00:20, 46.53it/s, 1023 steps of size 1.04e-01. acc. prob=0.74]warmup:   4%|▍         | 38/1000 [00:00&lt;00:19, 49.10it/s, 1023 steps of size 2.38e-01. acc. prob=0.76]warmup:   4%|▍         | 45/1000 [00:01&lt;00:18, 50.76it/s, 511 steps of size 7.47e-02. acc. prob=0.76] warmup:   5%|▌         | 52/1000 [00:01&lt;00:18, 52.35it/s, 1023 steps of size 2.54e-01. acc. prob=0.77]warmup:   6%|▌         | 59/1000 [00:01&lt;00:17, 54.39it/s, 267 steps of size 1.15e-01. acc. prob=0.77] warmup:   7%|▋         | 66/1000 [00:01&lt;00:16, 56.03it/s, 124 steps of size 2.75e-01. acc. prob=0.77]warmup:   8%|▊         | 75/1000 [00:01&lt;00:14, 63.22it/s, 1023 steps of size 1.33e-01. acc. prob=0.77]warmup:   8%|▊         | 82/1000 [00:01&lt;00:15, 60.05it/s, 1023 steps of size 1.06e-01. acc. prob=0.77]warmup:   9%|▉         | 89/1000 [00:01&lt;00:15, 60.00it/s, 132 steps of size 1.75e-01. acc. prob=0.78] warmup:  10%|▉         | 96/1000 [00:01&lt;00:15, 60.03it/s, 1023 steps of size 2.71e-01. acc. prob=0.78]warmup:  11%|█         | 106/1000 [00:02&lt;00:13, 68.06it/s, 1023 steps of size 6.64e-03. acc. prob=0.76]warmup:  11%|█▏        | 113/1000 [00:02&lt;00:13, 64.48it/s, 1023 steps of size 7.52e-03. acc. prob=0.77]warmup:  12%|█▏        | 120/1000 [00:02&lt;00:13, 65.48it/s, 1023 steps of size 1.11e-02. acc. prob=0.77]warmup:  13%|█▎        | 127/1000 [00:02&lt;00:13, 64.88it/s, 1023 steps of size 9.26e-03. acc. prob=0.77]warmup:  13%|█▎        | 134/1000 [00:02&lt;00:13, 62.25it/s, 1023 steps of size 5.97e-03. acc. prob=0.77]warmup:  14%|█▍        | 141/1000 [00:02&lt;00:14, 59.17it/s, 1023 steps of size 8.64e-03. acc. prob=0.77]warmup:  15%|█▍        | 147/1000 [00:02&lt;00:14, 58.00it/s, 1023 steps of size 6.05e-03. acc. prob=0.77]warmup:  16%|█▌        | 155/1000 [00:02&lt;00:13, 60.83it/s, 1023 steps of size 6.55e-03. acc. prob=0.77]warmup:  16%|█▋        | 163/1000 [00:02&lt;00:12, 65.02it/s, 511 steps of size 7.15e-03. acc. prob=0.77] warmup:  17%|█▋        | 173/1000 [00:03&lt;00:11, 71.29it/s, 1023 steps of size 1.25e-02. acc. prob=0.77]warmup:  18%|█▊        | 181/1000 [00:03&lt;00:11, 70.51it/s, 1023 steps of size 9.56e-03. acc. prob=0.77]warmup:  19%|█▉        | 189/1000 [00:03&lt;00:11, 71.83it/s, 511 steps of size 9.18e-03. acc. prob=0.77] warmup:  20%|█▉        | 197/1000 [00:03&lt;00:11, 70.64it/s, 1023 steps of size 8.00e-03. acc. prob=0.77]warmup:  20%|██        | 205/1000 [00:03&lt;00:11, 69.18it/s, 511 steps of size 3.07e-03. acc. prob=0.77] warmup:  21%|██        | 212/1000 [00:03&lt;00:12, 64.60it/s, 1023 steps of size 7.05e-03. acc. prob=0.77]warmup:  22%|██▏       | 220/1000 [00:03&lt;00:11, 68.10it/s, 511 steps of size 2.80e-03. acc. prob=0.77] warmup:  23%|██▎       | 227/1000 [00:03&lt;00:11, 65.15it/s, 375 steps of size 5.77e-03. acc. prob=0.77]warmup:  23%|██▎       | 234/1000 [00:04&lt;00:11, 64.53it/s, 511 steps of size 1.00e-02. acc. prob=0.78]warmup:  24%|██▍       | 245/1000 [00:04&lt;00:09, 76.41it/s, 511 steps of size 1.15e-02. acc. prob=0.78]warmup:  26%|██▌       | 256/1000 [00:04&lt;00:08, 83.44it/s, 511 steps of size 5.66e-03. acc. prob=0.77]warmup:  26%|██▋       | 265/1000 [00:04&lt;00:08, 81.68it/s, 511 steps of size 7.08e-03. acc. prob=0.77]warmup:  27%|██▋       | 274/1000 [00:04&lt;00:09, 78.64it/s, 511 steps of size 1.24e-02. acc. prob=0.78]warmup:  28%|██▊       | 282/1000 [00:04&lt;00:09, 72.61it/s, 1023 steps of size 8.64e-03. acc. prob=0.78]warmup:  29%|██▉       | 290/1000 [00:04&lt;00:10, 65.24it/s, 511 steps of size 9.89e-03. acc. prob=0.78] warmup:  30%|██▉       | 297/1000 [00:04&lt;00:11, 60.32it/s, 1023 steps of size 7.23e-03. acc. prob=0.78]warmup:  31%|███       | 306/1000 [00:04&lt;00:10, 66.36it/s, 511 steps of size 7.67e-03. acc. prob=0.78] warmup:  31%|███▏      | 313/1000 [00:05&lt;00:10, 64.72it/s, 1023 steps of size 5.19e-03. acc. prob=0.78]warmup:  32%|███▏      | 320/1000 [00:05&lt;00:11, 59.74it/s, 1023 steps of size 5.80e-03. acc. prob=0.78]warmup:  33%|███▎      | 328/1000 [00:05&lt;00:10, 64.59it/s, 358 steps of size 3.41e-03. acc. prob=0.78] warmup:  34%|███▎      | 335/1000 [00:05&lt;00:10, 64.73it/s, 469 steps of size 3.05e-03. acc. prob=0.78]warmup:  34%|███▍      | 342/1000 [00:05&lt;00:10, 65.62it/s, 511 steps of size 7.77e-03. acc. prob=0.78]warmup:  35%|███▌      | 350/1000 [00:05&lt;00:09, 67.58it/s, 1023 steps of size 4.60e-03. acc. prob=0.78]warmup:  36%|███▌      | 359/1000 [00:05&lt;00:09, 71.09it/s, 1023 steps of size 6.73e-03. acc. prob=0.78]warmup:  37%|███▋      | 369/1000 [00:05&lt;00:08, 77.61it/s, 1023 steps of size 5.81e-03. acc. prob=0.78]warmup:  38%|███▊      | 377/1000 [00:06&lt;00:08, 76.45it/s, 1023 steps of size 7.21e-03. acc. prob=0.78]warmup:  39%|███▉      | 389/1000 [00:06&lt;00:07, 87.17it/s, 511 steps of size 9.35e-03. acc. prob=0.78] warmup:  40%|███▉      | 399/1000 [00:06&lt;00:06, 89.97it/s, 1023 steps of size 4.93e-03. acc. prob=0.78]warmup:  41%|████      | 409/1000 [00:06&lt;00:06, 86.21it/s, 511 steps of size 7.65e-03. acc. prob=0.78] warmup:  42%|████▏     | 418/1000 [00:06&lt;00:06, 86.54it/s, 1023 steps of size 5.07e-03. acc. prob=0.78]warmup:  43%|████▎     | 427/1000 [00:06&lt;00:06, 86.80it/s, 1023 steps of size 6.19e-03. acc. prob=0.78]warmup:  44%|████▎     | 437/1000 [00:06&lt;00:06, 90.05it/s, 511 steps of size 1.21e-02. acc. prob=0.78] warmup:  45%|████▍     | 448/1000 [00:06&lt;00:05, 93.69it/s, 511 steps of size 5.52e-03. acc. prob=0.78]warmup:  46%|████▌     | 459/1000 [00:06&lt;00:05, 95.16it/s, 1023 steps of size 5.86e-03. acc. prob=0.78]warmup:  47%|████▋     | 470/1000 [00:06&lt;00:05, 97.78it/s, 511 steps of size 9.96e-03. acc. prob=0.78] warmup:  48%|████▊     | 481/1000 [00:07&lt;00:05, 100.01it/s, 511 steps of size 4.42e-03. acc. prob=0.78]warmup:  49%|████▉     | 492/1000 [00:07&lt;00:05, 97.58it/s, 511 steps of size 1.01e-02. acc. prob=0.78] sample:  50%|█████     | 502/1000 [00:07&lt;00:05, 96.42it/s, 232 steps of size 6.91e-03. acc. prob=0.74]sample:  51%|█████▏    | 514/1000 [00:07&lt;00:04, 100.73it/s, 511 steps of size 6.91e-03. acc. prob=0.81]sample:  52%|█████▎    | 525/1000 [00:07&lt;00:04, 99.85it/s, 511 steps of size 6.91e-03. acc. prob=0.81] sample:  54%|█████▎    | 535/1000 [00:07&lt;00:04, 96.29it/s, 511 steps of size 6.91e-03. acc. prob=0.84]sample:  55%|█████▍    | 546/1000 [00:07&lt;00:04, 99.46it/s, 511 steps of size 6.91e-03. acc. prob=0.85]sample:  56%|█████▌    | 556/1000 [00:07&lt;00:04, 99.05it/s, 511 steps of size 6.91e-03. acc. prob=0.85]sample:  57%|█████▋    | 566/1000 [00:07&lt;00:04, 95.50it/s, 511 steps of size 6.91e-03. acc. prob=0.86]sample:  58%|█████▊    | 576/1000 [00:08&lt;00:04, 96.03it/s, 511 steps of size 6.91e-03. acc. prob=0.86]sample:  59%|█████▊    | 587/1000 [00:08&lt;00:04, 98.16it/s, 511 steps of size 6.91e-03. acc. prob=0.86]sample:  60%|█████▉    | 597/1000 [00:08&lt;00:04, 98.64it/s, 511 steps of size 6.91e-03. acc. prob=0.86]sample:  61%|██████    | 607/1000 [00:08&lt;00:04, 95.73it/s, 511 steps of size 6.91e-03. acc. prob=0.86]sample:  62%|██████▏   | 617/1000 [00:08&lt;00:04, 92.42it/s, 511 steps of size 6.91e-03. acc. prob=0.86]sample:  63%|██████▎   | 627/1000 [00:08&lt;00:04, 92.31it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  64%|██████▎   | 637/1000 [00:08&lt;00:03, 92.09it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  65%|██████▍   | 647/1000 [00:08&lt;00:03, 91.54it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  66%|██████▌   | 657/1000 [00:08&lt;00:03, 89.90it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  67%|██████▋   | 667/1000 [00:09&lt;00:03, 92.61it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  68%|██████▊   | 677/1000 [00:09&lt;00:03, 93.99it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  69%|██████▊   | 687/1000 [00:09&lt;00:03, 89.91it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  70%|██████▉   | 697/1000 [00:09&lt;00:03, 90.88it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  71%|███████   | 707/1000 [00:09&lt;00:03, 89.92it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  72%|███████▏  | 717/1000 [00:09&lt;00:03, 88.57it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  73%|███████▎  | 727/1000 [00:09&lt;00:03, 90.71it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  74%|███████▎  | 737/1000 [00:09&lt;00:02, 92.68it/s, 511 steps of size 6.91e-03. acc. prob=0.86]sample:  75%|███████▍  | 747/1000 [00:09&lt;00:02, 93.64it/s, 511 steps of size 6.91e-03. acc. prob=0.86]sample:  76%|███████▌  | 757/1000 [00:10&lt;00:02, 93.01it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  77%|███████▋  | 768/1000 [00:10&lt;00:02, 95.41it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  78%|███████▊  | 778/1000 [00:10&lt;00:02, 90.93it/s, 1023 steps of size 6.91e-03. acc. prob=0.87]sample:  79%|███████▉  | 789/1000 [00:10&lt;00:02, 94.88it/s, 333 steps of size 6.91e-03. acc. prob=0.87] sample:  80%|███████▉  | 799/1000 [00:10&lt;00:02, 89.50it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  81%|████████  | 809/1000 [00:10&lt;00:02, 91.72it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  82%|████████▏ | 819/1000 [00:10&lt;00:01, 93.49it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  83%|████████▎ | 829/1000 [00:10&lt;00:01, 94.25it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  84%|████████▍ | 839/1000 [00:10&lt;00:01, 91.52it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  85%|████████▍ | 849/1000 [00:11&lt;00:01, 90.41it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  86%|████████▌ | 859/1000 [00:11&lt;00:01, 91.59it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  87%|████████▋ | 869/1000 [00:11&lt;00:01, 90.23it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  88%|████████▊ | 879/1000 [00:11&lt;00:01, 88.18it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  89%|████████▉ | 889/1000 [00:11&lt;00:01, 89.66it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  90%|████████▉ | 899/1000 [00:11&lt;00:01, 91.66it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  91%|█████████ | 909/1000 [00:11&lt;00:00, 92.77it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  92%|█████████▏| 919/1000 [00:11&lt;00:00, 92.86it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  93%|█████████▎| 930/1000 [00:11&lt;00:00, 95.38it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  94%|█████████▍| 940/1000 [00:11&lt;00:00, 96.25it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  95%|█████████▌| 950/1000 [00:12&lt;00:00, 96.36it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  96%|█████████▌| 960/1000 [00:12&lt;00:00, 97.33it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  97%|█████████▋| 970/1000 [00:12&lt;00:00, 96.31it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  98%|█████████▊| 981/1000 [00:12&lt;00:00, 97.73it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample:  99%|█████████▉| 991/1000 [00:12&lt;00:00, 97.19it/s, 511 steps of size 6.91e-03. acc. prob=0.87]sample: 100%|██████████| 1000/1000 [00:12&lt;00:00, 79.29it/s, 511 steps of size 6.91e-03. acc. prob=0.87]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                 mean    sd  hdi_5.5%  hdi_94.5%  mcse_mean  mcse_sd  \
-beta[0]          0.77  0.48       0.0       1.49       0.04     0.03   
-lambda0[0]       0.00  0.00       0.0       0.00       0.00     0.00   
-lambda0[1]       0.00  0.00       0.0       0.01       0.00     0.00   
-lambda0[2]       0.00  0.01       0.0       0.01       0.00     0.00   
-lambda0[3]       0.00  0.01       0.0       0.01       0.00     0.00   
+beta[0]          0.77  0.48      0.05       1.55       0.04     0.03   
+lambda0[0]       0.00  0.00      0.00       0.00       0.00     0.00   
+lambda0[1]       0.00  0.00      0.00       0.01       0.00     0.00   
+lambda0[2]       0.00  0.01      0.00       0.01       0.00     0.00   
+lambda0[3]       0.00  0.01      0.00       0.01       0.00     0.00   
 ...               ...   ...       ...        ...        ...      ...   
-lambda_[43, 71]  0.00  0.01       0.0       0.00       0.00     0.00   
-lambda_[43, 72]  0.00  0.02       0.0       0.00       0.00     0.00   
-lambda_[43, 73]  0.00  0.02       0.0       0.00       0.00     0.00   
-lambda_[43, 74]  0.00  0.01       0.0       0.00       0.00     0.01   
-lambda_[43, 75]  0.00  0.03       0.0       0.00       0.00     0.01   
+lambda_[43, 71]  0.00  0.01      0.00       0.00       0.00     0.00   
+lambda_[43, 72]  0.00  0.01      0.00       0.00       0.00     0.00   
+lambda_[43, 73]  0.00  0.01      0.00       0.00       0.00     0.00   
+lambda_[43, 74]  0.00  0.02      0.00       0.00       0.00     0.00   
+lambda_[43, 75]  0.00  0.02      0.00       0.00       0.00     0.00   
 
                  ess_bulk  ess_tail  r_hat  
-beta[0]            171.68    206.44    NaN  
-lambda0[0]         143.46    113.83    NaN  
-lambda0[1]         306.90    219.76    NaN  
-lambda0[2]         337.30    325.35    NaN  
-lambda0[3]         219.38    227.65    NaN  
+beta[0]            138.09    180.56    NaN  
+lambda0[0]         128.98    137.37    NaN  
+lambda0[1]         150.25    125.18    NaN  
+lambda0[2]         262.12    232.83    NaN  
+lambda0[3]         328.04    221.76    NaN  
 ...                   ...       ...    ...  
-lambda_[43, 71]    167.71    235.17    NaN  
-lambda_[43, 72]    157.28    192.96    NaN  
-lambda_[43, 73]     82.53     84.53    NaN  
-lambda_[43, 74]    156.31    204.17    NaN  
-lambda_[43, 75]     71.75     81.01    NaN  
+lambda_[43, 71]    209.98    333.97    NaN  
+lambda_[43, 72]    147.34    209.59    NaN  
+lambda_[43, 73]    105.64    157.87    NaN  
+lambda_[43, 74]    137.83    151.36    NaN  
+lambda_[43, 75]     64.92     88.18    NaN  
 
 [3421 rows x 9 columns]</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/sosa/work/.venv/lib/python3.12/site-packages/arviz/plots/hdiplot.py:166: FutureWarning:
+<pre><code>/home/sosa/.local/lib/python3.10/site-packages/arviz/plots/hdiplot.py:160: FutureWarning:
 
 hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
 
-/home/sosa/work/.venv/lib/python3.12/site-packages/arviz/plots/hdiplot.py:166: FutureWarning:
+/home/sosa/.local/lib/python3.10/site-packages/arviz/plots/hdiplot.py:160: FutureWarning:
 
 hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
 
-/home/sosa/work/.venv/lib/python3.12/site-packages/arviz/plots/hdiplot.py:166: FutureWarning:
+/home/sosa/.local/lib/python3.10/site-packages/arviz/plots/hdiplot.py:160: FutureWarning:
 
 hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
 
-/home/sosa/work/.venv/lib/python3.12/site-packages/arviz/plots/hdiplot.py:166: FutureWarning:
+/home/sosa/.local/lib/python3.10/site-packages/arviz/plots/hdiplot.py:160: FutureWarning:
 
 hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
 </code></pre>
@@ -762,14 +599,14 @@ hdi currently interprets 2d data as (draw, shape) but this will change in a futu
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="12. Survival analysis_files/figure-html/cell-2-output-5.png" class="img-fluid figure-img"></p>
+<p><img src="12. Survival analysis_files/figure-html/cell-2-output-5.png" width="633" height="503" class="figure-img"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="12. Survival analysis_files/figure-html/cell-2-output-6.png" class="img-fluid figure-img"></p>
+<p><img src="12. Survival analysis_files/figure-html/cell-2-output-6.png" width="1272" height="561" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1280,255 +1117,383 @@ tippy('#LKJcorr', {
 
 </script>
 <script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    // Ensure there is a toggle, if there isn't float one in the top right
-    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
-      const i = window.document.createElement("i");
-      i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
     }
-    setColorSchemeToggle(hasAlternateSentinel())
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
         }
       }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
       return false;
     }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = true;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
       }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
     }
-    const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
-        }
-        return codeEl.innerText;
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
     }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
     });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
         }
       }
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
     }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
     }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
       } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
         }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
       }
     }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
           }
         } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
+          // See if we can fetch this
+          fetch(url.split('#')[0])
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
+            const note = htmlDoc.getElementById(id);
             if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
+              const html = processXRef(id, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -1536,161 +1501,185 @@ tippy('#LKJcorr', {
             instance.show();
           });
         }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          let top = null;
-          let height = null;
-          let parent = null;
-          if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
-            }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
-            }
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
       } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
             }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
         });
       }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
     }
-  });
-  </script>
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./11. Zero inflated.html" class="pagination-link" aria-label="Zero-Inflated Models">
