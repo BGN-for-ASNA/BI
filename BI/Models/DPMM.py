@@ -53,30 +53,30 @@ def dpmm(data, T=10):
             obs=data
         )  
 
-def dpmm_marginal(data, T=10):
+def dpmm(data, T=10):
+    D = data.shape[1]
     # 1) stick-breaking weights
-    alpha = m.dist.gamma(1.0, 10.0,name='alpha')
+    alpha = m.dist.gamma(1.0, 15.0,name='alpha')
     beta = m.dist.beta(1, alpha,name='beta',shape=(T-1,))
-    w = numpyro.deterministic("w",dist.transforms.StickBreakingTransform()(beta))
+    w = numpyro.deterministic("w", Dist.transforms.StickBreakingTransform()(beta))
 
 
     # 2) component parameters
     data_mean = jnp.mean(data, axis=0)
     with numpyro.plate("components", T):
-        mu = m.dist.multivariatenormal(loc=data_mean, covariance_matrix=100.0*jnp.eye(D),name='mu')# shape (T, D)        
-        sigma = m.dist.halfcauchy(1,shape=(D,),event=1,name='sigma')# shape (T, D)
-        Lcorr = m.dist.lkjcholesky(dimension=D, concentration=1.0,name='Lcorr')# shape (T, D, D)
+        mu = m.dist.multivariate_normal(loc=data_mean, covariance_matrix=100.0*jnp.eye(D),name='mu')# shape (T, D)        
+        sigma = m.dist.half_cauchy(1,shape=(D,),event=1,name='sigma')# shape (T, D)
+        Lcorr = m.dist.lkj_cholesky(dimension=D, concentration=1.0,name='Lcorr')# shape (T, D, D)
 
         scale_tril = sigma[..., None] * Lcorr  # shape (T, D, D)
 
     # 3) marginal mixture over obs
-    m.dist.mixturesamefamily(
-        mixing_distribution=m.dist.categoricalprobs(w,name='cat', create_obj=True),
-        component_distribution=m.dist.multivariatenormal(loc=mu, scale_tril=scale_tril,name='mvn', create_obj=True),
+    m.dist.mixture_same_family(
+        mixing_distribution=m.dist.categorical_probs(w,name='cat', create_obj=True),
+        component_distribution=m.dist.multivariate_normal(loc=mu, scale_tril=scale_tril,name='mvn', create_obj=True),
         name="obs",  
         obs=data   
     )
-
 def predict_dpmm(data, sampler):
     """
     Predicts the DPMM density contours based on posterior samples and final labels.

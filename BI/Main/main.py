@@ -476,3 +476,5 @@ class bi(manip):
             plot_gmm(X, sampler= self.sampler,figsize=figsize,**kwargs)
         if self.model_name == 'dpmm':
             plot_dpmm(X, sampler= self.sampler,figsize=figsize,**kwargs)
+        else:
+            print('Model not supported')
