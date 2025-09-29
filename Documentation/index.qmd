@@ -137,7 +137,7 @@ def model(kcal_per_g, index_clade):
 ```{python}
 from BI import bi
 m = bi()
-m.dist.normal( 0, 1, name = 'a', shape=(100,4), sample = True).hist()
+m.dist.normal( 0, 1, name = 'a', shape=(100,2), sample = True, to_jax = False).hist()
 ```
 :::
 
@@ -148,35 +148,3 @@ m.dist.normal( 0, 1, name = 'a', shape=(100,4), sample = True).hist()
 # <span class="text-primary" id="#gallery">Gallery</span>
 
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // 1. The element we want to watch for
-  const gallerySection = document.querySelector('#gallery');
-
-  // 2. The element we will add a class to (the main body)
-  const body = document.body;
-
-  // Only run the script if the gallery section actually exists on the page
-  if (gallerySection) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        // 3. If the gallery is on screen...
-        if (entry.isIntersecting) {
-          // ...add the class to the body.
-          body.classList.add('gallery-in-view');
-        }else {
-          // ...otherwise, remove the class to SHOW the categories again.
-          body.classList.remove('gallery-in-view');
-        }
-      });
-    }, { 
-      // Trigger when 10% of the gallery is visible
-      threshold: 0.1 
-    });
-
-    // 5. Start watching the gallery section.
-    observer.observe(gallerySection);
-  }
-
-});
-</script>
