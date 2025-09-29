@@ -152,7 +152,7 @@ class JAXKMeans:
         self.predictions = labels
         return labels
 
-    def plot(self, X: ArrayLike, show_contours: bool = True, show_centroids: bool = True):
+    def plot(self, X: ArrayLike, show_contours: bool = True, show_centroids: bool = True, figsize=(10, 8)):
         """
         Generates an advanced plot of the clustering results, including data points,
         centroids, and decision boundary contours.
@@ -187,7 +187,7 @@ class JAXKMeans:
 
         # --- 2. Plot Setup ---
         
-        fig, ax = plt.subplots(figsize=(10, 8))
+        fig, ax = plt.subplots(figsize=figsize)
         fig.patch.set_facecolor('#f0f0f0') 
         ax.set_facecolor('#f0f0f0')
 
