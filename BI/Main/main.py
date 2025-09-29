@@ -2,9 +2,6 @@
 import inspect
 import ast
 
-
-
-
 import jax.random as random
 import jax.numpy as jnp
 from jax import vmap
@@ -40,7 +37,7 @@ from BI.BNN.bnn import bnn
 
 
 class bi(manip):
-    def __init__(self, platform='cpu', cores=None, deallocate = False, print_devices_found =    True, backend='numpyro'):
+    def __init__(self, platform='cpu', cores=None, rand_seed = True, deallocate = False, print_devices_found = True, backend='numpyro'):
         """
         Initialize the BI class with platform, cores, deallocate, print_devices_found, and backend parameters.
         
@@ -54,6 +51,11 @@ class bi(manip):
         manip.__init__(self)
         setup_device(platform, cores, deallocate, print_devices_found) 
         
+        if rand_seed:
+            self.seed = rand_seed           
+        else: 
+            self.seed = rand_seed
+
         self.data_on_model = None
         self.priors_name = None
         self.tab_summary = None
@@ -82,8 +84,8 @@ class bi(manip):
         self.bnn= bnn()  
 
         if backend == 'numpyro':
-            from BI.Utils.np_dists import UnifiedDist as np_dists
-            self.dist=np_dists 
+            from BI.Utils.np_dists2 import UnifiedDist as np_dists
+            self.dist=np_dists(self.seed)
             jax.config.update("jax_enable_x64", True)
 
         elif backend == 'tfp':

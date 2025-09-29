@@ -566,6 +566,8 @@ class SampledData:
         min_idx = jnp.argmin(widths)
         return lows[min_idx], highs[min_idx]
 
+    def to_jax(self):
+        return jnp.array(self._data)
 # ================== ARITHMETIC OPERATORS ==================
 
     def __add__(self, other):

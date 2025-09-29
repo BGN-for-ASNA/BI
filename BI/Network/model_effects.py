@@ -37,9 +37,9 @@ class Neteffect(array_manip):
     # Sender receiver  ----------------------
     @staticmethod 
     def nodes_random_effects(N_id, sr_mu = 0, sr_sd = 1, sr_sigma_rate = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False ):
-        sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
-        sr_sigma =  dist.exponential( sr_sigma_rate, shape= (2,), name = 'sr_sigma', sample = sample)
-        sr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
+        sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample, to_jax=True)
+        sr_sigma =  dist.exponential( sr_sigma_rate, shape= (2,), name = 'sr_sigma', sample = sample, to_jax=True)
+        sr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample, to_jax=True)
         rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
 
         if diag:
@@ -69,8 +69,8 @@ class Neteffect(array_manip):
         Returns:
             _type_: terms, focal_effects, target_effects
         """
-        focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), sample = sample, name = focal_name)
-        target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = target_name)
+        focal_effects = dist.normal(s_mu, s_sd, shape=(N_var,), sample = sample, name = focal_name, to_jax=True)
+        target_effects =  dist.normal( r_mu, r_sd, shape= (N_var,), sample = sample, name = target_name, to_jax=True)
         terms = jnp.stack([focal_effects @ focal_individual_predictors, target_effects @  target_individual_predictors], axis = -1)
 
         if diag:
@@ -169,9 +169,9 @@ class Neteffect(array_manip):
         Returns:
             tuple: Contains random effects, raw effects, sigma, and Cholesky decomposition matrix.
         """
-        dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2,N_dyads), name = 'dr_raw', sample = sample)
-        dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample )
-        dr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
+        dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2,N_dyads), name = 'dr_raw', sample = sample, to_jax=True)
+        dr_sigma = dist.exponential(dr_sigma, shape=(1,), name = 'dr_sigma', sample = sample, to_jax=True )
+        dr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample, to_jax=True)
         dr_rf = deterministic('dr_rf', (((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2))))
         if diag :
             print("dr_raw--------------------------------------------------------------------------------")
@@ -198,22 +198,18 @@ class Neteffect(array_manip):
         Returns:
             tuple: Contains fixed effects and dyadic predictors.
         """        
-        dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.ndim - 1,), sample = sample)
+        dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.ndim - 1,), sample = sample, to_jax=True)
         
         if dyadic_predictors.ndim == 2:
             dr_ff = dyad_effects * dyadic_predictors
             if diag :
                 print("dyad_effects--------------------------------------------------------------------------------")
                 print(dyad_effects)
-                print("rf--------------------------------------------------------------------------------")
-                print(rf)
             return dr_ff, dyad_effects
         else:
             if diag :
                 print("dyad_effects--------------------------------------------------------------------------------")
                 print(dyad_effects)
-                print("rf--------------------------------------------------------------------------------")
-                print(rf)
             dr_ff = dyadic_predictors * dyad_effects[:,None, None]
             return jnp.sum(dr_ff, axis=0), dyad_effects
 
@@ -244,11 +240,11 @@ class Neteffect(array_manip):
         if dyadic_predictors is not None :
             dr_ff, dyad_effects = Neteffect.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample)
             dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
-            cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
+            cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample, to_jax=True)
             return dr_ff + dr_rf
         else:
             dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(shape, dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
-            cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
+            cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample, to_jax=True)
         return  dr_rf
   
   
@@ -270,7 +266,7 @@ class Neteffect(array_manip):
             _type_: _description_
         """
         N_dyads = int(((N_grp*(N_grp-1))/2))
-        b_ij = dist.normal(Neteffect.logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_dyads, 2), name = name_b_ij, sample = sample) # transfers more likely within groups
+        b_ij = dist.normal(Neteffect.logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_dyads, 2), name = name_b_ij, sample = sample, to_jax=True) # transfers more likely within groups
         b_ii = dist.normal(Neteffect.logit(b_ii_mean/jnp.sqrt(N_grp)), b_ii_sd, shape=(N_grp, ), name = name_b_ii, sample = sample) # transfers less likely between groups
         b = Neteffect.edgl_to_mat(b_ij, N_grp)
         b = b.at[jnp.diag_indices_from(b)].set(b_ii)
@@ -317,6 +313,7 @@ class Neteffect(array_manip):
         name = string[string.find('(') + 1:-1].split(',')[0]
         name_b_ij = 'b_ij_' + str(name)
         name_b_ii = 'b_ii_' + str(name) 
+
 
         b, b_ij, b_ii = Neteffect.block_model_prior(N_grp, 
                          b_ij_mean = b_ij_mean, b_ij_sd = b_ij_sd, 
