@@ -45,7 +45,7 @@ def model(income, career):
     s_3 = 0
     p = jax.nn.exp(jnp.stack([s_1[0], s_2[0], s_3[0]]))
     # Likelihood
-    m.dist.categorical(p[career], lambda_, obs=career)
+    m.dist.multinomial(p[career], obs=career)
     
 # Run sampler ------------------------------------------------ 
 m.fit(model)  
@@ -88,3 +88,4 @@ Where:
 
 
 ## Reference(s)
+
