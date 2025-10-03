@@ -67,17 +67,19 @@ G_{ij} \sim \text{Poisson}(Y_{ij})
 $$ 
 
 $$
-\log(Y_{ij}) = B_{ij} + B_{ji}
+\log(Y_{ij}) = B_{k(i), k(j)} 
 $$
 
 
 where:
 
--   $B_{ij}$ is the link probability between category $i$ and $j$.
--   $B_{ji}$ is the link probability between category $j$ to $i$.
+- $B$ is a matrix of intercept parameters unique to the interaction of categories. For example, if there are three groups, then $B$ will be a 3x3 matrix where each element give the rate an individual in group $k$ interacting with an individual in group $l$.
+  
+- We use the function $k$, to return the group identity (i.e., the block) of individual *i*.
+
 
 ### *Defining formula sub-equations and prior distributions*
-To account for all link probabilities between categories, we can define a square matrix $B$ as follows: the off-diagonal elements represent the link probabilities between categories $i$ and $j$, while the diagonal elements represent the link probabilities within category $i$.
+To account for all link rates between categories, we can define a square matrix $B$ as follows: the off-diagonal elements represent the link rates between categories $i$ and $j$, while the diagonal elements represent the link rates within category $i$.
 
 $$
 B_{i,j} = 
@@ -89,21 +91,17 @@ a_{i,1} & a_{i,2} & \cdots & a_{i,j}
 \end{bmatrix}
 $$
 
-Where:
-
--   $B[i,j]$ is the link probability between category $i$ and $j$ when $i \neq j$.
--   $B[i,j]$ is the link probability within category $i$ when $i = j$.
 
 As we consider the link probability within categories to be higher than the link probabilities between categories, we define different priors for the diagonal and the off-diagonal. Priors should also depend on sample size, N, so that the resultant network density approximates empirical networks.
 Basic priors could be:
 
 
 $$
-\beta_{k \rightarrow k} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.1}{\sqrt{N_k}}\right), 1.5\right)
+a_{k \rightarrow k} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.1}{\sqrt{N_k}}\right), 1.5\right)
 $$
 
 $$
-\beta_{k \rightarrow \tilde{k}} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.01}{0.5 \sqrt{N_k} + 0.5 \sqrt{N_{\tilde{k}}}}\right), 1.5\right)
+a_{k \rightarrow \tilde{k}} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.01}{0.5 \sqrt{N_k} + 0.5 \sqrt{N_{\tilde{k}}}}\right), 1.5\right)
 $$
 
 where:

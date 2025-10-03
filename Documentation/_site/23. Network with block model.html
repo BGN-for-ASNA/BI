@@ -549,17 +549,17 @@ Caution
 G_{ij} \sim \text{Poisson}(Y_{ij})
 </span></p>
 <p><span class="math display">
-\log(Y_{ij}) = B_{ij} + B_{ji}
+\log(Y_{ij}) = B_{k(i), k(j)}
 </span></p>
 <p>where:</p>
 <ul>
-<li><span class="math inline">B_{ij}</span> is the link probability between category <span class="math inline">i</span> and <span class="math inline">j</span>.</li>
-<li><span class="math inline">B_{ji}</span> is the link probability between category <span class="math inline">j</span> to <span class="math inline">i</span>.</li>
+<li><p><span class="math inline">B</span> is a matrix of intercept parameters unique to the interaction of categories. For example, if there are three groups, then <span class="math inline">B</span> will be a 3x3 matrix where each element give the rate an individual in group <span class="math inline">k</span> interacting with an individual in group <span class="math inline">l</span>.</p></li>
+<li><p>We use the function <span class="math inline">k</span>, to return the group identity (i.e., the block) of individual <em>i</em>.</p></li>
 </ul>
 </section>
 <section id="defining-formula-sub-equations-and-prior-distributions" class="level3">
 <h3 class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><em>Defining formula sub-equations and prior distributions</em></h3>
-<p>To account for all link probabilities between categories, we can define a square matrix <span class="math inline">B</span> as follows: the off-diagonal elements represent the link probabilities between categories <span class="math inline">i</span> and <span class="math inline">j</span>, while the diagonal elements represent the link probabilities within category <span class="math inline">i</span>.</p>
+<p>To account for all link rates between categories, we can define a square matrix <span class="math inline">B</span> as follows: the off-diagonal elements represent the link rates between categories <span class="math inline">i</span> and <span class="math inline">j</span>, while the diagonal elements represent the link rates within category <span class="math inline">i</span>.</p>
 <p><span class="math display">
 B_{i,j} =
 \begin{bmatrix}
@@ -569,17 +569,12 @@ a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,j} \\
 a_{i,1} &amp; a_{i,2} &amp; \cdots &amp; a_{i,j}
 \end{bmatrix}
 </span></p>
-<p>Where:</p>
-<ul>
-<li><span class="math inline">B[i,j]</span> is the link probability between category <span class="math inline">i</span> and <span class="math inline">j</span> when <span class="math inline">i \neq j</span>.</li>
-<li><span class="math inline">B[i,j]</span> is the link probability within category <span class="math inline">i</span> when <span class="math inline">i = j</span>.</li>
-</ul>
 <p>As we consider the link probability within categories to be higher than the link probabilities between categories, we define different priors for the diagonal and the off-diagonal. Priors should also depend on sample size, N, so that the resultant network density approximates empirical networks. Basic priors could be:</p>
 <p><span class="math display">
-\beta_{k \rightarrow k} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.1}{\sqrt{N_k}}\right), 1.5\right)
+a_{k \rightarrow k} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.1}{\sqrt{N_k}}\right), 1.5\right)
 </span></p>
 <p><span class="math display">
-\beta_{k \rightarrow \tilde{k}} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.01}{0.5 \sqrt{N_k} + 0.5 \sqrt{N_{\tilde{k}}}}\right), 1.5\right)
+a_{k \rightarrow \tilde{k}} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.01}{0.5 \sqrt{N_k} + 0.5 \sqrt{N_{\tilde{k}}}}\right), 1.5\right)
 </span></p>
 <p>where:</p>
 <ul>

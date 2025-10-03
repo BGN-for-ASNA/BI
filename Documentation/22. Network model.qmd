@@ -138,42 +138,51 @@ G_{ij} \sim \text{Poisson}(Y_{ij})
 $$ 
 
 $$
-log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
+log(Y_{ij}) = \alpha +  \lambda_i + \pi_j + \delta_{ij}  + \beta_1 X_i + \beta_2 X_j + \beta_3 Q_{ij}
 $$
+
 
 where:
 
--   $Y_{ij}$ is the weight of the link between *i* and *j*.
+- $Y_{ij}$ is the weight of the link between *i* and *j*.
+
   
--   $\lambda_i$ is the [<span style="color:#0D6EFD">sender effect 🛈</span>]{#senderF}.
+- $\lambda_i$ is the [<span style="color:#0D6EFD">sender random effect 🛈</span>]{#senderF}.
   
--   $\pi_j$ is the [<span style="color:#0D6EFD">receiver effect 🛈</span>]{#receiverF}.
+- $\pi_j$ is the [<span style="color:#0D6EFD">receiver random effect 🛈</span>]{#receiverF}.
   
--   $\delta_{ij}$ is the [<span style="color:#0D6EFD">dyadic effect 🛈</span>]{#DyadicF2}.
-- 
+- $\delta_{ij}$ is the [<span style="color:#0D6EFD">dyadic random effect 🛈</span>]{#DyadicF2}.
+
+- $\beta_1$ is the effect of an individuals *i* level feature on the emission of a link (i.e., out-strength).
+
+- $\beta_2$ is the effect of an individuals *j* level feature on the receiving  a link (i.e., in-strength).
+
+- $\beta_3$ is the effect of an dyadic characteristic between *i* and *j* on the likelihood of a tie.
+
 ### *Defining formula sub-equations and prior distributions*
 
-$\lambda_i$ and $\pi_j$ are varying [intercepts](13.%20Varying%20intercepts.qmd) and [slopes](14.%20Varying%20slopes.qmd) identical to those described in previous chapters and are defined through the following equations:
+The sender and receiver random effects are similar to those described in [chapter 13: Varying intercepts](13.%20Varying%20intercepts.qmd), but they are defined here using a joint prior so as to estimate the correlation within individuals to emit and receive a link:
 
 $$
 \left(\begin{array}{cc} 
 \lambda_i \\
-\pi_j 
+\pi_i
 \end{array}\right) 
-\sim 
-\text{MultivariateNormal}\left(\begin{array}{cc} 
+=
+\begin{array}{cc} 
 \left(\begin{array}{cc} 
 \sigma_\lambda \\
 \sigma_\pi
 \end{array}\right) \circ 
 \left(\begin{array}{cc} 
-L *
+L 
 \left(\begin{array}{cc} 
 \hat{\lambda}_i \\ \hat{\pi}_i
 \end{array}\right)
 \end{array}\right)
-\end{array}\right)
+\end{array}
 $$
+
 
 $$
 \sigma_\lambda \sim \text{Exponential}(1)
@@ -187,39 +196,51 @@ $$
 L \sim \text{LKJ}(2)
 $$
 
-Similarly, for each dyad we can define varying intercepts and slopes to account for the correlation between the propensity to emit and receive links of a dyad:
+$$
+\hat{\lambda}_i \sim \text{Normal}(0,1)
+$$
+
+$$
+\hat{\pi}_i \sim \text{Normal}(0,1)
+$$
+
+Similarly, for each dyad we can define a joint prior to estimate correlation between *i*--*j* links and *j*--*i* links:
 
 $$
 \left(\begin{array}{cc} 
 \delta_{ij} \\
 \delta_{ji}
 \end{array}\right) 
-\sim 
-\text{MultivariateNormal}\left(\begin{array}{cc} 
+=
+\begin{array}{cc} 
 \left(\begin{array}{cc} 
 \sigma_\delta \\
 \sigma_\delta
 \end{array}\right) \circ 
 \left(\begin{array}{cc} 
-L_\delta *
+L_\delta 
 \left(\begin{array}{cc} 
 \hat{\delta}_{ij} \\ \hat{\delta}_{ji}
 \end{array}\right)
 \end{array}\right)
-\end{array}\right)
+\end{array}
 $$
 
 $$
 \sigma_\delta \sim \text{Exponential}(1)
 $$
 
-$$
-\sigma_\delta \sim \text{Exponential}(1)
-$$
+
 
 $$
 L_\delta \sim \text{LKJ}(2)
 $$
+
+$$
+\hat{\delta}_{ij}  \sim \text{Normal}(0,1)
+$$
+
+
 
 ## Note(s)
 ::: callout-note

@@ -440,6 +440,7 @@ window.Quarto = {
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
   <ul class="collapse">
   <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><em>Main Formula</em></a></li>
+  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><em>Defining formula sub-equations and prior distributions</em></a></li>
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Note(s)</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
@@ -619,35 +620,40 @@ Caution
 G_{ij} \sim \text{Poisson}(Y_{ij})
 </span></p>
 <p><span class="math display">
-log(Y_{ij}) =  \lambda_i + \pi_j + \delta_{ij}
+log(Y_{ij}) = \alpha +  \lambda_i + \pi_j + \delta_{ij}  + \beta_1 X_i + \beta_2 X_j + \beta_3 Q_{ij}
 </span></p>
 <p>where:</p>
 <ul>
 <li><p><span class="math inline">Y_{ij}</span> is the weight of the link between <em>i</em> and <em>j</em>.</p></li>
-<li><p><span class="math inline">\lambda_i</span> is the <span id="senderF"><span style="color:#0D6EFD">sender effect 🛈</span></span>.</p></li>
-<li><p><span class="math inline">\pi_j</span> is the <span id="receiverF"><span style="color:#0D6EFD">receiver effect 🛈</span></span>.</p></li>
-<li><p><span class="math inline">\delta_{ij}</span> is the <span id="DyadicF2"><span style="color:#0D6EFD">dyadic effect 🛈</span></span>.</p></li>
-<li><h3 id="defining-formula-sub-equations-and-prior-distributions" class="anchored"><em>Defining formula sub-equations and prior distributions</em></h3></li>
+<li><p><span class="math inline">\lambda_i</span> is the <span id="senderF"><span style="color:#0D6EFD">sender random effect 🛈</span></span>.</p></li>
+<li><p><span class="math inline">\pi_j</span> is the <span id="receiverF"><span style="color:#0D6EFD">receiver random effect 🛈</span></span>.</p></li>
+<li><p><span class="math inline">\delta_{ij}</span> is the <span id="DyadicF2"><span style="color:#0D6EFD">dyadic random effect 🛈</span></span>.</p></li>
+<li><p><span class="math inline">\beta_1</span> is the effect of an individuals <em>i</em> level feature on the emission of a link (i.e., out-strength).</p></li>
+<li><p><span class="math inline">\beta_2</span> is the effect of an individuals <em>j</em> level feature on the receiving a link (i.e., in-strength).</p></li>
+<li><p><span class="math inline">\beta_3</span> is the effect of an dyadic characteristic between <em>i</em> and <em>j</em> on the likelihood of a tie.</p></li>
 </ul>
-<p><span class="math inline">\lambda_i</span> and <span class="math inline">\pi_j</span> are varying <a href="./13. Varying intercepts.html">intercepts</a> and <a href="./14. Varying slopes.html">slopes</a> identical to those described in previous chapters and are defined through the following equations:</p>
+</section>
+<section id="defining-formula-sub-equations-and-prior-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><em>Defining formula sub-equations and prior distributions</em></h3>
+<p>The sender and receiver random effects are similar to those described in <a href="./13. Varying intercepts.html">chapter 13: Varying intercepts</a>, but they are defined here using a joint prior so as to estimate the correlation within individuals to emit and receive a link:</p>
 <p><span class="math display">
 \left(\begin{array}{cc}
 \lambda_i \\
-\pi_j
+\pi_i
 \end{array}\right)
-\sim
-\text{MultivariateNormal}\left(\begin{array}{cc}
+=
+\begin{array}{cc}
 \left(\begin{array}{cc}
 \sigma_\lambda \\
 \sigma_\pi
 \end{array}\right) \circ
 \left(\begin{array}{cc}
-L *
+L
 \left(\begin{array}{cc}
 \hat{\lambda}_i \\ \hat{\pi}_i
 \end{array}\right)
 \end{array}\right)
-\end{array}\right)
+\end{array}
 </span></p>
 <p><span class="math display">
 \sigma_\lambda \sim \text{Exponential}(1)
@@ -658,34 +664,40 @@ L *
 <p><span class="math display">
 L \sim \text{LKJ}(2)
 </span></p>
-<p>Similarly, for each dyad we can define varying intercepts and slopes to account for the correlation between the propensity to emit and receive links of a dyad:</p>
+<p><span class="math display">
+\hat{\lambda}_i \sim \text{Normal}(0,1)
+</span></p>
+<p><span class="math display">
+\hat{\pi}_i \sim \text{Normal}(0,1)
+</span></p>
+<p>Similarly, for each dyad we can define a joint prior to estimate correlation between <em>i</em>–<em>j</em> links and <em>j</em>–<em>i</em> links:</p>
 <p><span class="math display">
 \left(\begin{array}{cc}
 \delta_{ij} \\
 \delta_{ji}
 \end{array}\right)
-\sim
-\text{MultivariateNormal}\left(\begin{array}{cc}
+=
+\begin{array}{cc}
 \left(\begin{array}{cc}
 \sigma_\delta \\
 \sigma_\delta
 \end{array}\right) \circ
 \left(\begin{array}{cc}
-L_\delta *
+L_\delta
 \left(\begin{array}{cc}
 \hat{\delta}_{ij} \\ \hat{\delta}_{ji}
 \end{array}\right)
 \end{array}\right)
-\end{array}\right)
-</span></p>
-<p><span class="math display">
-\sigma_\delta \sim \text{Exponential}(1)
+\end{array}
 </span></p>
 <p><span class="math display">
 \sigma_\delta \sim \text{Exponential}(1)
 </span></p>
 <p><span class="math display">
 L_\delta \sim \text{LKJ}(2)
+</span></p>
+<p><span class="math display">
+\hat{\delta}_{ij}  \sim \text{Normal}(0,1)
 </span></p>
 </section>
 </section>
