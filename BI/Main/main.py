@@ -84,8 +84,9 @@ class bi(manip):
         self.bnn= bnn()  
 
         if backend == 'numpyro':
-            from BI.Utils.np_dists2 import UnifiedDist as np_dists
-            self.dist=np_dists(self.seed)
+            from BI.Utils.np_dists import UnifiedDist as np_dists
+            print(self.seed)
+            self.dist=np_dists(seed=self.seed)
             jax.config.update("jax_enable_x64", True)
 
         elif backend == 'tfp':
@@ -259,8 +260,6 @@ class bi(manip):
         if self.model_name == 'pca':
             self.models.pca.posterior = self.posteriors
             self.models.pca.get_attributes(self.models.pca.X.T)
-
-
 
     # Random number generator ----------------------------------------------------------------
     def randint(self, low, high, shape):

@@ -155,7 +155,7 @@ class array_manip():
 
         m2 = jnp.transpose(mat)
         tf = m2[(urows,ucols)]
-        return jnp.stack([ft, tf], axis = -1)
+        return jnp.stack([tf, ft], axis = -1)
 
     @staticmethod 
     @partial(jit, static_argnums=(1, ))
