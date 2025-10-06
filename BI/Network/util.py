@@ -87,15 +87,7 @@ def get_tri(array, type='upper', diag=0):
     return triangle_elements
 
     
-@jit
-def mat_to_edgl_jax(mat):
-    N = mat.shape[0]
-    # From to 
-    urows, ucols   = jnp.triu_indices(N, k=1)
-    ft = mat[(urows,ucols)]
-    m2 = jnp.transpose(mat)
-    tf = m2[(urows,ucols)]
-    return jnp.stack([tf, ft], axis = -1)
+
 
 
 class array_manip():
@@ -155,7 +147,7 @@ class array_manip():
 
         m2 = jnp.transpose(mat)
         tf = m2[(urows,ucols)]
-        return jnp.stack([tf, ft], axis = -1)
+        return jnp.stack([ft,tf], axis = -1)
 
     @staticmethod 
     @partial(jit, static_argnums=(1, ))
@@ -198,5 +190,8 @@ class array_manip():
         urows, ucols = jnp.triu_indices(N, k=1)
         ft = sr[urows,0]
         tf = sr[ucols,1]
-        return jnp.stack([ft, tf], axis = -1)
+        return jnp.stack([ft,tf], axis = -1)
+
+
+
     
