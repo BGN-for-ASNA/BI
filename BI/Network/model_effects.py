@@ -294,7 +294,7 @@ class Neteffect(array_manip):
         return jnp.stack([b[v[:,0],v[:,1]], b[v[:,1],v[:,0]]], axis = 1)
 
     @staticmethod 
-    def block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 1, b_ii_mean = 0.1, b_ii_sd = 1, sample = False):
+    def sim_block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 1, b_ii_mean = 0.1, b_ii_sd = 1, sample = False):
         """Generate block model model matrix.
 
         Args:
@@ -329,14 +329,14 @@ class Neteffect(array_manip):
 
 
     @staticmethod
-    def block_model2(group, N_group, N_by_group, b_ij_sd = 2.5, sample = False, name = ''): 
+    def block_model(group, N_group, N_by_group, b_ij_sd = 2.5, sample = False, name = ''): 
         mu_ij = Neteffect.block_build_mu_ij(group, N_by_group, N_group)
         b = dist.normal(Neteffect.logit(mu_ij), b_ij_sd, sample = sample, name = f'b_{name}')
         return Neteffect.block_prior_to_edglelist(group,b)
 
     @partial(jax.jit, static_argnums=(2,))
     def block_build_mu_ij(group, N_by_group, N_group):
-        # N_group is now a static value known at compile time.
+        # N_group is  a static value known at compile time.
         base_rate = jnp.tile(0.01, (N_group, N_group))
         base_rate = base_rate.at[jnp.diag_indices_from(base_rate)].set(0.1)
         mu_ij = base_rate / jnp.sqrt(jnp.outer(N_by_group, N_by_group))
