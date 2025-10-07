@@ -7,7 +7,7 @@ import os
 import sys
 import inspect
 from BI.Utils.np_dists_old import UnifiedDist as dist
-
+from functools import partial
 class Neteffect(array_manip):
     def __init__(self) -> None:
         pass
@@ -138,7 +138,7 @@ class Neteffect(array_manip):
         sr_ff, focal_effects, target_effects = Neteffect.nodes_terms(
             sender_predictors, receiver_predictors,
             N_var_sender = N_var_sender,N_var_receiver=N_var_receiver,
-            s_mu = s_mu, s_sd = s_sd, r_mu = r_mu, r_sd = r_sd, sample = sample, diag = diag )
+            s_mu = s_mu, s_sd = s_sd, r_mu = r_mu, r_sd = r_sd, sample = sample )
         sr_rf, sr_raw, sr_sigma, sr_L = Neteffect.nodes_random_effects(N_id, sr_mu = sr_mu, sr_sd = sr_sd, sr_sigma_rate = sr_sigma_rate, cholesky_dim = cholesky_dim, cholesky_density = cholesky_density,  sample = sample, diag = diag ) # shape = N_id
         sr_to_dyads = Neteffect.node_effects_to_dyadic_format(sr_ff + sr_rf) # sr_ff and sr_rf are nodal values that need to be converted to dyadic values
         return sr_to_dyads
@@ -157,8 +157,8 @@ class Neteffect(array_manip):
         """        
         if dyadic_effect_mat.ndim == 2:
             return Neteffect.mat_to_edgl(dyadic_effect_mat)
-        else:
-            return  jax.vmap(Neteffect.mat_to_edgl)(jnp.stack(dyadic_effect_mat))
+        elif dyadic_effect_mat.ndim == 3:
+            return jax.vmap(Neteffect.mat_to_edgl, in_axes=2, out_axes=2)(dyadic_effect_mat)
 
     @staticmethod 
     def dyadic_random_effects(N_dyads, dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False):
@@ -193,7 +193,7 @@ class Neteffect(array_manip):
         return dr_rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
-    def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, sample = False, diag = False):
+    def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, sample = False):
         """Calculate fixed effects for dyadic terms.
 
         Args:
@@ -206,24 +206,17 @@ class Neteffect(array_manip):
         Returns:
             tuple: Contains fixed effects and dyadic predictors.
         """        
-        dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.ndim - 1,), sample = sample)
+  
         
         if dyadic_predictors.ndim == 2:
+            dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (1,), sample = sample)
             dr_ff = dyad_effects * dyadic_predictors
-            if diag :
-                print("dyad_effects--------------------------------------------------------------------------------")
-                print(dyad_effects)
-                print("rf--------------------------------------------------------------------------------")
-                print(rf)
-            return dr_ff, dyad_effects
-        else:
-            if diag :
-                print("dyad_effects--------------------------------------------------------------------------------")
-                print(dyad_effects)
-                print("rf--------------------------------------------------------------------------------")
-                print(rf)
-            dr_ff = dyadic_predictors * dyad_effects[:,None, None]
-            return jnp.sum(dr_ff, axis=0), dyad_effects
+
+        elif dyadic_predictors.ndim == 3:
+            dyad_effects = dist.normal(d_m, d_sd, name= 'dyad_effects', shape = (dyadic_predictors.shape[2],), sample = sample)
+            dr_ff = jnp.tensordot(dyadic_predictors, dyad_effects, axes=[2, 0])
+            
+        return dr_ff, dyad_effects
 
     @staticmethod 
     def dyadic_effect(dyadic_predictors = None, shape = None, d_m = 0, d_sd = 1, # Fixed effect arguments
@@ -297,6 +290,7 @@ class Neteffect(array_manip):
         """
 
         v = Neteffect.vec_node_to_edgle(jnp.stack([v, v], axis= 1)).astype(int)
+
         return jnp.stack([b[v[:,0],v[:,1]], b[v[:,1],v[:,0]]], axis = 1)
 
     @staticmethod 
@@ -336,9 +330,8 @@ class Neteffect(array_manip):
 
     @staticmethod
     def block_model2(group, N_group, N_by_group, b_ij_sd = 2.5, sample = False, name = ''): 
-
         mu_ij = Neteffect.block_build_mu_ij(group, N_by_group, N_group)
-        b = dist.normal(Neteffect.logit(mu_ij), b_ij_sd, sample = sample, name = 'b_intecept')
+        b = dist.normal(Neteffect.logit(mu_ij), b_ij_sd, sample = sample, name = f'b_{name}')
         return Neteffect.block_prior_to_edglelist(group,b)
 
     @partial(jax.jit, static_argnums=(2,))
