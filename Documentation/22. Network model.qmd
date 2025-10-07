@@ -19,7 +19,6 @@ Below is an example code snippet demonstrating a Bayesian network model with a s
 ::: {.panel-tabset group="language"}
 ## Python
 ```Python
-from BI import bi
 
 # Setup device------------------------------------------------
 from BI import bi
@@ -39,33 +38,27 @@ m.data_on_model = dict(
 )
 
 
-def model(idx, result_outcomes, 
-    exposure,
-    kinship, 
-    focal_individual_predictors, target_individual_predictors, 
-    Any, Merica, Quantum):
-      # Block ---------------------------------------
-      B_any = m.net.block_model(Any,1)
-      B_Merica = m.net.block_model(Merica,3)
-      B_Quantum = m.net.block_model(Quantum,2)
 
-      ## SR shape =  N individuals---------------------------------------
-      sr =  m.net.sender_receiver(focal_individual_predictors,target_individual_predictors)
+def model(network, dyadic_predictors, sender_predictors, receiver_predictors, Merica, Quantum, Any):
+    N_id = network.shape[0]
+    # Block ---------------------------------------
+    B=m.net.block_model2(jnp.full(N_id,0),1,N_id, name='intecept') # BLock model intercept
+   
+    ## SR shape =  N individuals---------------------------------------
+    sr =  m.net.sender_receiver(sender_predictors,receiver_predictors,
+    s_sd=2.5, r_sd=2.5, sr_sd = 2.5 )
 
-      # Dyadic shape = N dyads--------------------------------------  
-      dr = m.net.dyadic_effect(dyadic_predictors)
+    # Dyadic shape = N dyads--------------------------------------  
+    dr = m.net.dyadic_effect(shape = sr.shape[0], d_sd=2.5) # Diadic effect intercept only 
 
-      m.dist.poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr), obs = result_outcomes, name= 'latent network' )
+   m.dist.bernoulli(logits = B + sr + dr, obs=result_outcomes)
 
 
 
-m.fit(model) 
+m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1, progress_bar = True)
 summary = m.summary()
 summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
 
-m.fit(model2) 
-summary = m.summary()
-summary
 ```
 ## R
 ```r
@@ -125,6 +118,10 @@ summary =m$summary()
 summary[rownames(summary) %in% c('focal_effects[0]', 'target_effects[0]', 'block[0]'),]
 
 ```
+:::
+
+:::::: {.callout-caution}
+Event if you don't have dyadic effect, or block model effect, they need to be define to create intercepts (means) for those effects
 :::
 
 ## Mathematical Details
@@ -244,51 +241,19 @@ $$
 
 ## Note(s)
 ::: callout-note
--  Note that any additional covariates can be summed with a regression coefficient to $\lambda_i$, $\pi_j$ and $\delta_{ij}$. Of course, for $\lambda_i$ and $\pi_j$, as they represent nodal effects, these covariates need to be nodal characteristics (e.g., sex, age), whereas for $\delta_{ij}$, as it represents dyadic effects, these covariates need to be dyadic characteristics (e.g., genetic distances). Considering the previous example, given a vector of nodal characteristics, *individual_predictors*, and a matrix of dyadic characteristics, *kinship*, we can incorporate these covariates into the sender-receiver and dyadic effects, respectively, as follows:
+-  Note that any additional covariates can be summed with a regression coefficient to $\lambda_i$, $\pi_j$ and $\delta_{ij}$. Of course, for $\lambda_i$ and $\pi_j$, as they represent nodal effects, these covariates need to be nodal characteristics (e.g., sex, age), whereas for $\delta_{ij}$, as it represents dyadic effects, these covariates need to be dyadic characteristics (e.g., genetic distances). Considering the previous example, given a vector of nodal characteristics, *individual_predictors*, and a matrix of dyadic characteristics, *kinship*, we can incorporate these covariates into the sender-receiver and dyadic effects, respectively.
+-  
 
-``` python
-def model2(idx, result_outcomes, dyad_effects, focal_individual_predictors, target_individual_predictors):
-    N_id = ids.shape[0]
-
-    # Sender Receiver effect (SR), its shape is equal to N_id ---------------------------------------
-    ## Covariates for SR
-    sr_terms, focal_effects, target_effects = m.net.nodes_terms(focal_individual_predictors, target_individual_predictors) 
-
-    ## Varying intercept and slope for SR
-    sr_rf, sr_raw, sr_sigma, sr_L = m.net.nodes_random_effects(N_id, cholesky_density = 2) 
-
-    sender_receiver = sr_terms + sr_rf
-
-    # Dyadic effect (D), its shape is equal to n dyads -----------------------------------------
-    ## Covariates for D
-    dr_terms, dyad_effects = m.net.dyadic_terms(dyad_effects)
-
-    ## Varying intercept and slope for D
-    rf, dr_raw, dr_sigma, dr_L = m.net.dyadic_random_effects(sender_receiver.shape[0], cholesky_density = 2)
-    dr = dr_terms + rf
-
-    lk('Y', Poisson(jnp.exp( sender_receiver + dr ), is_sparse = False), obs=result_outcomes) # is_sparse = True; if the matrix has many zeros, it can help speed up computation.
-
-m.data_on_model = dict(
-    idx = idx,
-    result_outcomes = m.net.mat_to_edgl(data['outcomes']), 
-    dyad_effects = m.net.prepare_dyadic_effect(kinship), # Can be a jax array of multiple dimensions
-    focal_individual_predictors = data['individual_predictors'],
-    target_individual_predictors = data['individual_predictors']
-)
-
-m.fit(model2) 
-summary = m.summary()
-summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
-```
 -   We can apply multiple variables as in [chapter 2: Multiple Continuous Variables](2.%20Multiple%20continuous%20Variables.qmd).
 
 -   We can apply interaction terms as in [chapter 3: Interaction Between Continuous Variables](3.%20Interaction%20between%20continuous%20variables.qmd).
 
-
--   Network links can be modeled using Bernoulli, Binomial, Poisson, or zero-inflated Poisson distributions. So, by replacing the Poisson distribution with a binomial distribution, we can model the existence or absence of a link — i.e., model binary networks.
+-   Network links can be modeled using Bernoulli (for proportions), Binomial (for unweighted network), Poisson  or zero-inflated Poisson distributions (for count). In BI, you just need to set the correct likelihood distributions. For example, if you want to model the number of interactions between nodes, you can use the Poisson distribution. If you want to model the existence or absence of a link, you can use the Bernoulli distribution.
 
 -   If the network is undirected, then accounting for the correlation between the propensity to emit and receive links is not necessary, and the terms $\lambda_i$, $\pi_j$, and $\delta_{ij}$ are no longer required. (Is it correct?)
+
+- To account for exposure on a poisson model treat exposure as a nodal characteristic with its own parameter effect (i.e., regression coefficient). Their is several function that will help you to convert vectors or matrices in edge list format to have compatible data structure for the model (see API reference for bi.net.vec_to_edgl and bi.net.mat_to_edgl). F
+- 
 
 -   In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).
 :::
