@@ -34,10 +34,13 @@ class UnifiedDist:
         a location parameter (loc), a scale parameter (scale), and an asymmetry parameter (asymmetry).
         
         $$
-        f(x) = \frac{\text{asymmetry}}{\text{scale}(\text{asymmetry}^2+1)} \exp\left(-\frac{\text{asymmetry}}{\text{scale}}( \text{loc} - x)\right) \\
-        \text{if } x < \text{loc} \\ 
-        \frac{\text{asymmetry}}{\text{scale}(\text{asymmetry}^2+1)} \exp\left(-\frac{1}{\text{scale} \cdot \text{asymmetry}}(x - \text{loc})\right) \\             
-        \text{if } x \ge \text{loc}
+        f(x, \kappa) &= \frac{1}{\kappa+\kappa^{-1}}\exp(-x\kappa),\quad x\ge0\\
+                    &= \frac{1}{\kappa+\kappa^{-1}}\exp(x/\kappa),\quad x<0\\
+
+        for $-\infty < x < \infty, \kappa > 0`$.
+
+        laplace_asymmetric takes 'kappa' as a shape parameter for
+        $\kappa$. For :$\kappa = 1$, it is identical to a Laplace distribution.
         $$
         
         #### Args:
@@ -119,10 +122,6 @@ class UnifiedDist:
         `quantile` parameter to define the balance between the left- and right-hand
         sides of the distribution, representing the proportion of probability density
         that falls to the left-hand side.
-        
-        $$   
-        f(x) = \frac{1}{2 \sigma} \exp\left(-\frac{|x - \mu|}{\sigma} \frac{1}{q-1}\right) \left(1 - \frac{1}{2q}\right)
-        $$
 
         #### Args:
 
