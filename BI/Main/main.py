@@ -51,11 +51,7 @@ class bi(manip):
         manip.__init__(self)
         setup_device(platform, cores, deallocate, print_devices_found) 
         
-        if rand_seed:
-            self.seed = rand_seed           
-        else: 
-            self.seed = rand_seed
-
+        self.seed = rand_seed           
         self.data_on_model = None
         self.priors_name = None
         self.tab_summary = None
@@ -84,8 +80,8 @@ class bi(manip):
         self.bnn= bnn()  
 
         if backend == 'numpyro':
-            from BI.Utils.np_dists_old import UnifiedDist as np_dists
-            self.dist=np_dists()
+            from BI.Utils.np_dists_new import UnifiedDist as np_dists
+            self.dist=np_dists(seed = rand_seed)
             jax.config.update("jax_enable_x64", True)
 
         elif backend == 'tfp':
