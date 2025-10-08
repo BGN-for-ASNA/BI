@@ -13,3 +13,5 @@ class net(met, Neteffect, array_manip):
         # Call super() without specifying the class name in a multiple inheritance context
         super().__init__(*args, **kwargs)
         # Additional initialization code if needed
+
+
