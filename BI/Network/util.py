@@ -193,5 +193,9 @@ class array_manip():
         return jnp.stack([ft,tf], axis = -1)
 
 
+    @staticmethod
+    @jit 
+    def to_binary_matrix(m):
+        return jnp.where(m > 0, 1, 0)
 
     
