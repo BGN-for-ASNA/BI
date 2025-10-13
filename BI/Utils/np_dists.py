@@ -403,7 +403,7 @@ class UnifiedDist:
         B(\alpha, \beta) = \int_0^1 x^{\alpha - 1} (1 - x)^{\beta - 1} , dx = \frac{\Gamma(\alpha),\Gamma (\beta)}{\Gamma(\alpha + \beta)}.
         $$
 
-        where :num:math:`\alpha` and $\beta$ are the concentration parameters,
+        where :num$\alpha` and $\beta$ are the concentration parameters,
         and $B(x, y)$ is the Beta function.
 
         
@@ -1196,9 +1196,9 @@ class UnifiedDist:
 
         r"""### Circulant Normal Multivariate normal 
 
-        Circulant Normal Multivariate normal distribution with covariance matrix :math:`\mathbf{C}` that is
+        Circulant Normal Multivariate normal distribution with covariance matrix $\mathbf{C}` that is
         positive-definite and circulant [1], i.e., has periodic boundary conditions. The
-        density of a sample :math:`\mathbf{x}\in\mathbb{R}^n` is the standard multivariate
+        density of a sample $\mathbf{x}\in\mathbb{R}^n` is the standard multivariate
         normal density
         
         $$
@@ -1208,21 +1208,21 @@ class UnifiedDist:
             \mathbf{C}^{-1}\left(\mathbf{x}-\boldsymbol{\mu}\right)\right),
         $$
 
-        where :math:`\mathrm{det}` denotes the determinant and :math:`^\intercal` the
+        where $\mathrm{det}` denotes the determinant and $^\intercal` the
         transpose. Circulant matrices can be diagnolized efficiently using the discrete
         Fourier transform [1], allowing the log likelihood to be evaluated in
-        :math:`n \log n` time for :math:`n` observations [2].
+        $n \log n` time for $n` observations [2].
         
-        - *loc:* Mean of the distribution :math:`\boldsymbol{\mu}`.
+        - *loc:* Mean of the distribution $\boldsymbol{\mu}`.
 
         - *covariance_row:* First row of the circulant covariance matrix
-            :math:`\boldsymbol{C}`. Because of periodic boundary conditions, the covariance
+            $\boldsymbol{C}`. Because of periodic boundary conditions, the covariance
             matrix is fully determined by its first row (see
             :func:`jax.scipy.linalg.toeplitz` for further details).
             
         - *covariance_rfft:* Real part of the real fast Fourier transform of
             :code:`covariance_row`, the first row of the circulant covariance matrix
-            :math:`\boldsymbol{C}`.
+            $\boldsymbol{C}`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
@@ -1236,15 +1236,15 @@ class UnifiedDist:
            https://en.wikipedia.org/wiki/Circulant_matrix
 
         2. Wood, A. T. A., & Chan, G. (1994). Simulation of Stationary Gaussian Processes in
-           :math:`\left[0, 1\right]^d`. *Journal of Computational and Graphical Statistics*,
+           $\left[0, 1\right]^d`. *Journal of Computational and Graphical Statistics*,
            3(4), 409--432. https://doi.org/10.1080/10618600.1994.10474655
         
         #### Args:
 
         - *loc* : jnp.ndarray
-                Mean of the distribution :math:`\boldsymbol{\mu}`.
+                Mean of the distribution $\boldsymbol{\mu}`.
 
-        - *covariance_row* : jnp.ndarray, optional. First row of the circulant covariance matrix :math:`\mathbf{C}`.
+        - *covariance_row* : jnp.ndarray, optional. First row of the circulant covariance matrix $\mathbf{C}`.
                 Defaults to None.
 
         - *covariance_rfft* : jnp.ndarray, optional Real part of the real fast Fourier transform of :code:`covariance_row`. Defaults to None.
@@ -1731,10 +1731,10 @@ class UnifiedDist:
         $$
         
         where:
-        - :math:`X_t` is the state of the system at time :math:`t`.
-        - :math:`f(X_t, t)` is the drift coefficient.
-        - :math:`g(X_t, t)` is the diffusion coefficient.
-        - :math:`dW_t` is a Wiener process (Brownian motion).
+        - $X_t` is the state of the system at time $t`.
+        - $f(X_t, t)` is the drift coefficient.
+        - $g(X_t, t)` is the diffusion coefficient.
+        - $dW_t` is a Wiener process (Brownian motion).
 
         
         #### Args:
@@ -1800,7 +1800,7 @@ class UnifiedDist:
         Zhere ( \lambda > 0 ) is the rate parameter (the mean is ( 1/\lambda )).
         
         #### Args:
-            rate (jnp.ndarray): The rate parameter, :math:`\lambda`. Must be positive.
+            rate (jnp.ndarray): The rate parameter, $\lambda`. Must be positive.
         
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
@@ -2099,16 +2099,6 @@ class UnifiedDist:
         modelling the correlation between the axes. A copula is a multivariate distribution over the uniform distribution
         on [0, 1]. The Gaussian copula links the marginal distributions through a multivariate normal distribution.
         
-        $$
-           f(x_1, ..., x_d) = \prod_{i=1}^{d} f_i(x_i) \cdot \phi(F_1(x_1), ..., F_d(x_d); \mu, \Sigma)
-        $$
-
-        where:
-        - $f_i$ is the probability density function of the i-th marginal distribution.
-        - $F_i$ is the cumulative distribution function of the i-th marginal distribution.
-        - $\phi$ is the standard normal PDF.
-        - $\mu$ is the mean vector of the multivariate normal distribution.
-        - $\Sigma$ is the covariance matrix of the multivariate normal distribution.
 
         
         #### Args:
@@ -2179,14 +2169,7 @@ class UnifiedDist:
         This distribution combines a Gaussian copula with a Beta distribution.
         The Gaussian copula models the dependence structure between random variables,
         while the Beta distribution defines the marginal distributions of each variable.
-    
-        $$
-           f(x) = \int_{-\infty}^{\infty} g(x|u) h(u) du
-        $$
 
-        Where:
-            - g(x|u) is the Gaussian copula density.
-            - h(u) is the Beta density.
     
         #### Args:
             concentration1 (jnp.ndarray): The first shape parameter of the Beta distribution.
@@ -2262,13 +2245,9 @@ class UnifiedDist:
         previous value plus a Gaussian-distributed increment. The distribution is over
         the entire path.
 
-        $$
-           X_t = X_{t-1} + \epsilon_t, \quad \text{where} \quad \epsilon_t \sim \mathcal{N}(0, \sigma^2)
-        $$with the initial state :math:`X_0 = 0`. The resulting sample is a vector of
-        length `num_steps`, representing the path :math:`(X_1, X_2, \dots, X_{\text{num\_steps}})`.
     
         #### Args:
-        - *sample* (float, jnp.ndarray, optional): The standard deviation (:math:`\sigma`) of the Gaussian increments. Must be positive. Defaults to 1.0.
+        - *sample* (float, jnp.ndarray, optional): The standard deviation ($\sigma`) of the Gaussian increments. Must be positive. Defaults to 1.0.
             num_steps (int, optional): The number of steps in the random walk, which determines the event shape of the distribution. Must be positive. Defaults to 1.
             validate_args (bool, optional): Whether to enable validation of distribution parameters. Defaults to `None`.
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
@@ -2339,29 +2318,22 @@ class UnifiedDist:
 
         r"""### Gaussian State Space 
         Samples from a Gaussian state space model.
-        
-        $$           
-        \mathbf{z}_{t} = \mathbf{A} \mathbf{z}_{t - 1} + \boldsymbol{\epsilon}_t\\
-        =\sum_{k=1} \mathbf{A}^{t-k} \boldsymbol{\epsilon}_t,
-        $$
-               
-        where :math:`\mathbf{z}_t` is the state vector at step :math:`t`, :math:`\mathbf{A}`
-        is the transition matrix, and :math:`\boldsymbol\epsilon` is the innovation noise.
+
 
         
         #### Args:
             num_steps (int): Number of steps.
 
-            transition_matrix (jnp.ndarray): State space transition matrix :math:`\mathbf{A}`.
+            transition_matrix (jnp.ndarray): State space transition matrix $\mathbf{A}`.
 
             covariance_matrix (jnp.ndarray, optional): Covariance of the innovation noise
-                :math:`\boldsymbol{\epsilon}`. Defaults to None.
+                $\boldsymbol{\epsilon}`. Defaults to None.
 
             precision_matrix (jnp.ndarray, optional): Precision matrix of the innovation noise
-                :math:`\boldsymbol{\epsilon}`. Defaults to None.
+                $\boldsymbol{\epsilon}`. Defaults to None.
 
             scale_tril (jnp.ndarray, optional): Scale matrix of the innovation noise
-                :math:`\boldsymbol{\epsilon}`. Defaults to None.
+                $\boldsymbol{\epsilon}`. Defaults to None.
 
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
 
@@ -2418,8 +2390,9 @@ class UnifiedDist:
         r"""### GeometricLogits 
         Samples from a GeometricLogits distribution, which models the number of failures before the first success in a sequence of independent Bernoulli trials.  It is parameterized by logits, which are transformed into probabilities using the sigmoid function.
         
+
         $$
-           P(X = k) = (1 - p)^k p
+        P(X = k) = (1 - p)^k , p,
         $$
             
 
@@ -2458,6 +2431,9 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#geometriclogits
+
+        #### References:
+             https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Geometric
         """
 
            
@@ -2556,10 +2532,13 @@ class UnifiedDist:
         entry for the Gompertz distribution. See https://en.wikipedia.org/wiki/Gompertz_distribution.
         
         The probability density function (PDF) is:
-        
+
+
         $$
-           f(x) = \frac{con}{rate} \exp \left\{ - \frac{con}{rate} \left [ \exp\{x * rate \} - 1 \right ] \right\} \exp(-x * rate)
+        F(x) = 1 - \exp!\bigl[-a (e^x - 1)\bigr], \quad x \ge 0.
         $$
+
+
         
         #### Args:
             concentration (jnp.ndarray): The concentration parameter. Must be positive.
@@ -2594,6 +2573,8 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gompertz
+        #### References:
+           https://en.wikipedia.org/wiki/Gompertz_distribution
         """
 
            
@@ -2626,11 +2607,13 @@ class UnifiedDist:
         
         The Gumbel distribution is a continuous probability distribution named after German mathematician Carl Gumbel.
         It is often used to model the distribution of maximum values in a sequence of independent random variables.
-        
-        $$   
-        f(x) = \frac{1}{s} e^{-(x - \mu) / s} e^{-e^{- (x - \mu) / s}}
+
+
         $$
-        
+        F(x;\mu,\beta) = \exp\bigl( -\exp\bigl( -\tfrac{x - \mu}{\beta} \bigr) \bigr), \quad x \in \mathbb{R}.
+        $$
+
+
         #### Args:
         - *loc* (jnp.ndarray or float, optional): Location parameter. Defaults to 0.0.
         - *sample* (jnp.ndarray or float, optional): Scale parameter. Must be positive. Defaults to 1.0.
@@ -2665,6 +2648,8 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gumbel
+        #### References:
+            https://en.wikipedia.org/wiki/Gumbel_distribution
         """
 
            
@@ -2760,10 +2745,11 @@ class UnifiedDist:
         
         The HalfNormal distribution is a distribution of the absolute value of a normal random variable.
         It is defined by a location parameter (implicitly 0) and a scale parameter.
-        
-        $$   f(x) = \frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{x^2}{2\sigma^2}} \text{ for } x > 0
+
         $$
-        
+        f(x; \sigma) = \frac{2}{\pi,\sigma} ; \frac{1}{1 + \bigl(x/\sigma\bigr)^2}, \qquad x \ge 0.
+        $$
+
         #### Args:
         - *sample* (float, array): The scale parameter of the distribution. Must be positive.
         
@@ -2797,6 +2783,9 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#halfnormal
+
+        #### References:
+            https://distribution-explorer.github.io/continuous/halfcauchy.html?utm_source=chatgpt.com
         """
 
            
@@ -2825,10 +2814,7 @@ class UnifiedDist:
 
         r"""### Improper Uniform 
         A helper distribution with zero :meth:`log_prob` over the `support` domain.
-        
-        $$   p(x) = 0
-        $$
-        
+
         #### Args:
             support (numpyro.distributions.constraints.Constraint): The support of this distribution.
 
@@ -2898,13 +2884,14 @@ class UnifiedDist:
 
         r"""### Inverse Gamma 
         The InverseGamma distribution is a two-parameter family of continuous probability
-        distributions. It is defined by its shape and rate parameters. It is often used as a prior distribution for
-        precision parameters (inverse variance) in Bayesian statistics.
+        distributions. It is defined by its shape $\alpha$ and rate $\beta$ parameters. It is often used as a prior distribution for precision parameters (inverse variance) in Bayesian statistics.
         
         $$
-           p(x) = \frac{1}{Gamma(\alpha)} \left( \frac{\beta}{\Gamma(\alpha)} \right)^{\alpha} x^{\alpha - 1} e^{-\beta x}
-            \text{ for } x > 0
+        f(x; \alpha, \beta) = \frac{\beta^\alpha}{\Gamma(\alpha)} x^{-(\alpha + 1)} \exp\left(-\frac{\beta}{x}\right), \quad x > 0
         $$
+
+        where:
+        * (\Gamma(\alpha)) is the Gamma function.
         
         #### Args:
             concentration (jnp.ndarray): The shape parameter (\\alpha) of the InverseGamma distribution. Must be positive.
@@ -2971,8 +2958,13 @@ class UnifiedDist:
         It is a flexible distribution that can take on various shapes depending on its parameters.
         
         $$
-           f(x; a, b) = a b x^{a b - 1} (1 - x)^{b - 1}
         $$
+        f(x; a, b) = a b x^{a-1} (1 - x^a)^{b-1}, \quad x \in (0, 1)
+        $$
+
+        where:
+        * ( a ) and ( b ) are shape parameters.
+        * ( x ) is the random variable.
         
         #### Args:
             concentration1 (jnp.ndarray): The first shape parameter. Must be positive.
@@ -3005,7 +2997,11 @@ class UnifiedDist:
             m = bi('cpu')
             m.dist.kumaraswamy(concentration1=2.0, concentration0=3.0, sample=True)
         
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#kumaraswamy
+        #### Wrapper of: 
+            https://num.pyro.ai/en/stable/distributions.html#kumaraswamy
+        #### Rerferences:
+            https://en.wikipedia.org/wiki/Kumaraswamy_distribution
+
         """
 
            
@@ -3034,10 +3030,10 @@ class UnifiedDist:
 
         r"""### Lewandowski Kurowicka Joe (LKJ)  
         
-        The LKJ distribution is controlled by the concentration parameter :math:`\eta` to make the probability
-        of the correlation matrix :math:`M` proportional to :math:`\det(M)^{\eta - 1}`. When :math:`\eta = 1`,
-        the distribution is uniform over correlation matrices.  When :math:`\eta > 1`, the distribution favors
-        samples with large determinants. When :math:`\eta < 1`, the distribution favors samples with small
+        The LKJ distribution is controlled by the concentration parameter $\eta$ to make the probability
+        of the correlation matrix $M` proportional to $\det(M)^{\eta - 1}$. When $\eta = 1$,
+        the distribution is uniform over correlation matrices.  When $\eta > 1$, the distribution favors
+        samples with large determinants. When $\eta < 1$, the distribution favors samples with small
         determinants.
         
         $$
@@ -3082,6 +3078,8 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#lkj
+        #### References:
+            https://en.wikipedia.org/wiki/Kumaraswamy_distribution
         """
 
            
@@ -3113,9 +3111,20 @@ class UnifiedDist:
         The LKJ (Leonard-Kjærgaard-Jørgensen) Cholesky distribution is a family of distributions
         on symmetric matrices, often used as a prior for the Cholesky decomposition of a
         symmetric matrix. It is particularly useful in Bayesian inference for models with
-        covariance structure.
+        covariance structure. Given a lower triangular matrix (L) with unit diagonal entries, the PDF is:
         $$
-        
+        p(L | \eta) \propto \prod_{k=2}^d L_{kk}^{d-k+2\eta-2}
+        $$
+
+        where:
+            * (L_{kk}) is the diagonal element of (L).
+            * (\eta) is the shape parameter.
+            * (d) is the dimension of the matrix.
+
+        * (\eta = 1): Uniform prior over correlation matrices.
+        * (\eta > 1): Prior favors correlation matrices close to the identity matrix (i.e., weak correlations).
+        * (\eta < 1): Prior allows stronger correlations.
+
         #### Args:
             dimension (int): The dimension of the correlation matrices.
 
@@ -3142,8 +3151,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
-        Attributes:
-            concentration (float): The concentration parameter.
+            Attributes:
+                concentration (float): The concentration parameter.
+            
+        #### References:
+            https://mc-stan.org/docs/2_21/functions-reference/cholesky-lkj-correlation-distribution.html
         """
         
         d = numpyro.distributions.continuous.LKJCholesky(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args)
@@ -3173,8 +3185,13 @@ class UnifiedDist:
         Samples from a Laplace distribution, also known as the double exponential distribution.
         The Laplace distribution is defined by its location parameter (loc) and scale parameter (scale).
         
-        $$   f(x) = \frac{1}{2s} \exp\left(-\frac{|x - \mu|}{s}\right)
         $$
+        f(x \mid \mu, b) = \frac{1}{2b} \exp\left( -\frac{|x - \mu|}{b} \right)
+        $$
+
+        Where:
+        * ($\mu$) is the **location parameter**, indicating the peak of the distribution.
+        * (b > 0) is the **scale parameter**, controlling the spread of the distribution.
         
         #### Args:
         - *loc* (jnp.ndarray): Location parameter of the Laplace distribution.
@@ -3325,7 +3342,7 @@ class UnifiedDist:
            f(x\mid \mu, c) = \sqrt{\frac{c}{2\pi(x-\mu)^{3}}} \exp\left(-\frac{c}{2(x-\mu)}\right), \qquad x > \mu
         $$
                
-        where :math:`\mu` is the location parameter and :math:`c` is the scale parameter.
+        where $\mu` is the location parameter and $c` is the scale parameter.
 
         
         #### Args:
@@ -3605,9 +3622,9 @@ class UnifiedDist:
 
         where:
         
-        * :math:`x` is a vector of observations.
-        * :math:`\mu` is the mean vector.
-        * :math:`\Sigma` is the covariance matrix, represented in a low-rank form.
+        * $x` is a vector of observations.
+        * $\mu` is the mean vector.
+        * $\Sigma` is the covariance matrix, represented in a low-rank form.
         
         Parameters:
         - *loc* (jnp.ndarray): Mean vector.
@@ -3664,7 +3681,7 @@ class UnifiedDist:
 
         r"""### Lower Truncated Power Law
         
-        Lower truncated power law distribution with :math:`\alpha` index.
+        Lower truncated power law distribution with $\alpha` index.
         
         The probability density function (PDF) is given by:
         
@@ -3673,7 +3690,7 @@ class UnifiedDist:
             \qquad x \geq a, \qquad \alpha < -1,
         $$
                
-        where :math:`a` is the lower bound.
+        where $a` is the lower bound.
 
         
         #### Args:
@@ -3741,7 +3758,7 @@ class UnifiedDist:
         Samples from a Matrix Normal distribution, which is a multivariate normal distribution over matrices.
         The distribution is characterized by a location matrix and two lower triangular matrices that define the correlation structure.
         The distribution is related to the multivariate normal distribution in the following way.
-        If :math:`X ~ MN(loc,U,V)` then :math:`vec(X) ~ MVN(vec(loc), kron(V,U) )`.
+        If $X ~ MN(loc,U,V)` then $vec(X) ~ MVN(vec(loc), kron(V,U) )`.
         
         $$
            p(x) = \frac{1}{2\pi^{p/2} |\Sigma|^{1/2}} \exp\left(-\frac{1}{2} (x - \mu)^T \Sigma^{-1} (x - \mu)\right)
@@ -4152,9 +4169,9 @@ class UnifiedDist:
             
 
         where:
-        - :math:`x` is a :math:`n`-dimensional vector of random variables.
-        - :math:`\mu` is the mean vector.
-        - :math:`\Sigma` is the covariance matrix.
+        - $x` is a $n`-dimensional vector of random variables.
+        - $\mu` is the mean vector.
+        - $\Sigma` is the covariance matrix.
 
         
         #### Args:
@@ -4979,19 +4996,19 @@ class UnifiedDist:
            f_{\text{trunc}}(x) = \frac{f_{\text{base}}(x)}{F_{\text{base}}(\text{high})} \quad \text{for } x \le \text{high}
         $$
 
-        where :math:`f_{\text{base}}(x)` is the PDF of the base distribution and
-        :math:`F_{\text{base}}(\text{high})` is the cumulative distribution function (CDF)
+        where $f_{\text{base}}(x)` is the PDF of the base distribution and
+        $F_{\text{base}}(\text{high})` is the cumulative distribution function (CDF)
         of the base distribution evaluated at `high`.
     
         
-        where :math:`f(x)` is the probability density function (PDF) of the base distribution and :math:`P(X \le high)` is the
+        where $f(x)` is the probability density function (PDF) of the base distribution and $P(X \le high)` is the
         cumulative distribution function (CDF) of the base distribution evaluated at `high`.
         $$
         
         #### Args:
             base_dist: The base distribution to truncate.  Must be a univariate distribution with real support.
         
-            high (float, jnp.ndarray, optional): The upper truncation point. The support of the new distribution is :math:`(-\infty, \text{high}]`. Defaults to 0.0.
+            high (float, jnp.ndarray, optional): The upper truncation point. The support of the new distribution is $(-\infty, \text{high}]`. Defaults to 0.0.
             
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
                 with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
@@ -5054,7 +5071,7 @@ class UnifiedDist:
         r"""### Sine Bivariate Von Mises
 
         A unimodal distribution for two dependent angles on the 2-torus
-        (:math:`S^1 \otimes S^1`), which is useful for modeling coupled angles like
+        ($S^1 \otimes S^1`), which is useful for modeling coupled angles like
         torsion angles in peptide chains. [1]
 
         The probability density function is given by:
@@ -5063,15 +5080,15 @@ class UnifiedDist:
            C^{-1}\exp(\kappa_1\cos(x_1-\mu_1) + \kappa_2\cos(x_2 -\mu_2) + \rho\sin(x_1 - \mu_1)\sin(x_2 - \mu_2))
         $$
 
-        where the normalization constant :math:`C` is:
+        where the normalization constant $C` is:
 
         $$
            C = (2\pi)^2 \sum_{i=0}^{\infty} \binom{2i}{i} \left(\frac{\rho^2}{4\kappa_1\kappa_2}\right)^i I_i(\kappa_1)I_i(\kappa_2)
         $$
 
-        Here, :math:`I_i(\cdot)` is the modified Bessel function of the first kind,
-        :math:`\mu`'s are the locations, :math:`\kappa`'s are the concentrations,
-        and :math:`\rho` represents the correlation between the angles :math:`x_1` and :math:`x_2`.
+        Here, $I_i(\cdot)` is the modified Bessel function of the first kind,
+        $\mu`'s are the locations, $\kappa`'s are the concentrations,
+        and $\rho` represents the correlation between the angles $x_1` and $x_2`.
         
 
         #### Args:
@@ -5171,7 +5188,7 @@ class UnifiedDist:
         
         r"""### Sine-skewing
 
-        Sine-skewing [1] is a procedure for producing a distribution that breaks pointwise symmetry on a torus distribution. The new distribution is called the Sine Skewed X distribution, where X is the name of the (symmetric) base distribution. Torus distributions are distributions with support on products of circles (i.e., :math:`\otimes S^1` where :math:`S^1 = [-pi,pi)`).
+        Sine-skewing [1] is a procedure for producing a distribution that breaks pointwise symmetry on a torus distribution. The new distribution is called the Sine Skewed X distribution, where X is the name of the (symmetric) base distribution. Torus distributions are distributions with support on products of circles (i.e., $\otimes S^1` where $S^1 = [-pi,pi)`).
         So, a 0-torus is a point, the 1-torus is a circle, and the 2-torus is commonly associated with the donut shape.
         
         .. note: This distribution is available in BI: [https://num.pyro.ai/en/stable/distributions.html#sineskewed](https://num.pyro.ai/en/stable/distributions.html#sineskewed)
@@ -5654,7 +5671,7 @@ class UnifiedDist:
            f(x) = \frac{\beta}{\alpha} \left(\frac{x}{\alpha}\right)^{\beta - 1} e^{-\left(\frac{x}{\alpha}\right)^{\beta}} \text{ for } x \ge 0
         $$
                
-        where :math:`\alpha` is the scale parameter and :math:`\beta` is the shape parameter.
+        where $\alpha` is the scale parameter and $\beta` is the shape parameter.
 
         
         #### Args:
@@ -6143,7 +6160,7 @@ class UnifiedDist:
         P(k) = \frac{e^{\log(p_k)}}{\sum_{j=1}^{K} e^{\log(p_j)}}
         $$
 
-        where $p_k$ is the probability of outcome :math:`k`, and the sum is over all possible outcomes.
+        where $p_k$ is the probability of outcome $k`, and the sum is over all possible outcomes.
         
         #### Args:
         - *probs* (jnp.ndarray): A 1D array of probabilities for each category. Must sum to 1.
