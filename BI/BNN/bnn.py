@@ -41,7 +41,7 @@ class bnn(activation):
         """
         return list(self._activation_map.keys())
 
-    def layer(self, X, dist, activation=None):
+    def layer(self, X, dist, activation=None, bias=None):
         """        
         Adds a layer to the BNN with the specified prior distribution and activation function.       
 
@@ -53,7 +53,10 @@ class bnn(activation):
 
         w = dist
 
-        prod = jnp.matmul(X, w)
+        if bias:
+            prod = jnp.matmul(X, w) + bias
+        else:
+            prod = jnp.matmul(X, w) 
 
         # 2. Get and store the activation function object.
         if activation is None:
@@ -65,6 +68,23 @@ class bnn(activation):
                 raise ValueError(f"Unknown activation function: '{activation_name}'")    
             return activation_func(prod)
 
+
+    def scaled_dot_product_attention(self, Q, K, V):
+        """Compute scaled dot-product attention."""
+        d_k = Q.shape[-1]
+        scores = jnp.matmul(Q, K.T) / jnp.sqrt(d_k)
+        attn_weights = jax.nn.softmax(scores, axis=-1)
+        return jnp.matmul(attn_weights, V), attn_weights
+
+    def __call__(self, X):
+        """Forward pass through the Bayesian attention mechanism."""
+        Q = self.layer(X, self.q_proj)
+        K = self.layer(X, self.k_proj)
+        V = self.layer(X, self.v_proj)
+
+        attn_output, attn_weights = self.scaled_dot_product_attention(Q, K, V)
+        return attn_output, attn_weights
+        
     def cov(self,hidden_dim,N,a, b, sample = True):
         """
         Creates a Bayesian Neural Network (BNN) with two layers for covariance estimation.
