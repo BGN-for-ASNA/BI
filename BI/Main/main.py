@@ -89,6 +89,9 @@ class bi(manip):
             self.sampler = mcmc_tfp()
             jax.config.update("jax_enable_x64", False)
 
+    def latex(self):
+        from BI.PostModel.to_latex import to_latex
+        return to_latex(self.model)
 
     def fit(self, 
             model = None, 
