@@ -6,7 +6,7 @@ from numpyro import deterministic
 import os
 import sys
 import inspect
-from BI.Utils.np_dists_new import UnifiedDist as dist
+from BI.Utils.np_dists import UnifiedDist as dist
 from functools import partial
 class Neteffect(array_manip):
     def __init__(self) -> None:

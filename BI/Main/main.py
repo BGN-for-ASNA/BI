@@ -11,9 +11,7 @@ import jax
 from numpyro.infer import MCMC, NUTS, Predictive
 from numpyro.handlers import condition
 import numpyro
-
 import arviz as az
-
 
 import random as pyrand
 import functools
@@ -80,7 +78,7 @@ class bi(manip):
         self.bnn= bnn()  
 
         if backend == 'numpyro':
-            from BI.Utils.np_dists_new import UnifiedDist as np_dists
+            from BI.Utils.np_dists import UnifiedDist as np_dists
             self.dist=np_dists(seed = rand_seed)
             jax.config.update("jax_enable_x64", True)
 

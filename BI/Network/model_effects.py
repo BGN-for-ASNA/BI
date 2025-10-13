@@ -6,7 +6,7 @@ from numpyro import deterministic
 import os
 import sys
 import inspect
-from BI.Utils.np_dists_new import UnifiedDist as dist
+from BI.Utils.np_dists import UnifiedDist as dist
 from functools import partial
 class Neteffect(array_manip):
     def __init__(self) -> None:
@@ -70,8 +70,8 @@ class Neteffect(array_manip):
         sender_effects = dist.normal(s_mu, s_sd, shape=(N_var_sender,), sample = sample, name = 'sender_effects')
         receiver_effects =  dist.normal( r_mu, r_sd, shape= (N_var_receiver,), sample = sample, name = 'receiver_effects')
         terms = jnp.stack([
-            sender_effects @ sender_predictors, 
-            receiver_effects @  receiver_predictors], 
+            sender_effects @ sender_predictors.T, 
+            receiver_effects @  receiver_predictors.T], 
             axis = -1)
 
         return terms, sender_effects, receiver_effects
@@ -129,10 +129,17 @@ class Neteffect(array_manip):
         if sender_predictors is None and receiver_predictors is None:
             raise ValueError("At least one of sender_predictors or receiver_predictors must be provided.")
 
-        N_var_sender = sender_predictors.shape[0]
-        N_id = sender_predictors.shape[1]         
+        if sender_predictors is not None:
+            N_var_sender = sender_predictors.shape[1]
+            N_id = sender_predictors.shape[0] 
+        else:
+            N_var_sender = 0
 
-        N_var_receiver = receiver_predictors.shape[0]
+        if receiver_predictors is not None:            
+            N_var_receiver = receiver_predictors.shape[1]
+            N_id = sender_predictors.shape[0] 
+        else:
+            N_var_receiver = 0
 
 
         sr_ff, focal_effects, target_effects = Neteffect.nodes_terms(

@@ -4,28 +4,13 @@ import jax.numpy as jnp
 from jax import random
 import numpyro
 import jax
-import time
 from BI.Utils.SampledData import SampledData as SampledData
 
 class UnifiedDist:
     """A class to unify various distribution methods and provide a consistent interface for sampling and inference."""
 
-    def __init__(self, seed = True):
-        self.seed = seed
-
-    @staticmethod
-    def normalize_seed(seed):
-        # If seed is exactly a bool, return True or False
-        if isinstance(seed, bool):
-            if seed:
-                return  int(time.time_ns())
-            else:   
-                return 0
-        # If seed is an integer (but not a bool), return it
-        if isinstance(seed, int) and not isinstance(seed, bool):
-            return seed
-        # Otherwise, you may want to handle other types (None, floats, etc.)
-        raise ValueError(f"Invalid seed type: {type(seed)}")
+    def __init__(self):
+        pass
 
     @staticmethod
     def mask( mask):
@@ -36,7 +21,7 @@ class UnifiedDist:
         return numpyro.plate(name, shape)
 
     @staticmethod
-    def asymmetric_laplace(loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def asymmetric_laplace(loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Asymmetric Laplace
@@ -116,7 +101,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.AsymmetricLaplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -135,7 +119,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def asymmetric_laplace_quantile(loc=0.0, scale=1.0, quantile=0.5, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def asymmetric_laplace_quantile(loc=0.0, scale=1.0, quantile=0.5, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Asymmetric Laplace Quantile
@@ -197,7 +181,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.AsymmetricLaplaceQuantile(loc=loc, scale=scale, quantile=quantile, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -215,7 +198,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def bernoulli_logits(logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def bernoulli_logits(logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Bernoulli Logits
@@ -283,7 +266,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.BernoulliLogits(logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -301,7 +283,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def bernoulli_probs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def bernoulli_probs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Bernoulli Probs
@@ -365,7 +347,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.BernoulliProbs(probs=probs, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -383,7 +364,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def beta(concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def beta(concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Beta 
@@ -458,7 +439,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -476,7 +456,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def beta_binomial(concentration1, concentration0, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def beta_binomial(concentration1, concentration0, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### BetaBinomial 
@@ -542,7 +522,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.conjugate.BetaBinomial(concentration1=concentration1, concentration0=concentration0, total_count=total_count, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -560,7 +539,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def beta_proportion(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def beta_proportion(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Beta Proportion 
@@ -632,7 +611,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.BetaProportion(mean=mean, concentration=concentration, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -650,7 +628,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def binomial_logits(logits, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def binomial_logits(logits, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Binomial Logits 
@@ -707,7 +685,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.BinomialLogits(logits=logits, total_count=total_count, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -725,7 +702,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def binomial_probs(probs, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def binomial_probs(probs, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Binomial Probs
@@ -781,7 +758,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.BinomialProbs(probs=probs, total_count=total_count, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -799,7 +775,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def car(loc, correlation, conditional_precision, adj_matrix, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def car(loc, correlation, conditional_precision, adj_matrix, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
 
         r"""### Conditional Autoregressive (CAR) 
         The CAR distribution models a vector of variables where each variable is a linear
@@ -859,7 +835,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.CAR(loc=loc, correlation=correlation, conditional_precision=conditional_precision, adj_matrix=adj_matrix, is_sparse=is_sparse, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -877,7 +852,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def categorical_logits(logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def categorical_logits(logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Categorical Logits 
@@ -929,7 +904,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.CategoricalLogits(logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -947,7 +921,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def categorical_probs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def categorical_probs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Categorical Probs distribution.
@@ -1006,7 +980,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.CategoricalProbs(probs=probs, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1024,7 +997,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def cauchy(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def cauchy(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Cauchy 
@@ -1090,7 +1063,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Cauchy(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1108,7 +1080,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def chi2(df, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def chi2(df, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Chi-squared
@@ -1173,7 +1145,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Chi2(df=df, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1191,7 +1162,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def circulant_normal(loc: jax.Array, covariance_row: jax.Array = None, covariance_rfft: jax.Array = None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def circulant_normal(loc: jax.Array, covariance_row: jax.Array = None, covariance_rfft: jax.Array = None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Circulant Normal Multivariate normal 
@@ -1268,7 +1239,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.CirculantNormal(loc=loc, covariance_row=covariance_row, covariance_rfft=covariance_rfft, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1286,7 +1256,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def delta(v=0.0, log_density=0.0, event_dim=0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def delta(v=0.0, log_density=0.0, event_dim=0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Delta
@@ -1334,7 +1304,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.distribution.Delta(v=v, log_density=log_density, event_dim=event_dim, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1352,7 +1321,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def dirichlet(concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def dirichlet(concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Dirichlet
@@ -1406,7 +1375,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Dirichlet(concentration=concentration, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1424,7 +1392,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def dirichlet_multinomial(concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0, create_obj=False):
+    def dirichlet_multinomial(concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0, create_obj=False):
         r"""### Dirichlet-Multinomial
     
         Creates a Dirichlet-Multinomial compound distribution, which is a Multinomial
@@ -1495,7 +1463,6 @@ class UnifiedDist:
 
         d = numpyro.distributions.conjugate.DirichletMultinomial(concentration=concentration, total_count=total_count, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1513,7 +1480,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
     
     @staticmethod
-    def discrete_uniform(low=0, high=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def discrete_uniform(low=0, high=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Discrete Uniform 
@@ -1567,7 +1534,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.DiscreteUniform(low=low, high=high, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1585,7 +1551,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def doubly_truncated_power_law(alpha, low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def doubly_truncated_power_law(alpha, low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         r"""### Doubly Truncated Power Law 
 
         This distribution represents a continuous power law with a finite support bounded
@@ -1647,7 +1613,6 @@ class UnifiedDist:
 
         d = numpyro.distributions.truncated.DoublyTruncatedPowerLaw(alpha=alpha, low=low, high=high, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1714,7 +1679,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.EulerMaruyama(t=t, sde_fn=sde_fn, init_dist=init_dist, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1732,7 +1696,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def exponential(rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def exponential(rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Exponential
@@ -1776,7 +1740,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Exponential(rate=rate, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1794,7 +1757,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def folded_distribution(base_dist, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def folded_distribution(base_dist, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Folded
@@ -1844,7 +1807,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.distribution.FoldedDistribution(base_dist=base_dist, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1862,7 +1824,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gamma(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def gamma(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gamma 
@@ -1919,7 +1881,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Gamma(concentration=concentration, rate=rate, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -1937,7 +1898,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gamma_poisson(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def gamma_poisson(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gamma Poisson 
@@ -1995,7 +1956,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.conjugate.GammaPoisson(concentration=concentration, rate=rate, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2013,7 +1973,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gaussian_copula(marginal_dist, correlation_matrix=None, correlation_cholesky=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def gaussian_copula(marginal_dist, correlation_matrix=None, correlation_cholesky=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""###  Gaussian Copula
@@ -2076,7 +2036,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.copula.GaussianCopula(marginal_dist=marginal_dist, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2094,7 +2053,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gaussian_copula_beta(concentration1, concentration0, correlation_matrix=None, correlation_cholesky=None, validate_args=False, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def gaussian_copula_beta(concentration1, concentration0, correlation_matrix=None, correlation_cholesky=None, validate_args=False, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gaussian Copula Beta 
@@ -2159,7 +2118,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.copula.GaussianCopulaBeta(concentration1=concentration1, concentration0=concentration0, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2177,7 +2135,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gaussian_random_walk(scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0, create_obj=False):
+    def gaussian_random_walk(scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0, create_obj=False):
         r"""### Gaussian Random Walk 
     
         Creates a distribution over a Gaussian random walk of a specified number of steps.
@@ -2239,7 +2197,6 @@ class UnifiedDist:
         """
         d = numpyro.distributions.continuous.GaussianRandomWalk(scale=scale,    num_steps=num_steps, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2257,7 +2214,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
     
     @staticmethod
-    def gaussian_state_space(num_steps, transition_matrix, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def gaussian_state_space(num_steps, transition_matrix, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gaussian State Space 
@@ -2317,7 +2274,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.GaussianStateSpace(num_steps=num_steps, transition_matrix=transition_matrix, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2335,7 +2291,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def geometric_logits(logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def geometric_logits(logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### GeometricLogits 
@@ -2386,7 +2342,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.GeometricLogits(logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2404,7 +2359,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def geometric_probs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def geometric_probs(probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### GeometricProbs
@@ -2451,7 +2406,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.GeometricProbs(probs=probs, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2469,7 +2423,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gompertz(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def gompertz(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gompertz
@@ -2522,7 +2476,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Gompertz(concentration=concentration, rate=rate, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2540,7 +2493,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def gumbel(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def gumbel(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gumbel
@@ -2593,7 +2546,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Gumbel(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2611,7 +2563,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def half_cauchy(scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def half_cauchy(scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### HalfCauchy 
@@ -2656,7 +2608,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.HalfCauchy(scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2674,7 +2625,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def half_normal(scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def half_normal(scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### HalfNormal
@@ -2725,7 +2676,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.HalfNormal(scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2743,7 +2693,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def improper_uniform(support, batch_shape, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def improper_uniform(support, batch_shape, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Improper Uniform 
@@ -2798,7 +2748,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.distribution.ImproperUniform(support=support, batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2816,7 +2765,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def inverse_gamma(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def inverse_gamma(concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Inverse Gamma 
@@ -2867,7 +2816,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.InverseGamma(concentration=concentration, rate=rate, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2885,7 +2833,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def kumaraswamy(concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def kumaraswamy(concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Kumaraswamy
@@ -2934,7 +2882,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Kumaraswamy(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -2952,7 +2899,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def lkj(dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def lkj(dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Lewandowski Kurowicka Joe (LKJ)  
@@ -3010,7 +2957,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.LKJ(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3028,7 +2974,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def lkj_cholesky(dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def lkj_cholesky(dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### LKJ Cholesky 
@@ -3071,7 +3017,6 @@ class UnifiedDist:
         
         d = numpyro.distributions.continuous.LKJCholesky(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3089,7 +3034,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def laplace(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def laplace(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Laplace 
@@ -3141,7 +3086,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Laplace(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3159,7 +3103,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def left_truncated_distribution(base_dist, low=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def left_truncated_distribution(base_dist, low=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Left Truncated 
@@ -3217,7 +3161,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.truncated.LeftTruncatedDistribution(base_dist=base_dist, low=low, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3235,7 +3178,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def levy(loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def levy(loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Levy 
@@ -3288,7 +3231,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Levy(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3306,7 +3248,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def log_normal(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def log_normal(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Log-Normal
@@ -3358,7 +3300,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.LogNormal(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3376,7 +3317,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def log_uniform(low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def log_uniform(low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Log-Uniform
@@ -3429,7 +3370,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.LogUniform(low=low, high=high, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3447,7 +3387,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def logistic(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def logistic(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Logistic 
@@ -3496,7 +3436,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Logistic(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3514,7 +3453,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def low_rank_multivariate_normal(loc, cov_factor, cov_diag, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def low_rank_multivariate_normal(loc, cov_factor, cov_diag, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Low Rank Multivariate Normal 
@@ -3564,7 +3503,6 @@ class UnifiedDist:
 
         d = numpyro.distributions.continuous.LowRankMultivariateNormal(loc=loc, cov_factor=cov_factor, cov_diag=cov_diag, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3582,7 +3520,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def lower_truncated_power_law(alpha, low, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def lower_truncated_power_law(alpha, low, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Lower Truncated Power Law
@@ -3639,7 +3577,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.truncated.LowerTruncatedPowerLaw(alpha=alpha, low=low, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3657,7 +3594,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def matrix_normal(loc, scale_tril_row, scale_tril_column, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def matrix_normal(loc, scale_tril_row, scale_tril_column, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Matrix Normal 
@@ -3736,7 +3673,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.MatrixNormal(loc=loc, scale_tril_row=scale_tril_row, scale_tril_column=scale_tril_column, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3754,7 +3690,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def mixture_general(mixing_distribution, component_distributions, support=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def mixture_general(mixing_distribution, component_distributions, support=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Mixture General 
@@ -3810,7 +3746,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.mixtures.MixtureGeneral(mixing_distribution=mixing_distribution, component_distributions=component_distributions, support=support, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3828,7 +3763,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def mixture_same_family(mixing_distribution, component_distribution, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def mixture_same_family(mixing_distribution, component_distribution, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""###  Finite mixture of component distributions from the same family.
@@ -3895,7 +3830,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.mixtures.MixtureSameFamily(mixing_distribution=mixing_distribution, component_distribution=component_distribution, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3913,7 +3847,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multinomial_logits(logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def multinomial_logits(logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multinomial Logits 
@@ -3968,7 +3902,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.MultinomialLogits(logits=logits, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -3986,7 +3919,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multinomial_probs(probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def multinomial_probs(probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multinomial Probs 
@@ -4041,7 +3974,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.MultinomialProbs(probs=probs, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4059,7 +3991,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multivariate_normal(loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def multivariate_normal(loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multivariate Normal
@@ -4134,7 +4066,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.MultivariateNormal(loc=loc, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4152,7 +4083,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multivariate_student_t(df, loc=0.0, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def multivariate_student_t(df, loc=0.0, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multivariate Student's t 
@@ -4215,7 +4146,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.MultivariateStudentT(df=df, loc=loc, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4233,7 +4163,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def negative_binomial2(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def negative_binomial2(mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### 
@@ -4284,7 +4214,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.conjugate.NegativeBinomial2(mean=mean, concentration=concentration, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4302,7 +4231,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def negative_binomial_logits(total_count, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def negative_binomial_logits(total_count, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Negative Binomial Logits
@@ -4355,7 +4284,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.conjugate.NegativeBinomialLogits(total_count=total_count, logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4373,7 +4301,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def negative_binomial_probs(total_count, probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def negative_binomial_probs(total_count, probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Negative Binomial with probabilities.
@@ -4421,7 +4349,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.conjugate.NegativeBinomialProbs(total_count=total_count, probs=probs, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4439,7 +4366,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def normal(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def normal(loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Normal 
@@ -4495,7 +4422,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Normal(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4513,7 +4439,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def ordered_logistic(predictor, cutpoints, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def ordered_logistic(predictor, cutpoints, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Ordered Logistic
@@ -4565,7 +4491,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.OrderedLogistic(predictor=predictor, cutpoints=cutpoints, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4583,7 +4508,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def pareto(scale, alpha, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def pareto(scale, alpha, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Pareto 
@@ -4649,7 +4574,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Pareto(scale=scale, alpha=alpha, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4667,7 +4591,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def poisson(rate, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def poisson(rate, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Poisson
@@ -4716,7 +4640,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.Poisson(rate=rate, is_sparse=is_sparse, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4734,7 +4657,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def projected_normal(concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def projected_normal(concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Projected Normal 
@@ -4796,7 +4719,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.directional.ProjectedNormal(concentration=concentration, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4814,7 +4736,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def relaxed_bernoulli_logits(temperature, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def relaxed_bernoulli_logits(temperature, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Relaxed Bernoulli Logits
@@ -4867,7 +4789,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.RelaxedBernoulliLogits(temperature=temperature, logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4885,7 +4806,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def right_truncated_distribution(base_dist, high=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def right_truncated_distribution(base_dist, high=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Right Truncated
@@ -4954,7 +4875,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.truncated.RightTruncatedDistribution(base_dist=base_dist, high=high, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -4972,7 +4892,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def sine_bivariate_vonmises(phi_loc, psi_loc, phi_concentration, psi_concentration, correlation=None, weighted_correlation=None,    validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0, create_obj=False):
+    def sine_bivariate_vonmises(phi_loc, psi_loc, phi_concentration, psi_concentration, correlation=None, weighted_correlation=None,    validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0, create_obj=False):
 
         r"""### Sine Bivariate Von Mises
 
@@ -5075,7 +4995,6 @@ class UnifiedDist:
             validate_args=validate_args
         )
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             return d.sample(seed_key, sample_shape=shape)
         else:
@@ -5090,7 +5009,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
     @staticmethod
-    def sine_skewed(base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def sine_skewed(base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
         r"""### Sine-skewing
 
@@ -5129,7 +5048,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.directional.SineSkewed(base_dist=base_dist, skewness=skewness, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5147,7 +5065,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def soft_laplace(loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def soft_laplace(loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### SoftLaplace
@@ -5210,7 +5128,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.SoftLaplace(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5228,7 +5145,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def student_t(df, loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def student_t(df, loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Student's t
@@ -5277,7 +5194,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.StudentT(df=df, loc=loc, scale=scale, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5295,7 +5211,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def truncated_polya_gamma(batch_shape=(), validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def truncated_polya_gamma(batch_shape=(), validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Truncated PolyaGamma 
@@ -5342,7 +5258,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.truncated.TruncatedPolyaGamma(batch_shape=batch_shape, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5360,7 +5275,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def two_sided_truncated_distribution(base_dist, low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def two_sided_truncated_distribution(base_dist, low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Two Sided Truncated 
@@ -5401,7 +5316,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.truncated.TwoSidedTruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5419,7 +5333,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def uniform(low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def uniform(low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Uniform 
@@ -5477,7 +5391,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Uniform(low=low, high=high, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5495,7 +5408,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def unit(log_factor, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def unit(log_factor, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Unit 
@@ -5547,7 +5460,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.distribution.Unit(log_factor=log_factor, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5565,7 +5477,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def weibull(scale, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def weibull(scale, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Weibull 
@@ -5620,7 +5532,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Weibull(scale=scale, concentration=concentration, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5638,7 +5549,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def wishart(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def wishart(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Wishart 
@@ -5698,7 +5609,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.Wishart(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5716,7 +5626,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def wishart_cholesky(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def wishart_cholesky(concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Wishart Cholesky 
@@ -5768,7 +5678,6 @@ class UnifiedDist:
         
         d = numpyro.distributions.continuous.WishartCholesky(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5786,7 +5695,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def zero_inflated_poisson(gate, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def zero_inflated_poisson(gate, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### A Zero Inflated Poisson 
@@ -5833,7 +5742,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.ZeroInflatedPoisson(gate=gate, rate=rate, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5851,7 +5759,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def zero_sum_normal(scale, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def zero_sum_normal(scale, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Zero Sum Normal 
@@ -5901,7 +5809,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.ZeroSumNormal(scale=scale, event_shape=event_shape, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5919,7 +5826,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def bernoulli(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def bernoulli(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Bernoulli
@@ -5967,7 +5874,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.Bernoulli(probs=probs, logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -5985,7 +5891,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def binomial(total_count=1, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def binomial(total_count=1, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Binomial
@@ -6035,7 +5941,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.Binomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6053,7 +5958,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def categorical(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def categorical(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Categorical distribution.
@@ -6113,7 +6018,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.Categorical(probs=probs, logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6131,7 +6035,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def geometric(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def geometric(probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Geometric distribution.
@@ -6178,7 +6082,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.Geometric(probs=probs, logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6261,7 +6164,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.mixtures.Mixture(mixing_distribution=mixing_distribution, component_distributions=component_distributions, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6279,7 +6181,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def multinomial(total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def multinomial(total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multinomial
@@ -6330,7 +6232,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.Multinomial(total_count=total_count, probs=probs, logits=logits, total_count_max=total_count_max, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6348,7 +6249,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def relaxed_bernoulli(temperature, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def relaxed_bernoulli(temperature, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Relaxed Bernoulli 
@@ -6403,7 +6304,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.continuous.RelaxedBernoulli(temperature=temperature, probs=probs, logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6421,7 +6321,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def truncated_cauchy(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def truncated_cauchy(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Truncated Cauchy
@@ -6476,7 +6376,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.truncated.TruncatedCauchy(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6494,7 +6393,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def truncated_distribution(base_dist, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def truncated_distribution(base_dist, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Truncated 
@@ -6551,7 +6450,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.truncated.TruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6569,7 +6467,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def truncated_normal(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def truncated_normal(loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Truncated Normal 
@@ -6639,7 +6537,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.truncated.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6657,7 +6554,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def zero_inflated_distribution(base_dist, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def zero_inflated_distribution(base_dist, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Generic Zero Inflated
@@ -6722,7 +6619,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.discrete.ZeroInflatedDistribution(base_dist=base_dist, gate=gate, gate_logits=gate_logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6740,7 +6636,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def zero_inflated_negative_binomial2(mean, concentration, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def zero_inflated_negative_binomial2(mean, concentration, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Zero-Inflated Negative Binomial
@@ -6794,7 +6690,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.conjugate.ZeroInflatedNegativeBinomial2(mean=mean, concentration=concentration, gate=gate, gate_logits=gate_logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
@@ -6812,7 +6707,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
     @staticmethod
-    def negative_binomial(total_count, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=True, shape=(), event=0,create_obj=False, to_jax = True):
+    def negative_binomial(total_count, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Negative Binomial 
@@ -6858,7 +6753,6 @@ class UnifiedDist:
            
         d = numpyro.distributions.conjugate.NegativeBinomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args)
         if sample:
-            seed = UnifiedDist.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             if to_jax :
                 return d.sample(seed_key,   sample_shape=shape)
