@@ -133,13 +133,47 @@ def model(kcal_per_g, index_clade):
     )
 ```
 
+### Model to Latex
+```python
+#| label: model-to-latex
+#| results: hold
+#| echo: true
+from BI import bi
+m = bi(platform='cpu')
+
+# define model ------------------------------------------------
+def model(weight, height):    
+    alpha = m.dist.normal( 178, 20, name = 'a')
+    beta = m.dist.log_normal( 0, 1, name = 'b')   
+    sigma = m.dist.uniform( 0, 50, name = 's')
+    m.dist.normal(alpha + beta * weight , sigma, obs=height)
+
+# Run sampler ------------------------------------------------
+m.model = model
+m.latex()
+```
+$$
+\begin{aligned}
+height &\sim \text{Normal}(\alpha + \beta * weight, \sigma) \\
+\sigma &\sim \text{Uniform}(0, 50) \\
+\beta &\sim \text{LogNormal}(0, 1) \\
+\alpha &\sim \text{Normal}(178, 20)
+\end{aligned}
+$$
+
 ### Distributions visualization
 ```{python}
+#| label: dist-visualization
+#| results: hold
+#| echo: true
 from BI import bi
 m = bi()
-m.dist.normal( 0, 1, name = 'a', shape=(100,2), sample = True, to_jax = False).hist()
+m.dist.normal( 0, 1, name = 'a', shape=(100,2, 4), sample = True, to_jax = False).hist()
 ```
+
 :::
+
+
 
 </div>
 :::
