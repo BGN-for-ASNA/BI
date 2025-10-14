@@ -9,10 +9,10 @@ class bnn(activation):
     """
     The bnn class is designed to build Bayesian Neural Networks (BNNs). It provides methods for creating network layers with specified prior distributions and activation functions. Additionally, it includes a specific two-layer BNN model for covariance estimation and a utility function to compute a correlation matrix from posterior samples.
     """
-    def __init__(self):
+    def __init__(self, rand_seed = True):
         super().__init__()
 
-        
+        self.dist = dist(rand_seed)
         # Create the mapping in the constructor
         self._activation_map = {
             # Standard functions
@@ -65,21 +65,22 @@ class bnn(activation):
                 raise ValueError(f"Unknown activation function: '{activation_name}'")    
             return activation_func(prod)
 
-    def layer_attention(self, b_kv, b_q, d_model=32,  sample=True, name = ''):
+    def layer_attention(self, b_kv, b_q, d_model=32,  sample=True, name = '', seed = None):
         # Layers
         ### Dimensions 
         self.b_q, self.b_kv, self.d_model = b_q, b_kv, d_model
         ### Create learnable vector embeddings for each feature in the Query  block a
-        self.emb_q = dist.normal(0,1,shape=(self.b_q,self.d_model), sample=sample, name=f'attention_q_{name}')   
+        self.emb_q = self.dist.normal(0,1,shape=(self.b_q,self.d_model), sample=sample, name=f'attention_q_{name}', seed = seed)
+
 
         ### Create learnable vector embeddings for each feature in the Key/ Value block 
-        self.emb_kv= dist.normal(0,1,shape=(self.b_kv,d_model),sample=sample, name=f'attention_kv_{name}')    
+        self.emb_kv= self.dist.normal(0,1,shape=(self.b_kv,d_model),sample=sample, name=f'attention_kv_{name}', seed = seed)    
 
         ### Define linear layers to project embeddings into Query, Key, and Value spaces
-        self.q_k_v_proj = dist.normal(0,1,shape=(self.d_model,self.d_model,3),sample=sample, name=f'attention_q_k_v_{name}')  
+        self.q_k_v_proj = self.dist.normal(0,1,shape=(self.d_model,self.d_model,3),sample=sample, name=f'attention_q_k_v_{name}', seed = seed)  
 
         ### Define a final output layer to map the attention context to the desired matrix shape.
-        self.out = dist.normal(0,1,shape=(self.d_model * self.b_q, self.b_q * self.b_kv),  sample=sample, name=f'attention_out_{name}') 
+        self.out = self.dist.normal(0,1,shape=(self.d_model * self.b_q, self.b_q * self.b_kv),  sample=sample, name=f'attention_out_{name}', seed = seed) 
 
         # Performs the attention mechanism
         ## three dense (linear) layers : Q = X W_Q,  K = X W_K, V = X W_V
@@ -129,10 +130,10 @@ class bnn(activation):
         - b (jnp.ndarray): The second set of offsets for the covariance matrix.
         """
         # First layer weights/biases: note these are treated as latent parameters
-        W1 = dist.normal(0, 1, shape=(N, hidden_dim), name='W1', sample=sample)
+        W1 = self.dist.normal(0, 1, shape=(N, hidden_dim), name='W1', sample=sample)
 
         # Second layer weights/biases
-        W2 = dist.normal(0, 1, shape=(hidden_dim, 2), name='W2', sample=sample)
+        W2 = self.dist.normal(0, 1, shape=(hidden_dim, 2), name='W2', sample=sample)
 
         # Create one-hot encoding for each N (each row is a one–hot vector)
         X = jnp.eye(N)

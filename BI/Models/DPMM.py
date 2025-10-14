@@ -13,7 +13,7 @@ import numpy as np
 import numpyro
 
 import jax.numpy as jnp
-
+dist = dist()
 def mix_weights(beta):
     beta1m_cumprod = jnp.cumprod(1.0 - beta, axis=-1)
     padded_beta = jnp.pad(beta, (0, 1), constant_values=1.0)

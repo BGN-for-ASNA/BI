@@ -12,6 +12,7 @@ from scipy.stats import multivariate_normal
 import seaborn as sns # Ensure seaborn is imported for palettes
 import matplotlib.pyplot as plt
 
+dist = dist()
 def gmm(data, K, initial_means): 
     """
     Gaussian Mixture Model with a fixed number of clusters K.
@@ -30,9 +31,9 @@ def gmm(data, K, initial_means):
     w = dist.dirichlet(concentration=alpha_prior, name='weights') 
 
     with dist.plate("components", K): # Use fixed K
-        mu = dist.multivariatenormal(loc=initial_means, covariance_matrix=0.1*jnp.eye(D), name='mu')        
-        sigma = dist.halfcauchy(1, shape=(D,), event=1, name='sigma')
-        Lcorr = dist.lkjcholesky(dimension=D, concentration=1.0, name='Lcorr')
+        mu = dist.multivariate_normal(loc=initial_means, covariance_matrix=0.1*jnp.eye(D), name='mu')        
+        sigma = dist.half_cauchy(1, shape=(D,), event=1, name='sigma')
+        Lcorr = dist.lkj_cholesky(dimension=D, concentration=1.0, name='Lcorr')
 
         scale_tril = sigma[..., None] * Lcorr
 
@@ -41,9 +42,9 @@ def gmm(data, K, initial_means):
     #    assignment = numpyro.sample('assignment', dist.Categorical(w),infer={"enumerate": "parallel"}) 
     #    numpyro.sample('obs', dist.MultivariateNormal(mu[assignment,:][1], sigma[assignment][1]*jnp.eye(D)), obs=data)
     #    
-    dist.mixturesamefamily(
+    dist.mixture_same_family(
         mixing_distribution=dist.categorical(probs=w, create_obj=True),
-        component_distribution=dist.multivariatenormal(loc=mu, scale_tril=scale_tril, create_obj=True),
+        component_distribution=dist.multivariate_normal(loc=mu, scale_tril=scale_tril, create_obj=True),
         name="obs",
         obs=data
     )
@@ -102,7 +103,7 @@ def predict_gmm(data,sampler):
 
     return post_mean_w, post_mean_mu, post_mean_cov, final_labels
 
-def plot_gmm(data,sampler):
+def plot_gmm(data,sampler, figsize = (10, 8)):
     post_mean_w, post_mean_mu, post_mean_cov, final_labels = predict_gmm(data,sampler)
     # 2. Set up a grid of points to evaluate the GMM density
     x_min, x_max = data[:, 0].min() - 2, data[:, 0].max() + 2
@@ -130,7 +131,7 @@ def plot_gmm(data,sampler):
 
     # 4. Create the plot
     plt.style.use('seaborn-v0_8-whitegrid')
-    fig, ax = plt.subplots(figsize=(10, 8))
+    fig, ax = plt.subplots(figsize=figsize)
     fig.patch.set_facecolor('#f0f0f0') 
     ax.set_facecolor('#f0f0f0')
 

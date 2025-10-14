@@ -79,7 +79,7 @@ class bi(manip):
 
         if backend == 'numpyro':
             from BI.Utils.np_dists import UnifiedDist as np_dists
-            self.dist=np_dists(seed = self.seed)
+            self.dist=np_dists(rand_seed = self.seed)
             jax.config.update("jax_enable_x64", True)
 
         elif backend == 'tfp':
@@ -470,8 +470,9 @@ class bi(manip):
             **kwargs: Additional keyword arguments.
         """        
         if self.model_name == 'gmm':
-            plot_gmm(X, sampler= self.sampler,figsize=figsize,**kwargs)
+            plot_gmm(X, sampler= self.sampler,figsize=figsize)
+
         if self.model_name == 'dpmm':
-            plot_dpmm(X, sampler= self.sampler,figsize=figsize,**kwargs)
+            plot_dpmm(X, sampler= self.sampler,figsize=figsize)
         else:
             print('Model not supported')

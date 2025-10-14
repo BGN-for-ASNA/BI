@@ -8,6 +8,7 @@ import sys
 import inspect
 from BI.Utils.np_dists import UnifiedDist as dist
 from functools import partial
+dist = dist()
 class Neteffect(array_manip):
     def __init__(self) -> None:
         pass
