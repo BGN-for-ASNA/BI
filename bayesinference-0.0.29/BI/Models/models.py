@@ -13,12 +13,11 @@ class models():
         """
         Initialize the models class. Currently empty but can be extended for initialization needs.
         """
-        pass
-        self.gmm = gmm
-        self.dpmm = dpmm
-        self.pca =  pca
-        self.nbda = NBDA.model
         self.survival = survival(parent)
+        self.nbda = NBDA.model
+        self.dpmm = dpmm 
+        self.pca =  pca
+        self.gmm = gmm
 
         self.available = {
             "gmm": self.gmm,

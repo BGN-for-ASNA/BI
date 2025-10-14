@@ -26,6 +26,7 @@ class survival():
         self.data_on_model = {}
         self.cov = None
         self.df = None
+        self.dist = dist()
     
     @property
     def df(self):
@@ -372,9 +373,9 @@ class survival():
     def model(self,intervals, death, metastasized, exposure):
         # Parameters priors distributions-------------------------
         ## Base hazard distribution
-        lambda0 = dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
+        lambda0 = self.dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
         ## Covariate effect distribution
-        beta = dist.normal(0, 1000, shape = (1,),  name='beta')
+        beta = self.dist.normal(0, 1000, shape = (1,),  name='beta')
         ## Likelihood
         ### Compute hazard rate based on covariate effect
         lambda_ = self.hazard_rate(cov = metastasized, beta = beta, lambda0 = lambda0)
@@ -382,5 +383,5 @@ class survival():
         mu = exposure * lambda_
     
         # Likelihood calculation
-        dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
+        self.dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
 

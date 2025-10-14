@@ -25,6 +25,7 @@ class pca:
         self.bayesian_pca_results = None
         self.__name__ = 'pca'
         self.type = type
+        self.dist=dist()
     
 
         if latent_dim is None:
@@ -79,16 +80,16 @@ class pca:
 
     def pca_classic(self, X, data_dim, latent_dim, num_data_points ): 
         # Gaussian prior for the principal component 'W'.
-        w = dist.normal(0, 1, shape=(data_dim, latent_dim), name='w')
+        w = self.dist.normal(0, 1, shape=(data_dim, latent_dim), name='w')
 
         # Gaussian prior on the latent variables 'Z'
-        z = dist.normal(0, 1, shape=(latent_dim, num_data_points), name='z')
+        z = self.dist.normal(0, 1, shape=(latent_dim, num_data_points), name='z')
 
         # Exponential prior on the noise variance 'epsilon'
-        epsilon = dist.exponential(1, name='epsilon')
+        epsilon = self.dist.exponential(1, name='epsilon')
 
         # Likelihood
-        dist.normal(w @ z, epsilon, obs = X)  
+        self.dist.normal(w @ z, epsilon, obs = X)  
 
     def pca_ARD(self, X, data_dim, latent_dim, num_data_points ):
         """
@@ -100,44 +101,44 @@ class pca:
             num_data_points: Number of data points.
         """
         # ARD Prior on w (This part is correct)
-        alpha = dist.gamma(.05, 1e-3, shape=(latent_dim,), name='alpha')
-        w = dist.normal(0, 1. / jnp.sqrt(alpha)[None, :], shape=(data_dim, latent_dim), name='w')
+        alpha = self.dist.gamma(.05, 1e-3, shape=(latent_dim,), name='alpha')
+        w = self.dist.normal(0, 1. / jnp.sqrt(alpha)[None, :], shape=(data_dim, latent_dim), name='w')
 
         # Prior on z (This part is correct)
-        z = dist.normal(0, 1., shape=(latent_dim, num_data_points), name='z')
+        z = self.dist.normal(0, 1., shape=(latent_dim, num_data_points), name='z')
 
         # --- CORRECTED NOISE MODEL ---
         # Prior on the precision (1 / variance)
-        precision = dist.gamma(1.0, 1.0, name='precision')
+        precision = self.dist.gamma(1.0, 1.0, name='precision')
         # The standard deviation is 1 / sqrt(precision)
         stddv = 1. / jnp.sqrt(precision)
 
         # Use the correctly defined standard deviation in the likelihood
-        dist.normal(w @ z, stddv, obs=X)
+        self.dist.normal(w @ z, stddv, obs=X)
 
     def pca_robust(self, X, data_dim, latent_dim, num_data_points ):
         """
         Robust Bayesian PCA model using a Student's t-distribution for the likelihood.
         """
         # --- Standard Priors for W and Z ---
-        w = dist.normal(0, 1., shape=(data_dim, latent_dim), name='w')
-        z = dist.normal(0, 1., shape=(latent_dim, num_data_points), name='z')
+        w = self.dist.normal(0, 1., shape=(data_dim, latent_dim), name='w')
+        z = self.dist.normal(0, 1., shape=(latent_dim, num_data_points), name='z')
 
         # --- Robustness to Outliers via a Heavy-Tailed Noise Model ---
         # This defines the prior on the scale (similar to standard deviation) of the noise.
-        sigma = dist.half_cauchy(1.0, name='sigma')
+        sigma = self.dist.half_cauchy(1.0, name='sigma')
 
         # This is a prior on the "degrees of freedom" ('nu') of the Student's t-distribution.
         # This parameter controls the "heaviness" of the tails. A small 'nu' means
         # heavier tails, making the model more robust to outliers. By learning this
         # parameter, the model can adapt its robustness to the data.
-        nu = dist.gamma(2.0, 0.1, name='nu')
+        nu = self.dist.gamma(2.0, 0.1, name='nu')
 
         # This is the key line for this model. The likelihood is a Student's t-distribution.
         # As your description states, this "heavy-tailed distribution... reduces the
         # influence of outliers" by treating them as more plausible events than a
         # Gaussian distribution would, thus preventing them from skewing the results.
-        dist.student_t(df=nu, loc=w @ z, scale=sigma, obs=X)
+        self.dist.student_t(df=nu, loc=w @ z, scale=sigma, obs=X)
 
     def pca_sparse(self, X, data_dim, latent_dim, num_data_points ):
         """
@@ -148,28 +149,28 @@ class pca:
         # This is the first part of a hierarchical prior (known as the Bayesian Lasso).
         # We place a prior on 'lambda_', which will control the scale of our Laplace prior.
         # This allows the model to learn the appropriate level of sparsity from the data.
-        lambda_ = dist.gamma(1.0, 1.0, shape=(latent_dim,), name='lambda')
+        lambda_ = self.dist.gamma(1.0, 1.0, shape=(latent_dim,), name='lambda')
 
         # This is the key line for this model. We place a Laplace prior on the loadings 'W'.
         # As your description states, this is a "sparsity-inducing prior". The Laplace
         # distribution is sharply peaked at zero, which encourages many of the weight
         # values in 'W' to be exactly zero, leading to "more interpretable results".
-        w = dist.laplace(0., 1. / lambda_[None, :], shape=(data_dim, latent_dim), name='w')
+        w = self.dist.laplace(0., 1. / lambda_[None, :], shape=(data_dim, latent_dim), name='w')
 
         # --- Standard Model Components ---
 
         # We place a standard Gaussian prior on the latent variables 'Z', as described
         # in the note: "We place Gaussian priors on both Z and W...".
-        z = dist.normal(0., 1., shape=(latent_dim, num_data_points), name='z')
+        z = self.dist.normal(0., 1., shape=(latent_dim, num_data_points), name='z')
 
         # This section defines the standard Gaussian noise model, which is separate
         # from the sparsity-inducing prior on the weights.
-        precision = dist.gamma(1.0, 1.0, name='precision')
+        precision = self.dist.gamma(1.0, 1.0, name='precision')
         stddv = 1. / jnp.sqrt(precision)
 
         # This is the standard likelihood, same as in the ARD model. The generative story
         # is unchanged, but the prior on 'W' now enforces the desired sparsity property.
-        dist.normal(w @ z, stddv, obs=X)
+        self.dist.normal(w @ z, stddv, obs=X)
 
     def model_sparse_robust_ard(self, X, data_dim, latent_dim, num_data_points ):
         """
@@ -186,7 +187,7 @@ class pca:
         # latent dimension. A large lambda will signal that the corresponding
         # component is not relevant and should be shrunk away.
         # The Gamma prior ensures lambda_ is positive.
-        lambda_ = dist.gamma(1.0, 1.0, shape=(latent_dim,), name='lambda')
+        lambda_ = self.dist.gamma(1.0, 1.0, shape=(latent_dim,), name='lambda')
 
         # This is the Sparsity component. We use a Laplace prior for the weights 'w'.
         # The COMBINED effect happens here: the scale of the Laplace distribution is
@@ -194,24 +195,24 @@ class pca:
         # (large lambda_), the scale becomes small, and the Laplace prior aggressively
         # forces the weights in that column of 'w' to zero.
         # This gives us both sparsity and automatic dimensionality selection.
-        w = dist.laplace(0., 1. / lambda_[None, :], shape=(data_dim, latent_dim), name='w')
+        w = self.dist.laplace(0., 1. / lambda_[None, :], shape=(data_dim, latent_dim), name='w')
 
         # --- Standard Prior for Z ---
 
         # The prior on the latent variables 'Z' remains a standard Gaussian.
-        z = dist.normal(0., 1., shape=(latent_dim, num_data_points), name='z')
+        z = self.dist.normal(0., 1., shape=(latent_dim, num_data_points), name='z')
 
         # --- Robustness to Outliers via a Heavy-Tailed Noise Model ---
 
         # Prior on the scale of the Student's t-distribution.
-        sigma = dist.half_cauchy(1.0, name='sigma')
+        sigma = self.dist.half_cauchy(1.0, name='sigma')
 
         # Prior on the degrees of freedom 'nu', which controls the robustness.
-        nu = dist.gamma(2.0, 0.1, name='nu')
+        nu = self.dist.gamma(2.0, 0.1, name='nu')
 
         # The likelihood is the Student's t-distribution, which makes the entire
         # model robust to outliers in the observed data 'x_train'.
-        dist.student_t(df=nu, loc=w @ z, scale=sigma, obs=X)
+        self.dist.student_t(df=nu, loc=w @ z, scale=sigma, obs=X)
 
     ## Get attributes---------------------------------------------
     # --- Functions 1 : 
