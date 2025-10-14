@@ -63,50 +63,53 @@ class met:
 
     ## eigenvector----------------------------------------------------------------------------------
     @staticmethod
-    @jit
-    def power_iteration(A):
+    @partial(jit, static_argnames=['max_iter', 'tol'])
+    def eigenvector(A, max_iter=100, tol=1.0e-6):
+        """
+        JAX implementation of eigenvector centrality matching NetworkX behavior.
+        
+        Computes eigenvector centrality using power iteration with (A + I).
+        For weighted graphs, edge weights are used in the computation.
+        
+        Args:
+            A: Adjacency matrix (n x n), can be weighted
+            max_iter: Maximum number of iterations
+            tol: Convergence tolerance (not used in this JIT version)
+            
+        Returns:
+            Eigenvector centrality values (L2 normalized)
+        """
         A = jnp.asarray(A, dtype=jnp.float64)
         n = A.shape[0]
+        
         if n == 0:
             return jnp.array([], dtype=jnp.float64)
-        v0 = jnp.ones(n, dtype=jnp.float64) / jnp.sqrt(n)
-        v = lax.fori_loop(0, 100, lambda i, v_prev: jnp.where(jnp.linalg.norm(A @ v_prev) > 0, (A @ v_prev) / jnp.linalg.norm(A @ v_prev), A @ v_prev), v0)
-        max_abs_idx = jnp.argmax(jnp.abs(v))
-        sign = jnp.sign(v[max_abs_idx])
-        v = v * jnp.where(sign == 0, 1.0, sign)
-        return v
-
-    @staticmethod
-    @jit
-    def _jax_bfs_component_mask(A, start_node):
-        """
-        Finds the connected component containing start_node using a JAX-native BFS.
-        """
-        n = A.shape[0]
-        # `visited` tracks all nodes in the component. `frontier` is the current layer.
-        visited = jnp.zeros(n, dtype=bool).at[start_node].set(True)
-        frontier = visited.copy()
-
-        def cond_fn(state):
-            # Continue as long as there are nodes in the frontier to expand
-            visited, frontier = state
-            return frontier.any()
-
-        def body_fn(state):
-            visited, frontier = state
-            # Find all direct neighbors of the current frontier
-            new_frontier = ((A @ frontier.astype(A.dtype)) > 0) & (~visited)
-            # Add the new neighbors to the visited set for the next iteration
-            new_visited = visited | new_frontier
-            return new_visited, new_frontier
-
-        # The loop runs until no new nodes can be reached
-        final_visited, _ = lax.while_loop(cond_fn, body_fn, (visited, frontier))
-        return final_visited
-
-    @staticmethod
-    @partial(jit, static_argnames=['use_transpose'])
-    def eigenvector(A, use_transpose=True):
+        
+        # NetworkX uses (I + A) @ x for the iteration
+        A_modified = A + jnp.eye(n, dtype=jnp.float64)
+        
+        # Initialize with uniform vector (sum = 1)
+        x = jnp.ones(n, dtype=jnp.float64) / jnp.float64(n)
+        
+        def body_fn(i, x):
+            # Power iteration: x_new = (I + A) @ x
+            x_new = A_modified @ x
+            
+            # Normalize by L2 norm
+            norm = jnp.sqrt(jnp.sum(x_new * x_new))
+            norm = jnp.where(norm > 0, norm, 1.0)
+            x_new = x_new / norm
+            
+            return x_new
+        
+        # Run for exactly max_iter iterations
+        x_final = lax.fori_loop(0, max_iter, body_fn, x)
+        
+        # Final normalization
+        norm = jnp.sqrt(jnp.sum(x_final * x_final))
+        x_final = jnp.where(norm > 0, x_final / norm, x_final)
+        
+        return x_final
         """
         Fully JIT-compiled eigenvector centrality using an efficient JAX-native BFS.
         """
