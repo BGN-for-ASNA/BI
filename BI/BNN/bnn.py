@@ -41,7 +41,7 @@ class bnn(activation):
         """
         return list(self._activation_map.keys())
 
-    def layer(self, X, dist, activation=None, bias=None):
+    def layer_linear(self, X, dist, activation=None, bias=False):
         """        
         Adds a layer to the BNN with the specified prior distribution and activation function.       
 
@@ -49,14 +49,11 @@ class bnn(activation):
         - prior_dist (bi.dist): The prior distribution for the weights of the layer. The shape of the distribution defines the layer's input/output dimensions.
         - activation (str): The name of the activation function to use after this layer ('relu', 'tanh', 'sigmoid', 'softmax').  
         """
-        # 1. Store the weight prior. We will sample from it during the forward pass.
-
-        w = dist
 
         if bias:
-            prod = jnp.matmul(X, w) + bias
+            prod = jnp.matmul(X, dist) + bias
         else:
-            prod = jnp.matmul(X, w) 
+            prod = jnp.matmul(X, dist) 
 
         # 2. Get and store the activation function object.
         if activation is None:
@@ -68,6 +65,41 @@ class bnn(activation):
                 raise ValueError(f"Unknown activation function: '{activation_name}'")    
             return activation_func(prod)
 
+    def layer_attention(self, b_kv, b_q, d_model=32,  sample=True, name = ''):
+        # Layers
+        ### Dimensions 
+        self.b_q, self.b_kv, self.d_model = b_q, b_kv, d_model
+        ### Create learnable vector embeddings for each feature in the Query  block a
+        self.emb_q = dist.normal(0,1,shape=(self.b_q,self.d_model), sample=sample, name=f'attention_q_{name}')   
+
+        ### Create learnable vector embeddings for each feature in the Key/ Value block 
+        self.emb_kv= dist.normal(0,1,shape=(self.b_kv,d_model),sample=sample, name=f'attention_kv_{name}')    
+
+        ### Define linear layers to project embeddings into Query, Key, and Value spaces
+        self.q_k_v_proj = dist.normal(0,1,shape=(self.d_model,self.d_model,3),sample=sample, name=f'attention_q_k_v_{name}')  
+
+        ### Define a final output layer to map the attention context to the desired matrix shape.
+        self.out = dist.normal(0,1,shape=(self.d_model * self.b_q, self.b_q * self.b_kv),  sample=sample, name=f'attention_out_{name}') 
+
+        # Performs the attention mechanism
+        ## three dense (linear) layers : Q = X W_Q,  K = X W_K, V = X W_V
+        ## the three projection layers in attention do not have activation functions. They are purely linear transformations.
+        Q = self.layer_linear(X = self.emb_q, dist = self.q_k_v_proj[:,:,0])
+        K = self.layer_linear(X = self.emb_kv, dist = self.q_k_v_proj[:,:,1])
+        V = self.layer_linear(X = self.emb_kv, dist = self.q_k_v_proj[:,:,2])    
+
+        ## Attention mechanism: 
+        ### Calculate dot-product similarity scores between all Queries and Keys. Scale for stability.
+        scores =jnp.matmul(Q, K.T) / jnp.sqrt(self.d_model ** 0.5)
+
+        #### Convert raw scores into attention weights (probabilities) using softmax.
+        attn = jax.nn.softmax(scores, axis=-1)
+
+        ####Compute the context vector as a weighted average of the Value vectors. Now we normalize the similarity scores across all possible `j` for each `i`
+        context = jnp.matmul(attn, V)  
+
+        # Reshape and pass through the final output layer to get the L_ij block.
+        return self.layer_linear(context.reshape(1, -1), self.out).reshape(self.b_q, self.b_kv) 
 
     def scaled_dot_product_attention(self, Q, K, V):
         """Compute scaled dot-product attention."""

@@ -79,7 +79,7 @@ class bi(manip):
 
         if backend == 'numpyro':
             from BI.Utils.np_dists import UnifiedDist as np_dists
-            self.dist=np_dists(seed = rand_seed)
+            self.dist=np_dists(seed = self.seed)
             jax.config.update("jax_enable_x64", True)
 
         elif backend == 'tfp':
