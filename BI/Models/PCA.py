@@ -415,7 +415,7 @@ class pca:
             show_plot = True
 
         ax.bar(indices, ratio, alpha=alpha, color=color_bar, align='center', label='Individual explained variance')
-        ax.plot(indices, cumulative, 'ro-', color=color_cumulative_line, label='Cumulative explained variance')
+        ax.plot(indices, cumulative, 'ro-',  label='Cumulative explained variance')
 
         for i, (x, y) in enumerate(zip(indices, cumulative)):
             ax.annotate(f'{y:.2f}', xy=(x, y), xytext=(x, y + 0.05), ha='center', va='bottom', fontsize=fontsize, color=color_cumulative_line)
