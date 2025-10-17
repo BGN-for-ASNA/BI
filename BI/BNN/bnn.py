@@ -102,6 +102,83 @@ class bnn(activation):
         # Reshape and pass through the final output layer to get the L_ij block.
         return self.layer_linear(context.reshape(1, -1), self.out).reshape(self.b_q, self.b_kv) 
 
+    def layer_toeplitz(self, block_size = 32, sample = False, name = '', seed = None):
+        """
+        Models a diagonal covariance block C_ii with a diagonal structure.
+
+        This is the simplest structure, assuming all variables in the block are
+        uncorrelated with each other. It only learns their individual variances.
+
+        Args:
+            block_size (int): The dimension of this square block.
+        """
+        self.b = block_size
+        # Learnable parameter for the base variance (stored in log space for unconstrained optimization).
+        self.log_sigma = self.dist.log_normal(1,sample=sample, name = f'toeplitz_log_sigma_{name}', seed = seed)
+        # Learnable parameter controlling correlation decay.
+        self.raw_alpha = self.dist.normal(0.5,1,sample=sample, name = f'toeplitz_raw_alpha_{name}', seed = seed)
+        # Learnable parameter for the diagonal adjustment.
+        self.log_diag = self.dist.normal(0,1,sample=sample, name = f'toeplitz_log_diag_{name}', seed = seed)
+
+        ## Constructs the Toeplitz matrix from the learned parameters.
+        sigma, alpha = jax.nn.softplus(self.log_sigma) + 1e-6, jax.nn.sigmoid(self.raw_alpha)
+        idx = jnp.arange(self.b)
+
+        # Create the first row of the Toeplitz matrix: [sigma, sigma*alpha, sigma*alpha^2, ...].
+        toeplitz_row = sigma * (alpha ** idx)
+        indices = jnp.abs(idx[:, None] - idx[None, :])
+        # Build the full Toeplitz matrix by indexing the first row with the lag matrix.
+        toeplitz = toeplitz_row[indices]
+        diag = jax.nn.softplus(self.log_diag) + 1e-5
+        result = toeplitz + diag * jnp.eye(self.b)
+        return result
+
+    def layer_compound_symmetry(self, block_size, sample= True, name='', seed = None):
+        # Store the block size.
+        self.b = block_size
+
+        # Learnable parameter for the common variance (log space).
+        self.log_sigma = self.dist.log_normal(1, sample = sample, seed = seed, name = f'compound_symmetry_log_sigma_{name}')
+
+        # Learnable parameter for the common correlation (raw, to be mapped to valid range).
+        self.raw_rho = self.dist.normal(0, 1, sample = sample, seed = seed, name = f'compound_symmetry_raw_rho_{name}')
+
+        # Learnable diagonal offsets.
+        self.log_diag = self.dist.normal(0, 1, shape = (self.b,), sample = sample, seed = seed, name = f'compound_symmetry_log_diag_{name}')
+
+        # Constructs the compound symmetry matrix from the learned parameters.
+        # Convert log_sigma to positive sigma.
+        sigma = jax.nn.softplus(self.log_sigma) + 1e-6
+        # Define the mathematically valid range for rho to ensure the matrix is PD.
+        low = -1.0 / (self.b - 1.0) + 1e-6 if self.b > 1 else 0.0
+        high = 0.999
+
+        # Map the output of sigmoid (0, 1) to the valid range (low, high).
+        rho = low + jax.nn.sigmoid(self.raw_rho) * (high - low)
+        # Create identity and all-ones matrices as building blocks.
+        I = jnp.eye(self.b)
+        ones = jnp.ones((self.b, self.b))
+
+        # Construct the matrix using its mathematical formula.
+        comp_sym = sigma * ((1.0 - rho) * I + rho * ones)
+        # Convert log_diag to positive offsets.
+        diag = jax.nn.softplus(self.log_diag) + 1e-5
+
+        # Add the diagonal offsets.
+        return comp_sym +  diag * jnp.eye(self.b)
+ 
+    def layer_diagonal(self, block_size, sample= True, name='', seed = None):
+        # Store the block size.
+        self.b = block_size
+        # Learnable vector of per-variable variances (stored in log space).
+        self.log_variances = self.dist.normal(0, 1, sample = sample, shape = (block_size,), name = f"log_variances_{name}",seed=seed)
+
+        #Constructs the diagonal matrix from the learned variances
+        # Convert log-variances to positive variances.
+        variances = jax.nn.softplus(self.log_variances) + 1e-6
+        # Create a diagonal matrix from the variances vector.
+        return jnp.diag(variances)
+
     def scaled_dot_product_attention(self, Q, K, V):
         """Compute scaled dot-product attention."""
         d_k = Q.shape[-1]
@@ -118,7 +195,7 @@ class bnn(activation):
         attn_output, attn_weights = self.scaled_dot_product_attention(Q, K, V)
         return attn_output, attn_weights
         
-    def cov(self,hidden_dim,N,a, b, sample = True):
+    def cov(self,hidden_dim,N,a, b, sample = False):
         """
         Creates a Bayesian Neural Network (BNN) with two layers for covariance estimation.
         The first layer maps the input to a hidden dimension using a normal distribution,
@@ -166,4 +243,8 @@ class bnn(activation):
         rho = cov_sample / (sigma[:, None] * sigma[None, :])  # Normalize covariance to obtain correlation matrix
         return rho
 
-nn = bnn()
+    def make_pd_and_cholesky_jax(self, A):
+        A = 0.5 * (A + A.T)
+        jitter = 1e-6
+        A += jitter * jnp.eye(A.shape[-1])
+        return jnp.linalg.cholesky(A)

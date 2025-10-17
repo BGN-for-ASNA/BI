@@ -168,7 +168,8 @@ class bi(manip):
             if isinstance(model, functools.partial):
                 self.model_name = model.func.__name__
             else:
-                self.model_name = model.__name__
+                if self.model_name is not None:
+                    self.model_name = model.__name__
 
         if self.nbdaModel == False:
             if self.data_on_model is None :
@@ -474,5 +475,7 @@ class bi(manip):
 
         if self.model_name == 'dpmm':
             plot_dpmm(X, sampler= self.sampler,figsize=figsize)
+
         else:
             print('Model not supported')
+

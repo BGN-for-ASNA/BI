@@ -4,8 +4,9 @@ sidebar: start
 ---
 
 # PCA
-``` python
-from BI import bi,jnp
+``` {python}
+from BI import bi, jnp
+
 m=bi()
 m.data('iris.csv', sep=',') # Data is already scaled
 m.data_on_model = dict(
@@ -25,57 +26,31 @@ m.models.pca.plot(
 
 
 # Survival analysis
-```python
-from BI import bi
-import numpy as np
-import jax.numpy as jnp
-# Setup device------------------------------------------------
-m = bi(platform='cpu')
+```{python}
+from BI import bi, jnp
 
-# Import Data & Data Manipulation ------------------------------------------------
-# Import
-from importlib.resources import files
-data_path = files('BI.resources.data') / 'mastectomy.csv'
-m.data(data_path, sep=',') 
+m = bi()
+m.data('mastectomy.csv', sep=',').head()
 
-m.df.metastasized = (m.df.metastasized == "yes").astype(np.int64)
-m.df.event = jnp.array(m.df.event.values, dtype=jnp.int32)
+m.df.metastasized = (m.df.metastasized.values == "yes").astype(jnp.int64)
+m.models.survival.import_time_even(
+    m.df.time.values, 
+    m.df.event.values, interval_length=3
+) # Import time-steps and events
+m.models.survival.import_covF(
+    m.df.metastasized.values, ['metastasized']
+) # Import time-fixed covariates
+# m.models.survival.import_covV # To import time-varying covariates
 
-## Create survival object
-m.models.survival.surv_object(time='time', event='event', cov='metastasized', interval_length=3)
+m.fit(m.models.survival.model, num_samples=500) 
+m.summary()
 
-# Plot censoring ------------------------------------------------
-m.models.survival.plot_censoring(cov='metastasized')
-
-# Model ------------------------------------------------
-def model(intervals, death, metastasized, exposure):
-    # Parameter prior distributions-------------------------
-    ## Base hazard distribution
-    lambda0 = m.dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
-    ## Covariate effect distribution
-    beta = m.dist.normal(0, 1000, shape = (1,),  name='beta')
-    ### Likelihood
-    #### Compute hazard rate based on covariate effect
-    lambda_ = m.models.survival.hazard_rate(cov = metastasized, beta = beta, lambda0 = lambda0)
-    #### Compute exposure rates
-    mu = exposure * lambda_
-
-    # Likelihood calculation
-    y = m.dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
-
-# Run mcmc ------------------------------------------------
-m.fit(model, num_samples=500) 
-
-# Summary ------------------------------------------------
-print(m.summary())
-
-# Plot hazards and survival function ------------------------------------------------
-m.models.survival.plot_surv()
+m.models.survival.plot_surv( beta = 'Hazard_rate_metastasized')
 ```
 
 # Gaussian Mixture Models
 
-```python
+```{python}
 from BI import bi
 from sklearn.datasets import make_blobs
 
@@ -86,28 +61,8 @@ data, true_labels = make_blobs(
 )
 
 
-#  The model
-def gmm(data, K, initial_means): # Here K is the *exact* number of clusters
-    D = data.shape[1]  # Number of features
-    alpha_prior = 0.5 * jnp.ones(K)
-    w = dist.dirichlet(concentration=alpha_prior, name='weights') 
-
-    with dist.plate("components", K): # Use fixed K
-        mu = dist.multivariatenormal(loc=initial_means, covariance_matrix=0.1*jnp.eye(D), name='mu')        
-        sigma = dist.halfcauchy(1, shape=(D,), event=1, name='sigma')
-        Lcorr = dist.lkjcholesky(dimension=D, concentration=1.0, name='Lcorr')
-
-        scale_tril = sigma[..., None] * Lcorr
-
-    dist.mixturesamefamily(
-        mixing_distribution=dist.categorical(probs=w, create_obj=True),
-        component_distribution=dist.multivariatenormal(loc=mu, scale_tril=scale_tril, create_obj=True),
-        name="obs",
-        obs=data
-    )
-
-m.data_on_model = {"data": data,"K": 4 }
-m.fit(gmm) # Optimize model parameters through MCMC sampling
+m.data_on_model = {"data": data,"K": 8 }
+m.fit(m.models.gmm) # Optimize model parameters through MCMC sampling
 m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```
 
@@ -117,7 +72,7 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 ## Python
 
-```python
+```{python}
 from BI import bi
 from sklearn.datasets import make_blobs
 
@@ -127,29 +82,8 @@ data, true_labels = make_blobs(
     center_box=(-10,10), random_state=101
 )
 
-
-#  The model
-def gmm(data, K, initial_means): # Here K is the *exact* number of clusters
-    D = data.shape[1]  # Number of features
-    alpha_prior = 0.5 * jnp.ones(K)
-    w = dist.dirichlet(concentration=alpha_prior, name='weights') 
-
-    with dist.plate("components", K): # Use fixed K
-        mu = dist.multivariatenormal(loc=initial_means, covariance_matrix=0.1*jnp.eye(D), name='mu')        
-        sigma = dist.halfcauchy(1, shape=(D,), event=1, name='sigma')
-        Lcorr = dist.lkjcholesky(dimension=D, concentration=1.0, name='Lcorr')
-
-        scale_tril = sigma[..., None] * Lcorr
-
-    dist.mixturesamefamily(
-        mixing_distribution=dist.categorical(probs=w, create_obj=True),
-        component_distribution=dist.multivariatenormal(loc=mu, scale_tril=scale_tril, create_obj=True),
-        name="obs",
-        obs=data
-    )
-
-m.data_on_model = {"data": data,"K": 4 }
-m.fit(gmm) # Optimize model parameters through MCMC sampling
+m.data_on_model = {"data": data, "T": 10 } # T = Number of maximum cluster to test for
+m.fit(m.models.dpmm) 
 m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```
 
