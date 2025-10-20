@@ -3227,15 +3227,21 @@ class UnifiedDist:
         A left-truncated distribution is a probability distribution
         obtained by restricting the support of another distribution
         to values greater than a specified lower bound. This is useful
-        when dealing with data that is known to be greater than a certain value.
+        when dealing with data that is known to be greater than a certain value. All the “mass” below (or equal to) (a) is **excluded** (not just unobserved, but removed from the sample/analysis).
         
-        $$   
-        f(x) = 
-        \begin{cases}
-        \dfrac{p(x)}{P(X > \text{low})}, & x > \text{low}, \\[6pt]
-        0, & \text{otherwise},
-        \end{cases}
+        Let (X) be a random variable with PDF (f_X(x)) and CDF (F_X(x)). Choose a truncation point (a). Then define a new random variable (Y = X \mid (X > a)). The PDF and CDF of (Y) are:
+
+        * **PDF** for ( y > a ):
         $$
+        f_Y(y) = \frac{f_X(y)}{1 - F_X(a)} .
+        $$
+        (Here (1 - F_X(a) = P(X > a)) is the normalising constant) ([Wikipédia][1])
+
+        * **CDF** for (y > a):
+        $$
+        F_Y(y) = P(Y \le y) = \frac{F_X(y) - F_X(a)}{1 - F_X(a)} .
+        $$
+
         #### Args:
             base_dist: The base distribution to truncate. Must be univariate and have real support.
             low: The lower truncation bound. Values less than this are excluded from the distribution.
@@ -3270,6 +3276,11 @@ class UnifiedDist:
 
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#lefttruncateddistribution
+
+        #### References:
+        https://en.wikipedia.org/wiki/Truncated_distribution
+        https://encyclopediaofmath.org/wiki/Truncated_distribution
+
         """
 
            
@@ -3299,16 +3310,27 @@ class UnifiedDist:
         r"""### Levy 
         
         Samples from a Levy distribution.
+        The Lévy distribution is a continuous probability distribution on the positive real line (or shifted positive line) that is *heavy-tailed*, *skewed*, and arises naturally in connection with stable distributions (specifically the case with stability index $\alpha = \tfrac12$. 
+        It is often used in contexts such as hitting‐time problems for Brownian motion, physics (e.g., van der Waals line‐shapes), and modelling very heavy‐tailed phenomena. Let (X) be a Lévy‐distributed random variable with **location** parameter $\mu$ and **scale** parameter (c > 0). The support is $x \ge \mu$.
         
-        The probability density function is given by,
-        
+        **PDF**
         $$
-           f(x\mid \mu, c) = \sqrt{\frac{c}{2\pi(x-\mu)^{3}}} \exp\left(-\frac{c}{2(x-\mu)}\right), \qquad x > \mu
+        f(x; \mu, c) = \sqrt{\frac{c}{2\pi}} ; \frac{1}{(x - \mu)^{3/2}} ; \exp!\Bigl( -\frac{c}{2 (x - \mu)} \Bigr),
+        \quad x \ge \mu.
         $$
-               
-        where $\mu` is the location parameter and $c` is the scale parameter.
 
-        
+        **CDF**
+        $$
+        F(x; \mu, c) = \Pr(X \le x)
+        = \operatorname{erfc}!\Bigl(\sqrt{\tfrac{c}{2 (x - \mu)}}\Bigr)
+        = 2 - 2,\Phi!\Bigl(\sqrt{\tfrac{c}{(x - \mu)}}\Bigr),
+        \quad x \ge \mu.
+        $$
+        Here $\operatorname{erfc}$ is the complementary error function and $\Phi$ is the standard normal CDF.  
+
+        In the *standard* case with $\mu = 0$ and $c = 1$, one often simply writes $X \sim \text{Lévy}(0,1)$.
+
+
         #### Args:
         - *loc* (jnp.ndarray): Location parameter.
         - *sample* (jnp.ndarray): Scale parameter.
@@ -3368,12 +3390,35 @@ class UnifiedDist:
 
         r"""### Log-Normal
         
-        The LogNormal distribution is a probability distribution defined for positive real-valued random variables,
-        parameterized by a location parameter (loc) and a scale parameter (scale).  It arises when the logarithm
-        of a random variable is normally distributed.
-        
-        $$   f(x) = \frac{1}{x \sigma \sqrt{2\pi}} e^{-\frac{(log(x) - \mu)^2}{2\sigma^2}}
+        The Log-Normal distribution is a probability distribution defined for positive real-valued random variables, parameterized by a location parameter (loc : $\mu$) and a scale parameter (scale).  It arises when the logarithm of a random variable is normally distributed.
+        * A random variable (X) is **log-normal** if its natural logarithm (\ln X) is (approximately) normally distributed.  Equivalently, one can write: 
         $$
+        X = \exp(Y), \quad \text{where } Y \sim \mathcal{N}(\mu, \sigma^2).
+        $$
+
+        Because (X) is the exponential of a normal, it is always positive (support (x>0)).
+        It is useful in contexts where growth, multiplicative effects, or compounding factors dominate (e.g. stock prices, income, sizes of biological organisms). 
+
+        ## Parameters
+
+        * $\mu$: the mean of $\ln X$ (i.e. the location parameter in log-space)
+        * $\sigma > 0$: the standard deviation of $\ln X$ (i.e. the “scale” in log-space)
+
+        Sometimes another parameterization uses a threshold (shift) $\theta$, i.e. $X = \theta + \exp(Y)$.
+        For the two-parameter (no shift) case:
+
+        * **PDF**
+        $$
+        f(x; \mu, \sigma) = \frac{1}{x,\sigma\sqrt{2\pi}} ; \exp!\Bigl( -\frac{(\ln x - \mu)^2}{2\sigma^2} \Bigr), \quad x > 0.
+        $$
+
+        * **CDF**
+        $$
+        F(x; \mu, \sigma) = \Pr(X \le x) = \Phi!\bigl( \frac{\ln x - \mu}{\sigma} \bigr),
+        $$
+        where $\Phi$ is the standard normal CDF. 
+
+        ---
         
         #### Args:
         - *loc* (float): Location parameter.
@@ -3410,6 +3455,10 @@ class UnifiedDist:
             m.dist.log_normal(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#lognormal
+
+        #### References:    
+        https://en.wikipedia.org/wiki/Log-normal_distribution
+
         """
 
            
@@ -3437,14 +3486,28 @@ class UnifiedDist:
 
         r"""### Log-Uniform
         
-        Samples from a LogUniform distribution.
+        Samples from a Log Uniform distribution.
         
-        The LogUniform distribution is defined over the positive real numbers and is the result of applying an exponential transformation to a uniform distribution over the interval [low, high]. It is often used when modeling parameters that must be positive.
-        
-        $$   f(x) = \frac{1}{(high - low) \log(high / low)}
-           \text{ for } low \le x \le high
+        The Log Uniform distribution is defined over the positive real numbers and is the result of applying an exponential transformation to a uniform distribution over the interval [low, high]. It is often used when modeling parameters that must be positive.
+
+        A random variable $X$ is **log-uniform** on $[a, b]$, with $0 < a < b$, if $\ln X$ is uniformly distributed on $[\ln a, \ln b]$. 
+        Equivalently, the density of $X$ is proportional to $1/x$ over that interval. This distribution is sometimes called the *reciprocal distribution*.
+        It is useful in modeling scales spanning several orders of magnitude, where you want every decade (or log-interval) to have equal weight.
+
+        For $x \in [a, b]$:
+
+        * **PDF**
         $$
-        
+        f(x) = \frac{1}{x , [\ln(b) - \ln(a)]}, \quad a \le x \le b.
+        $$
+        Outside $[a, b]$, $f(x) = 0$.
+
+        * **CDF**
+        $$
+        F(x) = \Pr(X \le x) = \frac{\ln(x) - \ln(a)}{\ln(b) - \ln(a)}, \quad a \le x \le b.
+        $$
+        (For $x < a$, $F(x) = 0$; for $x > b$, $F(x) = 1$.
+
         #### Args:
             low (jnp.ndarray): The lower bound of the uniform distribution's log-space. Must be positive.
         
@@ -3480,6 +3543,12 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#loguniform
+
+        #### References:
+            https://en.wikipedia.org/wiki/Reciprocal_distribution
+            https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.loguniform.html
+            https://docs.scipy.org/doc/scipy/tutorial/stats/continuous_loguniform.html
+
         """
 
            
@@ -3502,16 +3571,27 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def logistic(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Logistic 
         Samples from a Logistic distribution.
         
-        The Logistic distribution is a continuous probability distribution defined by two parameters: location and scale. It is often used to model growth processes and is closely related to the normal distribution.
+        The Logistic distribution is a continuous probability distribution defined by two parameters: location and scale. It is often used to model growth processes and is closely related to the normal distribution.Its CDF is the logistic (sigmoid) function, which makes it appealing in modeling probabilities, logistic regression, and various growth models. It resembles the normal distribution in shape (bell‐shaped, symmetric) but has **heavier tails** (i.e. more probability in the extremes) and simpler closed‐form expressions for the CDF.
+
+        * **Location parameter**: $\mu \in \mathbb{R}$\ — the center or “mean” of the distribution.
+        * **Scale parameter**: $\s > 0$\ — controls the spread (similar role to standard deviation).
+        * **Support**: $\ x \in (-\infty, +\infty) $\.
+
+        Let (X \sim \mathrm{Logistic}(\mu, s)). Then:
         
-        $$   f(x) = \frac{1}{s} \exp\left(-\frac{(x - \mu)}{s}\right)
+        $$
+        F(x; \mu, s) = \frac{1}{1 + \exp\bigl(-\frac{x - \mu}{s}\bigr)}.
+        $$
+
+        Equivalently:
+        $$
+        F(x) = \frac12 + \frac12 \tanh!\bigl(\frac{x - \mu}{2s}\bigr).
         $$
         
         #### Args:
@@ -3547,6 +3627,9 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#logistic
+
+        #### Reference: 
+             https://en.wikipedia.org/wiki/Logistic_distribution
         """
 
            
