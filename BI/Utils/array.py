@@ -110,6 +110,7 @@ class effects:
 
             tmp =  group_params[group_id]
             return tmp[:,0], tmp[:,1:] # intercept, slopes
+    
     @staticmethod 
     def varying_intercept_slope(
         N_group, 
