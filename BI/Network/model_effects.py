@@ -33,9 +33,9 @@ class Neteffect(array_manip):
 
     # Sender receiver  ----------------------
     @staticmethod 
-    def nodes_random_effects(N_id, sr_mu = 0, sr_sd = 1, sr_sigma_rate = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False ):
+    def nodes_random_effects(N_id, sr_mu = 0, sr_sd = 1, sr_sigma = 1, cholesky_dim = 2, cholesky_density = 2, sample = False, diag = False ):
         sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
-        sr_sigma =  dist.exponential( sr_sigma_rate, shape= (2,), name = 'sr_sigma', sample = sample)
+        sr_sigma =  dist.exponential( sr_sigma, shape= (2,), name = 'sr_sigma', sample = sample)
         sr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
         rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
 
@@ -104,8 +104,8 @@ class Neteffect(array_manip):
                         #Fixed effect parameters
                         s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, 
                         #Random effect parameters
-                        sr_mu = 0, sr_sd = 1, sr_sigma_rate = 1, 
-                        cholesky_dim = 2, cholesky_density = 2,
+                        sr_mu = 0, sr_sd = 1, sr_sigma = 1, 
+                        cholesky_dim = 2, cholesky_density = 2.5,
                         sample = False, diag = False ):
         """Compute sender-receiver effects combining both fixed and random effects.
 
@@ -118,7 +118,7 @@ class Neteffect(array_manip):
             r_sd (float, optional): SD for target effects. Defaults to 1.
             sr_mu (float, optional): Mean for random effects. Defaults to 0.
             sr_sd (float, optional): SD for random effects. Defaults to 1.
-            sr_sigma_rate (float, optional): Rate parameter for random effects. Defaults to 1.
+            sr_sigma (float, optional): Rate parameter for random effects. Defaults to 1.
             cholesky_dim (int, optional): Dimension for Cholesky decomposition. Defaults to 2.
             cholesky_density (int, optional): Density parameter for Cholesky. Defaults to 2.
             sample (bool, optional): Whether to sample from distributions. Defaults to False.
@@ -147,7 +147,7 @@ class Neteffect(array_manip):
             sender_predictors, receiver_predictors,
             N_var_sender = N_var_sender,N_var_receiver=N_var_receiver,
             s_mu = s_mu, s_sd = s_sd, r_mu = r_mu, r_sd = r_sd, sample = sample )
-        sr_rf, sr_raw, sr_sigma, sr_L = Neteffect.nodes_random_effects(N_id, sr_mu = sr_mu, sr_sd = sr_sd, sr_sigma_rate = sr_sigma_rate, cholesky_dim = cholesky_dim, cholesky_density = cholesky_density,  sample = sample, diag = diag ) # shape = N_id
+        sr_rf, sr_raw, sr_sigma, sr_L = Neteffect.nodes_random_effects(N_id, sr_mu = sr_mu, sr_sd = sr_sd, sr_sigma = sr_sigma, cholesky_dim = cholesky_dim, cholesky_density = cholesky_density,  sample = sample, diag = diag ) # shape = N_id
         sr_to_dyads = Neteffect.node_effects_to_dyadic_format(sr_ff + sr_rf) # sr_ff and sr_rf are nodal values that need to be converted to dyadic values
         return sr_to_dyads
 
@@ -228,7 +228,7 @@ class Neteffect(array_manip):
 
     @staticmethod 
     def dyadic_effect(dyadic_predictors = None, shape = None, d_m = 0, d_sd = 1, # Fixed effect arguments
-                     dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2,
+                     dr_mu = 0, dr_sd = 1, dr_sigma = 1, cholesky_dim = 2, cholesky_density = 2.5,
                      sample = False):
         """Compute dyadic effects combining both fixed and random components.
         
@@ -302,7 +302,7 @@ class Neteffect(array_manip):
         return jnp.stack([b[v[:,0],v[:,1]], b[v[:,1],v[:,0]]], axis = 1)
 
     @staticmethod 
-    def sim_block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 1, b_ii_mean = 0.1, b_ii_sd = 1, sample = False):
+    def sim_block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 2.5, b_ii_mean = 0.1, b_ii_sd = 2.5, sample = False):
         """Generate block model model matrix.
 
         Args:

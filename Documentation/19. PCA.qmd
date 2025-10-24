@@ -19,11 +19,11 @@ PCA is  employed for *dimensionality reduction*, particularly in scenarios invol
 ::: {.callout-note}
 *   In **Bayesian PCA**, we assume prior distributions for the latent variables _Z_ and the principal component loadings _W_. We place Gaussian priors on both _Z_ and _W_ and learn their posterior distributions using the observed data _X_. 
 
-*   **Robustness to Outliers:** Standard PCA are sensitive to outliers due to the assumption of Gaussian noise. Robust variants of **Robust Bayesian PCA** address this by employing heavy-tailed distributions for the noise model, such as the Student's t-distribution, which reduces the influence of outliers [@archambeau2006robust].
+*   **Robustness to Outliers:** Standard PCA are sensitive to outliers due to the assumption of Gaussian noise. Robust variants of **Robust Bayesian PCA** address this by employing heavy-tailed distributions for the noise model, such as the Student's t-distribution, which reduces the influence of outliers [@archambeau2006robust; @BOUWMANS201422].
 
-*   **Automatic Dimensionality Selection:** Through techniques like Automatic Relevance Determination (ARD), Bayesian PCA can automatically determine the effective dimensionality of the latent space. Priors are placed on the relevance of each principal component, and components that are not supported by the data are effectively "switched off' [@bishop1998bayesian]. 
+*   **Automatic Dimensionality Selection:** Through techniques like Automatic Relevance Determination (ARD), Bayesian PCA can automatically determine the effective dimensionality of the latent space. Priors are placed on the relevance of each principal component, and components that are not supported by the data are effectively "switched off' [@bishop1998bayesian; @bishop2006pattern]. 
 
-* **Sparsity for High-Dimensional Data:** In high-dimensional settings, it is often desirable for the principal components to be influenced by only a subset of the original features, leading to more interpretable results. Sparse Bayesian PCA achieves this by placing sparsity-inducing priors (e.g., Laplacian or spike-and-slab priors) on the loading [@sigg2008expectation].
+* **Sparsity for High-Dimensional Data:** In high-dimensional settings, it is often desirable for the principal components to be influenced by only a subset of the original features, leading to more interpretable results. Sparse Bayesian PCA achieves this by placing sparsity-inducing priors (e.g., Laplacian or spike-and-slab priors) on the loading [@sigg2008expectation; @zou2006sparse].
 :::
 
 ## Example
@@ -280,7 +280,7 @@ The likelihood and priors are defined element-wise for $d=1...D$, $n=1...N$, and
 
 
 $$
-X_{dn} \sim \text{Normal}((WZ)_{dn}, \sigma)
+X_{dn} \sim \text{Normal}((W_{dk} \cdot Z_{kn})_{dn}, \sigma)
 $$
 $$
 Z_{kn} \sim \text{Normal}(0, 1)
@@ -296,7 +296,7 @@ $$
 In PCA with Automatic Relevance Determination (ARD), the variance of the prior on each column of $W$ is controlled by a unique relevance parameter $\alpha_k$.
 
 $$
-X_{dn} \sim \text{Normal}((WZ)_{dn}, \sigma)
+X_{dn} \sim \text{Normal}((W_{dk} \cdot Z_{kn})_{dn}, \sigma)
 $$
 $$
 Z_{kn} \sim \text{Normal}(0, 1)
@@ -328,7 +328,7 @@ Where:
 In Robust PCA, the model is modified to handle outliers by using a heavy-tailed distribution for the likelihood:
 
 $$
-X_{dn} \sim \text{StudentT}(\nu, (WZ)_{dn}, \sigma)
+X_{dn} \sim \text{StudentT}(\nu, (W_{dk} \cdot Z_{kn})_{dn}, \sigma)
 $$
 $$
 Z_{kn} \sim \text{Normal}(0, 1)
@@ -354,7 +354,7 @@ Where:
 In Sparse PCA, a Laplace prior is placed on the weights $W$ to induce sparsity.
 
 $$
-X_{dn} \sim \text{Normal}((WZ)_{dn}, sigma)
+X_{dn} \sim \text{Normal}((W_{dk} \cdot Z_{kn})_{dn}, sigma)
 $$
 $$
 Z_{kn} \sim \text{Normal}(0, 1)
@@ -435,6 +435,8 @@ plt.show()
 
 
 ## Reference(s)
+
+
 ::: {#refs}
 :::
 
