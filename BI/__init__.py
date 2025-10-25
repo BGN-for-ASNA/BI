@@ -1,1 +1,1 @@
-from BI.Main.main import *
+from .Main.main import *
