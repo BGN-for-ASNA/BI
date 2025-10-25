@@ -290,7 +290,7 @@ class Neteffect(array_manip):
             return 'Argument shape must be defined if argument dyadic_predictors is not define'
         if dyadic_predictors is not None :
             dr_ff, dyad_effects = Neteffect.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample)
-            dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma = dr_sigma, 
+            dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma_mu = dr_sigma_mu, dr_sigma_sd = dr_sigma_sd,
             cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
             return dr_ff + dr_rf
         else:
