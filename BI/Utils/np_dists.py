@@ -3657,19 +3657,21 @@ class UnifiedDist:
         
 
         r"""### Low Rank Multivariate Normal 
-        Represents a multivariate normal distribution with a low-rank covariance structure.
+        The *Low-Rank Multivariate Normal* (LRMVN) distribution is a parameterization of the multivariate normal distribution where the covariance matrix is expressed as a low-rank plus diagonal decomposition:
+        $$
+        \Sigma = F F^\top + D
+        $$
+        where $F$ is a low-rank matrix (capturing correlations) and $D$ is a diagonal matrix (capturing independent noise). This representation is often used in probabilistic modeling and variational inference to efficiently handle high-dimensional Gaussian distributions with structured covariance.
         
-        $$
-        p(x) = \frac{1}{\sqrt{(2\pi)^K |\Sigma|}} 
-               \exp\left(-\tfrac{1}{2} (x - \mu)^T \Sigma^{-1} (x - \mu)\right)
-        $$
-           
 
-        where:
-        
-        * $x` is a vector of observations.
-        * $\mu` is the mean vector.
-        * $\Sigma` is the covariance matrix, represented in a low-rank form.
+
+        For a (d)-dimensional random vector ( x \in \mathbb{R}^d ),
+        $$
+        p(x \mid \mu, F, D) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}}
+        \exp\left(-\frac{1}{2}(x - \mu)^\top \Sigma^{-1} (x - \mu)\right),
+        $$
+        where ( \Sigma = F F^\top + D ).
+
         
         Parameters:
         - *loc* (jnp.ndarray): Mean vector.
@@ -3679,6 +3681,8 @@ class UnifiedDist:
             cov_diag (jnp.ndarray): Diagonal elements of the covariance matrix.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
             
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
@@ -3699,6 +3703,12 @@ class UnifiedDist:
         
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#lowrankmultivariatenormal
+
+        #### Reference:
+        
+        * [Multivariate normal distribution – Wikipedia](https://en.wikipedia.org/wiki/Multivariate_normal_distribution)
+
+        * [TensorFlow Probability: LowRankMultivariateNormal](https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/MultivariateNormalDiagPlusLowRank)
         """
 
         d = numpyro.distributions.continuous.LowRankMultivariateNormal(loc=loc, cov_factor=cov_factor, cov_diag=cov_diag, validate_args=validate_args)
@@ -3725,41 +3735,40 @@ class UnifiedDist:
         
 
         r"""### Lower Truncated Power Law
+        The *Lower-Truncated Power-Law* distribution (also known as the *Pareto Type I* or *power-law with a lower bound*) models quantities that follow a heavy-tailed power-law behavior but are bounded below by a minimum value ( x_{\min} ). It is commonly used to describe phenomena such as wealth distributions, city sizes, and biological scaling laws.
         
         Lower truncated power law distribution with $\alpha` index.
         
         The probability density function (PDF) is given by:
         
+        For ( x \ge x_{\min} > 0 ):
         $$
-           f(x; \alpha, a) = (-\alpha-1)a^{-\alpha - 1}x^{-\alpha},
-            \qquad x \geq a, \qquad \alpha < -1,
+        f(x \mid \alpha, x_{\min}) = \frac{\alpha - 1}{x_{\min}} \left( \frac{x_{\min}}{x} \right)^{\alpha}
         $$
-               
-        where $a` is the lower bound.
+
+        where $ \alpha > 1 $ is the shape (scaling) parameter.
 
         
         #### Args:
-            alpha (jnp.ndarray): index of the power law distribution. Must be less than -1.
-            low (jnp.ndarray): lower bound of the distribution. Must be greater than 0.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - `alpha` (jnp.ndarray): index of the power law distribution. Must be less than -1.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - `low` (jnp.ndarray): lower bound of the distribution. Must be greater than 0.
+        
+        - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        
+        - `event` (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+        
+        - `mask` (jnp.ndarray, bool): Optional boolean array to mask observations.
+        
+        - `create_obj` (bool): If True, returns the raw BI distribution object instead of creating a sample site.This is essential for building complex distributions like `MixtureSameFamily`.
+                
+        - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+            
+        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+        - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+        - `name` (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
         #### Returns:
       - When `sample=False`: A BI LowerTruncatedPowerLaw distribution object (for model building).
@@ -3773,6 +3782,15 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#lowertruncatedpowerlaw
+
+        #### Reference:
+
+
+        * [Power-law distribution – Wikipedia](https://en.wikipedia.org/wiki/Power_law#Continuous_power-law_distribution)
+
+        * [Pareto distribution – Wikipedia](https://en.wikipedia.org/wiki/Pareto_distribution)
+
+        * [Truncated Pareto distribution](https://arxiv.org/abs/0706.1062)
         """
 
            
@@ -3803,37 +3821,43 @@ class UnifiedDist:
         Samples from a Matrix Normal distribution, which is a multivariate normal distribution over matrices.
         The distribution is characterized by a location matrix and two lower triangular matrices that define the correlation structure.
         The distribution is related to the multivariate normal distribution in the following way.
-        If $X ~ MN(loc,U,V)` then $vec(X) ~ MVN(vec(loc), kron(V,U) )`.
+        If $X ~ MN(loc,U,V)$ then $vec(X) ~ MVN(vec(loc), kron(V,U) )$.
         
+        Let (X) be (n \times p), with mean matrix $$M\in\mathbb R^{n\times p}$$, row-covariance matrix $U\in\mathbb R^{n\times n}$ (positive-definite), and column-covariance matrix $V\in\mathbb R^{p\times p}$(positive-definite). Then the PDF is:
+
         $$
-           p(x) = \frac{1}{2\pi^{p/2} |\Sigma|^{1/2}} \exp\left(-\frac{1}{2} (x - \mu)^T \Sigma^{-1} (x - \mu)\right)
+        f(X;M,U,V) = \frac{1}{(2\pi)^{\tfrac{np}{2}},|V|^{\tfrac n2},|U|^{\tfrac p2}},
+        \exp!\Big[-\tfrac12,\mathrm{tr}!\big( V^{-1}(X-M)^\top,U^{-1}(X-M)\big)\Big].
         $$
+
+        Also the equivalence to vec-form is given:
+        $$
+        \mathrm{vec}(X) \sim \mathcal N_{np}\big(\mathrm{vec}(M),,V\otimes U\big). ; ; \text{([The Book of Statistical Proofs][3])}
+        $$
+
         
         #### Args:
-        - *loc* (array_like): Location of the distribution.
+        - `loc` (array_like): Location of the distribution.
         
             scale_tril_row (array_like): Lower cholesky of rows correlation matrix.
         
             scale_tril_column (array_like): Lower cholesky of columns correlation matrix.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+        - `event` (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+        - `mask` (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - `create_obj` (bool): If True, returns the raw BI distribution object instead of creating a sample site.This is essential for building complex distributions like `MixtureSameFamily`.
                 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+        - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+        - `name` (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
         #### Returns:
       - When `sample=False`: A BI MatrixNormal distribution object (for model building).
@@ -3870,6 +3894,10 @@ class UnifiedDist:
             )
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#matrixnormal_lowercase
+
+        #### Reference: 
+        * [1]: https://en.wikipedia.org/wiki/Matrix_normal_distribution "Matrix normal distribution"
+        * [2]: https://statproofbook.github.io/P/matn-pdf.html "Probability density function of the matrix-normal distribution | The Book of Statistical Proofs"
         """
 
            
@@ -3897,21 +3925,13 @@ class UnifiedDist:
         
 
         r"""### Mixture General 
-        A finite mixture of component distributions from different families.
+        A mixture distribution is a probability distribution constructed by selecting one of several component distributions according to specified weights, and then drawing a sample from the chosen component. It allows modelling of heterogeneous populations and multimodal data.
         
-        - mixing_distribution: A :class:`~numpyro.distributions.Categorical` specifying the weights for each mixture component. The size of this distribution specifies the number of components in the mixture.
-        - component_distributions: A list of `mixture_size` :class:`~numpyro.distributions.Distribution` objects.
-        - support: A :class:`~numpyro.distributions.constraints.Constraint` object specifying the support of the mixture distribution. If not provided, the support will be inferred from the component distributions.
-        
-        The probability density function (PDF) of a MixtureGeneral distribution is given by:
-        
-        $$p(x) = \sum_{i=1}^{K} \pi_i p_i(x)
+        Let the mixture have (K) component distributions with densities (f_i(x)) for (i = 1,\dots,K). Let weights       (w_i\ge0) satisfy (\sum_{i=1}^K w_i = 1). Then the PDF is
         $$
-        where:
-        
-        *   $K$ is the number of components in the mixture.
-        *   $\pi_i$ is the mixing weight for the $i$-th component, such that $\sum_{i=1}^{K} \pi_i = 1$.
-        *   $p_i(x)$ is the probability density function of the $i$-th component distribution.
+        f(x) = \sum_{i=1}^K w_i ; f_i(x).
+        $$
+
         
         **Parameters:**
         
@@ -3920,7 +3940,9 @@ class UnifiedDist:
         *   **component_distributions**: A list of distributions representing the components of the mixture.
                 
         *   **sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
+        * `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
         *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
@@ -3944,6 +3966,11 @@ class UnifiedDist:
             )           
 
         #### Wrapper of: [https://num.pyro.ai/en/stable/distributions.html#mixturegeneral](https://num.pyro.ai/en/stable/distributions.html#mixturegeneral)
+
+        #### Reference: \
+        * [1]: https://preliz.readthedocs.io/en/latest/distributions/gallery/mixture.html "Mixture Distribution — PreliZ 0.22.0 documentation"
+        * [2]: https://reliability.readthedocs.io/en/latest/Mixture%20models.html "Mixture models — reliability 0.9.0 documentation"
+        * [3]: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.Mixture.html "Mixture — SciPy v1.16.2 Manual"
         """
         
            
@@ -3972,21 +3999,14 @@ class UnifiedDist:
 
         r"""###  Finite mixture of component distributions from the same family.
         
-        This mixture only supports a mixture of component distributions that are all
-        of the same family. The different components are specified along the last
-        batch dimension of the input ``component_distribution``. If you need a
-        mixture of distributions from different families, use the more general
-        implementation in :class:`~numpyro.distributions.MixtureGeneral`.
+        A *Mixture (Same-Family)* distribution is a finite mixture in which **all components come from the same parametric family** (for example, all Normal distributions but with different parameters), and are combined via mixing weights. The class is typically denoted as: 
         
-        $$   p(x) = \sum_{k=1}^{K} w_k p_k(x)
+        Let the mixture have (K) components. Let weights (w_i\ge0), (\sum_{i=1}^K w_i = 1). Let the component family have density (f(x \mid \theta_i)) for each component (i). Then the mixture’s PDF is
         $$
-               
-        where:
-        
-        *   $K$ is the number of mixture components.
-        *   $w_k$ is the mixing weight for component $k$.
-        *   $p_k(x)$ is the probability density function (PDF) of the $k$-th component distribution.
+        f_X(x) = \sum_{i=1}^K w_i ; f(x \mid \theta_i).
+        $$
 
+        where each $f(x \mid \theta_i)$ is from the same family with parameter $\theta_i$. 
         
         #### Args:
             *   **Distribution Args**:
@@ -3995,9 +4015,7 @@ class UnifiedDist:
                 *   **component_distributions**: A list of distributions representing the components of the mixture.
         
             *   **Sampling / Modeling Args**:
-                *   `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                    with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                    used as `sample_shape` to draw a raw JAX array of the given shape.
+                * `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
                 *   `event` (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
                 *   `mask` (jnp.ndarray, bool): Optional boolean array to mask observations.
@@ -4029,6 +4047,9 @@ class UnifiedDist:
             )
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#mixture-, to_jax = True)same-family
+
+        #### Reference: 
+        * [Mixture distributions ](https://cseweb.ucsd.edu/~elkan/250Bwinter2011/mixturemodels.pdf)
         """
 
            
@@ -4056,22 +4077,31 @@ class UnifiedDist:
         
 
         r"""### Multinomial Logits 
-        Samples from a MultinomialLogits distribution.
-        
-        This distribution represents the probability of observing a specific outcome from a multinomial experiment,
-        given the logits for each outcome. The logits are the natural logarithm of the odds of each outcome.
-        
-        $$   P(k | \mathbf{\pi}) = \frac{n!}{k! (n-k)!} \prod_{i=1}^k \pi_i
+        A *multinomial logits* distribution refers to a categorical (or more generally multinomial) distribution over (K) classes whose probabilities are given via the softmax of a vector of logits. That is, given a vector of real-valued logits $\ell = (\ell_1, …, \ell_K)$, the class probabilities are:
         $$
-        
+        p_k = \frac{\exp(\ell_k)}{\sum_{j=1}^K \exp(\ell_j)}.
+        $$
+        Then a single draw from the distribution yields one of the (K) classes (or for a multinomial count version, counts over the classes) with those probabilities.
+
+        **Categorical version (one draw):**
+        Let (X \in {1,2,\dots,K}) be the class. Then
+        $$
+        \Pr(X=k \mid \ell) ;=; p_k = \frac{\exp(\ell_k)}{\sum_{j=1}^K \exp(\ell_j)}.
+        $$
+        This directly uses the logits $\ell$. 
+
+        **Multinomial version (n draws):**
+        If you draw (n) independent draws (or equivalently count vector) with probabilities (p = (p_1,…,p_K)), then for a count vector (x = (x_1,…,x_K)) with (\sum_k x_k = n),
+        $$
+        \Pr(X = x \mid n, p) = \frac{n!}{x_1! \cdots x_K!} ; \prod_{k=1}^K p_k^{x_k}
+        $$
+        and $p_k$ is given by the softmax of logits. 
         #### Args:
             logits (jnp.ndarray): Logits for each outcome. Must be at least one-dimensional.
         
             total_count (jnp.ndarray): The total number of trials.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -4102,6 +4132,9 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#multinomiallogits
+        
+        #### Reference:
+        *   https://en.wikipedia.org/wiki/Multinomial_distribution
         """
 
            
@@ -4132,22 +4165,13 @@ class UnifiedDist:
         Samples from a Multinomial distribution.
         
         The Multinomial distribution models the number of times each of several discrete outcomes occurs in a fixed number of trials.  Each trial independently results in one of several outcomes, and each outcome has a probability of occurring.
-        
-        $$   P(X = x) = \frac{n!}{x_1! x_2! \cdots x_k!} p_1^{x_1} p_2^{x_2} \cdots p_k^{x_k}
-        $$
 
-        where:
-        
-        *   n is the total number of trials.
-        *   x is a vector of counts for each outcome.
-        *   p is a vector of probabilities for each outcome.
-        $$
         
         #### Args:
         - *probs* (jnp.ndarray): Vector of probabilities for each outcome. Must sum to 1.
             total_count (jnp.ndarray): The number of trials.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -4214,9 +4238,9 @@ class UnifiedDist:
             
 
         where:
-        - $x` is a $n`-dimensional vector of random variables.
-        - $\mu` is the mean vector.
-        - $\Sigma` is the covariance matrix.
+        - $x$ is a $n$-dimensional vector of random variables.
+        - $\mu$ is the mean vector.
+        - $\Sigma$ is the covariance matrix.
 
         
         #### Args:
@@ -4228,9 +4252,7 @@ class UnifiedDist:
         
             scale_tril (jnp.ndarray, optional): The lower triangular Cholesky decomposition of the covariance matrix.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -4268,6 +4290,10 @@ class UnifiedDist:
 
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#multivariate-normal
+
+        #### Reference:
+
+        * [Multivariate normal distribution – Wikipedia](https://en.wikipedia.org/wiki/Multivariate_normal_distribution)
         """
 
            
@@ -4299,10 +4325,19 @@ class UnifiedDist:
         distribution to multiple dimensions. It is a heavy-tailed distribution that is
         often used to model data that is not normally distributed.
         
+        The PDF of the multivariate Student's t-distribution for a random vector ( \mathbf{x} \in \mathbb{R}^d ) is given by:
+
         $$
-           p(x) = \frac{1}{B(df/2, n/2)} \frac{\Gamma(df/2 + n/2)}{\Gamma(df/2)}
-            \left(1 + \frac{(x - \mu)^T \Sigma^{-1} (x - \mu)}{df}\right)^{-(df + n)/2}
+        f(\mathbf{x}) = \frac{\Gamma\left(\frac{\nu + d}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right) \nu^{d/2} \pi^{d/2} | \Sigma|^{1/2}} \left(1 + \frac{1}{\nu} (\mathbf{x} - \mu)^T \Sigma^{-1} (\mathbf{x} - \mu)\right)^{-(\nu + d)/2}
         $$
+
+        where:
+
+        * $ \Gamma(\cdot) $ is the Gamma function.
+        * $ \mu $ is the mean vector.
+        * $ \Sigma $ is the scale (covariance) matrix.
+        * $ \nu $ is the degrees of freedom.
+        * $ d $ is the dimensionality of $ \mathbf{x} $.
         
         #### Args:
 
@@ -4349,6 +4384,10 @@ class UnifiedDist:
         
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#multivariatestudentt
+
+        #### Reference:
+
+        * [Multivariate Student-t distribution – Wikipedia](https://en.wikipedia.org/wiki/Multivariate_Student%27s_t-distribution)
         """
 
            
