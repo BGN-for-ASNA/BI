@@ -55,36 +55,6 @@ def lower_tri(array, diag=-1):
 # JIT compile the function with static_argnums
 get_lower_tri = jit(lower_tri, static_argnums=(1,))
 
-def get_tri(array, type='upper', diag=0):
-    """Extracts the upper, lower, or both triangle elements of a 2D JAX array.
-
-    Args:
-        array (2D array): A JAX 2D array.
-        type (str): A string indicating which part of the triangle to extract.
-                    It can be 'upper', 'lower', or 'both'.
-        diag (int): Integer indicating if diagonal must be kept or not.
-                    diag=1 excludes the diagonal, diag=0 includes it.
-
-    Returns:
-        If argument type is 'upper', 'lower', it return a 1D JAX array containing the requested triangle elements.
-        If argument type is 'both', it return a 2D JAX array containing the the first column the lower triangle and in the second ecolumn the upper triangle
-    """
-    if type == 'upper':
-        upper_triangle_indices = jnp.triu_indices(array.shape[0], k=diag)
-        triangle_elements = array[upper_triangle_indices]
-    elif type == 'lower':
-        lower_triangle_indices = jnp.tril_indices(array.shape[0], k=-diag)
-        triangle_elements = array[lower_triangle_indices]
-    elif type == 'both':
-        upper_triangle_indices = jnp.triu_indices(array.shape[0], k=diag)
-        lower_triangle_indices = jnp.tril_indices(array.shape[0], k=-diag)
-        upper_triangle_elements = array[upper_triangle_indices]
-        lower_triangle_elements = array[lower_triangle_indices]
-        triangle_elements = jnp.stack((upper_triangle_elements,lower_triangle_elements), axis = 1)
-    else:
-        raise ValueError("type must be 'upper', 'lower', or 'both'")
-
-    return triangle_elements
 
     
 
@@ -129,17 +99,66 @@ class array_manip():
         # Compare array with its transpose
         return jnp.allclose(arr, arr.T, rtol=rtol, atol=atol)
         # Matrix manipulations -------------------------------------
+    
     @staticmethod 
     @partial(jit, static_argnums=(1, ))
     def vec_to_mat(vec, shape = ()):
+        """Convert a vector to a matrix.
+
+        Args:
+            vec (1D array): A JAX 1D array.
+            shape (tuple): A tuple indicating the shape of the matrix.
+
+        Returns:
+            (2D array): return a matrix of shape shape.
+        """
         return jnp.tile(vec, shape)
 
     def get_tri(self, array, type='upper', diag=0):
-        return get_tri(array, type=type, diag=diag)
-    
+        """Extracts the upper, lower, or both triangle elements of a 2D JAX array.
+
+        Args:
+            array (2D array): A JAX 2D array.
+            type (str): A string indicating which part of the triangle to extract.
+                        It can be 'upper', 'lower', or 'both'.
+            diag (int): Integer indicating if diagonal must be kept or not.
+                        diag=1 excludes the diagonal, diag=0 includes it.
+
+        Returns:
+            If argument type is 'upper', 'lower', it return a 1D JAX array containing the requested triangle elements.
+            If argument type is 'both', it return a 2D JAX array containing the the first column the lower triangle and in the second ecolumn the upper triangle
+        """
+        if diag != 0 and diag != 1:
+            raise ValueError("diag must be 0 or 1")
+        if type == 'upper':
+            upper_triangle_indices = jnp.triu_indices(array.shape[0], k=diag)
+            triangle_elements = array[upper_triangle_indices]
+        elif type == 'lower':
+            lower_triangle_indices = jnp.tril_indices(array.shape[0], k=-diag)
+            triangle_elements = array[lower_triangle_indices]
+        elif type == 'both':
+            upper_triangle_indices = jnp.triu_indices(array.shape[0], k=diag)
+            lower_triangle_indices = jnp.tril_indices(array.shape[0], k=-diag)
+            upper_triangle_elements = array[upper_triangle_indices]
+            lower_triangle_elements = array[lower_triangle_indices]
+            triangle_elements = jnp.stack((upper_triangle_elements,lower_triangle_elements), axis = 1)
+        else:
+            raise ValueError("type must be 'upper', 'lower', or 'both'")
+
+        return triangle_elements
+
     @staticmethod 
     @jit
     def mat_to_edgl(mat):
+        """Convert a matrix to an edge list.
+
+        Args:
+            mat (2D array): A JAX 2D array.
+
+        Returns:
+            (2D array): return and edgelist of all dyads combination (excluding diagonal).
+            First column represent the value fo individual i  in the first column of argument sr, the second column the value of j in the second column of argument sr
+        """
         N = mat.shape[0]
         # From to 
         urows, ucols   = jnp.triu_indices(N, k=1)
@@ -158,20 +177,27 @@ class array_manip():
         m = m.at[(urows, ucols)].set(edgl[:,0])
         return m
     
-    @staticmethod 
-    @jit
-    def remove_diagonal(arr):
-        n = arr.shape[0]
-        if arr.shape[0] != arr.shape[1]:
-            raise ValueError("Array must be square to remove the diagonal.")
+    #@staticmethod 
+    #def remove_diagonal(arr):
+    #    """Remove the diagonal of a matrix.
 
-        # Create a mask for non-diagonal elements
-        mask = ~jnp.eye(n, dtype=bool)
+    #    Args:
+    #        arr (2D array): A JAX 2D array.
 
-        # Apply the mask to the array to get non-diagonal elements
-        non_diag_elements = arr[mask]  # Reshape as needed, here to an example shape
-    
-        return non_diag_elements
+    #    Returns:
+    #        (2D array): return a matrix without the diagonal.
+    #    """
+    #    n = arr.shape[0]
+    #    if arr.shape[0] != arr.shape[1]:
+    #        raise ValueError("Array must be square to remove the diagonal.")
+
+    #    # Create a mask for non-diagonal elements
+    #    mask = ~jnp.eye(n, dtype=bool)
+
+    #    # Apply the mask to the array to get non-diagonal elements
+    #    non_diag_elements = arr[mask]  # Reshape as needed, here to an example shape
+    #
+    #    return non_diag_elements
     
     @staticmethod 
     @jit    
@@ -186,16 +212,33 @@ class array_manip():
             First column represent the value fo individual i  in the first column of argument sr, the second column the value of j in the second column of argument sr
         """
         N = sr.shape[0]
-        lrows, lcols = jnp.tril_indices(N, k=-1)
         urows, ucols = jnp.triu_indices(N, k=1)
         ft = sr[urows,0]
         tf = sr[ucols,1]
         return jnp.stack([ft,tf], axis = -1)
 
 
+    def vec_to_edgl(self,vec):
+        """Convert a vector to an edge list.
+
+        Args:
+            vec (1D array): A JAX 1D array.
+
+        Returns:
+            (2D array): return and edgelist of all dyads combination (excluding diagonal).
+            First column represent the value fo individual i  in the first column of argument sr, the second column the value of j in the second column of argument sr
+        """
+        N = vec.shape[0]
+
+        urows, ucols = jnp.triu_indices(N, k=1)
+        ft = vec[urows]
+        tf = vec[ucols]
+        return jnp.stack([ft,tf], axis = -1)
+    
     @staticmethod
     @jit 
     def to_binary_matrix(m):
         return jnp.where(m > 0, 1, 0)
+    
 
     
