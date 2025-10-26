@@ -66,11 +66,8 @@ class UnifiedDist:
         
         - *asymmetry* (jnp.ndarray or float): Asymmetry parameter of the distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
-                JAX array of the given shape.
-        
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
@@ -80,7 +77,7 @@ class UnifiedDist:
         
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
 
@@ -154,26 +151,20 @@ class UnifiedDist:
         
         - *sample* (float): The scale parameter of the distribution.
         
-            quantile (float): The quantile parameter, representing the proportion of
-                probability density to the left of the median. Must be between 0 and 1.
+        - *quantile* (float): The quantile parameter, representing the proportion of probability density to the left of the median. Must be between 0 and 1.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
 
@@ -233,13 +224,9 @@ class UnifiedDist:
         #### Args:
         - *logits* (jnp.ndarray, optional): Log-odds ratio of success.  Must be real-valued.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
-        - *event* (int, optional): The number of batch dimensions to reinterpret as
-            - *event* dimensions (used in model building). Defaults to 0.
+        - *event* (int, optional): The number of batch dimensions to reinterpret as *event* dimensions (used in model building). Defaults to 0.
         
         - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask
                 observations. Defaults to None.
@@ -251,7 +238,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
 
@@ -320,26 +307,20 @@ class UnifiedDist:
 
         
         #### Args:
-        - *probs* (jnp.ndarray): The probability of success for each Bernoulli trial.
-                Must be between 0 and 1.
+        - *probs* (jnp.ndarray): The probability of success for each Bernoulli trial. Must be between 0 and 1.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -410,10 +391,7 @@ class UnifiedDist:
 
         - *concentration0* (jnp.ndarray): The second concentration parameter (shape parameter). Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
-                JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -424,7 +402,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -496,20 +474,17 @@ class UnifiedDist:
 
         - *total_count* (jnp.ndarray): The number of Bernoulli trials in the Binomial part of the distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -583,11 +558,7 @@ class UnifiedDist:
         
         - *concentration* (jnp.ndarray): The concentration parameter of the BetaProportion distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling),
-                this is used as `sample_shape` to draw a raw JAX array of the
-                given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
@@ -600,7 +571,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -657,26 +628,22 @@ class UnifiedDist:
         $$
         
         #### Args:
-            logits (jnp.ndarray): Log-odds of each success.
-            total_count (int): Number of trials.
+        - *logits* (jnp.ndarray): Log-odds of each success.
+
+        - *total_count* (int): Number of trials.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -740,7 +707,7 @@ class UnifiedDist:
         
         - *total_count* (int): The number of trials in each sequence.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -750,7 +717,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -828,7 +795,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
 
@@ -885,7 +852,7 @@ class UnifiedDist:
         #### Args:
         - *logits* (jnp.ndarray): Log-odds of each category.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -895,7 +862,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -957,23 +924,18 @@ class UnifiedDist:
         #### Args:
         - *probs* (jnp.ndarray): Probabilities for each category. Must sum to 1.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions
                 (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -1041,21 +1003,17 @@ class UnifiedDist:
 
         - *sample* (jnp.ndarray or float, optional): Scale parameter. Must be positive. Defaults to 1.0.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
-        - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-                Defaults to None.
+        - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building). Defaults to None.
         
         - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
         
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample
-                site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -1119,25 +1077,20 @@ class UnifiedDist:
             * ( \Gamma(\cdot) ) is the gamma function.
         
         #### Args:
-            df (jnp.ndarray): Degrees of freedom. Must be positive.
+        - *df* (jnp.ndarray): Degrees of freedom. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -1213,7 +1166,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -1228,13 +1181,11 @@ class UnifiedDist:
         
         #### Args:
 
-        - *loc* : jnp.ndarray
-                Mean of the distribution $\boldsymbol{\mu}`.
+        - *loc* : jnp.ndarray Mean of the distribution $\boldsymbol{\mu}$.
 
-        - *covariance_row* : jnp.ndarray, optional. First row of the circulant covariance matrix $\mathbf{C}`.
-                Defaults to None.
+        - *covariance_row* : jnp.ndarray, optional. First row of the circulant covariance matrix $\mathbf{C}$. Defaults to None.
 
-        - *covariance_rfft* : jnp.ndarray, optional Real part of the real fast Fourier transform of :code:`covariance_row`. Defaults to None.
+        - *covariance_rfft* : jnp.ndarray, optional Real part of the real fast Fourier transform of `covariance_row`. Defaults to None.
 
         #### Returns:
 
@@ -1288,10 +1239,13 @@ class UnifiedDist:
         $$
         
         #### Args:
-            v (jnp.ndarray): The location of the point mass.
-            log_density (float, optional): The log probability density of the point mass. This is primarily for creating distributions that are non-normalized or for specific advanced use cases. For a standard delta distribution, this should be 0. Defaults to 0.0.    
-            event_dim (int, optional): The number of rightmost dimensions of `v` to interpret as event dimensions. Defaults to 0.
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *v* (jnp.ndarray): The location of the point mass.
+
+        - *log_density* (float, optional): The log probability density of the point mass. This is primarily for creating distributions that are non-normalized or for specific advanced use cases. For a standard delta distribution, this should be 0. Defaults to 0.0. 
+
+        - *event_dim* (int, optional): The number of rightmost dimensions of `v` to interpret as event dimensions. Defaults to 0.
+
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -1301,7 +1255,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -1366,23 +1320,19 @@ class UnifiedDist:
         $$
         
         #### Args:
-            concentration (jnp.ndarray): The concentration parameter(s) of the Dirichlet distribution.
-                Must be a positive array.
+        - *concentration* (jnp.ndarray): The concentration parameter(s) of the Dirichlet distribution. Must be a positive array.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
         
@@ -1452,10 +1402,14 @@ class UnifiedDist:
 
     
         #### Args:
-            concentration (jnp.ndarray): The concentration parameter (alpha) for the Dirichlet prior. Values must be positive. The last dimension is interpreted as the number of categories.
-            total_count (int, jnp.ndarray, optional): The total number of trials (n). This must be a non-negative integer. Defaults to 1.
-            validate_args (bool, optional): Whether to enable validation of distribution parameters. Defaults to `None`.
+        - *concentration* (jnp.ndarray): The concentration parameter (alpha) for the Dirichlet prior. Values must be positive. The last dimension is interpreted as the number of categories.
+
+        - *total_count* (int, jnp.ndarray, optional): The total number of trials (n). This must be a non-negative integer. Defaults to 1.
+
+        - *validate_args* (bool, optional): Whether to enable validation of distribution parameters. Defaults to `None`.
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
 
         - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. If provided, events with a `True` mask will be conditioned on `obs`, while the remaining events will be treated as latent variables. Defaults to `None`.
@@ -1545,13 +1499,11 @@ class UnifiedDist:
 
         
         #### Args:
-            low (jnp.ndarray): The lower bound of the uniform range, inclusive.
-            high (jnp.ndarray): The upper bound of the uniform range, inclusive.
+        - *low* (jnp.ndarray): The lower bound of the uniform range, inclusive.
+
+        - *high* (jnp.ndarray): The upper bound of the uniform range, inclusive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
-                JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -1562,7 +1514,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -1645,19 +1597,19 @@ class UnifiedDist:
 
 
         #### Args:
-            alpha (float or array-like): Power-law exponent.
+        - *alpha* (float or array-like): Power-law exponent.
 
-            low (float or array-like): Lower bound of the distribution (must be $≥$  0).
+        - *low* (float or array-like): Lower bound of the distribution (must be $≥$  0).
 
-            high (float or array-like): Upper bound of the distribution (must be $>$ 0).
+        - *high* (float or array-like): Upper bound of the distribution (must be $>$ 0).
 
-        - *shape* (tuple, optional): The shape of the output tensor. Defaults to None.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-            validate_args (bool, optional): Whether to validate the arguments. Defaults to True.
+        - *validate_args (bool, optional): Whether to validate the arguments. Defaults to True.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
 
@@ -1719,20 +1671,21 @@ class UnifiedDist:
 
         
         #### Args:
-            t (jnp.ndarray): Discretized time steps.
+        - *t* (jnp.ndarray): Discretized time steps.
 
-            sde_fn (callable): A function that takes the current state and time as input and returns the drift and diffusion coefficients.
-            init_dist (Distribution): The initial distribution of the system.
+        - *sde_fn* (callable): A function that takes the current state and time as input and returns the drift and diffusion coefficients. 
 
-        - *shape* (tuple, optional): The shape of the output tensor. Defaults to None.
+        - *init_dist* (Distribution): The initial distribution of the system.
 
-            sample_shape (tuple, optional): The shape of the samples to draw. Defaults to None.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-            validate_args (bool, optional): Whether to validate the arguments. Defaults to True.
+        - *sample_shape (tuple, optional): The shape of the samples to draw. Defaults to None.
+
+        - *validate_args (bool, optional): Whether to validate the arguments. Defaults to True.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -1780,9 +1733,9 @@ class UnifiedDist:
         Zhere ( \lambda > 0 ) is the rate parameter (the mean is ( 1/\lambda )).
         
         #### Args:
-            rate (jnp.ndarray): The rate parameter, $\lambda`. Must be positive.
+        - *rate* (jnp.ndarray): The rate parameter, $\lambda`. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -1792,7 +1745,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -1848,22 +1801,20 @@ class UnifiedDist:
 
         #### Args:
         - *loc* (float, optional): Location parameter of the base distribution. Defaults to 0.0.
+
         - *sample* (float, optional): Scale parameter of the base distribution. Defaults to 1.0.
     
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
     
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
     
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
     
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -1922,24 +1873,21 @@ class UnifiedDist:
            ]
         
         #### Args:
-            concentration (jnp.ndarray): The shape parameter of the Gamma distribution (k > 0).
+        - *concentration* (jnp.ndarray): The shape parameter of the Gamma distribution (k > 0).
         
-            rate (jnp.ndarray): The rate parameter of the Gamma distribution (theta > 0).
+        - *rate* (jnp.ndarray): The rate parameter of the Gamma distribution (theta > 0).
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2000,26 +1948,22 @@ class UnifiedDist:
         This CDF expresses the probability that the count variable ( X ) takes a value less than or equal to ( x ), incorporating the overdispersion introduced by the Gamma distribution.
         
         #### Args:
-            concentration (jnp.ndarray): Shape parameter (alpha) of the Gamma distribution.
-            rate (jnp.ndarray): Rate parameter (beta) for the Gamma distribution.
+        - *concentration* (jnp.ndarray): Shape parameter (alpha) of the Gamma distribution.
+
+        - *rate* (jnp.ndarray): Rate parameter (beta) for the Gamma distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2078,13 +2022,13 @@ class UnifiedDist:
 
         
         #### Args:
-            marginal_dist (Distribution): Distribution whose last batch axis is to be coupled.
+        - *marginal_dist* (Distribution): Distribution whose last batch axis is to be coupled.
 
-            correlation_matrix (array_like, optional): Correlation matrix of the coupling multivariate normal distribution. Defaults to None.
+        - *correlation_matrix* (array_like, optional): Correlation matrix of the coupling multivariate normal distribution. Defaults to None.
 
-            correlation_cholesky (array_like, optional): Correlation Cholesky factor of the coupling multivariate normal distribution. Defaults to None.
+        - *correlation_cholesky* (array_like, optional): Correlation Cholesky factor of the coupling multivariate normal distribution. Defaults to None.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
@@ -2094,7 +2038,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2147,17 +2091,15 @@ class UnifiedDist:
 
     
         #### Args:
-            concentration1 (jnp.ndarray): The first shape parameter of the Beta distribution.
+        - *concentration1* (jnp.ndarray): The first shape parameter of the Beta distribution.
 
-            concentration0 (jnp.ndarray): The second shape parameter of the Beta distribution.
+        - *concentration0* (jnp.ndarray): The second shape parameter of the Beta distribution.
 
-            correlation_matrix (array_like, optional): Correlation matrix of the coupling multivariate normal distribution. Defaults to None.
+        - *correlation_matrix* (array_like, optional): Correlation matrix of the coupling multivariate normal distribution. Defaults to None.
             
-            correlation_cholesky (jnp.ndarray): The Cholesky decomposition of the correlation matrix.
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array
-                of the given shape.
+        - *correlation_cholesky* (jnp.ndarray): The Cholesky decomposition of the correlation matrix.
+
+            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
     
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
     
@@ -2168,7 +2110,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2221,16 +2163,26 @@ class UnifiedDist:
 
     
         #### Args:
-        - *sample* (float, jnp.ndarray, optional): The standard deviation ($\sigma`) of the Gaussian increments. Must be positive. Defaults to 1.0.
-            num_steps (int, optional): The number of steps in the random walk, which determines the event shape of the distribution. Must be positive. Defaults to 1.
-            validate_args (bool, optional): Whether to enable validation of distribution parameters. Defaults to `None`.
+        - *scale* (float, jnp.ndarray, optional): The standard deviation ($\sigma`) of the Gaussian increments. Must be positive. Defaults to 1.0.
+
+        - *num_steps (int, optional): The number of steps in the random walk, which determines the event shape of the distribution. Must be positive. Defaults to 1.
+
+        - *validate_args (bool, optional): Whether to enable validation of distribution parameters. Defaults to `None`.
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
         - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. If provided, events with a `True` mask will be conditioned on `obs`, while the remaining events will be treated as latent variables. Defaults to `None`.
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`. Defaults to 0.
+
         - *shape* (tuple, optional): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
         - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
         - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to `False`.
         
         #### Returns:
@@ -2295,20 +2247,17 @@ class UnifiedDist:
 
         
         #### Args:
-            num_steps (int): Number of steps.
+        - *num_steps* (int): Number of steps.
 
-            transition_matrix (jnp.ndarray): State space transition matrix $\mathbf{A}`.
+        - *transition_matrix* (jnp.ndarray): State space transition matrix $\mathbf{A}`.
 
-            covariance_matrix (jnp.ndarray, optional): Covariance of the innovation noise
-                $\boldsymbol{\epsilon}`. Defaults to None.
+        - *covariance_matrix* (jnp.ndarray, optional): Covariance of the innovation noise $\boldsymbol{\epsilon}`. Defaults to None.
 
-            precision_matrix (jnp.ndarray, optional): Precision matrix of the innovation noise
-                $\boldsymbol{\epsilon}`. Defaults to None.
+        - *precision_matrix (jnp.ndarray, optional): Precision matrix of the innovation noise  $\boldsymbol\epsilon}`. Defaults to None.
 
-            scale_tril (jnp.ndarray, optional): Scale matrix of the innovation noise
-                $\boldsymbol{\epsilon}`. Defaults to None.
+        - *scale_tril (jnp.ndarray, optional): Scale matrix of the innovation noise $\boldsymbol{\epsilon}`. Defaults to None.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
 
@@ -2318,7 +2267,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2375,9 +2324,9 @@ class UnifiedDist:
         *   p is the probability of success on each trial (derived from the logits).
 
         #### Args:
-            logits (jnp.ndarray): Log-odds parameterization of the probability of success.
+        - *logits* (jnp.ndarray): Log-odds parameterization of the probability of success.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -2387,7 +2336,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2444,7 +2393,7 @@ class UnifiedDist:
         #### Args:
         - *probs* (jnp.ndarray): Probability of success on each trial. Must be between 0 and 1.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -2454,7 +2403,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2511,23 +2460,21 @@ class UnifiedDist:
 
         
         #### Args:
-            concentration (jnp.ndarray): The concentration parameter. Must be positive.
-            rate (jnp.ndarray): The rate parameter. Must be positive.
+        - *concentration* (jnp.ndarray): The concentration parameter. Must be positive.
+
+        - *rate* (jnp.ndarray): The rate parameter. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2585,23 +2532,20 @@ class UnifiedDist:
 
         #### Args:
         - *loc* (jnp.ndarray or float, optional): Location parameter. Defaults to 0.0.
-        - *sample* (jnp.ndarray or float, optional): Scale parameter. Must be positive. Defaults to 1.0.
+
+        - *scale* (jnp.ndarray or float, optional): Scale parameter. Must be positive. Defaults to 1.0.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
-        - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-                Defaults to 1.
+        - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building). Defaults to None.
         
         - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
         
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample
-                site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2654,9 +2598,9 @@ class UnifiedDist:
         
         #### Args:
 
-        - *sample* (jnp.ndarray): The scale parameter of the Cauchy distribution. Must be positive.
+        - *scale* (jnp.ndarray): The scale parameter of the Cauchy distribution. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -2666,7 +2610,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2718,23 +2662,19 @@ class UnifiedDist:
         $$
 
         #### Args:
-        - *sample* (float, array): The scale parameter of the distribution. Must be positive.
+        - *scale* (float, array): The scale parameter of the distribution. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
-                JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a
-                sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a  sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2782,29 +2722,25 @@ class UnifiedDist:
         A helper distribution with zero :meth:`log_prob` over the `support` domain.
 
         #### Args:
-            support (numpyro.distributions.constraints.Constraint): The support of this distribution.
+        - *support* (numpyro.distributions.constraints.Constraint): The support of this distribution.
 
-            batch_shape (tuple): Batch shape of this distribution. It is usually safe to
-                set `batch_shape=()`.
+        - *batch_shape* (tuple): Batch shape of this distribution. It is usually safe to set `batch_shape=()`.
 
-            event_shape (tuple): Event shape of this distribution.
+        - *event_shape* (tuple): Event shape of this distribution.
 
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
                 (model building), this is used with `.expand(shape)` to set the
                 distribution's batch shape. When `sample=True` (direct sampling), this is
                 used as `sample_shape` to draw a raw JAX array of the given shape.
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions
-                (used in model building).
+        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
 
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2860,23 +2796,21 @@ class UnifiedDist:
         * (\Gamma(\alpha)) is the Gamma function.
         
         #### Args:
-            concentration (jnp.ndarray): The shape parameter (\\alpha) of the InverseGamma distribution. Must be positive.
-            rate (jnp.ndarray): The rate parameter (\\beta) of the InverseGamma distribution. Must be positive.
+        - *concentration* (jnp.ndarray): The concentration parameter $\alpha$ of the InverseGamma distribution. Must be positive.
+
+        - *rate* (jnp.ndarray): The rate parameter $\beta$ of the InverseGamma distribution. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -2932,23 +2866,21 @@ class UnifiedDist:
         * ( x ) is the random variable.
         
         #### Args:
-            concentration1 (jnp.ndarray): The first shape parameter. Must be positive.
-            concentration0 (jnp.ndarray): The second shape parameter. Must be positive.
+        - *concentration1* (jnp.ndarray): The first shape parameter. Must be positive.
+
+        - *concentration0* (jnp.ndarray): The second shape parameter. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3006,26 +2938,23 @@ class UnifiedDist:
         $$
         
         #### Args:
-            dimension (int): The dimension of the correlation matrices.
+        - *dimension* (int): The dimension of the correlation matrices.
         
-            concentration (ndarray): The concentration/shape parameter of the distribution (often referred to as eta). Must be positive.
+        - *concentration* (ndarray): The concentration/shape parameter of the distribution (often referred to as eta). Must be positive.
 
-            sample_method (str): Either “cvine” or “onion”. Both methods are proposed in [1] and offer the same distribution over correlation matrices. But they are different in how to generate samples. Defaults to “onion”.
+        - *sample_method* (str): Either “cvine” or “onion”. Both methods are proposed in [1] and offer the same distribution over correlation matrices. But they are different in how to generate samples. Defaults to “onion”.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3091,28 +3020,23 @@ class UnifiedDist:
         * (\eta < 1): Prior allows stronger correlations.
 
         #### Args:
-            dimension (int): The dimension of the correlation matrices.
+        - *dimension (int): The dimension of the correlation matrices.
 
-            concentration (float): A parameter controlling the concentration of the distribution
-                around the identity matrix. Higher values indicate greater concentration.
-                Must be greater than 1.
+        - *concentration (float): A parameter controlling the concentration of the distribution around the identity matrix. Higher values indicate greater concentration. Must be greater than 1.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3163,10 +3087,7 @@ class UnifiedDist:
         
         - *sample* (jnp.ndarray): Scale parameter of the Laplace distribution. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
-                JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -3177,9 +3098,9 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3243,26 +3164,23 @@ class UnifiedDist:
         $$
 
         #### Args:
-            base_dist: The base distribution to truncate. Must be univariate and have real support.
-            low: The lower truncation bound. Values less than this are excluded from the distribution.
+        - *base_dist*: The base distribution to truncate. Must be univariate and have real support.
+
+        - *low*: The lower truncation bound. Values less than this are excluded from the distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
-                JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3333,9 +3251,10 @@ class UnifiedDist:
 
         #### Args:
         - *loc* (jnp.ndarray): Location parameter.
+
         - *sample* (jnp.ndarray): Scale parameter.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
 
@@ -3345,9 +3264,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3422,12 +3341,10 @@ class UnifiedDist:
         
         #### Args:
         - *loc* (float): Location parameter.
-        - *sample* (float): Scale parameter.
+
+        - *scale* (float): Scale parameter.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array
-                of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -3438,9 +3355,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3509,11 +3426,11 @@ class UnifiedDist:
         (For $x < a$, $F(x) = 0$; for $x > b$, $F(x) = 1$.
 
         #### Args:
-            low (jnp.ndarray): The lower bound of the uniform distribution's log-space. Must be positive.
+        - *low* (jnp.ndarray): The lower bound of the uniform distribution's log-space. Must be positive.
         
-            high (jnp.ndarray): The upper bound of the uniform distribution's log-space. Must be positive.
+        - *high* (jnp.ndarray): The upper bound of the uniform distribution's log-space. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -3523,9 +3440,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3597,9 +3514,9 @@ class UnifiedDist:
         #### Args:
         - *loc* (jnp.ndarray or float): The location parameter, specifying the median of the distribution. Defaults to 0.0.
         
-        - *sample* (jnp.ndarray or float): The scale parameter, which determines the spread of the distribution. Must be positive. Defaults to 1.0.
+        - *scale* (jnp.ndarray or float): The scale parameter, which determines the spread of the distribution. Must be positive. Defaults to 1.0.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -3609,9 +3526,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3684,9 +3601,9 @@ class UnifiedDist:
 
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3764,9 +3681,9 @@ class UnifiedDist:
                 
         - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - `name` (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3839,9 +3756,9 @@ class UnifiedDist:
         #### Args:
         - `loc` (array_like): Location of the distribution.
         
-            scale_tril_row (array_like): Lower cholesky of rows correlation matrix.
+        - `scale_tril_row` (array_like): Lower cholesky of rows correlation matrix.
         
-            scale_tril_column (array_like): Lower cholesky of columns correlation matrix.
+        - `scale_tril_column` (array_like): Lower cholesky of columns correlation matrix.
         
         - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
@@ -3853,9 +3770,9 @@ class UnifiedDist:
                 
         - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - `name` (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -3943,9 +3860,9 @@ class UnifiedDist:
 
         * `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-        *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         *   **name (str, optional)**:  The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4025,9 +3942,9 @@ class UnifiedDist:
 
                 *   **sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-                *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+                *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-                *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+                *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
                 *   **name (str, optional)**:  The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4096,10 +4013,11 @@ class UnifiedDist:
         \Pr(X = x \mid n, p) = \frac{n!}{x_1! \cdots x_K!} ; \prod_{k=1}^K p_k^{x_k}
         $$
         and $p_k$ is given by the softmax of logits. 
+
         #### Args:
-            logits (jnp.ndarray): Logits for each outcome. Must be at least one-dimensional.
+        - *logits* (jnp.ndarray): Logits for each outcome. Must be at least one-dimensional.
         
-            total_count (jnp.ndarray): The total number of trials.
+        - *total_count* (jnp.ndarray): The total number of trials.
         
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
@@ -4107,14 +4025,13 @@ class UnifiedDist:
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4169,7 +4086,8 @@ class UnifiedDist:
         
         #### Args:
         - *probs* (jnp.ndarray): Vector of probabilities for each outcome. Must sum to 1.
-            total_count (jnp.ndarray): The number of trials.
+
+        - *total_count* (jnp.ndarray): The number of trials.
         
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
@@ -4181,9 +4099,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4246,11 +4164,11 @@ class UnifiedDist:
         #### Args:
         - *loc* (tuple): The mean vector of the distribution.
         
-            covariance_matrix (jnp.ndarray, optional): The covariance matrix of the distribution. Must be positive definite.
+        - *covariance_matrix* (jnp.ndarray, optional): The covariance matrix of the distribution. Must be positive definite.
         
-            precision_matrix (jnp.ndarray, optional): The precision matrix (inverse of the covariance matrix) of the distribution. Must be positive definite.
+        - *precision_matrix* (jnp.ndarray, optional): The precision matrix (inverse of the covariance matrix) of the distribution. Must be positive definite.
         
-            scale_tril (jnp.ndarray, optional): The lower triangular Cholesky decomposition of the covariance matrix.
+        - *scale_tril* (jnp.ndarray, optional): The lower triangular Cholesky decomposition of the covariance matrix.
         
         - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
@@ -4258,14 +4176,13 @@ class UnifiedDist:
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4346,7 +4263,7 @@ class UnifiedDist:
         - *loc* (jnp.ndarray): Location vector, representing the mean of the distribution.
             scale_tril (jnp.ndarray): Lower triangular matrix defining the scale.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -4356,9 +4273,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4426,11 +4343,11 @@ class UnifiedDist:
             $$
 
             #### Args:
-                mean (jnp.ndarray or float): The mean of the distribution.  This is equivalent to the `mu` parameter.
+            - *mean* (jnp.ndarray or float): The mean of the distribution.  This is equivalent to the `mu` parameter.
         
-                concentration (jnp.ndarray or float): The concentration parameter. This is equivalent to the `alpha` parameter.
+            - *concentration* (jnp.ndarray or float): The concentration parameter. This is equivalent to the $alpha$ parameter.
         
-            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
             - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -4440,9 +4357,9 @@ class UnifiedDist:
                 
             - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
             - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4494,11 +4411,11 @@ class UnifiedDist:
         $$
         
         #### Args:
-            total_count (jnp.ndarray): The parameter controlling the shape of the distribution.  Represents the total number of trials.
+        - *total_count* (jnp.ndarray): The parameter controlling the shape of the distribution.  Represents the total number of trials.
         
-            logits (jnp.ndarray): The log-odds parameter.  Related to the probability of success.
+        - *logits* (jnp.ndarray): The log-odds parameter.  Related to the probability of success.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -4508,9 +4425,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4563,11 +4480,11 @@ class UnifiedDist:
         $$
         
         #### Args:
-            total_count (jnp.ndarray):  A numeric vector, matrix, or array representing the parameter.
+        - *total_count* (jnp.ndarray):  A numeric vector, matrix, or array representing the parameter.
 
         - *probs* (jnp.ndarray): A numeric vector representing event probabilities. Must sum to 1.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
         
@@ -4577,9 +4494,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4633,12 +4550,9 @@ class UnifiedDist:
         #### Args:
         - *loc* (jnp.ndarray): The mean of the distribution.
         
-        - *sample* (jnp.ndarray): The standard deviation of the distribution.
+        - *scale* (jnp.ndarray): The standard deviation of the distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
-                JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -4648,9 +4562,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4705,12 +4619,12 @@ class UnifiedDist:
         
         #### Args:
 
-        - predictor (jnp.ndarray): Prediction in real domain; typically this is output of a linear model.
+        - *predictor* (jnp.ndarray): Prediction in real domain; typically this is output of a linear model.
         
-        - cutpoints (jnp.ndarray): Positions in real domain to separate categories.
+        - *cutpoints* (jnp.ndarray): Positions in real domain to separate categories.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
@@ -4719,9 +4633,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4776,31 +4690,24 @@ class UnifiedDist:
         $$
         
         #### Args:
-        - *sample* (jnp.ndarray or float): Scale parameter of the Pareto distribution.
-                Must be positive.
+        - *scale* (jnp.ndarray or float): Scale parameter of the Pareto distribution. Must be positive.
         
-            alpha (jnp.ndarray or float): Shape parameter of the Pareto distribution.
-                Must be positive.
+        - *alpha* (jnp.ndarray or float): Shape parameter of the Pareto distribution. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4855,24 +4762,22 @@ class UnifiedDist:
         
         #### Args:
         - *rate* (jnp.ndarray): The rate parameter, representing the average number of events.
-            is_sparse (bool, optional): Indicates whether the `rate` parameter is sparse. If `True`, a specialized sparse sampling implementation is used, which can be more efficient for models with many zero-rate components (e.g., zero-inflated models). Defaults to `False`.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *is_sparse* (bool, optional): Indicates whether the `rate` parameter is sparse. If `True`, a specialized sparse sampling implementation is used, which can be more efficient for models with many zero-rate components (e.g., zero-inflated models). Defaults to `False`.
+
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -4922,30 +4827,21 @@ class UnifiedDist:
         $$
         
         #### Args:
-            concentration (jnp.ndarray): The concentration parameter, representing the
-                direction towards which the samples are concentrated.  Must be a
-                JAX array with at least one dimension.
+        - *concentration* (jnp.ndarray): The concentration parameter, representing the direction towards which the samples are concentrated.  Must be a JAX array with at least one dimension.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling),
-                this is used as `sample_shape` to draw a raw JAX array of the
-                given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
-        - *event* (int): The number of batch dimensions to reinterpret as event
-                dimensions (used in model building).
+        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5002,25 +4898,23 @@ class UnifiedDist:
             $$
 
             #### Args:
-                temperature (jnp.ndarray): The temperature parameter, must be positive.
-                logits (jnp.ndarray): The logits parameter.
+            - *temperature* (jnp.ndarray): The temperature parameter, must be positive.
+
+            - *logits* (jnp.ndarray): The logits parameter.
         
-            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                    this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True`
-                    (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
             - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
             - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-            - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample
-                    site. This is essential for building complex distributions like `MixtureSameFamily`.
+            - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
             - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
             - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5085,26 +4979,23 @@ class UnifiedDist:
         $$
         
         #### Args:
-            base_dist: The base distribution to truncate.  Must be a univariate distribution with real support.
+        - *base_dist*: The base distribution to truncate.  Must be a univariate distribution with real support.
         
-            high (float, jnp.ndarray, optional): The upper truncation point. The support of the new distribution is $(-\infty, \text{high}]`. Defaults to 0.0.
+        - *high* (float, jnp.ndarray, optional): The upper truncation point. The support of the new distribution is $(-\infty, \text{high}]$. Defaults to 0.0.
             
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5277,9 +5168,9 @@ class UnifiedDist:
                 
         *   **sample (bool, optional):** A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        *   **seed (int, optional):** An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        *   **seed (int, optional):** An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        *   **obs (jnp.ndarray, optional):** The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        *   **obs (jnp.ndarray, optional):** The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         *   **name (str, optional):** The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5334,17 +5225,13 @@ class UnifiedDist:
                - \log\!\left( e^{\tfrac{x - \text{loc}}{\text{scale}}} + e^{-\tfrac{x - \text{loc}}{\text{scale}}} \right)
         $$
         
-        #### Args:
-        - *loc*: Location parameter.
-            scale: Scale parameter.
-        $$
         
         #### Args:
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling),
-                this is used as `sample_shape` to draw a raw JAX array of the
-                given shape.
+        - *loc*: Location parameter.
+
+        - *scale*: Scale parameter.
+
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
@@ -5357,9 +5244,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5409,11 +5296,13 @@ class UnifiedDist:
         $$
         
         #### Args:
-            df (jnp.ndarray): Degrees of freedom, must be positive.
+        - *df* (jnp.ndarray): Degrees of freedom, must be positive.
+
         - *loc* (jnp.ndarray): Location parameter, defaults to 0.0.
-        - *sample* (jnp.ndarray): Scale parameter, defaults to 1.0.
+
+        - *scale* (jnp.ndarray): Scale parameter, defaults to 1.0.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
         
@@ -5423,9 +5312,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5477,7 +5366,7 @@ class UnifiedDist:
         $$
         
         #### Args:
-            batch_shape (tuple): The shape of the batch dimension.
+        - *batch_shape* (tuple): The shape of the batch dimension.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions.
         
@@ -5487,9 +5376,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5544,17 +5433,17 @@ class UnifiedDist:
         where $p(x)$ is the probability density function of the base distribution.
         
         #### Args:
-            base_dist: The base distribution to truncate.
+        - *base_dist*: The base distribution to truncate.
 
-            low: The lower bound for truncation.
+        - *low*: The lower bound for truncation.
 
-            high: The upper bound for truncation.
+        - *high*: The upper bound for truncation.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5592,33 +5481,28 @@ class UnifiedDist:
         Samples from a Uniform distribution, which is a continuous probability distribution
         where all values within a given interval are equally likely.
         
-        $$   f(x) = \frac{1}{b - a}, \text{ for } a \le x \le b
+        $$   
+        f(x) = \frac{1}{b - a}, \text{ for } a \le x \le b
         $$
         
         #### Args:
-            low (jnp.ndarray): The lower bound of the uniform interval.
+        - *low* (jnp.ndarray): The lower bound of the uniform interval.
         
-            high (jnp.ndarray): The upper bound of the uniform interval.
+        - *high* (jnp.ndarray): The upper bound of the uniform interval.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this
-                is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions
-                (used in model building).
+        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object
-                instead of creating a sample site. This is essential for building
-                complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5673,25 +5557,21 @@ class UnifiedDist:
             $$
         
             #### Args:
-                log_factor (jnp.ndarray): Log factor for the unit distribution. This parameter determines the
-                - *shape* and batch size of the distribution.
+            - *log_factor* (jnp.ndarray): Log factor for the unit distribution. This parameter determines the *shape* and batch size of the distribution.
         
-            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                    this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True`
-                    (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
             - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
             - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-            - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample
-                    site. This is essential for building complex distributions like `MixtureSameFamily`.
+            - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
             - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
             - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5745,25 +5625,23 @@ class UnifiedDist:
 
         
         #### Args:
-        - *sample* (jnp.ndarray): The scale parameter of the Weibull distribution. Must be positive.
-            concentration (jnp.ndarray): The shape parameter of the Weibull distribution. Must be positive.
+        - *scale* (jnp.ndarray): The scale parameter of the Weibull distribution. Must be positive.
+
+        - *concentration* (jnp.ndarray): The concentration parameter of the Weibull distribution. Must be positive.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5813,21 +5691,15 @@ class UnifiedDist:
         $$
         
         #### Args:
-            concentration (jnp.ndarray): Positive concentration parameter analogous to the
-                concentration of a :class:`Gamma` distribution. The concentration must be larger
-                than the dimensionality of the scale matrix.
+        - *concentration* (jnp.ndarray): Positive concentration parameter analogous to the concentration of a Gamma distribution. The concentration must be larger than the dimensionality of the scale matrix.
         
-            scale_matrix (jnp.ndarray, optional): Scale matrix analogous to the inverse rate of a :class:`Gamma`
-                distribution.
+        - *scale_matrix* (jnp.ndarray, optional): Scale matrix analogous to the inverse rate of a Gamma distribution.
         
-            rate_matrix (jnp.ndarray, optional): Rate matrix anaologous to the rate of a :class:`Gamma`
-                distribution.
+        - *rate_matrix* (jnp.ndarray, optional): Rate matrix anaologous to the rate of a Gamma distribution.
         
-            scale_tril (jnp.ndarray, optional): Cholesky decomposition of the :code:`scale_matrix`.
+        - *scale_tril* (jnp.ndarray, optional): Cholesky decomposition of the :code:`scale_matrix`.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
         
@@ -5838,9 +5710,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5920,9 +5792,9 @@ class UnifiedDist:
                 
         - sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - name (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -5960,9 +5832,11 @@ class UnifiedDist:
             $$
         
             #### Args:
-                rate (jnp.ndarray): The rate parameter of the underlying Poisson distribution.
+            - *gate* (jnp.ndarray): The probability of observing a zero.
+
+            - *rate* (jnp.ndarray): The rate parameter of the underlying Poisson distribution.
         
-            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
             - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -5972,9 +5846,9 @@ class UnifiedDist:
                 
             - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
             - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6024,9 +5898,11 @@ class UnifiedDist:
         $$
         
         #### Args:
-        - *sample* (array_like): Standard deviation of the underlying normal distribution before the zerosum constraint is enforced.
+        - *scale* (array_like): Standard deviation of the underlying normal distribution before the zerosum constraint is enforced.
+
+        - *event_shape* (tuple): Shape of the event dimension of the distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -6036,9 +5912,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6086,15 +5962,17 @@ class UnifiedDist:
         The Bernoulli distribution models a single trial with two possible outcomes: success or failure.
         It is parameterized by the probability of success, often denoted as 'p'.
         
-        $$   P(X=1) = p \\
-           P(X=0) = 1 - p
+        $$  
+        P(X=1) = p \\
+        P(X=0) = 1 - p
         $$
         
         #### Args:
         - *probs* (jnp.ndarray, optional):  Probability of success for each Bernoulli trial. Must be between 0 and 1.
-            logits (jnp.ndarray, optional): Log-odds of success for each Bernoulli trial.  `probs = sigmoid(logits)`.
+
+        - *logits* (jnp.ndarray, optional): Log-odds of success for each Bernoulli trial.  `probs = sigmoid(logits)`.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -6104,9 +5982,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6161,7 +6039,7 @@ class UnifiedDist:
             
         - *logits* (jnp.ndarray, optional): The log-odds of success for each trial.  `probs = jax.nn.sigmoid(logits)`.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -6171,9 +6049,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6228,6 +6106,8 @@ class UnifiedDist:
         #### Args:
         - *probs* (jnp.ndarray): A 1D array of probabilities for each category. Must sum to 1.
 
+        -  *logits* (jnp.ndarray): A 1D array of unnormalized log probabilities for each category.
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
                     (model building), this is used with `.expand(shape)` to set the
                     distribution's batch shape. When `sample=True` (direct sampling),
@@ -6245,9 +6125,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6300,9 +6180,10 @@ class UnifiedDist:
         
         #### Args:
         - *probs* (jnp.ndarray, optional): Probability of success on each trial. Must be between 0 and 1.
-            logits (jnp.ndarray, optional): Log-odds of success on each trial.  `probs = jax.nn.sigmoid(logits)`.
+
+        - *logits* (jnp.ndarray, optional): Log-odds of success on each trial.  `probs = jax.nn.sigmoid(logits)`.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -6312,9 +6193,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6362,31 +6243,29 @@ class UnifiedDist:
         are a list) or a MixtureSameFamily (when component distributions are a single
         distribution).
         
-        $$   p(x) = \sum_{i=1}^{K} w_i p_i(x)
+        $$   
+        p(x) = \sum_{i=1}^{K} w_i p_i(x)
         $$
         
         #### Args:
 
-         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                    (model building), this is used with `.expand(shape)` to set the
-                    distribution's batch shape. When `sample=True` (direct sampling),
-                    this is used as `sample_shape` to draw a raw JAX array of the
-                    given shape.
+        - *mixing_distribution* (BI.distribution): The distribution used to determine the mixing weights.
+
+        - *component_distributions* (list[BI.distribution]): The list of component distributions.
+
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
-         - *event* (int): The number of batch dimensions to reinterpret as event
-                    dimensions (used in model building).
+         - *event* (int): The number of batch dimensions to reinterpret as event  dimensions (used in model building).
         
          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-         - *create_obj* (bool): If True, returns the raw BI distribution
-                    object instead of creating a sample site. This is essential for
-                    building complex distributions like `MixtureSameFamily`.
+         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6444,15 +6323,15 @@ class UnifiedDist:
         $$
         
         #### Args:
-            total_count (int or jnp.ndarray): The number of trials.
+        - *total_count* (int or jnp.ndarray): The number of trials.
         
         - *probs* (jnp.ndarray, optional): Event probabilities. Must sum to 1.
         
-            logits (jnp.ndarray, optional): Event log probabilities.
+        - *logits* (jnp.ndarray, optional): Event log probabilities.
         
-            total_count_max (int, optional): An optional integer providing an upper bound on `total_count`. This is used for performance optimization with `lax.scan` when `total_count` is a dynamic JAX tracer, helping to avoid recompilation.
+        - *total_count_max (int, optional): An optional integer providing an upper bound on `total_count`. This is used for performance optimization with `lax.scan` when `total_count` is a dynamic JAX tracer, helping to avoid recompilation.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -6462,9 +6341,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6515,28 +6394,25 @@ class UnifiedDist:
         $$
         
         #### Args:
-            temperature (float): The temperature parameter.
+        - *temperature* (jnp.ndarray): The temperature parameter. Must be greater than 0.
 
         - *probs* (jnp.ndarray, optional): The probability of success. Must be in the interval `[0, 1]`. Only one of `probs` or `logits` can be specified.
             
-            logits (jnp.ndarray, optional): The log-odds of success. Only one of `probs` or `logits` can be specified.
+        - *logits* (jnp.ndarray, optional): The log-odds of success. Must be in the interval `[-inf, inf]`. Only one of `probs` or `logits` can be specified.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used
-                with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6589,24 +6465,21 @@ class UnifiedDist:
         #### Args:
         - *loc* (float): Location parameter of the Cauchy distribution.
         
-        - *sample* (float): Scale parameter of the Cauchy distribution.
+        - *scale* (float): Scale parameter of the Cauchy distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6656,33 +6529,26 @@ class UnifiedDist:
         The truncation modifies the probability density function (PDF) of the base distribution,
         effectively removing observations outside the defined interval.
         
-        $$   p(x) = \frac{p(x)}{P(\text{lower} \le x \le \text{upper})}
+        $$   
+        p(x) = \frac{p(x)}{P(\text{lower} \le x \le \text{upper})}
         $$
         
         #### Args:
-            base_dist: The base distribution to be truncated. This should be a univariate
-                distribution. Currently, only the following distributions are supported:
-                Cauchy, Laplace, Logistic, Normal, and StudentT.
+        - *base_dist*: The base distribution to be truncated. This should be a univariate distribution. Currently, only the following distributions are supported: Cauchy, Laplace, Logistic, Normal, and StudentT.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the distribution's
-                batch shape. When `sample=True` (direct sampling), this is used as `sample_shape`
-                to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions
-                (used in model building).
+        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of
-                creating a sample site. This is essential for building complex distributions
-                like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6747,28 +6613,22 @@ class UnifiedDist:
         
         #### Args:
         - *loc* (float): The location parameter of the normal distribution.
+
         - *sample* (float): The scale parameter of the normal distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling),
-                this is used as `sample_shape` to draw a raw JAX array of the
-                given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
-        - *event* (int): The number of batch dimensions to reinterpret as event
-                dimensions (used in model building).
+        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution
-                object instead of creating a sample site. This is essential for
-                building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6827,31 +6687,27 @@ class UnifiedDist:
 
         
         #### Args:
-            base_dist (Distribution): The base distribution to be zero-inflated (e.g., Poisson,     NegativeBinomial).
+        - *base_dist* (Distribution): The base distribution to be zero-inflated (e.g., Poisson,     NegativeBinomial).
 
-            gate (jnp.ndarray, optional): Probability of extra zeros (between 0 and 1).
+        - *gate* (jnp.ndarray, optional): Probability of extra zeros (between 0 and 1).
 
-            gate_logits (jnp.ndarray, optional): Log-odds of extra zeros.
+        - *gate_logits* (jnp.ndarray, optional): Log-odds of extra zeros.
 
-            validate_args (bool, optional): Whether to validate parameter values. Defaults to None.
+        - *validate_args* (bool, optional): Whether to validate parameter values. Defaults to None.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
-                JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6903,26 +6759,23 @@ class UnifiedDist:
         $$
         
         #### Args:
-            mean (jnp.ndarray or float): The mean of the Negative Binomial 2 distribution.
-            concentration (jnp.ndarray or float): The concentration parameter of the Negative Binomial 2 distribution.
+        - *mean* (jnp.ndarray or float): The mean of the Negative Binomial 2 distribution.
+
+        - *concentration* (jnp.ndarray or float): The concentration parameter of the Negative Binomial 2 distribution.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building),
-                this is used with `.expand(shape)` to set the distribution's batch shape.
-                When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw
-                JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
         
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                This is essential for building complex distributions like `MixtureSameFamily`.
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
@@ -6971,9 +6824,9 @@ class UnifiedDist:
 
                 
         #### Args:
-            total_count (jnp.ndarray): The total number of events.
+        - *total_count* (jnp.ndarray): The total number of events.
         
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
         
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
         
@@ -6983,9 +6836,9 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. [7] This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the    function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
