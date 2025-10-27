@@ -4334,13 +4334,30 @@ class UnifiedDist:
         r"""### 
             Samples from a Negative Binomial 
         
-            This distribution is parameterized as a GammaPoisson with a modified rate.
-            It represents the number of events occurring in a fixed amount of time or trials,
-            where each event has a probability of success.
+            The NB2 parameterisation of the negative-binomial distribution is a count distribution used for modelling over-dispersed count data (variance > mean). It is defined such that the variance grows **quadratically** in the mean:
+
+            $$
+            mathrm{Var}(Y) = \mu + \alpha,\mu^2,
+            $$
+            where (\mu = \mathbb{E}[Y]) and (\alpha>0) is the dispersion (heterogeneity) parameter.
+            Because of this quadratic variance growth, it is called the NB2 family.
         
             $$
             P(k) = \frac{\Gamma(k + \alpha)}{\Gamma(k + 1) \Gamma(\alpha)} \left(\frac{\beta}{\alpha + \beta}\right)^k \left(1 - \frac{\beta}{\alpha + \beta}\right)^k
             $$
+
+            One commonly used form of the NB2 parameterisation is obtained via a Poisson‐Gamma mixture:
+            $$
+            Y \mid \lambda \sim \text{Poisson}(\lambda), \quad \lambda \sim \text{Gamma}!\Big(\frac{1}{\alpha},,\frac{\mu,\alpha}{1}\Big)
+            $$
+
+            which marginalises to:
+
+            $$
+            \Pr(Y = y) = \frac{\Gamma(y + \tfrac1\alpha)}{\Gamma(\tfrac1\alpha); y!}; \bigg(\frac{1}{1 + \alpha,\mu}\bigg)^{1/\alpha}; \bigg(\frac{\alpha,\mu}{1 + \alpha,\mu}\bigg)^{y}, \quad y = 0,1,2,\dots
+            $$
+            This parameterisation matches the NB2 form with mean $\mu$ and dispersion $\alpha$. (See Hilbe (2011) forderivation.) 
+
 
             #### Args:
             - *mean* (jnp.ndarray or float): The mean of the distribution.  This is equivalent to the `mu` parameter.
@@ -4374,6 +4391,10 @@ class UnifiedDist:
                 m.dist.negative_binomial2(mean=2.0, concentration=3.0, sample=True)
         
             #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomial
+
+            #### Reference:
+            * [Negative Binomial Regression]9https://www.cambridge.org/core/books/negative-binomial-regression/12D6281A46B9A980DC6021080C9419E7)
+            * [Negative Binomial Regression: Second Edition](https://assets.cambridge.org/97805211/98158/excerpt/9780521198158_excerpt.pdf)
         """
 
            
@@ -4406,10 +4427,7 @@ class UnifiedDist:
         
         The Negative Binomial Logits distribution is a generalization of the Negative Binomial distribution where the parameter 'r' (number of successes) is expressed as a function of a logit parameter. This allows for more flexible modeling of count data.
         
-        $$
-        P(k) = \frac{e^{-n \cdot \text{softplus}(x)} \cdot \text{softplus}(-x)^k}{k!}
-        $$
-        
+ 
         #### Args:
         - *total_count* (jnp.ndarray): The parameter controlling the shape of the distribution.  Represents the total number of trials.
         
@@ -4475,9 +4493,7 @@ class UnifiedDist:
         
         The Negative Binomial distribution models the number of failures before the first success in a sequence of independent Bernoulli trials.  It is characterized by two parameters: 'concentration' (r) and 'rate' (p).  In this implementation, the 'concentration' parameter is derived from 'total_count' and the 'rate' parameter is derived from 'probs'.
         
-        $$
-        P(k) = \binom{k+r-1}{r-1} p^r (1-p)^k
-        $$
+
         
         #### Args:
         - *total_count* (jnp.ndarray):  A numeric vector, matrix, or array representing the parameter.
@@ -4544,7 +4560,8 @@ class UnifiedDist:
         It's a continuous probability distribution that arises frequently in statistics and
         probability theory.
         
-        $$   p(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)
+        $$   
+        f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp!\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)
         $$
         
         #### Args:
@@ -4582,6 +4599,10 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#normal
+
+        #### References:
+        * [Wikipedia: Normal distribution – PDF](https://en.wikipedia.org/wiki/Normal_distribution#Probability_density_function)
+        * [Wolfram MathWorld: Normal Distribution](https://mathworld.wolfram.com/NormalDistribution.html)
         """
 
            
@@ -4609,13 +4630,30 @@ class UnifiedDist:
 
         r"""### Ordered Logistic
         
-        A categorical distribution with ordered outcomes. This distribution represents the probability of an event falling into one of several ordered categories, based on a predictor variable and a set of cutpoints. The probability of an event falling into a particular category is determined by the number of categories above it.
+        The ordered logistic distribution is used for modeling **ordinal** outcome variables $ Y \in {1,2,\dots,K} $ (i.e., categories with a natural order) via a latent continuous predictor $ \eta $ and a set of increasing *cut-points* $ c_1 < c_2 < \cdots < c_{K-1} $. When $ \eta $ crosses thresholds, the observed  $Y$  
         
-        $$   P(Y = k) = \begin{cases}
-                1 & \text{if } k = 0 \\
-                \frac{1}{k} & \text{if } k > 0
-            \end{cases}
+        ### PMF (Probability Mass Function)
+
+        Let $ \eta \in \mathbb R $ be the linear predictor (for example $ \eta = x^\top \beta $), let cutpoints $ c = (c_1, \dots,c_{K-1}) $ satisfy $ c_1 < c_2 < \cdots < c_{K-1} $. Define also $ c_0 = -\infty $, $ c_K = +\infty $.
+        Then for (k \in {1,\dots,K}),
         $$
+        \Pr(Y = k \mid \eta, c) =
+        \begin{cases}
+        1 - \mathrm{logit}^{-1}(\eta - c_1), & k = 1, [6pt]
+        \mathrm{logit}^{-1}(\eta - c_{k-1}) - \mathrm{logit}^{-1}(\eta - c_{k}), & 1 < k < K, [6pt]
+        \mathrm{logit}^{-1}(\eta - c_{K-1}), & k = K.
+        \end{cases}
+        $$
+        Here $ \mathrm{logit}^{-1}(z) = \frac{1}{1 + e^{-z}} $. ([Stan][2])
+        In other words:
+        $$
+        \Pr(Y \le k \mid \eta, c) = \mathrm{logit}^{-1}(\eta - c_k),
+        $$
+        and so
+        $$
+        \Pr(Y = k) = \Pr(Y \le k) - \Pr(Y \le k-1).
+        $$
+        This formulation appears in e.g. the CDF‐link setup of the proportional odds model. 
         
         #### Args:
 
@@ -4651,6 +4689,11 @@ class UnifiedDist:
         
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#orderedlogistic
+
+        #### Reference:
+        [1]: https://en.wikipedia.org/wiki/Ordered_logit 
+        [2]: https://mc-stan.org/docs/2_21/functions-reference/ordered-logistic-distribution.html 
+        [3]: https://labdisia.disia.unifi.it/grilli/files/Papers/Ordered_Logit.pdf"
         """
 
            
@@ -4680,13 +4723,20 @@ class UnifiedDist:
         r"""### Pareto 
         Samples from a Pareto distribution.
         
-        The Pareto distribution is a power-law probability distribution that is often
-        used to model income, wealth, and the size of cities. It is defined by two
-        parameters: alpha (shape) and scale.
+        The **Pareto distribution**, named after economist Vilfredo Pareto, is a **power-law** probability distribution used to describe phenomena with “rich-get-richer” or “heavy-tail” properties — for example, income distribution, city sizes, or wealth concentration.
+        It is characterized by:
+
+        * a **scale parameter** $ x_m > 0 $ (the minimum possible value), and
+        * a **shape parameter** $ \alpha > 0 $ (which controls the tail heaviness).
+
+        A random variable $ X \sim \text{Pareto}(\alpha, x_m) $ takes values $ x \ge x_m $.
         
         $$
-           f(x) = \frac{\alpha \cdot \text{scale}^{\alpha}}{x^{\alpha + 1}}
-            \text{ for } x \geq \text{scale}
+        f(x \mid \alpha, x_m) =
+        \begin{cases}
+        \dfrac{\alpha x_m^\alpha}{x^{\alpha + 1}}, & x \ge x_m, \
+        0, & x < x_m.
+        \end{cases}
         $$
         
         #### Args:
@@ -4728,6 +4778,11 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#pareto
+
+        #### Reference:
+        * [Wikipedia: Pareto distribution – PDF](https://en.wikipedia.org/wiki/Pareto_distribution#Probability_density_function)
+        * Arnold, B. C. (2015). *Pareto Distributions*, Second Edition. CRC Press.
+
         """
 
            
@@ -4755,11 +4810,22 @@ class UnifiedDist:
 
         r"""### Poisson
 
-        Creates a Poisson distribution, a discrete probability distribution that models the number of events occurring in a fixed interval of time or space if these events occur with a known average rate and independently of the time since the last event.
-        
-        $$  \mathrm{rate}^k \frac{e^{-\mathrm{rate}}}{k!}
+        The **Poisson distribution** models the probability of observing a given number of events $k$ occurring in a fixed interval of time or space when these events happen independently and at a constant average rate $ \lambda > 0 $.
+        It is widely used for modeling **count data**, such as the number of emails received per hour or mutations in a DNA strand per unit length.
+
+        Formally,
         $$
-        
+        K \sim \text{Poisson}(\lambda)
+        $$
+        where $ \lambda $ is both the **mean** and **variance** of the distribution.
+
+        The probability mass function (PMF) of the Poisson distribution is given by:
+        $$
+        P(K = k \mid \lambda) =
+        \frac{e^{-\lambda} \lambda^k}{k!},
+        \quad k = 0, 1, 2, \dots
+        $$
+
         #### Args:
         - *rate* (jnp.ndarray): The rate parameter, representing the average number of events.
 
@@ -4792,6 +4858,10 @@ class UnifiedDist:
             m.dist.poisson(rate=2.0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#poisson
+
+        #### References:
+        * [Wikipedia: Poisson distribution – PMF](https://en.wikipedia.org/wiki/Poisson_distribution#Probability_mass_function)
+        * Johnson, N. L., Kotz, S., & Kemp, A. W. (1992). *Univariate Discrete Distributions* (2nd ed.). Wiley.
         """
 
            
@@ -4819,12 +4889,8 @@ class UnifiedDist:
 
         r"""### Projected Normal 
         
-        This distribution over directional data is qualitatively similar to the von
-        Mises and von Mises-Fisher distributions, but permits tractable variational
-        inference via reparametrized gradients.
-        
-        $$   p(x) = \frac{1}{Z} \exp\left(-\frac{1}{2\sigma^2} ||x - \mu||^2\right)
-        $$
+        The projected normal distribution arises by taking a multivariate normal vector $ \mathbf X \sim \mathcal N_n (\boldsymbol\mu, \boldsymbol\Sigma) $ in $\mathbb R^n$ and projecting it to the unit sphere. This distribution is commonly used in directional statistics (data on circles or spheres) and supports asymmetric and even multimodal behaviours depending on parameters.
+
         
         #### Args:
         - *concentration* (jnp.ndarray): The concentration parameter, representing the direction towards which the samples are concentrated.  Must be a JAX array with at least one dimension.
@@ -4862,6 +4928,9 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#projectednormal
+
+
+
         """
 
            
@@ -4889,13 +4958,22 @@ class UnifiedDist:
 
         r"""### Relaxed Bernoulli Logits
         
-            Represents a relaxed version of the Bernoulli distribution, parameterized by logits and a temperature.
-            The temperature parameter controls the sharpness of the distribution.  The distribution is defined
-            by transforming the output of a Logistic distribution through a sigmoid function.
-        
+            The Relaxed Bernoulli (logits) is a **continuous** relaxation of the standard Bernoulli distribution, parameterised by logits (or probabilities) and a **temperature** parameter. Rather than producing strictly 0 or 1, it produces values in the continuous interval (0, 1). As the temperature → 0 the distribution approximates a Bernoulli; as temperature → $\infty$ the distribution approximates a uniform distribution.
+
+            It is used in variational inference and deep-learning contexts to allow gradient-based optimisation through otherwise discrete Bernoulli draws (see the “Concrete” or “Gumbel-Softmax” literature: The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables  and Categorical Reparameterization with Gumbel‑Softmax ). 
+
+            Because this is a continuous relaxation, the “density” is defined over the unit interval (0,1) rather than a pmf at {0,1}. Using logistic or Gumbel‐softmax style construction one can express it as:
+
+            If logits = ( \ell ), and temperature = ( \tau > 0 ), then one generates
             $$
-                P(x) = \sigma\left(\frac{x}{\text{temperature}}\right)
+            u \sim \mathrm{Uniform}(0,1),\quad
+            g = -\log(-\log(u)),\quad
+            x = \sigma\big((\ell + g)/\tau\big)
             $$
+            where $ \sigma(\cdot) $ is the logistic (sigmoid) function. Then $x \in (0,1)$ has the RelaxedBernoulli distribution. 
+
+            The exact density formula can be derived via change of variables from logistic/Gumbel, but is somewhat involved (including Jacobian of sigmoid transform). 
+      
 
             #### Args:
             - *temperature* (jnp.ndarray): The temperature parameter, must be positive.
@@ -4930,6 +5008,9 @@ class UnifiedDist:
         
             #### Wrapper of:
                 https://num.pyro.ai/en/stable/distributions.html#relaxed-bernoulli-logits
+            
+            #### Reference:
+            * https://arxiv.org/pdf/1611.00712
         """
 
            
@@ -4957,26 +5038,22 @@ class UnifiedDist:
 
         r"""### Right Truncated
         
-        Samples from a right-truncated distribution.
-        
-        This distribution truncates the base distribution at a specified high value.  Values greater than `high` are discarded,
-        effectively creating a distribution that is only supported up to that point. This is useful for modeling data
-        where observations are only possible within a certain range.
-        
-        The probability density function (PDF) of the truncated distribution is:
+        A right-truncated distribution is a statistical distribution that arises when the possible values  of a random variable are restricted to be below a certain specified value `high`. In essence, the right tail of the original distribution is "cut off" at a particular point, and the remaining probability is redistributed among the allowable values. This type of distribution is common in various fields where there are inherent upper limits or observational constraints.
 
+        The probability density function (PDF) for a continuous right-truncated distribution or the probability mass function (PMF) for a discrete one is derived from the original distribution by normalizing it over the restricted range.
+
+        **For a continuous random variable X:**
+
+        If the original probability density function is `f(x)` and the cumulative distribution function is `F(x)`, and the distribution is right-truncated at a value `b` (meaning `x ≤ b`), the new PDF, `f_T(x)`, is:
         $$
-           f_{\text{trunc}}(x) = \frac{f_{\text{base}}(x)}{F_{\text{base}}(\text{high})} \quad \text{for } x \le \text{high}
+        f_T(x) = \begin{cases} \frac{f(x)}{F(b)} & \text{if } x \le b \\ 0 & \text{if } x > b \end{cases}
         $$
 
-        where $f_{\text{base}}(x)` is the PDF of the base distribution and
-        $F_{\text{base}}(\text{high})` is the cumulative distribution function (CDF)
-        of the base distribution evaluated at `high`.
-    
-        
-        where $f(x)` is the probability density function (PDF) of the base distribution and $P(X \le high)` is the
-        cumulative distribution function (CDF) of the base distribution evaluated at `high`.
-        $$
+        **For a discrete random variable X:**
+
+        If the original probability mass function is `P(X = k)` and the cumulative distribution function is `F(k)`, and the distribution is right-truncated at a value `b` (meaning `k ≤ b`), the new PMF, `P_T(X = k)`, is:
+
+        $$P_T(X=k) = \begin{cases} \frac{P(X=k)}{F(b)} & \text{if } k \le b \\ 0 & \text{if } k > b \end{cases}$$
         
         #### Args:
         - *base_dist*: The base distribution to truncate.  Must be a univariate distribution with real support.
