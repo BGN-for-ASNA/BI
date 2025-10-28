@@ -33,12 +33,12 @@ class Neteffect(array_manip):
 
     # Sender receiver  ----------------------
     
-    def nodes_random_effects(self,N_id, sr_mu = 0, sr_sd = 1, sr_sigma_mu = 0, sr_sigma_sd = 2.5, cholesky_dim = 2, cholesky_density = 2.5, sample = False):
-        sr_raw =  dist.normal(sr_mu, sr_sd, shape=(2, N_id), name = 'sr_raw', sample = sample)
+    def nodes_random_effects(self,N_id,  sr_sigma_mu = 0, sr_sigma_sd = 2.5, cholesky_dim = 2, cholesky_density = 2.5, sample = False):
+        # sr_mu and sr_sd should not be changed as XXX
+        sr_raw =  dist.normal(0, 1, shape=(2, N_id), name = 'sr_raw', sample = sample)
         sr_sigma =  dist.truncated_normal(sr_sigma_mu, sr_sigma_sd, low = 0, shape= (2,), name = 'sr_sigma', sample = sample)
         sr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
         rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
-
         return rf, sr_raw, sr_sigma, sr_L
    
     def nodes_terms(self, sender_predictors = None, receiver_predictors = None,
@@ -102,10 +102,9 @@ class Neteffect(array_manip):
 
     def sender_receiver(self,sender_predictors = None, receiver_predictors = None,  
                         #Fixed effect parameters
-                        s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1,                         
+                        s_mu = 0, s_sd = 2.5, r_mu = 0, r_sd = 2.5,                         
                         #Random effect parameters
-                        sr_mu = 0, sr_sd = 1, 
-                        sr_sigma_mu = 0, sr_sigma_sd = 1,
+                        sr_sigma_mu = 0, sr_sigma_sd = 2.5,
                         cholesky_dim = 2, cholesky_density = 2.5,
                         sample = False):
         """Compute sender-receiver effects combining both fixed and random effects.
@@ -146,12 +145,11 @@ class Neteffect(array_manip):
 
         sr_ff, focal_effects, target_effects = self.nodes_terms(
             sender_predictors, receiver_predictors,
-            N_var_sender = N_var_sender,N_var_receiver=N_var_receiver,
             s_mu = s_mu, s_sd = s_sd, r_mu = r_mu, r_sd = r_sd, 
             sample = sample 
         )
         sr_rf, sr_raw, sr_sigma, sr_L = self.nodes_random_effects(
-            N_id, sr_mu = sr_mu, sr_sd = sr_sd, sr_sigma_mu = sr_sigma_mu, 
+            N_id, sr_sigma_mu = sr_sigma_mu, 
             sr_sigma_sd = sr_sigma_sd, cholesky_dim = cholesky_dim, 
             cholesky_density = cholesky_density,  sample = sample
             ) # shape = N_id
@@ -177,7 +175,7 @@ class Neteffect(array_manip):
             return jax.vmap(Neteffect.mat_to_edgl, in_axes=2, out_axes=2)(dyadic_effect_mat)
 
     @staticmethod 
-    def dyadic_random_effects(N_dyads, dr_mu = 0, dr_sd = 1, dr_sigma_mu = 0, dr_sigma_sd = 1, cholesky_dim = 2, cholesky_density = 2.5, sample = False, diag = False):
+    def dyadic_random_effects(N_dyads,  dr_sigma_mu = 0, dr_sigma_sd = 2.5, cholesky_dim = 2, cholesky_density = 2.5, sample = False, diag = False):
         """Generate random effects for dyadic models.
 
         Args:
@@ -193,7 +191,7 @@ class Neteffect(array_manip):
         Returns:
             tuple: Contains random effects, raw effects, sigma, and Cholesky decomposition matrix.
         """
-        dr_raw =  dist.normal(dr_mu, dr_sd, shape=(2,N_dyads), name = 'dr_raw', sample = sample)
+        dr_raw =  dist.normal(0, 1, shape=(2,N_dyads), name = 'dr_raw', sample = sample)
         dr_sigma = dist.truncated_normal(dr_sigma_mu, dr_sigma_sd, low = 0, shape=(1,), name = 'dr_sigma', sample = sample )
         dr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = 'dr_L', sample = sample)
         #dr_rf = deterministic('dr_rf', (((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2))))
@@ -237,7 +235,7 @@ class Neteffect(array_manip):
 
     @staticmethod 
     def dyadic_effect(dyadic_predictors = None, shape = None, d_m = 0, d_sd = 1, # Fixed effect arguments
-                     dr_mu = 0, dr_sd = 1, dr_sigma_mu = 0, dr_sigma_sd = 1, cholesky_dim = 2, cholesky_density = 2.5,
+                     dr_sigma_mu = 0, dr_sigma_sd = 2.5, cholesky_dim = 2, cholesky_density = 2.5,
                      sample = False):
         """Compute dyadic effects combining both fixed and random components.
         
@@ -246,8 +244,6 @@ class Neteffect(array_manip):
             shape (int, optional): Shape parameter if predictors are not provided.
             d_m (float, optional): Mean for fixed effects. Defaults to 0.
             d_sd (float, optional): SD for fixed effects. Defaults to 1.
-            dr_mu (float, optional): Mean for random effects. Defaults to 0.
-            dr_sd (float, optional): SD for random effects. Defaults to 1.
             dr_sigma (float, optional): Sigma parameter for random effects. Defaults to 1.
             cholesky_dim (int, optional): Dimension for Cholesky decomposition. Defaults to 2.
             cholesky_density (int, optional): Density parameter for Cholesky. Defaults to 2.
@@ -261,11 +257,11 @@ class Neteffect(array_manip):
             return 'Argument shape must be defined if argument dyadic_predictors is not define'
         if dyadic_predictors is not None :
             dr_ff, dyad_effects = Neteffect.dyadic_terms(dyadic_predictors, d_m = d_m, d_sd = d_sd, sample = sample)
-            dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(dr_ff.shape[0], dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma_mu = dr_sigma_mu, dr_sigma_sd = dr_sigma_sd,
+            dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(dr_ff.shape[0], dr_sigma_mu = dr_sigma_mu, dr_sigma_sd = dr_sigma_sd,
             cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
             return dr_ff + dr_rf
         else:
-            dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(shape, dr_mu = dr_mu, dr_sd = dr_sd, dr_sigma_mu = dr_sigma_mu, dr_sigma_sd = dr_sigma_sd,
+            dr_rf, dr_raw, dr_sigma, dr_L =  Neteffect.dyadic_random_effects(shape,  dr_sigma_mu = dr_sigma_mu, dr_sigma_sd = dr_sigma_sd,
             cholesky_dim = cholesky_dim, cholesky_density = cholesky_density, sample = sample)
         return  dr_rf
   
