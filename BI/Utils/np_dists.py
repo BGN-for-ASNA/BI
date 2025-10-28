@@ -116,10 +116,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
 
         else:
             if shape:
@@ -190,10 +196,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -271,10 +283,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -346,10 +364,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -435,10 +459,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -515,10 +545,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -600,10 +636,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -670,10 +712,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -743,10 +791,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -820,10 +874,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -889,10 +949,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -960,10 +1026,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1039,10 +1111,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1116,10 +1194,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1208,10 +1292,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1281,10 +1371,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1363,10 +1459,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1467,10 +1569,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1543,10 +1651,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1634,10 +1748,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1703,10 +1823,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1772,10 +1898,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1837,10 +1969,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1919,10 +2057,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -1995,10 +2139,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2065,10 +2215,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2138,10 +2294,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2223,10 +2385,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2290,10 +2458,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2362,10 +2536,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2426,10 +2606,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2499,10 +2685,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2570,10 +2762,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2632,10 +2830,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2700,10 +2904,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2765,10 +2975,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2833,10 +3049,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2906,10 +3128,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -2981,10 +3209,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3051,10 +3285,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3123,10 +3363,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3206,10 +3452,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3289,10 +3541,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3383,10 +3641,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3473,10 +3737,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3554,10 +3824,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3632,10 +3908,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3715,10 +3997,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3822,10 +4110,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3895,10 +4189,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -3974,10 +4274,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4059,10 +4365,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4124,10 +4436,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4218,10 +4536,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4312,10 +4636,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4402,10 +4732,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4470,10 +4806,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4534,10 +4876,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4550,7 +4898,7 @@ class UnifiedDist:
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
 
-    def normal(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def normal(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
         
 
         r"""### Normal 
@@ -4609,11 +4957,17 @@ class UnifiedDist:
         d = numpyro.distributions.continuous.Normal(loc=loc, scale=scale, validate_args=validate_args)
         if sample:
             seed = self.normalize_seed(seed)
-            seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            seed_key = random.PRNGKey(seed)    
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4701,10 +5055,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4790,10 +5150,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4869,10 +5235,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -4938,10 +5310,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5018,10 +5396,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5046,7 +5430,11 @@ class UnifiedDist:
 
         If the original probability density function is `f(x)` and the cumulative distribution function is `F(x)`, and the distribution is right-truncated at a value `b` (meaning `x ≤ b`), the new PDF, `f_T(x)`, is:
         $$
-        f_T(x) = \begin{cases} \frac{f(x)}{F(b)} & \text{if } x \le b \\ 0 & \text{if } x > b \end{cases}
+        f_{\rm trunc}(x \mid X \le b) =
+        \begin{cases}
+        \displaystyle \frac{,f(x),}{,F(b),}, & x \le b, \
+        0, & x > b.
+        \end{cases}
         $$
 
         **For a discrete random variable X:**
@@ -5090,6 +5478,9 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#righttruncateddistribution
+
+        #### References:
+        * https://en.wikipedia.org/wiki/Truncated_normal_distribution
         """
 
            
@@ -5097,10 +5488,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5116,26 +5513,8 @@ class UnifiedDist:
 
         r"""### Sine Bivariate Von Mises
 
-        A unimodal distribution for two dependent angles on the 2-torus
-        ($S^1 \otimes S^1`), which is useful for modeling coupled angles like
-        torsion angles in peptide chains. [1]
+        [In probability theory and statistics, the bivariate von Mises distribution is a probability distribution describing values on a torus. It may be thought of as an analogue on the torus of the bivariate normal distribution. The distribution belongs to the field of directional statistics. The general bivariate von Mises distribution was first proposed by Kanti Mardia in 1975. One of its variants is today used in the field of bioinformatics to formulate a probabilistic model of protein structure in atomic detail, such as backbone-dependent rotamer libraries.](https://en.wikipedia.org/wiki/Bivariate_von_Mises_distribution?utm_source=chatgpt.com)
 
-        The probability density function is given by:
-
-        $$
-           C^{-1}\exp(\kappa_1\cos(x_1-\mu_1) + \kappa_2\cos(x_2 -\mu_2) + \rho\sin(x_1 - \mu_1)\sin(x_2 - \mu_2))
-        $$
-
-        where the normalization constant $C` is:
-
-        $$
-           C = (2\pi)^2 \sum_{i=0}^{\infty} \binom{2i}{i} \left(\frac{\rho^2}{4\kappa_1\kappa_2}\right)^i I_i(\kappa_1)I_i(\kappa_2)
-        $$
-
-        Here, $I_i(\cdot)` is the modified Bessel function of the first kind,
-        $\mu`'s are the locations, $\kappa`'s are the concentrations,
-        and $\rho` represents the correlation between the angles $x_1` and $x_2`.
-        
 
         #### Args:
         - *phi_loc* (jnp.ndarray): The location parameter for the first angle (phi).
@@ -5233,10 +5612,9 @@ class UnifiedDist:
         
         r"""### Sine-skewing
 
-        Sine-skewing [1] is a procedure for producing a distribution that breaks pointwise symmetry on a torus distribution. The new distribution is called the Sine Skewed X distribution, where X is the name of the (symmetric) base distribution. Torus distributions are distributions with support on products of circles (i.e., $\otimes S^1` where $S^1 = [-pi,pi)`).
-        So, a 0-torus is a point, the 1-torus is a circle, and the 2-torus is commonly associated with the donut shape.
+        The sine-skewed von Mises distribution is an extension of the symmetric circular (or toroidal) von Mises (or bivariate von Mises) distribution to allow for skewness (asymmetry) via a sine-based skewing function. It is used to model directional data on the circle (or torus) that depart from symmetry.[1](https://arxiv.org/abs/1902.02579?utm_source=chatgpt.com)
         
-        .. note: This distribution is available in BI: [https://num.pyro.ai/en/stable/distributions.html#sineskewed](https://num.pyro.ai/en/stable/distributions.html#sineskewed)
+
         
         **Parameters:**
         
@@ -5270,10 +5648,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5290,18 +5674,18 @@ class UnifiedDist:
 
         r"""### SoftLaplace
         
-        Samples from a SoftLaplace distribution.
-        
-        This distribution is a smooth approximation of a Laplace distribution,
-        characterized by its log-convex density. It offers Laplace-like tails
-        while being infinitely differentiable, making it suitable for HMC and
-        Laplace approximation.
-        
+        Smooth distribution with Laplace-like tail behavior.
+
+        This distribution corresponds to the log-convex density:
+
         $$
-        f(x) = \log\!\left(\tfrac{2}{\pi}\right) - \log(\text{scale})
-               - \log\!\left( e^{\tfrac{x - \text{loc}}{\text{scale}}} + e^{-\tfrac{x - \text{loc}}{\text{scale}}} \right)
+        z = (value - loc) / scale
+        log_prob = log(2 / pi) - log(scale) - logaddexp(z, -z)
         $$
-        
+
+        Like the Laplace density, this density has the heaviest possible tails (asymptotically) while still being log-convex. Unlike the Laplace distribution, this distribution is infinitely differentiable everywhere,
+        and is thus suitable for HMC and Laplace approximation.
+
         
         #### Args:
         - *loc*: Location parameter.
@@ -5346,10 +5730,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5366,11 +5756,27 @@ class UnifiedDist:
 
         r"""### Student's t
         
-        The Student's t-distribution is a probability distribution that arises in hypothesis testing involving the mean of a normally distributed population when the population standard deviation is unknown. It is similar to the normal distribution, but has heavier tails, making it more robust to outliers.
+        The Student's t-distribution is a probability distribution that arises in hypothesis testing involving the mean of a normally distributed population when the population standard deviation is unknown. It is similar to the normal distribution, but has heavier tails, making it more robust to outliers. For large $ \nu $, it converges to the Normal distribution.
+        $$
+        X \sim t_\nu(\mu, \sigma)
+        $$
+        where:
+
+        * $ \mu $ is the **location (mean)** parameter
+        * $ \sigma > 0 $ is the **scale** parameter
+        * $ \nu > 0 $ is the **degrees of freedom** controlling the tail heaviness
         
+        The probability density function (pdf) of the Student's t distribution is:
         $$
-           f(x) = \frac{1}{\Gamma(\nu/2) \sqrt{\nu \pi}} \left(1 + \frac{x^2}{\nu}\right)^{-(\nu+1)/2}
+        f(x \mid \nu, \mu, \sigma) = \frac{\Gamma!\left(\frac{\nu+1}{2}\right)}
+        {\Gamma!\left(\frac{\nu}{2}\right)\sqrt{\pi\nu}\sigma}
+        \left[1 + \frac{1}{\nu}
+        \left(\frac{x - \mu}{\sigma}\right)^2
+        \right]^{-\frac{\nu+1}{2}}
         $$
+
+        * The heavier tails (for small $ν$) allow for larger outliers.
+        * For $ \nu \to \infty $, this approaches $ \mathcal{N}(\mu, \sigma^2) $.
         
         #### Args:
         - *df* (jnp.ndarray): Degrees of freedom, must be positive.
@@ -5407,6 +5813,10 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#studentt
+
+        #### References:
+        * [Wikipedia – Student’s t distribution: PDF](https://en.wikipedia.org/wiki/Student%27s_t-distribution#Probability_density_function)
+
         """
 
            
@@ -5414,10 +5824,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5439,8 +5855,6 @@ class UnifiedDist:
         defined over the interval [0, truncation_point]. It is often used in
         Bayesian non-parametric models.
         
-        $$   p(x) = \frac{1}{Z} \exp\left( \sum_{n=0}^{N} \left( \log(2n+1) - 1.5 \log(x) - \frac{(2n+1)^2}{4x} \right) \right)
-        $$
         
         #### Args:
         - *batch_shape* (tuple): The shape of the batch dimension.
@@ -5478,10 +5892,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5497,7 +5917,7 @@ class UnifiedDist:
         
 
         r"""### Two Sided Truncated 
-        This distribution truncates a base distribution between two specified lower and upper bounds.
+        A “two-sided truncated distribution” is a general concept: you take a base continuous distribution and **restrict it** to an interval ([`low`, `high`]), discarding all mass outside, then **renormalize** so the inner portion integrates to 1. I’ll spell out the general formulas, caveats, sampling strategies, and special cases (e.g. truncated normal) to illustrate.
         
         $$
         f(x) =
@@ -5536,10 +5956,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5555,11 +5981,14 @@ class UnifiedDist:
         
 
         r"""### Uniform 
-        Samples from a Uniform distribution, which is a continuous probability distribution
-        where all values within a given interval are equally likely.
+        The Uniform distribution is the simplest continuous distribution: every value in the interval ([a, b]) is **equally likely**. It is widely used for modeling complete randomness within a fixed range, random sampling, and as a building block for other distributions.
         
         $$   
-        f(x) = \frac{1}{b - a}, \text{ for } a \le x \le b
+        f(x) =
+        \begin{cases}
+        \dfrac{1}{b - a}, & a \le x \le b, [2mm]
+        0, & \text{otherwise}.
+        \end{cases}
         $$
         
         #### Args:
@@ -5599,6 +6028,9 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#uniform
+
+        #### References:
+        * [Wikipedia – Uniform distribution (continuous)](https://en.wikipedia.org/wiki/Uniform_distribution_%28continuous%29)
         """
 
            
@@ -5606,10 +6038,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5625,12 +6063,15 @@ class UnifiedDist:
         
 
         r"""### Unit 
-            The Unit distribution is a trivial, non-normalized distribution representing the unit type.
-            It has a single value with no data, effectively a placeholder often used in probabilistic programming
-            for situations where no actual data is involved.
-        
+            * The Unit distribution is the simplest continuous probability distribution.
+            * Every number in ([0,1]) is equally likely.
+            * Often used in simulation, Monte Carlo methods, and as a building block for generating other distributions via the inverse-CDF method.
             $$
-                p(x) = 1
+            f(x) =
+            \begin{cases}
+            1, & 0 \le x \le 1, [1mm]
+            0, & \text{otherwise}.
+            \end{cases}
             $$
         
             #### Args:
@@ -5671,10 +6112,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5692,13 +6139,20 @@ class UnifiedDist:
         r"""### Weibull 
         Samples from a Weibull distribution.
         
-        The Weibull distribution is a versatile distribution often used to model failure rates in engineering and reliability studies. It is characterized by its shape and scale parameters.
+        The Weibull distribution is widely used for modeling **lifetime or reliability data**. Its shape parameter (k) controls the hazard function:
+
+        * (k < 1): decreasing hazard (infant mortality)
+        * (k = 1): constant hazard → reduces to **Exponential distribution**
+        * (k > 1): increasing hazard (aging/failure over time)
         
         $$
-           f(x) = \frac{\beta}{\alpha} \left(\frac{x}{\alpha}\right)^{\beta - 1} e^{-\left(\frac{x}{\alpha}\right)^{\beta}} \text{ for } x \ge 0
+        f(x \mid \lambda, k) =
+        \begin{cases}
+        \dfrac{k}{\lambda} \left(\dfrac{x}{\lambda}\right)^{k-1} e^{-(x/\lambda)^k}, & x \ge 0, [2mm]
+        0, & x < 0
+        \end{cases}
         $$
-               
-        where $\alpha` is the scale parameter and $\beta` is the shape parameter.
+        
 
         
         #### Args:
@@ -5734,6 +6188,12 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#weibull
+
+        #### References:
+        * [Wikipedia – Weibull distribution](https://en.wikipedia.org/wiki/Weibull_distribution#Probability_density_function)
+
+        * Weibull, W. (1951). *A Statistical Distribution Function of Wide Applicability.* Journal of Applied Mechanics.
+
         """
 
            
@@ -5741,10 +6201,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5763,9 +6229,29 @@ class UnifiedDist:
         The Wishart distribution is a multivariate distribution used to model positive definite matrices,
         often representing covariance matrices. It's commonly used in Bayesian statistics and machine learning,
         particularly in models involving covariance estimation.
-        
-        $$   p(X) = \frac{1}{W^{p/2} \Gamma_p(concentration/2)} \left|X\right|^{-concentration/2} \exp\left(-\frac{1}{2} \text{tr}(X^{-1} X)\right)
+
         $$
+        \mathbf{X} \sim \text{Wishart}(\text{scale_matrix}=\mathbf{V}, \text{concentration}=n)
+        $$
+
+        where:
+
+        * (p) = dimension of the square matrices
+        * (\mathbf{V} \in \mathbb{R}^{p \times p}) = positive definite **scale matrix** (`scale_matrix`)
+        * (n \ge p) = **degrees of freedom** (`concentration`)
+
+        The Wishart distribution is the **multivariate generalization of the chi-squared distribution**. It is commonly used as the distribution of the **sample covariance matrix** for multivariate normal samples.
+        
+        $$
+        f(\mathbf{X} \mid \mathbf{V}, n) =
+        \frac{ |\mathbf{X}|^{(n-p-1)/2} \exp\big(-\frac{1}{2} \mathrm{tr}(\mathbf{V}^{-1} \mathbf{X}) \big) }
+        { 2^{np/2} |\mathbf{V}|^{n/2} \Gamma_p(n/2) }, \quad \mathbf{X} \succ 0
+        $$
+        where:
+
+        * $|\mathbf{X}|$ = determinant of $\mathbf{X}$
+        * $\mathrm{tr}(\cdot)$ = trace
+        * $\Gamma_p(\cdot)$ = multivariate Gamma function:
         
         #### Args:
         - *concentration* (jnp.ndarray): Positive concentration parameter analogous to the concentration of a Gamma distribution. The concentration must be larger than the dimensionality of the scale matrix.
@@ -5805,6 +6291,9 @@ class UnifiedDist:
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#wishart
+
+        #### References:
+        * [Wikipedia – Wishart distribution](https://en.wikipedia.org/wiki/Wishart_distribution)
         """
 
            
@@ -5812,10 +6301,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5881,10 +6376,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -5947,10 +6448,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6016,10 +6523,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6083,10 +6596,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6150,10 +6669,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6229,10 +6754,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6294,10 +6825,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6374,10 +6911,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6442,10 +6985,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6511,10 +7060,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6580,10 +7135,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6647,10 +7208,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6728,10 +7295,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6806,10 +7379,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6874,10 +7453,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
@@ -6937,10 +7522,16 @@ class UnifiedDist:
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
-            if to_jax :
-                return d.sample(seed_key,   sample_shape=shape)
+            samples = d.sample(seed_key, sample_shape=shape)
+        
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)  
+        
+            if to_jax:
+                return samples
             else:
-                return SampledData(d.sample(seed_key,   sample_shape=shape))
+                return SampledData(samples)
         else:
             if shape:
                 d = d.expand(shape)
