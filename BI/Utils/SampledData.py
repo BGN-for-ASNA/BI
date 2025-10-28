@@ -116,6 +116,8 @@ class SampledData:
                              xaxis_title=xaxis_title, yaxis_title=yaxis_title)
             fig.show()
         else:
+            if self._data.ndim > 2:
+                raise ValueError(f"Density plot is only supported for 1D or 2D data. Your data has {self._data.ndim} dimensions.")
             sns=importer.get_module("sns")
             plt=importer.get_module("plt")
             
@@ -136,6 +138,7 @@ class SampledData:
         Values are explicitly formatted as strings to ensure consistent rounding in the plot.
         The y-axis is inverted to match standard matrix representation.
         """
+     
         if interactive:
             go=importer.get_module("go")
             px=importer.get_module("px")
