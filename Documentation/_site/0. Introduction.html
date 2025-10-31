@@ -425,7 +425,7 @@ window.Quarto = {
   <li><a href="#which-prior-distribution-range-to-use" id="toc-which-prior-distribution-range-to-use" class="nav-link" data-scroll-target="#which-prior-distribution-range-to-use">Which prior distribution range to use?</a></li>
   </ul></li>
   <li><a href="#model-fit-and-posterior-distribution" id="toc-model-fit-and-posterior-distribution" class="nav-link" data-scroll-target="#model-fit-and-posterior-distribution">Model fit and posterior distribution</a></li>
-  <li><a href="#model-diagnostic" id="toc-model-diagnostic" class="nav-link" data-scroll-target="#model-diagnostic">Model ‘diagnostic’</a></li>
+  <li><a href="#model-diagnostic" id="toc-model-diagnostic" class="nav-link" data-scroll-target="#model-diagnostic">Model diagnostic</a></li>
   <li><a href="#model-comparison" id="toc-model-comparison" class="nav-link" data-scroll-target="#model-comparison">Model comparison</a></li>
   </ul></li>
   </ul>
@@ -458,43 +458,43 @@ window.Quarto = {
 </header>
 
 
-<p>This document is a guide to Bayesian analysis and the implementation of Bayesian inference (BI). It is intended for users ranging from those with little or no experience to advanced practitioners. In this introduction, we outline the main steps of Bayesian analysis. Subsequent chapters present increasingly complex models. Each following chapter will have the same structure in order to allow users to easily find the information they are looking for. The structure is as follows:</p>
+<p>This document is a guide to Bayesian analysis and the implementation of <em>Bayesian Inference</em> (BI) package. It is intended for users ranging from those with little or no experience to advanced practitioners. In this introduction, we outline the main steps of Bayesian analysis. Each of the subsequent chapters present increasingly complex models. Each chapter will have the same structure in order to allow users to easily find the information they are looking for. The structure is as follows:</p>
 <ol type="1">
 <li><p><em>Introduction to the model with non-mathematical explanations.</em></p></li>
 <li><p><em>Specific considerations for the model.</em></p></li>
 <li><p><em>Code to run the model.</em></p></li>
-<li><p><em>Mathematical formulas of the model.</em></p></li>
+<li><p><em>Mathematical representation of the model.</em></p></li>
 <li><p><em>Notes related to the model.</em></p></li>
 </ol>
 <p>We recommend reading the introduction first since some key concepts here will not be revisited in later chapters.</p>
 <section id="bayesian-analysis" class="level1">
 <h1>Bayesian analysis</h1>
-<p>Bayesian analysis is a statistical approach that uses probability theory to update beliefs about the parameters of a model as new data becomes available. Bayesian methods have several key advantages, as they allow <span id="Uncertainty"><span style="color:#0D6EFD">direct uncertainty quantification 🛈</span></span>, <span id="priorKnowledge"><span style="color:#0D6EFD">incorporation of prior knowledge 🛈</span></span> and <span id="Flexibility"><span style="color:#0D6EFD">flexibility for complex models 🛈</span></span>.</p>
+<p>Bayesian analysis is a statistical approach that uses probability theory to update beliefs about the parameters of a model as new data become available. Bayesian methods have several key advantages, as they allow <span id="Uncertainty"><span style="color:#0D6EFD">direct uncertainty quantification 🛈</span></span>, <span id="priorKnowledge"><span style="color:#0D6EFD">incorporation of prior knowledge 🛈</span></span> and <span id="Flexibility"><span style="color:#0D6EFD">flexibility for complex models 🛈</span></span>.</p>
 </section>
 <section id="model-set-up-bayesian-linear-regression-example" class="level1">
 <h1>Model set-up, Bayesian linear regression example</h1>
-<p>To illustrate the basics of setting up a Bayesian model, let’s consider a simple linear regression example. In this example, we build a simple model where we predict a <span id="DP"><span style="color:#0D6EFD">dependent variable 🛈</span></span> <span class="math inline">y</span> from a single <span id="IP"><span style="color:#0D6EFD">independent variable 🛈</span></span> <span class="math inline">x</span>. Here, we will not focus on the equations and their details but rather use them to describe the different components of a Bayesian model, how parameter optimization algorithms work in Bayesian analysis, and provide basic technical vocabulary related to Bayesian methods. For further details on the mathematical formulas of the model, please refer to <a href="./1. Linear Regression for continuous variable.html">Chapter 1: Linear Regression for continuous variable</a>.</p>
+<p>To illustrate the basics of setting up a Bayesian model, let’s consider a simple linear regression example. In this example, we build a simple model where we predict a <span id="DP"><span style="color:#0D6EFD">dependent variable 🛈</span></span> <span class="math inline">Y</span> from a single <span id="IP"><span style="color:#0D6EFD">independent variable 🛈</span></span> <span class="math inline">X</span>. Here, we will not focus on the equations and their details, but rather describe the different components of a Bayesian model, show how parameter estimations algorithms work in Bayesian analysis, and provide basic technical vocabulary related to Bayesian methods. For further details on the mathematical formulas of the model, please refer to <a href="./1. Linear Regression for continuous variable.html">Chapter 1: Linear Regression for continuous variable</a>.</p>
 <section id="the-likelihood" class="level3">
 <h3 class="anchored" data-anchor-id="the-likelihood">The Likelihood</h3>
 <p>The <span id="lk"><span style="color:#0D6EFD"><em>likelihood</em> 🛈</span></span> can be considered as your main equation that combines the different terms of the model. Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.), the likelihood will be different. Additionally, a model can have multiple likelihoods (e.g., network models).</p>
-<p>As both the <em>dependent variable</em> <span class="math inline">y</span> and the <em>independent variable</em> <span class="math inline">x</span> are continuous variables, we can use a <em>Gaussian model</em> to describe the relationship between these two variables. As we are using Bayesian methods, we are describing this relationship using a <span id="pdist"><span style="color:#0D6EFD"><em>probability distribution</em> 🛈</span></span>:</p>
+<p>As both the <em>dependent variable</em> <span class="math inline">Y</span> and the <em>independent variable</em> <span class="math inline">X</span> are continuous variables, we can use a <em>Gaussian model</em> to describe the relationship between these two variables. As we are using Bayesian methods, we are describing this relationship using a <span id="pdist"><span style="color:#0D6EFD"><em>probability distribution</em> 🛈</span></span>:</p>
 <p><span class="math display">
-y \sim \text{Normal}(\mu, \sigma)
+Y \sim \text{Normal}(\mu, \sigma)
 </span></p>
-<p>Basically, our likelihood is saying that the <em>dependent variable</em> <span class="math inline">y</span> is normally distributed with a mean <span class="math inline">\mu</span> and a standard deviation <span class="math inline">\sigma</span>. <em>Probability distributions</em> are available in BI through the class <code>bi.dist.XXX</code> where <code>XXX</code> is the name of the distribution you want to use. Within any <code>bi.dist.XXX</code> class, you can define which distribution needs to be used as a likelihood by adding an argument <code>obs</code>, e.g., <code>m.normal(alpha + beta * x, sigma, obs=y)</code>. You can see this as instructing the model to adjust its parameters to best explain the observed dependent variable 𝑦, given the independent variable 𝑥, by maximizing the likelihood.</p>
+<p>Basically, our likelihood is saying that the <em>dependent variable</em> <span class="math inline">Y</span> is normally distributed with a mean <span class="math inline">\mu</span> and a standard deviation <span class="math inline">\sigma</span>. <em>Probability distributions</em> are available in BI through the class <code>bi.dist.XXX</code> where <code>XXX</code> is the name of the distribution you want to use. Within any <code>bi.dist.XXX</code> class, you can define which distribution needs to be used as a likelihood by adding an argument <code>obs</code>, e.g., <code>b.dist.normal(alpha + beta * x, sigma, obs=y)</code>. You can see this as instructing the model to adjust its parameters to best explain the observed dependent variable <span class="math inline">Y</span>, given the independent variable <span class="math inline">X</span>, by maximizing the likelihood.</p>
 </section>
 <section id="modeling-likelihood" class="level2">
 <h2 class="anchored" data-anchor-id="modeling-likelihood">Modeling Likelihood</h2>
-<p>Once the <em>likelihood</em> is defined, we can now define the mathematical equations that describe our parameters (<span class="math inline">\mu</span> and <span class="math inline">\sigma</span>) and their relationship with the <em>dependent variable</em> <span class="math inline">y</span>. We can express this relationship in the form of a linear function:</p>
+<p>Once the <em>likelihood</em> is defined, we can now define the mathematical equations that describe our parameters (<span class="math inline">\mu</span> and <span class="math inline">\sigma</span>) and their relationship with the <em>dependent variable</em> <span class="math inline">Y</span>. We can express this relationship in the form of a linear function:</p>
 <p><span class="math display">
-\mu = \alpha + \beta x
+\mu = \alpha + \beta X
 </span></p>
-<p>Where <span class="math inline">\alpha</span> is the <span id="intercept"><span style="color:#0D6EFD"><em>intercept</em> 🛈</span></span> and <span class="math inline">\beta</span> is the <span id="slope"><span style="color:#0D6EFD"><em>slope</em> 🛈</span></span> of the line. These parameters are the <em>unknowns</em> that we want to estimate to evaluate the strength and direction of the relationship between the <em>independent variable</em> <span class="math inline">x</span> and the <em>dependent variable</em> <span class="math inline">y</span>.</p>
+<p>Where <span class="math inline">\alpha</span> is the <span id="intercept"><span style="color:#0D6EFD"><em>intercept</em> 🛈</span></span> and <span class="math inline">\beta</span> is the <span id="slope"><span style="color:#0D6EFD"><em>slope</em> 🛈</span></span> of the regression line. These parameters are the <em>unknowns</em> that we want to estimate to evaluate the strength and direction of the relationship between the <em>independent variable</em> <span class="math inline">X</span> and the <em>dependent variable</em> <span class="math inline">Y</span>.</p>
 </section>
 <section id="link-functions" class="level2">
 <h2 class="anchored" data-anchor-id="link-functions">Link functions</h2>
-<p>Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.), you will need to choose the appropriate distribution to describe the relationship between the data. By using a different distribution, you will need to use a different <span id="linkF"><span style="color:#0D6EFD"><em>link function</em> 🛈</span></span>.</p>
-<p>For the moment, we just need to know that these different distributions require a <em>link function</em> (for each specific family we will discuss the corresponding link function); however, below is a table summarizing some of the most common link functions, the mathematical form of each, their typical applications, and how to interpret them. <em>Link functions</em> in BI can be accessed through the class <code>BI.link.XXX</code> where <code>XXX</code> is the name of the link function.</p>
+<p>Depending on the type of problem you are trying to solve (classification, regression, etc.) and the type of data you are working with (continuous, discrete, binomial, etc.), you will need to choose the appropriate distribution to describe the relationships in the data. For each different outcome distribution, you will need to use an appropriate <span id="linkF"><span style="color:#0D6EFD"><em>link function</em> 🛈</span></span>.</p>
+<p>For the moment, we just need to know that these different distributions require a <em>link function</em> (for each specific family we will discuss the corresponding link function in their respective chapters); however, below is a table summarizing some of the most common link functions, the mathematical form of each, their typical applications, and how to interpret them. <em>Link functions</em> in BI can be accessed through the class <code>bi.link.XXX</code> where <code>XXX</code> is the name of the link function. Let <span class="math inline">\mu</span> be a real number output from a linear model, and <span class="math inline">g(\mu)</span> be the corresponding link function. Then the table shows the most common link functions and their interpretations.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 13%">
@@ -505,7 +505,7 @@ y \sim \text{Normal}(\mu, \sigma)
 <thead>
 <tr class="header">
 <th><strong>Link Function</strong></th>
-<th><strong>Mathematical Form</strong></th>
+<th><strong>Mathematical Form of Inverse Link</strong></th>
 <th><strong>Typical Use / Model</strong></th>
 <th><strong>Interpretation &amp; Range</strong></th>
 </tr>
@@ -515,38 +515,32 @@ y \sim \text{Normal}(\mu, \sigma)
 <td><strong>Identity</strong></td>
 <td><span class="math inline">g(\mu) = \mu</span></td>
 <td>Linear regression (Normal)</td>
-<td>Directly models <span class="math inline">\mu</span>; <span class="math inline">\mu</span> can be any real number.</td>
+<td>Directly models <span class="math inline">\mu</span>; the outputs space is also the set of real numbers.</td>
 </tr>
 <tr class="even">
 <td><strong>Logit</strong></td>
-<td><span class="math inline">g(\mu) = \log\left(\frac{\mu}{1-\mu}\right)</span></td>
+<td><span class="math inline">g(\mu) = \frac{1}{1+\exp(-\mu)}</span></td>
 <td>Logistic regression (Binomial)</td>
-<td>Models probabilities (0, 1); coefficients reflect log-odds.</td>
+<td>The output space is the unit interval <span class="math inline">[0, 1]</span> ; coefficients reflect log-odds.</td>
 </tr>
 <tr class="odd">
 <td><strong>Probit</strong></td>
-<td><span class="math inline">g(\mu) = \Phi^{-1}(\mu)</span></td>
+<td><span class="math inline">g(\mu) = \Phi(\mu)</span></td>
 <td>Probit regression (Binomial)</td>
-<td>Similar to logit; uses the inverse standard normal CDF.</td>
+<td>Similar to logit; uses the standard normal CDF, <span class="math inline">\Phi</span>.</td>
 </tr>
 <tr class="even">
 <td><strong>Log</strong></td>
-<td><span class="math inline">g(\mu) = \log(\mu)</span></td>
+<td><span class="math inline">g(\mu) = \exp(\mu)</span></td>
 <td>Poisson, Gamma regression (Count data)</td>
-<td>Ensures <span class="math inline">\mu &gt; 0</span>; coefficients represent multiplicative effects.</td>
-</tr>
-<tr class="odd">
-<td><strong>Inverse</strong></td>
-<td><span class="math inline">g(\mu) = \frac{1}{\mu}</span></td>
-<td>Gamma regression</td>
-<td>Models positive <span class="math inline">\mu</span>; relates changes inversely to <span class="math inline">\mu</span>.</td>
+<td>The output space is the set of positive reals.</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="the-prior-distributions" class="level2">
 <h2 class="anchored" data-anchor-id="the-prior-distributions">The Prior Distributions</h2>
-<p>For each parameter of our equation that describes <span class="math inline">\mu</span>, we need to define a <span id="prior"><span style="color:#0D6EFD"><em>prior distribution</em> 🛈</span></span> that encodes our initial beliefs about the parameter. In the case of the linear regression model, we need to specify <em>prior distributions</em> for the intercept <span class="math inline">\alpha</span>, the slope <span class="math inline">\beta</span>, and standard deviation <span class="math inline">\sigma</span>.</p>
+<p>For each parameter in our model, we need to define a <span id="prior"><span style="color:#0D6EFD"><em>prior distribution</em> 🛈</span></span> that encodes our initial beliefs about the parameter. In the case of the linear regression model, we need to specify <em>prior distributions</em> for the intercept, <span class="math inline">\alpha</span>, the slope, <span class="math inline">\beta</span>, and the standard deviation, <span class="math inline">\sigma</span>.</p>
 <p><span class="math display">
 \alpha \sim \text{Normal}(0, 1)
 </span></p>
@@ -554,41 +548,43 @@ y \sim \text{Normal}(\mu, \sigma)
 \beta \sim \text{Normal}(0, 1)
 </span></p>
 <p><span class="math display">
-\sigma \sim \text{Uniform}(0, 1)
+\sigma \sim \text{Exponential}(1)
 </span></p>
 <p>And with this, we can write our entire model as:</p>
 <p><span class="math display">
-y \sim \text{Normal}(\mu, \sigma)
+Y \sim \text{Normal}(\mu, \sigma)
 </span> <span class="math display">
-\mu = \alpha + \beta x
+\mu = \alpha + \beta X
 </span> <span class="math display">
 \alpha \sim \text{Normal}(0, 1)
 </span> <span class="math display">
 \beta \sim \text{Normal}(0, 1)
 </span> <span class="math display">
-\sigma \sim \text{Uniform}(0, 1)
+\sigma \sim \text{Exponential}(1)
 </span></p>
-<p>In BI, you will need to define this model within a function in which you will be able to use any probability distributions, link functions, and mathematical operations required for your model. BI has been designed to allow you to declare your model as close as possible to the mathematical notation. For example, the model above can be written in BI as:</p>
+<p>In BI, you code all this statements within a single function. In that function you can use any probability distribution, link function, and mathematical operations required for your model (if they are supported by <em>JAX</em>). BI has been designed to allow you to declare your model as close as possible to the mathematical notation. For example, the model above can be written in BI as:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>dat <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> m.dist.normal(<span class="dv">178</span>, <span class="dv">20</span>, sample <span class="op">=</span> <span class="va">True</span>),   </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> m.dist.lognormal( <span class="dv">0</span>, <span class="dv">1</span>, sample <span class="op">=</span> <span class="va">True</span>)   </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> dat</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>beta <span class="op">=</span> <span class="fl">2.5</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> m.dist.normal(alpha <span class="op">+</span> beta <span class="op">*</span> X, sigma, sample <span class="op">=</span> <span class="va">True</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(x, y):    </span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'alpha'</span>, shape<span class="op">=</span> (<span class="dv">1</span>,))</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'beta'</span>, shape<span class="op">=</span> (<span class="dv">1</span>,))   </span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.uniform( <span class="dv">0</span>, <span class="dv">50</span>, name <span class="op">=</span> <span class="st">'sigma'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    m.normal(alpha <span class="op">+</span> beta <span class="op">*</span> x, sigma, obs<span class="op">=</span>y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(X<span class="op">=</span>X, Y<span class="op">=</span>Y)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(X, Y):    </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'alpha'</span>, shape<span class="op">=</span> (<span class="dv">1</span>,))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'beta'</span>, shape<span class="op">=</span> (<span class="dv">1</span>,))   </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'sigma'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    m.normal(alpha <span class="op">+</span> beta <span class="op">*</span> X, sigma, obs<span class="op">=</span>Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The code snippet provides several key features of the <em>BI</em> package:</p>
 <ol type="1">
 <li><p>First, you need to initialize a bi object.</p></li>
 <li><p>Then, you can store data as a JAX array dictionary using the <code>m.data_on_model</code> function. If all the data can be stored in a data frame (e.g., <a href="./1. Linear Regression for continuous variable.html">Linear Regression for continuous variable</a>), you do not need to use <code>m.data_on_model</code>, as the BI object automatically detects the data provided in the model arguments. However, sometimes you may need different data structures such as vectors and 2D arrays (e.g., <a href="20. Network model.qmd">Network model</a>).</p></li>
-<li><p>Regarding distribution parameters, note the difference depending on whether you are generating data outside a function (e.g., for simulation purposes) or specifying priors inside a model function. In the former case, the argument <code>sample</code> should be set to <code>True</code>. However, if you are specifying priors within a model function, this argument must be set to <code>False</code>.</p></li>
+<li><p>Regarding distribution parameters, note the difference depending on whether you are generating data outside a function (e.g., for simulation purposes) or specifying priors inside a model function. In the former case, the argument <code>sample</code> should be set to <code>True</code>. However, if you are specifying priors within a model function, this argument is <code>False</code> by default.</p></li>
 <li><p>Finally, note that each parameter declared in the model must have a unique <code>name</code> as well as a <code>shape</code>. The shape refers to the number of parameters you want to estimate. For example, if you want to estimate a different <span class="math inline">\beta</span> for each independent variable, you would declare <span class="math inline">\beta</span> with a shape equal to the number of independent variables. By default, the shape is one, so technically you don’t need to specify it. In this example, we highlight this feature explicitly.</p></li>
 </ol>
 <section id="which-prior-distribution-range-to-use" class="level3">
@@ -597,7 +593,7 @@ y \sim \text{Normal}(\mu, \sigma)
 <ul>
 <li><p><strong>Expert Knowledge</strong>: The prior distributions can be based on expert knowledge or historical data. This approach is useful when there is a lot of information available about the parameters.</p></li>
 <li><p><strong>Noninformative Priors</strong>: When there is little or no information about the parameters, noninformative priors can be used. These priors are designed to have minimal influence on the posterior distribution, allowing the data to dominate the inference process.</p></li>
-<li><p><strong>Scaled data</strong>: If the data is <span id="scaled"><span style="color:#0D6EFD"><em>scaled</em> 🛈</span></span>, the prior distributions can be chosen to reflect this. For example, if the data are scaled, the prior distributions for the intercept and slope can be centered around 0 and 1, respectively. By scaling the independent variable, we obtain a unit of change based on variance; that is, the effect represents a one–standard–deviation change in <span class="math inline">x</span> on <span class="math inline">y</span>. Scaling the data improves both numerical stability and interpretability. When all data are scaled to the same range, it leads to more stable numerical behavior during estimation. Additionally, it facilitates setting priors that are both meaningful and relatively uninformative. By aligning the scale of the data with the scale assumed in the priors, we ensure that the posterior distributions exhibit reasonable spread and that our uncertainty quantification is consistent with the data’s scale. For the remainder of this document, we will assume that the data are scaled.</p></li>
+<li><p><strong>Scaled data</strong>: If the data are <span id="scaled"><span style="color:#0D6EFD"><em>scaled</em> 🛈</span></span>, the prior distributions can be chosen to reflect this. For example, if the data are scaled, the prior distributions for the intercept and slope can be centered around 0 and 1, respectively. By scaling the independent variable, we obtain a unit of change based on variance; that is, the effect represents a one–standard–deviation change in <span class="math inline">X</span> on <span class="math inline">Y</span>. Scaling the data improves both numerical stability. When all data are scaled to the same range, it leads to more stable numerical behavior during estimation. Additionally, it facilitates setting priors that are both meaningful and relatively uninformative. By aligning the scale of the data with the scale assumed in the priors, we ensure that the posterior distributions exhibit reasonable spread and that our uncertainty quantification is consistent with the data’s scale. For the remainder of this document, we will assume that the data are scaled. However, users should be aware that it is often necessary to rescale parameters estimates by the standard deviation of the data in order to get parameters that are interpretable on the natural scale.</p></li>
 </ul>
 </section>
 </section>
@@ -614,10 +610,10 @@ P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P
 <li><p><span class="math inline">P(\text{data} \mid \theta)</span> is the <strong>likelihood</strong>, representing the model of how the data are generated given <span class="math inline">\theta</span>.</p></li>
 <li><p><span class="math inline">P(\theta \mid \text{data})</span> is the <strong>posterior distribution</strong>, representing our updated beliefs after observing the data. It tells us not only the most likely value of <span class="math inline">\theta</span> (e.g., <span class="math inline">\alpha</span>, <span class="math inline">\beta</span>, and <span class="math inline">\sigma</span> in our case) but also quantifies the uncertainty in these estimates.</p></li>
 </ul>
-<p>We can use <span id="BUpdating"><span style="color:#0D6EFD"><em>Bayesian updating</em> 🛈</span></span> using the <em>Bayesian theorem</em> to ‘reshape’ the prior distributions by considering every possible combination of values for our parameters, and scoring each combination by its relative plausibility in light of the data. These relative plausibilities are the posterior probabilities of each combination of our parameters: the <em>posterior distributions</em>. Various techniques can be used to approximate the mathematical definition of Bayes’ theorem: <em>grid approximation</em>, <em>quadratic approximation</em>, and Markov chain Monte Carlo (<em>MCMC</em>). Descriptions of these algorithms are out of the scope of this document. For more information, please refer to the <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Bayesian Inference</a>. In BI, we use MCMC and it can be called as <code>m.fit(model)</code> where <code>model</code> is the function that describes the model.</p>
+<p>Various techniques can be used to approximate the mathematical definition of Bayes’ theorem: <em>grid approximation</em>, <em>quadratic approximation</em>, and Markov chain Monte Carlo (<em>MCMC</em>). Descriptions of these algorithms are out of the scope of this document. For more information, please refer to <a href="https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo">Wikipedia</a>. In BI, we use MCMC and it can be called as <code>m.fit(model)</code> where <code>model</code> is the function that describes the model.</p>
 </section>
 <section id="model-diagnostic" class="level2">
-<h2 class="anchored" data-anchor-id="model-diagnostic">Model ‘diagnostic’</h2>
+<h2 class="anchored" data-anchor-id="model-diagnostic">Model diagnostic</h2>
 <p>Once a Bayesian model has been fit, it is crucial to evaluate how well it captures the observed data and to assess whether the Markov chain Monte Carlo (MCMC) sampling has converged. Bayesian model diagnostics help us answer questions like: “Are our uncertainty estimates reliable?”, “Does the model generate data similar to what we observed?”, and “Have the chains mixed well?” Multiple diagnostics approaches can be used to assess the model’s performance. Below are some key diagnostic tools and techniques available in BI within the class <code>BI.diag.XXX</code> where <code>XXX</code> is the name of the diagnostic tool.</p>
 <table class="caption-top table">
 <colgroup>
@@ -649,7 +645,7 @@ P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P
 </tr>
 <tr class="odd">
 <td><span id="HPDI"><span style="color:#0D6EFD"><em>highest posterior density intervals</em> (HPDI) 🛈</span></span></td>
-<td>Identify the narrowest interval containing a given probability mass</td>
+<td>Identify the narrowest interval containing a given probability mass density</td>
 <td>95% HPDI</td>
 <td>Smallest interval capturing 95% of the posterior density</td>
 </tr>
@@ -657,13 +653,13 @@ P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P
 <td><span id="ESS"><span style="color:#0D6EFD"><em>effective sample size</em> (ESS) 🛈</span></span></td>
 <td>Measure independent information in the chain</td>
 <td>ESS value (ideally high)</td>
-<td>Low ESS indicates high autocorrelation (poor mixing)</td>
+<td>Low ESS indicates high autocorrelation (poor mixing) ot to few samples correlations</td>
 </tr>
 <tr class="odd">
 <td><span id="Rhat"><span style="color:#0D6EFD"><em>potential scale reduction factor</em> (Rhat) 🛈</span></span></td>
 <td>Check convergence across multiple chains</td>
-<td>Rhat ≈ 1 (typically &lt;1.1)</td>
-<td>Values near 1 indicate convergence; &gt;&gt;1 suggests non-convergence</td>
+<td>Rhat ≈ 1 (typically &lt;1.01)</td>
+<td>Values near 1 indicate convergence; &gt;1 suggests non-convergence</td>
 </tr>
 <tr class="even">
 <td><span id="TP"><span style="color:#0D6EFD"><em>Trace plots</em> 🛈</span></span></td>
@@ -722,7 +718,7 @@ P(\theta \mid \text{data}) = \frac{P(\text{data} \mid \theta) \cdot P(\theta)}{P
 <td>Computationally intensive for large models</td>
 </tr>
 <tr class="odd">
-<td><strong>Bayes Factor (BF)</strong></td>
+<td><strong>BF (Bayes Factor)</strong></td>
 <td>Quantifies relative support for two models based on marginal likelihoods</td>
 <td><code>BF &gt; 1</code> favors the numerator model, <code>BF &lt; 1</code> favors the denominator</td>
 <td>Provides direct evidence comparison, works with different model types</td>
