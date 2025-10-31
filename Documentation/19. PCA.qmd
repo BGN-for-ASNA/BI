@@ -8,7 +8,7 @@ order: 22
 
 ## General Principles
 
-**Principal Component Analysis (PCA)** [@tipping1999probabilistic] is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto the first coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.
+**Principal Component Analysis (PCA)** [@tipping1999probabilistic] is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.
 
 In **Bayesian PCA**, uncertainty in the model parameters is explicitly taken into account by using a probabilistic framework. This allows us to not only estimate the principal components but also quantify the uncertainty around them and avoid overfitting by incorporating prior knowledge.
 
@@ -258,10 +258,9 @@ m.summary()
 
 ## Mathematical Details
 
-We assume the observed data matrix $X$ is centered and arranged with features as rows and samples as columns, $X \in \mathbb{R}^{D \times N}$. The generative model projects the data into a lower-dimensional space with $K$ latent variables, $K \ll D$.
-:
+We assume the observed data matrix $X$ is centered and arranged with features as rows and samples as columns, $X \in \mathbb{R}^{N \times V}$ where $N$ is the number of observations and $V$ the number of variables. The generative model projects the data into a lower-dimensional space with $K$ latent variables, $K \leq V$, using the following equation:
 $$
-X_{dn} \sim \text{Normal}((WZ)_{dn}, \sigma)
+X \sim \text{Normal}(Z \cdot W, \sigma)
 $$
 
 where :
@@ -270,33 +269,34 @@ where :
 
 - $Z \in \mathbb{R}^{N \times K}$ is the latent variable matrix (latent features) with $K \ll D$. $Z$ is defined by a Normal distribution with mean 0 and variance 1.
 
-- $W \in \mathbb{R}^{D \times K}$ is the matrix of principal components (*projection matrix*). $W$ is defined by a Normal distribution with mean 0 and variance 1.
+- $W \in \mathbb{R}^{K \times V}$ is the matrix of principal components (*projection matrix*). $W$ is defined by a Normal distribution with mean 0 and variance 1.
 
-- $\epsilon \in \mathbb{R}^{N \times D}$ is Gaussian noise matrix, assumed to be normally distributed centered at 0 as data is assumed to be centered.
+- $\sigma$ is the standard deviation of the normal distribution.
 
-The likelihood and priors are defined element-wise for $d=1...D$, $n=1...N$, and $k=1...K$. for the following models:
+The likelihood and priors are defined element-wise for $v=1...V$, $n=1...N$, and $k=1...K$. for the following models:
 
 ### Standard PCA
 
 
 $$
-X_{dn} \sim \text{Normal}((W_{dk} \cdot Z_{kn})_{dn}, \sigma)
+X \sim \text{Normal}(Z \cdot W, \sigma)
 $$
 $$
-Z_{kn} \sim \text{Normal}(0, 1)
+Z \sim \text{Normal}(0, 1)
 $$
 $$
-W_{dk} \sim \text{Normal}(0, 1)
+W \sim \text{Normal}(0, 1)
 $$
 $$
 \sigma \sim \text{Exponential}(1)
 $$
 
+<!---
 ### PCA with ARD
 In PCA with Automatic Relevance Determination (ARD), the variance of the prior on each column of $W$ is controlled by a unique relevance parameter $\alpha_k$.
 
 $$
-X_{dn} \sim \text{Normal}((W_{dk} \cdot Z_{kn})_{dn}, \sigma)
+X_{dn} \sim \text{Normal}(Z \cdot W, \sigma)
 $$
 $$
 Z_{kn} \sim \text{Normal}(0, 1)
@@ -328,7 +328,7 @@ Where:
 In Robust PCA, the model is modified to handle outliers by using a heavy-tailed distribution for the likelihood:
 
 $$
-X_{dn} \sim \text{StudentT}(\nu, (W_{dk} \cdot Z_{kn})_{dn}, \sigma)
+X_{dn} \sim \text{StudentT}(\nu, Z \cdot W, \sigma)
 $$
 $$
 Z_{kn} \sim \text{Normal}(0, 1)
@@ -354,7 +354,7 @@ Where:
 In Sparse PCA, a Laplace prior is placed on the weights $W$ to induce sparsity.
 
 $$
-X_{dn} \sim \text{Normal}((W_{dk} \cdot Z_{kn})_{dn}, sigma)
+X_{dn} \sim \text{Normal}(Z \cdot W, sigma)
 $$
 $$
 Z_{kn} \sim \text{Normal}(0, 1)
@@ -385,7 +385,7 @@ where:
 This model combines all three features: a sparsity-inducing prior, a robust likelihood, and automatic relevance determination.
 
 $$
-X_{dn} \sim \text{StudentT}(\nu, (WZ)_{dn}, \sigma)
+X_{dn} \sim \text{StudentT}(\nu, Z \cdot W, \sigma)
 $$
 $$
 Z_{kn} \sim \text{Normal}(0, 1)
@@ -402,9 +402,9 @@ $$
 $$
 \sigma \sim \text{HalfCauchy}(1) 
 $$
-
+-->
 ## Note 
-- To account for **[<span style="color:#0D6EFD">sign ambiguity 🛈</span>]{#signAmbiguity}** in PCA, we can align the signs of the estimated parameters with the true parameters before comparison. To do this, calculate the dot product between the true and estimated parameters. If it is negative, multiply the estimated parameters by -1 to align them with the true parameters. Below, a code snippet highlights how to do this:
+- To account for **[<span style="color:#0D6EFD">sign ambiguity 🛈</span>]{#signAmbiguity}** in PCA, we can set the number of latent dimensions $K$ to be equal to the number of variables $V$. Then, we can calculate the dot product between the estimated parameters and the data. If it is negative, we multiply the estimated parameters by -1 to align them with the data. Below, a code snippet highlights how to do this:
 
 
 ```python

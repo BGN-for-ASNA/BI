@@ -16,11 +16,9 @@ To model the relationship between a dependent variable and an independent variab
 ::: callout-note
 - We have the same considerations as for [Regression for a continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
 
-- The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $\alpha_k$ is defined based on the $k$ declared groups.
+- The main idea of varying intercepts is to generate an intercept for each group, allowing each group to start at different levels. Thus, the intercept $\alpha_k$ is defined uniquely for each of the $K$ declared groups.
 
-- Each intercept has its own prior - i.e., a [<span style="color:#0D6EFD">hyper-prior 🛈</span>]{#hyperP}.
-
-- In the code below, the intercept ```alpha``` for each of the $k$ declared groups shares two *hyper-priors*, ```a_bar``` and ```sigma```, which are respectively modeled by a Normal and an Exponential distribution.
+- In the code below, the intercept ```alpha``` for each of the $k$ declared groups shares two priors, ```a_bar``` and ```sigma```, which are respectively modeled by a Normal and an Exponential distribution.
 
 :::
 

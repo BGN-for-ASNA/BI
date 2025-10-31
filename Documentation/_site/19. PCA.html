@@ -441,10 +441,6 @@ window.Quarto = {
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
   <ul class="collapse">
   <li><a href="#standard-pca" id="toc-standard-pca" class="nav-link" data-scroll-target="#standard-pca">Standard PCA</a></li>
-  <li><a href="#pca-with-ard" id="toc-pca-with-ard" class="nav-link" data-scroll-target="#pca-with-ard">PCA with ARD</a></li>
-  <li><a href="#robust-pca" id="toc-robust-pca" class="nav-link" data-scroll-target="#robust-pca">Robust PCA</a></li>
-  <li><a href="#sparse-pca" id="toc-sparse-pca" class="nav-link" data-scroll-target="#sparse-pca">Sparse PCA</a></li>
-  <li><a href="#sparse-robust-pca-with-ard" id="toc-sparse-robust-pca-with-ard" class="nav-link" data-scroll-target="#sparse-robust-pca-with-ard">Sparse Robust PCA with ARD</a></li>
   </ul></li>
   <li><a href="#note" id="toc-note" class="nav-link" data-scroll-target="#note">Note</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
@@ -484,7 +480,7 @@ window.Quarto = {
 
 <section id="general-principles" class="level2">
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
-<p><strong>Principal Component Analysis (PCA)</strong> <span class="citation" data-cites="tipping1999probabilistic">(<a href="#ref-tipping1999probabilistic" role="doc-biblioref">Tipping and Bishop 1999</a>)</span> is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto the first coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.</p>
+<p><strong>Principal Component Analysis (PCA)</strong> <span class="citation" data-cites="tipping1999probabilistic">(<a href="#ref-tipping1999probabilistic" role="doc-biblioref">Tipping and Bishop 1999</a>)</span> is a technique used to reduce the dimensionality of a dataset by transforming it into a new coordinate system where the greatest variance of the data is projected onto coordinates (called principal components). This method helps capture the underlying structure of high-dimensional data by identifying patterns based on variance.</p>
 <p>In <strong>Bayesian PCA</strong>, uncertainty in the model parameters is explicitly taken into account by using a probabilistic framework. This allows us to not only estimate the principal components but also quantify the uncertainty around them and avoid overfitting by incorporating prior knowledge.</p>
 <p>PCA is employed for <em>dimensionality reduction</em>, particularly in scenarios involving high-dimensional datasets, as it effectively reduces complexity while explicitly accounting for uncertainty in the underlying latent structure. This approach also plays a crucial role in <em>data visualization</em>, enabling the projection of intricate, high-dimensional data into more interpretable 2D or 3D representations. Additionally, PCA excels in <em>feature extraction</em>, where the latent variables it identifies can be repurposed as informative features for subsequent tasks, such as classification or clustering. By modeling latent variables, it further enhances the interpretability and utility of the data for a variety of analytical applications.</p>
 </section>
@@ -728,118 +724,146 @@ Note
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<p>We assume the observed data matrix <span class="math inline">X</span> is centered and arranged with features as rows and samples as columns, <span class="math inline">X \in \mathbb{R}^{D \times N}</span>. The generative model projects the data into a lower-dimensional space with <span class="math inline">K</span> latent variables, <span class="math inline">K \ll D</span>. : <span class="math display">
-X_{dn} \sim \text{Normal}((WZ)_{dn}, \sigma)
+<p>We assume the observed data matrix <span class="math inline">X</span> is centered and arranged with features as rows and samples as columns, <span class="math inline">X \in \mathbb{R}^{N \times V}</span> where <span class="math inline">N</span> is the number of observations and <span class="math inline">V</span> the number of variables. The generative model projects the data into a lower-dimensional space with <span class="math inline">K</span> latent variables, <span class="math inline">K \leq V</span>, using the following equation: <span class="math display">
+X \sim \text{Normal}(Z \cdot W, \sigma)
 </span></p>
 <p>where :</p>
 <ul>
 <li><p><span class="math inline">X</span> is the observed data matrix.</p></li>
 <li><p><span class="math inline">Z \in \mathbb{R}^{N \times K}</span> is the latent variable matrix (latent features) with <span class="math inline">K \ll D</span>. <span class="math inline">Z</span> is defined by a Normal distribution with mean 0 and variance 1.</p></li>
-<li><p><span class="math inline">W \in \mathbb{R}^{D \times K}</span> is the matrix of principal components (<em>projection matrix</em>). <span class="math inline">W</span> is defined by a Normal distribution with mean 0 and variance 1.</p></li>
-<li><p><span class="math inline">\epsilon \in \mathbb{R}^{N \times D}</span> is Gaussian noise matrix, assumed to be normally distributed centered at 0 as data is assumed to be centered.</p></li>
+<li><p><span class="math inline">W \in \mathbb{R}^{K \times V}</span> is the matrix of principal components (<em>projection matrix</em>). <span class="math inline">W</span> is defined by a Normal distribution with mean 0 and variance 1.</p></li>
+<li><p><span class="math inline">\sigma</span> is the standard deviation of the normal distribution.</p></li>
 </ul>
-<p>The likelihood and priors are defined element-wise for <span class="math inline">d=1...D</span>, <span class="math inline">n=1...N</span>, and <span class="math inline">k=1...K</span>. for the following models:</p>
+<p>The likelihood and priors are defined element-wise for <span class="math inline">v=1...V</span>, <span class="math inline">n=1...N</span>, and <span class="math inline">k=1...K</span>. for the following models:</p>
 <section id="standard-pca" class="level3">
 <h3 class="anchored" data-anchor-id="standard-pca">Standard PCA</h3>
 <p><span class="math display">
-X_{dn} \sim \text{Normal}((W_{dk} \cdot Z_{kn})_{dn}, \sigma)
+X \sim \text{Normal}(Z \cdot W, \sigma)
 </span> <span class="math display">
-Z_{kn} \sim \text{Normal}(0, 1)
+Z \sim \text{Normal}(0, 1)
 </span> <span class="math display">
-W_{dk} \sim \text{Normal}(0, 1)
+W \sim \text{Normal}(0, 1)
 </span> <span class="math display">
 \sigma \sim \text{Exponential}(1)
 </span></p>
-</section>
-<section id="pca-with-ard" class="level3">
-<h3 class="anchored" data-anchor-id="pca-with-ard">PCA with ARD</h3>
-<p>In PCA with Automatic Relevance Determination (ARD), the variance of the prior on each column of <span class="math inline">W</span> is controlled by a unique relevance parameter <span class="math inline">\alpha_k</span>.</p>
-<p><span class="math display">
-X_{dn} \sim \text{Normal}((W_{dk} \cdot Z_{kn})_{dn}, \sigma)
-</span> <span class="math display">
+<!---
+### PCA with ARD
+In PCA with Automatic Relevance Determination (ARD), the variance of the prior on each column of $W$ is controlled by a unique relevance parameter $\alpha_k$.
+
+$$
+X_{dn} \sim \text{Normal}(Z \cdot W, \sigma)
+$$
+$$
 Z_{kn} \sim \text{Normal}(0, 1)
-</span> <span class="math display">
+$$
+$$
 W_{dk} \sim \text{Normal}(0, \alpha_k^{-1})
-</span> <span class="math display">
+$$
+$$
 \alpha_k \sim \text{Gamma}(0.05, 10^{-3})
-</span></p>
-<p><span class="math display">
+$$
+
+$$
 \sigma \sim \text{Normal}(0, \tau^{-1})
-</span></p>
-<p><span class="math display">
+$$
+
+$$
 \tau \sim \text{Gamma}(1, 1)
-</span></p>
-<p>Where:</p>
-<ul>
-<li><p><span class="math inline">\alpha \in \mathbb{R}^{K}</span> is the <strong>relevance parameter vector</strong>. Each element <span class="math inline">\alpha_k</span> controls the precision (inverse variance) of the weights for the <em>k</em>-th principal component. If a component is not supported by the data, its corresponding <span class="math inline">\alpha_k</span> will become large, forcing the weights in the <em>k</em>-th column of <span class="math inline">W</span> towards zero and effectively “switching off” that component.</p></li>
-<li><p><span class="math inline">\tau</span> is the <strong>noise precision</strong> (inverse variance) of the data.</p></li>
-</ul>
-</section>
-<section id="robust-pca" class="level3">
-<h3 class="anchored" data-anchor-id="robust-pca">Robust PCA</h3>
-<p>In Robust PCA, the model is modified to handle outliers by using a heavy-tailed distribution for the likelihood:</p>
-<p><span class="math display">
-X_{dn} \sim \text{StudentT}(\nu, (W_{dk} \cdot Z_{kn})_{dn}, \sigma)
-</span> <span class="math display">
+$$
+
+Where:
+
+- $\alpha \in \mathbb{R}^{K}$ is the **relevance parameter vector**. Each element $\alpha_k$ controls the precision (inverse variance) of the weights for the *k*-th principal component. If a component is not supported by the data, its corresponding $\alpha_k$ will become large, forcing the weights in the *k*-th column of $W$ towards zero and effectively "switching off" that component.
+
+- $\tau$ is the **noise precision** (inverse variance) of the data.
+
+
+
+### Robust PCA
+In Robust PCA, the model is modified to handle outliers by using a heavy-tailed distribution for the likelihood:
+
+$$
+X_{dn} \sim \text{StudentT}(\nu, Z \cdot W, \sigma)
+$$
+$$
 Z_{kn} \sim \text{Normal}(0, 1)
-</span> <span class="math display">
+$$
+$$
 W_{dk} \sim \text{Normal}(0, 1)
-</span> <span class="math display">
-\nu \sim \text{Gamma}(2, 0.1)
-</span> <span class="math display">
-\sigma \sim \text{HalfCauchy}(1)
-</span></p>
-<p>Where:</p>
-<ul>
-<li><p><span class="math inline">\nu</span> is the <strong>degrees of freedom</strong> of the Student’s t-distribution. It controls the “heaviness” of the tails. Small values of <span class="math inline">\nu</span> lead to greater robustness. By placing a prior on it, we allow the model to learn the appropriate level of robustness from the data.</p></li>
-<li><p><span class="math inline">\sigma</span> is the <strong>scale parameter</strong> of the Student’s t-distribution, which is analogous to the standard deviation in a Normal distribution.</p></li>
-</ul>
-</section>
-<section id="sparse-pca" class="level3">
-<h3 class="anchored" data-anchor-id="sparse-pca">Sparse PCA</h3>
-<p>In Sparse PCA, a Laplace prior is placed on the weights <span class="math inline">W</span> to induce sparsity.</p>
-<p><span class="math display">
-X_{dn} \sim \text{Normal}((W_{dk} \cdot Z_{kn})_{dn}, sigma)
-</span> <span class="math display">
+$$
+$$
+\nu \sim \text{Gamma}(2, 0.1) 
+$$
+$$
+\sigma \sim \text{HalfCauchy}(1) 
+$$
+
+Where:
+
+- $\nu$ is the **degrees of freedom** of the Student's t-distribution. It controls the "heaviness" of the tails. Small values of $\nu$ lead to greater robustness. By placing a prior on it, we allow the model to learn the appropriate level of robustness from the data.
+
+- $\sigma$ is the **scale parameter** of the Student's t-distribution, which is analogous to the standard deviation in a Normal distribution.
+
+
+### Sparse PCA
+In Sparse PCA, a Laplace prior is placed on the weights $W$ to induce sparsity.
+
+$$
+X_{dn} \sim \text{Normal}(Z \cdot W, sigma)
+$$
+$$
 Z_{kn} \sim \text{Normal}(0, 1)
-</span> <span class="math display">
+$$
+$$
 W_{dk} \sim \text{Laplace}(0, \lambda_k^{-1})
-</span> <span class="math display">
-\lambda_k \sim \text{Gamma}(1, 1)
-</span></p>
-<p><span class="math display">
+$$
+$$
+\lambda_k \sim \text{Gamma}(1, 1) 
+$$
+
+$$
 \sigma \sim \text{Normal}(0, \tau^{-1})
-</span> <span class="math display">
-\tau \sim \text{Gamma}(1, 1)
-</span></p>
-<p>where:</p>
-<ul>
-<li><p><span class="math inline">\lambda \in \mathbb{R}^{K}</span> is the <strong>sparsity control vector</strong>. Each element <span class="math inline">\lambda_k</span> is the rate parameter (inverse scale) for the Laplace prior on the <em>k</em>-th column of <span class="math inline">W</span>. A larger <span class="math inline">\lambda_k</span> enforces stronger sparsity on that component.</p></li>
-<li><p><span class="math inline">\tau</span> is the <strong>noise precision</strong> (inverse variance) of the data.</p></li>
-</ul>
-</section>
-<section id="sparse-robust-pca-with-ard" class="level3">
-<h3 class="anchored" data-anchor-id="sparse-robust-pca-with-ard">Sparse Robust PCA with ARD</h3>
-<p>This model combines all three features: a sparsity-inducing prior, a robust likelihood, and automatic relevance determination.</p>
-<p><span class="math display">
-X_{dn} \sim \text{StudentT}(\nu, (WZ)_{dn}, \sigma)
-</span> <span class="math display">
+$$
+$$
+\tau \sim \text{Gamma}(1, 1) 
+$$
+
+where:
+
+- $\lambda \in \mathbb{R}^{K}$ is the **sparsity control vector**. Each element $\lambda_k$ is the rate parameter (inverse scale) for the Laplace prior on the *k*-th column of $W$. A larger $\lambda_k$ enforces stronger sparsity on that component.
+
+- $\tau$ is the **noise precision** (inverse variance) of the data.
+
+
+
+### Sparse Robust PCA with ARD
+This model combines all three features: a sparsity-inducing prior, a robust likelihood, and automatic relevance determination.
+
+$$
+X_{dn} \sim \text{StudentT}(\nu, Z \cdot W, \sigma)
+$$
+$$
 Z_{kn} \sim \text{Normal}(0, 1)
-</span> <span class="math display">
-W_{dk} \sim \text{Laplace}(0, \lambda_k^{-1})
-</span> <span class="math display">
-\lambda_k \sim \text{Gamma}(1, 1)
-</span> <span class="math display">
-\nu \sim \text{Gamma}(2, 0.1)
-</span> <span class="math display">
-\sigma \sim \text{HalfCauchy}(1)
-</span></p>
+$$
+$$
+W_{dk} \sim \text{Laplace}(0, \lambda_k^{-1}) 
+$$
+$$
+\lambda_k \sim \text{Gamma}(1, 1) 
+$$
+$$
+\nu \sim \text{Gamma}(2, 0.1) 
+$$
+$$
+\sigma \sim \text{HalfCauchy}(1) 
+$$
+-->
 </section>
 </section>
 <section id="note" class="level2">
 <h2 class="anchored" data-anchor-id="note">Note</h2>
 <ul>
-<li>To account for <strong><span id="signAmbiguity"><span style="color:#0D6EFD">sign ambiguity 🛈</span></span></strong> in PCA, we can align the signs of the estimated parameters with the true parameters before comparison. To do this, calculate the dot product between the true and estimated parameters. If it is negative, multiply the estimated parameters by -1 to align them with the true parameters. Below, a code snippet highlights how to do this:</li>
+<li>To account for <strong><span id="signAmbiguity"><span style="color:#0D6EFD">sign ambiguity 🛈</span></span></strong> in PCA, we can set the number of latent dimensions <span class="math inline">K</span> to be equal to the number of variables <span class="math inline">V</span>. Then, we can calculate the dot product between the estimated parameters and the data. If it is negative, we multiply the estimated parameters by -1 to align them with the data. Below, a code snippet highlights how to do this:</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>true_params <span class="op">=</span> jnp.array(real_data)      </span>
