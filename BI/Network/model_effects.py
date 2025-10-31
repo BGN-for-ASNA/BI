@@ -208,7 +208,7 @@ class Neteffect(array_manip):
         return dr_rf, dr_raw, dr_sigma, dr_L # we return everything to get posterior distributions for each parameters
 
     @staticmethod 
-    def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 1, sample = False):
+    def dyadic_terms(dyadic_predictors, d_m = 0, d_sd = 2.5, sample = False):
         """Calculate fixed effects for dyadic terms.
 
         Args:
@@ -352,5 +352,5 @@ class Neteffect(array_manip):
         # N_group is  a static value known at compile time.
         base_rate = jnp.tile(0.01, (N_group, N_group))
         base_rate = base_rate.at[jnp.diag_indices_from(base_rate)].set(0.1)
-        mu_ij = base_rate / jnp.sqrt(jnp.outer(N_by_group, N_by_group))
+        mu_ij = base_rate / jnp.sqrt(jnp.outer(N_by_group*0.5 , N_by_group*0.5))
         return mu_ij
