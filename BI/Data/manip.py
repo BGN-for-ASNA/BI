@@ -133,6 +133,30 @@ class manip():
             self.data_modification['scale'] = data # store info of scaled columns
 
         return self.df
+
+    def z_score(self,X, axis=0):
+        """
+        Performs Z-score scaling (standardization) on a JAX array.
+        (X - mean) / std_dev
+
+        Args:
+            X (jnp.ndarray): The input JAX array (e.g., shape (n_samples, n_features)).
+            axis (int): The axis along which to calculate mean and std. 
+                        axis=0 scales features (columns).
+
+        Returns:
+            jnp.ndarray: The scaled array.
+        """
+        # Calculate mean and std, preserving dimensions for correct broadcasting
+        mean_arr = jnp.mean(X, axis=axis, keepdims=True)
+        std_arr = jnp.std(X, axis=axis, keepdims=True)
+
+        # Handle division by zero (for constant features) by replacing 0 with 1
+        # This prevents NaN, as (X - mean) will be 0 when std_arr is 0.
+        std_arr = jnp.where(std_arr == 0, 1.0, std_arr)
+
+        X_scaled = (X - mean_arr) / std_arr
+        return X_scaled
     
     def to_float(self, cols = 'all', type = 'float32'):
         """## Convert specified columns to float type

@@ -5,7 +5,7 @@ from jax import jit
 from jax import vmap
 import numpyro
 from BI.Utils.np_dists import UnifiedDist as dist
-
+dist = dist()
 # Random factors related functions --------------------------------------------
 @jit
 def jax_LinearOperatorDiag(s, cov):    
@@ -84,7 +84,7 @@ class effects:
 
         if centered == False:       
             if corr is None:
-                L_corr = dist.lkj_cholesky((N_vars + 1), 2, name = f'L_corr', sample = sample) 
+                L_corr = dist.lkj_cholesky(dimension =(N_vars + 1), concentration = 2, name = f'L_corr', sample = sample) 
 
             z = dist.normal(0, 1, name="z", shape=(N_vars + 1 , N_group), sample=sample)
 
@@ -97,7 +97,7 @@ class effects:
 
         else:
             if corr is None:
-                corr = dist.lkj((N_vars + 1), 2, name = f'corr_{group_name}', sample = sample) 
+                corr = dist.lkj(dimension = (N_vars + 1), concentration = 2, name = f'corr_{group_name}', sample = sample)
             cov = jnp.diag(sigma) @ corr @ jnp.diag(sigma)
             #cov = jnp.outer(sigma, sigma) * corr
             group_params =  dist.multivariate_normal(
@@ -220,15 +220,16 @@ class effects:
         if L_Rho is None:
             # The LKJ Cholesky prior is a distribution over correlation matrices.
             # An eta > 1 (here, 2) encourages weaker correlations.
-            L_Rho = m.dist.lkj_cholesky(num_categories, 2, name=f"L_Rho_{group_name}", sample=sample)
+            L_Rho = dist.lkj_cholesky(num_categories, 2, name=f"L_Rho_{group_name}", sample=sample)
+
         if sigma is None:
             # The Exponential prior ensures the standard deviations are positive.
-            sigma = m.dist.exponential(1, name=f'sigma_{group_name}', shape=(num_categories,), sample=sample)
+            sigma = dist.exponential(1, name=f'sigma_{group_name}', shape=(num_categories,), sample=sample)
 
         # 2. Implement the non-centered parameterization for efficiency.
         # We sample uncorrelated standard normal values and then transform them.
         # This improves the geometry of the posterior for the sampler. [1, 2, 3, 4, 5]
-        z = m.dist.normal(0, 1, name=f"z_{group_name}", shape=(num_categories, num_groups), sample=sample)
+        z = dist.normal(0, 1, name=f"z_{group_name}", shape=(num_categories, num_groups), sample=sample)
 
         # 3. Transform the standard normal samples into correlated varying effects.
         # This operation combines the scale (sigma), correlation (L_Rho), and the
@@ -520,4 +521,4 @@ class Mgaussian:
         #L_SIGMA = jnp.linalg.cholesky(SIGMA)
         #z = dist.normal(0, 1, shape= shape, name = 'z')
         #k = numpyro.deterministic("k", (L_SIGMA @ z[..., None])[..., 0])
-        return  numpyro.sample("k", dist.MultivariateNormal(0, SIGMA))
+        return  dist.multivariate_normal(0, SIGMA, name='kernel')
