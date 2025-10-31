@@ -39,9 +39,10 @@ m.data_on_model = dat # Send to model (convert to jax array)
 # Define model ------------------------------------------------
 def model(D_obs, D_sd, A, N):  
     a = m.dist.normal(0, 0.2, name = 'a') 
-    bA = m.dist.normal(0, 0.5, name = 'bA') 
+    beta = m.dist.normal(0, 0.5, name = 'beta')
+    eta = m.dist.normal(0, 0.5, name = 'eta')  
     s = m.dist.exponential(1, name = 's') 
-    mu = a + bA * A + bM * M
+    mu = a + beta * A + eta * M
     D_true = m.dist.normal(mu, s, name = 'D_true') 
     m.normal(D_true , D_sd, obs = D_obs) 
 
@@ -60,7 +61,7 @@ m.summary() # Get posterior distributions
 ### *Bayesian formulation*
 
 $$
-D_i^* \sim \text{Normal}(D_i, \sigma_i)
+D_i^* \sim \text{Normal}(D_i, \varsigma_i)
 $$
 
 $$
@@ -68,7 +69,7 @@ D_i \sim \text{Normal}(\mu_i, \sigma)
 $$
 
 $$
-\mu_i = \alpha + \beta_A A_i + \beta_M M_i 
+\mu_i = \alpha + \beta A_i + \eta M_i 
 $$
 
 $$
@@ -87,9 +88,9 @@ where:
 
 - $\alpha$ is the intercept term.
 
-- $\beta_A$ is the regression coefficient for age.
+- $\beta$ is the regression coefficient for age.
 
-- $\beta_M$ is the regression coefficient for marriage rate.    
+- $\eta$ is the regression coefficient for marriage rate.    
 
 
 ## Notes
