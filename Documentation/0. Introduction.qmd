@@ -114,7 +114,7 @@ def model(X, Y):
 ```
 The code snippet provides several key features of the *BI* package:
 
-1. First, you need to initialize a bi object.
+1. First, you need to initialize a BI object.
 
 2. Then, you can store data as a JAX array dictionary using the ```m.data_on_model``` function. If all the data can be stored in a data frame (e.g., [Linear Regression for continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd)), you do not need to use ```m.data_on_model```, as the BI object automatically detects the data provided in the model arguments. However, sometimes you may need different data structures such as vectors and 2D arrays (e.g., [Network model](20.&#32;Network&#32;model.qmd)).
 
@@ -131,7 +131,7 @@ The choice of prior ranges can significantly affect Bayesian analysis results. T
 
 - **Noninformative Priors**: When there is little or no information about the parameters, noninformative priors can be used. These priors are designed to have minimal influence on the posterior distribution, allowing the data to dominate the inference process.
 
-- **Scaled data**: If the data are [<span style="color:#0D6EFD">*scaled* 🛈</span>]{#scaled}, the prior distributions can be chosen to reflect this. For example, if the data are scaled, the prior distributions for the intercept and slope can be centered around 0 and 1, respectively. By scaling the independent variable, we obtain a unit of change based on variance; that is, the effect represents a one–standard–deviation change in $X$ on $Y$. Scaling the data improves both numerical stability. When all data are scaled to the same range, it leads to more stable numerical behavior during estimation. Additionally, it facilitates setting priors that are both meaningful and relatively uninformative. By aligning the scale of the data with the scale assumed in the priors, we ensure that the posterior distributions exhibit reasonable spread and that our uncertainty quantification is consistent with the data’s scale. For the remainder of this document, we will assume that the data are scaled. However, users should be aware that it is often necessary to rescale parameters estimates by the standard deviation of the data in order to get parameters that are interpretable on the natural scale.
+- **Scaled data**: If the data are [<span style="color:#0D6EFD">*scaled* 🛈</span>]{#scaled}, the prior distributions can be chosen to reflect this. For example, if the data are scaled, the prior distributions for the intercept and slope can be centered around 0 and 1, respectively. By scaling the independent variable, we obtain a unit of change based on variance; that is, the effect represents a one–standard–deviation change in $X$ on $Y$. Scaling the data improves both numerical stability. When all data are scaled to the same range, it leads to more stable numerical behavior during estimation. Additionally, it facilitates setting priors that are both meaningful and relatively uninformative. By aligning the scale of the data with the scale assumed in the priors, we ensure that the posterior distributions exhibit reasonable spread and that our uncertainty quantification is consistent with the data’s scale. For the remainder of the document, we will assume that the data are scaled. However, users should be aware that it is often necessary to rescale parameters estimates by the standard deviation of the data in order to get parameters that are interpretable on the natural scale.
 
 
 ## Model fit and posterior distribution
