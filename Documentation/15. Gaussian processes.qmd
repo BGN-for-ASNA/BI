@@ -1,23 +1,24 @@
 ---
 title: "Gaussian Processes"
-description: "A non-parametric Bayesian approach to regression and classification that defines a distribution over functions."
+description: "A Bayesian approach to regression and classification that defines a distribution over functions."
 categories: [Regression, Non-parametric]
 image: "Figures/15.png"
 order: 18
 ---
 
 ## General Principles
-Through varying intercepts and slopes, we have seen how to quantify some of the unique features that generate variation across clusters and covariance among the observations within each cluster. But through the covariance matrix that is used to account for correlation between clusters, we are inherently assuming linear relationships between clusters. What if we want to model the relationship between two variables that are not linearly related? In this case, we can use a Gaussian Process (GP) to model the relationship between two variables. Basically, a GP is a varying-slope model with a covariance matrix where each element of the matrix is a [<span style="color:#0D6EFD">kernel function 🛈</span>]{#kernel}.
-
+Through varying intercepts and slopes, we have seen how to quantify some of the unique features that generate variation across clusters and covariance among the observations within each cluster. But through the covariance matrix that is used to account for correlation between clusters, we are inherently assuming linear relationships between clusters. What if we want to model the relationship between two variables that are not linearly related? In this case, we can use a Gaussian Process (GP) to model the relationship between two variables. 
+<!---
+Basically, a GP is a varying-slope model with a covariance matrix where each element of the matrix is a [<span style="color:#0D6EFD">kernel function 🛈</span>]{#kernel}.
+-->
 
 ## Considerations
 ::: callout-caution
 - To capture complex, non-linear relationships in data where the underlying function is smooth but has an unknown functional form, GPs use a [<span style="color:#0D6EFD">kernel 🛈</span>]{#kernel}.
-- GPs assume normally distributed errors and may not be appropriate for all types of noise.
 - The choice of kernel hyperparameters can significantly impact results; thus, GPs require choosing an appropriate kernel function that captures the expected behavior of your data.
 - Through kernel definition, we can incorporate domain knowledge.
 - They scale poorly with dataset size (O(n³) complexity) due to matrix operations; thus, memory requirements can be substantial for large datasets, which has led to neural networks being used instead to resolve large non-linear problems.
-
+<!--- Check scale of the GP -->
 :::
 
 ## Example
@@ -113,76 +114,57 @@ m$summary() # Get posterior distribution
 ### *Formula*
 
 
-The following equation allows us to evaluate the relationship between the dependent variable $Y$ and the independent variable $X$ while incorporating a GP for variable $Z$:
+The following equation allows us to evaluate the relationship between the dependent variable $Y$ distributed normal, and the independent variable $X$ while incorporating a GP for the effect of variable $Q$:
 
 $$
-Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
+Y_{[i]} \sim \text{Normal}( \alpha + \beta  X_{[i]} + \gamma_{[Q_{[i]}]}, \sigma)
 $$
 
 where:
-- $Y_i$ is the i-th value for the dependent variable $Y$.
+
+- $Y_{[i]}$ is the i-th value for the dependent variable $Y$.
 
 - $\alpha$ is the intercept term.
 
 - $\beta$ is the regression coefficient term.
 
-- $X_i$ is the i-th value for the independent variable $X$.
+- $X_{[i]}$ is the i-th value for the independent variable $X$.
 
-- $\gamma_{Z_i}$ is the Gaussian process i-th value for the independent variable $Z$.
+- $Q_{[i]}$ is an integer-valued independent variable (e.g., year-of-birth, age, year) for observation $i$.
 
-The GP $\gamma_{Z_i}$ follows a multivariate normal distribution:
+- $\gamma$ is a vector output from a Gaussian process:
 
 $$
-\begin{pmatrix}
-    Z_1 \\
-    \vdots \\
-    Z_{n}
-\end{pmatrix}
+\gamma
 \sim \text{MVNormal} \left(
-\begin{pmatrix}
-    0 \\
-    \vdots \\
-    0
-\end{pmatrix},
-K
+Z,
+\varsigma\Omega\varsigma
 \right)
 $$
 
 where:
 
-- $(Z_1, ..., Z_n)$ represents a collection of all values of the random variable $Z$.
+- $Z$ represents the mean vector of the multivariate normal distribution and set to [<span style="color:#0D6EFD">zero 🛈</span>]{#kernelMean0}.
 
-- $(0, ..., 0)$ represents the mean vector of the multivariate normal distribution of the same size as the number of random variables and set to [<span style="color:#0D6EFD">zero 🛈</span>]{#kernelMean0}.
+- $\varsigma$ is a diagonal matrix of standard deviations. 
 
-- $K$ is the covariance matrix of the random variable $Z$. Each element $K_{ij}$ of the matrix is given by the kernel function evaluated at the corresponding points: $K_{ij} = k(Z_i, Z_j)$
+- $\Omega$ is a correlation matrix. 
 
-$$
-K = \begin{pmatrix}
-    k(Z_1, Z_1) & k(Z_1, Z_2) & \cdots & k(Z_1, Z_{n}) \\
-    k(Z_2, Z_1) & k(Z_2, Z_2) & \cdots & k(Z_2, Z_{n}) \\
-    \vdots & \vdots & \ddots & \vdots \\
-    k(Z_{n}, Z_1) & k(Z_{n}, Z_2) & \cdots & k(Z_{n}, Z_{n})
-\end{pmatrix}
-$$
 
-- Multiple kernel functions exist and will be discussed in the [Note(s)](#notes) section. But the most common one is the quadratic kernel:
+- Multiple kernel functions for $\Omega$ exist and will be discussed in the [Note(s)](#notes) section. But the most common one is the quadratic kernel:
 
 $$
-K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2 
+\Omega_{[i,j]} = \eta \exp(-\phi^2 D_{[i,j]}^2) 
 $$
 
 Where:
 
-- $\eta$ is the signal variance, representing the overall variance of the outputs of the Gaussian process. It scales the influence of the kernel function. A larger $\eta^2$ indicates a wider range of values the function can take.
+- $\eta$ is the maximal correlation.
   
-- $p$ determines the rate of decline.
+- $\phi$ determines the rate of decline.
   
-- $D_{ij}$ is the distance between the $i$-th and $j$-th points.
+- $D_{[i,j]}$ is the distance between the $i$-th and $j$-th categories.
   
-- $\delta_{ij}$ is the Kronecker delta, taking a value of one when $i = j$ and zero otherwise, allowing the self-covariance to be included in the calculation.
-  
-- $\sigma^2$ is the noise variance, which accounts for the observation noise in the data. It represents the uncertainty or variability in the measurements or outputs at each point. The term effectively adds this noise variance only when $i = j$, ensuring that the diagonal elements of the covariance matrix represent the total variance at each input point.
-
 
 
 ### *Bayesian model*
@@ -255,15 +237,7 @@ $$k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right)$$
 
 $$k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right) \exp\left(-\frac{||x-x'||^2}{2l^2}\right)$$ 
 
-- GPs can be extended to classification problems using link functions.
-- Multi-output problems can be addressed using matrix-valued kernels. 
-- Deep learning can be combined with GPs through Deep Kernel Learning.
-
-
-- Computational tricks for large datasets include:
-    - Sparse approximations (e.g., FITC, VFE)
-    - Inducing points methods
-    - Random Fourier features
+- Any slope or intercept in your model can be defined using a Gaussian Process.
 
 :::
 
