@@ -5,7 +5,7 @@ sidebar: start
 
 The BI class can compute model diagnostics for a given model.
 
-Lets concider the following model for a linear regression:
+Lets consider the following model for a linear regression:
 
 $$
 Y_i \sim \text{Normal}(\alpha + \beta   X_i, \sigma)
@@ -51,7 +51,7 @@ m.summary()
 
 For additional documentation check the [diagnostics API reference](../api_diag.qmd)
 
-## Predictions from model base on specific data value
+## Predictions from model based on specific data value
 ```{python}
 m.sample() # Predictions from model base on data in data_on_model
 m.sample(data=dict(weight=jnp.array([0.4])), remove_obs=False)# Predictions from a given value
@@ -83,7 +83,7 @@ m.diag.plot_trace()
 m.diag.pair()
 ```
 
-## Plot autocorrelation of the MCMC chains
+## Plot autocorrelation of MCMC chains
 ```{python}
 m.diag.autocor()
 ```
