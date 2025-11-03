@@ -401,7 +401,7 @@ class bi(manip):
         """
         rng_key = jax.random.PRNGKey(int(seed))
         self.build_model_with_Y_None(self.model)
-
+  
         if data is None:
             data = self.data_on_model.copy() 
         
@@ -411,13 +411,8 @@ class bi(manip):
 
         if posterior == False:
             posterior = None
-
-        if posterior == True and samples > 1 :
-            tmp = self.get_posterior_means()
-            posterior = {key: jnp.repeat(value, samples) for key, value in tmp.items()}
-
-        else: 
-            posterior = self.get_posterior_means()
+        else:
+            posterior = self.sampler.get_samples()
 
         predictive = Predictive(self.model2, posterior_samples=posterior, num_samples=samples)
         return predictive(rng_key, **data)
