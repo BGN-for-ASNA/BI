@@ -272,9 +272,9 @@ class UnifiedDist:
 
 
         #### References
-        [1]: https://en.wikipedia.org/wiki/Bernoulli_distribution?utm_source=chatgpt.com "Bernoulli distribution"
-        [2]: https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Bernoulli?utm_source=chatgpt.com "tfp.        distributions.Bernoulli - Probability"
-        [3]: https://mc-stan.org/docs/2_19/functions-reference/bernoulli-logit-distribution.html?utm_source=chatgpt.com "11.2 Bernoulli Distribution, Logit Parameterization - Stan"
+        [1]: https://en.wikipedia.org/wiki/Bernoulli_distribution "Bernoulli distribution"
+        [2]: https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Bernoulli "tfp.        distributions.Bernoulli - Probability"
+        [3]: https://mc-stan.org/docs/2_19/functions-reference/bernoulli-logit-distribution.html "11.2 Bernoulli Distribution, Logit Parameterization - Stan"
 
         """
 
@@ -448,9 +448,9 @@ class UnifiedDist:
             https://num.pyro.ai/en/stable/distributions.html#beta
 
         #### References:
-        [1]: https://en.wikipedia.org/wiki/Beta_distribution?utm_source=chatgpt.com "Beta distribution -        Wikipedia"
-        [2]: https://www.statlect.com/probability-distributions/beta-distribution?utm_source=chatgpt.com        "Beta distribution | Properties, proofs, exercises - StatLect"
-        [3]: https://reference.wolfram.com/language/ref/BetaDistribution.html?utm_source=chatgpt.com        "BetaDistribution - Wolfram Language Documentation"
+        [1]: https://en.wikipedia.org/wiki/Beta_distribution "Beta distribution -        Wikipedia"
+        [2]: https://www.statlect.com/probability-distributions/beta-distribution        "Beta distribution | Properties, proofs, exercises - StatLect"
+        [3]: https://reference.wolfram.com/language/ref/BetaDistribution.html        "BetaDistribution - Wolfram Language Documentation"
 
         """
 
@@ -535,9 +535,9 @@ class UnifiedDist:
             https://num.pyro.ai/en/stable/distributions.html#betabinomial
 
         #### References:
-        [1]: https://en.wikipedia.org/wiki/Beta-binomial_distribution?utm_source=chatgpt.com "Beta-binomial distribution"
-        [2]: https://www.statisticshowto.com/beta-binomial-distribution/?utm_source=chatgpt.com "Beta-Binomial Distribution: Definition - Statistics How To"
-        [3]: https://mc-stan.org/docs/2_19/functions-reference/beta-binomial-distribution.html?utm_source=chatgpt.com "12.3 Beta-Binomial Distribution | Stan Functions Reference"
+        [1]: https://en.wikipedia.org/wiki/Beta-binomial_distribution "Beta-binomial distribution"
+        [2]: https://www.statisticshowto.com/beta-binomial-distribution/ "Beta-Binomial Distribution: Definition - Statistics How To"
+        [3]: https://mc-stan.org/docs/2_19/functions-reference/beta-binomial-distribution.html "12.3 Beta-Binomial Distribution | Stan Functions Reference"
         """
 
            
@@ -628,7 +628,7 @@ class UnifiedDist:
             https://num.pyro.ai/en/stable/distributions.html#beta_proportion
 
         #### References:
-        https://mc-stan.org/docs/2_19/functions-reference/beta-proportion-distribution.html?utm_source=chatgpt.com "19.2 Beta Proportion Distribution | Stan Functions Reference"
+        https://mc-stan.org/docs/2_19/functions-reference/beta-proportion-distribution.html "19.2 Beta Proportion Distribution | Stan Functions Reference"
         """
 
            
@@ -862,9 +862,9 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BI CAR object (for advanced use cases).
 
         #### References:
-        [1]: https://www.pymc.io/projects/examples/en/latest/spatial/conditional_autoregressive_priors.html?utm_source=chatgpt.com "Conditional Autoregressive (CAR) Models for Spatial Data"
-        [2]: https://mc-stan.org/learn-stan/case-studies/icar_stan.html?utm_source=chatgpt.com "Intrinsic Auto-Regressive Models for Areal Data - Stan"
-        [3]: https://onlinelibrary.wiley.com/doi/abs/10.1002/9781118445112.stat08048?utm_source=chatgpt.com "Conditional Autoregressive (CAR) Model - Schmidt"
+        [1]: https://www.pymc.io/projects/examples/en/latest/spatial/conditional_autoregressive_priors.html "Conditional Autoregressive (CAR) Models for Spatial Data"
+        [2]: https://mc-stan.org/learn-stan/case-studies/icar_stan.html "Intrinsic Auto-Regressive Models for Areal Data - Stan"
+        [3]: https://onlinelibrary.wiley.com/doi/abs/10.1002/9781118445112.stat08048 "Conditional Autoregressive (CAR) Model - Schmidt"
 
         """
 
@@ -2896,7 +2896,7 @@ class UnifiedDist:
             https://num.pyro.ai/en/stable/distributions.html#halfnormal
 
         #### References:
-            https://distribution-explorer.github.io/continuous/halfcauchy.html?utm_source=chatgpt.com
+            https://distribution-explorer.github.io/continuous/halfcauchy.html
         """
 
            
@@ -5513,7 +5513,7 @@ class UnifiedDist:
 
         r"""### Sine Bivariate Von Mises
 
-        [In probability theory and statistics, the bivariate von Mises distribution is a probability distribution describing values on a torus. It may be thought of as an analogue on the torus of the bivariate normal distribution. The distribution belongs to the field of directional statistics. The general bivariate von Mises distribution was first proposed by Kanti Mardia in 1975. One of its variants is today used in the field of bioinformatics to formulate a probabilistic model of protein structure in atomic detail, such as backbone-dependent rotamer libraries.](https://en.wikipedia.org/wiki/Bivariate_von_Mises_distribution?utm_source=chatgpt.com)
+        [In probability theory and statistics, the bivariate von Mises distribution is a probability distribution describing values on a torus. It may be thought of as an analogue on the torus of the bivariate normal distribution. The distribution belongs to the field of directional statistics. The general bivariate von Mises distribution was first proposed by Kanti Mardia in 1975. One of its variants is today used in the field of bioinformatics to formulate a probabilistic model of protein structure in atomic detail, such as backbone-dependent rotamer libraries.](https://en.wikipedia.org/wiki/Bivariate_von_Mises_distribution)
 
 
         #### Args:
@@ -5612,7 +5612,7 @@ class UnifiedDist:
         
         r"""### Sine-skewing
 
-        The sine-skewed von Mises distribution is an extension of the symmetric circular (or toroidal) von Mises (or bivariate von Mises) distribution to allow for skewness (asymmetry) via a sine-based skewing function. It is used to model directional data on the circle (or torus) that depart from symmetry.[1](https://arxiv.org/abs/1902.02579?utm_source=chatgpt.com)
+        The sine-skewed von Mises distribution is an extension of the symmetric circular (or toroidal) von Mises (or bivariate von Mises) distribution to allow for skewness (asymmetry) via a sine-based skewing function. It is used to model directional data on the circle (or torus) that depart from symmetry.[1](https://arxiv.org/abs/1902.02579)
         
 
         
@@ -6327,27 +6327,36 @@ class UnifiedDist:
 
         r"""### Wishart Cholesky 
 
-        The Wishart distribution is a multivariate distribution used as a prior distribution
-        for covariance matrices. This implementation represents the distribution in terms
-        of its Cholesky decomposition.
-        
-        .. rubric:: Probability Density Function
+        * The **Wishart** distribution is a distribution over positive definite matrices, often used as a prior for covariance or precision matrices in multivariate normal models. 
+        * The **Cholesky parameterization** of the Wishart (called “wishart_cholesky” in Stan, for example) reparameterizes the Wishart over its **lower (or upper) triangular Cholesky factor**. This is useful for numerical stability and unconstrained parameterization in Bayesian sampling frameworks. 
+        * In this parameterization, one works with a lower‐triangular matrix $L_W$ such that
+        $$
+        \Sigma = L_W L_W^\top
+        $$
+        and imposes a density over $L_W$ corresponding to the induced Wishart density on (\Sigma).
+
         
         The probability density function (PDF) is given by:
+
+        If the dimension is $K$, degrees of freedom $\nu > K - 1$, and $L_S$ is the lower‐triangular Cholesky factor of the scale matrix $S$, then the log density for $L_W$ under the **wishart_cholesky** distribution is:
+
+        $$
+        \log p(L_W \mid \nu, L_S)
+        = \log \bigl[ \text{Wishart}(L_W L_W^\top \mid \nu, L_S L_S^\top) \bigr] + \log \bigl| J_{f^{-1}} \bigr|
+        $$
+
+        where $J_{f^{-1}}$ is the Jacobian of the transformation from $L_W$ to $\Sigma = L_W L_W^\top$.
+
+        The Jacobian term (absolute log determinant) is:
+
+        $$
+        \log |J_{f^{-1}}| = K \log 2 ; \sum_{k=1}^K (K - k + 1),\log L_{W_{k,k}}.
+        $$
+
+        Thus the density includes both the usual Wishart density on $\Sigma$ plus this extra Jacobian (which penalizes or weights the diagonal entries of $L_W$).
+
         
-        PDF = (1 / ((2 * pi)^(k * (k - 1) / 2) * Gamma(k/2)) *
-               (concentration^(k/2) * det(scale_matrix))^(-1/2) *
-               exp(-1/2 * trace(rate_matrix @ scale_matrix)))
-        
-        where:
-        
-        - k is the dimensionality of the covariance matrix.
-        - concentration is a positive concentration parameter.
-        - scale_matrix is the scale matrix.
-        - rate_matrix is the rate matrix.
-        - Gamma is the gamma function.
-        
-        .. rubric:: Parameters
+        #### Parameters
         
         - concentration: (Tensor) Positive concentration parameter analogous to the
             concentration of a :class:`Gamma` distribution. The concentration must be larger
@@ -6369,6 +6378,10 @@ class UnifiedDist:
         - obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - name (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+        #### References:
+        [1]: https://en.wikipedia.org/wiki/Wishart_distribution "Wishart distribution"
+        [2]: https://mc-stan.org/docs/2_32/functions-reference/wishart-cholesky-distribution.html"28.2 Wishart distribution, Cholesky Parameterization - Stan"
             
         """
         
@@ -6402,12 +6415,31 @@ class UnifiedDist:
 
         r"""### A Zero Inflated Poisson 
         
-            This distribution combines two Poisson processes: one with a rate parameter and another that generates only zeros.
-            The probability of observing a zero is determined by the 'gate' parameter, while the probability of observing a non-zero value is governed by the 'rate' parameter of the underlying Poisson distribution.
+            The Zero-Inflated Poisson distribution is a discrete count‐distribution designed for data with *more zeros* than would be expected under a standard Poisson. Essentially, it assumes two underlying processes:
+
+            * With probability $\pi$ you are in a “structural zero” state (i.e., you automatically get a zero count).
+            * With probability $1 - \pi$ you draw from a standard Poisson distribution with parameter $\lambda$.
+
+            This results in a mixture distribution that places more mass at zero than a Poisson alone would.
+            It’s widely used in, for instance, ecology (species counts with many zeros), insurance/claims problems, and any count‐data setting with excess zeros.
         
+            The probability density function (PDF) is given by:
+
+            Let $X$ be a random variable following a Zero-Inflated Poisson with parameters
+
+            * $\pi\in[0,1]$: zero-inflation probability (chance of being structural zero)
+            * $\lambda>0$: mean of the Poisson component
+
+            Then:
             $$
-            P(X = k) = (1 - gate) * \frac{e^{-rate} rate^k}{k!} + gate
-            $$
+            P(X = k) =
+            \begin{cases}
+            \pi ;+; (1 - \pi),e^{-\lambda}, & \text{if } k = 0, [6pt]
+            (1 - \pi),\dfrac{\lambda^k e^{-\lambda}}{k!}, & \text{if } k = 1,2,3,\dots
+            \end{cases}
+            $$  
+            (Here the Poisson component contributes also a mass at zero of $(1 - \pi)e^{-\lambda}$, plus the extra $\pi$ mass.) 
+
         
             #### Args:
             - *gate* (jnp.ndarray): The probability of observing a zero.
@@ -6441,6 +6473,10 @@ class UnifiedDist:
                 m.dist.zero_inflated_poisson(gate = 0.3, rate=2.0, sample=True)
         
             #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatedpoisson
+
+            #### References:
+            * https://en.wikipedia.org/wiki/Zero-inflated_model "Zero-inflated model"
+            * https://www.statisticshowto.com/zero-inflated-poisson-distribution "Zero-Inflated Poisson distribution - Statistics How To"
         """
 
            
@@ -6473,13 +6509,15 @@ class UnifiedDist:
         
 
         r"""### Zero Sum Normal 
-        Samples from a ZeroSumNormal distribution, which is a Normal distribution where one or more axes are constrained to sum to zero.
+        A **zero-sum normal**  is a variant of a multivariate normal in which one (or more) linear constraint(s) force certain components to **sum to zero**. In practice, it’s used to model vectors of random effects (e.g. in hierarchical models) where the effects are constrained to sum to zero (to avoid overparameterization or enforce identifiability).
         
         $$
         ZSN(\sigma) = N(0, \sigma^2 (I - \tfrac{1}{n}J)) \\
         \text{where} \ ~ J_{ij} = 1 \ ~ \text{and} \\
         n = \text{number of zero-sum axes}
         $$
+
+        where $J$is the all-ones matrix and $n$ is the number of constrained elements. So the covariance is $ \sigma^2 (I - \tfrac{1}{n} J) $, which ensures that the sum of the components is 0 (since $ J \mathbf{x} = \mathbf{1} \sum_i x_i $).
         
         #### Args:
         - *scale* (array_like): Standard deviation of the underlying normal distribution before the zerosum constraint is enforced.
@@ -6516,6 +6554,9 @@ class UnifiedDist:
         
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#zerosumnormal
+
+        #### References:
+        https://www.pymc.io/projects/docs/en/latest/api/distributions/generated/pymc.ZeroSumNormal.html
         """
 
            
@@ -6549,14 +6590,38 @@ class UnifiedDist:
 
         r"""### Bernoulli
         
-        The Bernoulli distribution models a single trial with two possible outcomes: success or failure.
-        It is parameterized by the probability of success, often denoted as 'p'.
-        
-        $$  
-        P(X=1) = p \\
-        P(X=0) = 1 - p
+        The Bernoulli distribution models a single trial with two possible outcomes: success or failureIt models a single trial with exactly two possible outcomes:
+
+        * **Success** (often coded as 1) with probability (p),
+        * **Failure** (often coded as 0) with probability (1 - p).
+
+        It is a building block for many more complex discrete distributions (e.g. binomial, geometric).
+
+        We write
         $$
-        
+        X \sim \mathrm{Bernoulli}(p)
+        $$
+        with $0 \le p \le 1$. 
+
+        ---
+
+        ## Probability Mass Function (PMF)
+
+        $$
+        P(X = x) =
+        \begin{cases}
+        p, & \text{if } x = 1, \
+        1 - p, & \text{if } x = 0, \
+        0, & \text{otherwise.}
+        \end{cases}
+        $$
+
+        Alternatively, using an “indicator” exponent form:
+
+        $$
+        P(X = x) = p^x (1 - p)^{1 - x}, \quad x \in {0,1}.
+        $$
+
         #### Args:
         - *probs* (jnp.ndarray, optional):  Probability of success for each Bernoulli trial. Must be between 0 and 1.
 
@@ -6589,6 +6654,10 @@ class UnifiedDist:
             m.dist.bernoulli(probs=0.7, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#bernoulli
+
+        #### References:
+        [1]: https://en.wikipedia.org/wiki/Bernoulli_distribution "Bernoulli distribution"
+        [2]: https://stats.libretexts.org/Courses/Saint_Mary%27s_College_Notre_Dame/MATH_345__-_Probability_%28Kuter%29/3%3A_Discrete_Random_Variables/3.3%3A_Bernoulli_and_Binomial_Distributions "3.3: Bernoulli and Binomial Distributions - Statistics LibreTexts"
         """
 
            
@@ -6622,12 +6691,31 @@ class UnifiedDist:
 
         r"""### Binomial
         
-        The Binomial distribution models the number of successes in a sequence of independent Bernoulli trials.
-        It represents the probability of obtaining exactly *k* successes in *n* trials, where each trial has a probability *p* of success.
+        The Binomial distribution models the number of successes in a sequence of independent Bernoulli trials. It represents the probability of obtaining exactly *k* successes in *n* trials, where each trial has a probability *p* of success. It assumes:
+
+            1. Each trial has exactly two possible outcomes (success or failure). 
+            2. The probability of success $p is constant across trials.
+            3. Trials are independent.
         
-        $$   P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}
+        We denote:
+        $$
+        X \sim \mathrm{Binomial}(n, p).
         $$
         
+
+        ## Probability Mass Function (PMF)
+
+        For $k = 0,1,2,\dots,n$:
+
+        $$
+        \Pr(X = k) = \binom{n}{k} ; p^k ; (1 - p)^{,n - k},
+        $$
+
+        where $\binom{n}{k} = \frac{n!}{k!(n-k)!}$. 
+
+        This formula counts the number of ways to choose which $k$ out of $n$ trials are the successes (the binomial coefficient) and then multiplies by the probability of each such configuration $p^k (1-p)^{n-k}$. 
+
+
         #### Args:
         - *total_count* (int): The number of trials *n*.
         
@@ -6662,6 +6750,10 @@ class UnifiedDist:
             m.dist.binomial(total_count=10, probs=0.5, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#binomial
+
+        #### References:
+        [1]: https://en.wikipedia.org/wiki/Binomial_distribution "Binomial distribution"
+        [2]: https://www.itl.nist.gov/div898/handbook/eda/section3/eda366i.htm "1.3.6.6.18. Binomial Distribution - Information Technology Laboratory"
         """
 
            
@@ -6696,14 +6788,21 @@ class UnifiedDist:
         r"""### Categorical distribution.
         
         The Categorical distribution, also known as the multinomial distribution,
-        describes the probability of different outcomes from a finite set of possibilities.
+        describes the probability of $K$ different outcomes with probabilities ${p_1, p_2, \dots, p_K}$.There’s no inherent ordering required among the categories.
+
+            - The probabilities satisfy (p_i \ge 0) for all (i) and $ \sum_{i=1}^K p_i = 1$ . 
+            - It’s essentially the distribution of a single draw from a discrete set of categories. 
+            - It generalises the Bernoulli distribution (which is the special case $K=2$).
+
         It is commonly used to model discrete choices or classifications.
         
-        $$   
-        P(k) = \frac{e^{\log(p_k)}}{\sum_{j=1}^{K} e^{\log(p_j)}}
+        If $X$ is a categorical random variable taking values in ${1, 2, \dots, K}$ with probabilities $p_1, \dots, p_K$, then:
+
+        $$
+        \Pr(X = i) = p_i, \quad i = 1,\dots, K.
         $$
 
-        where $p_k$ is the probability of outcome $k`, and the sum is over all possible outcomes.
+        where $p_k$ is the probability of outcome $k$, and the sum is over all possible outcomes.
         
         #### Args:
         - *probs* (jnp.ndarray): A 1D array of probabilities for each category. Must sum to 1.
@@ -6747,6 +6846,11 @@ class UnifiedDist:
             m.dist.categorical(probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#categorical
+
+        #### References:
+        * https://en.wikipedia.org/wiki/Categorical_distribution"Categorical distribution"
+        * https://distribution-explorer.github.io/discrete/categorical.html"Categorical distribution — Probability Distribution Explorer documentation"
+        * https://static.hlt.bme.hu/semantics/external/pages/n-gram/en.wikipedia.org/wiki/Categorical_distribution.html"Categorical distribution - Wikipedia"
         """
 
            
@@ -6780,12 +6884,14 @@ class UnifiedDist:
 
         r"""### Geometric distribution.
         
-        The Geometric distribution models the number of failures before the first success in a sequence of Bernoulli trials.
-        It is characterized by a single parameter, the probability of success on each trial.
-        
-        $$   P(X = k) = (1 - p)^k p
+        The Geometric distribution models the number of independent Bernoulli trials needed to obtain the first success (or equivalently the number of failures before the first success). Each trial has the same probability of success $p$, and trials are independent.
+
+        * $X$ = number of trials until the first success (so support $1,2,3,\dots$). 
+
         $$
-        
+        P(X = k) = (1 - p)^{,k-1} ; p,\quad k = 1,2,\dots
+        $$
+
         #### Args:
         - *probs* (jnp.ndarray, optional): Probability of success on each trial. Must be between 0 and 1.
 
@@ -6808,9 +6914,9 @@ class UnifiedDist:
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
         #### Returns:
-      - When `sample=False`: A BI Geometric distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the Geometric distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+            - When `sample=False`: A BI Geometric distribution object (for model building).
+            - When `sample=True`: A JAX array of samples drawn from the Geometric distribution (for direct sampling).
+            - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
         
         #### Example Usage:
             from BI import bi
@@ -6818,6 +6924,11 @@ class UnifiedDist:
             m.dist.geometric(probs=0.5, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#geometric
+
+        #### References:
+        * https://www.britannica.com/topic/geometric-distribution "Geometric distribution | Definition, Formula, Examples, Illustration, & Applications | Britannica"
+        * https://en.wikipedia.org/wiki/Geometric_distribution "Geometric distribution"
+        * https://distribution-explorer.github.io/discrete/geometric.html "Geometric distribution — Probability Distribution Explorer documentation"
         """
 
            
@@ -6851,15 +6962,28 @@ class UnifiedDist:
 
         r"""### A marginalized finite mixture of component distributions.
         
-        This distribution represents a mixture of component distributions, where the
-        mixing weights are determined by a Categorical distribution. The resulting
-        distribution can be either a MixtureGeneral (when component distributions
-        are a list) or a MixtureSameFamily (when component distributions are a single
+        A **marginalised finite mixture of component distributions** refers to a probability model in which you have a finite number $K$ of component distributions (e.g., normals, Poissons, etc.), each weighted by a mixing probability from a Categorical distribution. We **marginalise out** the latent assignment variable (i.e., you don’t explicitly model which component each data point came from). The resulting
+        distribution can be either a `mixture_general` (when component distributions
+        are a list) or a `mixture_same_Family` (when component distributions are a single
         distribution).
         
-        $$   
-        p(x) = \sum_{i=1}^{K} w_i p_i(x)
+        Suppose you have:
+
+        * Mixing weights $\pi_1, \dots, \pi_K$, with $\pi_j \ge 0$ and $\sum_{j=1}^K \pi_j = 1$.
+        * Component distributions (densities or PMFs) $f_j(x \mid \theta_j)$, for $j = 1,\dots,K$.
+
+        Then the marginalised mixture distribution for an observed $X$ is:
+
         $$
+        p(X = x) = \sum_{j=1}^K \pi_j ; f_j(x \mid \theta_j).
+        $
+
+        This is exactly the mixture density/PMF you get when you marginalise the latent component‑assignment variable $Z \in {1,\dots,K}$ out of the joint distribution:
+
+        $$
+        p(x) = \sum_{z=1}^K p(z = j); p(x \mid z = j) = \sum_{j=1}^K \pi_j ; f_j(x \mid \theta_j).
+        $$
+
         
         #### Args:
 
@@ -6904,6 +7028,10 @@ class UnifiedDist:
             samples = m.sample(sample_shape=(10,))
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#mixture
+
+        #### References:
+        * https://en.wikipedia.org/wiki/Mixture_distribution "Mixture distribution"
+        * https://pymc3-testing.readthedocs.io/en/rtd-docs/notebooks/marginalized_gaussian_mixture_model.html "Marginalized Gaussian Mixture Model — PyMC3 3.1rc3 documentation"
         """
 
            
@@ -6937,11 +7065,25 @@ class UnifiedDist:
 
         r"""### Multinomial
         
-        Samples from a Multinomial distribution, which models the probability of different outcomes in a sequence of independent trials, each with a fixed number of trials and a fixed set of possible outcomes.  It generalizes the binomial distribution to multiple categories.
+        The multinomial distribution is a discrete probability distribution that generalizes the Binomial distribution to the case of **more than two possible outcomes per trial**. Specifically:
+
+        * You perform a fixed number $n$ of independent trials. 
+        * On each trial there are $k$ possible outcomes, labeled (1,2,\dots,k).
+        * The probability of outcome $i$ on any trial is (p_i), where (p_1 + p_2 + \cdots + p_k = 1). 
+        * Let $X_i$ be the number of trials (out of $n$) that produced outcome $i$. Then the vector $\mathbf X = (X_1, \dots, X_k)$ follows a multinomial distribution. 
+
+        It reduces to the binomial when (k=2). 
+
+        PMF (Probability Mass Function): 
         
-        $$   P(X = x) = \frac{n!}{x_1! x_2! \cdots x_k!} p_1^{x_1} p_2^{x_2} \cdots p_k^{x_k}
+        For $\mathbf x = (x_1,\dots,x_k)$ with each $x_i \ge 0$ integer and $\sum_{i=1}^k x_i = n$,
         $$
-        
+        \Pr(X_1 = x_1, \dots, X_k = x_k)
+        = \frac{n!}{x_1!,x_2!\cdots x_k!}
+        ; p_1^{,x_1}; p_2^{,x_2} \cdots p_k^{,x_k}.
+        $
+        If $\sum_i x_i \neq n$, the probability is 0. 
+
         #### Args:
         - *total_count* (int or jnp.ndarray): The number of trials.
         
@@ -6978,6 +7120,11 @@ class UnifiedDist:
             m.dist.multinomial(total_count=10, probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#multinomial
+
+        #### References:
+        * https://online.stat.psu.edu/stat504/book/export/html/667 "2.3 - The Multinomial Distribution - STAT ONLINE"
+        * https://en.wikipedia.org/wiki/Multinomial_distribution "Multinomial distribution"
+        * https://faculty.washington.edu/yenchic/20A_stat512/Lec7_Multinomial.pdf "[PDF] Lecture 7: Multinomial distribution"
         """
 
            
