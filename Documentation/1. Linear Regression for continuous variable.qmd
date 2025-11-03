@@ -11,7 +11,7 @@ reading-time: true
 
 To study relationships between a continuous independent variable and a continuous dependent variable (e.g., height and weight), we can use linear regression. Essentially, we draw a line that passes through the point cloud of the two variables being tested. For this, we need to have:
 
-1) An intercept $\alpha$, which represents the origin of the line—the expected value of the dependent variable (height) when the independent variable (weight) is equal to zero.
+1) An intercept $\alpha$, which represents the origin of the line,i.e., the expected value of the dependent variable (height) when the independent variable (weight) is equal to zero.
 
 2) A coefficient $\beta$, which informs us about the slope of the line. In other words, it tells us how much Y (height) increases for each increment of the independent variable (weight).
 
@@ -21,13 +21,13 @@ To study relationships between a continuous independent variable and a continuou
 ## Considerations
 
 ::: callout-note
--   Bayesian models allow us to update our understanding of parameters conditional on an observed data set. This allow us to consider [<span style="color:#0D6EFD">model parameter uncertainty 🛈</span>]{#uncertainty}, which quantifies our confidence or uncertainty in the parameters in a form of a [<span style="color:#0D6EFD">posterior distribution 🛈</span>]{#posterior}. Therefore, we need to declare [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for each model parameter, in this case for: $\alpha$, $\beta$, and $\sigma$.
+-   Bayesian models allow us to update our understanding of parameters conditional on an observed data set. This allows us to consider [<span style="color:#0D6EFD">model parameter uncertainty 🛈</span>]{#uncertainty}, which quantifies our confidence or uncertainty in the parameters in the form of a [<span style="color:#0D6EFD">posterior distribution 🛈</span>]{#posterior}. Therefore, we need to declare [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for each model parameter, in this case for: $\alpha$, $\beta$, and $\sigma$.
 
 - Prior distributions are built following these considerations:
 
   - As the data are [<span style="color:#0D6EFD">normalized🛈</span>]{#scaled} (see introduction), we can use a Normal distribution for $\alpha$ and $\beta$, with a mean of 0 and a standard deviation of 1. This tends to be a weakly regularizing prior, and weaker priors like a $Normal(0,10)$ are also possible.
 
-  - Since $\sigma$ must be strictly positive, we must use a distribution with supprt on the positive reals, such as the *Exponential* or *Folded-Normal* distribution.
+  - Since $\sigma$ must be strictly positive, we must use a distribution with support on the positive reals, such as the *Exponential* or *Folded-Normal* distribution.
 
 - Gaussian regression deals directly with continuous outcomes, estimating a linear relationship between predictors and the outcome variable without depending on a non linear [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF} (see introduction). This simplifies interpretation, as coefficients represent direct changes in the outcome variable.
 
@@ -98,7 +98,7 @@ model <- function(height, weight){
   m$normal(a + b * weight, s, obs = height)
 }
 
-# Run mcmc ------------------------------------------------
+# Run MCMC ------------------------------------------------
 m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
@@ -154,14 +154,14 @@ Where:
 
 -   $\alpha$ and $\beta$ are the intercept and regression coefficient, respectively.
 
--   $X_i$ is the indepenent variable for observation *i*.
+-   $X_i$ is the independent variable for observation *i*.
 
 -   $\sigma$ is the standard deviation of the Normal distribution, which describes the variance in the relationship between the dependent variable $Y$ and the independent variable $X$.
 
 
 ## Notes
 ::: callout-note
-We observe a difference between the *Frequentist* and the *Bayesian* formulation regarding the error term. Indeed, in the *Frequentist* formulation, the error terms $\epsilon$ represents residual fluctuations around the predicted values. This assumption leads to point estimates for $\alpha$ and $\beta$. In contrast, the *Bayesian* formulation treats $\sigma$ as a parameter with its own prior distribution. This allows us to incorporate our uncertainty about the error term into the model.
+We observe a difference between the *Frequentist* and the *Bayesian* formulation regarding the error term. Indeed, in the *Frequentist* formulation, the error term $\epsilon$ represents residual fluctuations around the predicted values. This assumption leads to point estimates for $\alpha$ and $\beta$. In contrast, the *Bayesian* formulation treats $\sigma$ as a parameter with its own prior distribution. This allows us to incorporate our uncertainty about the error term into the model.
 :::
 
 ## Reference(s)
