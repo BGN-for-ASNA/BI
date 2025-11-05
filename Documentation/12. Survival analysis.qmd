@@ -13,14 +13,13 @@ Survival analysis studies the time until an event of interest (e.g., death, reco
 Key concepts include:
 
 1.  **Hazard Function**: The instantaneous risk of the event occurring at a given time.
-2.  **Survival Function**: The probability of surviving beyond a given time.
+2.  **Survival Function**: The probability of surviving until a given time.
 3.  **Covariates**: Variables (e.g., age, treatment) that may affect survival probabilities.
 4.  **Baseline Hazard**: The hazard when all covariates are zero, which forms the reference for comparing different conditions.
 
 ## Considerations
 
 ::: callout-note
-- Bayesian models provide a framework to account for [<span style="color:#0D6EFD">uncertainty 🛈</span>]{#uncertainty} in parameter estimates through posterior distributions. You will need to define [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for all model parameters, such as baseline hazard, covariate effects, and variance terms.
 
 - In survival analysis:
 
@@ -39,7 +38,7 @@ Here’s an example of a Bayesian survival analysis using the **Bayesian Inferen
 
 ### Python
 
-```{python}
+```python
 from BI import bi
 import numpy as np
 import jax.numpy as jnp
@@ -94,33 +93,37 @@ m.models.survival.plot_surv()
 ## Mathematical Details
 
 The model is defined as follows:
+<!---
+$$
+S_{[i,t]} \sim \text{Bernoulli}(\lambda_{[i,t]}) |_{S_{[i,t-1]}=1}
+$$
+$$
+\lambda_{[i,t]} = \text{inv_logit}(\alpha_{[t]} + \beta_{[t]} X_{[i]} )
+$$
+--->
 
 $$
-dN_i(t) \sim \text{Poisson}(\lambda_i(t)Y_i(t)dt)
-$$
-
-$$
-\lambda_i(t) = \lambda_{0}(t)\exp(X_i\beta)
-$$
-
-The hierarchical priors for the regression coefficients are:
-
-$$
-\beta \sim \text{Normal}(\mu_\beta, \sigma^2_\beta)
-$$
-
-$$
-\mu_\beta \sim \text{Normal}(0, 100)
+N_i(t) \sim \text{Poisson}(\lambda_i(t) Y_i(t))
 $$
 
 $$
-\sigma^2_\beta \sim \text{InverseGamma}(0.1, 0.1)
+\lambda_i(t) = \lambda_{0}(t)\exp(\beta X_i)
 $$
+
+
+$$
+\lambda_{0} \sim \text{Gamma}(0.01, 0.01)
+$$
+
+$$
+\beta \sim \text{Normal}(0, 1000)
+$$
+
+
+
 
 -   Where:
     -   $N_i(t)$ is the counting process for subject $i$, which counts the number of observed events up to time $t$. For survival analysis, this is typically 0 or 1.
-  
-    -   $dN_i(t)$ is the increment of the process over a small interval $dt$, indicating if an event occurred for subject $i$ at time $t$.
 
     *   **$Y_i(t)$ is the at-risk indicator**, taking a value of 1 if subject *i* is under observation and has not yet experienced an event just prior to time *t*, and 0 otherwise. This indicator is the mechanism that handles censoring:
         *   If a subject is **censored** at time $t'$, their at-risk indicator $Y_i(t)$ remains 1 up to $t'$, signifying they were at risk during this period.
@@ -137,8 +140,6 @@ $$
 
 -   **Priors:**
     -   We assign prior distributions to the unknown parameters. The regression coefficients $\beta$ are given a Normal prior.
-
-    -   The hyperparameters of the $\beta$ prior, $\mu_\beta$ and $\sigma^2_\beta$, are themselves given vague priors to be learned from the data.
 
     -   The baseline hazard $\lambda_0(t)$ is also treated as an unknown parameter and is often modeled non-parametrically, for instance, using a gamma process or as a piecewise constant function, where priors are placed on the hazard level in each time interval.
 

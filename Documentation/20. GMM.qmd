@@ -81,23 +81,35 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 ## Mathematical Details
 
-This section describes the generative process for a GMM. For each data point $x_i$, the model first selects one of the `K` clusters according to the weights $w$, and then draws the point from that cluster's Gaussian distribution.
+This section describes the generative process for a GMM. 
+
 $$
-z_i \sim \text{Categorical}(w)  \text{for } i=1, \dots, N \\
-x_i \mid z_i=k \sim \text{MultivariateNormal}(\mu_k, \Sigma_k)  \text{for } i=1, \dots, N
+Z_i \sim \text{Categorical}(\pi)
 $$
 
 $$
-w \sim \text{Dirichlet}(\alpha_0) \quad \text{(Mixture weights vector for K clusters)}
+\pi \sim \text{Dirichlet}([0.5, \dots, 0.5])
+$$
+$$
+X_k  \sim \text{MultivariateNormal}(\mu_k, \Sigma_k)
 $$
 
-$$
-\mu_k \sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \text{for } k=1, \dots, K \\
-\sigma_k \sim \text{HalfCauchy}(1)  \text{for } k=1, \dots, K \\
-L_{\text{corr}, k} \sim \text{LKJCholesky}(D, 1.0)  \text{for } k=1, \dots, K \\
-\Sigma_k = \text{diag}(\sigma_k) \cdot L_{\text{corr}, k} \cdot L_{\text{corr}, k}^T \cdot \text{diag}(\sigma_k)
-$$
 
+$$
+\text{for } k \text{ in } 1, \dots, K:
+$$
+$$
+\mu_k \sim \text{MultivariateNormal}\left( \mu_{0,k}, 0.1 \cdot I_D \right)
+$$
+$$
+\Sigma_k = \text{diag}(\sigma_k) \cdot \Omega_k \cdot \text{diag}(\sigma_k)
+$$
+$$
+\sigma_{k,d} \sim \text{HalfCauchy}(1) \quad \text{for } d \text{ in } 1, \dots, D
+$$
+$$
+\Omega_k \sim \text{LKJ}(1)
+$$
 
 **Parameter Definitions:**
 *   **Observed Data:**
