@@ -414,7 +414,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variable</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -623,7 +623,7 @@ window.Quarto = {
 <p>Key concepts include:</p>
 <ol type="1">
 <li><strong>Hazard Function</strong>: The instantaneous risk of the event occurring at a given time.</li>
-<li><strong>Survival Function</strong>: The probability of surviving beyond a given time.</li>
+<li><strong>Survival Function</strong>: The probability of surviving until a given time.</li>
 <li><strong>Covariates</strong>: Variables (e.g., age, treatment) that may affect survival probabilities.</li>
 <li><strong>Baseline Hazard</strong>: The hazard when all covariates are zero, which forms the reference for comparing different conditions.</li>
 </ol>
@@ -641,7 +641,6 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>Bayesian models provide a framework to account for <span id="uncertainty"><span style="color:#0D6EFD">uncertainty 🛈</span></span> in parameter estimates through posterior distributions. You will need to define <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for all model parameters, such as baseline hazard, covariate effects, and variance terms.</p></li>
 <li><p>In survival analysis:</p>
 <ul>
 <li><p>The <strong>baseline hazard</strong> can follow distributions like Exponential, Weibull, or Gompertz, depending on the data.</p></li>
@@ -659,8 +658,7 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="56fe1af6" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
@@ -705,106 +703,36 @@ Note
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot hazards and survival function ------------------------------------------------</span></span>
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>m.models.survival.plot_surv()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>WARNING:2025-09-25 08:48:43,267:jax._src.xla_bridge:794: An NVIDIA GPU may be present on this machine, but a CUDA-enabled jaxlib is not installed. Falling back to cpu.</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 32</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;08:28,  1.96it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   2%|▏         | 20/1000 [00:00&lt;00:22, 42.73it/s, 1023 steps of size 2.66e-01. acc. prob=0.74]warmup:   3%|▎         | 31/1000 [00:00&lt;00:18, 51.62it/s, 1023 steps of size 1.65e-01. acc. prob=0.75]warmup:   4%|▍         | 41/1000 [00:00&lt;00:17, 55.20it/s, 1023 steps of size 1.34e-01. acc. prob=0.76]warmup:   5%|▍         | 49/1000 [00:01&lt;00:16, 56.51it/s, 511 steps of size 2.34e-01. acc. prob=0.77] warmup:   6%|▌         | 57/1000 [00:01&lt;00:15, 61.05it/s, 1023 steps of size 1.38e-01. acc. prob=0.77]warmup:   6%|▋         | 65/1000 [00:01&lt;00:14, 64.21it/s, 1023 steps of size 3.22e-01. acc. prob=0.78]warmup:   7%|▋         | 73/1000 [00:01&lt;00:14, 61.97it/s, 619 steps of size 1.54e-01. acc. prob=0.77] warmup:   8%|▊         | 80/1000 [00:01&lt;00:14, 61.77it/s, 1023 steps of size 2.87e-01. acc. prob=0.78]warmup:   9%|▊         | 87/1000 [00:01&lt;00:14, 62.76it/s, 1023 steps of size 1.90e-01. acc. prob=0.78]warmup:   9%|▉         | 94/1000 [00:01&lt;00:14, 64.19it/s, 150 steps of size 2.51e-01. acc. prob=0.78] warmup:  10%|█         | 105/1000 [00:01&lt;00:11, 76.50it/s, 511 steps of size 7.33e-03. acc. prob=0.76]warmup:  11%|█▏        | 113/1000 [00:01&lt;00:12, 72.69it/s, 511 steps of size 1.37e-02. acc. prob=0.77]warmup:  12%|█▏        | 123/1000 [00:02&lt;00:11, 77.16it/s, 1023 steps of size 8.42e-03. acc. prob=0.77]warmup:  13%|█▎        | 132/1000 [00:02&lt;00:11, 76.69it/s, 1023 steps of size 9.63e-03. acc. prob=0.77]warmup:  14%|█▍        | 143/1000 [00:02&lt;00:10, 85.15it/s, 511 steps of size 4.42e-03. acc. prob=0.77] warmup:  15%|█▌        | 152/1000 [00:02&lt;00:10, 78.01it/s, 1 steps of size 1.15e-02. acc. prob=0.77]  warmup:  16%|█▌        | 161/1000 [00:02&lt;00:11, 71.02it/s, 511 steps of size 3.70e-03. acc. prob=0.77]warmup:  17%|█▋        | 169/1000 [00:02&lt;00:12, 67.21it/s, 1023 steps of size 1.03e-02. acc. prob=0.77]warmup:  18%|█▊        | 178/1000 [00:02&lt;00:11, 69.66it/s, 1023 steps of size 8.95e-03. acc. prob=0.77]warmup:  19%|█▊        | 186/1000 [00:02&lt;00:11, 68.12it/s, 511 steps of size 1.15e-02. acc. prob=0.77] warmup:  19%|█▉        | 194/1000 [00:03&lt;00:11, 70.98it/s, 511 steps of size 5.34e-03. acc. prob=0.77]warmup:  20%|██        | 202/1000 [00:03&lt;00:11, 69.45it/s, 1023 steps of size 5.75e-03. acc. prob=0.77]warmup:  21%|██        | 210/1000 [00:03&lt;00:11, 66.16it/s, 1023 steps of size 7.70e-03. acc. prob=0.77]warmup:  22%|██▏       | 218/1000 [00:03&lt;00:11, 67.35it/s, 1023 steps of size 4.88e-03. acc. prob=0.77]warmup:  23%|██▎       | 228/1000 [00:03&lt;00:10, 75.41it/s, 1023 steps of size 8.55e-03. acc. prob=0.78]warmup:  24%|██▍       | 238/1000 [00:03&lt;00:09, 81.37it/s, 144 steps of size 5.19e-03. acc. prob=0.78] warmup:  25%|██▍       | 248/1000 [00:03&lt;00:08, 85.62it/s, 511 steps of size 3.11e-03. acc. prob=0.78]warmup:  26%|██▌       | 258/1000 [00:03&lt;00:08, 87.81it/s, 511 steps of size 6.43e-03. acc. prob=0.77]warmup:  27%|██▋       | 267/1000 [00:03&lt;00:09, 80.70it/s, 511 steps of size 1.04e-02. acc. prob=0.78]warmup:  28%|██▊       | 276/1000 [00:04&lt;00:09, 77.06it/s, 255 steps of size 3.76e-03. acc. prob=0.78]warmup:  28%|██▊       | 284/1000 [00:04&lt;00:09, 73.34it/s, 1023 steps of size 6.26e-03. acc. prob=0.78]warmup:  29%|██▉       | 292/1000 [00:04&lt;00:09, 74.69it/s, 511 steps of size 1.00e-02. acc. prob=0.78] warmup:  30%|███       | 300/1000 [00:04&lt;00:09, 71.29it/s, 1023 steps of size 6.19e-03. acc. prob=0.78]warmup:  31%|███       | 308/1000 [00:04&lt;00:10, 68.29it/s, 1023 steps of size 3.10e-03. acc. prob=0.78]warmup:  32%|███▏      | 317/1000 [00:04&lt;00:09, 73.16it/s, 380 steps of size 8.10e-03. acc. prob=0.78] warmup:  32%|███▎      | 325/1000 [00:04&lt;00:09, 74.70it/s, 1023 steps of size 3.88e-03. acc. prob=0.78]warmup:  33%|███▎      | 334/1000 [00:04&lt;00:08, 78.77it/s, 511 steps of size 5.63e-03. acc. prob=0.78] warmup:  34%|███▍      | 342/1000 [00:05&lt;00:08, 76.21it/s, 511 steps of size 4.10e-03. acc. prob=0.78]warmup:  35%|███▌      | 351/1000 [00:05&lt;00:08, 77.97it/s, 1023 steps of size 5.46e-03. acc. prob=0.78]warmup:  36%|███▌      | 360/1000 [00:05&lt;00:08, 79.96it/s, 511 steps of size 7.81e-03. acc. prob=0.78] warmup:  37%|███▋      | 369/1000 [00:05&lt;00:08, 75.50it/s, 698 steps of size 4.54e-03. acc. prob=0.78]warmup:  38%|███▊      | 377/1000 [00:05&lt;00:08, 69.77it/s, 157 steps of size 5.97e-03. acc. prob=0.78]warmup:  39%|███▊      | 386/1000 [00:05&lt;00:08, 72.21it/s, 1023 steps of size 6.02e-03. acc. prob=0.78]warmup:  40%|███▉      | 395/1000 [00:05&lt;00:07, 76.19it/s, 1023 steps of size 4.95e-03. acc. prob=0.78]warmup:  40%|████      | 403/1000 [00:05&lt;00:07, 75.23it/s, 373 steps of size 4.64e-03. acc. prob=0.78] warmup:  41%|████      | 411/1000 [00:05&lt;00:07, 75.49it/s, 511 steps of size 9.35e-03. acc. prob=0.78]warmup:  42%|████▏     | 423/1000 [00:06&lt;00:06, 87.70it/s, 322 steps of size 6.29e-03. acc. prob=0.78]warmup:  43%|████▎     | 433/1000 [00:06&lt;00:06, 89.30it/s, 511 steps of size 9.96e-03. acc. prob=0.78]warmup:  44%|████▍     | 443/1000 [00:06&lt;00:06, 86.64it/s, 511 steps of size 4.88e-03. acc. prob=0.78]warmup:  45%|████▌     | 452/1000 [00:06&lt;00:06, 80.83it/s, 2 steps of size 1.04e-02. acc. prob=0.78]  warmup:  46%|████▌     | 461/1000 [00:06&lt;00:06, 80.02it/s, 1023 steps of size 6.29e-03. acc. prob=0.78]warmup:  47%|████▋     | 470/1000 [00:06&lt;00:06, 78.34it/s, 1023 steps of size 8.06e-03. acc. prob=0.78]warmup:  48%|████▊     | 481/1000 [00:06&lt;00:06, 84.96it/s, 1023 steps of size 6.14e-03. acc. prob=0.78]warmup:  49%|████▉     | 490/1000 [00:06&lt;00:06, 84.88it/s, 433 steps of size 5.52e-03. acc. prob=0.78] sample:  50%|█████     | 501/1000 [00:06&lt;00:05, 89.19it/s, 511 steps of size 6.52e-03. acc. prob=0.97]sample:  51%|█████     | 511/1000 [00:07&lt;00:05, 91.61it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  52%|█████▏    | 521/1000 [00:07&lt;00:05, 91.47it/s, 511 steps of size 6.52e-03. acc. prob=0.97]sample:  53%|█████▎    | 531/1000 [00:07&lt;00:05, 91.13it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  54%|█████▍    | 541/1000 [00:07&lt;00:04, 92.02it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  55%|█████▌    | 551/1000 [00:07&lt;00:04, 94.12it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  56%|█████▌    | 561/1000 [00:07&lt;00:04, 91.73it/s, 511 steps of size 6.52e-03. acc. prob=0.96]sample:  57%|█████▋    | 571/1000 [00:07&lt;00:04, 88.56it/s, 1023 steps of size 6.52e-03. acc. prob=0.96]sample:  58%|█████▊    | 582/1000 [00:07&lt;00:04, 92.62it/s, 511 steps of size 6.52e-03. acc. prob=0.96] sample:  59%|█████▉    | 594/1000 [00:07&lt;00:04, 98.49it/s, 353 steps of size 6.52e-03. acc. prob=0.95]sample:  60%|██████    | 604/1000 [00:08&lt;00:04, 97.52it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  61%|██████▏   | 614/1000 [00:08&lt;00:03, 98.02it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  62%|██████▏   | 624/1000 [00:08&lt;00:03, 96.84it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample:  63%|██████▎   | 634/1000 [00:08&lt;00:03, 96.84it/s, 511 steps of size 6.52e-03. acc. prob=0.95] sample:  64%|██████▍   | 645/1000 [00:08&lt;00:03, 99.94it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  66%|██████▌   | 656/1000 [00:08&lt;00:03, 100.59it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  67%|██████▋   | 667/1000 [00:08&lt;00:03, 102.68it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  68%|██████▊   | 678/1000 [00:08&lt;00:03, 104.69it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  69%|██████▉   | 689/1000 [00:08&lt;00:02, 105.59it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  70%|███████   | 700/1000 [00:08&lt;00:02, 105.48it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  71%|███████   | 711/1000 [00:09&lt;00:02, 101.17it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  72%|███████▏  | 722/1000 [00:09&lt;00:02, 95.89it/s, 511 steps of size 6.52e-03. acc. prob=0.95] sample:  73%|███████▎  | 732/1000 [00:09&lt;00:02, 96.69it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  74%|███████▍  | 743/1000 [00:09&lt;00:02, 97.77it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  75%|███████▌  | 754/1000 [00:09&lt;00:02, 97.69it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  76%|███████▋  | 765/1000 [00:09&lt;00:02, 99.89it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  78%|███████▊  | 776/1000 [00:09&lt;00:02, 98.15it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  79%|███████▊  | 786/1000 [00:09&lt;00:02, 95.43it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  80%|███████▉  | 796/1000 [00:09&lt;00:02, 96.00it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  81%|████████  | 806/1000 [00:10&lt;00:02, 93.31it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  82%|████████▏ | 817/1000 [00:10&lt;00:01, 97.16it/s, 511 steps of size 6.52e-03. acc. prob=0.94]sample:  83%|████████▎ | 828/1000 [00:10&lt;00:01, 99.92it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  84%|████████▍ | 839/1000 [00:10&lt;00:01, 102.19it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  85%|████████▌ | 850/1000 [00:10&lt;00:01, 102.83it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  86%|████████▌ | 861/1000 [00:10&lt;00:01, 102.61it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  87%|████████▋ | 872/1000 [00:10&lt;00:01, 103.06it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  88%|████████▊ | 883/1000 [00:10&lt;00:01, 104.96it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  89%|████████▉ | 894/1000 [00:10&lt;00:01, 103.98it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  90%|█████████ | 905/1000 [00:11&lt;00:00, 99.10it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample:  92%|█████████▏| 915/1000 [00:11&lt;00:00, 94.66it/s, 1023 steps of size 6.52e-03. acc. prob=0.95]sample:  92%|█████████▎| 925/1000 [00:11&lt;00:00, 92.35it/s, 415 steps of size 6.52e-03. acc. prob=0.95] sample:  94%|█████████▎| 936/1000 [00:11&lt;00:00, 95.56it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  95%|█████████▍| 947/1000 [00:11&lt;00:00, 98.51it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  96%|█████████▌| 957/1000 [00:11&lt;00:00, 93.20it/s, 767 steps of size 6.52e-03. acc. prob=0.95]sample:  97%|█████████▋| 968/1000 [00:11&lt;00:00, 95.69it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  98%|█████████▊| 978/1000 [00:11&lt;00:00, 95.03it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample:  99%|█████████▉| 988/1000 [00:11&lt;00:00, 94.78it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample: 100%|█████████▉| 998/1000 [00:12&lt;00:00, 89.76it/s, 511 steps of size 6.52e-03. acc. prob=0.95]sample: 100%|██████████| 1000/1000 [00:12&lt;00:00, 82.66it/s, 511 steps of size 6.52e-03. acc. prob=0.95]
-arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                 mean    sd  hdi_5.5%  hdi_94.5%  mcse_mean  mcse_sd  \
-beta[0]          0.77  0.48       0.0       1.49       0.04     0.03   
-lambda0[0]       0.00  0.00       0.0       0.00       0.00     0.00   
-lambda0[1]       0.00  0.00       0.0       0.01       0.00     0.00   
-lambda0[2]       0.00  0.01       0.0       0.01       0.00     0.00   
-lambda0[3]       0.00  0.01       0.0       0.01       0.00     0.00   
-...               ...   ...       ...        ...        ...      ...   
-lambda_[43, 71]  0.00  0.01       0.0       0.00       0.00     0.00   
-lambda_[43, 72]  0.00  0.02       0.0       0.00       0.00     0.00   
-lambda_[43, 73]  0.00  0.02       0.0       0.00       0.00     0.00   
-lambda_[43, 74]  0.00  0.01       0.0       0.00       0.00     0.01   
-lambda_[43, 75]  0.00  0.03       0.0       0.00       0.00     0.01   
-
-                 ess_bulk  ess_tail  r_hat  
-beta[0]            171.68    206.44    NaN  
-lambda0[0]         143.46    113.83    NaN  
-lambda0[1]         306.90    219.76    NaN  
-lambda0[2]         337.30    325.35    NaN  
-lambda0[3]         219.38    227.65    NaN  
-...                   ...       ...    ...  
-lambda_[43, 71]    167.71    235.17    NaN  
-lambda_[43, 72]    157.28    192.96    NaN  
-lambda_[43, 73]     82.53     84.53    NaN  
-lambda_[43, 74]    156.31    204.17    NaN  
-lambda_[43, 75]     71.75     81.01    NaN  
-
-[3421 rows x 9 columns]</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/home/sosa/work/test/lib/python3.10/site-packages/arviz/plots/hdiplot.py:166: FutureWarning:
-
-hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
-
-/home/sosa/work/test/lib/python3.10/site-packages/arviz/plots/hdiplot.py:166: FutureWarning:
-
-hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
-
-/home/sosa/work/test/lib/python3.10/site-packages/arviz/plots/hdiplot.py:166: FutureWarning:
-
-hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
-
-/home/sosa/work/test/lib/python3.10/site-packages/arviz/plots/hdiplot.py:166: FutureWarning:
-
-hdi currently interprets 2d data as (draw, shape) but this will change in a future release to (chain, draw) for coherence with other functions
-</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="12. Survival analysis_files/figure-html/cell-2-output-6.png" width="633" height="503" class="figure-img"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="12. Survival analysis_files/figure-html/cell-2-output-7.png" width="1272" height="561" class="figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
 </div>
 </div>
 </div>
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<p>The model is defined as follows:</p>
+<p>The model is defined as follows: <!---
+$$
+S_{[i,t]} \sim \text{Bernoulli}(\lambda_{[i,t]}) |_{S_{[i,t-1]}=1}
+$$
+$$
+\lambda_{[i,t]} = \text{inv_logit}(\alpha_{[t]} + \beta_{[t]} X_{[i]} )
+$$
+---></p>
 <p><span class="math display">
-dN_i(t) \sim \text{Poisson}(\lambda_i(t)Y_i(t)dt)
+N_i(t) \sim \text{Poisson}(\lambda_i(t) Y_i(t))
 </span></p>
 <p><span class="math display">
-\lambda_i(t) = \lambda_{0}(t)\exp(X_i\beta)
-</span></p>
-<p>The hierarchical priors for the regression coefficients are:</p>
-<p><span class="math display">
-\beta \sim \text{Normal}(\mu_\beta, \sigma^2_\beta)
+\lambda_i(t) = \lambda_{0}(t)\exp(\beta X_i)
 </span></p>
 <p><span class="math display">
-\mu_\beta \sim \text{Normal}(0, 100)
+\lambda_{0} \sim \text{Gamma}(0.01, 0.01)
 </span></p>
 <p><span class="math display">
-\sigma^2_\beta \sim \text{InverseGamma}(0.1, 0.1)
+\beta \sim \text{Normal}(0, 1000)
 </span></p>
 <ul>
 <li>Where:
 <ul>
 <li><p><span class="math inline">N_i(t)</span> is the counting process for subject <span class="math inline">i</span>, which counts the number of observed events up to time <span class="math inline">t</span>. For survival analysis, this is typically 0 or 1.</p></li>
-<li><p><span class="math inline">dN_i(t)</span> is the increment of the process over a small interval <span class="math inline">dt</span>, indicating if an event occurred for subject <span class="math inline">i</span> at time <span class="math inline">t</span>.</p></li>
 <li><p><strong><span class="math inline">Y_i(t)</span> is the at-risk indicator</strong>, taking a value of 1 if subject <em>i</em> is under observation and has not yet experienced an event just prior to time <em>t</em>, and 0 otherwise. This indicator is the mechanism that handles censoring:</p>
 <ul>
 <li>If a subject is <strong>censored</strong> at time <span class="math inline">t'</span>, their at-risk indicator <span class="math inline">Y_i(t)</span> remains 1 up to <span class="math inline">t'</span>, signifying they were at risk during this period.</li>
@@ -819,7 +747,6 @@ dN_i(t) \sim \text{Poisson}(\lambda_i(t)Y_i(t)dt)
 <li><strong>Priors:</strong>
 <ul>
 <li><p>We assign prior distributions to the unknown parameters. The regression coefficients <span class="math inline">\beta</span> are given a Normal prior.</p></li>
-<li><p>The hyperparameters of the <span class="math inline">\beta</span> prior, <span class="math inline">\mu_\beta</span> and <span class="math inline">\sigma^2_\beta</span>, are themselves given vague priors to be learned from the data.</p></li>
 <li><p>The baseline hazard <span class="math inline">\lambda_0(t)</span> is also treated as an unknown parameter and is often modeled non-parametrically, for instance, using a gamma process or as a piecewise constant function, where priors are placed on the hazard level in each time interval.</p></li>
 </ul></li>
 </ul>
