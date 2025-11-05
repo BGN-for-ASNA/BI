@@ -414,7 +414,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variable</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -702,18 +702,27 @@ Caution
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<p>This section describes the generative process for a GMM. For each data point <span class="math inline">x_i</span>, the model first selects one of the <code>K</code> clusters according to the weights <span class="math inline">w</span>, and then draws the point from that cluster’s Gaussian distribution. <span class="math display">
-z_i \sim \text{Categorical}(w)  \text{for } i=1, \dots, N \\
-x_i \mid z_i=k \sim \text{MultivariateNormal}(\mu_k, \Sigma_k)  \text{for } i=1, \dots, N
+<p>This section describes the generative process for a GMM.</p>
+<p><span class="math display">
+Z_i \sim \text{Categorical}(\pi)
 </span></p>
 <p><span class="math display">
-w \sim \text{Dirichlet}(\alpha_0) \quad \text{(Mixture weights vector for K clusters)}
+\pi \sim \text{Dirichlet}([0.5, \dots, 0.5])
+</span> <span class="math display">
+X_i | Z_i=k, \mu_k, \Sigma_k \sim \text{MultivariateNormal}(\mu_k, \Sigma_k)
 </span></p>
 <p><span class="math display">
-\mu_k \sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \text{for } k=1, \dots, K \\
-\sigma_k \sim \text{HalfCauchy}(1)  \text{for } k=1, \dots, K \\
-L_{\text{corr}, k} \sim \text{LKJCholesky}(D, 1.0)  \text{for } k=1, \dots, K \\
-\Sigma_k = \text{diag}(\sigma_k) \cdot L_{\text{corr}, k} \cdot L_{\text{corr}, k}^T \cdot \text{diag}(\sigma_k)
+\pi \sim \text{Dirichlet}([0.5, \dots, 0.5])
+</span> <span class="math display">
+\text{for } k \text{ in } 1, \dots, K:
+</span> <span class="math display">
+\mu_k \sim \text{MultivariateNormal}\left( \mu_{0,k}, 0.1 \cdot I_D \right)
+</span> <span class="math display">
+\Sigma_k = \text{diag}(\sigma_k) \cdot \Omega_k \cdot \text{diag}(\sigma_k)
+</span> <span class="math display">
+\sigma_{k,d} \sim \text{HalfCauchy}(1) \quad \text{for } d \text{ in } 1, \dots, D
+</span> <span class="math display">
+\Omega_k \sim \text{LKJ}(1)
 </span></p>
 <p><strong>Parameter Definitions:</strong> * <strong>Observed Data:</strong> * <span class="math inline">x_i</span>: The <span class="math inline">i</span>-th observed D-dimensional data point.</p>
 <ul>
