@@ -414,7 +414,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variable</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -581,8 +581,6 @@ window.Quarto = {
   <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations">Considerations</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a></li>
-  <li><a href="#interpretation-of-latent-variables" id="toc-interpretation-of-latent-variables" class="nav-link" data-scroll-target="#interpretation-of-latent-variables">Interpretation of Latent Variables</a></li>
-  <li><a href="#use-cases" id="toc-use-cases" class="nav-link" data-scroll-target="#use-cases">Use Cases</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="18.-Latent-variable--wip-.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
     </div>
@@ -699,31 +697,36 @@ Y = f(X, Z) + \epsilon
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<p>We can express the Bayesian latent variable model using probability distributions as follows:</p>
-<p><span class="math display">
+<p><img src="travaux-routiers.png" class="img-fluid quarto-figure quarto-figure-center"> <!---
+We can express the Bayesian latent variable model using probability distributions as follows:
+
+$$
 \begin{aligned}
-&amp; p(Y | X, Z, W, \sigma) = \text{Normal}(X \cdot W + Z, \sigma^2) \\
-&amp; p(Z) = \text{Normal}(0, \tau^2) \\
-&amp; p(W) = \text{Normal}(0, \alpha^2) \\
+& p(Y | X, Z, W, \sigma) = \text{Normal}(X \cdot W + Z, \sigma^2) \\
+& p(Z) = \text{Normal}(0, \tau^2) \\
+& p(W) = \text{Normal}(0, \alpha^2) \\
 \end{aligned}
-</span></p>
-<p>Where: - <em>p(Y | X, Z, W, )</em> is the likelihood function for the observed outcome variable, which depends on both the observed predictor <em>X</em> and the latent variable <em>Z</em>. - <em>p(Z)</em> is the prior distribution for the latent variable <em>Z</em>, often modeled as <em>Normal</em> with a mean of 0 and variance <em>^2</em>. - <em>p(W)</em> is the prior distribution for the regression coefficient(s) <em>W</em>, typically assumed to follow a <em>Normal</em> distribution with mean 0 and variance <em>^2</em>.</p>
-<p>The latent variable <em>Z</em> introduces additional flexibility to the model, capturing unobserved influences on the outcome <em>Y</em>.</p>
-</section>
-<section id="interpretation-of-latent-variables" class="level2">
-<h2 class="anchored" data-anchor-id="interpretation-of-latent-variables">Interpretation of Latent Variables</h2>
-<ul>
-<li><p><strong>Latent Variable (<em>Z</em>)</strong>: Represents hidden factors not captured by the observed variables, allowing the model to explain more of the variance in the outcome. For instance, in a psychological model, <em>Z</em> might represent a latent trait such as intelligence or anxiety that influences the outcome.</p></li>
-<li><p><strong>Posterior Inference</strong>: The posterior distribution of the latent variable <em>Z</em> can give insights into how much the unobserved factors contribute to the outcome.</p></li>
-</ul>
-</section>
-<section id="use-cases" class="level2">
-<h2 class="anchored" data-anchor-id="use-cases">Use Cases</h2>
-<ul>
-<li><strong>Latent Factors in Psychometrics</strong>: In psychometric models, latent variables represent traits or abilities that are not directly observed, such as cognitive ability or personality traits.</li>
-<li><strong>Time-Varying Effects</strong>: Latent variables can represent unobserved time trends or individual-specific effects in time-series or longitudinal models.</li>
-<li><strong>Mixed Models</strong>: In hierarchical or mixed models, latent variables can represent group-specific intercepts or slopes.</li>
-</ul>
+$$
+
+Where:
+- _p(Y | X, Z, W, \sigma)_ is the likelihood function for the observed outcome variable, which depends on both the observed predictor _X_ and the latent variable _Z_.
+- _p(Z)_ is the prior distribution for the latent variable _Z_, often modeled as _Normal_ with a mean of 0 and variance _\tau^2_.
+- _p(W)_ is the prior distribution for the regression coefficient(s) _W_, typically assumed to follow a _Normal_ distribution with mean 0 and variance _\alpha^2_.
+
+The latent variable _Z_ introduces additional flexibility to the model, capturing unobserved influences on the outcome _Y_.
+
+## Interpretation of Latent Variables
+
+- **Latent Variable (_Z_)**: Represents hidden factors not captured by the observed variables, allowing the model to explain more of the variance in the outcome. For instance, in a psychological model, _Z_ might represent a latent trait such as intelligence or anxiety that influences the outcome.
+  
+- **Posterior Inference**: The posterior distribution of the latent variable _Z_ can give insights into how much the unobserved factors contribute to the outcome.
+
+## Use Cases
+- **Latent Factors in Psychometrics**: In psychometric models, latent variables represent traits or abilities that are not directly observed, such as cognitive ability or personality traits.
+- **Time-Varying Effects**: Latent variables can represent unobserved time trends or individual-specific effects in time-series or longitudinal models.
+- **Mixed Models**: In hierarchical or mixed models, latent variables can represent group-specific intercepts or slopes.
+
+--></p>
 
 
 </section>

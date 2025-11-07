@@ -434,7 +434,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variable</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -730,6 +730,11 @@ Caution
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="travaux-routiers.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </div>
@@ -737,31 +742,67 @@ Caution
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <p>This level describes how any single data point, <span class="math inline">x_i</span>, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster’s specific distribution. We use a truncation level <span class="math inline">T</span> as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.</p>
-<p><span class="math display">
-x_i \mid z_i=k \sim \text{MultivariateNormal}(\mu_k, \Sigma_{\text{obs}}) \\
-z_i \sim \text{Categorical}(w) \\
-w = \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
+$$
+<span class="math display">\begin{aligned}
+\begin{pmatrix}
+Y_{i,1} \\
+\vdots \\
+Y_{i,D}
+\end{pmatrix}
+
+\sim
+\text{MVN}\!\left(
+\begin{pmatrix}
+\mu_{z_i,1} \\
+\vdots \\
+\mu_{z_i,D}
+\end{pmatrix},
+\,
+\Sigma_{z_i}
+\right) \\
+\\
+
+\begin{pmatrix}
+\mu_{k,1} \\
+\vdots \\
+\mu_{k,D}
+\end{pmatrix}
+\sim
+\text{MVN}\!\left(
+\begin{pmatrix}
+A{k,1} \\
+\vdots \\
+A{k,D}
+\end{pmatrix},
+\, B
+\right) \\
+
+\Sigma_k = \sigma_k \Omega_k \sigma_k \\
+
+\sigma_k \sim \text{HalfCauchy}(1) \\
+
+\Omega_k \sim \text{LKJ}(2) \\
+
+z_{i} \sim \text{Categorical}(\pi) \\
+
+\pi  = \text{StickBreaking}(\beta_1, ..., \beta_{K-1}) \\
 \beta_k \sim \text{Beta}(1, \alpha) \\
-\alpha \sim \text{Gamma}(1, 10)\\
-\mu_k \sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \\
-\Sigma_{\text{obs}} = I_D \\
-</span></p>
-<p><strong>Parameter Definitions:</strong> * <strong>Observed Data:</strong> * <span class="math inline">x_i</span>: The <span class="math inline">i</span>-th observed D-dimensional data point.</p>
+\alpha \sim \text{Gamma}(1, 10) \\
+\end{aligned}</span>
+<p>$$</p>
+<p>Where :</p>
 <ul>
-<li><strong>Latent Variables (Inferred):</strong>
-<ul>
-<li><p><span class="math inline">z_i</span>: The integer cluster assignment for the <span class="math inline">i</span>-th data point.</p></li>
-<li><p><span class="math inline">w</span>: The vector of mixture weights, where <span class="math inline">w_k</span> is the probability of belonging to cluster <span class="math inline">k</span>.</p></li>
-<li><p><span class="math inline">\beta_k</span>: The set of Beta-distributed random variables for the stick-breaking process.</p></li>
-<li><p><span class="math inline">\alpha</span>: The concentration parameter, controlling the effective number of clusters.<br>
-</p></li>
-<li><p><span class="math inline">\mu_k</span>: The D-dimensional mean vector of the <span class="math inline">k</span>-th cluster.</p></li>
-</ul></li>
-<li><strong>Hyperparameters (Fixed):</strong>
-<ul>
-<li><span class="math inline">\mu_0</span>: The prior mean for the cluster centers (e.g., <code>mean(data)</code>).</li>
-<li><span class="math inline">\Sigma_0</span>: The prior covariance for the cluster centers (e.g., <code>10 * I_D</code>).</li>
-</ul></li>
+<li><p><span class="math inline">\begin{pmatrix} Y_{i,1} \\ \vdots \\ Y_{i,D} \end{pmatrix}</span> is the <span class="math inline">i</span>-th observed with its D-dimensional factors.</p></li>
+<li><p><span class="math inline">\begin{pmatrix}\mu_{z_i,1} \\ \vdots \\ \mu_{z_i,D}\end{pmatrix}</span>: The D-dimensional mean vector of the <span class="math inline">z_i</span>-th cluster.</p></li>
+<li><p><span class="math inline">\begin{pmatrix} A{k,1} \\ \vdots \\ A{k,D} \end{pmatrix}</span>: Is the D-dimensional vector prior of the <span class="math inline">k</span>-th cluster mean.</p></li>
+<li><p><span class="math inline">B</span>: Is the prior covariance of the cluster means setup as a diagonal matrix with 0.1 in the diagonal.</p></li>
+<li><p><span class="math inline">\Sigma_k</span>: Is the DxD covariance matrix of the <span class="math inline">k</span>-th cluster (composed of <span class="math inline">\sigma_k</span> and <span class="math inline">\Omega_k</span>)$.</p></li>
+<li><p><span class="math inline">\sigma_k</span> : Is the standard deviation of the <span class="math inline">k</span>-th cluster.</p></li>
+<li><p><span class="math inline">\Omega_k</span>: Is the cholesky decomposition of the <span class="math inline">k</span>-th cluster.</p></li>
+<li><p><span class="math inline">z_i</span>: Is the cluster assignment of the <span class="math inline">i</span>-th observation.</p></li>
+<li><p><span class="math inline">\pi</span>: Is the vector of <span class="math inline">K</span> cluster weights with prior 0.5 for each cluster.</p></li>
+<li><p><span class="math inline">\beta_k</span>: The set of <span class="math inline">K</span> Beta-distributed random variables for the stick-breaking process.</p></li>
+<li><p><span class="math inline">\alpha</span>: The concentration parameter, controlling the effective number of clusters.</p></li>
 </ul>
 </section>
 <section id="notes" class="level2">

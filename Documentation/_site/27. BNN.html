@@ -413,7 +413,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with a Categorical Independent Variables</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variable</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -579,11 +579,7 @@ window.Quarto = {
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a></li>
   <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations">Considerations</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
-  <ul class="collapse">
-  <li><a href="#frequentist-formulation" id="toc-frequentist-formulation" class="nav-link" data-scroll-target="#frequentist-formulation"><em>Frequentist Formulation</em></a></li>
-  <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><em>Bayesian Formulation</em></a></li>
-  </ul></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
   </ul>
@@ -662,7 +658,7 @@ Caution
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="e6e823e4" class="cell" data-execution_count="1">
+<div id="74625c0f" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
@@ -727,7 +723,7 @@ Caution
 <div class="cell-output cell-output-stdout">
 <pre><code>jax.local_device_count 16</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>[Text(0.5, 0, 'X'),
  Text(0, 0.5, 'Y'),
  Text(0.5, 1.0, 'Mean predictions with 90% CI')]</code></pre>
@@ -783,42 +779,44 @@ Caution
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<section id="frequentist-formulation" class="level3">
-<h3 class="anchored" data-anchor-id="frequentist-formulation"><em>Frequentist Formulation</em></h3>
-<p>A standard (non-Bayesian) neural network with one hidden layer is defined by forward propagation:</p>
-<p><span class="math display">
-h_i = f(X_i W_1 + b_1)
-</span></p>
-<p><span class="math display">
-\hat{Y}_i = g(h_i W_2 + b_2)
-</span></p>
-<p>Where: - <span class="math inline">Y_i</span> is the predicted output for observation <em>i</em>. - <span class="math inline">X_i</span> is the input vector for observation <em>i</em>. - <span class="math inline">W_1, b_1</span> are the weight matrix and bias vector for the hidden layer. - <span class="math inline">W_2, b_2</span> are the weight matrix and bias vector for the output layer. - <span class="math inline">h_i</span> is the activation of the hidden layer. - <span class="math inline">f</span> and <span class="math inline">g</span> are activation functions (e.g., ReLU, tanh, sigmoid, identity). - Parameters <span class="math inline">W_1, b_1, W_2, b_2</span> are learned as single optimal values via optimization.</p>
-</section>
-<section id="bayesian-formulation" class="level3">
-<h3 class="anchored" data-anchor-id="bayesian-formulation"><em>Bayesian Formulation</em></h3>
-<p>In the Bayesian formulation, we place <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span> on all weights and biases and define a likelihood for the output. For a regression task with a one-layer BNN:</p>
-<p><span class="math display">
+<p><img src="travaux-routiers.png" class="img-fluid quarto-figure quarto-figure-center"> <!---
+In the Bayesian formulation, we place [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} on all weights and biases and define a likelihood for the output. For a regression task with a one-layer BNN:
+
+$$
 Y_i \sim \text{Normal}(\mu_i, \sigma)
-</span></p>
-<p><span class="math display">
+$$
+
+$$
 \mu_i = g(h_i W_2 + b_2)
-</span></p>
-<p><span class="math display">
+$$
+
+$$
 h_i = f(X_i W_1 + b_1)
-</span></p>
-<p>The parameters are now distributions: <span class="math display">
+$$
+
+The parameters are now distributions:
+$$
 W_1 \sim \text{Normal}(0, 1)
-</span> <span class="math display">
+$$
+$$
 b_1 \sim \text{Normal}(0, 1)
-</span> <span class="math display">
+$$
+$$
 W_2 \sim \text{Normal}(0, 1)
-</span> <span class="math display">
+$$
+$$
 b_2 \sim \text{Normal}(0, 1)
-</span> <span class="math display">
+$$
+$$
 \sigma \sim \text{Exponential}(1)
-</span></p>
-<p>Where: - <span class="math inline">Y_i</span> is the observed dependent variable for observation <em>i</em>. - <span class="math inline">\mu_i</span> is the mean predicted by the network, which is itself a distribution because it is a function of the distributions of weights and biases. - <span class="math inline">W_1, b_1, W_2, b_2</span> are the weights and biases, treated as random variables. - <span class="math inline">\sigma</span> is the standard deviation of the normal distribution, quantifying observation noise.</p>
-</section>
+$$
+
+Where:
+-   $Y_i$ is the observed dependent variable for observation *i*.
+-   $\mu_i$ is the mean predicted by the network, which is itself a distribution because it is a function of the distributions of weights and biases.
+-   $W_1, b_1, W_2, b_2$ are the weights and biases, treated as random variables.
+-   $\sigma$ is the standard deviation of the normal distribution, quantifying observation noise.
+---></p>
 </section>
 <section id="notes" class="level2">
 <h2 class="anchored" data-anchor-id="notes">Notes</h2>

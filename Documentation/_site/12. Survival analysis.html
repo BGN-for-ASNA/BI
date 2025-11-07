@@ -108,49 +108,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
- var mathElements = document.getElementsByClassName("math");
- var macros = [];
- for (var i = 0; i < mathElements.length; i++) {
-  var texText = mathElements[i].firstChild;
-  if (mathElements[i].tagName == "SPAN") {
-   katex.render(texText.data, mathElements[i], {
-    displayMode: mathElements[i].classList.contains('display'),
-    throwOnError: false,
-    macros: macros,
-    fleqn: false
-   });
-}}});
-  </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="MyStyles.css">
 </head>
@@ -581,7 +538,6 @@ window.Quarto = {
   <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations">Considerations</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="12.-Survival-analysis.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
     </div>
@@ -709,52 +665,61 @@ Note
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<p>The model is defined as follows: <!---
+<p><img src="travaux-routiers.png" class="img-fluid quarto-figure quarto-figure-center"> <!---
+The model is defined as follows:
+
 $$
 S_{[i,t]} \sim \text{Bernoulli}(\lambda_{[i,t]}) |_{S_{[i,t-1]}=1}
 $$
 $$
 \lambda_{[i,t]} = \text{inv_logit}(\alpha_{[t]} + \beta_{[t]} X_{[i]} )
 $$
----></p>
-<p><span class="math display">
+
+
+$$
 N_i(t) \sim \text{Poisson}(\lambda_i(t) Y_i(t))
-</span></p>
-<p><span class="math display">
+$$
+
+$$
 \lambda_i(t) = \lambda_{0}(t)\exp(\beta X_i)
-</span></p>
-<p><span class="math display">
+$$
+
+
+$$
 \lambda_{0} \sim \text{Gamma}(0.01, 0.01)
-</span></p>
-<p><span class="math display">
+$$
+
+$$
 \beta \sim \text{Normal}(0, 1000)
-</span></p>
-<ul>
-<li>Where:
-<ul>
-<li><p><span class="math inline">N_i(t)</span> is the counting process for subject <span class="math inline">i</span>, which counts the number of observed events up to time <span class="math inline">t</span>. For survival analysis, this is typically 0 or 1.</p></li>
-<li><p><strong><span class="math inline">Y_i(t)</span> is the at-risk indicator</strong>, taking a value of 1 if subject <em>i</em> is under observation and has not yet experienced an event just prior to time <em>t</em>, and 0 otherwise. This indicator is the mechanism that handles censoring:</p>
-<ul>
-<li>If a subject is <strong>censored</strong> at time <span class="math inline">t'</span>, their at-risk indicator <span class="math inline">Y_i(t)</span> remains 1 up to <span class="math inline">t'</span>, signifying they were at risk during this period.</li>
-<li>At the moment of censoring <span class="math inline">t'</span>, no event is recorded (the counting process <span class="math inline">N_i(t)</span> does not increment).</li>
-<li>For all subsequent times <span class="math inline">t &gt; t'</span>, the indicator <span class="math inline">Y_i(t)</span> switches to 0, effectively removing the individual from the risk set for any future calculations.</li>
-</ul></li>
-<li><p><span class="math inline">\lambda_i(t)</span> is the hazard rate for subject <span class="math inline">i</span> at time <span class="math inline">t</span>.</p></li>
-<li><p><span class="math inline">\lambda_{0}(t)</span> is the baseline hazard rate function at time <span class="math inline">t</span>. A key assumption is that this baseline hazard is the same for all subjects.</p></li>
-<li><p><span class="math inline">X_i</span> is the covariates for subject <span class="math inline">i</span>.</p></li>
-<li><p><span class="math inline">\beta</span> is the regression coefficients.</p></li>
-</ul></li>
-<li><strong>Priors:</strong>
-<ul>
-<li><p>We assign prior distributions to the unknown parameters. The regression coefficients <span class="math inline">\beta</span> are given a Normal prior.</p></li>
-<li><p>The baseline hazard <span class="math inline">\lambda_0(t)</span> is also treated as an unknown parameter and is often modeled non-parametrically, for instance, using a gamma process or as a piecewise constant function, where priors are placed on the hazard level in each time interval.</p></li>
-</ul></li>
-</ul>
-<p>The key assumption of this model is that the hazard ratios are constant over time. Censoring is typically handled in the likelihood function used for estimation, not by multiplying the hazard function by a factor. The data for each subject <span class="math inline">i</span> is represented by a tuple <span class="math inline">(t_i, \delta_i, X_i)</span>, where <span class="math inline">t_i</span> is the observed time (either event or censoring time), <span class="math inline">\delta_i</span> is an event indicator (1 if the event was observed, 0 if censored), and <span class="math inline">X_i</span> is the vector of covariates.</p>
-</section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p>https://en.wikipedia.org/wiki/Proportional_hazards_model https://www.mathworks.com/help/stats/cox-proportional-hazard-regression.html https://www.pymc.io/projects/examples/en/latest/survival_analysis/survival_analysis.html https://vflores-io.github.io/posts/20240924_numpyro_logreg_surv_analysis/np01_logreg_surv_analysis/</p>
+$$
+
+
+
+
+-   Where:
+    -   $N_i(t)$ is the counting process for subject $i$, which counts the number of observed events up to time $t$. For survival analysis, this is typically 0 or 1.
+
+    *   **$Y_i(t)$ is the at-risk indicator**, taking a value of 1 if subject *i* is under observation and has not yet experienced an event just prior to time *t*, and 0 otherwise. This indicator is the mechanism that handles censoring:
+        *   If a subject is **censored** at time $t'$, their at-risk indicator $Y_i(t)$ remains 1 up to $t'$, signifying they were at risk during this period.
+        *   At the moment of censoring $t'$, no event is recorded (the counting process $N_i(t)$ does not increment).
+        *   For all subsequent times $t > t'$, the indicator $Y_i(t)$ switches to 0, effectively removing the individual from the risk set for any future calculations.
+
+    -   $\lambda_i(t)$ is the hazard rate for subject $i$ at time $t$.
+
+    -   $\lambda_{0}(t)$ is the baseline hazard rate function at time $t$. A key assumption is that this baseline hazard is the same for all subjects.
+
+    -   $X_i$ is the covariates for subject $i$.
+
+    -   $\beta$ is the regression coefficients. 
+
+-   **Priors:**
+    -   We assign prior distributions to the unknown parameters. The regression coefficients $\beta$ are given a Normal prior.
+
+    -   The baseline hazard $\lambda_0(t)$ is also treated as an unknown parameter and is often modeled non-parametrically, for instance, using a gamma process or as a piecewise constant function, where priors are placed on the hazard level in each time interval.
+
+
+The key assumption of this model is that the hazard ratios are constant over time. Censoring is typically handled in the likelihood function used for estimation, not by multiplying the hazard function by a factor. The data for each subject $i$ is represented by a tuple $(t_i, \delta_i, X_i)$, where $t_i$ is the observed time (either event or censoring time), $\delta_i$ is an event indicator (1 if the event was observed, 0 if censored), and $X_i$ is the vector of covariates.
+---> ## Reference(s) https://en.wikipedia.org/wiki/Proportional_hazards_model https://www.mathworks.com/help/stats/cox-proportional-hazard-regression.html https://www.pymc.io/projects/examples/en/latest/survival_analysis/survival_analysis.html https://vflores-io.github.io/posts/20240924_numpyro_logreg_surv_analysis/np01_logreg_surv_analysis/</p>
 
 
 </section>
