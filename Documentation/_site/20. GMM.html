@@ -703,43 +703,67 @@ Caution
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <p>This section describes the generative process for a GMM.</p>
-<p><span class="math display">
-Z_i \sim \text{Categorical}(\pi)
-</span></p>
-<p><span class="math display">
-\pi \sim \text{Dirichlet}([0.5, \dots, 0.5])
-</span> <span class="math display">
-X_i | Z_i=k, \mu_k, \Sigma_k \sim \text{MultivariateNormal}(\mu_k, \Sigma_k)
-</span></p>
-<p><span class="math display">
-\pi \sim \text{Dirichlet}([0.5, \dots, 0.5])
-</span> <span class="math display">
-\text{for } k \text{ in } 1, \dots, K:
-</span> <span class="math display">
-\mu_k \sim \text{MultivariateNormal}\left( \mu_{0,k}, 0.1 \cdot I_D \right)
-</span> <span class="math display">
-\Sigma_k = \text{diag}(\sigma_k) \cdot \Omega_k \cdot \text{diag}(\sigma_k)
-</span> <span class="math display">
-\sigma_{k,d} \sim \text{HalfCauchy}(1) \quad \text{for } d \text{ in } 1, \dots, D
-</span> <span class="math display">
-\Omega_k \sim \text{LKJ}(1)
-</span></p>
-<p><strong>Parameter Definitions:</strong> * <strong>Observed Data:</strong> * <span class="math inline">x_i</span>: The <span class="math inline">i</span>-th observed D-dimensional data point.</p>
+$$
+<span class="math display">\begin{aligned}
+\begin{pmatrix}
+Y_{i,1} \\
+\vdots \\
+Y_{i,D}
+\end{pmatrix}
+
+\sim
+\text{MVN}\!\left(
+\begin{pmatrix}
+\mu_{z_i,1} \\
+\vdots \\
+\mu_{z_i,D}
+\end{pmatrix},
+\,
+\Sigma_{z_i}
+\right) \\
+\\
+
+\begin{pmatrix}
+\mu_{k,1} \\
+\vdots \\
+\mu_{k,D}
+\end{pmatrix}
+\sim
+\text{MVN}\!\left(
+\begin{pmatrix}
+A{k,1} \\
+\vdots \\
+A{k,D}
+\end{pmatrix},
+\, B
+\right) \\
+
+
+\Sigma_k = \sigma_k \Omega_k \sigma_k \\
+
+\sigma_k \sim \text{HalfCauchy}(1) \\
+
+\Omega_k \sim \text{LKJ}(2) \\
+
+z_{i} \sim \text{Categorical}(\pi) \\
+
+\pi \sim \text{Dirichlet}(0.5, \dots, 0.5) \\
+
+
+
+\end{aligned}</span>
+<p>$$</p>
+<p>Where :</p>
 <ul>
-<li><strong>Latent Variables (Inferred):</strong>
-<ul>
-<li><span class="math inline">z_i</span>: The integer cluster assignment for the <span class="math inline">i</span>-th data point.</li>
-<li><span class="math inline">w</span>: The K-dimensional vector of mixture weights.</li>
-<li><span class="math inline">\mu_k</span>: The D-dimensional mean vector of the <span class="math inline">k</span>-th cluster.</li>
-<li><span class="math inline">\Sigma_k</span>: The DxD covariance matrix of the <span class="math inline">k</span>-th cluster (composed of <span class="math inline">\sigma_k</span> and <span class="math inline">L_{\text{corr},k}</span>).</li>
-</ul></li>
-<li><strong>Hyperparameters (Fixed):</strong>
-<ul>
-<li><span class="math inline">K</span>: The total number of clusters.</li>
-<li><span class="math inline">\alpha_0</span>: The concentration parameter vector for the Dirichlet prior on weights (e.g., <code>[1, 1, ..., 1]</code>).</li>
-<li><span class="math inline">\mu_0</span>: The prior mean for the cluster centers.</li>
-<li><span class="math inline">\Sigma_0</span>: The prior covariance for the cluster centers.</li>
-</ul></li>
+<li><p><span class="math inline">\begin{pmatrix} Y_{i,1} \\ \vdots \\ Y_{i,D} \end{pmatrix}</span> is the <span class="math inline">i</span>-th observed with its D-dimensional factors.</p></li>
+<li><p><span class="math inline">\begin{pmatrix}\mu_{z_i,1} \\ \vdots \\ \mu_{z_i,D}\end{pmatrix}</span>: The D-dimensional mean vector of the <span class="math inline">z_i</span>-th cluster.</p></li>
+<li><p><span class="math inline">\begin{pmatrix} A{k,1} \\ \vdots \\ A{k,D} \end{pmatrix}</span>: Is the D-dimensional vector prior of the <span class="math inline">k</span>-th cluster mean.</p></li>
+<li><p><span class="math inline">B</span>: Is the prior covariance of the cluster means setup as a diagonal matrix with 0.1 in the diagonal.</p></li>
+<li><p><span class="math inline">\Sigma_k</span>: Is the DxD covariance matrix of the <span class="math inline">k</span>-th cluster (composed of <span class="math inline">\sigma_k</span> and <span class="math inline">\Omega_k</span>)$.</p></li>
+<li><p><span class="math inline">\sigma_k</span> : Is the standard deviation of the <span class="math inline">k</span>-th cluster.</p></li>
+<li><p><span class="math inline">\Omega_k</span>: Is the cholesky decomposition of the <span class="math inline">k</span>-th cluster.</p></li>
+<li><p><span class="math inline">z_i</span>: Is the cluster assignment of the <span class="math inline">i</span>-th observation.</p></li>
+<li><p><span class="math inline">\pi</span>: Is the vector of <span class="math inline">K</span> cluster weights with prior 0.5 for each cluster.</p></li>
 </ul>
 </section>
 <section id="notes" class="level2">

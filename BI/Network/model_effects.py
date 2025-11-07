@@ -91,13 +91,11 @@ class Neteffect(array_manip):
         """
         ids = jnp.arange(0,sr_effects.shape[0])
         edgl_idx = Neteffect.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
-        i_idx = edgl_idx[:, 0]
-        j_idx = edgl_idx[:, 1]
 
-        S_i = sr_effects[i_idx,0]
-        S_j = sr_effects[j_idx,0]
-        R_i = sr_effects[i_idx,1]
-        R_j = sr_effects[j_idx,1]
+        S_i = sr_effects[edgl_idx[:, 0],0]
+        S_j = sr_effects[edgl_idx[:, 1],0]
+        R_i = sr_effects[edgl_idx[:, 0],1]
+        R_j = sr_effects[edgl_idx[:, 1],1]
         return jnp.stack([S_i + R_j, S_j + R_i ], axis = 1)
 
     def sender_receiver(self,sender_predictors = None, receiver_predictors = None,  
@@ -234,7 +232,7 @@ class Neteffect(array_manip):
         return dr_ff, dyad_effects
 
     @staticmethod 
-    def dyadic_effect(dyadic_predictors = None, shape = None, d_m = 0, d_sd = 1, # Fixed effect arguments
+    def dyadic_effect(dyadic_predictors = None, shape = None, d_m = 0, d_sd = 2.5, # Fixed effect arguments
                      dr_sigma_mu = 0, dr_sigma_sd = 2.5, cholesky_dim = 2, cholesky_density = 2.5,
                      sample = False):
         """Compute dyadic effects combining both fixed and random components.
@@ -266,30 +264,6 @@ class Neteffect(array_manip):
         return  dr_rf
   
     @staticmethod 
-    def block_model_prior(N_grp, 
-                          b_ij_mean = 0.01, b_ij_sd = 1, 
-                          b_ii_mean = 0.1, b_ii_sd = 1,
-                          name_b_ij = 'b_ij', name_b_ii = 'b_ii', sample = False):
-        """Build block model prior matrix for within and between group links probabilities
-
-        Args:
-            N_grp (int): Number of groups to build
-            b_ij_mean (float, optional): mean prior for between groups. Defaults to 0.01.
-            b_ij_sd (float, optional): sd prior for between groups. Defaults to 2.5.
-            b_ii_mean (float, optional): mean prior for within groups. Defaults to 0.01.
-            b_ii_sd (float, optional): sd prior for between groups. Defaults to 2.5.
-
-        Returns:
-            _type_: _description_
-        """
-        N_dyads = int(((N_grp*(N_grp-1))/2))
-        b_ij = dist.normal(Neteffect.logit(b_ij_mean/jnp.sqrt(N_grp*0.5 + N_grp*0.5)), b_ij_sd, shape=(N_dyads, 2), name = name_b_ij, sample = sample) # transfers more likely within groups
-        b_ii = dist.normal(Neteffect.logit(b_ii_mean/jnp.sqrt(N_grp)), b_ii_sd, shape=(N_grp, ), name = name_b_ii, sample = sample) # transfers less likely between groups
-        b = Neteffect.edgl_to_mat(b_ij, N_grp)
-        b = b.at[jnp.diag_indices_from(b)].set(b_ii)
-        return b, b_ij, b_ii
-
-    @staticmethod 
     @jit
     def block_prior_to_edglelist(v, b):
         """Convert block vector id group belonging to edgelist of i->j group values
@@ -305,40 +279,6 @@ class Neteffect(array_manip):
         v = Neteffect.vec_node_to_edgle(jnp.stack([v, v], axis= 1)).astype(int)
 
         return jnp.stack([b[v[:,0],v[:,1]], b[v[:,1],v[:,0]]], axis = 1)
-
-    @staticmethod 
-    def sim_block_model(grp, N_grp, b_ij_mean = 0.01, b_ij_sd = 2.5, b_ii_mean = 0.1, b_ii_sd = 2.5, sample = False):
-        """Generate block model model matrix.
-
-        Args:
-            grp (array): Array of group belonging
-            N_grp (int): Number of groups to build
-            b_ij_mean (float, optional): _description_. Defaults to 0.01.
-            b_ij_sd (float, optional): _description_. Defaults to 2.5.
-            b_ii_mean (float, optional): _description_. Defaults to 0.1.
-            b_ii_sd (float, optional): _description_. Defaults to 2.5.
-            name_b_ij (str, optional): _description_. Defaults to 'b_ij'.
-            name_b_ii (str, optional): _description_. Defaults to 'b_ii'.
-            sample (bool, optional): _description_. Defaults to False.
-
-        Returns:
-            _type_: _description_
-        """
-        # Get grp name from user. This seems to slower down the code operations, but from user perspective it is more convenient.....
-        frame = inspect.currentframe()
-        frame = inspect.getouterframes(frame)[1]
-        string = inspect.getframeinfo(frame[0]).code_context[0].strip()
-        name = string[string.find('(') + 1:-1].split(',')[0]
-        name_b_ij = 'b_ij_' + str(name)
-        name_b_ii = 'b_ii_' + str(name) 
-
-        b, b_ij, b_ii = Neteffect.block_model_prior(N_grp, 
-                         b_ij_mean = b_ij_mean, b_ij_sd = b_ij_sd, 
-                         b_ii_mean = b_ii_mean, b_ii_sd = b_ii_sd,
-                         name_b_ij = name_b_ij, name_b_ii = name_b_ii, sample = sample)
-        edgl_block = Neteffect.block_prior_to_edglelist(grp, b)
-
-        return edgl_block
 
 
     @staticmethod
