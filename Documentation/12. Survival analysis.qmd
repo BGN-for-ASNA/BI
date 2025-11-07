@@ -91,16 +91,17 @@ m.models.survival.plot_surv()
 :::
 
 ## Mathematical Details
-
-The model is defined as follows:
+![](travaux-routiers.png){fig-align="center"}
 <!---
+The model is defined as follows:
+
 $$
 S_{[i,t]} \sim \text{Bernoulli}(\lambda_{[i,t]}) |_{S_{[i,t-1]}=1}
 $$
 $$
 \lambda_{[i,t]} = \text{inv_logit}(\alpha_{[t]} + \beta_{[t]} X_{[i]} )
 $$
---->
+
 
 $$
 N_i(t) \sim \text{Poisson}(\lambda_i(t) Y_i(t))
@@ -145,7 +146,7 @@ $$
 
 
 The key assumption of this model is that the hazard ratios are constant over time. Censoring is typically handled in the likelihood function used for estimation, not by multiplying the hazard function by a factor. The data for each subject $i$ is represented by a tuple $(t_i, \delta_i, X_i)$, where $t_i$ is the observed time (either event or censoring time), $\delta_i$ is an event indicator (1 if the event was observed, 0 if censored), and $X_i$ is the vector of covariates.
-
+--->
 ## Reference(s)
 https://en.wikipedia.org/wiki/Proportional_hazards_model
 https://www.mathworks.com/help/stats/cox-proportional-hazard-regression.html

@@ -148,30 +148,8 @@ m$summary()
 
 
 ## Mathematical Details
-
-### *Frequentist Formulation*
-
-A standard (non-Bayesian) neural network with one hidden layer is defined by forward propagation:
-
-$$
-h_i = f(X_i W_1 + b_1)
-$$
-
-$$
-\hat{Y}_i = g(h_i W_2 + b_2)
-$$
-
-Where:
--   $Y_i$ is the predicted output for observation *i*.
--   $X_i$ is the input vector for observation *i*.
--   $W_1, b_1$ are the weight matrix and bias vector for the hidden layer.
--   $W_2, b_2$ are the weight matrix and bias vector for the output layer.
--   $h_i$ is the activation of the hidden layer.
--   $f$ and $g$ are activation functions (e.g., ReLU, tanh, sigmoid, identity).
--   Parameters $W_1, b_1, W_2, b_2$ are learned as single optimal values via optimization.
-
-### *Bayesian Formulation*
-
+![](travaux-routiers.png){fig-align="center"}
+<!---
 In the Bayesian formulation, we place [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} on all weights and biases and define a likelihood for the output. For a regression task with a one-layer BNN:
 
 $$
@@ -208,6 +186,7 @@ Where:
 -   $\mu_i$ is the mean predicted by the network, which is itself a distribution because it is a function of the distributions of weights and biases.
 -   $W_1, b_1, W_2, b_2$ are the weights and biases, treated as random variables.
 -   $\sigma$ is the standard deviation of the normal distribution, quantifying observation noise.
+--->
 
 ## Notes
 ::: callout-note

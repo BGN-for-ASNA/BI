@@ -88,42 +88,82 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ## R
 
 ``` r
+
 ```
+![](travaux-routiers.png){fig-align="center"}
+
 :::
 
 ## Mathematical Details
 
-This level describes how any single data point, $x_i$, is generated. The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster's specific distribution. We use a truncation level $T$ as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.
-
+The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster's specific distribution. We use a truncation level $K$ as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.
 
 $$
-x_i \mid z_i=k \sim \text{MultivariateNormal}(\mu_k, \Sigma_{\text{obs}}) \\
-z_i \sim \text{Categorical}(w) \\
-w = \text{StickBreaking}(\beta_1, ..., \beta_{T-1}) \\
+\begin{aligned}
+\begin{pmatrix}
+Y_{i,1} \\
+\vdots \\
+Y_{i,D}
+\end{pmatrix}
+
+\sim 
+\text{MVN}\!\left(
+\begin{pmatrix}
+\mu_{z_i,1} \\
+\vdots \\
+\mu_{z_i,D}
+\end{pmatrix},
+\, 
+\Sigma_{z_i}
+\right) \\
+\\
+
+\begin{pmatrix}
+\mu_{k,1} \\
+\vdots \\
+\mu_{k,D}
+\end{pmatrix}
+\sim 
+\text{MVN}\!\left(
+\begin{pmatrix}
+A{k,1} \\
+\vdots \\
+A{k,D}
+\end{pmatrix},
+\, B
+\right) \\
+
+\Sigma_k = \sigma_k \Omega_k \sigma_k \\
+
+\sigma_k \sim \text{HalfCauchy}(1) \\
+
+\Omega_k \sim \text{LKJ}(2) \\
+
+z_{i} \sim \text{Categorical}(\pi) \\
+
+\pi  = \text{StickBreaking}(\beta_1, ..., \beta_{K-1}) \\
 \beta_k \sim \text{Beta}(1, \alpha) \\
-\alpha \sim \text{Gamma}(1, 10)\\
-\mu_k \sim \text{MultivariateNormal}(\mu_0, \Sigma_0)  \\
-\Sigma_{\text{obs}} = I_D \\
+\alpha \sim \text{Gamma}(1, 10) \\
+\end{aligned}
 $$
 
 
+Where : 
 
-**Parameter Definitions:**
-*   **Observed Data:**
-    *   $x_i$: The $i$-th observed D-dimensional data point.
+*   $\begin{pmatrix} Y_{i,1} \\ \vdots \\ Y_{i,D} \end{pmatrix}$ is the $i$-th observed with its D-dimensional factors.
 
-*   **Latent Variables (Inferred):**
-    *   $z_i$: The integer cluster assignment for the $i$-th data point.
+*   $\begin{pmatrix}\mu_{z_i,1} \\ \vdots \\ \mu_{z_i,D}\end{pmatrix}$: The D-dimensional mean vector of the $z_i$-th cluster.
+*   $\begin{pmatrix} A{k,1} \\ \vdots \\ A{k,D} \end{pmatrix}$: Is the D-dimensional vector prior of the $k$-th cluster mean.
+*   $B$: Is the prior covariance of the cluster means setup as a diagonal matrix with 0.1 in the diagonal.
+
+*   $\Sigma_k$: Is the DxD covariance matrix of the $k$-th cluster (composed of $\sigma_k$ and $\Omega_k$)$.
+*   $\sigma_k$ : Is the standard deviation of the $k$-th cluster.
+*   $\Omega_k$: Is the cholesky decomposition of the $k$-th cluster.
   
-    *   $w$: The vector of mixture weights, where $w_k$ is the probability of belonging to cluster $k$.
-    *   $\beta_k$: The set of Beta-distributed random variables for the stick-breaking process.
-    *   $\alpha$: The concentration parameter, controlling the effective number of clusters.  
-    *   $\mu_k$: The D-dimensional mean vector of the $k$-th cluster.
-    
-  
-*   **Hyperparameters (Fixed):**
-    *   $\mu_0$: The prior mean for the cluster centers (e.g., `mean(data)`).
-    *   $\Sigma_0$: The prior covariance for the cluster centers (e.g., `10 * I_D`).
+*   $z_i$: Is the cluster assignment of the $i$-th observation.
+*   $\pi$: Is the vector of $K$ cluster weights with prior 0.5 for each cluster.
+*   $\beta_k$: The set of $K$ Beta-distributed random variables used in the stick-breaking process to construct the mixture weights.
+*   $\alpha$: The concentration parameter, controlling the effective number of clusters. 
 
 
 ## Notes
