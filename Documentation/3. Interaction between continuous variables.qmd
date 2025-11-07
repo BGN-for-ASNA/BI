@@ -29,7 +29,7 @@ Below is example code demonstrating Bayesian regression with an interaction term
 
 ::: {.panel-tabset group="language"}
 ### Python
-```python
+```{python}
 from BI import bi
 
 # Setup device------------------------------------------------
@@ -51,7 +51,7 @@ def model(blooms,shade, water):
     bw = m.dist.normal(0, 0.25, name = 'bw', shape = (1,))
     a = m.dist.normal(0.5, 0.25, name = 'a', shape = (1,))
     mu = a + bw*water + bs*shade + bws*water*shade
-    m.normal(mu, sigma, obs=blooms)
+    m.dist.normal(mu, sigma, obs=blooms)
 
 # Run mcmc ------------------------------------------------
 m.fit(model) # Optimize model parameters through MCMC sampling

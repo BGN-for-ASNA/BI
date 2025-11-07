@@ -41,7 +41,7 @@ Below is an example code snippet demonstrating *Bayesian linear regression* usin
 ::: {.panel-tabset group="language"}
 ## Python
 
-``` python
+``` {python}
 from BI import bi
 
 # Setup device------------------------------------------------
@@ -58,9 +58,9 @@ m.scale(['weight']) # Normalize
 # Define model ------------------------------------------------
 def model(weight, height):    
     a = m.dist.normal(178, 20, name = 'a') 
-    b = m.dist.lognormal(0, 1, name = 'b') 
+    b = m.dist.log_normal(0, 1, name = 'b') 
     s = m.dist.uniform(0, 50, name = 's') 
-    m.normal(a + b * weight , s, obs = height) 
+    m.dist.normal(a + b * weight , s, obs = height) 
 
 # Run mcmc ------------------------------------------------
 m.fit(model)  # Optimize model parameters through MCMC sampling

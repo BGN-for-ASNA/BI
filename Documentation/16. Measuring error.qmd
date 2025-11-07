@@ -44,7 +44,7 @@ def model(D_obs, D_sd, A, N):
     s = m.dist.exponential(1, name = 's') 
     mu = a + beta * A + eta * M
     D_true = m.dist.normal(mu, s, name = 'D_true') 
-    m.normal(D_true , D_sd, obs = D_obs) 
+    m.dist.normal(D_true , D_sd, obs = D_obs) 
 
 # Run MCMC ------------------------------------------------
 m.fit(model)  # Optimize model parameters through MCMC sampling

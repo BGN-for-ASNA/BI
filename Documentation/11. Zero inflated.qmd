@@ -16,9 +16,9 @@ Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson re
 
 ::: {.panel-tabset group="language"}
 ### Python
-```python
-from BI import bi
-from jax.scipy.special import expit
+```{python}
+from BI import bi, jnp
+
 # Setup device ------------------------------------------------
 m = bi('cpu')
 
@@ -32,15 +32,14 @@ drink = m.dist.binomial(1, prob_drink, shape = (N,), sample = True)
 y = (1 - drink) * m.dist.poisson(rate_work, shape = (N,), sample = True)
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
 m.data_on_model = dict(
     y=jnp.array(y)
 )
 
 # Define model ------------------------------------------------
 def model(y):
-    al = dist.normal(1, 0.5, name='al')
-    ap = dist.normal(-1.5, 1, name='ap')
+    al = m.dist.normal(1, 0.5, name='al')
+    ap = m.dist.normal(-1.5, 1, name='ap')
     p = m.link.inv_logit(ap)
     lambda_ = jnp.exp(al)
     m.dist.zero_inflated_poisson(p, lambda_, obs=y)

@@ -24,7 +24,7 @@ Below is example code demonstrating Bayesian multiple linear regression using th
 
 ::: {.panel-tabset group="language"}
 ### Python
-```python
+```{python}
 from BI import bi
 
 # Setup device------------------------------------------------
@@ -46,7 +46,7 @@ def model(height, weight, age):
     beta2 = m.dist.normal(0, 0.5, name = 'beta2')
     sigma = m.dist.uniform(0, 50, name = 'sigma')
     # Likelihood
-    m.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
+    m.dist.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
 
 # Run MCMC ------------------------------------------------
 m.fit(model) # Optimize model parameters through MCMC sampling

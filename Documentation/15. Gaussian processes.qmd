@@ -26,10 +26,9 @@ Below is an example code snippet demonstrating Gaussian Process regression using
 
 ::: {.panel-tabset group="language"}
 ## Python
-```Python
-from BI import bi
-import jax.numpy as jnp
-import numpyro
+```{python}
+from BI import bi, jnp
+import pandas as pd
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
@@ -39,7 +38,8 @@ from importlib.resources import files
 data_path = files('BI.resources.data') / 'Kline2.csv'
 m.data(data_path, sep=';') 
 
-data_path2 = files('BI.resources.data') / 'Kline2.csv'
+
+data_path2 = files('BI.resources.data') / 'islandsDistMatrix.csv'
 islandsDistMatrix = pd.read_csv(data_path2, index_col=0)
 
 m.data_to_model(['total_tools', 'population'])
@@ -55,10 +55,50 @@ def model(Dmat, population, society, total_tools):
     # non-centered Gaussian Process prior
     etasq = m.dist.exponential(2, name = 'etasq')
     rhosq = m.dist.exponential(0.5, name = 'rhosq')
-    SIGMA = cov_GPL2(Dmat, etasq, rhosq, 0.01)
-    k = m.dist.multivariatenormal(0, SIGMA, name = 'k')
-    #k = m.gaussian.gaussian_process(Dmat, etasq, rhosq, 0.01, shape = (10,))
-    k = m.gaussian.kernel_L2(Dmat, etasq, rhosq, 0.01)
+    SIGMA = etasq * jnp.exp(-rhosq * jnp.square(Dmat))
+    SIGMA = SIGMA.at[jnp.diag_indices(Dmat.shape[0])].add(etasq)
+    k = m.dist.multivariate_normal(0, SIGMA, name = 'k')
+
+    lambda_ = a * population**b / g * jnp.exp(k[society])
+
+    m.dist.poisson(lambda_, obs=total_tools)
+
+# Run sampler ------------------------------------------------
+m.fit(model) 
+m.summary()
+```
+
+## Python (Build in function)
+```{python}
+from BI import bi, jnp
+import pandas as pd
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = files('BI.resources.data') / 'Kline2.csv'
+m.data(data_path, sep=';') 
+
+data_path2 = files('BI.resources.data') / 'islandsDistMatrix.csv'
+islandsDistMatrix = pd.read_csv(data_path2, index_col=0)
+
+m.data_to_model(['total_tools', 'population'])
+m.data_on_model["society"] = jnp.arange(0,10)# index observations
+m.data_on_model["Dmat"] = islandsDistMatrix.values # Distance matrix
+
+
+def model(Dmat, population, society, total_tools):
+    a = m.dist.exponential(1, name = 'a')
+    b = m.dist.exponential(1, name = 'b')
+    g = m.dist.exponential(1, name = 'g')
+
+    # non-centered Gaussian Process prior
+    etasq = m.dist.exponential(2, name = 'etasq')
+    rhosq = m.dist.exponential(0.5, name = 'rhosq')
+    k = m.gaussian.gaussian_process(Dmat, etasq, rhosq, 0.01)
+
     lambda_ = a * population**b / g * jnp.exp(k[society])
 
     m.dist.poisson(lambda_, obs=total_tools)

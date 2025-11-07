@@ -507,7 +507,7 @@ class Mgaussian:
         return sigma**2 * jnp.exp(-2*jnp.sin(jnp.pi * m / period)**2 / length_scale**2)  * jnp.exp(-(m**2/ 2*length_scale**2))
 
     @staticmethod
-    def gaussian_process(Dmat, etasq, rhosq, sigmaq):
+    def gaussian_process(Dmat, etasq = None, rhosq = None, sigmaq = 0.01):
         """Gaussian Process Model with Cholesky Decomposition L2
         Args:
             Dmat (array): Input array representing the distance matrix.
@@ -517,8 +517,10 @@ class Mgaussian:
         Returns:
             array: The covariance matrix computed using the squared exponential kernel.
         """
+        if etasq is None:
+            etasq = dist.exponential(2, name = 'etasq')
+        if rhosq is None:
+            rhosq = dist.exponential(0.5, name = 'rhosq')
+
         SIGMA = cov_GPL2(Dmat, etasq, rhosq, sigmaq)
-        #L_SIGMA = jnp.linalg.cholesky(SIGMA)
-        #z = dist.normal(0, 1, shape= shape, name = 'z')
-        #k = numpyro.deterministic("k", (L_SIGMA @ z[..., None])[..., 0])
         return  dist.multivariate_normal(0, SIGMA, name='kernel')
