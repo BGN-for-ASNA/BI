@@ -145,68 +145,6 @@ m$summary() # Get posterior distribution
 ###  Centered parameterization
 The Gaussian Mixture Model is a hierarchical model where each data point is generated from one of $K$ distinct multivariate Gaussian distributions. 
 
-$$
-Z_i | \pi \sim \text{Categorical}(\pi)
-$$
-$$
-X_i | Z_i=k, \mu_k, \Sigma_k \sim \text{MultivariateNormal}(\mu_k, \Sigma_k)
-$$
-
-$$
-\pi \sim \text{Dirichlet}([0.5, \dots, 0.5])
-$$
-$$
-\text{for } k \text{ in } 1, \dots, K:
-$$
-$$
-\mu_k \sim \text{MultivariateNormal}\left( \mu_{0,k}, 0.1 \cdot I_D \right)
-$$
-$$
-\Sigma_k = \text{diag}(\sigma_k) \cdot \Omega_k \cdot \text{diag}(\sigma_k)
-$$
-$$
-\sigma_{k,d} \sim \text{HalfCauchy}(1) \quad \text{for } d \text{ in } 1, \dots, D
-$$
-$$
-\Omega_k \sim \text{LKJ}(1)
-$$
-
-
-**2. Priors:** We define prior distributions for all model parameters. For each component $k$ in $1, \dots, K$:
-
-*   **Mixture Weights ($\pi$):**
-    $$
-    \pi \sim \text{Dirichlet}([0.5, 0.5, \dots, 0.5])
-    $$
-
-*   **Component Means ($\mu_k$):** The means are modeled using a multivariate normal prior:
-    $$
-    \mu_k \sim \text{MultivariateNormal}\left( \mu_{0,k}, 0.1 \cdot I_D \right)
-    $$
-
-*   **Component Covariances ($\Sigma_k$):** The covariance matrix $\Sigma_k$ is constructed from a vector of standard deviations ($\sigma_k$) and a correlation matrix ($\Omega_k$). This is a robust way to ensure the covariance matrix is positive semi-definite.
-    $$
-    \Sigma_k = \text{diag}(\sigma_k) \cdot \Omega_k \cdot \text{diag}(\sigma_k)
-    $$
-    The priors are placed on these constituent parts:
-    *   **Standard Deviations ($\sigma_{k,d}$):**
-        $$
-        \sigma_{k,d} \sim \text{HalfCauchy}(1)
-        $$
-    *   **Correlation Matrix ($\Omega_k$):**
-        $$
-        \Omega_k \sim \text{LKJ}(1)
-        $$
-
-Where:
-
--   $X_i$ is the $i$-th data point ($D$-dimensional vector).
--   $Z_i$ is the latent cluster assignment for $X_i$.
--   $\pi$ is the $K$-dimensional vector of mixture weights.
--   $\mu_{0,k}$ is the [<span style="color:#0D6EFD">hyperparameter 🈸</span>]{#hyperparameter} for the mean of component $k$, provided as the `initial_means`.
--   $I_D$ is the $D \times D$ identity matrix.
--   $\sigma_k$ is the $D$-dimensional vector of standard deviations for component $k$.
--   $\Omega_k$ is the $D \times D$ correlation matrix for component $k$. The LKJ(1) prior corresponds to a uniform distribution over all valid correlation matrices.
 The varying intercepts ($\alpha_k$) and slopes ($\beta_k$) are modeled using a *Multivariate Normal distribution*:
 
 $$ 

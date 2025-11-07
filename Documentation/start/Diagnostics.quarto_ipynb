@@ -29,7 +29,7 @@
         "\\sigma \\sim \\text{Uniform}(0, 50)\n",
         "$$"
       ],
-      "id": "fc940576"
+      "id": "c573722b"
     },
     {
       "cell_type": "code",
@@ -57,7 +57,7 @@
         "m.fit(model, num_samples=500,num_chains=4) \n",
         "m.summary()"
       ],
-      "id": "dd986f52",
+      "id": "314b292f",
       "execution_count": null,
       "outputs": []
     },
@@ -71,7 +71,7 @@
         "\n",
         "## Predictions from model based on specific data value"
       ],
-      "id": "4828090f"
+      "id": "5bb54b1c"
     },
     {
       "cell_type": "code",
@@ -80,7 +80,7 @@
         "m.sample() # Predictions from model base on data in data_on_model\n",
         "m.sample(data=dict(weight=jnp.array([0.4])), remove_obs=False)# Predictions from a given value"
       ],
-      "id": "88ee5ad4",
+      "id": "9a645449",
       "execution_count": null,
       "outputs": []
     },
@@ -90,7 +90,7 @@
       "source": [
         "## Forest plot of estimated values"
       ],
-      "id": "b075ec22"
+      "id": "d7ac3b9f"
     },
     {
       "cell_type": "code",
@@ -98,7 +98,7 @@
       "source": [
         "m.diag.forest()"
       ],
-      "id": "e229fe20",
+      "id": "b90c7451",
       "execution_count": null,
       "outputs": []
     },
@@ -108,7 +108,7 @@
       "source": [
         "## Density plots of the posterior distribution"
       ],
-      "id": "e1bde389"
+      "id": "355403f7"
     },
     {
       "cell_type": "code",
@@ -116,7 +116,7 @@
       "source": [
         "m.diag.density()"
       ],
-      "id": "692c3785",
+      "id": "f788d63a",
       "execution_count": null,
       "outputs": []
     },
@@ -126,7 +126,7 @@
       "source": [
         "## Posterior distribution plots"
       ],
-      "id": "67998d3c"
+      "id": "276614d2"
     },
     {
       "cell_type": "code",
@@ -134,7 +134,7 @@
       "source": [
         "m.diag.posterior()"
       ],
-      "id": "4c957d2e",
+      "id": "8c707e74",
       "execution_count": null,
       "outputs": []
     },
@@ -144,7 +144,7 @@
       "source": [
         "## Trace plots for MCMC chains"
       ],
-      "id": "9fb3767e"
+      "id": "46709895"
     },
     {
       "cell_type": "code",
@@ -152,7 +152,7 @@
       "source": [
         "m.diag.plot_trace()"
       ],
-      "id": "99547793",
+      "id": "34f0628e",
       "execution_count": null,
       "outputs": []
     },
@@ -162,7 +162,7 @@
       "source": [
         "## Pairwise plots of the posterior distribution"
       ],
-      "id": "84014374"
+      "id": "6d1fdc10"
     },
     {
       "cell_type": "code",
@@ -170,7 +170,7 @@
       "source": [
         "m.diag.pair()"
       ],
-      "id": "278ac8c4",
+      "id": "99ed8402",
       "execution_count": null,
       "outputs": []
     },
@@ -180,7 +180,7 @@
       "source": [
         "## Plot autocorrelation of MCMC chains"
       ],
-      "id": "c411b766"
+      "id": "c0f40991"
     },
     {
       "cell_type": "code",
@@ -188,7 +188,7 @@
       "source": [
         "m.diag.autocor()"
       ],
-      "id": "d67892ce",
+      "id": "af3741ac",
       "execution_count": null,
       "outputs": []
     },
@@ -198,7 +198,7 @@
       "source": [
         "## Create rank plots for MCMC chains"
       ],
-      "id": "ad43efa2"
+      "id": "385481ad"
     },
     {
       "cell_type": "code",
@@ -206,7 +206,7 @@
       "source": [
         "m.diag.rank()"
       ],
-      "id": "29bc8f4e",
+      "id": "91d712b2",
       "execution_count": null,
       "outputs": []
     },
@@ -216,7 +216,7 @@
       "source": [
         "## Evolution of effective sample size across iterations"
       ],
-      "id": "336b363d"
+      "id": "7d03b4d2"
     },
     {
       "cell_type": "code",
@@ -224,7 +224,7 @@
       "source": [
         "m.diag.plot_ess()"
       ],
-      "id": "a68a8783",
+      "id": "8830c63c",
       "execution_count": null,
       "outputs": []
     },
@@ -234,7 +234,7 @@
       "source": [
         "## Pareto-smoothed"
       ],
-      "id": "6dd129af"
+      "id": "7bf2763c"
     },
     {
       "cell_type": "code",
@@ -242,7 +242,7 @@
       "source": [
         "m.diag.loo()"
       ],
-      "id": "89dd8614",
+      "id": "1d05731b",
       "execution_count": null,
       "outputs": []
     },
@@ -252,7 +252,7 @@
       "source": [
         "##  Widely applicable information criterion"
       ],
-      "id": "8401a35e"
+      "id": "1d478ba4"
     },
     {
       "cell_type": "code",
@@ -260,7 +260,7 @@
       "source": [
         "m.diag.WAIC()"
       ],
-      "id": "d20186e6",
+      "id": "b7c80e4e",
       "execution_count": null,
       "outputs": []
     }

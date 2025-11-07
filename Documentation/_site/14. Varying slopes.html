@@ -785,54 +785,7 @@ Note
 <section id="centered-parameterization" class="level3">
 <h3 class="anchored" data-anchor-id="centered-parameterization">Centered parameterization</h3>
 <p>The Gaussian Mixture Model is a hierarchical model where each data point is generated from one of <span class="math inline">K</span> distinct multivariate Gaussian distributions.</p>
-<p><span class="math display">
-Z_i | \pi \sim \text{Categorical}(\pi)
-</span> <span class="math display">
-X_i | Z_i=k, \mu_k, \Sigma_k \sim \text{MultivariateNormal}(\mu_k, \Sigma_k)
-</span></p>
-<p><strong>Priors:</strong> <span class="math display">
-\pi \sim \text{Dirichlet}([0.5, \dots, 0.5])
-</span> <span class="math display">
-\text{for } k \text{ in } 1, \dots, K:
-</span> <span class="math display">
-\mu_k \sim \text{MultivariateNormal}\left( \mu_{0,k}, 0.1 \cdot I_D \right)
-</span> <span class="math display">
-\Sigma_k = \text{diag}(\sigma_k) \cdot \Omega_k \cdot \text{diag}(\sigma_k)
-</span> <span class="math display">
-\sigma_{k,d} \sim \text{HalfCauchy}(1) \quad \text{for } d \text{ in } 1, \dots, D
-</span> <span class="math display">
-\Omega_k \sim \text{LKJ}(1)
-</span></p>
-<p><strong>2. Priors:</strong> We define prior distributions for all model parameters. For each component <span class="math inline">k</span> in <span class="math inline">1, \dots, K</span>:</p>
-<ul>
-<li><p><strong>Mixture Weights (<span class="math inline">\pi</span>):</strong> <span class="math display">
-\pi \sim \text{Dirichlet}([0.5, 0.5, \dots, 0.5])
-</span></p></li>
-<li><p><strong>Component Means (<span class="math inline">\mu_k</span>):</strong> The means are modeled using a multivariate normal prior: <span class="math display">
-\mu_k \sim \text{MultivariateNormal}\left( \mu_{0,k}, 0.1 \cdot I_D \right)
-</span></p></li>
-<li><p><strong>Component Covariances (<span class="math inline">\Sigma_k</span>):</strong> The covariance matrix <span class="math inline">\Sigma_k</span> is constructed from a vector of standard deviations (<span class="math inline">\sigma_k</span>) and a correlation matrix (<span class="math inline">\Omega_k</span>). This is a robust way to ensure the covariance matrix is positive semi-definite. <span class="math display">
-\Sigma_k = \text{diag}(\sigma_k) \cdot \Omega_k \cdot \text{diag}(\sigma_k)
-</span> The priors are placed on these constituent parts:</p>
-<ul>
-<li><strong>Standard Deviations (<span class="math inline">\sigma_{k,d}</span>):</strong> <span class="math display">
-\sigma_{k,d} \sim \text{HalfCauchy}(1)
-</span></li>
-<li><strong>Correlation Matrix (<span class="math inline">\Omega_k</span>):</strong> <span class="math display">
-\Omega_k \sim \text{LKJ}(1)
-</span></li>
-</ul></li>
-</ul>
-<p>Where:</p>
-<ul>
-<li><span class="math inline">X_i</span> is the <span class="math inline">i</span>-th data point (<span class="math inline">D</span>-dimensional vector).</li>
-<li><span class="math inline">Z_i</span> is the latent cluster assignment for <span class="math inline">X_i</span>.</li>
-<li><span class="math inline">\pi</span> is the <span class="math inline">K</span>-dimensional vector of mixture weights.</li>
-<li><span class="math inline">\mu_{0,k}</span> is the <span id="hyperparameter"><span style="color:#0D6EFD">hyperparameter 🈸</span></span> for the mean of component <span class="math inline">k</span>, provided as the <code>initial_means</code>.</li>
-<li><span class="math inline">I_D</span> is the <span class="math inline">D \times D</span> identity matrix.</li>
-<li><span class="math inline">\sigma_k</span> is the <span class="math inline">D</span>-dimensional vector of standard deviations for component <span class="math inline">k</span>.</li>
-<li><span class="math inline">\Omega_k</span> is the <span class="math inline">D \times D</span> correlation matrix for component <span class="math inline">k</span>. The LKJ(1) prior corresponds to a uniform distribution over all valid correlation matrices. The varying intercepts (<span class="math inline">\alpha_k</span>) and slopes (<span class="math inline">\beta_k</span>) are modeled using a <em>Multivariate Normal distribution</em>:</li>
-</ul>
+<p>The varying intercepts (<span class="math inline">\alpha_k</span>) and slopes (<span class="math inline">\beta_k</span>) are modeled using a <em>Multivariate Normal distribution</em>:</p>
 <p><span class="math display">
 \begin{pmatrix}
 \alpha_k \\
