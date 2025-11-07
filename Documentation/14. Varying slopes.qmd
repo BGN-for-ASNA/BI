@@ -36,8 +36,8 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 ::: {.panel-tabset group="language"}
 ## Python (Raw)
 
-``` python
-from BI import bi
+``` {python}
+from BI import bi, jnp
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
@@ -46,6 +46,12 @@ m = bi(platform='cpu')
 from importlib.resources import files
 data_path = files('BI.resources.data') / 'Sim data multivariatenormal.csv'
 m.data(data_path, sep=',') 
+m.data_on_model = dict(
+    cafe = jnp.array(m.df.cafe.values, dtype=jnp.int32),
+    wait = jnp.array(m.df.wait.values, dtype=jnp.float32),
+    N_cafes = len(m.df.cafe.unique()),
+    afternoon = jnp.array(m.df.afternoon.values, dtype=jnp.float32)
+)
 
 # Define model ------------------------------------------------
 def model(cafe, wait, N_cafes, afternoon):
@@ -55,7 +61,7 @@ def model(cafe, wait, N_cafes, afternoon):
     sigma = m.dist.exponential( 1,  name = 'sigma')
     Rho = m.dist.lkj(2, 2, name = 'Rho')
     cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho
-    a_cafe_b_cafe = m.dist.multivariatenormal(jnp.stack([a, b]), cov, shape = [N_cafes], name = 'a_b_cafe')    
+    a_cafe_b_cafe = m.dist.multivariate_normal(jnp.stack([a, b]), cov, shape = [N_cafes], name = 'a_b_cafe')    
 
     a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
     mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
@@ -64,6 +70,8 @@ def model(cafe, wait, N_cafes, afternoon):
 # Run sampler ------------------------------------------------
 m.fit(model) 
 
+# Summary ------------------------------------------------
+m.summary()
 ```
 
 ## Python (Build in function)
@@ -78,6 +86,13 @@ m = bi(platform='cpu')
 from importlib.resources import files
 data_path = files('BI.resources.data') / 'Sim data multivariatenormal.csv'
 m.data(data_path, sep=',') 
+m.data_on_model = dict(
+    cafe = jnp.array(m.df.cafe.values, dtype=jnp.int32),
+    wait = jnp.array(m.df.wait.values, dtype=jnp.float32),
+    N_cafes = len(m.df.cafe.unique()),
+    afternoon = jnp.array(m.df.afternoon.values, dtype=jnp.float32)
+)
+
 
 # Define model ------------------------------------------------
 def model(cafe, wait, N_cafes, afternoon):
@@ -86,10 +101,11 @@ def model(cafe, wait, N_cafes, afternoon):
     sigma = m.dist.exponential( 1,  name = 'sigma')
 
     varying_intercept, varying_slope = m.effects.varying_effects(
+        N_vars = 1,
         N_group = N_cafes,
-        group = cafe,
-        global_intercept= a,
-        global_slope= b,
+        group_id = cafe,
+        alpha_bar= a,
+        beta_bar= b,
         group_name = 'cafe')
     
 

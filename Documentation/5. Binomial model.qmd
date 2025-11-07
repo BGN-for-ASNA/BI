@@ -25,7 +25,7 @@ Below is an example code snippet that demonstrates Bayesian binomial regression 
 ::: {.panel-tabset group="language"}
 ### Python
 
-``` python
+``` {python}
 from BI import bi
 
 # setup platform------------------------------------------------
@@ -40,7 +40,7 @@ m.data_to_model(['pulled_left'])
 # Define model ------------------------------------------------
 def model(pulled_left):
     a = m.dist.normal( 0, 10, shape=(1,), name = 'a')
-    m.binomial(total_count = 1, logits=a[0], obs=pulled_left)
+    m.dist.binomial(total_count = 1, logits=a[0], obs=pulled_left)
 
 # Run sampler ------------------------------------------------
 m.fit(model, num_samples=500)

@@ -454,17 +454,11 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./10. Multinomial model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multinomial Model</span></a>
-  </div>
-</li>
+ <span class="menu-text">10. Multinomial model (wip).qmd</span>
+  </li>
         <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Model</span></a>
-  </div>
-</li>
+ <span class="menu-text">10. Dirichlet model (wip).qmd</span>
+  </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
@@ -620,11 +614,11 @@ window.Quarto = {
 
 <section id="general-principles" class="level2">
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
-<p>To discover group structures or clusters in data, we can use a <strong>Gaussian Mixture Model (GMM)</strong>. This is a <span style="color:#0D6EFD">parametric 🛈</span> clustering method. A GMM assumes that the data is generated from a mixture of a <strong>pre-specified number (<code>K</code>)</strong> of different Gaussian distributions. The model’s goal is to figure out:</p>
+<p>To discover group structures or clusters in data, we can use a <strong>Gaussian Mixture Model (GMM)</strong>. This is a parametric clustering method. A GMM assumes that the data is generated from a mixture of a <strong>pre-specified number (<code>K</code>)</strong> of different Gaussian distributions. The model’s goal is to figure out:</p>
 <ol type="1">
 <li><strong>The properties of each of the <code>K</code> clusters</strong>: For each of the <code>K</code> clusters, it estimates its center (mean <span class="math inline">\mu</span>) and its shape/spread (covariance <span class="math inline">\Sigma</span>).</li>
 <li><strong>The mixture weights</strong>: It estimates the proportion of the data that belongs to each cluster.</li>
-<li><strong>The assignment of each data point</strong>: It determines the probability of each data point belonging to each of the <code>K</code> clusters.</li>
+<li><strong>The assignment of each data point</strong>: It determines the probability of each data point belonging to each of the <span class="math inline">K</span> clusters.</li>
 </ol>
 </section>
 <section id="considerations" class="level2">
@@ -640,14 +634,14 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>A GMM is a Bayesian model 🛈 that considers uncertainty in all its parameters, <em>except for the number of clusters, <code>K</code></em>, which must be fixed in advance.</p></li>
+<li><p>A GMM is a Bayesian model 🛈 that considers uncertainty in all its parameters, <em>except for the number of clusters, <span class="math inline">K</span></em>, which must be fixed in advance.</p></li>
 <li><p>The key parameters and their priors are:</p>
 <ul>
-<li><strong>Number of Clusters <code>K</code></strong>: This is a <strong>fixed hyperparameter</strong> that you must choose before running the model. Choosing the right <code>K</code> often involves running the model multiple times and using model comparison criteria (like cross-validation, AIC, or BIC).</li>
+<li><strong>Number of Clusters <span class="math inline">K</span></strong>: This is a <strong>fixed hyperparameter</strong> that you must choose before running the model. Choosing the right <code>K</code> often involves running the model multiple times and using model comparison criteria (like cross-validation, AIC, or BIC).</li>
 <li><strong>Cluster Weights <code>w</code></strong>: These are the probabilities of drawing a data point from any given cluster. Since there are a fixed number <code>K</code> of them and they must sum to 1, they are typically given a <code>Dirichlet</code> prior. A symmetric <code>Dirichlet</code> prior (e.g., <code>Dirichlet(1, 1, ..., 1)</code>) represents an initial belief that all clusters are equally likely.</li>
-<li><strong>Cluster Parameters (</strong><span class="math inline">\boldsymbol{\mu}</span>, <span class="math inline">\Sigma</span>): Each of the <code>K</code> clusters has a mean <span class="math inline">\boldsymbol{\mu}</span> and a covariance matrix <span class="math inline">\Sigma</span>. We place priors on these to define our beliefs about their plausible values.</li>
+<li>**Cluster Parameters (<span class="math inline">\mu</span>, <span class="math inline">\Sigma</span>): Each of the <code>K</code> clusters has a mean <span class="math inline">\mu</span> and a covariance matrix <span class="math inline">\Sigma</span>. We place priors on these to define our beliefs about their plausible values.</li>
 </ul></li>
-<li><p>Like the DPMM, the model is often implemented in its <span style="color:#0D6EFD">marginalized form 🛈</span>. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.</p></li>
+<li><p>Like the DPMM, the model is often implemented in its marginalized form . Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.</p></li>
 <li><p>To increase accuracy we run a k-means algorithm to initialize the cluster mean priors.</p></li>
 </ul>
 </div>
@@ -655,9 +649,9 @@ Caution
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example of a GMM implemented in BI. The goal is to cluster a synthetic dataset into <strong>a pre-specified <code>K=4</code> groups</strong>.</p>
+<p>Below is an example of a GMM implemented in BI. The goal is to cluster a synthetic dataset into a pre-specified K=4 groups.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
@@ -694,76 +688,82 @@ Caution
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>m.fit(gmm) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>m.plot(X<span class="op">=</span>data,sampler<span class="op">=</span>m.sampler) <span class="co"># Prebuild plot function for GMM</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 </div>
 </div>
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
 <p>This section describes the generative process for a GMM.</p>
-$$
-<span class="math display">\begin{aligned}
+<p><span class="math display">
 \begin{pmatrix}
 Y_{i,1} \\
 \vdots \\
 Y_{i,D}
 \end{pmatrix}
-
 \sim
-\text{MVN}\!\left(
+\text{MVN}\left(
 \begin{pmatrix}
 \mu_{z_i,1} \\
 \vdots \\
 \mu_{z_i,D}
 \end{pmatrix},
-\,
 \Sigma_{z_i}
-\right) \\
-\\
-
+\right)
+</span></p>
+<p><span class="math display">
 \begin{pmatrix}
 \mu_{k,1} \\
 \vdots \\
 \mu_{k,D}
 \end{pmatrix}
 \sim
-\text{MVN}\!\left(
+\text{MVN}\left(
 \begin{pmatrix}
-A{k,1} \\
+A_{k,1} \\
 \vdots \\
-A{k,D}
+A_{k,D}
 \end{pmatrix},
-\, B
-\right) \\
-
-
-\Sigma_k = \sigma_k \Omega_k \sigma_k \\
-
-\sigma_k \sim \text{HalfCauchy}(1) \\
-
-\Omega_k \sim \text{LKJ}(2) \\
-
-z_{i} \sim \text{Categorical}(\pi) \\
-
-\pi \sim \text{Dirichlet}(0.5, \dots, 0.5) \\
-
-
-
-\end{aligned}</span>
-<p>$$</p>
+B
+\right)
+</span></p>
+<p><span class="math display">
+\Sigma_k = \sigma_k \Omega_k \sigma_k
+</span></p>
+<p><span class="math display">
+\sigma_k \sim \text{HalfCauchy}(1)
+</span></p>
+<p><span class="math display">
+\Omega_k \sim \text{LKJ}(2)
+</span></p>
+<p><span class="math display">
+z_{i} \sim \text{Categorical}(\pi)
+</span></p>
+<p><span class="math display">
+\pi \sim \text{Dirichlet}(0.5, \dots, 0.5)
+</span></p>
 <p>Where :</p>
 <ul>
-<li><p><span class="math inline">\begin{pmatrix} Y_{i,1} \\ \vdots \\ Y_{i,D} \end{pmatrix}</span> is the <span class="math inline">i</span>-th observed with its D-dimensional factors.</p></li>
-<li><p><span class="math inline">\begin{pmatrix}\mu_{z_i,1} \\ \vdots \\ \mu_{z_i,D}\end{pmatrix}</span>: The D-dimensional mean vector of the <span class="math inline">z_i</span>-th cluster.</p></li>
-<li><p><span class="math inline">\begin{pmatrix} A{k,1} \\ \vdots \\ A{k,D} \end{pmatrix}</span>: Is the D-dimensional vector prior of the <span class="math inline">k</span>-th cluster mean.</p></li>
-<li><p><span class="math inline">B</span>: Is the prior covariance of the cluster means setup as a diagonal matrix with 0.1 in the diagonal.</p></li>
-<li><p><span class="math inline">\Sigma_k</span>: Is the DxD covariance matrix of the <span class="math inline">k</span>-th cluster (composed of <span class="math inline">\sigma_k</span> and <span class="math inline">\Omega_k</span>)$.</p></li>
-<li><p><span class="math inline">\sigma_k</span> : Is the standard deviation of the <span class="math inline">k</span>-th cluster.</p></li>
-<li><p><span class="math inline">\Omega_k</span>: Is the cholesky decomposition of the <span class="math inline">k</span>-th cluster.</p></li>
-<li><p><span class="math inline">z_i</span>: Is the cluster assignment of the <span class="math inline">i</span>-th observation.</p></li>
-<li><p><span class="math inline">\pi</span>: Is the vector of <span class="math inline">K</span> cluster weights with prior 0.5 for each cluster.</p></li>
+<li><span class="math inline">\begin{pmatrix} Y_{[i,1]} \\ \vdots \\ Y_{[i,D]} \end{pmatrix}</span> is the <span class="math inline">i</span>-th observation of a D-dimensional data array.</li>
+<li><span class="math inline">\begin{pmatrix}\mu_{[k,1]} \\ \vdots \\ \mu_{[k,D]}\end{pmatrix}</span> is the <span class="math inline">k</span>-th parameter vector of dimension D.</li>
+<li><span class="math inline">\begin{pmatrix} A_{[k,1]} \\ \vdots \\ A_{[k,D]} \end{pmatrix}</span> is a prior for the <span class="math inline">k</span>-th mean vector as derived by a <em>KMEANS</em> clustering algorithm.</li>
+<li><span class="math inline">B</span> is the prior covariance of the cluster means, and is setup as a diagonal matrix with 0.1 along the diagonal.</li>
+<li><span class="math inline">\Sigma_k</span> is the DxD covariance matrix of the <span class="math inline">k</span>-th cluster (it is composed from <span class="math inline">\sigma_k</span> and <span class="math inline">\Omega_k</span>).</li>
+<li><span class="math inline">\sigma_k</span> is a diagonal matrix of standard deviations for the <span class="math inline">k</span>-th cluster.</li>
+<li><span class="math inline">\Omega_k</span> is a correlation matrix for the <span class="math inline">k</span>-th cluster.</li>
+<li><span class="math inline">z_i</span> is a latent variable that maps observation <span class="math inline">i</span> to cluster <span class="math inline">k</span>.</li>
+<li><span class="math inline">\pi</span> is a vector of <span class="math inline">K</span> cluster weights.</li>
+</ul>
+<p>Where :</p>
+<ul>
+<li><p><span class="math inline">\begin{pmatrix} Y_{[i,1]} \\ \vdots \\ Y_{[i,D]} \end{pmatrix}</span> is the <span class="math inline">i</span>-th observation of a D-dimensional data array.</p></li>
+<li><p><span class="math inline">\begin{pmatrix}\mu_{[k,1]} \\ \vdots \\ \mu_{[k,D]}\end{pmatrix}</span> is the <span class="math inline">k</span>-th parameter vector of dimension D.</p></li>
+<li><p><span class="math inline">\begin{pmatrix} A_{[k,1]} \\ \vdots \\ A_{[k,D]} \end{pmatrix}</span> is a prior for the <span class="math inline">k</span>-th mean vector as derived by a <em>KMEANS</em> clustering algorithm.</p></li>
+<li><p><span class="math inline">B</span> is the prior covariance of the cluster means, and is setup as a diagonal matrix with 0.1 along the diagonal.</p></li>
+<li><p><span class="math inline">\Sigma_k</span> is the DxD covariance matrix of the <span class="math inline">k</span>-th cluster (it is composed from <span class="math inline">\sigma_k</span> and <span class="math inline">\Omega_k</span>).</p></li>
+<li><p><span class="math inline">\sigma_k</span> is a diagonal matrix of standard deviations for the <span class="math inline">k</span>-th cluster.</p></li>
+<li><p><span class="math inline">\Omega_k</span> is a correlation matrix for the <span class="math inline">k</span>-th cluster.</p></li>
+<li><p><span class="math inline">z_i</span> is a latent variable that maps observation <span class="math inline">i</span> to cluster <span class="math inline">k</span>.</p></li>
+<li><p><span class="math inline">\pi</span> is a vector of <span class="math inline">K</span> cluster weights.</p></li>
 </ul>
 </section>
 <section id="notes" class="level2">
