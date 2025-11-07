@@ -30,10 +30,8 @@ Below is an example code snippet demonstrating a Bayesian Categorical model usin
 
 ::: {.panel-tabset group="language"}
 ### Python
-```python
-from BI import bi
-import jax.numpy as jnp
-import pandas as pd
+```{python}
+from BI import bi, jnp
 import jax
 # Setup device ------------------------------------------------
 m = bi('cpu')
@@ -47,7 +45,7 @@ m.data(data_path, sep=',')
 # Define model ------------------------------------------------
 def model(career, income):
     a = m.dist.normal(0, 1, shape=(2,), name = 'a')
-    b = m.dist.halfnormal(0.5, shape=(1,), name = 'b')
+    b = m.dist.half_normal(0.5, shape=(1,), name = 'b')
     s_1 = a[0] + b * income[0]
     s_2 = a[1] + b * income[1]
     s_3 = [0] #pivot

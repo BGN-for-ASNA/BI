@@ -28,8 +28,8 @@ Below is an example of code that demonstrates Bayesian regression with an indepe
 
 ::: {.panel-tabset group="language"}
 ### Python
-```python
-from main import*
+```{python}
+from BI import bi
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -39,17 +39,16 @@ m = bi(platform='cpu')
 from importlib.resources import files
 data_path = files('BI.resources.data') / 'milk.csv'
 m.data(data_path, sep=';') 
-m.index(["clade"]) # Manipulate
+m.index(["clade"]) # Convert clade names into index
 m.scale(['kcal_per_g']) # Scale
-m.data_to_model(['kcal_per_g', "index_clade"]) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
-def model(kcal_per_g, index_clade):
-    a = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'a') # shape based on the number of clades
-    b = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'b')
-    s = m.bi.dist.exponential( 1, name = 's')    
+def model(kcal_per_g, index_clade, mass):
+    a = m.dist.normal(0, 0.5, shape=(4,), name = 'a') # shape based on the number of clades
+    b = m.dist.normal(0, 0.5, shape=(4,), name = 'b')
+    s = m.dist.exponential( 1, name = 's')    
     mu = a[index_clade]+b[index_clade]*mass
-    m.normal(mu, s, obs=kcal_per_g)
+    m.dist.normal(mu, s, obs=kcal_per_g)
 
 
 # Run mcmc ------------------------------------------------

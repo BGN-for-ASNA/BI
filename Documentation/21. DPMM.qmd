@@ -105,25 +105,23 @@ Y_{i,1} \\
 \vdots \\
 Y_{i,D}
 \end{pmatrix}
-
-\sim 
+&\sim
 \text{MVN}\!\left(
 \begin{pmatrix}
 \mu_{z_i,1} \\
 \vdots \\
 \mu_{z_i,D}
 \end{pmatrix},
-\, 
+\,
 \Sigma_{z_i}
 \right) \\
 \\
-
 \begin{pmatrix}
 \mu_{k,1} \\
 \vdots \\
 \mu_{k,D}
 \end{pmatrix}
-\sim 
+&\sim
 \text{MVN}\!\left(
 \begin{pmatrix}
 A{k,1} \\
@@ -132,37 +130,45 @@ A{k,D}
 \end{pmatrix},
 \, B
 \right) \\
-
-\Sigma_k = \sigma_k \Omega_k \sigma_k \\
-
-\sigma_k \sim \text{HalfCauchy}(1) \\
-
-\Omega_k \sim \text{LKJ}(2) \\
-
-z_{i} \sim \text{Categorical}(\pi) \\
-
-\pi  = \text{StickBreaking}(\beta_1, ..., \beta_{K-1}) \\
-\beta_k \sim \text{Beta}(1, \alpha) \\
-\alpha \sim \text{Gamma}(1, 10) \\
+\\
+\Sigma_k &= \sigma_k \Omega_k \sigma_k \\
+\\
+\sigma_k &\sim \text{HalfCauchy}(1) \\
+\\
+\Omega_k &\sim \text{LKJ}(2) \\
+\\
+z_{i} &\sim \text{Categorical}(\pi) \\
+\\
+\pi  &= \text{StickBreaking}(\beta_1, ..., \beta_{K}) \\
+\\
+\beta_k &\sim \text{Beta}(1, \alpha) \\
+\\
+\alpha &\sim \text{Gamma}(1, 10) \\
 \end{aligned}
 $$
 
-
 Where : 
 
-*   $\begin{pmatrix} Y_{i,1} \\ \vdots \\ Y_{i,D} \end{pmatrix}$ is the $i$-th observed with its D-dimensional factors.
+*   $\begin{pmatrix} Y_{[i,1]} \\ \vdots \\ Y_{[i,D]} \end{pmatrix}$ is the $i$-th observation of a D-dimensional data array.
 
-*   $\begin{pmatrix}\mu_{z_i,1} \\ \vdots \\ \mu_{z_i,D}\end{pmatrix}$: The D-dimensional mean vector of the $z_i$-th cluster.
-*   $\begin{pmatrix} A{k,1} \\ \vdots \\ A{k,D} \end{pmatrix}$: Is the D-dimensional vector prior of the $k$-th cluster mean.
-*   $B$: Is the prior covariance of the cluster means setup as a diagonal matrix with 0.1 in the diagonal.
+*   $\begin{pmatrix}\mu_{[k,1]} \\ \vdots \\ \mu_{[k,D]}\end{pmatrix}$ is the $k$-th parameter vector of dimension D.
 
-*   $\Sigma_k$: Is the DxD covariance matrix of the $k$-th cluster (composed of $\sigma_k$ and $\Omega_k$)$.
-*   $\sigma_k$ : Is the standard deviation of the $k$-th cluster.
-*   $\Omega_k$: Is the cholesky decomposition of the $k$-th cluster.
+*   $\begin{pmatrix} A_{[k,1]} \\ \vdots \\ A_{[k,D]} \end{pmatrix}$ is a prior for the $k$-th mean vector as derived by a *KMEANS* clustering algorithm. 
+
+*   $B$ is the prior covariance of the cluster means, and is setup as a diagonal matrix with 0.1 along the diagonal.
+
+*   $\Sigma_k$ is the DxD covariance matrix of the $k$-th cluster (it is composed from $\sigma_k$ and $\Omega_k$).
+
+*   $\sigma_k$ is a diagonal matrix of standard deviations for the $k$-th cluster.
+
+*   $\Omega_k$ is a correlation matrix for the $k$-th cluster.
+
+*   $z_i$ is a latent variable that maps observation $i$ to cluster $k$.
+
+*   $\pi$ is a vector of $K$ cluster weights.
   
-*   $z_i$: Is the cluster assignment of the $i$-th observation.
-*   $\pi$: Is the vector of $K$ cluster weights with prior 0.5 for each cluster.
 *   $\beta_k$: The set of $K$ Beta-distributed random variables used in the stick-breaking process to construct the mixture weights.
+
 *   $\alpha$: The concentration parameter, controlling the effective number of clusters. 
 
 

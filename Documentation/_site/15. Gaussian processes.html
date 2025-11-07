@@ -79,7 +79,7 @@ div.csl-indent {
 }</style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -127,6 +127,9 @@ div.csl-indent {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -474,17 +477,11 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./10. Multinomial model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multinomial Model</span></a>
-  </div>
-</li>
+ <span class="menu-text">10. Multinomial model (wip).qmd</span>
+  </li>
         <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./10. Dirichlet model (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Model</span></a>
-  </div>
-</li>
+ <span class="menu-text">10. Dirichlet model (wip).qmd</span>
+  </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
@@ -673,22 +670,23 @@ Caution
 <h2 class="anchored" data-anchor-id="example">Example</h2>
 <p>Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist of a continuous dependent variable (<em>total_tools</em>), representing the number of tools invented in the islands, and a continuous independent variable (<em>population</em>), representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance matrix of the islands for the kernel function in order to capture the spatial dependence of the relationship. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpyro</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Kline2.csv'</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<div id="4f56c99c" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Kline2.csv'</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>data_path2 <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Kline2.csv'</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>data_path2 <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'islandsDistMatrix.csv'</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> pd.read_csv(data_path2, index_col<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>])</span>
@@ -704,10 +702,10 @@ Caution
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># non-centered Gaussian Process prior</span></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    etasq <span class="op">=</span> m.dist.exponential(<span class="dv">2</span>, name <span class="op">=</span> <span class="st">'etasq'</span>)</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    rhosq <span class="op">=</span> m.dist.exponential(<span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'rhosq'</span>)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    SIGMA <span class="op">=</span> cov_GPL2(Dmat, etasq, rhosq, <span class="fl">0.01</span>)</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.dist.multivariatenormal(<span class="dv">0</span>, SIGMA, name <span class="op">=</span> <span class="st">'k'</span>)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">#k = m.gaussian.gaussian_process(Dmat, etasq, rhosq, 0.01, shape = (10,))</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.gaussian.kernel_L2(Dmat, etasq, rhosq, <span class="fl">0.01</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    SIGMA <span class="op">=</span> etasq <span class="op">*</span> jnp.exp(<span class="op">-</span>rhosq <span class="op">*</span> jnp.square(Dmat))</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    SIGMA <span class="op">=</span> SIGMA.at[jnp.diag_indices(Dmat.shape[<span class="dv">0</span>])].add(etasq)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.dist.multivariate_normal(<span class="dv">0</span>, SIGMA, name <span class="op">=</span> <span class="st">'k'</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">**</span>b <span class="op">/</span> g <span class="op">*</span> jnp.exp(k[society])</span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(lambda_, obs<span class="op">=</span>total_tools)</span>
@@ -715,44 +713,509 @@ Caution
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>jax.local_device_count 16</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:01&lt;27:28,  1.65s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 33/1000 [00:01&lt;00:37, 25.98it/s, 63 steps of size 1.47e-02. acc. prob=0.73]warmup:   5%|▌         | 52/1000 [00:01&lt;00:23, 40.80it/s, 63 steps of size 8.47e-03. acc. prob=0.74]warmup:   7%|▋         | 68/1000 [00:02&lt;00:17, 54.26it/s, 127 steps of size 1.38e-02. acc. prob=0.75]warmup:   8%|▊         | 83/1000 [00:02&lt;00:13, 66.90it/s, 511 steps of size 7.49e-03. acc. prob=0.76]warmup:  10%|▉         | 98/1000 [00:02&lt;00:11, 79.85it/s, 89 steps of size 2.17e-02. acc. prob=0.77] warmup:  11%|█▏        | 113/1000 [00:02&lt;00:09, 90.03it/s, 3 steps of size 1.23e-02. acc. prob=0.76]warmup:  13%|█▎        | 127/1000 [00:02&lt;00:09, 91.95it/s, 511 steps of size 1.57e-02. acc. prob=0.77]warmup:  14%|█▍        | 144/1000 [00:02&lt;00:08, 105.48it/s, 255 steps of size 1.79e-02. acc. prob=0.77]warmup:  16%|█▌        | 158/1000 [00:02&lt;00:07, 106.71it/s, 31 steps of size 7.63e-02. acc. prob=0.77] warmup:  17%|█▋        | 171/1000 [00:02&lt;00:09, 91.54it/s, 511 steps of size 1.79e-02. acc. prob=0.77]warmup:  18%|█▊        | 182/1000 [00:03&lt;00:08, 91.10it/s, 63 steps of size 6.68e-02. acc. prob=0.77] warmup:  20%|█▉        | 197/1000 [00:03&lt;00:07, 103.25it/s, 63 steps of size 1.03e-01. acc. prob=0.78]warmup:  21%|██▏       | 213/1000 [00:03&lt;00:06, 114.99it/s, 127 steps of size 4.42e-02. acc. prob=0.78]warmup:  23%|██▎       | 226/1000 [00:03&lt;00:07, 108.77it/s, 255 steps of size 3.01e-02. acc. prob=0.78]warmup:  24%|██▍       | 240/1000 [00:03&lt;00:06, 115.67it/s, 255 steps of size 2.88e-02. acc. prob=0.78]warmup:  26%|██▌       | 259/1000 [00:03&lt;00:05, 131.52it/s, 255 steps of size 1.58e-02. acc. prob=0.78]warmup:  27%|██▋       | 273/1000 [00:03&lt;00:05, 126.38it/s, 5 steps of size 2.04e-02. acc. prob=0.78]  warmup:  29%|██▉       | 288/1000 [00:03&lt;00:05, 128.34it/s, 255 steps of size 2.22e-02. acc. prob=0.78]warmup:  30%|███       | 305/1000 [00:03&lt;00:05, 135.59it/s, 127 steps of size 3.46e-02. acc. prob=0.78]warmup:  32%|███▏      | 319/1000 [00:04&lt;00:05, 135.57it/s, 127 steps of size 3.33e-02. acc. prob=0.78]warmup:  33%|███▎      | 334/1000 [00:04&lt;00:04, 138.45it/s, 255 steps of size 3.03e-02. acc. prob=0.78]warmup:  35%|███▍      | 349/1000 [00:04&lt;00:04, 140.11it/s, 127 steps of size 3.89e-02. acc. prob=0.78]warmup:  36%|███▋      | 364/1000 [00:04&lt;00:04, 135.91it/s, 63 steps of size 3.10e-02. acc. prob=0.78] warmup:  38%|███▊      | 378/1000 [00:04&lt;00:04, 133.60it/s, 63 steps of size 5.89e-02. acc. prob=0.78]warmup:  40%|███▉      | 397/1000 [00:04&lt;00:04, 142.42it/s, 63 steps of size 5.24e-02. acc. prob=0.78]warmup:  41%|████      | 412/1000 [00:04&lt;00:04, 137.92it/s, 31 steps of size 6.27e-02. acc. prob=0.78]warmup:  43%|████▎     | 431/1000 [00:04&lt;00:03, 151.08it/s, 127 steps of size 2.62e-02. acc. prob=0.78]warmup:  45%|████▍     | 447/1000 [00:05&lt;00:04, 131.97it/s, 127 steps of size 3.87e-02. acc. prob=0.78]warmup:  46%|████▌     | 461/1000 [00:05&lt;00:04, 127.41it/s, 255 steps of size 3.79e-02. acc. prob=0.78]warmup:  48%|████▊     | 475/1000 [00:05&lt;00:04, 111.30it/s, 63 steps of size 4.61e-02. acc. prob=0.78] warmup:  49%|████▉     | 490/1000 [00:05&lt;00:04, 119.77it/s, 255 steps of size 1.71e-02. acc. prob=0.78]sample:  50%|█████     | 505/1000 [00:05&lt;00:03, 124.57it/s, 127 steps of size 3.06e-02. acc. prob=0.96]sample:  52%|█████▏    | 519/1000 [00:05&lt;00:03, 127.76it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  53%|█████▎    | 533/1000 [00:05&lt;00:03, 124.85it/s, 127 steps of size 3.06e-02. acc. prob=0.95]sample:  55%|█████▍    | 546/1000 [00:05&lt;00:03, 124.77it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  56%|█████▌    | 559/1000 [00:05&lt;00:03, 124.24it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  57%|█████▋    | 573/1000 [00:06&lt;00:03, 128.59it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  59%|█████▉    | 588/1000 [00:06&lt;00:03, 133.99it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  60%|██████    | 602/1000 [00:06&lt;00:03, 126.52it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  62%|██████▏   | 615/1000 [00:06&lt;00:03, 121.86it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  63%|██████▎   | 628/1000 [00:06&lt;00:03, 118.55it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  64%|██████▍   | 641/1000 [00:06&lt;00:02, 119.82it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  66%|██████▌   | 655/1000 [00:06&lt;00:02, 124.14it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  67%|██████▋   | 668/1000 [00:06&lt;00:02, 118.17it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  68%|██████▊   | 681/1000 [00:06&lt;00:02, 120.35it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  69%|██████▉   | 694/1000 [00:07&lt;00:02, 122.21it/s, 191 steps of size 3.06e-02. acc. prob=0.94]sample:  71%|███████   | 709/1000 [00:07&lt;00:02, 128.93it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  72%|███████▏  | 722/1000 [00:07&lt;00:02, 127.54it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  74%|███████▎  | 735/1000 [00:07&lt;00:02, 127.57it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  75%|███████▍  | 748/1000 [00:07&lt;00:01, 127.20it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  76%|███████▋  | 764/1000 [00:07&lt;00:01, 136.06it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  78%|███████▊  | 778/1000 [00:07&lt;00:01, 127.71it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  79%|███████▉  | 791/1000 [00:07&lt;00:02, 103.81it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  80%|████████  | 803/1000 [00:07&lt;00:01, 105.14it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  82%|████████▏ | 816/1000 [00:08&lt;00:01, 110.07it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  83%|████████▎ | 831/1000 [00:08&lt;00:01, 118.45it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  84%|████████▍ | 844/1000 [00:08&lt;00:01, 116.27it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  86%|████████▌ | 859/1000 [00:08&lt;00:01, 125.11it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  87%|████████▋ | 874/1000 [00:08&lt;00:00, 130.99it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  89%|████████▉ | 888/1000 [00:08&lt;00:00, 131.49it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  90%|█████████ | 904/1000 [00:08&lt;00:00, 139.17it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  92%|█████████▏| 921/1000 [00:08&lt;00:00, 147.03it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  94%|█████████▎| 936/1000 [00:08&lt;00:00, 146.57it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  95%|█████████▌| 951/1000 [00:09&lt;00:00, 142.60it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  97%|█████████▋| 966/1000 [00:09&lt;00:00, 133.78it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  98%|█████████▊| 980/1000 [00:09&lt;00:00, 125.36it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  99%|█████████▉| 993/1000 [00:09&lt;00:00, 124.06it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample: 100%|██████████| 1000/1000 [00:09&lt;00:00, 105.59it/s, 127 steps of size 3.06e-02. acc. prob=0.94]
+arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_5.5%</th>
+<th data-quarto-table-cell-role="th">hdi_94.5%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">a</td>
+<td>1.40</td>
+<td>1.03</td>
+<td>0.20</td>
+<td>2.82</td>
+<td>0.07</td>
+<td>0.07</td>
+<td>162.10</td>
+<td>261.31</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">b</td>
+<td>0.29</td>
+<td>0.08</td>
+<td>0.17</td>
+<td>0.41</td>
+<td>0.01</td>
+<td>0.00</td>
+<td>172.66</td>
+<td>189.40</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">etasq</td>
+<td>0.08</td>
+<td>0.05</td>
+<td>0.01</td>
+<td>0.15</td>
+<td>0.00</td>
+<td>0.00</td>
+<td>148.10</td>
+<td>193.35</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">g</td>
+<td>0.65</td>
+<td>0.63</td>
+<td>0.01</td>
+<td>1.35</td>
+<td>0.04</td>
+<td>0.07</td>
+<td>190.39</td>
+<td>243.19</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[0]</td>
+<td>-0.20</td>
+<td>0.28</td>
+<td>-0.60</td>
+<td>0.26</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>176.77</td>
+<td>195.46</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[1]</td>
+<td>0.03</td>
+<td>0.26</td>
+<td>-0.37</td>
+<td>0.42</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>214.62</td>
+<td>210.07</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[2]</td>
+<td>-0.06</td>
+<td>0.24</td>
+<td>-0.43</td>
+<td>0.30</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>182.16</td>
+<td>196.83</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[3]</td>
+<td>0.36</td>
+<td>0.21</td>
+<td>0.05</td>
+<td>0.71</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>165.96</td>
+<td>179.87</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[4]</td>
+<td>0.05</td>
+<td>0.21</td>
+<td>-0.32</td>
+<td>0.35</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>152.21</td>
+<td>146.88</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[5]</td>
+<td>-0.37</td>
+<td>0.25</td>
+<td>-0.77</td>
+<td>-0.01</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>153.15</td>
+<td>217.39</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[6]</td>
+<td>0.14</td>
+<td>0.19</td>
+<td>-0.20</td>
+<td>0.43</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>123.67</td>
+<td>208.08</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[7]</td>
+<td>-0.21</td>
+<td>0.22</td>
+<td>-0.55</td>
+<td>0.15</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>145.49</td>
+<td>288.18</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[8]</td>
+<td>0.26</td>
+<td>0.20</td>
+<td>-0.03</td>
+<td>0.59</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>141.54</td>
+<td>171.81</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[9]</td>
+<td>-0.20</td>
+<td>0.30</td>
+<td>-0.68</td>
+<td>0.24</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>131.02</td>
+<td>243.52</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rhosq</td>
+<td>1.62</td>
+<td>1.82</td>
+<td>0.00</td>
+<td>3.20</td>
+<td>0.10</td>
+<td>0.17</td>
+<td>199.68</td>
+<td>165.94</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pd<span class="ot">=</span><span class="fu">import</span>(<span class="st">'pandas'</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importbi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Kline2.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="ot">=</span> pd<span class="sc">$</span><span class="fu">read_csv</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/islandsDistMatrix.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">index_col=</span><span class="fu">as.integer</span>(<span class="dv">0</span>))</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'total_tools'</span>, <span class="st">'population'</span>))</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>society <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">arange</span>(<span class="dv">0</span>,<span class="dv">10</span>, <span class="at">dtype=</span><span class="st">'int64'</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>Dmat <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">array</span>(islandsDistMatrix)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(Dmat, population, society, total_tools){</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'g'</span>)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># non-centered Gaussian Process prior</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  etasq <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">2</span>, <span class="at">name =</span> <span class="st">'etasq'</span>)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  rhosq <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'rhosq'</span>)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>,<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'z'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">10</span>))</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">=</span> m<span class="sc">$</span><span class="fu">kernel_sq_exp</span>(Dmat, z, etasq, rhosq, <span class="fl">0.01</span>)</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  SIGMA <span class="ot">=</span> r[[<span class="dv">1</span>]]</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  L_SIGMA <span class="ot">=</span> r[[<span class="dv">2</span>]]</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  k <span class="ot">=</span> r[[<span class="dv">3</span>]]</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  lambda_ <span class="ot">=</span> a <span class="sc">*</span> population<span class="sc">**</span>b <span class="sc">/</span> g <span class="sc">*</span> jnp<span class="sc">$</span><span class="fu">exp</span>(k[society])</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">poisson</span>(lambda_, <span class="at">obs=</span>total_tools)</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="ac013d4d" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Kline2.csv'</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>data_path2 <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'islandsDistMatrix.csv'</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> pd.read_csv(data_path2, index_col<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>])</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"society"</span>] <span class="op">=</span> jnp.arange(<span class="dv">0</span>,<span class="dv">10</span>)<span class="co"># index observations</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"Dmat"</span>] <span class="op">=</span> islandsDistMatrix.values <span class="co"># Distance matrix</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(Dmat, population, society, total_tools):</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'g'</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># non-centered Gaussian Process prior</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    etasq <span class="op">=</span> m.dist.exponential(<span class="dv">2</span>, name <span class="op">=</span> <span class="st">'etasq'</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    rhosq <span class="op">=</span> m.dist.exponential(<span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'rhosq'</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.gaussian.gaussian_process(Dmat, etasq, rhosq, <span class="fl">0.01</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">**</span>b <span class="op">/</span> g <span class="op">*</span> jnp.exp(k[society])</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(lambda_, obs<span class="op">=</span>total_tools)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>jax.local_device_count 16</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:01&lt;25:44,  1.55s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 29/1000 [00:01&lt;00:40, 24.19it/s, 255 steps of size 8.32e-03. acc. prob=0.71]warmup:   4%|▍         | 45/1000 [00:01&lt;00:24, 38.54it/s, 31 steps of size 3.55e-02. acc. prob=0.75] warmup:   6%|▌         | 61/1000 [00:01&lt;00:17, 54.52it/s, 63 steps of size 5.06e-02. acc. prob=0.76]warmup:   8%|▊         | 77/1000 [00:01&lt;00:13, 69.14it/s, 255 steps of size 2.02e-02. acc. prob=0.76]warmup:   9%|▉         | 92/1000 [00:02&lt;00:11, 76.95it/s, 63 steps of size 9.43e-03. acc. prob=0.76] warmup:  11%|█         | 106/1000 [00:02&lt;00:10, 85.43it/s, 63 steps of size 9.79e-02. acc. prob=0.77]warmup:  12%|█▏        | 120/1000 [00:02&lt;00:09, 95.54it/s, 127 steps of size 1.48e-02. acc. prob=0.76]warmup:  13%|█▎        | 134/1000 [00:02&lt;00:08, 99.79it/s, 511 steps of size 1.80e-02. acc. prob=0.77]warmup:  15%|█▍        | 147/1000 [00:02&lt;00:08, 103.31it/s, 127 steps of size 7.39e-02. acc. prob=0.77]warmup:  16%|█▌        | 160/1000 [00:02&lt;00:07, 109.62it/s, 127 steps of size 6.30e-02. acc. prob=0.77]warmup:  17%|█▋        | 173/1000 [00:02&lt;00:07, 111.98it/s, 511 steps of size 2.07e-02. acc. prob=0.77]warmup:  19%|█▊        | 186/1000 [00:02&lt;00:07, 102.93it/s, 255 steps of size 3.22e-02. acc. prob=0.77]warmup:  20%|██        | 200/1000 [00:03&lt;00:07, 112.10it/s, 255 steps of size 6.24e-02. acc. prob=0.78]warmup:  22%|██▏       | 216/1000 [00:03&lt;00:06, 124.55it/s, 7 steps of size 1.61e-02. acc. prob=0.77]  warmup:  23%|██▎       | 230/1000 [00:03&lt;00:05, 128.74it/s, 191 steps of size 3.93e-02. acc. prob=0.78]warmup:  24%|██▍       | 244/1000 [00:03&lt;00:05, 131.59it/s, 127 steps of size 5.25e-02. acc. prob=0.78]warmup:  26%|██▌       | 262/1000 [00:03&lt;00:05, 143.22it/s, 127 steps of size 5.86e-02. acc. prob=0.78]warmup:  28%|██▊       | 278/1000 [00:03&lt;00:04, 144.87it/s, 255 steps of size 2.39e-02. acc. prob=0.78]warmup:  29%|██▉       | 293/1000 [00:03&lt;00:04, 145.34it/s, 127 steps of size 4.39e-02. acc. prob=0.78]warmup:  31%|███       | 308/1000 [00:03&lt;00:04, 140.85it/s, 255 steps of size 4.95e-02. acc. prob=0.78]warmup:  32%|███▏      | 323/1000 [00:03&lt;00:05, 112.84it/s, 63 steps of size 4.06e-02. acc. prob=0.78] warmup:  34%|███▍      | 338/1000 [00:04&lt;00:05, 119.98it/s, 127 steps of size 3.86e-02. acc. prob=0.78]warmup:  35%|███▌      | 351/1000 [00:04&lt;00:05, 119.97it/s, 63 steps of size 9.06e-02. acc. prob=0.78] warmup:  37%|███▋      | 366/1000 [00:04&lt;00:04, 126.88it/s, 63 steps of size 6.02e-02. acc. prob=0.78]warmup:  38%|███▊      | 380/1000 [00:04&lt;00:04, 125.83it/s, 31 steps of size 6.99e-02. acc. prob=0.78]warmup:  39%|███▉      | 393/1000 [00:04&lt;00:04, 123.16it/s, 255 steps of size 3.14e-02. acc. prob=0.78]warmup:  41%|████      | 406/1000 [00:04&lt;00:04, 122.04it/s, 139 steps of size 6.85e-02. acc. prob=0.78]warmup:  42%|████▏     | 421/1000 [00:04&lt;00:04, 128.92it/s, 31 steps of size 5.53e-02. acc. prob=0.78] warmup:  44%|████▎     | 437/1000 [00:04&lt;00:04, 136.76it/s, 127 steps of size 4.99e-02. acc. prob=0.78]warmup:  46%|████▌     | 456/1000 [00:04&lt;00:03, 150.89it/s, 127 steps of size 3.83e-02. acc. prob=0.78]warmup:  47%|████▋     | 472/1000 [00:05&lt;00:04, 115.34it/s, 15 steps of size 8.75e-03. acc. prob=0.78] warmup:  48%|████▊     | 485/1000 [00:05&lt;00:04, 105.21it/s, 127 steps of size 5.52e-02. acc. prob=0.78]sample:  50%|█████     | 502/1000 [00:05&lt;00:04, 117.98it/s, 127 steps of size 3.34e-02. acc. prob=0.98]sample:  52%|█████▏    | 515/1000 [00:05&lt;00:04, 115.55it/s, 63 steps of size 3.34e-02. acc. prob=0.95] sample:  53%|█████▎    | 528/1000 [00:05&lt;00:04, 116.57it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  54%|█████▍    | 541/1000 [00:05&lt;00:03, 116.49it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  56%|█████▌    | 556/1000 [00:05&lt;00:03, 124.02it/s, 191 steps of size 3.34e-02. acc. prob=0.93]sample:  57%|█████▋    | 569/1000 [00:05&lt;00:03, 124.25it/s, 63 steps of size 3.34e-02. acc. prob=0.93] sample:  58%|█████▊    | 584/1000 [00:06&lt;00:03, 130.78it/s, 63 steps of size 3.34e-02. acc. prob=0.93]sample:  60%|█████▉    | 598/1000 [00:06&lt;00:03, 129.02it/s, 95 steps of size 3.34e-02. acc. prob=0.93]sample:  61%|██████    | 612/1000 [00:06&lt;00:03, 126.70it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  63%|██████▎   | 629/1000 [00:06&lt;00:02, 137.74it/s, 191 steps of size 3.34e-02. acc. prob=0.93]sample:  64%|██████▍   | 644/1000 [00:06&lt;00:02, 137.71it/s, 255 steps of size 3.34e-02. acc. prob=0.93]sample:  66%|██████▌   | 662/1000 [00:06&lt;00:02, 146.74it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  68%|██████▊   | 677/1000 [00:06&lt;00:02, 145.02it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  69%|██████▉   | 693/1000 [00:06&lt;00:02, 148.05it/s, 95 steps of size 3.34e-02. acc. prob=0.94]sample:  71%|███████   | 709/1000 [00:06&lt;00:01, 151.13it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  72%|███████▎  | 725/1000 [00:07&lt;00:01, 148.34it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  74%|███████▍  | 740/1000 [00:07&lt;00:01, 148.19it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  76%|███████▌  | 758/1000 [00:07&lt;00:01, 155.06it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  77%|███████▋  | 774/1000 [00:07&lt;00:01, 147.72it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  79%|███████▉  | 789/1000 [00:07&lt;00:01, 143.26it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  80%|████████  | 804/1000 [00:07&lt;00:01, 124.77it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  82%|████████▏ | 817/1000 [00:07&lt;00:01, 116.77it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  83%|████████▎ | 833/1000 [00:07&lt;00:01, 127.17it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  85%|████████▍ | 847/1000 [00:07&lt;00:01, 130.26it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  86%|████████▌ | 862/1000 [00:08&lt;00:01, 134.34it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  88%|████████▊ | 876/1000 [00:08&lt;00:00, 129.71it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  89%|████████▉ | 890/1000 [00:08&lt;00:00, 130.19it/s, 31 steps of size 3.34e-02. acc. prob=0.94] sample:  90%|█████████ | 904/1000 [00:08&lt;00:00, 116.42it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  92%|█████████▏| 921/1000 [00:08&lt;00:00, 128.96it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  94%|█████████▎| 935/1000 [00:08&lt;00:00, 131.70it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  95%|█████████▌| 950/1000 [00:08&lt;00:00, 136.06it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  96%|█████████▋| 965/1000 [00:08&lt;00:00, 139.14it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  98%|█████████▊| 981/1000 [00:08&lt;00:00, 140.63it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample: 100%|█████████▉| 996/1000 [00:09&lt;00:00, 131.94it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample: 100%|██████████| 1000/1000 [00:09&lt;00:00, 109.56it/s, 63 steps of size 3.34e-02. acc. prob=0.94]
+arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_5.5%</th>
+<th data-quarto-table-cell-role="th">hdi_94.5%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">a</td>
+<td>1.38</td>
+<td>1.02</td>
+<td>0.11</td>
+<td>2.69</td>
+<td>0.07</td>
+<td>0.06</td>
+<td>192.96</td>
+<td>201.62</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">b</td>
+<td>0.28</td>
+<td>0.09</td>
+<td>0.15</td>
+<td>0.42</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>177.27</td>
+<td>192.47</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">etasq</td>
+<td>0.19</td>
+<td>0.19</td>
+<td>0.01</td>
+<td>0.39</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>129.19</td>
+<td>254.18</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">g</td>
+<td>0.60</td>
+<td>0.55</td>
+<td>0.03</td>
+<td>1.27</td>
+<td>0.04</td>
+<td>0.04</td>
+<td>202.92</td>
+<td>271.68</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[0]</td>
+<td>-0.16</td>
+<td>0.32</td>
+<td>-0.72</td>
+<td>0.27</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>108.09</td>
+<td>103.43</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[1]</td>
+<td>-0.02</td>
+<td>0.31</td>
+<td>-0.50</td>
+<td>0.53</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>108.18</td>
+<td>83.40</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[2]</td>
+<td>-0.08</td>
+<td>0.29</td>
+<td>-0.52</td>
+<td>0.39</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>104.52</td>
+<td>82.13</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[3]</td>
+<td>0.36</td>
+<td>0.26</td>
+<td>-0.06</td>
+<td>0.77</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>109.68</td>
+<td>101.92</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[4]</td>
+<td>0.07</td>
+<td>0.25</td>
+<td>-0.31</td>
+<td>0.48</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>97.98</td>
+<td>100.86</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[5]</td>
+<td>-0.40</td>
+<td>0.28</td>
+<td>-0.89</td>
+<td>-0.00</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>105.36</td>
+<td>84.04</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[6]</td>
+<td>0.14</td>
+<td>0.24</td>
+<td>-0.23</td>
+<td>0.56</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>98.67</td>
+<td>87.33</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[7]</td>
+<td>-0.22</td>
+<td>0.25</td>
+<td>-0.58</td>
+<td>0.19</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>84.80</td>
+<td>101.42</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[8]</td>
+<td>0.25</td>
+<td>0.23</td>
+<td>-0.14</td>
+<td>0.59</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>80.88</td>
+<td>114.93</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[9]</td>
+<td>-0.19</td>
+<td>0.31</td>
+<td>-0.63</td>
+<td>0.34</td>
+<td>0.03</td>
+<td>0.01</td>
+<td>139.57</td>
+<td>199.16</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rhosq</td>
+<td>1.29</td>
+<td>1.61</td>
+<td>0.03</td>
+<td>3.31</td>
+<td>0.10</td>
+<td>0.10</td>
+<td>155.41</td>
+<td>262.27</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>pd<span class="ot">=</span><span class="fu">import</span>(<span class="st">'pandas'</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importbi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Kline2.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="ot">=</span> pd<span class="sc">$</span><span class="fu">read_csv</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/islandsDistMatrix.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">index_col=</span><span class="fu">as.integer</span>(<span class="dv">0</span>))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'total_tools'</span>, <span class="st">'population'</span>))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>society <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">arange</span>(<span class="dv">0</span>,<span class="dv">10</span>, <span class="at">dtype=</span><span class="st">'int64'</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>Dmat <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">array</span>(islandsDistMatrix)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(Dmat, population, society, total_tools){</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'g'</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># non-centered Gaussian Process prior</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  etasq <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">2</span>, <span class="at">name =</span> <span class="st">'etasq'</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  rhosq <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'rhosq'</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>,<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'z'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">10</span>))</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">=</span> m<span class="sc">$</span><span class="fu">kernel_sq_exp</span>(Dmat, z, etasq, rhosq, <span class="fl">0.01</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  SIGMA <span class="ot">=</span> r[[<span class="dv">1</span>]]</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  L_SIGMA <span class="ot">=</span> r[[<span class="dv">2</span>]]</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  k <span class="ot">=</span> r[[<span class="dv">3</span>]]</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  lambda_ <span class="ot">=</span> a <span class="sc">*</span> population<span class="sc">**</span>b <span class="sc">/</span> g <span class="sc">*</span> jnp<span class="sc">$</span><span class="fu">exp</span>(k[society])</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">poisson</span>(lambda_, <span class="at">obs=</span>total_tools)</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

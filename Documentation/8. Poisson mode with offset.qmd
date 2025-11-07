@@ -28,7 +28,7 @@ Below is an example of code that demonstrates a Bayesian Poisson regression with
 ::: {.panel-tabset group="language"}
 ### Python
 ```python
-from main import*
+from BI import bi, jnp
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -46,7 +46,7 @@ def model(agressions, age, log_years_obs):
     a = m.bi.dist.normal(0, 1, name = 'a') 
     b = m.bi.dist.normal(0, 0.5, name = 'b')
     log_lambda = a + b * age + log_years_obs # Add offset to the linear model
-    m.poisson(m.bi.numpy.exp(log_lambda), obs=agressions)
+    m.dist.poisson(jnp.exp(log_lambda), obs=agressions)
 
 
 # Run mcmc ------------------------------------------------

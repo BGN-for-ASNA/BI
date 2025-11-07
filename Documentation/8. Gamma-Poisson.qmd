@@ -21,8 +21,9 @@ Below is an example code snippet demonstrating a Bayesian Gamma-Poisson model us
 
 ::: {.panel-tabset group="language"}
 ### Python
-```python
-from BI import bi
+```{python}
+from BI import bi, jnp
+
 # Setup device ------------------------------------------------
 m = bi(platform='cpu') # Import
 
@@ -38,7 +39,7 @@ def model(log_days, monastery, y):
     a = m.dist.normal(0, 1, name = 'a', shape=(1,))
     b = m.dist.normal(0, 1, name = 'b', shape=(1,))
     phi = m.dist.exponential(1, name = 'phi', shape=(1,))
-    mu = m.jnp.exp(log_days + a + b * monastery)
+    mu = jnp.exp(log_days + a + b * monastery)
     Lambda =  m.dist.gamma(rate = mu*phi, concentration = phi, name = 'Lambda')
     m.dist.poisson(rate = Lambda, obs=y)
 # Run MCMC ------------------------------------------------

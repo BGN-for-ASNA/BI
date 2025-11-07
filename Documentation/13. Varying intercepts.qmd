@@ -28,9 +28,8 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 
 ::: {.panel-tabset group="language"}
 ## Python (Raw)
-```python
-from BI import bi
-import numpy as np
+```{python}
+from BI import bi, jnp
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -41,7 +40,7 @@ from importlib.resources import files
 data_path = files('BI.resources.data') / 'reedfrogs.csv'
 m.data(data_path, sep=';') 
 # Manipulate
-m.df["tank"] = np.arange(m.df.shape[0]) 
+m.df["tank"] = jnp.arange(m.df.shape[0]) 
 
 # Define model ------------------------------------------------
 def model(tank, surv, density):
@@ -57,10 +56,11 @@ m.fit(model)
 # Diagnostic ------------------------------------------------
 m.summary()
 ```
+
 ## Python (Build in function)
-```python
-from BI import bi
-import numpy as np
+```{python}
+from BI import bi, jnp
+
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -71,7 +71,7 @@ from importlib.resources import files
 data_path = files('BI.resources.data') / 'reedfrogs.csv'
 m.data(data_path, sep=';') 
 # Manipulate
-m.df["tank"] = np.arange(m.df.shape[0]) 
+m.df["tank"] = jnp.arange(m.df.shape[0]) 
 
 # Define model ------------------------------------------------
 def model(tank, surv, density):
