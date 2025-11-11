@@ -651,42 +651,68 @@ Caution
 <h2 class="anchored" data-anchor-id="example">Example</h2>
 <p>Below is an example of a GMM implemented in BI. The goal is to cluster a synthetic dataset into a pre-specified K=4 groups.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div id="7b2e5c14" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> make_blobs</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic data</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>data, true_labels <span class="op">=</span> make_blobs(</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    n_samples<span class="op">=</span><span class="dv">500</span>, centers<span class="op">=</span><span class="dv">8</span>, cluster_std<span class="op">=</span><span class="fl">0.8</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    center_box<span class="op">=</span>(<span class="op">-</span><span class="dv">10</span>,<span class="dv">10</span>), random_state<span class="op">=</span><span class="dv">101</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic data</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>data, true_labels <span class="op">=</span> make_blobs(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    n_samples<span class="op">=</span><span class="dv">500</span>, centers<span class="op">=</span><span class="dv">8</span>, cluster_std<span class="op">=</span><span class="fl">0.8</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    center_box<span class="op">=</span>(<span class="op">-</span><span class="dv">10</span>,<span class="dv">10</span>), random_state<span class="op">=</span><span class="dv">101</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  The model</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gmm(data, K, initial_means): <span class="co"># Here K is the *exact* number of clusters</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> data.shape[<span class="dv">1</span>]  <span class="co"># Number of features</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    alpha_prior <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> jnp.ones(K)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> dist.dirichlet(concentration<span class="op">=</span>alpha_prior, name<span class="op">=</span><span class="st">'weights'</span>) </span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> dist.plate(<span class="st">"components"</span>, K): <span class="co"># Use fixed K</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        mu <span class="op">=</span> dist.multivariatenormal(loc<span class="op">=</span>initial_means, covariance_matrix<span class="op">=</span><span class="fl">0.1</span><span class="op">*</span>jnp.eye(D), name<span class="op">=</span><span class="st">'mu'</span>)        </span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        sigma <span class="op">=</span> dist.halfcauchy(<span class="dv">1</span>, shape<span class="op">=</span>(D,), event<span class="op">=</span><span class="dv">1</span>, name<span class="op">=</span><span class="st">'sigma'</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        Lcorr <span class="op">=</span> dist.lkjcholesky(dimension<span class="op">=</span>D, concentration<span class="op">=</span><span class="fl">1.0</span>, name<span class="op">=</span><span class="st">'Lcorr'</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        scale_tril <span class="op">=</span> sigma[..., <span class="va">None</span>] <span class="op">*</span> Lcorr</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    dist.mixturesamefamily(</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        mixing_distribution<span class="op">=</span>dist.categorical(probs<span class="op">=</span>w, create_obj<span class="op">=</span><span class="va">True</span>),</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        component_distribution<span class="op">=</span>dist.multivariatenormal(loc<span class="op">=</span>mu, scale_tril<span class="op">=</span>scale_tril, create_obj<span class="op">=</span><span class="va">True</span>),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        name<span class="op">=</span><span class="st">"obs"</span>,</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        obs<span class="op">=</span>data</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> {<span class="st">"data"</span>: data,<span class="st">"K"</span>: <span class="dv">4</span> }</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>m.fit(gmm) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>m.plot(X<span class="op">=</span>data,sampler<span class="op">=</span>m.sampler) <span class="co"># Prebuild plot function for GMM</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  The model</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gmm(data, K, initial_means): <span class="co"># Here K is the *exact* number of clusters</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> data.shape[<span class="dv">1</span>]  <span class="co"># Number of features</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    alpha_prior <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> jnp.ones(K)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> m.dist.dirichlet(concentration<span class="op">=</span>alpha_prior, name<span class="op">=</span><span class="st">'weights'</span>) </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> m.dist.plate(<span class="st">"components"</span>, K): <span class="co"># Use fixed K</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        mu <span class="op">=</span> m.dist.multivariate_normal(loc<span class="op">=</span>initial_means, covariance_matrix<span class="op">=</span><span class="fl">0.1</span><span class="op">*</span>jnp.eye(D), name<span class="op">=</span><span class="st">'mu'</span>)        </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        sigma <span class="op">=</span> m.dist.half_cauchy(<span class="dv">1</span>, shape<span class="op">=</span>(D,), event<span class="op">=</span><span class="dv">1</span>, name<span class="op">=</span><span class="st">'sigma'</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        Lcorr <span class="op">=</span> m.dist.lkj_cholesky(dimension<span class="op">=</span>D, concentration<span class="op">=</span><span class="fl">1.0</span>, name<span class="op">=</span><span class="st">'Lcorr'</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        scale_tril <span class="op">=</span> sigma[..., <span class="va">None</span>] <span class="op">*</span> Lcorr</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    m.dist.mixture_same_family(</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        mixing_distribution<span class="op">=</span>m.dist.categorical(probs<span class="op">=</span>w, create_obj<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        component_distribution<span class="op">=</span>m.dist.multivariate_normal(loc<span class="op">=</span>mu, scale_tril<span class="op">=</span>scale_tril, create_obj<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        name<span class="op">=</span><span class="st">"obs"</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        obs<span class="op">=</span>data</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> {<span class="st">"data"</span>: data,<span class="st">"K"</span>: <span class="dv">8</span> }</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>m.fit(gmm) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>m.plot(X<span class="op">=</span>data,sampler<span class="op">=</span>m.sampler) <span class="co"># Prebuild plot function for GMM</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>jax.local_device_count 16</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:03&lt;1:04:15,  3.86s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   2%|▏         | 23/1000 [00:03&lt;02:00,  8.10it/s, 63 steps of size 2.05e-02. acc. prob=0.71]warmup:   4%|▎         | 36/1000 [00:04&lt;01:10, 13.75it/s, 31 steps of size 4.17e-02. acc. prob=0.74]warmup:   5%|▍         | 49/1000 [00:04&lt;00:45, 21.12it/s, 7 steps of size 5.89e-02. acc. prob=0.76] warmup:   6%|▋         | 64/1000 [00:04&lt;00:29, 31.79it/s, 3 steps of size 2.17e-02. acc. prob=0.76]warmup:   8%|▊         | 82/1000 [00:04&lt;00:19, 47.36it/s, 15 steps of size 5.50e-02. acc. prob=0.77]warmup:  10%|█         | 100/1000 [00:04&lt;00:13, 64.62it/s, 7 steps of size 3.20e-02. acc. prob=0.77]warmup:  12%|█▏        | 116/1000 [00:04&lt;00:12, 73.21it/s, 15 steps of size 4.80e-01. acc. prob=0.77]warmup:  13%|█▎        | 133/1000 [00:04&lt;00:09, 88.47it/s, 15 steps of size 4.34e-01. acc. prob=0.78]warmup:  15%|█▍        | 149/1000 [00:04&lt;00:08, 102.06it/s, 15 steps of size 6.05e-01. acc. prob=0.78]warmup:  16%|█▋        | 165/1000 [00:05&lt;00:07, 107.99it/s, 63 steps of size 1.81e-01. acc. prob=0.78]warmup:  18%|█▊        | 180/1000 [00:05&lt;00:07, 116.42it/s, 7 steps of size 2.76e-01. acc. prob=0.78] warmup:  20%|█▉        | 197/1000 [00:05&lt;00:06, 127.43it/s, 15 steps of size 7.08e-01. acc. prob=0.78]warmup:  22%|██▏       | 215/1000 [00:05&lt;00:05, 140.43it/s, 15 steps of size 4.57e-01. acc. prob=0.78]warmup:  23%|██▎       | 232/1000 [00:05&lt;00:05, 147.81it/s, 7 steps of size 2.27e-01. acc. prob=0.78] warmup:  25%|██▍       | 249/1000 [00:05&lt;00:04, 152.38it/s, 7 steps of size 7.49e-01. acc. prob=0.78]warmup:  27%|██▋       | 266/1000 [00:05&lt;00:04, 153.18it/s, 7 steps of size 7.23e-02. acc. prob=0.78]warmup:  28%|██▊       | 282/1000 [00:05&lt;00:05, 140.10it/s, 15 steps of size 4.06e-01. acc. prob=0.78]warmup:  30%|██▉       | 299/1000 [00:05&lt;00:04, 147.28it/s, 3 steps of size 1.46e-01. acc. prob=0.78] warmup:  32%|███▏      | 315/1000 [00:05&lt;00:04, 145.94it/s, 15 steps of size 5.39e-01. acc. prob=0.78]warmup:  33%|███▎      | 332/1000 [00:06&lt;00:04, 152.36it/s, 7 steps of size 5.26e-01. acc. prob=0.78] warmup:  35%|███▌      | 350/1000 [00:06&lt;00:04, 157.67it/s, 7 steps of size 3.69e-01. acc. prob=0.78]warmup:  37%|███▋      | 367/1000 [00:06&lt;00:03, 160.18it/s, 15 steps of size 3.91e-01. acc. prob=0.78]warmup:  38%|███▊      | 384/1000 [00:06&lt;00:03, 154.49it/s, 15 steps of size 4.02e-01. acc. prob=0.78]warmup:  40%|████      | 405/1000 [00:06&lt;00:03, 169.14it/s, 7 steps of size 7.39e-01. acc. prob=0.79] warmup:  43%|████▎     | 427/1000 [00:06&lt;00:03, 182.18it/s, 7 steps of size 3.54e-01. acc. prob=0.79]warmup:  45%|████▍     | 446/1000 [00:06&lt;00:03, 183.26it/s, 7 steps of size 5.37e-01. acc. prob=0.79]warmup:  47%|████▋     | 470/1000 [00:06&lt;00:02, 194.34it/s, 31 steps of size 1.98e-01. acc. prob=0.78]warmup:  49%|████▉     | 490/1000 [00:06&lt;00:02, 189.67it/s, 7 steps of size 1.28e-01. acc. prob=0.78] sample:  51%|█████     | 510/1000 [00:07&lt;00:02, 187.10it/s, 15 steps of size 4.07e-01. acc. prob=0.91]sample:  53%|█████▎    | 529/1000 [00:07&lt;00:02, 186.70it/s, 15 steps of size 4.07e-01. acc. prob=0.89]sample:  55%|█████▍    | 548/1000 [00:07&lt;00:02, 182.24it/s, 15 steps of size 4.07e-01. acc. prob=0.89]sample:  57%|█████▋    | 569/1000 [00:07&lt;00:02, 189.22it/s, 7 steps of size 4.07e-01. acc. prob=0.90] sample:  59%|█████▉    | 589/1000 [00:07&lt;00:02, 191.37it/s, 7 steps of size 4.07e-01. acc. prob=0.89]sample:  61%|██████    | 609/1000 [00:07&lt;00:02, 166.36it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  63%|██████▎   | 627/1000 [00:07&lt;00:02, 165.88it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  64%|██████▍   | 645/1000 [00:07&lt;00:02, 165.45it/s, 7 steps of size 4.07e-01. acc. prob=0.90] sample:  67%|██████▋   | 666/1000 [00:07&lt;00:01, 174.66it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  69%|██████▊   | 687/1000 [00:08&lt;00:01, 184.20it/s, 7 steps of size 4.07e-01. acc. prob=0.90] sample:  71%|███████   | 706/1000 [00:08&lt;00:01, 183.43it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  72%|███████▎  | 725/1000 [00:08&lt;00:01, 184.36it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  74%|███████▍  | 745/1000 [00:08&lt;00:01, 188.44it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  76%|███████▋  | 764/1000 [00:08&lt;00:01, 184.77it/s, 7 steps of size 4.07e-01. acc. prob=0.90] sample:  78%|███████▊  | 783/1000 [00:08&lt;00:01, 182.49it/s, 7 steps of size 4.07e-01. acc. prob=0.90]sample:  80%|████████  | 802/1000 [00:08&lt;00:01, 177.82it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  82%|████████▏ | 822/1000 [00:08&lt;00:00, 181.03it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  84%|████████▍ | 841/1000 [00:08&lt;00:00, 182.79it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  86%|████████▌ | 860/1000 [00:09&lt;00:00, 177.22it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  88%|████████▊ | 878/1000 [00:09&lt;00:00, 171.58it/s, 7 steps of size 4.07e-01. acc. prob=0.90] sample:  90%|████████▉ | 898/1000 [00:09&lt;00:00, 177.27it/s, 15 steps of size 4.07e-01. acc. prob=0.90]sample:  92%|█████████▏| 919/1000 [00:09&lt;00:00, 182.54it/s, 23 steps of size 4.07e-01. acc. prob=0.89]sample:  94%|█████████▍| 942/1000 [00:09&lt;00:00, 195.87it/s, 7 steps of size 4.07e-01. acc. prob=0.90] sample:  96%|█████████▌| 962/1000 [00:09&lt;00:00, 184.01it/s, 7 steps of size 4.07e-01. acc. prob=0.89]sample:  98%|█████████▊| 981/1000 [00:09&lt;00:00, 159.78it/s, 7 steps of size 4.07e-01. acc. prob=0.90]sample: 100%|█████████▉| 998/1000 [00:09&lt;00:00, 158.65it/s, 7 steps of size 4.07e-01. acc. prob=0.89]sample: 100%|██████████| 1000/1000 [00:09&lt;00:00, 101.66it/s, 15 steps of size 4.07e-01. acc. prob=0.90]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>This function is experimental. Use it with caution.</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="20. GMM_files/figure-html/cell-2-output-4.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="travaux-routiers.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </div>

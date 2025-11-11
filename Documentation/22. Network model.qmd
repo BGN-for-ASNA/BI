@@ -18,95 +18,99 @@ Below is an example code snippet demonstrating a Bayesian network model with a s
 
 ::: {.panel-tabset group="language"}
 ## Python
-```Python
+```{python}
 
 # Setup device------------------------------------------------
-from BI import bi
+from BI import bi, jnp
+
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
+# Simulate data ------------------------------------------------
+N = 50
+individual_predictor = m.dist.normal(0,1, shape = (N,1), sample = True)
+
+kinship = m.dist.bernoulli(0.3, shape = (N,N), sample = True)
+kinship = kinship.at[jnp.diag_indices(N)].set(0)
+
+def sim_network(kinship, individual_predictor):
+  # Intercept
+  alpha = m.dist.normal(0,1, sample = True)
+
+  # SR
+  sr = m.net.sender_receiver(individual_predictor, individual_predictor, s_mu = 0.4, r_mu = -0.4, sample = True)
+
+  # D
+  DR = m.net.dyadic_effect(kinship, d_sd=2.5, sample = True)
+
+  return m.dist.bernoulli(logits = alpha + sr + DR, sample = True)
+
+
+network = sim_network(m.net.mat_to_edgl(kinship), individual_predictor)
+
+# Predictive model ------------------------------------------------
 
 m.data_on_model = dict(
-    idx = idx,
-    Any = Any-1, 
-    Merica = Merica-1, 
-    Quantum = Quantum-1,
-    result_outcomes = m.net.mat_to_edgl(data['outcomes']), 
-    kinship = m.net.mat_to_edgl(kinship),
-    focal_individual_predictors = data['individual_predictors'],
-    target_individual_predictors = data['individual_predictors'],
-    exposure_mat = data['exposure']
+    network = network, 
+    dyadic_predictors = m.net.mat_to_edgl(kinship),
+    focal_individual_predictors = individual_predictor,
+    target_individual_predictors = individual_predictor
 )
 
 
-
-def model(network, dyadic_predictors, sender_predictors, receiver_predictors, Merica, Quantum, Any):
+def model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors):
     N_id = network.shape[0]
+
     # Block ---------------------------------------
-    B=m.net.block_model2(jnp.full(N_id,0),1,N_id, name='intecept') # BLock model intercept
-   
+    alpha = m.dist.normal(0,1, sample = True)
+
     ## SR shape =  N individuals---------------------------------------
-    sr =  m.net.sender_receiver(sender_predictors,receiver_predictors,
-    s_sd=2.5, r_sd=2.5, sr_sd = 2.5 )
+    sr =  m.net.sender_receiver(
+      focal_individual_predictors,
+      target_individual_predictors,
+      s_mu = 0.4, r_mu = -0.4
+    )
 
     # Dyadic shape = N dyads--------------------------------------  
-    dr = m.net.dyadic_effect(shape = sr.shape[0], d_sd=2.5) # Diadic effect intercept only 
+    dr = m.net.dyadic_effect(dyadic_predictors, d_sd=2.5) # Diadic effect intercept only 
 
-   m.dist.bernoulli(logits = B + sr + dr, obs=result_outcomes)
+    m.dist.bernoulli(logits = alpha + sr + dr, obs=network)
 
-
-
-m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1, progress_bar = True)
-summary = m.summary()
-summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
+m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1)
 
 ```
+
 ## R
 ```r
-library(BI)
+library(BayesianInference)
 # Setup platform------------------------------------------------
-m=importbi(platform='cpu')
+m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
+load(paste(system.file(package = "BayesianInference"),'/data/STRAND sim sr only.Rdata', sep = ''))
 
-load(paste(system.file(package = "BI"),'/data/STRAND sim sr only.Rdata', sep = ''))
-
-ids = 0:(model_dat$N_id-1)
-idx = m$net$vec_node_to_edgle(jnp$stack(jnp$array(list(ids, ids)), axis = -as.integer(1)))
-
-keys <- c("idx",
-          'idxShape',
-          "result_outcomes",
-          'focal_individual_predictors',
-          'target_individual_predictors')
-
-values <- list(
-  idx,
-  idx$shape[[1]],
-  m$net$mat_to_edgl(model_dat$outcomes[,,1]),
-  jnp$array(model_dat$individual_predictors)$reshape(as.integer(1),as.integer(50)),
-  jnp$array(model_dat$individual_predictors)$reshape(as.integer(1),as.integer(50))
-)
-data = py_dict(keys, values, convert = TRUE)
-m$data_on_model=data
+m$data_on_model = list()
+m$data_on_model$N_id = length(ids)
+m$data_on_model$network = m$net$mat_to_edgl(model_dat$outcomes[,,1])
+m$data_on_model$N_dyads = m$net$mat_to_edgl(model_dat$outcomes[,,1])$shape[[1]]
+m$data_on_model$focal_individual_predictors = jnp$array(model_dat$individual_predictors)
+m$data_on_model$target_individual_predictors =jnp$array(model_dat$individual_predictors)
 
 # Define model ------------------------------------------------
-model <- function(idx, idxShape, result_outcomes,focal_individual_predictors, target_individual_predictors){
-  N_id = 50
-  x=0.1/jnp$sqrt(N_id)
-  tmp=jnp$log(x / (1 - x))
+model <- function( N_id, N_dyads, network, focal_individual_predictors, target_individual_predictors){
+
   
   ## Block ---------------------------------------
-  B = bi.dist.normal(tmp, 2.5, shape=c(1), name = 'block')
+  B = bi.dist.normal(0, 2.5, shape=c(1), name = 'block')
   
   #SR ---------------------------------------
   sr =  m$net$sender_receiver(focal_individual_predictors,target_individual_predictors)
   
   ### Dyadic--------------------------------------  
   #dr, dr_raw, dr_sigma, dr_L = m.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)# shape = n dyads
-  dr = m$net$dyadic_effect(shape = c(idxShape))
-
+  dr = m$net$dyadic_effect(shape = c(N_dyads))
+  
   ## SR ---------------------------------------                                                      
-  m$poisson(jnp$exp(B + sr + dr), obs=result_outcomes)  
+  m$dist$poisson(jnp$exp(B + sr + dr), obs=network)  
 }
 
 # Run MCMC ------------------------------------------------
@@ -114,8 +118,6 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 summary =m$summary()
-
-summary[rownames(summary) %in% c('focal_effects[0]', 'target_effects[0]', 'block[0]'),]
 
 ```
 :::

@@ -6,6 +6,7 @@ The file created, `dists.py`, is edited by hand to handle some issues:
 1. The `mask` argument is present twice in some functions, so it is removed.
 2. `*args` and `**kwargs` are not the last arguments in some functions.
 3. Some function names are changed due to camel case conversion to snake case (e.g., `l_k_j` -> `lkj`).
+4. All distribution functions description and pdf have been modified  to ensure consistency and accuracy.
 
 All required changes can be tracked through the VSCode Problems list. `dists.py` is then renamed to `np_dists.py`, which is the file used by BI to import the distributions.
 

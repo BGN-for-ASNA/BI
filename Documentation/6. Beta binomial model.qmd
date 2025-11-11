@@ -88,27 +88,28 @@ m.summary()
 
 ### R
 ``` R
-library(BI)
+library(BayesianInference)
 
 # setup platform------------------------------------------------
-m=importbi(platform='cpu')
-
+m=importBI(platform='cpu')
+jnp = reticulate::import("jax.numpy")
 # import data ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/UCBadmit.csv", sep = ''), sep=';')
-m$df["gid"] = as.integer(ifelse(m$df["applicant.gender"] == "male", 0, 1)) # Manipulate
-m$data_to_model(list('gid', 'applications', 'admit' )) # Send to model (convert to jax array)
-
+m$data(paste(system.file(package = "BayesianInference"),"/data/UCBadmit.csv", sep = ''), sep=';')
+m$data_on_model$gid = jnp$array(as.integer(ifelse(m$df["applicant.gender"] == "male", 0, 1)))
+m$data_on_model$applications = jnp$array(as.integer(unlist(m$df["applications"])))
+m$data_on_model$admit = jnp$array(as.integer(unlist(m$df["admit"])))
 # Define model ------------------------------------------------
 model <- function(gid, applications, admit){
   # Parameter prior distributions
   phi = bi.dist.exponential(1, name = 'phi',shape=c(1))
   alpha = bi.dist.normal(0., 1.5, shape= c(2), name='alpha')
   t = phi + 2
-  pbar = bi$link$inv_logit(alpha[gid])
+  pbar = m$link$inv_logit(alpha[gid])
   gamma = pbar * t
   eta = (1 - pbar) * t
   # Likelihood
-  m$dist$betabinomial(total_count=applications, concentration1=gamma, concentration0=eta, obs=admit)
+
+  m$dist$beta_binomial(total_count=applications, concentration1=gamma, concentration0=eta, obs=admit)
 }
 
 # Run MCMC ------------------------------------------------
@@ -116,6 +117,9 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
+
+m$data_on_model
+
 
 ```
 

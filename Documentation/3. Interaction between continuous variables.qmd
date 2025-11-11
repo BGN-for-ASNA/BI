@@ -62,11 +62,11 @@ m.summary()
 
 ### R
 ```R
-library(BI)
-m=importbi(platform='cpu')
+library(BayesianInference)
+m=importBI(platform='cpu')
 
 # Load csv file
-m$data(paste(system.file(package = "BI"),"/data/tulips.csv", sep = ''), sep=';')
+m$data(paste(system.file(package = "BayesianInference"),"/data/tulips.csv", sep = ''), sep=';')
 m$scale(list('blooms', 'water', 'shade')) # Normalize
 m$data_to_model(list('blooms', 'water', 'shade')) # Send to model (convert to jax array)
 

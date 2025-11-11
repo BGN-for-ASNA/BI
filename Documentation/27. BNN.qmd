@@ -1,5 +1,5 @@
 ---
-title: "Bayesian Neural Networks"
+title: "Bayesian Neural Networks 🚧"
 description: "Neural networks that incorporate Bayesian inference to quantify uncertainty in their predictions."
 categories: [Neural Networks,  Deep Learning]
 image: "Figures/24.png"
@@ -107,42 +107,37 @@ ax.set(xlabel="X", ylabel="Y", title="Mean predictions with 90% CI")
 ## R
 
 ```r
-library(BI)
-m=importbi(platform='cpu')
+library(BayesianInference)
+m=importBI(platform='cpu')
 
 # Load csv file
-m$data(paste(system.file(package = "BI"),"/data/Howell1.csv", sep = ''), sep=';')
-
-# Filter data frame
-m$df = m$df[m$df$age > 18,]
-
-# Scale
-m$scale(list('weight')) 
-
-# Convert data to JAX arrays
-m$data_to_model(list('weight', 'height'))
+# Import data ------------------------------------------------
+path = normalizePath(paste(system.file(package = "BayesianInference"),"/data/BNN.json", sep = ''))
+data <- fromJSON(path)
+m$data_on_model = list()
+m$data_on_model$X = jnp$array(data$X)
+m$data_on_model$Y = jnp$array(data$Y)
 
 # Define model ------------------------------------------------
-model <- function(height, weight){
-  # Define the BNN architecture
-  # 1 input -> 10 hidden neurons (tanh) -> 1 output neuron (identity)
-  # Priors for weights/biases are Normal(0,1) by default
-  mu <- bi$bnn$layer_linear(
-    x = weight, n_neurons = list(10, 1), activations = list('tanh', 'identity'), name = 'bnn')
+model <- function(X, Y, D_X = 2, D_H=5L, D_Y=1L){
 
+  w1 <- m$bnn$layer_linear(X, dist=bi.dist.normal(0, 1,  name='w1',shape=c(D_X,D_H)), activation='tanh')
+  
+  w2 <- m$bnn$layer_linear(
+    w1, 
+    dist=bi.dist.normal(0, 1,  name='w2',shape=c(D_H,D_Y)),
+    activation='tanh'
+  )
+  
   # Prior for the output standard deviation
-  s = bi$dist$exponential(1, name = 's')
+  s = bi.dist.exponential(1, name = 's')
   
   # Likelihood
-  m$normal(mu, s, obs = height)
+  bi.dist.normal(w2, s, obs = Y)
 }
 
 # Run mcmc ------------------------------------------------
 m$fit(model) # Approximate posterior distributions
-
-# Summary ------------------------------------------------
-m$summary()
-
 ```
 :::
 
