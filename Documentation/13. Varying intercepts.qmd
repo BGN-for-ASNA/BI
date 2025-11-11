@@ -88,13 +88,13 @@ m.summary()
 ## R
 
 ```R
-library(BI)
+library(BayesianInference)
 
 # setup platform------------------------------------------------
-m=importbi(platform='cpu')
+m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/reedfrogs.csv", sep = ''), sep=';')
+m$data(paste(system.file(package = "BayesianInference"),"/data/reedfrogs.csv", sep = ''), sep=';')
 m$df$tank = c(0:(nrow(m$df)-1)) # Manipulate
 m$data_to_model(list('tank', 'surv', 'density')) # Manipulate
 m$data_on_model$tank = m$data_on_model$tank$astype(jnp$int32) # Manipulate
@@ -109,7 +109,7 @@ model <- function(tank, surv, density){
   alpha = bi.dist.normal(a_bar, sigma, name='alpha', shape =c(48))
   p = alpha[tank]
   # Likelihood
-  m$binomial(total_count = density, logits = p, obs=surv)
+  m$dist$binomial(total_count = density, logits = p, obs=surv)
 } 
 
 # Run MCMC ------------------------------------------------
@@ -117,6 +117,7 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
+
 
 ```
 :::

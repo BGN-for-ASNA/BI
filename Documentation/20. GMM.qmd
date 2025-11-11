@@ -38,10 +38,11 @@ Below is an example of a GMM implemented in BI. The goal is to cluster a synthet
 ::: {.panel-tabset group="language"}
 ## Python
 
-```python
-from BI import bi
+```{python}
+from BI import bi, jnp
 from sklearn.datasets import make_blobs
 
+m = bi()
 # Generate synthetic data
 data, true_labels = make_blobs(
     n_samples=500, centers=8, cluster_std=0.8,
@@ -53,26 +54,31 @@ data, true_labels = make_blobs(
 def gmm(data, K, initial_means): # Here K is the *exact* number of clusters
     D = data.shape[1]  # Number of features
     alpha_prior = 0.5 * jnp.ones(K)
-    w = dist.dirichlet(concentration=alpha_prior, name='weights') 
+    w = m.dist.dirichlet(concentration=alpha_prior, name='weights') 
 
-    with dist.plate("components", K): # Use fixed K
-        mu = dist.multivariatenormal(loc=initial_means, covariance_matrix=0.1*jnp.eye(D), name='mu')        
-        sigma = dist.halfcauchy(1, shape=(D,), event=1, name='sigma')
-        Lcorr = dist.lkjcholesky(dimension=D, concentration=1.0, name='Lcorr')
+    with m.dist.plate("components", K): # Use fixed K
+        mu = m.dist.multivariate_normal(loc=initial_means, covariance_matrix=0.1*jnp.eye(D), name='mu')        
+        sigma = m.dist.half_cauchy(1, shape=(D,), event=1, name='sigma')
+        Lcorr = m.dist.lkj_cholesky(dimension=D, concentration=1.0, name='Lcorr')
 
         scale_tril = sigma[..., None] * Lcorr
 
-    dist.mixturesamefamily(
-        mixing_distribution=dist.categorical(probs=w, create_obj=True),
-        component_distribution=dist.multivariatenormal(loc=mu, scale_tril=scale_tril, create_obj=True),
+    m.dist.mixture_same_family(
+        mixing_distribution=m.dist.categorical(probs=w, create_obj=True),
+        component_distribution=m.dist.multivariate_normal(loc=mu, scale_tril=scale_tril, create_obj=True),
         name="obs",
         obs=data
     )
 
-m.data_on_model = {"data": data,"K": 4 }
+m.data_on_model = {"data": data,"K": 8 }
 m.fit(gmm) # Optimize model parameters through MCMC sampling
 m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```
+
+## R
+
+![](travaux-routiers.png){fig-align="center"}
+
 
 :::
 ## Mathematical Details

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "BayesInference"
-version = "0.0.32"
+version = "0.0.37"
 authors = [
     {name = "Sebastian Sosa", email = "bi@s-sosa.com"}
 ]
@@ -34,7 +34,6 @@ dependencies = [
     "tensorflow_probability",
     "arviz",
     "funsor",
-    "scip",
     "plotly"
 ]
 
@@ -42,11 +41,11 @@ dependencies = [
 
 [project.optional-dependencies]
 cpu = [
-    "jax==0.6.2",
-    "jaxlib==0.6.2",
+    "jax",
+    "jaxlib",
 ]
 gpu = [
-    "jax[cuda12_pip]==0.6.2",
+    "jax[cuda12_pip]",
 ]
 
 [project.urls]

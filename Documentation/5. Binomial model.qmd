@@ -52,13 +52,13 @@ m.summary()
 ### R
 
 ``` r
-library(BI)
+library(BayesianInference)
 
 # setup platform------------------------------------------------
-m=importbi(platform='cpu')
+m=importBI(platform='cpu')
 
 # import data ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/chimpanzees.csv", sep = ''), sep=';')
+m$data(paste(system.file(package = "BayesianInference"),"/data/chimpanzees.csv", sep = ''), sep=';')
 m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
@@ -66,7 +66,7 @@ model <- function(pulled_left){
   # Parameters priors distributions
   alpha = bi.dist.normal( 0, 10, name = 'alpha')
   # Likelihood
-  m$binomial(total_count = 1, logits = alpha, obs=pulled_left)
+  bi.dist.binomial(total_count = 1, logits = alpha, obs=pulled_left)
 }
 
 
@@ -144,13 +144,13 @@ m.summary()
 ```
 
 ``` r
-library(BI)
+library(BayesianInference)
 
 # setup platform------------------------------------------------
-m=importbi(platform='cpu')
+m=importBI(platform='cpu')
 
 # import data ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/chimpanzees.csv", sep = ''), sep=';')
+m$data(paste(system.file(package = "BayesianInference"),"/data/chimpanzees.csv", sep = ''), sep=';')
 m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------

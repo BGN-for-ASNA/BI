@@ -5,15 +5,18 @@ import numpyro
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import pdist, squareform
 from scipy.stats import multivariate_normal
-import seaborn as sns # Ensure seaborn is imported for palettes
 import matplotlib.pyplot as plt
-import jax
+
+import seaborn as sns
 import numpy as np
+import jax
 
 import numpyro
 
 import jax.numpy as jnp
+
 dist = dist()
+
 def mix_weights(beta):
     beta1m_cumprod = jnp.cumprod(1.0 - beta, axis=-1)
     padded_beta = jnp.pad(beta, (0, 1), constant_values=1.0)
@@ -87,6 +90,7 @@ def predict_dpmm(data, sampler):
     Returns:
     - array of predicted labels for each data point.
     """
+    print("⚠️This function is still in development. Use it with caution. ⚠️")
 
     # 1. Calculate posterior mean of all model parameters
     posterior_samples = sampler.get_samples()
@@ -131,6 +135,7 @@ def predict_dpmm(data, sampler):
     return post_mean_w, post_mean_mu, post_mean_cov, final_labels
 
 def plot_dpmm(data,sampler,figsize=(10, 8), point_size=10):
+    print("⚠️This function is still in development. Use it with caution. ⚠️")
     post_mean_w, post_mean_mu, post_mean_cov, final_labels = predict_dpmm(data,sampler)
     # 2. Set up a grid of points to evaluate the GMM density
     x_min, x_max = data[:, 0].min() - 2, data[:, 0].max() + 2

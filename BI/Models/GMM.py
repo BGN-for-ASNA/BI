@@ -50,20 +50,67 @@ def gmm(data, K, initial_means):
     )
 
 def predict_gmm(data,sampler):
-    """
-    Predicts the GMM density contours based on posterior samples and final labels.
+
     
+    """ Predicts the GMM density contours based on posterior samples and final labels.
+
+    This function processes the posterior samples from a Bayesian Gaussian Mixture
+    Model (GMM) to derive a single, representative clustering and the
+    corresponding GMM parameters. The approach is based on two main steps:
+    calculating posterior point estimates and performing co-clustering analysis
+    via a Posterior Similarity Matrix (PSM).
+
+    Methodology:
+    1.  **Posterior Point Estimates**: The function first computes the posterior
+        mean of the GMM parameters (weights, means, and covariance components)
+        by averaging over all samples obtained from the MCMC sampler. This
+        provides a single set of parameters that represents the central
+        tendency of the posterior distribution.
+
+    2.  **Co-clustering via Posterior Similarity Matrix (PSM)**: To obtain a
+        single, robust clustering, this function uses a co-clustering approach
+        that leverages the entire posterior distribution.
+        a. A similarity matrix is constructed where the entry (i, j) represents
+           the posterior probability that data point `i` and data point `j`
+           belong to the same cluster. This is calculated by averaging their
+           co-assignment probabilities across all posterior samples.
+        b. This similarity matrix is converted into a distance matrix (1 - similarity).
+        c. Agglomerative hierarchical clustering ('average' linkage) is then
+           applied to this distance matrix.
+        d. The resulting hierarchy is cut at a specified distance threshold to
+           produce a final, single set of cluster labels for the data.
+
+    This method avoids issues like label switching inherent in MCMC and produces
+    a stable clustering that summarizes the relationships discovered in the
+    full Bayesian posterior.
+
     Parameters:
-    - data: The input data points.
-    - w_samps: Posterior samples of the weights.
-    - mu_samps: Posterior samples of the means.
-    - sigma_samps: Posterior samples of the standard deviations.
-    - Lcorr_samps: Posterior samples of the Cholesky factors for correlation.
-    - final_labels: Cluster labels for each data point.
-    
+    - data (jnp.ndarray): The input data points used for the model, with
+      shape [N, D] where N is the number of samples and D is the number
+      of features.
+    - sampler (bi.sampler): The fitted MCMC sampler object from which
+      posterior samples can be extracted.
+
     Returns:
-    - None (plots the GMM density contours).
+    - tuple: A tuple containing four elements:
+        - post_mean_w (jnp.ndarray): The posterior mean of the mixture weights.
+        - post_mean_mu (jnp.ndarray): The posterior mean of the cluster means.
+        - post_mean_cov (jnp.ndarray): The reconstructed posterior mean of the
+          cluster covariance matrices.
+        - final_labels (jnp.ndarray): The final, single-partition cluster
+          labels for each data point.
+
+    Reference:
+    * https://www.pure.ed.ac.uk/ws/portalfiles/portal/80251963/1508378464.pdf
+    * https://arxiv.org/abs/2108.11753
+    * https://en.wikipedia.org/wiki/Mixture_model
+    * https://projecteuclid.org/journals/bayesian-analysis/volume-4/issue-2/Improved-criteria-for-clustering-based-on-the-posterior-similarity-matrix/10.1214/09-BA414.pdf
+    * https://www.pure.ed.ac.uk/ws/portalfiles/portal/80251963/1508378464.pdf
+    * https://pmc.ncbi.nlm.nih.gov/articles/PMC10441802/
+
+
     """
+    print("⚠️This function is still in development. Use it with caution. ⚠️")
     # 1. Calculate posterior mean of all model parameters
     posterior_samples = sampler.get_samples()
     w_samps = posterior_samples['weights']
@@ -87,6 +134,7 @@ def predict_gmm(data,sampler):
         log_probs = jnp.log(w) + log_liks
         norm_probs = jnp.exp(log_probs - jax.scipy.special.logsumexp(log_probs, axis=-1, keepdims=True))
         return norm_probs
+
     cluster_probs = jax.vmap(get_cluster_probs, in_axes=(None, 0, 0, 0, 0))(
         data, w_samps, mu_samps, sigma_samps, Lcorr_samps
     )
@@ -104,6 +152,7 @@ def predict_gmm(data,sampler):
     return post_mean_w, post_mean_mu, post_mean_cov, final_labels
 
 def plot_gmm(data,sampler, figsize = (10, 8)):
+    print("⚠️This function is still in development. Use it with caution. ⚠️")
     post_mean_w, post_mean_mu, post_mean_cov, final_labels = predict_gmm(data,sampler)
     # 2. Set up a grid of points to evaluate the GMM density
     x_min, x_max = data[:, 0].min() - 2, data[:, 0].max() + 2

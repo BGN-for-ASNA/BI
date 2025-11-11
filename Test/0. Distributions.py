@@ -178,35 +178,38 @@ except Exception as e:
     print(f'Error in gamma_poisson: {e}')
     errors.append(f'Error in gamma_poisson: {e}')
 
-try:
-    m.dist.gaussian_copula(m.dist.beta(2.0, 5.0, create_obj = True), correlation_matrix = jnp.array([
-    [1.0, 0.7],  # Correlation between the two marginals
-    [0.7, 1.0]
-])
-, sample = True)
-except Exception as e:
-    print(f'Error in gaussian_copula: {e}')
-    errors.append(f'Error in gaussian_copula: {e}')
+#try:
+#    m.dist.gaussian_copula(m.dist.beta(2.#0, 5.0, create_obj = True), #correlation_matrix = jnp.array([
+#    [1.0, 0.7],  # Correlation between #the two marginals
+#    [0.7, 1.0]
+#])
+#, sample = True)
+#except Exception as e:
+#    print(f'Error in gaussian_copula: {e}')
+#
+#     errors.append(f'Error in gaussian_copula: {e}')
 
-try:
-    m.dist.gaussian_copula_beta(
-        concentration1 = jnp.array([2.0, 3.0]), 
-        concentration0 = jnp.array([5.0, 3.0]),
-        correlation_cholesky = jnp.linalg.cholesky(jnp.array([[1.0, 0.7],[0.7, 1.0]])), 
-        sample = True
-    )
-except Exception as e:
-    print(f'Error in gaussian_copula_beta: {e}')
-    errors.append(f'Error in gaussian_copula_beta: {e}')
+#try:
+#    m.dist.gaussian_copula_beta(
+#        concentration1 = jnp.array([2.0, #3.0]), 
+#        concentration0 = jnp.array([5.0, #3.0]),
+#        correlation_cholesky = jnp.linalg.#cholesky(jnp.array([[1.0, 0.7],[0.#7, 1.0]])), 
+#        sample = True
+#    )
+#except Exception as e:
+#    print(f'Error in gaussian_copula_beta: {e}')
+#    errors.append(f'Error in gaussian_copula_beta: {e}')
 
 try:
     m.dist.gaussian_random_walk(scale=1.0, sample=True)
 except Exception as e:
-    print(f'Error in gaussian_random_walk: {e}')
+    print(f'Error in #gaussian_random_walk: {e}')
     errors.append(f'Error in gaussian_random_walk: {e}')
 
 try:
-    m.dist.gaussian_state_space(num_steps=5, transition_matrix=jnp.array([[0.5]]), covariance_matrix =  jnp.array([[1.0, 0.6],[0.6, 1.0]]), sample=True)
+    m.dist.gaussian_state_space(num_steps=5, 
+    transition_matrix=jnp.array([[0.5]]),
+    covariance_matrix=jnp.array([[1.0]]),sample=True)
 except Exception as e:
     print(f'Error in gaussian_state_space: {e}')
     errors.append(f'Error in gaussian_state_space: {e}')

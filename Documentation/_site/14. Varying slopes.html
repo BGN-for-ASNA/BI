@@ -678,7 +678,7 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python (Raw)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="5205e4e5" class="cell" data-execution_count="1">
+<div id="6b09f512" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
@@ -718,7 +718,7 @@ Note
 <pre><code>jax.local_device_count 16</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:03&lt;50:07,  3.01s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 30/1000 [00:03&lt;01:12, 13.45it/s, 47 steps of size 1.82e-02. acc. prob=0.72]warmup:   6%|▌         | 59/1000 [00:03&lt;00:31, 30.24it/s, 63 steps of size 2.70e-02. acc. prob=0.75]warmup:   9%|▉         | 90/1000 [00:03&lt;00:17, 52.44it/s, 31 steps of size 6.63e-02. acc. prob=0.77]warmup:  12%|█▏        | 116/1000 [00:03&lt;00:12, 72.61it/s, 31 steps of size 3.60e-01. acc. prob=0.77]warmup:  15%|█▍        | 149/1000 [00:03&lt;00:08, 104.93it/s, 7 steps of size 5.66e-01. acc. prob=0.78]warmup:  18%|█▊        | 178/1000 [00:03&lt;00:06, 132.79it/s, 31 steps of size 2.34e-01. acc. prob=0.78]warmup:  21%|██        | 209/1000 [00:03&lt;00:04, 164.26it/s, 7 steps of size 2.33e-01. acc. prob=0.78] warmup:  24%|██▍       | 240/1000 [00:03&lt;00:03, 193.56it/s, 15 steps of size 3.71e-01. acc. prob=0.78]warmup:  27%|██▋       | 274/1000 [00:03&lt;00:03, 223.41it/s, 63 steps of size 1.29e-01. acc. prob=0.78]warmup:  30%|███       | 305/1000 [00:04&lt;00:02, 241.96it/s, 31 steps of size 4.31e-01. acc. prob=0.78]warmup:  34%|███▍      | 341/1000 [00:04&lt;00:02, 269.78it/s, 31 steps of size 2.16e-01. acc. prob=0.78]warmup:  38%|███▊      | 378/1000 [00:04&lt;00:02, 295.07it/s, 15 steps of size 2.69e-01. acc. prob=0.78]warmup:  41%|████      | 412/1000 [00:04&lt;00:01, 305.03it/s, 15 steps of size 3.08e-01. acc. prob=0.79]warmup:  45%|████▍     | 446/1000 [00:04&lt;00:01, 306.78it/s, 15 steps of size 2.28e-01. acc. prob=0.79]warmup:  48%|████▊     | 481/1000 [00:04&lt;00:01, 315.36it/s, 31 steps of size 4.37e-01. acc. prob=0.79]sample:  51%|█████▏    | 514/1000 [00:04&lt;00:01, 316.86it/s, 15 steps of size 3.19e-01. acc. prob=0.90]sample:  55%|█████▍    | 549/1000 [00:04&lt;00:01, 323.77it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  59%|█████▊    | 587/1000 [00:04&lt;00:01, 338.04it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  62%|██████▎   | 625/1000 [00:04&lt;00:01, 347.77it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  66%|██████▌   | 661/1000 [00:05&lt;00:00, 348.61it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  70%|██████▉   | 698/1000 [00:05&lt;00:00, 353.82it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  74%|███████▎  | 737/1000 [00:05&lt;00:00, 361.46it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  77%|███████▋  | 774/1000 [00:05&lt;00:00, 356.00it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  81%|████████  | 810/1000 [00:05&lt;00:00, 346.23it/s, 7 steps of size 3.19e-01. acc. prob=0.86] sample:  84%|████████▍ | 845/1000 [00:05&lt;00:00, 345.61it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  88%|████████▊ | 885/1000 [00:05&lt;00:00, 360.36it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  92%|█████████▏| 923/1000 [00:05&lt;00:00, 362.38it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  96%|█████████▌| 960/1000 [00:05&lt;00:00, 356.11it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample: 100%|█████████▉| 996/1000 [00:06&lt;00:00, 357.10it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample: 100%|██████████| 1000/1000 [00:06&lt;00:00, 165.92it/s, 15 steps of size 3.19e-01. acc. prob=0.86]
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:02&lt;34:59,  2.10s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   4%|▍         | 42/1000 [00:02&lt;00:36, 26.49it/s, 63 steps of size 3.41e-02. acc. prob=0.75]warmup:   9%|▉         | 88/1000 [00:02&lt;00:14, 62.29it/s, 63 steps of size 3.63e-02. acc. prob=0.77]warmup:  13%|█▎        | 126/1000 [00:02&lt;00:09, 95.75it/s, 15 steps of size 3.65e-01. acc. prob=0.78]warmup:  18%|█▊        | 176/1000 [00:02&lt;00:05, 148.68it/s, 15 steps of size 6.14e-01. acc. prob=0.78]warmup:  23%|██▎       | 226/1000 [00:02&lt;00:03, 202.31it/s, 95 steps of size 2.20e-01. acc. prob=0.78]warmup:  28%|██▊       | 277/1000 [00:02&lt;00:02, 257.84it/s, 15 steps of size 2.02e-01. acc. prob=0.78]warmup:  33%|███▎      | 327/1000 [00:02&lt;00:02, 307.53it/s, 15 steps of size 6.03e-01. acc. prob=0.78]warmup:  38%|███▊      | 378/1000 [00:02&lt;00:01, 352.33it/s, 15 steps of size 2.69e-01. acc. prob=0.78]warmup:  43%|████▎     | 431/1000 [00:03&lt;00:01, 394.34it/s, 15 steps of size 2.64e-01. acc. prob=0.79]warmup:  48%|████▊     | 483/1000 [00:03&lt;00:01, 425.11it/s, 31 steps of size 2.52e-01. acc. prob=0.79]sample:  54%|█████▎    | 537/1000 [00:03&lt;00:01, 455.04it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  59%|█████▉    | 594/1000 [00:03&lt;00:00, 484.67it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  65%|██████▌   | 653/1000 [00:03&lt;00:00, 513.35it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  71%|███████   | 711/1000 [00:03&lt;00:00, 530.99it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  77%|███████▋  | 767/1000 [00:03&lt;00:00, 538.55it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  83%|████████▎ | 827/1000 [00:03&lt;00:00, 554.84it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  88%|████████▊ | 884/1000 [00:03&lt;00:00, 559.25it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  94%|█████████▍| 942/1000 [00:03&lt;00:00, 562.46it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample: 100%|█████████▉| 999/1000 [00:04&lt;00:00, 536.66it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample: 100%|██████████| 1000/1000 [00:04&lt;00:00, 246.80it/s, 15 steps of size 3.19e-01. acc. prob=0.86]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)
 /home/sosa/work/.venv/lib/python3.12/site-packages/arviz/stats/diagnostics.py:991: RuntimeWarning:
 
@@ -1342,79 +1342,85 @@ invalid value encountered in scalar divide
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Sim data multivariatenormal.csv'</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    cafe <span class="op">=</span> jnp.array(m.df.cafe.values, dtype<span class="op">=</span>jnp.int32),</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    wait <span class="op">=</span> jnp.array(m.df.wait.values, dtype<span class="op">=</span>jnp.float32),</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    N_cafes <span class="op">=</span> <span class="bu">len</span>(m.df.cafe.unique()),</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    afternoon <span class="op">=</span> jnp.array(m.df.afternoon.values, dtype<span class="op">=</span>jnp.float32)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Sim data multivariatenormal.csv'</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    cafe <span class="op">=</span> jnp.array(m.df.cafe.values, dtype<span class="op">=</span>jnp.int32),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    wait <span class="op">=</span> jnp.array(m.df.wait.values, dtype<span class="op">=</span>jnp.float32),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    N_cafes <span class="op">=</span> <span class="bu">len</span>(m.df.cafe.unique()),</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    afternoon <span class="op">=</span> jnp.array(m.df.afternoon.values, dtype<span class="op">=</span>jnp.float32)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(cafe, wait, N_cafes, afternoon):</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">5</span>, <span class="dv">2</span>,  name <span class="op">=</span> <span class="st">'a'</span>)</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.normal(<span class="op">-</span><span class="dv">1</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(cafe, wait, N_cafes, afternoon):</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential( <span class="dv">1</span>,  name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    varying_intercept, varying_slope <span class="op">=</span> m.effects.varying_effects(</span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        N_vars <span class="op">=</span> <span class="dv">1</span>,</span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        N_group <span class="op">=</span> N_cafes,</span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        group_id <span class="op">=</span> cafe,</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        alpha_bar<span class="op">=</span> a,</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        beta_bar<span class="op">=</span> b,</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        group_name <span class="op">=</span> <span class="st">'cafe'</span>)</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> varying_intercept <span class="op">+</span> varying_slope<span class="op">*</span> afternoon</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(mu, sigma, obs<span class="op">=</span>wait)</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        group_name <span class="op">=</span> <span class="st">'cafe'</span>,</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        centered <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> varying_intercept <span class="op">+</span> varying_slope<span class="op">*</span> afternoon</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(mu, sigma, obs<span class="op">=</span>wait)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform------------------------------------------------</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importbi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Sim data multivariatenormal.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">','</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'cafe'</span>, <span class="st">'wait'</span>, <span class="st">'afternoon'</span>))</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(cafe, afternoon, wait, <span class="at">N_cafes =</span> <span class="fu">as.integer</span>(<span class="dv">20</span>) ){</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  sigma_cafe <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">shape=</span> <span class="fu">c</span>(<span class="dv">2</span>), <span class="at">name =</span> <span class="st">'sigma_cafe'</span>)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>( <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'sigma'</span>)</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  Rho <span class="ot">=</span> <span class="fu">bi.dist.lkj</span>(<span class="fu">as.integer</span>(<span class="dv">2</span>), <span class="fu">as.integer</span>(<span class="dv">2</span>), <span class="at">name =</span> <span class="st">'Rho'</span>)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  cov <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">outer</span>(sigma_cafe, sigma_cafe) <span class="sc">*</span> Rho</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  a_cafe_b_cafe <span class="ot">=</span> <span class="fu">bi.dist.multivariatenormal</span>(</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    jnp<span class="sc">$</span><span class="fu">squeeze</span>(jnp<span class="sc">$</span><span class="fu">stack</span>(<span class="fu">list</span>(a, b))), </span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    cov, <span class="at">shape =</span> <span class="fu">c</span>(N_cafes), <span class="at">name =</span> <span class="st">'a_cafe'</span>)  </span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  a_cafe <span class="ot">=</span> a_cafe_b_cafe[, <span class="dv">0</span>]</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  b_cafe <span class="ot">=</span> a_cafe_b_cafe[, <span class="dv">1</span>]</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">=</span> a_cafe[cafe] <span class="sc">+</span> b_cafe[cafe] <span class="sc">*</span> afternoon</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">normal</span>(mu, sigma, <span class="at">obs=</span>wait)</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'jax.numpy'</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform------------------------------------------------</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesianInference"</span>),<span class="st">"/data/Sim data multivariatenormal.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">','</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'cafe'</span>, <span class="st">'wait'</span>, <span class="st">'afternoon'</span>))</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesianInference"</span>),<span class="st">"/data/Sim data multivariatenormal.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">','</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'cafe'</span>, <span class="st">'wait'</span>, <span class="st">'afternoon'</span>))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(cafe, afternoon, wait, <span class="at">N_cafes =</span> <span class="fu">as.integer</span>(<span class="dv">20</span>) ){</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  sigma_cafe <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">shape=</span> <span class="fu">c</span>(<span class="dv">2</span>), <span class="at">name =</span> <span class="st">'sigma_cafe'</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>( <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'sigma'</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  Rho <span class="ot">=</span> <span class="fu">bi.dist.lkj</span>(<span class="fu">as.integer</span>(<span class="dv">2</span>), <span class="fu">as.integer</span>(<span class="dv">2</span>), <span class="at">name =</span> <span class="st">'Rho'</span>)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  cov <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">outer</span>(sigma_cafe, sigma_cafe) <span class="sc">*</span> Rho</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  a_cafe_b_cafe <span class="ot">=</span> <span class="fu">bi.dist.multivariate_normal</span>(</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    jnp<span class="sc">$</span><span class="fu">squeeze</span>(jnp<span class="sc">$</span><span class="fu">stack</span>(<span class="fu">list</span>(a, b))), </span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    cov, </span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="fu">c</span>(N_cafes), <span class="at">name =</span> <span class="st">'a_cafe'</span>)  </span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  a_cafe <span class="ot">=</span> a_cafe_b_cafe[, <span class="dv">0</span>]</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  b_cafe <span class="ot">=</span> a_cafe_b_cafe[, <span class="dv">1</span>]</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">=</span> a_cafe[cafe] <span class="sc">+</span> b_cafe[cafe] <span class="sc">*</span> afternoon</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bi.dist.normal</span>(mu, sigma, <span class="at">obs=</span>wait)</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

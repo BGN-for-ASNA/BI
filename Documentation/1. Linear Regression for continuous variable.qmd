@@ -72,30 +72,30 @@ m.summary() # Get posterior distributions
 ## R
 
 ``` r
-library(BI)
-m=importbi(platform='cpu')
+library(BayesianInference)
+m <- importBI(platform = "cpu")
 
 # Load csv file
-m$data(paste(system.file(package = "BI"),"/data/Howell1.csv", sep = ''), sep=';')
+m$data(paste(system.file(package = "BayesianInference"), "/data/Howell1.csv", sep = ""), sep = ";")
 
 # Filter data frame
-m$df = m$df[m$df$age > 18,] # Subset data to adults
+m$df <- m$df[m$df$age > 18, ] # Subset data to adults
 
 # Scale
-m$scale(list('weight'))  # Normalize
+m$scale(list("weight")) # Normalize
 
 # Convert data to JAX arrays
-m$data_to_model(list('weight', 'height'))
+m$data_to_model(list("weight", "height"))
 
 # Define model ------------------------------------------------
-model <- function(height, weight){
-  # Parameter prior distributions
-  s = bi.dist.uniform(0, 50, name = 's')
-  a = bi.dist.normal(178, 20,  name = 'a')
-  b = bi.dist.normal(0, 1, name = 'b')
-  
-  # Likelihood
-  m$normal(a + b * weight, s, obs = height)
+model <- function(height, weight) {
+    # Parameter prior distributions
+    s <- bi.dist.uniform(0, 50, name = "s")
+    a <- bi.dist.normal(178, 20, name = "a")
+    b <- bi.dist.normal(0, 1, name = "b")
+
+    # Likelihood
+    bi.dist.normal(a + b * weight, s, obs = height)
 }
 
 # Run MCMC ------------------------------------------------
@@ -103,8 +103,7 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary()
-
-```
+``` 
 :::
 
 ## Mathematical Details
@@ -112,6 +111,7 @@ m$summary()
 ### *Frequentist Formulation*
 
 The following equation describe the frequentist formulation of linear regression:
+
 $$
 Y_i = \alpha + \beta  X_i + \epsilon_i
 $$

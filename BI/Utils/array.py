@@ -63,7 +63,7 @@ class effects:
             centered = False,
             sample=False
         ):
-
+        print("⚠️ This function is still in development. Use it with caution. ⚠️")
         # 1. Priors.
         if alpha_bar is None:
             alpha_bar = dist.normal(5, 2, name='global_intercept', sample=sample, shape = (1,))
@@ -144,7 +144,7 @@ class effects:
                 - varying_intercepts (array): The intercept for each observation.
                 - varying_slopes (array): The slope for each observation.
         """
-
+        print("⚠️ This function is still in development. Use it with caution. ⚠️")
         # 1. Handle default hyperpriors.
         if group_std is None:
             group_std = dist.exponential(1, shape=(2,),  name = f'{group_name}_std', sample = sample)
@@ -306,6 +306,7 @@ class effects:
                 - varying_intercepts (array): The intercept for each observation.
                 - varying_slopes (array): The slope for each observation.
         """
+        print("⚠️ This function is still in development. Use it with caution. ⚠️")
         # 1. Handle default hyperpriors for scale (sigma) and correlation (L_Rho).
         if sigma is None:
             sigma = dist.exponential(1, shape=(2,), name=f'{group_name}_sigma', sample=sample)
@@ -343,6 +344,7 @@ class effects:
     ):
         """Generates hierarchical varying effects for CATEGORIES using a non-centered parameterization."""
 
+        print("⚠️ This function is still in development. Use it with caution. ⚠️")
         # 1. Define default hyperpriors if not provided by the user.
         if L_Rho is None:
             L_Rho = m.dist.lkj_cholesky(num_categories, 2, name=f"L_Rho_{group_name}", sample=sample)
@@ -379,6 +381,7 @@ class effects:
         Returns:
             array: An array of the appropriate group-level intercepts for each observation.
         """
+        print("⚠️ This function is still in development. Use it with caution. ⚠️")
         # 1. Handle default hyperpriors for the mean (a_bar) and scale (sigma).
         if a_bar is None:
             a_bar = dist.normal(0., 1.5, name=f'global_intercept_{group_name}', sample=sample)

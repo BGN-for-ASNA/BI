@@ -194,6 +194,7 @@ class survival_old:
         - Exposure is capped by the interval bounds, and the last interval reflects the remaining time to the event or censoring.
 
         """
+        print("Survival analysis is still in development. Use it with caution and report any issues.")
         self.get_basic_info(time = time, event = event, cov = cov)
         self.interval_length = interval_length
         
@@ -389,6 +390,7 @@ class survival_old:
 import jax
 import jax.numpy as jnp
 import numpy as np
+
 # estimation will change because alphabetic names of prior generating different seed to get same resutls as PyMC, gange names of priors to 'lambda0', 'beta'
 class survival():
     def __init__(self,parent):
@@ -414,6 +416,7 @@ class survival():
         self.parent = parent
         self.parent.model_name = 'pca' 
         #self.surv_object(time, event, interval_length)
+
 
     def import_time_even(self, time, event, interval_length=1):
         """
@@ -748,7 +751,7 @@ class survival():
         mu =  exposure * lambda_
 
         # Likelihood calculation
-        dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
+        dist.poisson(rate = mu + jnp.finfo(mu.dtype).tiny, obs = death)
 
     def model_multivariate(self, death, cov,exposure, censoring = None):
         # Parameters priors distributions-------------------------
@@ -778,6 +781,7 @@ class survival():
         dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
     
     def model(self, death, cov,exposure, censoring = None):
+        print("⚠️This function is still in development. Use it with caution. ⚠️")
 
         if self.cov_all.ndim == 2:
             if self.cov_all.shape[1] == 1: 

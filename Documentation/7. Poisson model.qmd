@@ -71,13 +71,13 @@ m.summary()
 
 ### R
 ```R
-library(BI)
+library(BayesianInference)
 
 # Setup platform------------------------------------------------
-m=importbi(platform='cpu')
+m=importBI(platform='cpu')
 
 # import data ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/Kline.csv", sep = ''), sep=';')
+m$data(paste(system.file(package = "BayesianInference"),"/data/Kline.csv", sep = ''), sep=';')
 m$scale(list('population'))# Scale
 m$df["cid"] =  as.integer(ifelse(m$df$contact == "high", 1, 0)) # Manipulate
 m$data_to_model(list('total_tools', 'population', 'cid' )) # Send to model (convert to jax array)
@@ -97,6 +97,7 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
+
 
 ```
 :::

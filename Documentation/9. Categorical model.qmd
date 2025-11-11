@@ -61,13 +61,14 @@ m.summary() # Get posterior distributions
 
 ### R
 ```R
-library(BI)
+library(BayesianInference)
+jax = reticulate::import('jax')
 
 # setup platform------------------------------------------------
-m=importbi(platform='cpu')
+m=importBI(platform='cpu')
 
 # import data ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/Sim data multinomial.csv", sep = ''), sep=',')
+m$data(paste(system.file(package = "BayesianInference"),"/data/Sim data multinomial.csv", sep = ''), sep=',')
 keys <- c("income", "career")
 income = unique(m$df$income)
 income = income[order(income)]
@@ -87,7 +88,7 @@ model <- function(income, career){
   p = jax$nn$softmax(jnp$stack(list(s_1, s_2, s_3)))
 
   # Likelihood
-  bi.dist.categorical(probs=p[career], obs=career)
+  m$dist$categorical(probs=p[career], obs=career)
 }
 
 # Run MCMC ------------------------------------------------

@@ -57,11 +57,11 @@ m.summary()
 
 ### R
 ```R
-library(BI)
-m=importbi(platform='cpu')
+library(BayesianInference)
+m=importBI(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/Howell1.csv", sep = ''), sep=';')# Import
+m$data(paste(system.file(package = "BayesianInference"),"/data/Howell1.csv", sep = ''), sep=';')# Import
 m$df = m$df[m$df$age > 18,] # Subset data to adults
 m$scale(list('weight', 'age')) # Normalize
 m$data_to_model(list('weight', 'height', 'age')) # Send to model (convert to jax array)
@@ -74,7 +74,7 @@ model <- function(height, weight, age){
   beta2 = bi.dist.normal(0, 0.5, name = 'b2')   
   sigma = bi.dist.uniform(0, 50, name = 's')
   # Likelihood
-  m$normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)
+  bi.dist.normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)
 }
 
 # Run MCMC ------------------------------------------------

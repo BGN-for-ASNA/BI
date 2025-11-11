@@ -33,7 +33,7 @@ Here is an example code snippet demonstrating Bayesian PCA using BI:
 ::: {.panel-tabset group="language"}
 
 ## Build in functions
-```python
+```{python}
 
 from BI import bi,jnp
 m=bi()
@@ -41,7 +41,7 @@ m.data('iris.csv', sep=',') # Data is already scaled
 m.data_on_model = dict(
     X=jnp.array(m.df.iloc[:,0:-2].values)
 )
-m.fit(m.models.pca(type="ARD"), progress_bar=False) # or robust, sparse, classic, sparse_robust_ard
+m.fit(m.models.pca(type="classic"), progress_bar=False) # or robust, sparse, classic, sparse_robust_ard
 m.models.pca.plot(
     X=m.df.iloc[:,0:-2].values,
     y=m.df.iloc[:,-2].values, 
@@ -51,6 +51,7 @@ m.models.pca.plot(
     shape_var=m.df.iloc[:,-2].values
 )
 ```
+
 ## Standard  
 ```python
 def model(x_train, data_dim, latent_dim, num_datapoints): 

@@ -1,5 +1,5 @@
 ---
-title: "Varying Slopes Models"
+title: "Varying Slopes Models 🚧"
 description: "Extending mixed-effects models by allowing the relationship (slope) to vary across different groups."
 categories: [Hierarchical Models, Regression]
 image: "Figures/14.png"
@@ -78,6 +78,7 @@ m.summary()
 
 ``` python
 from BI import bi
+
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
@@ -96,17 +97,15 @@ m.data_on_model = dict(
 
 # Define model ------------------------------------------------
 def model(cafe, wait, N_cafes, afternoon):
-    a = m.dist.normal(5, 2,  name = 'a')
-    b = m.dist.normal(-1, 0.5, name = 'b')
+
     sigma = m.dist.exponential( 1,  name = 'sigma')
 
     varying_intercept, varying_slope = m.effects.varying_effects(
         N_vars = 1,
         N_group = N_cafes,
         group_id = cafe,
-        alpha_bar= a,
-        beta_bar= b,
-        group_name = 'cafe')
+        group_name = 'cafe',
+        centered = False)
     
 
     mu = varying_intercept + varying_slope* afternoon
@@ -119,14 +118,20 @@ m.fit(model)
 ## R
 
 ``` r
-library(BI)
+library(BayesianInference)
+jnp = reticulate::import('jax.numpy')
 
 # Setup platform------------------------------------------------
-m=importbi(platform='cpu')
+m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/Sim data multivariatenormal.csv", sep = ''), sep=',')
+m$data(paste(system.file(package = "BayesianInference"),"/data/Sim data multivariatenormal.csv", sep = ''), sep=',')
 m$data_to_model(list('cafe', 'wait', 'afternoon'))
+
+# Import data ------------------------------------------------
+m$data(paste(system.file(package = "BayesianInference"),"/data/Sim data multivariatenormal.csv", sep = ''), sep=',')
+m$data_to_model(list('cafe', 'wait', 'afternoon'))
+m$data_on_model
 
 # Define model ------------------------------------------------
 model <- function(cafe, afternoon, wait, N_cafes = as.integer(20) ){
@@ -137,16 +142,17 @@ model <- function(cafe, afternoon, wait, N_cafes = as.integer(20) ){
   Rho = bi.dist.lkj(as.integer(2), as.integer(2), name = 'Rho')
   cov = jnp$outer(sigma_cafe, sigma_cafe) * Rho
   
-  a_cafe_b_cafe = bi.dist.multivariatenormal(
+  a_cafe_b_cafe = bi.dist.multivariate_normal(
     jnp$squeeze(jnp$stack(list(a, b))), 
-    cov, shape = c(N_cafes), name = 'a_cafe')  
+    cov, 
+    shape = c(N_cafes), name = 'a_cafe')  
   
   a_cafe = a_cafe_b_cafe[, 0]
   b_cafe = a_cafe_b_cafe[, 1]
   
   mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
   
-  m$normal(mu, sigma, obs=wait)
+  bi.dist.normal(mu, sigma, obs=wait)
 }
 
 # Run MCMC ------------------------------------------------
@@ -154,6 +160,7 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
+
 ```
 :::
 

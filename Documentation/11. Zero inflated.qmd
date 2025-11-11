@@ -53,10 +53,10 @@ m.summary()
 
 ### R
 ```R
-library(BI)
+library(BayesianInference)
 
 # setup platform------------------------------------------------
-m=importbi(platform='cpu')
+m=importBI(platform='cpu')
 
 # Simulate data ------------------------------------------------
 prob_drink = 0.2  # 20% of days
@@ -73,9 +73,9 @@ m$data_on_model = data
 model <- function(y){
   al = bi.dist.normal(1, 0.5, name='al', shape=c(1))
   ap = bi.dist.normal(-1, 1, name='ap', shape=c(1))
-  p = m$link$invert_logit(ap)
+  p = m$link$inv_logit(ap)
   lambda_ = jnp$exp(al)
-  m$zeroinflatedpoisson(p, lambda_, obs=y)
+  bi.dist.zero_inflated_poisson(p, lambda_, obs=y)
 }
 
 # Run MCMC ------------------------------------------------

@@ -45,7 +45,7 @@ def build_roxygen2_docstring(docstring):
         *   **`Returns:` section:** This becomes the `@return` tag, describing the object that the R    function will return.
         *   **`Example*` section:** This becomes the `@examples` tag. **You must rewrite the Python code    examples into valid R code**,with the following structure: 
             ```r
-            library(BI)
+            library(BayesianInference)
             m = importBI('cpu')
             bi.dist.distributionName(required_args_with_defaults, sample=True)
             ```
