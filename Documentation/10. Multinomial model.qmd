@@ -55,8 +55,41 @@ m.summary()
 ## R
 
 ```R
-library(BI)
-m=importbi(platform='cpu')
+library(BayesianInference)
+jax = reticulate::import('jax')
+# Setup platform------------------------------------------------
+m=importBI(platform='cpu')
+
+# import data ------------------------------------------------
+m$data(paste(system.file(package = "BayesianInference"),"/data/Sim data multinomial.csv", sep = ''), sep=',')
+keys <- c("income", "career")
+income = unique(m$df$income)
+income = income[order(income)]
+values <- list(jnp$array(as.integer(income)),jnp$array( as.integer(m$df$career)))
+m$data_on_model = py_dict(keys, values, convert = TRUE)
+
+# Define model ------------------------------------------------
+model <- function(income, career){
+  # Parameter prior distributions
+  alpha = bi.dist.normal(0, 1, name='alpha', shape = c(2))
+  beta = bi.dist.normal(0.5, name='beta')
+  
+  s_1 = alpha[0] + beta * income[0]
+  s_2 = alpha[1] + beta * income[1]
+  s_3 = 0 # reference category
+  
+  p = jax$nn$softmax(jnp$stack(list(s_1, s_2, s_3)))
+  
+  # Likelihood
+  m$dist$multinomial(probs=p[career], obs=career)
+}
+
+
+# Run sampler ------------------------------------------------ 
+m$fit(model)  
+
+# Summary ------------------------------------------------
+m$summary()
 ```
 :::
 

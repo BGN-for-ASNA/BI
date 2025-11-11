@@ -51,13 +51,13 @@ m.summary() # Get posterior distributions
 
 ### R
 ```R
-library(BI)
+library(BayesianInference)
 
 # Setup platform------------------------------------------------
-m=importbi(platform='cpu')
+m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data(paste(system.file(package = "BI"),"/data/Sim dat Gamma poisson.csv", sep = ''), sep=',')
+m$data(paste(system.file(package = "BayesianInference"),"/data/Sim dat Gamma poisson.csv", sep = ''), sep=',')
 m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
@@ -67,11 +67,10 @@ model <- function(log_days, monastery, y){
   beta = bi.dist.normal(0, 1, name='beta', shape=c(1))
   phi = bi.dist.exponential(1, name='phi', shape=c(1))
   mu = jnp$exp(log_days + alpha + beta * monastery)
-  Lambda =  m.dist.gamma(rate = mu*phi, concentration = phi, name = 'Lambda')
+  Lambda =  bi.dist.gamma(rate = mu*phi, concentration = phi, name = 'Lambda')
   # Likelihood
-  m$poisson(rate=Lambda, obs=y)
+  bi.dist.poisson(rate=Lambda, obs=y)
 }
-
 # Run MCMC ------------------------------------------------
 m$fit(model) # Optimize model parameters through MCMC sampling
 

@@ -17,10 +17,13 @@ class pca:
     Args:
         X (jnp.ndarray): Training data. X.shape = (num_datapoints, data_dim)
         latent_dim (int): Dimensionality of the latent space.
+        type (str): Type of PCA model to use. Options are 'ARD', 'robust', 'sparse', 'sparse_robust_ard', 'classic'.
     Returns:
         None    
     """
-    def __init__(self, X=None, latent_dim=None,type="ARD"):
+    def __init__(self, X=None, latent_dim=None,type="classic"):
+        if type != "classic":
+            print(f"{type} is in development. Use with caution.")
         self.posterior = None
         self.bayesian_pca_results = None
         self.__name__ = 'pca'
@@ -57,6 +60,7 @@ class pca:
         Makes the instance callable, allowing for re-initialization.
         This acts as a factory for creating a new pca model object.
         """
+
         # When an existing instance is called, return a fresh new instance.
         return pca(X=X, latent_dim=latent_dim, type=type)
     ## Models---------------------------------------------

@@ -23,7 +23,7 @@
 #'         When `create_obj=TRUE`: The raw NumPyro distribution object (for advanced use cases).
 #'
 #' @examples
-#' library(BI)
+#' library(BayesianInference)
 #' m = importBI('cpu')
 #' bi.dist.asymmetric_laplace(loc=0.0, scale=1.0, asymmetry=1.0, sample=TRUE)
 #'

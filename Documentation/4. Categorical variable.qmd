@@ -60,11 +60,11 @@ m.summary()
 
 ### R
 ```R
-library(BI)
-m=importbi(platform='cpu')
+library(BayesianInference)
+m=importBI(platform='cpu')
 
 # Load csv file
-m$data(paste(system.file(package = "BI"),"/data/milk.csv", sep = ''), sep=';')
+m$data(paste(system.file(package = "BayesianInference"),"/data/milk.csv", sep = ''), sep=';')
 m$scale(list('kcal.per.g')) # Manipulate
 m$index(list('clade')) # Scale
 m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to jax array)
@@ -73,9 +73,9 @@ m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to j
 model <- function(kcal_per_g, index_clade){
   # Parameter prior distributions
   beta = bi.dist.normal( 0, 0.5, name = 'beta', shape = c(4))  # shape based on the number of clades
-  sigma =bi.dist.exponential(1, name = 's')
+  sigma = bi.dist.exponential(1, name = 's')
   # Likelihood
-  m$normal(beta[index_clade], sigma, obs=kcal_per_g)
+  bi.dist.normal(beta[index_clade], sigma, obs=kcal_per_g)
 }
 
 # Run mcmc ------------------------------------------------

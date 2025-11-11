@@ -27,42 +27,45 @@ Below is an example of code that demonstrates a Bayesian Poisson regression with
 
 ::: {.panel-tabset group="language"}
 ### Python
-```python
-from BI import bi, jnp
-
-# Setup device------------------------------------------------
-m = bi(platform='cpu')
-
-# Import Data & Data Manipulation ------------------------------------------------
-# Import
-from importlib.resources import files
-data_path = files('BI.resources.data') / 'elephants.csv'
-m.data(data_path, sep=',') 
-m.log(['years_obs']) # Log transform the exposure variable
-m.data_to_model(['agressions', 'age', "log_years_obs"]) # Send to model
-
-# Define model ------------------------------------------------
-def model(agressions, age, log_years_obs):
-    a = m.bi.dist.normal(0, 1, name = 'a') 
-    b = m.bi.dist.normal(0, 0.5, name = 'b')
-    log_lambda = a + b * age + log_years_obs # Add offset to the linear model
-    m.dist.poisson(jnp.exp(log_lambda), obs=agressions)
-
-
-# Run mcmc ------------------------------------------------
-m.fit(model) # Optimize model parameters through MCMC sampling
-
-# Summary ------------------------------------------------
-m.summary()
+<!---
+```{python}
+#from BI import bi, jnp
+#
+## Setup device------------------------------------------------
+#m = bi(platform='cpu')
+#
+## Import Data & Data Manipulation ------------------------------------------------
+## Import
+#m.data('elephants.csv', sep=';') 
+#jnp.log(['years_obs']) # Log transform the exposure variable
+#m.data_to_model(['agressions', 'age', "log_years_obs"]) # Send to model
+#
+## Define model ------------------------------------------------
+#def model(agressions, age, log_years_obs):
+#    a = m.bi.dist.normal(0, 1, name = 'a') 
+#    b = m.bi.dist.normal(0, 0.5, name = 'b')
+#    log_lambda = a + b * age + log_years_obs # Add offset to the linear model
+#    m.dist.poisson(jnp.exp(log_lambda), obs=agressions)
+#
+#
+## Run mcmc ------------------------------------------------
+#m.fit(model) # Optimize model parameters through MCMC sampling
+#
+## Summary ------------------------------------------------
+#m.summary()
 ```
+--->
+
+![](travaux-routiers.png){fig-align="center"}
 
 ### R
+<!---
 ```R
-library(BI)
-m=importbi(platform='cpu')
+library(BayesianInference)
+m=importBI(platform='cpu')
 
 # Load csv file
-m$data(paste(system.file(package = "BI"),"/data/elephants.csv", sep = ''), sep=',')
+m$data(paste(system.file(package = "BayesianInference"),"/data/elephants.csv", sep = ''), sep=',')
 m$log(list('years_obs')) # Log transform the exposure variable
 m$data_to_model(list('agressions', 'age', 'log_years_obs')) # Send to model
 
@@ -82,6 +85,9 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 # Summary ------------------------------------------------
 m$summary() # Get posterior distributions
 ```
+--->
+![](travaux-routiers.png){fig-align="center"}
+
 :::
 
 ## Mathematical Details

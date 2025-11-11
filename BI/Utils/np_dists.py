@@ -13,7 +13,9 @@ class UnifiedDist:
     def __init__(self, rand_seed = True):
         self.seed = rand_seed
 
-
+    def track(self,name, x):
+        return numpyro.deterministic(name,x)
+        
     def normalize_seed(self,seed):
         if seed is None:
             seed = self.seed
@@ -87,7 +89,7 @@ class UnifiedDist:
         
         - When `sample=False`: A BI AsymmetricLaplace distribution object (for model building).
 
-        - When `sample=True`: A JAX array of samples drawn from the BetaBinomial distribution (for direct sampling).
+        - When `sample=True`: A JAX array of samples drawn from the AsymmetricLaplace distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI AsymmetricLaplace distribution object (for advanced use cases).
 
@@ -178,7 +180,7 @@ class UnifiedDist:
 
         - When `sample=False`: A BI AsymmetricLaplaceQuantile distribution object (for model building).
 
-        - When `sample=True`: A JAX array of samples drawn from the BetaBinomial distribution (for direct sampling).
+        - When `sample=True`: A JAX array of samples drawn from the AsymmetricLaplaceQuantile distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI AsymmetricLaplaceQuantile distribution object (for advanced use cases).
         
@@ -488,7 +490,7 @@ class UnifiedDist:
         experiment is drawn from a Beta distribution. This models situations where the underlying probability of success
         is not fixed but varies according to a prior belief represented by the Beta distribution. It is often used to model over-dispersion relative to the binomial distribution.
         
-        For (X \sim \mathrm{BetaBinomial}(N,\alpha,\beta)), for (k = 0,1,\dots,N):
+        For $X \sim \mathrm{BetaBinomial}(N,\alpha,\beta)$, for $k = 0,1,\dots,N$:
 
         $$
         \Pr(X = k) = \binom{N}{k} ; \frac{B(k + \alpha,; N - k + \beta)}{B(\alpha,\beta)},
@@ -615,7 +617,7 @@ class UnifiedDist:
 
         - When `sample=False`: A BI BetaProportion distribution object (for model building).
 
-        - When `sample=True`: A JAX array of samples drawn from the BetaBinomial distribution (for direct sampling).
+        - When `sample=True`: A JAX array of samples drawn from the BetaProportion distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI BetaProportion distribution object (for advanced use cases).
         
@@ -901,7 +903,7 @@ class UnifiedDist:
         r"""### Categorical Logits 
         Samples from a Categorical distribution with logits. This distribution represents a discrete probability distribution over a finite set of outcomes, where the probabilities are determined by the logits. The probability of each outcome is given by the softmax function applied to the logits.
         
-        Given logits $ \boldsymbol{\gamma} = (\gamma_1, \dots, \gamma_K) $, the probability of each category $ i $ is:
+        Given logits $ \gamma = (\gamma_1, \dots, \gamma_K) $, the probability of each category $ i $ is:
 
         $$
         p_i = \frac{e^{\gamma_i}}{\sum_{j=1}^{K} e^{\gamma_j}}
@@ -1226,27 +1228,27 @@ class UnifiedDist:
         normal density
         
         $$
-            p\left(\mathbf{x}\mid\boldsymbol{\mu},\mathbf{C}\right) =
+            p\left(\mathbf{x}\mid \mu,\mathbf{C}\right) =
             \frac{\left(\mathrm{det}\,\mathbf{C}\right)^{-1/2}}{\left(2\pi\right)^{n / 2}}
-            \exp\left(-\frac{1}{2}\left(\mathbf{x}-\boldsymbol{\mu}\right)^\intercal
-            \mathbf{C}^{-1}\left(\mathbf{x}-\boldsymbol{\mu}\right)\right),
+            \exp\left(-\frac{1}{2}\left(\mathbf{x}-\mu\right)^\intercal
+            \mathbf{C}^{-1}\left(\mathbf{x}-\mu\right)\right),
         $$
 
-        where $\mathrm{det}` denotes the determinant and $^\intercal` the
+        where $\mathrm{det}` denotes the determinant and $^\intercal$ the
         transpose. Circulant matrices can be diagnolized efficiently using the discrete
         Fourier transform [1], allowing the log likelihood to be evaluated in
         $n \log n` time for $n` observations [2].
         
-        - *loc:* Mean of the distribution $\boldsymbol{\mu}`.
+        - *loc:* Mean of the distribution $\mu$.
 
         - *covariance_row:* First row of the circulant covariance matrix
-            $\boldsymbol{C}`. Because of periodic boundary conditions, the covariance
+            $C$. Because of periodic boundary conditions, the covariance
             matrix is fully determined by its first row (see
-            :func:`jax.scipy.linalg.toeplitz` for further details).
+            `jax.scipy.linalg.toeplitz` for further details).
             
         - *covariance_rfft:* Real part of the real fast Fourier transform of
             :code:`covariance_row`, the first row of the circulant covariance matrix
-            $\boldsymbol{C}`.
+            $C$.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
@@ -1265,7 +1267,7 @@ class UnifiedDist:
         
         #### Args:
 
-        - *loc* : jnp.ndarray Mean of the distribution $\boldsymbol{\mu}$.
+        - *loc* : jnp.ndarray Mean of the distribution $\mu$.
 
         - *covariance_row* : jnp.ndarray, optional. First row of the circulant covariance matrix $\mathbf{C}$. Defaults to None.
 
@@ -1402,17 +1404,17 @@ class UnifiedDist:
         The Dirichlet distribution is a multivariate generalization of the Beta distribution.
         It is a probability distribution over a simplex, which is a set of vectors where each element is non-negative and sums to one. It is often used as a prior distribution for categorical distributions.
 
-        For (\boldsymbol X = (X_1, \dots, X_K) \sim \mathrm{Dir}(\boldsymbol\alpha)), the density is
+        For ( X = (X_1, \dots, X_K) \sim \mathrm{Dir}(\alpha)), the density is
         
         
         $$
-        f(\boldsymbol x; \boldsymbol\alpha) = \frac{1}{B(\boldsymbol\alpha)} \prod_{i=1}^K x_i^{\alpha_i - 1}
+        f( x; \alpha) = \frac{1}{B(\alpha)} \prod_{i=1}^K x_i^{\alpha_i - 1}
         $$
 
-        for (\boldsymbol x) in the simplex, and 0 otherwise. Here (B(\boldsymbol\alpha)) is the multivariate Beta function (the normalization constant):
+        for ( x) in the simplex, and 0 otherwise. Here (B(\alpha)) is the multivariate Beta function (the normalization constant):
         
         $$
-        B(\boldsymbol\alpha) = \frac{\prod_{i=1}^K \Gamma(\alpha_i)}{\Gamma\left(\sum_{i=1}^K \alpha_i\right)}.
+        B(\alpha) = \frac{\prod_{i=1}^K \Gamma(\alpha_i)}{\Gamma\left(\sum_{i=1}^K \alpha_i\right)}.
         $$
         
         #### Args:
@@ -1436,7 +1438,7 @@ class UnifiedDist:
 
         - When `sample=False`: A BI Dirichlet Distribution distribution object (for  model building).
 
-        - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
+        - When `sample=True`: A JAX array of samples drawn from the Dirichlet distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI Dirichlet Distribution object (for advanced use cases).
         
@@ -1480,7 +1482,7 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-    def dirichlet_multinomial(self,concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False):
+    def dirichlet_multinomial(self,concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
         r"""### Dirichlet-Multinomial
     
         Creates a Dirichlet-Multinomial compound distribution, which is a Multinomial
@@ -1490,7 +1492,7 @@ class UnifiedDist:
 
         The **Dirichlet-Multinomial** distribution describes a model in which you first draw a probability vector
         $$
-        \mathbf{p} = (p_1, \dots, p_K) \sim \mathrm{Dirichlet}(\boldsymbol\alpha)
+        \mathbf{p} = (p_1, \dots, p_K) \sim \mathrm{Dirichlet}(\alpha)
         $$
         and then you draw counts
         $$
@@ -1529,7 +1531,7 @@ class UnifiedDist:
 
         - When `sample=False`: A BI dirichlet_multinomial Distribution distribution object (for  model building).
 
-        - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
+        - When `sample=True`: A JAX array of samples drawn from the dirichlet_multinomial distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI dirichlet_multinomial Distribution object (for advanced use cases).
 
@@ -1630,9 +1632,9 @@ class UnifiedDist:
 
         - When `sample=False`: A BI DiscreteUniform Distribution distribution object (for  model building).
 
-        - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
+        - When `sample=True`: A JAX array of samples drawn from the DiscreteUniform distribution (for direct sampling).
 
-        - When `create_obj=True`: The raw BI dirichlet_multinomial Distribution object (for advanced use cases).
+        - When `create_obj=True`: The raw BI DiscreteUniform Distribution object (for advanced use cases).
         
         #### Example Usage:
             from BI import bi
@@ -1731,7 +1733,7 @@ class UnifiedDist:
 
         - When `sample=False`: A BI doubly_truncated_power_law Distribution distribution object (for  model building).
 
-        - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
+        - When `sample=True`: A JAX array of samples drawn from the doubly_truncated_power_law distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI doubly_truncated_power_law Distribution object (for advanced use cases).
 
@@ -2315,7 +2317,7 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-    def gaussian_random_walk(self,scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False):
+    def gaussian_random_walk(self,scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
         r"""### Gaussian Random Walk 
     
         Creates a distribution over a Gaussian random walk of a specified number of steps.
@@ -2417,13 +2419,13 @@ class UnifiedDist:
         #### Args:
         - *num_steps* (int): Number of steps.
 
-        - *transition_matrix* (jnp.ndarray): State space transition matrix $\mathbf{A}`.
+        - *transition_matrix* (jnp.ndarray): State space transition matrix $\mathbf{A}$.
 
-        - *covariance_matrix* (jnp.ndarray, optional): Covariance of the innovation noise $\boldsymbol{\epsilon}`. Defaults to None.
+        - *covariance_matrix* (jnp.ndarray, optional): Covariance of the innovation noise ${\epsilon}$. Defaults to None.
 
-        - *precision_matrix (jnp.ndarray, optional): Precision matrix of the innovation noise  $\boldsymbol\epsilon}`. Defaults to None.
+        - *precision_matrix (jnp.ndarray, optional): Precision matrix of the innovation noise  $\epsilon$. Defaults to None.
 
-        - *scale_tril (jnp.ndarray, optional): Scale matrix of the innovation noise $\boldsymbol{\epsilon}`. Defaults to None.
+        - *scale_tril (jnp.ndarray, optional): Scale matrix of the innovation noise $\epsilon$. Defaults to None.
 
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
@@ -2996,7 +2998,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def inverse_gamma(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -3149,7 +3150,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def lkj(self,dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -3230,7 +3230,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def lkj_cholesky(self,dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -3305,7 +3304,6 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
 
     def laplace(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
@@ -3472,7 +3470,6 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
 
     def levy(self,loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
@@ -3845,7 +3842,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def low_rank_multivariate_normal(self,loc, cov_factor, cov_diag, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -3928,7 +3924,6 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
 
     def lower_truncated_power_law(self,alpha, low, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
@@ -4017,7 +4012,6 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
 
     def matrix_normal(self,loc, scale_tril_row, scale_tril_column, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
@@ -4131,7 +4125,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def mixture_general(self,mixing_distribution, component_distributions, support=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -4209,7 +4202,6 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
 
     def mixture_same_family(self,mixing_distribution, component_distribution, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
@@ -4295,7 +4287,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-    
     def multinomial_logits(self,logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -4386,7 +4377,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def multinomial_probs(self,probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -4456,7 +4446,6 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
 
     def multivariate_normal(self,loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
@@ -4557,7 +4546,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def multivariate_student_t(self,df, loc=0.0, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -4657,7 +4645,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def negative_binomial2(self,mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -4753,7 +4740,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def negative_binomial_logits(self,total_count, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -4827,7 +4813,6 @@ class UnifiedDist:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
 
-
     def negative_binomial_probs(self,total_count, probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
@@ -4896,7 +4881,6 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
 
     def normal(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
         
@@ -5075,7 +5059,6 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
 
     def pareto(self,scale, alpha, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
@@ -5261,7 +5244,7 @@ class UnifiedDist:
 
         r"""### Projected Normal 
         
-        The projected normal distribution arises by taking a multivariate normal vector $ \mathbf X \sim \mathcal N_n (\boldsymbol\mu, \boldsymbol\Sigma) $ in $\mathbb R^n$ and projecting it to the unit sphere. This distribution is commonly used in directional statistics (data on circles or spheres) and supports asymmetric and even multimodal behaviours depending on parameters.
+        The projected normal distribution arises by taking a multivariate normal vector $ \mathbf X \sim \mathcal N_n (\mu, \Sigma) $ in $\mathbb R^n$ and projecting it to the unit sphere. This distribution is commonly used in directional statistics (data on circles or spheres) and supports asymmetric and even multimodal behaviours depending on parameters.
 
         
         #### Args:
@@ -7158,14 +7141,23 @@ class UnifiedDist:
 
         r"""### Relaxed Bernoulli 
         
-        The Relaxed Bernoulli distribution is a continuous relaxation of the discrete Bernoulli distribution.
-        It's useful for variational inference and other applications where a differentiable approximation of the Bernoulli is needed.
+        The Relaxed Bernoulli is a continuous distribution on the interval $(0,1)$ that smoothly approximates the discrete Bernoulli distribution (which has support ${0,1}$). It was introduced to allow for *differentiable* sampling of approximate binary random variables, which is useful in variational inference and other gradient‐based optimization settings. 
+
         The probability density function (PDF) is defined as:
         
+        * It has a *temperature* parameter $\tau > 0$ controlling the smoothness: as $\tau \to 0$, the distribution concentrates near ${0, 1}$ (thus approximating the discrete Bernoulli).
+        * For larger $\tau$, the sample becomes more “soft” and less binary, e.g., converging toward 0.5 for very high $\tau$.
+        * It is parameterised by a probability $p$ (or equivalently logits $\ell = \log\frac{p}{1-p}$).
+
+        Let $X \in (0,1)$ follow a Relaxed Bernoulli (Binary Concrete) distribution with location parameter $\alpha > 0$ (sometimes expressed via logits) and temperature parameter $\lambda > 0$. Then the PDF is:
+
         $$
-           p(x) = \frac{1}{2} \left( 1 + \tanh\left(\frac{x - \beta \log(\frac{p}{1-p})}{1}\right) \right)
+        p_{,\alpha,;\lambda}(x) =
+        \frac{;\lambda,\alpha,x^{-\lambda - 1},(1 - x)^{-\lambda - 1};}
+        {\Bigl(\alpha,x^{-\lambda} + (1 - x)^{-\lambda}\Bigr)^{2}},
+        \quad \text{for } 0 < x < 1.
         $$
-        
+
         #### Args:
         - *temperature* (jnp.ndarray): The temperature parameter. Must be greater than 0.
 
@@ -7200,6 +7192,10 @@ class UnifiedDist:
             m.dist.relaxed_bernoulli(temperature=1.0, probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#relaxedbernoulli
+
+        #### References
+        [1]: https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/RelaxedBernoulli "tfp.distributions.RelaxedBernoulli | TensorFlow Probability"
+        [2]: https://rstudio.github.io/tfprobability/reference/tfd_relaxed_bernoulli.html "RelaxedBernoulli distribution with temperature and logits ..."   
         """
 
            
@@ -7233,13 +7229,15 @@ class UnifiedDist:
 
         r"""### Truncated Cauchy
         
-        The Cauchy distribution, also known as the Lorentz distribution, is a continuous probability distribution
-        that appears frequently in various areas of mathematics and physics. It is characterized by its heavy tails,
-        which extend to infinity. The truncated version limits the support of the Cauchy distribution to a specified interval.
+        The Cauchy distribution, also known as the Lorentz distribution, is a continuous probability distribution that appears frequently in various areas of mathematics and physics. It is characterized by its heavy tails, which extend to infinity. The truncated version limits the support of the Cauchy distribution to a specified interval.
         
+        Let the base Cauchy have parameters $\mu$ (location) and $\gamma > 0$ (scale). Let the truncation bounds be $a$ (`low`) and $b$ (`high`) (with $a < b$). Then the PDF of the truncated Cauchy at $x \in [a,b]$ is:
         $$
-           f(x) = \frac{1}{\pi \cdot c \cdot (1 + ((x - b) / c)^2)}  \text{ for } a < x < b
+        f_{T}(x) = \frac{1}{\pi,\gamma};\frac{1}{1 + \bigl(\tfrac{x - \mu}{\gamma}\bigr)^2} ;\Bigg/ ; \left[F_{\mathrm{Cauchy}}!\left(\tfrac{b - \mu}{\gamma}\right) - F_{\mathrm{Cauchy}}!\left(\tfrac{a - \mu}{\gamma}\right)\right],
         $$
+        and (f_{T}(x)=0) for (x < a) or (x > b). 
+
+        Here $F_{\mathrm{Cauchy}}$ is the standard Cauchy CDF $with parameters $\mu,\gamma)$.
         
         #### Args:
         - *loc* (float): Location parameter of the Cauchy distribution.
@@ -7275,6 +7273,11 @@ class UnifiedDist:
             m.dist.truncated_cauchy(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncatedcauchy
+
+        #### References:
+        [1]: https://en.wikipedia.org/wiki/Cauchy_distribution "Cauchy distribution"
+        [2]: https://www.tandfonline.com/doi/full/10.1080/00207390600595223 "Full article: A truncated Cauchy distribution"
+        [3]: https://rstudio.github.io/tfprobability/reference/tfd_truncated_cauchy.html "The Truncated Cauchy distribution. — tfd_truncated_cauchy"
         """
 
            
@@ -7310,14 +7313,22 @@ class UnifiedDist:
         
         Samples from a Truncated Distribution.
         
-        This distribution represents a base distribution truncated between specified lower and upper bounds.
-        The truncation modifies the probability density function (PDF) of the base distribution,
-        effectively removing observations outside the defined interval.
-        
-        $$   
-        p(x) = \frac{p(x)}{P(\text{lower} \le x \le \text{upper})}
+        A **truncated distribution** arises when you take a random variable $X$ that originally has some distribution (with PDF $f_X(x)$ and CDF $F_X(x)$) and you restrict attention only to those values of $X$ that are *above* a given truncation point $a$. In other words you only observe $X$ when $X > a$. All the “mass” below (or equal to) $a$ is **excluded** (not just unobserved, but removed from the sample/analysis).
+        This differs from *censoring*, where values below a threshold might be known (for example “< a”), but here they are entirely excluded from the domain. 
+        Left truncation is common in many applied fields — for instance:
+
+        * In survival analysis: subjects whose event time happens before the study start are not included.
+        * In insurance or losses: only losses above a deductible (threshold) are recorded, so the loss distribution is left-truncated at that deductible. 
+        * In industrial/life-data: items used before data collection start, so only those with lifetime > some lower bound are observed. 
+
+        Let (X) be a random variable with PDF. Choose truncation points $a < X \le b$. Then  the truncated distribution (Y = X \mid (a < X \le b)) has:      
         $$
-        
+        f_Y(y) = \frac{f_X(y)}{F_X(b) - F_X(a)}, \quad \text{for } a < y \le b,
+        $$
+        and (0) outside that interval. 
+        * The lower bound (a) can be (-\infty) (so only an upper truncation), and the upper bound (b) can be (+\infty) (so only a lower truncation). ([Statistics How To][2])
+        * If both bounds are finite (i.e., doubly truncated), that is a valid and often‐used scenario. 
+
         #### Args:
         - *base_dist*: The base distribution to be truncated. This should be a univariate distribution. Currently, only the following distributions are supported: Cauchy, Laplace, Logistic, Normal, and StudentT.
         
@@ -7348,6 +7359,12 @@ class UnifiedDist:
             m.dist.truncated_distribution(base_dist = m.dist.normal(0,1, create_obj = True), high=1, low = 0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncateddistribution
+
+        #### References: 
+        [1]: https://en.wikipedia.org/wiki/Truncated_distribution "Truncated distribution"
+        [2]: https://pages.stern.nyu.edu/~wgreene/Text/Edition8/PDF/M19_GREE1366_08_SE_C19.pdf "19"
+        [3]: https://search.r-project.org/CRAN/refmans/LaplacesDemon/html/dist.Truncated.html "R: Truncated Distributions"
+        [4]: https://dspace.cuni.cz/bitstream/handle/20.500.11956/127921/130308341.pdf?isAllowed=y&sequence=1&utm_source.com "Truncated data thesis"
         """
 
            
@@ -7381,26 +7398,22 @@ class UnifiedDist:
 
         r"""### Truncated Normal 
         
-        The Truncated Normal distribution is a normal distribution truncated
-        to a specified interval. It is defined by its location (`loc`), scale
-        (`scale`), lower bound (`low`), and upper bound (`high`).
-        
+        A truncated normal distribution is derived from a normal (Gaussian) random variable by restricting (truncating) its domain to an interval $[a, b]$ (which could be one‐sided, e.g., (a) only or (b) only). It is defined by its location (`loc`), scale
+        (`scale`), lower bound  $a$ (`low`), and upper bound $b$ (`high`). In effect: if $X \sim \mathcal N(\mu, \sigma^2)$, then the truncated version $Y = X | (a \le X \le b)$ has the same “shape” but only supports values in $[a,b]$. This is used when you know that values outside a range are impossible or not observed (e.g., measurement limits, natural bounds). 
+
+        Let $X \sim \mathcal N(\mu, \sigma^2)$. Define truncation bounds $a < b$ (could be $a = -\infty$ or $b = +\infty$ for one‐sided truncation). Then for $y \in [a,b]$,
+
         $$
-        f(x) = \frac{p(x)}{\alpha}, \quad x \in [\text{low}, \text{high}]
+        f_Y(y) = \frac{1}{\sigma} ; \frac{\varphi!\bigl(\frac{y - \mu}{\sigma}\bigr)}{\Phi!\bigl(\frac{b - \mu}{\sigma}\bigr) - \Phi!\bigl(\frac{a - \mu}{\sigma}\bigr)} ,
         $$
-        
-        where
-        
-        $$
-        p(x) = \frac{1}{\text{scale}\,\sqrt{2\pi}}
-               \exp\!\left(-\tfrac{1}{2}\left(\tfrac{x - \text{loc}}{\text{scale}}\right)^2\right),
-        $$
-        
-        and
-        
-        $$
-        \alpha = \int_{\text{low}}^{\text{high}} p(x)\,dx.
-        $$
+
+        where:
+
+        * $\varphi(z)$ is the standard normal PDF, $\varphi(z) = \frac1{\sqrt{2\pi}} e^{-z^2/2}$. 
+        * $\Phi(z)$ is the standard normal CDF.
+        * The denominator $ \Phi\bigl(\tfrac{b - \mu}{\sigma}\bigr) - \Phi\bigl(\tfrac{a - \mu}{\sigma}\bigr) $ normalises the density so the total probability over ([a,b]) is 1.
+
+        For values (y < a) or (y > b), (f_Y(y) = 0).
         
         #### Args:
         - *loc* (float): The location parameter of the normal distribution.
@@ -7435,6 +7448,13 @@ class UnifiedDist:
             m.dist.truncated_normal(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncatednormal_lowercase
+
+        #### References:
+        [1]: https://en.wikipedia.org/wiki/Truncated_normal_distribution "Truncated normal distribution"
+        [2]: https://people.math.sc.edu/burkardt/m_src/truncated_normal/truncated_normal.html "TRUNCATED_NORMAL - The Truncated Normal Distribution"
+        [3]: https://www.statisticshowto.com/truncated-normal-distribution/ "Truncated Distribution / Truncated Normal Distribution - Statistics ..."
+        [4]: https://real-statistics.com/normal-distribution/truncated-normal-distribution/ "Truncated Normal Distribution | Real Statistics Using Excel"
+        [5]: https://stats.stackexchange.com/questions/525894/understanding-the-pdf-of-a-truncated-normal-distribution "Understanding the pdf of a truncated normal distribution"
         """
 
            
@@ -7468,21 +7488,20 @@ class UnifiedDist:
 
         r"""### Generic Zero Inflated
         
-        A Zero-Inflated distribution combines a base distribution with a Bernoulli distribution
-        to model data with an excess of zero values. It assumes that each observation
-        is either drawn from the base distribution or is a zero with probability determined
-        by the Bernoulli distribution (the "gate"). This is useful for modeling data
-        where zeros are more frequent than expected under a single distribution,
-        often due to a different underlying process.
-        
-        $$
-           P(x) = \pi \cdot I(x=0) + (1 - \pi) \cdot P_{base}(x)
-        $$where:
-        - $P_{base}(x)$ is the probability density function (PDF) or probability mass function (PMF) of the base distribution.
-        - $\pi$ is the probability of generating a zero, governed by the Bernoulli gate.
-        - $I(x=0)$ is an indicator function that equals 1 if x=0 and 0 otherwise.
+         A Zero-Inflated distribution combines a base distribution with a Bernoulli distribution to model data with an excess of zero values. It assumes that each observation is either drawn from the base distribution or is a zero with probability determined by the Bernoulli distribution (the "gate"). A **zero-inflated distribution** arises when you take a random variable $X$ that originally has some distribution (with PMF $f_X(x)$ ) *and* you add extra mass at zero. In other words you only observe $X$ when $X \ge 0$ (if count) and you assume there are more zeros than what the original distribution predicts — so you mix in a point-mass at zero. A zero-inflated model assumes two processes: a “structural zero” process with probability $\pi$, and another process (the base count/distribution) with probability $1 - \pi$, which itself may generate zeros *or* non-zeros. 
 
-        
+        - When / Why use it: 
+            * **Data collection constraints**: You can only observe values in a process when some condition is met; others are automatically zero (for example, when the event cannot happen for some units).
+            * **Mixtures of processes**: Some observations are “structural zeros” (no risk) and others follow a regular count process (with risk).
+            * **Overdispersion & excess zeros**: If you try a standard count distribution (Poisson, Negative Binomial) and you observe many more zeros than predicted (given the non-zero counts), a zero-inflated alternative may fit better. 
+
+        * The general PMF form is (for discrete count models):
+        $$
+        P(X=0) = \pi + (1 - \pi),P_{\text{base}}(0),
+        \quad
+        P(X=k) = (1 - \pi),P_{\text{base}}(k), ; k > 0.
+        $$     
+
         #### Args:
         - *base_dist* (Distribution): The base distribution to be zero-inflated (e.g., Poisson,     NegativeBinomial).
 
@@ -7519,6 +7538,10 @@ class UnifiedDist:
             m.dist.zero_inflated_distribution(base_dist=m.dist.poisson(rate=5, create_obj = True), gate = 0.3, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflateddistribution
+
+        #### References:
+        [1]: https://en.wikipedia.org/wiki/Zero-inflated_model "Zero-inflated model"
+        [2]: https://larmarange.github.io/guide-R/analyses_avancees/modeles-zero-inflated.html "48 Modèles de comptage zero-inflated et hurdle – guide-R"
         """
 
            
@@ -7551,15 +7574,30 @@ class UnifiedDist:
         
 
         r"""### Zero-Inflated Negative Binomial
+        A Zero-Inflated Negative Binomial distribution is used for count data that exhibit **both** (a) over-dispersion relative to a Poisson (i.e., variance > mean) *and* (b) an excess of zero counts beyond what a standard Negative Binomial would predict. 
+        It assumes two latent processes:
+
+        1. With probability $ \pi $ (sometimes denoted $\psi$ or “zero-inflation probability”) you are in a “structural zero” state → you observe a zero.
+        2. With probability $1 - \pi$, you come from a regular Negative Binomial distribution (with parameters e.g. mean $ \mu $ and dispersion parameter $ \alpha $ or size/r parameter) and then you might observe zero or a positive count. 
+
+        Thus the model is a mixture of a point‐mass at zero + a Negative Binomial for counts.
         
-        This distribution combines a Negative Binomial distribution with a binary gate variable.
-        Observations are either drawn from the Negative Binomial  distribution with probability
-        (1 - gate) or are treated as zero with probability 'gate'. This models data with excess zeros
-        compared to what a standard Negative Binomial distribution would predict.
+        This distribution combines a Negative Binomial distribution with a binary gate variable. Observations are either drawn from the Negative Binomial distribution with probability (1 - gate) or are treated as zero with probability 'gate'. This models data with excess zeros compared to what a standard Negative Binomial distribution would predict.
         
+        Let $X$ denote the count random variable, support $ {0,1,2,\dots} $. Denote:
+
+        * $\pi$ = probability of being in the “always zero” (structural zero) process, with $ 0 \le \pi \le 1$.
+        * The count process is NB with parameters: mean $\mu>0$ and dispersion/shape parameter $\alpha>0$ (or equivalently size parameter (r)).
+        Then:
+
         $$
-           P(X = x) = (1 - gate) \cdot \frac{\Gamma(x + \alpha)}{\Gamma(x + \alpha + \beta) \Gamma(\alpha)} \left(\frac{\beta}{\alpha + \beta}\right)^x + gate \cdot \delta_{x, 0}
+        P(X = 0) = \pi ;+; (1 - \pi); P_{\text{NB}}(0;\mu,\alpha),
         $$
+        $$
+        P(X = k) = (1 - \pi); P_{\text{NB}}(k;\mu,\alpha), \quad k = 1,2,3,\dots
+        $$
+
+        Here $P_{\text{NB}}(k;\mu,\alpha)$ is the PMF of the negative binomial distribution for count $k$. 
         
         #### Args:
         - *mean* (jnp.ndarray or float): The mean of the Negative Binomial 2 distribution.
@@ -7593,6 +7631,11 @@ class UnifiedDist:
             m.dist.zero_inflated_negative_binomial2(mean=2.0, concentration=3.0, gate = 0.3, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatednegativebinomial2
+
+        #### References:
+        [1]: https://www.ewadirect.com/proceedings/tns/article/view/27624 "Social Networks Count Data: Negative Binomial Distributions and Extensions Versus Poisson and Bernoulli Models"
+        [2]: https://pmc.ncbi.nlm.nih.gov/articles/PMC7880198/ "Bayesian Zero-Inflated Negative Binomial Regression Based on Pólya-Gamma Mixtures - PMC"
+        [3]: https://search.r-project.org/CRAN/refmans/emdbook/html/dzinbinom.html "R: Zero-inflated negative binomial distribution"
         """
 
            
@@ -7626,9 +7669,14 @@ class UnifiedDist:
 
         r"""### Negative Binomial 
         
-        The NegativeBinomial distribution models the number of failures before the first success in a sequence of independent Bernoulli trials. It is characterized by two parameters: 'total_count' (r) and 'probs' or 'logits' (p).
+        The Negative Binomial distribution models the number of failures (or the total number of trials) in a sequence of independent Bernoulli trials with success probability (p), until a specified number `total_count` (r) of successes is achieved. 
+        It is often used as a count-data model when the variance exceeds the mean (“overdispersion”) relative to a Poisson.
         
-        $$P(k) = \binom{k+r-1}{r-1} p^r (1-p)^k
+        PMF (Probability Mass Function): 
+        Given (X) = number of failures before the (r)th success (so (X = 0,1,2,\dots)), with (r) successes fixed, success probability (p), failure probability (q = 1 - p):
+
+        $$
+        \Pr(X = k) ;=; \binom{k + r - 1}{k} ; p^r ; q^k, \quad k = 0,1,2,\dots
         $$
 
                 
@@ -7662,6 +7710,10 @@ class UnifiedDist:
             m.dist.negative_binomial(total_count=5.0,probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomial
+
+        #### References:
+        * https://en.wikipedia.org/wiki/Negative_binomial_distribution
+        * https://www.statology.org/negative-binomial-distribution/
         """
 
            
@@ -7689,4 +7741,5 @@ class UnifiedDist:
             else:
                 infer_dict = {'obs_mask': mask} if    mask is not None else None
                 return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+
 

@@ -12,7 +12,7 @@ m.data('iris.csv', sep=',') # Data is already scaled
 m.data_on_model = dict(
     X=jnp.array(m.df.iloc[:,0:-2].values)
 )
-m.fit(m.models.pca(type="ARD"), progress_bar=False) # or robust, sparse, classic, sparse_robust_ard
+m.fit(m.models.pca(type="classic"), progress_bar=False) # or robust, sparse, classic, sparse_robust_ard
 
 m.models.pca.plot(
     X=m.df.iloc[:,0:-2].values,
@@ -31,28 +31,36 @@ from BI import bi, jnp
 
 m = bi()
 m.data('mastectomy.csv', sep=',').head()
-
 m.df.metastasized = (m.df.metastasized.values == "yes").astype(jnp.int64)
+
+# Import time-steps and events
 m.models.survival.import_time_even(
     m.df.time.values, 
     m.df.event.values, interval_length=3
-) # Import time-steps and events
+)
+
+# To import time-fixed covariates
 m.models.survival.import_covF(
     m.df.metastasized.values, ['metastasized']
-) # Import time-fixed covariates
-# m.models.survival.import_covV # To import time-varying covariates
+) 
+
+# To import time-varying covariates ⚠️ Experimental feature
+# m.models.survival.import_covV 
 
 m.fit(m.models.survival.model, num_samples=500) 
+
 m.summary()
 
 m.models.survival.plot_surv( beta = 'Hazard_rate_metastasized')
 ```
+
 
 # Gaussian Mixture Models
 
 ```{python}
 from BI import bi
 from sklearn.datasets import make_blobs
+m = bi()
 
 # Generate synthetic data
 data, true_labels = make_blobs(
@@ -60,10 +68,9 @@ data, true_labels = make_blobs(
     center_box=(-10,10), random_state=101
 )
 
-
 m.data_on_model = {"data": data,"K": 8 }
 m.fit(m.models.gmm) # Optimize model parameters through MCMC sampling
-m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
+m.plot(X=data,sampler=m.sampler)  # ⚠️ Experimental feature
 ```
 
 
@@ -75,16 +82,16 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```{python}
 from BI import bi
 from sklearn.datasets import make_blobs
+m = bi()
 
 # Generate synthetic data
 data, true_labels = make_blobs(
     n_samples=500, centers=8, cluster_std=0.8,
     center_box=(-10,10), random_state=101
 )
-
-m.data_on_model = {"data": data, "T": 10 } # T = Number of maximum cluster to test for
-m.fit(m.models.dpmm) 
-m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
+m.data_on_model = dict(data=data,T=10)
+m.fit(m.models.dpmm)
+m.plot(data,m.sampler) # ⚠️ Experimental feature
 ```
 
 
@@ -95,111 +102,64 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ::: {.panel-tabset group="language"}
 ## Python
 ```Python
-from BI import bi
-
 # Setup device------------------------------------------------
-from BI import bi
+from BI import bi, jnp
+
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
+# Simulate data ------------------------------------------------
+N = 50
+individual_predictor = m.dist.normal(0,1, shape = (N,1), sample = True)
+
+kinship = m.dist.bernoulli(0.3, shape = (N,N), sample = True)
+kinship = kinship.at[jnp.diag_indices(N)].set(0)
+
+def sim_network(kinship, individual_predictor):
+  # Intercept
+  alpha = m.dist.normal(0,1, sample = True)
+
+  # SR
+  sr = m.net.sender_receiver(individual_predictor, individual_predictor, s_mu = 0.4, r_mu = -0.4, sample = True)
+
+  # D
+  DR = m.net.dyadic_effect(kinship, d_sd=2.5, sample = True)
+
+  return m.dist.bernoulli(logits = alpha + sr + DR, sample = True)
+
+
+network = sim_network(m.net.mat_to_edgl(kinship), individual_predictor)
+
+# Predictive model ------------------------------------------------
 
 m.data_on_model = dict(
-    idx = idx,
-    Any = Any-1, 
-    Merica = Merica-1, 
-    Quantum = Quantum-1,
-    result_outcomes = m.net.mat_to_edgl(data['outcomes']), 
-    kinship = m.net.mat_to_edgl(kinship),
-    focal_individual_predictors = data['individual_predictors'],
-    target_individual_predictors = data['individual_predictors'],
-    exposure_mat = data['exposure']
+    network = network, 
+    dyadic_predictors = m.net.mat_to_edgl(kinship),
+    focal_individual_predictors = individual_predictor,
+    target_individual_predictors = individual_predictor
 )
 
 
-def model(idx, result_outcomes, 
-    exposure,
-    kinship, 
-    focal_individual_predictors, target_individual_predictors, 
-    Any, Merica, Quantum):
-      # Block ---------------------------------------
-      B_any = m.net.block_model(Any,1)
-      B_Merica = m.net.block_model(Merica,3)
-      B_Quantum = m.net.block_model(Quantum,2)
+def model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors):
+    N_id = network.shape[0]
 
-      ## SR shape =  N individuals---------------------------------------
-      sr =  m.net.sender_receiver(focal_individual_predictors,target_individual_predictors)
+    # Block ---------------------------------------
+    alpha = m.dist.normal(0,1, sample = True)
 
-      # Dyadic shape = N dyads--------------------------------------  
-      dr = m.net.dyadic_effect(dyadic_predictors)
+    ## SR shape =  N individuals---------------------------------------
+    sr =  m.net.sender_receiver(
+      focal_individual_predictors,
+      target_individual_predictors,
+      s_mu = 0.4, r_mu = -0.4
+    )
 
-      m.dist.poisson(jnp.exp(B_any + B_Merica + B_Quantum + sender_receiver + dr), obs = result_outcomes, name= 'latent network' )
+    # Dyadic shape = N dyads--------------------------------------  
+    dr = m.net.dyadic_effect(dyadic_predictors, d_sd=2.5) # Diadic effect intercept only 
 
+    m.dist.bernoulli(logits = alpha + sr + dr, obs=network)
 
-
-m.fit(model) 
-summary = m.summary()
-summary.loc[['focal_effects[0]', 'target_effects[0]', 'dyad_effects[0]']]
-
-m.fit(model2) 
-summary = m.summary()
-summary
-```
-## R
-```r
-library(BI)
-# Setup platform------------------------------------------------
-m=importbi(platform='cpu')
-
-# Import data ------------------------------------------------
-
-load(paste(system.file(package = "BI"),'/data/STRAND sim sr only.Rdata', sep = ''))
-
-ids = 0:(model_dat$N_id-1)
-idx = m$net$vec_node_to_edgle(jnp$stack(jnp$array(list(ids, ids)), axis = -as.integer(1)))
-
-keys <- c("idx",
-          'idxShape',
-          "result_outcomes",
-          'focal_individual_predictors',
-          'target_individual_predictors')
-
-values <- list(
-  idx,
-  idx$shape[[1]],
-  m$net$mat_to_edgl(model_dat$outcomes[,,1]),
-  jnp$array(model_dat$individual_predictors)$reshape(as.integer(1),as.integer(50)),
-  jnp$array(model_dat$individual_predictors)$reshape(as.integer(1),as.integer(50))
-)
-data = py_dict(keys, values, convert = TRUE)
-m$data_on_model=data
-
-# Define model ------------------------------------------------
-model <- function(idx, idxShape, result_outcomes,focal_individual_predictors, target_individual_predictors){
-  N_id = 50
-  x=0.1/jnp$sqrt(N_id)
-  tmp=jnp$log(x / (1 - x))
-  
-  ## Block ---------------------------------------
-  B = bi.dist.normal(tmp, 2.5, shape=c(1), name = 'block')
-  
-  #SR ---------------------------------------
-  sr =  m$net$sender_receiver(focal_individual_predictors,target_individual_predictors)
-  
-  ### Dyadic--------------------------------------  
-  #dr, dr_raw, dr_sigma, dr_L = m.net.dyadic_random_effects(idx.shape[0], cholesky_density = 2)# shape = n dyads
-  dr = m$net$dyadic_effect(shape = c(idxShape))
-
-  ## SR ---------------------------------------                                                      
-  m$poisson(jnp$exp(B + sr + dr), obs=result_outcomes)  
-}
-
-# Run MCMC ------------------------------------------------
-m$fit(model) # Optimize model parameters through MCMC sampling
-
-# Summary ------------------------------------------------
-summary =m$summary()
-
-summary[rownames(summary) %in% c('focal_effects[0]', 'target_effects[0]', 'block[0]'),]
+m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1)
 
 ```
+
 :::
 

@@ -53,7 +53,7 @@ class bi(manip):
         self.data_on_model = None
         self.priors_name = None
         self.tab_summary = None
-        self.model_name = None
+        
         self.nbdaModel = False
         self.obs_args = None
         self.model2 = None 
@@ -72,6 +72,8 @@ class bi(manip):
 
         self.models = models(self)
 
+        self.model_name = None
+        self.run_model_name = None
 
         self.net = net()
         self.ml= ml()   
@@ -168,7 +170,7 @@ class bi(manip):
             if isinstance(model, functools.partial):
                 self.model_name = model.func.__name__
             else:
-                if self.model_name is not None:
+                if self.model_name is None:
                     self.model_name = model.__name__
 
         if self.nbdaModel == False:
@@ -237,6 +239,7 @@ class bi(manip):
             self.get_history()
 
         elif self.backend == 'tfp':
+            print("⚠️This function is still in development. Use it with caution. ⚠️")
             from BI.Utils.tfp_dists import UnifiedDist as tfp_dists
             from BI.Samplers.mcmc_tfp import mcmc as mcmc_tfp
             from BI.Samplers.Model_handler import model_handler 
@@ -254,10 +257,13 @@ class bi(manip):
                 trace[name] = samp
             self.posteriors = trace
             self.get_history()
+
         if self.model_name == 'pca':
             self.models.pca.posterior = self.posteriors
             self.models.pca.get_attributes(self.models.pca.X.T)
 
+        self.run_model_name = self.model_name
+        self.model_name = None
     # Random number generator ----------------------------------------------------------------
     def randint(self, low, high, shape):
         """
@@ -272,6 +278,8 @@ class bi(manip):
             Array of random integers.
         """        
         return pyrand.randint(low, high, shape)
+
+
 
     # Get posteriors ----------------------------------------------------------------------------
     def summary(self, round_to=2, kind="all", hdi_prob=0.89, *args, **kwargs): 
@@ -449,7 +457,7 @@ class bi(manip):
         """        
         self.history = {
             'model': self.model,
-            'model_name': self.model_name,  
+            'model_name': self.run_model_name,  
             'data': self.data_on_model,
             'sampler': self.sampler,
             'posteriors': self.posteriors,
@@ -465,12 +473,12 @@ class bi(manip):
             figsize: Figure size. Defaults to (10, 6).
             **kwargs: Additional keyword arguments.
         """        
-        if self.model_name == 'gmm':
+        if self.run_model_name == 'gmm':
             plot_gmm(X, sampler= self.sampler,figsize=figsize)
 
-        if self.model_name == 'dpmm':
+        elif self.run_model_name == 'dpmm':
             plot_dpmm(X, sampler= self.sampler,figsize=figsize)
 
-        else:
-            print('Model not supported')
+        elif self.run_model_name == 'pca':
+            self.models.pca.plot()
 

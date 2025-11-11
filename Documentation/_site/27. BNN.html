@@ -652,7 +652,7 @@ Caution
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="74625c0f" class="cell" data-execution_count="1">
+<div id="bf97cb5f" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
@@ -715,7 +715,15 @@ Caution
 <span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>ax.plot(X[:, <span class="dv">1</span>], mean_prediction, <span class="st">"blue"</span>, ls<span class="op">=</span><span class="st">"solid"</span>, lw<span class="op">=</span><span class="fl">2.0</span>)</span>
 <span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"X"</span>, ylabel<span class="op">=</span><span class="st">"Y"</span>, title<span class="op">=</span><span class="st">"Mean predictions with 90% CI"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 16</code></pre>
+<pre><code>jax.local_device_count 16
+⚠️This function is still in development. Use it with caution. ⚠️
+⚠️This function is still in development. Use it with caution. ⚠️
+⚠️This function is still in development. Use it with caution. ⚠️
+⚠️This function is still in development. Use it with caution. ⚠️
+⚠️This function is still in development. Use it with caution. ⚠️
+⚠️This function is still in development. Use it with caution. ⚠️
+⚠️This function is still in development. Use it with caution. ⚠️
+⚠️This function is still in development. Use it with caution. ⚠️</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>[Text(0.5, 0, 'X'),
@@ -732,41 +740,37 @@ Caution
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BI)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importbi</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load csv file</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/Howell1.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter data frame</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">=</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>,]</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'weight'</span>)) </span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert data to JAX arrays</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'weight'</span>, <span class="st">'height'</span>))</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight){</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define the BNN architecture</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1 input -&gt; 10 hidden neurons (tanh) -&gt; 1 output neuron (identity)</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Priors for weights/biases are Normal(0,1) by default</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> bi<span class="sc">$</span>bnn<span class="sc">$</span><span class="fu">layer_linear</span>(</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> weight, <span class="at">n_neurons =</span> <span class="fu">list</span>(<span class="dv">10</span>, <span class="dv">1</span>), <span class="at">activations =</span> <span class="fu">list</span>(<span class="st">'tanh'</span>, <span class="st">'identity'</span>), <span class="at">name =</span> <span class="st">'bnn'</span>)</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prior for the output standard deviation</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">=</span> bi<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'s'</span>)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span><span class="fu">normal</span>(mu, s, <span class="at">obs =</span> height)</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Approximate posterior distributions</span></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>path <span class="ot">=</span> <span class="fu">normalizePath</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesianInference"</span>),<span class="st">"/data/BNN.json"</span>, <span class="at">sep =</span> <span class="st">''</span>))</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">fromJSON</span>(path)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>X <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">array</span>(data<span class="sc">$</span>X)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>Y <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">array</span>(data<span class="sc">$</span>Y)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, <span class="at">D_X =</span> <span class="dv">2</span>, <span class="at">D_H=</span><span class="dv">5</span>L, <span class="at">D_Y=</span><span class="dv">1</span>L){</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  w1 <span class="ot">&lt;-</span> m<span class="sc">$</span>bnn<span class="sc">$</span><span class="fu">layer_linear</span>(X, <span class="at">dist=</span><span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>,  <span class="at">name=</span><span class="st">'w1'</span>,<span class="at">shape=</span><span class="fu">c</span>(D_X,D_H)), <span class="at">activation=</span><span class="st">'tanh'</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  w2 <span class="ot">&lt;-</span> m<span class="sc">$</span>bnn<span class="sc">$</span><span class="fu">layer_linear</span>(</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    w1, </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist=</span><span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>,  <span class="at">name=</span><span class="st">'w2'</span>,<span class="at">shape=</span><span class="fu">c</span>(D_H,D_Y)),</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">activation=</span><span class="st">'tanh'</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prior for the output standard deviation</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'s'</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bi.dist.normal</span>(w2, s, <span class="at">obs =</span> Y)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Approximate posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
