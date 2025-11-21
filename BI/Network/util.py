@@ -1,14 +1,14 @@
 import inspect
 from numpyro import sample as lk
 from numpyro import deterministic
-from BI.Utils.np_dists import UnifiedDist as dist
-from BI.Utils.array import Mgaussian
-from BI.Utils.array import effects
+from BI.Distributions.np_dists import UnifiedDist as dist
+from BI.Utils.Gaussian import gaussian
+from BI.Utils.Effects import effects
 import jax 
 from jax import jit
 import jax.numpy as jnp
 
-gaussian = Mgaussian()
+gaussian = gaussian()
 effects = effects()
 
 from jax import vmap

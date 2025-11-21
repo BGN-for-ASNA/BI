@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="description" content="Extending mixed-effects models by allowing the relationship (slope) to vary across different groups.">
 
-<title>Varying Slopes Models – Bayesian Inference (BI)</title>
+<title>Varying Slopes Models 🚧 – Bayesian Inference (BI)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,9 +22,8 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -35,7 +34,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -88,18 +87,17 @@ div.csl-indent {
 <meta name="quarto:offset" content="./">
 <link href="./15. Gaussian processes.html" rel="next">
 <link href="./13. Varying intercepts.html" rel="prev">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-5cc8395b10573f07cfedf58f7a45f761.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-785e6f9f9cefe4638bba3361deac6afc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -178,167 +176,7 @@ window.Quarto = {
 <link rel="stylesheet" href="MyStyles.css">
 </head>
 
-<body class="nav-sidebar floating nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
-    const toggleBodyColorMode = (bsSheetEl) => {
-      const mode = bsSheetEl.getAttribute("data-mode");
-      const bodyEl = window.document.querySelector("body");
-      if (mode === "dark") {
-        bodyEl.classList.add("quarto-dark");
-        bodyEl.classList.remove("quarto-light");
-      } else {
-        bodyEl.classList.add("quarto-light");
-        bodyEl.classList.remove("quarto-dark");
-      }
-    }
-    const toggleBodyColorPrimary = () => {
-      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
-      if (bsSheetEl) {
-        toggleBodyColorMode(bsSheetEl);
-      }
-    }
-    const setColorSchemeToggle = (alternate) => {
-      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
-      for (let i=0; i < toggles.length; i++) {
-        const toggle = toggles[i];
-        if (toggle) {
-          if (alternate) {
-            toggle.classList.add("alternate");
-          } else {
-            toggle.classList.remove("alternate");
-          }
-        }
-      }
-    };
-    const toggleColorMode = (alternate) => {
-      // Switch the stylesheets
-      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
-      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
-      manageTransitions('#quarto-margin-sidebar .nav-link', false);
-      if (alternate) {
-        // note: dark is layered on light, we don't disable primary!
-        enableStylesheet(alternateStylesheets);
-        for (const sheetNode of alternateStylesheets) {
-          if (sheetNode.id === "quarto-bootstrap") {
-            toggleBodyColorMode(sheetNode);
-          }
-        }
-      } else {
-        disableStylesheet(alternateStylesheets);
-        enableStylesheet(primaryStylesheets)
-        toggleBodyColorPrimary();
-      }
-      manageTransitions('#quarto-margin-sidebar .nav-link', true);
-      // Switch the toggles
-      setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
-      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
-        manageTransitions("body", false);
-        window.scrollTo(0, 1);
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-          manageTransitions("body", true);
-        }, 40);
-      }
-    }
-    const disableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        stylesheet.rel = 'disabled-stylesheet';
-      }
-    }
-    const enableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
-          stylesheet.rel = 'stylesheet';
-        }
-      }
-    }
-    const manageTransitions = (selector, allowTransitions) => {
-      const els = window.document.querySelectorAll(selector);
-      for (let i=0; i < els.length; i++) {
-        const el = els[i];
-        if (allowTransitions) {
-          el.classList.remove('notransition');
-        } else {
-          el.classList.add('notransition');
-        }
-      }
-    }
-    const isFileUrl = () => {
-      return window.location.protocol === 'file:';
-    }
-    const hasAlternateSentinel = () => {
-      let styleSentinel = getColorSchemeSentinel();
-      if (styleSentinel !== null) {
-        return styleSentinel === "alternate";
-      } else {
-        return false;
-      }
-    }
-    const setStyleSentinel = (alternate) => {
-      const value = alternate ? "alternate" : "default";
-      if (!isFileUrl()) {
-        window.localStorage.setItem("quarto-color-scheme", value);
-      } else {
-        localAlternateSentinel = value;
-      }
-    }
-    const getColorSchemeSentinel = () => {
-      if (!isFileUrl()) {
-        const storageValue = window.localStorage.getItem("quarto-color-scheme");
-        return storageValue != null ? storageValue : localAlternateSentinel;
-      } else {
-        return localAlternateSentinel;
-      }
-    }
-    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
-      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
-      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
-      let newTheme = '';
-      if(authorPrefersDark) {
-        newTheme = isAlternate ? baseTheme : alternateTheme;
-      } else {
-        newTheme = isAlternate ? alternateTheme : baseTheme;
-      }
-      const changeGiscusTheme = () => {
-        // From: https://github.com/giscus/giscus/issues/336
-        const sendMessage = (message) => {
-          const iframe = document.querySelector('iframe.giscus-frame');
-          if (!iframe) return;
-          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
-        }
-        sendMessage({
-          setConfig: {
-            theme: newTheme
-          }
-        });
-      }
-      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
-      if (isGiscussLoaded) {
-        changeGiscusTheme();
-      }
-    };
-    const authorPrefersDark = true;
-    const darkModeDefault = authorPrefersDark;
-    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
-    // Dark / light mode switch
-    window.quartoToggleColorScheme = () => {
-      // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
-      toggleColorMode(toAlternate);
-      setStyleSentinel(toAlternate);
-      toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
-    };
-    // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
-      toggleColorMode(true);
-    } else {
-      toggleColorMode(false);
-    }
-  </script>
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -398,7 +236,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./14. Varying slopes.html">Varying Slopes Models</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./14. Varying slopes.html">Varying Slopes Models 🚧</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -491,7 +329,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Survival Analysis</span></a>
+ <span class="menu-text">Survival Analysis 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -503,7 +341,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Varying Slopes Models</span></a>
+ <span class="menu-text">Varying Slopes Models 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -527,7 +365,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Latent Variable Models (WIP)</span></a>
+ <span class="menu-text">Latent Variable Models 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -545,7 +383,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Process Mixture Models</span></a>
+ <span class="menu-text">Dirichlet Process Mixture Models 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -581,7 +419,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Bayesian Neural Networks</span></a>
+ <span class="menu-text">Bayesian Neural Networks 🚧</span></a>
   </div>
 </li>
     </ul>
@@ -614,10 +452,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Varying Slopes Models</h1>
+<h1 class="title">Varying Slopes Models 🚧</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Hierarchical Models</div>
     <div class="quarto-category">Regression</div>
@@ -678,7 +515,7 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python (Raw)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="6b09f512" class="cell" data-execution_count="1">
+<div id="043c4915" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
@@ -686,7 +523,7 @@ Note
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Sim data multivariatenormal.csv'</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.sim_multivariate_normal(only_path<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    cafe <span class="op">=</span> jnp.array(m.df.cafe.values, dtype<span class="op">=</span>jnp.int32),</span>
@@ -715,12 +552,12 @@ Note
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 16</code></pre>
+<pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:02&lt;34:59,  2.10s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   4%|▍         | 42/1000 [00:02&lt;00:36, 26.49it/s, 63 steps of size 3.41e-02. acc. prob=0.75]warmup:   9%|▉         | 88/1000 [00:02&lt;00:14, 62.29it/s, 63 steps of size 3.63e-02. acc. prob=0.77]warmup:  13%|█▎        | 126/1000 [00:02&lt;00:09, 95.75it/s, 15 steps of size 3.65e-01. acc. prob=0.78]warmup:  18%|█▊        | 176/1000 [00:02&lt;00:05, 148.68it/s, 15 steps of size 6.14e-01. acc. prob=0.78]warmup:  23%|██▎       | 226/1000 [00:02&lt;00:03, 202.31it/s, 95 steps of size 2.20e-01. acc. prob=0.78]warmup:  28%|██▊       | 277/1000 [00:02&lt;00:02, 257.84it/s, 15 steps of size 2.02e-01. acc. prob=0.78]warmup:  33%|███▎      | 327/1000 [00:02&lt;00:02, 307.53it/s, 15 steps of size 6.03e-01. acc. prob=0.78]warmup:  38%|███▊      | 378/1000 [00:02&lt;00:01, 352.33it/s, 15 steps of size 2.69e-01. acc. prob=0.78]warmup:  43%|████▎     | 431/1000 [00:03&lt;00:01, 394.34it/s, 15 steps of size 2.64e-01. acc. prob=0.79]warmup:  48%|████▊     | 483/1000 [00:03&lt;00:01, 425.11it/s, 31 steps of size 2.52e-01. acc. prob=0.79]sample:  54%|█████▎    | 537/1000 [00:03&lt;00:01, 455.04it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  59%|█████▉    | 594/1000 [00:03&lt;00:00, 484.67it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  65%|██████▌   | 653/1000 [00:03&lt;00:00, 513.35it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  71%|███████   | 711/1000 [00:03&lt;00:00, 530.99it/s, 15 steps of size 3.19e-01. acc. prob=0.87]sample:  77%|███████▋  | 767/1000 [00:03&lt;00:00, 538.55it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  83%|████████▎ | 827/1000 [00:03&lt;00:00, 554.84it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  88%|████████▊ | 884/1000 [00:03&lt;00:00, 559.25it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample:  94%|█████████▍| 942/1000 [00:03&lt;00:00, 562.46it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample: 100%|█████████▉| 999/1000 [00:04&lt;00:00, 536.66it/s, 15 steps of size 3.19e-01. acc. prob=0.86]sample: 100%|██████████| 1000/1000 [00:04&lt;00:00, 246.80it/s, 15 steps of size 3.19e-01. acc. prob=0.86]
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;15:51,  1.05it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   6%|▌         | 57/1000 [00:01&lt;00:12, 73.88it/s, 15 steps of size 1.18e-01. acc. prob=0.77]warmup:  14%|█▎        | 137/1000 [00:01&lt;00:04, 187.59it/s, 63 steps of size 1.19e-01. acc. prob=0.77]warmup:  23%|██▎       | 227/1000 [00:01&lt;00:02, 317.71it/s, 15 steps of size 2.75e-01. acc. prob=0.78]warmup:  32%|███▏      | 319/1000 [00:01&lt;00:01, 442.30it/s, 15 steps of size 5.06e-01. acc. prob=0.78]warmup:  43%|████▎     | 429/1000 [00:01&lt;00:00, 590.75it/s, 31 steps of size 3.64e-01. acc. prob=0.79]sample:  52%|█████▏    | 521/1000 [00:01&lt;00:00, 671.45it/s, 15 steps of size 3.22e-01. acc. prob=0.88]sample:  63%|██████▎   | 626/1000 [00:01&lt;00:00, 768.58it/s, 15 steps of size 3.22e-01. acc. prob=0.88]sample:  72%|███████▏  | 722/1000 [00:01&lt;00:00, 817.70it/s, 15 steps of size 3.22e-01. acc. prob=0.87]sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 820.14it/s, 15 steps of size 3.22e-01. acc. prob=0.87]sample:  92%|█████████▏| 922/1000 [00:01&lt;00:00, 882.68it/s, 15 steps of size 3.22e-01. acc. prob=0.87]sample: 100%|██████████| 1000/1000 [00:02&lt;00:00, 485.41it/s, 15 steps of size 3.22e-01. acc. prob=0.87]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)
-/home/sosa/work/.venv/lib/python3.12/site-packages/arviz/stats/diagnostics.py:991: RuntimeWarning:
+/home/sosa/work/3.12venv/lib/python3.12/site-packages/arviz/stats/diagnostics.py:991: RuntimeWarning:
 
 invalid value encountered in scalar divide
 </code></pre>
@@ -759,26 +596,26 @@ invalid value encountered in scalar divide
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">Rho[0, 1]</td>
-<td>-0.67</td>
-<td>0.16</td>
-<td>-0.91</td>
-<td>-0.47</td>
+<td>-0.48</td>
+<td>0.19</td>
+<td>-0.78</td>
+<td>-0.19</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>375.49</td>
-<td>369.19</td>
+<td>422.99</td>
+<td>367.44</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Rho[1, 0]</td>
-<td>-0.67</td>
-<td>0.16</td>
-<td>-0.91</td>
-<td>-0.47</td>
+<td>-0.48</td>
+<td>0.19</td>
+<td>-0.78</td>
+<td>-0.19</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>375.49</td>
-<td>369.19</td>
+<td>422.99</td>
+<td>367.44</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
@@ -789,512 +626,512 @@ invalid value encountered in scalar divide
 <td>1.00</td>
 <td>0.00</td>
 <td>0.00</td>
-<td>459.91</td>
-<td>415.97</td>
+<td>454.62</td>
+<td>436.09</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a</td>
-<td>3.54</td>
-<td>0.23</td>
+<td>3.52</td>
+<td>0.20</td>
 <td>3.24</td>
-<td>3.97</td>
+<td>3.87</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>895.30</td>
-<td>368.73</td>
+<td>746.37</td>
+<td>288.40</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[0, 0]</td>
-<td>3.01</td>
-<td>0.22</td>
-<td>2.67</td>
-<td>3.34</td>
+<td>3.55</td>
+<td>0.23</td>
+<td>3.21</td>
+<td>3.92</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>644.50</td>
-<td>407.54</td>
+<td>452.61</td>
+<td>381.98</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[0, 1]</td>
-<td>-0.64</td>
-<td>0.25</td>
-<td>-1.01</td>
-<td>-0.22</td>
+<td>-1.53</td>
+<td>0.30</td>
+<td>-1.98</td>
+<td>-1.04</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>639.45</td>
-<td>438.47</td>
+<td>509.28</td>
+<td>348.57</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[1, 0]</td>
-<td>2.00</td>
-<td>0.22</td>
-<td>1.65</td>
-<td>2.35</td>
+<td>5.32</td>
+<td>0.23</td>
+<td>4.97</td>
+<td>5.69</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>517.36</td>
-<td>428.36</td>
+<td>678.84</td>
+<td>388.59</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[1, 1]</td>
-<td>-0.16</td>
-<td>0.28</td>
-<td>-0.64</td>
-<td>0.23</td>
+<td>-1.37</td>
+<td>0.32</td>
+<td>-1.91</td>
+<td>-0.91</td>
 <td>0.01</td>
-<td>0.01</td>
-<td>385.49</td>
-<td>425.36</td>
+<td>0.02</td>
+<td>717.67</td>
+<td>407.82</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[2, 0]</td>
-<td>2.86</td>
-<td>0.22</td>
-<td>2.51</td>
-<td>3.20</td>
+<td>3.50</td>
+<td>0.23</td>
+<td>3.19</td>
+<td>3.91</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>615.26</td>
-<td>339.15</td>
+<td>584.24</td>
+<td>402.89</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[2, 1]</td>
-<td>-0.66</td>
-<td>0.27</td>
-<td>-1.10</td>
-<td>-0.25</td>
+<td>-1.24</td>
+<td>0.29</td>
+<td>-1.66</td>
+<td>-0.78</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>525.04</td>
-<td>234.73</td>
+<td>565.87</td>
+<td>254.37</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[3, 0]</td>
-<td>4.44</td>
-<td>0.20</td>
+<td>4.40</td>
+<td>0.21</td>
 <td>4.09</td>
 <td>4.71</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>557.08</td>
-<td>433.36</td>
+<td>595.46</td>
+<td>337.76</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[3, 1]</td>
-<td>-1.34</td>
-<td>0.24</td>
-<td>-1.71</td>
-<td>-0.93</td>
+<td>-1.28</td>
+<td>0.28</td>
+<td>-1.73</td>
+<td>-0.85</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>509.43</td>
-<td>315.59</td>
+<td>511.32</td>
+<td>319.38</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[4, 0]</td>
-<td>3.33</td>
+<td>3.56</td>
 <td>0.22</td>
-<td>2.96</td>
-<td>3.65</td>
+<td>3.22</td>
+<td>3.92</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>551.28</td>
-<td>421.32</td>
+<td>651.57</td>
+<td>395.53</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[4, 1]</td>
-<td>-1.09</td>
-<td>0.27</td>
-<td>-1.54</td>
-<td>-0.71</td>
+<td>-1.58</td>
+<td>0.29</td>
+<td>-2.04</td>
+<td>-1.12</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>500.15</td>
-<td>388.84</td>
+<td>580.06</td>
+<td>351.02</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[5, 0]</td>
-<td>3.81</td>
-<td>0.22</td>
-<td>3.46</td>
-<td>4.13</td>
+<td>4.23</td>
+<td>0.21</td>
+<td>3.93</td>
+<td>4.60</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>710.95</td>
-<td>297.21</td>
+<td>708.60</td>
+<td>355.22</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[5, 1]</td>
-<td>-0.89</td>
-<td>0.25</td>
-<td>-1.28</td>
-<td>-0.47</td>
+<td>-1.73</td>
+<td>0.29</td>
+<td>-2.13</td>
+<td>-1.21</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>640.63</td>
-<td>343.78</td>
+<td>657.42</td>
+<td>399.55</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[6, 0]</td>
-<td>4.47</td>
-<td>0.22</td>
-<td>4.12</td>
-<td>4.80</td>
+<td>4.08</td>
+<td>0.23</td>
+<td>3.70</td>
+<td>4.42</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>538.40</td>
-<td>380.43</td>
+<td>536.86</td>
+<td>282.44</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[6, 1]</td>
-<td>-1.52</td>
+<td>-0.19</td>
+<td>0.29</td>
+<td>-0.64</td>
 <td>0.25</td>
-<td>-1.88</td>
-<td>-1.07</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>409.88</td>
-<td>251.48</td>
+<td>501.31</td>
+<td>399.55</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[7, 0]</td>
-<td>3.51</td>
-<td>0.21</td>
-<td>3.22</td>
-<td>3.90</td>
+<td>3.78</td>
+<td>0.22</td>
+<td>3.45</td>
+<td>4.12</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>850.53</td>
-<td>305.51</td>
+<td>842.35</td>
+<td>436.09</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[7, 1]</td>
-<td>-1.04</td>
-<td>0.26</td>
-<td>-1.46</td>
-<td>-0.66</td>
+<td>-1.08</td>
+<td>0.30</td>
+<td>-1.52</td>
+<td>-0.56</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>776.24</td>
-<td>451.16</td>
+<td>741.73</td>
+<td>425.51</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[8, 0]</td>
-<td>3.68</td>
+<td>3.49</td>
 <td>0.22</td>
-<td>3.32</td>
-<td>3.97</td>
+<td>3.15</td>
+<td>3.82</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>819.92</td>
-<td>318.66</td>
+<td>928.83</td>
+<td>448.99</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[8, 1]</td>
-<td>-1.15</td>
-<td>0.26</td>
-<td>-1.58</td>
-<td>-0.74</td>
+<td>-1.51</td>
+<td>0.29</td>
+<td>-1.95</td>
+<td>-1.01</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>657.12</td>
-<td>415.89</td>
+<td>900.17</td>
+<td>323.82</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[9, 0]</td>
-<td>3.03</td>
-<td>0.20</td>
-<td>2.69</td>
-<td>3.33</td>
+<td>3.25</td>
+<td>0.21</td>
+<td>2.93</td>
+<td>3.57</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>648.08</td>
-<td>334.00</td>
+<td>633.95</td>
+<td>365.86</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[9, 1]</td>
-<td>-1.04</td>
-<td>0.24</td>
-<td>-1.41</td>
-<td>-0.69</td>
+<td>-0.34</td>
+<td>0.28</td>
+<td>-0.82</td>
+<td>0.04</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>447.00</td>
-<td>336.93</td>
+<td>652.68</td>
+<td>393.66</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[10, 0]</td>
-<td>4.63</td>
-<td>0.21</td>
-<td>4.29</td>
-<td>4.95</td>
+<td>3.29</td>
+<td>0.22</td>
+<td>2.92</td>
+<td>3.58</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>582.19</td>
-<td>364.91</td>
+<td>810.20</td>
+<td>365.91</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[10, 1]</td>
-<td>-1.09</td>
-<td>0.26</td>
-<td>-1.46</td>
-<td>-0.66</td>
+<td>-0.60</td>
+<td>0.28</td>
+<td>-1.06</td>
+<td>-0.18</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>514.28</td>
-<td>307.56</td>
+<td>659.36</td>
+<td>385.50</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[11, 0]</td>
-<td>4.05</td>
+<td>3.83</td>
 <td>0.20</td>
-<td>3.73</td>
-<td>4.38</td>
+<td>3.50</td>
+<td>4.13</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>673.46</td>
-<td>438.47</td>
+<td>577.10</td>
+<td>304.11</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[11, 1]</td>
-<td>-0.89</td>
-<td>0.24</td>
-<td>-1.20</td>
-<td>-0.43</td>
+<td>-1.44</td>
+<td>0.27</td>
+<td>-1.82</td>
+<td>-0.96</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>682.63</td>
-<td>397.85</td>
+<td>593.52</td>
+<td>297.44</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[12, 0]</td>
-<td>3.73</td>
+<td>1.92</td>
 <td>0.22</td>
-<td>3.38</td>
-<td>4.06</td>
+<td>1.57</td>
+<td>2.23</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>695.43</td>
-<td>496.53</td>
+<td>600.90</td>
+<td>314.72</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[12, 1]</td>
-<td>-0.53</td>
-<td>0.27</td>
-<td>-0.97</td>
-<td>-0.13</td>
+<td>-0.77</td>
+<td>0.30</td>
+<td>-1.18</td>
+<td>-0.24</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>351.52</td>
-<td>337.95</td>
+<td>724.12</td>
+<td>342.76</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[13, 0]</td>
-<td>3.51</td>
-<td>0.21</td>
-<td>3.16</td>
-<td>3.83</td>
+<td>4.37</td>
+<td>0.22</td>
+<td>4.04</td>
+<td>4.71</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>575.61</td>
-<td>380.52</td>
+<td>549.10</td>
+<td>369.49</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[13, 1]</td>
-<td>-1.05</td>
-<td>0.25</td>
-<td>-1.47</td>
-<td>-0.65</td>
+<td>-2.18</td>
+<td>0.30</td>
+<td>-2.64</td>
+<td>-1.67</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>655.84</td>
-<td>358.20</td>
+<td>565.11</td>
+<td>332.48</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[14, 0]</td>
-<td>4.07</td>
-<td>0.22</td>
-<td>3.72</td>
-<td>4.42</td>
+<td>2.88</td>
+<td>0.21</td>
+<td>2.55</td>
+<td>3.22</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>861.39</td>
-<td>367.44</td>
+<td>708.31</td>
+<td>473.41</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[14, 1]</td>
-<td>-1.36</td>
-<td>0.25</td>
-<td>-1.72</td>
-<td>-0.93</td>
+<td>-0.73</td>
+<td>0.29</td>
+<td>-1.15</td>
+<td>-0.25</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>434.02</td>
-<td>349.38</td>
+<td>644.40</td>
+<td>297.55</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[15, 0]</td>
-<td>5.03</td>
+<td>2.26</td>
 <td>0.22</td>
-<td>4.69</td>
-<td>5.37</td>
+<td>1.90</td>
+<td>2.59</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>437.21</td>
-<td>387.23</td>
+<td>598.20</td>
+<td>408.34</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[15, 1]</td>
-<td>-1.50</td>
-<td>0.27</td>
-<td>-1.87</td>
-<td>-1.04</td>
+<td>-0.45</td>
+<td>0.29</td>
+<td>-0.90</td>
+<td>-0.01</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>387.82</td>
-<td>335.71</td>
+<td>500.02</td>
+<td>219.35</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[16, 0]</td>
-<td>1.72</td>
-<td>0.21</td>
-<td>1.45</td>
-<td>2.09</td>
+<td>4.68</td>
+<td>0.22</td>
+<td>4.28</td>
+<td>5.00</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>609.87</td>
-<td>291.71</td>
+<td>601.60</td>
+<td>399.55</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[16, 1]</td>
-<td>-0.34</td>
-<td>0.26</td>
-<td>-0.72</td>
-<td>0.11</td>
+<td>-2.08</td>
+<td>0.30</td>
+<td>-2.53</td>
+<td>-1.54</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>544.75</td>
-<td>408.34</td>
+<td>584.76</td>
+<td>437.40</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[17, 0]</td>
-<td>4.35</td>
+<td>2.46</td>
 <td>0.21</td>
-<td>4.01</td>
-<td>4.64</td>
+<td>2.17</td>
+<td>2.84</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>596.94</td>
-<td>342.76</td>
+<td>647.23</td>
+<td>279.36</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[17, 1]</td>
-<td>-1.03</td>
-<td>0.24</td>
-<td>-1.39</td>
-<td>-0.68</td>
+<td>-1.22</td>
+<td>0.28</td>
+<td>-1.67</td>
+<td>-0.80</td>
 <td>0.01</td>
-<td>0.01</td>
-<td>613.91</td>
-<td>415.42</td>
+<td>0.02</td>
+<td>634.28</td>
+<td>211.75</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[18, 0]</td>
-<td>3.82</td>
-<td>0.20</td>
-<td>3.53</td>
-<td>4.15</td>
+<td>2.51</td>
+<td>0.21</td>
+<td>2.20</td>
+<td>2.84</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>622.28</td>
-<td>363.21</td>
+<td>518.14</td>
+<td>369.15</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[18, 1]</td>
-<td>-1.20</td>
-<td>0.24</td>
-<td>-1.58</td>
-<td>-0.81</td>
+<td>-0.16</td>
+<td>0.28</td>
+<td>-0.59</td>
+<td>0.31</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>486.41</td>
-<td>392.52</td>
+<td>514.85</td>
+<td>364.46</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[19, 0]</td>
-<td>1.27</td>
-<td>0.21</td>
-<td>0.93</td>
-<td>1.61</td>
+<td>2.82</td>
+<td>0.20</td>
+<td>2.48</td>
+<td>3.15</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>433.86</td>
-<td>436.67</td>
+<td>570.10</td>
+<td>327.00</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a_b_cafe[19, 1]</td>
-<td>-0.40</td>
-<td>0.26</td>
-<td>-0.78</td>
-<td>0.03</td>
+<td>-0.57</td>
+<td>0.27</td>
+<td>-1.02</td>
+<td>-0.16</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>445.08</td>
-<td>448.61</td>
+<td>766.08</td>
+<td>470.00</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">b</td>
-<td>-0.95</td>
-<td>0.13</td>
-<td>-1.16</td>
-<td>-0.76</td>
+<td>-1.09</td>
+<td>0.15</td>
+<td>-1.34</td>
+<td>-0.86</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>493.77</td>
-<td>398.08</td>
+<td>634.77</td>
+<td>375.64</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
@@ -1302,35 +1139,35 @@ invalid value encountered in scalar divide
 <td>0.51</td>
 <td>0.03</td>
 <td>0.46</td>
-<td>0.55</td>
+<td>0.54</td>
 <td>0.00</td>
 <td>0.00</td>
-<td>535.84</td>
-<td>404.48</td>
+<td>800.09</td>
+<td>512.95</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sigma_cafe[0]</td>
-<td>1.01</td>
-<td>0.16</td>
-<td>0.76</td>
-<td>1.26</td>
+<td>0.92</td>
+<td>0.15</td>
+<td>0.67</td>
+<td>1.14</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>507.23</td>
-<td>214.96</td>
+<td>541.45</td>
+<td>397.11</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">sigma_cafe[1]</td>
-<td>0.46</td>
-<td>0.12</td>
-<td>0.26</td>
-<td>0.61</td>
+<td>0.68</td>
+<td>0.13</td>
+<td>0.47</td>
+<td>0.87</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>240.37</td>
-<td>253.24</td>
+<td>401.57</td>
+<td>358.18</td>
 <td>NaN</td>
 </tr>
 </tbody>
@@ -1349,7 +1186,7 @@ invalid value encountered in scalar divide
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Sim data multivariatenormal.csv'</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m$load$sim_multivariate_normal(only_path<span class="op">=</span>T)</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    cafe <span class="op">=</span> jnp.array(m.df.cafe.values, dtype<span class="op">=</span>jnp.int32),</span>
@@ -2181,255 +2018,383 @@ tippy('#LKJcorr', {
     window.quartoDisableCodeFolding = true;
   </script>
 <script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    // Ensure there is a toggle, if there isn't float one in the top right
-    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
-      const i = window.document.createElement("i");
-      i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
     }
-    setColorSchemeToggle(hasAlternateSentinel())
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
         }
       }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
       return false;
     }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = true;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
       }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
     }
-    const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
-        }
-        return codeEl.innerText;
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
     }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
     });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
         }
       }
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
     }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
     }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
       } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
         }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
       }
     }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
           }
         } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
+          // See if we can fetch this
+          fetch(url.split('#')[0])
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
+            const note = htmlDoc.getElementById(id);
             if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
+              const html = processXRef(id, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -2437,161 +2402,185 @@ tippy('#LKJcorr', {
             instance.show();
           });
         }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          let top = null;
-          let height = null;
-          let parent = null;
-          if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
-            }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
-            }
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
       } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
             }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
         });
       }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
     }
-  });
-  </script>
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./13. Varying intercepts.html" class="pagination-link" aria-label="Varying Intercepts Models">

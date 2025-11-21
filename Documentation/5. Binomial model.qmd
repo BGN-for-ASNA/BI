@@ -33,7 +33,7 @@ m = bi(platform='cpu')
 # import data ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'chimpanzees.csv'
+data_path = m.load.chimpanzees(only_path = True)
 m.data(data_path, sep=';')
 m.data_to_model(['pulled_left'])
 
@@ -58,7 +58,7 @@ library(BayesianInference)
 m=importBI(platform='cpu')
 
 # import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/chimpanzees.csv", sep = ''), sep=';')
+m$data(m$load$chimpanzees(only_path = T), sep=';')
 m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------

@@ -44,7 +44,7 @@ m = bi(platform='cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'Sim data multivariatenormal.csv'
+data_path = m.load.sim_multivariate_normal(only_path=True)
 m.data(data_path, sep=',') 
 m.data_on_model = dict(
     cafe = jnp.array(m.df.cafe.values, dtype=jnp.int32),
@@ -85,7 +85,7 @@ m = bi(platform='cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'Sim data multivariatenormal.csv'
+data_path = m$load$sim_multivariate_normal(only_path=T)
 m.data(data_path, sep=',') 
 m.data_on_model = dict(
     cafe = jnp.array(m.df.cafe.values, dtype=jnp.int32),

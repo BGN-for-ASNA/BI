@@ -38,7 +38,7 @@ m = bi(platform='cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'tulips.csv'
+data_path = m.load.tulips(only_path = True)
 m.data(data_path, sep=';')
 m.scale(['blooms', 'water', 'shade']) # Normalize
 
@@ -66,7 +66,7 @@ library(BayesianInference)
 m=importBI(platform='cpu')
 
 # Load csv file
-m$data(paste(system.file(package = "BayesianInference"),"/data/tulips.csv", sep = ''), sep=';')
+m$data(m$load$tulips(only_path = T), sep = ''), sep=';')
 m$scale(list('blooms', 'water', 'shade')) # Normalize
 m$data_to_model(list('blooms', 'water', 'shade')) # Send to model (convert to jax array)
 

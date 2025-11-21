@@ -16,19 +16,24 @@ import arviz as az
 import random as pyrand
 import functools
 
-from BI.Data.manip import manip
-from BI.Utils.array import Mgaussian as gaussian
-from BI.Utils.array import effects 
 from BI.SetDevice.set import setup_device
 
+from BI.Data.manip import manip
+from BI.Resources.datasets import load
+
+from BI.Utils.Gaussian  import gaussian 
+from BI.Utils.Effects import effects 
 from BI.Utils.link import link
+
 from BI.Diagnostic.Diag2 import diagWIP as diag
+
 from BI.Network.Net import net
 from BI.NBDA.NBDA import NBDA
+
+from BI.Models.models import models
 from BI.Models.surv import survival
 from BI.Models.GMM import *
 from BI.Models.DPMM import *
-from BI.Models.models import models
 from BI.ML.ml import ml
 from BI.BNN.bnn import bnn 
 
@@ -70,6 +75,7 @@ class bi(manip):
         self.gmm = gmm    
         self.NBDA = NBDA
 
+
         self.models = models(self)
 
         self.model_name = None
@@ -79,13 +85,15 @@ class bi(manip):
         self.ml= ml()   
         self.bnn= bnn()  
 
+        self.load = load()
+
         if backend == 'numpyro':
-            from BI.Utils.np_dists import UnifiedDist as np_dists
+            from BI.Distributions.np_dists import UnifiedDist as np_dists
             self.dist=np_dists(rand_seed = self.seed)
             jax.config.update("jax_enable_x64", True)
 
         elif backend == 'tfp':
-            from BI.Utils.tfp_dists import UnifiedDist as tfp_dists  
+            from BI.Distributions.tfp_dists import UnifiedDist as tfp_dists  
             from BI.Samplers.mcmc_tfp import mcmc as mcmc_tfp          
             self.dist=tfp_dists 
             self.sampler = mcmc_tfp()

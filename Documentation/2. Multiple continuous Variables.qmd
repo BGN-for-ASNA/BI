@@ -33,7 +33,7 @@ m = bi(platform='cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 from importlib.resources import files
 # Import
-data_path = files('BI.resources.data') / 'Howell1.csv'
+data_path = m.load.howell1(only_path = True)
 m.data(data_path, sep=';') 
 m.df = m.df[m.df.age > 18] # Subset data to adults
 m.scale(['weight', 'age']) # Normalize
@@ -61,7 +61,7 @@ library(BayesianInference)
 m=importBI(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/Howell1.csv", sep = ''), sep=';')# Import
+m$data(m$load$howell1(only_path = T), sep=';')# Import
 m$df = m$df[m$df$age > 18,] # Subset data to adults
 m$scale(list('weight', 'age')) # Normalize
 m$data_to_model(list('weight', 'height', 'age')) # Send to model (convert to jax array)

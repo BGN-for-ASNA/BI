@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from matplotlib import pyplot as plt
 import arviz as az
 import numpyro
-from BI.Utils.np_dists import UnifiedDist as dist
+from BI.Distributions.np_dists import UnifiedDist as dist
 dist = dist()
 
 class survival_old:

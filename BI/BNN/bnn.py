@@ -1,4 +1,4 @@
-from BI.Utils.np_dists import UnifiedDist as dist
+from BI.Distributions.np_dists import UnifiedDist as dist
 from BI.BNN.activations import activation
 
 from numpyro import deterministic

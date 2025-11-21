@@ -51,7 +51,7 @@ m = bi(platform='cpu')
 # import data ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'Kline.csv'
+data_path = m.load.kline(only_path = True)
 m.data(data_path, sep=';')
 m.scale(['population'])
 m.df["cid"] = (m.df.contact == "high").astype(int)
@@ -77,7 +77,7 @@ library(BayesianInference)
 m=importBI(platform='cpu')
 
 # import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/Kline.csv", sep = ''), sep=';')
+m$data(m$load$kline(only_path = T), sep=';')
 m$scale(list('population'))# Scale
 m$df["cid"] =  as.integer(ifelse(m$df$contact == "high", 1, 0)) # Manipulate
 m$data_to_model(list('total_tools', 'population', 'cid' )) # Send to model (convert to jax array)
