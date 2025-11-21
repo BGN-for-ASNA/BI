@@ -8,16 +8,16 @@ order: 24
 
 ## General Principles
 
-To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Mixture Model (DPMM)**. This is a [non-parametric 🛈]{style="color:#0D6EFD"} clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:
+To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Mixture Model (DPMM)**. This is a unsupervised clustering method @gershman2012tutorial. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:
 
 1.  **How many clusters (`K`) exist**: Unlike algorithms like K-Means, the DPMM infers the most probable number of clusters directly from the data.
-2.  **The properties of each cluster**: For each inferred cluster, it estimates its center (mean $\mu$) and its shape/spread (covariance $\sigma$).
+2.  **The properties of each cluster**: For each inferred cluster, it estimates its location and its spread.
 3.  **The assignment of each data point**: It determines the probability of each data point belonging to each cluster.
 
 ## Considerations
 
 ::: callout-caution
--   A DPMM is a Bayesian model 🛈 that considers uncertainty in all its parameters. The core idea is to use the Dirichlet Process prior that allows for a potentially infinite number of clusters. In practice, we use a finite approximation called the [Stick-Breaking Process 🛈]{style="color:#0D6EFD"}.
+-   A DPMM is a Bayesian model 🛈 that considers uncertainty in all its parameters. The core idea is to use the Dirichlet Process prior that allows for a potentially infinite number of clusters. In practice, we use a finite approximation where we cap the maximum number of clusters at $K$ and use the [Stick-Breaking Process 🛈]{style="color:#0D6EFD"}.
 
 -   The key parameters and their priors are:
 
@@ -25,7 +25,7 @@ To discover group structures or clusters in data without pre-specifying the numb
 - 
     - **Cluster Weights `w`**: Generated via the Stick-Breaking process from $\alpha$. These are the probabilities of drawing a data point from any given cluster.
   
-    - **Cluster Parameters (**$\mu$, $\sigma$): Each potential cluster has a mean $\mu$ and a covariance matrix $\sigma$. If the data have multiple dimensions, we use a multivariate normal distribution (see chapter, [14](14.%20Varying%20slopes.qmd)). Howver, if the data is one-dimensional, we use a univariate normal distribution.
+    - **Cluster Parameters (**$\mu$, $\Sigma$): Each potential cluster has a mean $\mu$ and a covariance matrix $\Sigma$. If the data have multiple dimensions, we use a multivariate normal distribution (see chapter, [14](14.%20Varying%20slopes.qmd)). However, if the data is one-dimensional, we use a univariate normal distribution.
 
 -   The model is often implemented in its [marginalized form 🛈]{style="color:#0D6EFD"}. Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.
 :::
@@ -99,7 +99,7 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 ## Mathematical Details
 
-The process involves two steps: first, assigning the data point to a cluster, and second, drawing it from that cluster's specific distribution. We use a truncation level $K$ as a finite approximation for the infinite number of possible clusters in a true Dirichlet Process.
+The process involves two keys submodels. The first, aims to identify the location and scale of $K$ potential clusters. The second, aims to identify which cluster is most likely to have generated a given data point. 
 
 $$
 \begin{aligned}
@@ -127,22 +127,22 @@ Y_{i,D}
 &\sim
 \text{MVN}\!\left(
 \begin{pmatrix}
-A{k,1} \\
+A_{1} \\
 \vdots \\
-A{k,D}
+A_{D}
 \end{pmatrix},
 \, B
 \right) \\
 \\
 \Sigma_k &= \sigma_k \Omega_k \sigma_k \\
 \\
-\sigma_k &\sim \text{HalfCauchy}(1) \\
+\sigma_{k} &\sim \text{HalfCauchy}(1) \\
 \\
 \Omega_k &\sim \text{LKJ}(2) \\
 \\
 z_{i} &\sim \text{Categorical}(\pi) \\
 \\
-\pi  &= \text{StickBreaking}(\beta_1, ..., \beta_{K}) \\
+\pi_{i}(\beta_{1:K})  &=  \beta_i \prod_{j<K} (1-\beta_j) \\
 \\
 \beta_k &\sim \text{Beta}(1, \alpha) \\
 \\
@@ -156,7 +156,7 @@ Where :
 
 *   $\begin{pmatrix}\mu_{[k,1]} \\ \vdots \\ \mu_{[k,D]}\end{pmatrix}$ is the $k$-th parameter vector of dimension D.
 
-*   $\begin{pmatrix} A_{[k,1]} \\ \vdots \\ A_{[k,D]} \end{pmatrix}$ is a prior for the $k$-th mean vector as derived by a *KMEANS* clustering algorithm. 
+*   $\begin{pmatrix} A_{1} \\ \vdots \\ A_{D} \end{pmatrix}$ is a prior for the  mean vector as derived from mean of the raw data. 
 
 *   $B$ is the prior covariance of the cluster means, and is setup as a diagonal matrix with 0.1 along the diagonal.
 
@@ -168,7 +168,7 @@ Where :
 
 *   $z_i$ is a latent variable that maps observation $i$ to cluster $k$.
 
-*   $\pi$ is a vector of $K$ cluster weights.
+*   $\pi$ is a vector of $K$ cluster weights, some of which may be close to zero if the predicted number of clusters is less than the maximum number of clusters.
   
 *   $\beta_k$: The set of $K$ Beta-distributed random variables used in the stick-breaking process to construct the mixture weights.
 
@@ -178,9 +178,22 @@ Where :
 ## Notes
 
 ::: callout-note
-The primary advantage of the DPMM over methods like K-Means or a GMM is the **automatic inference of the number of clusters**. Instead of running the model multiple times with different values of `K` and comparing them, the DPMM explores different numbers of clusters as part of its fitting process. The posterior distribution of the weights `w` reveals which components are "active" (have significant weight) and thus gives a probabilistic estimate of the number of clusters supported by the data.
+* The primary advantage of the DPMM is the **automatic inference of the number of clusters**. The posterior distribution of the weights `w` reveals which components are "active", giving a probabilistic estimate of `K`.
+
+* Prior $\alpha$ strongly influence the predicted number of clusters. Below are examples of this relationship:
+
+| Shape | Rate | $E[\alpha]$ | $E[K]$ (approx) | Behavior |
+|:---:|:---:|:---:|:---:|:---|
+| 1     | 15   | 0.067       | 0.35            | Forces very few clusters |
+| 5     | 1    | 5           | 26              | Encourages many small clusters |
+| 10    | 2    | 5           | 26              | Same mean, less variance |
+| 2     | 0.5  | 4           | 21              | Moderately many clusters |
+| 15    | 1    | 15          | 78              | Explosive prior cluster count |
+: Impact of Gamma Prior Hyperparameters on Cluster Counts {tbl-colwidths="[10,10,15,25,40]"}
+
 :::
 
 ## Reference(s)
 
-@gershman2012tutorial
+https://en.wikipedia.org/wiki/Dirichlet_process
+https://pyro.ai/examples/dirichlet_process_mixture.html

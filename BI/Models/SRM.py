@@ -3,7 +3,7 @@ import numpy as np
 import jax.numpy as jnp
 from jax import jit
 from BI.Network.Net import Neteffect
-from BI.Utils.np_dists import UnifiedDist as dist
+from BI.Distributions.np_dists import UnifiedDist as dist
 
 def logit(x):
     return jnp.log(x / (1 - x))

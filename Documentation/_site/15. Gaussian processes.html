@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -22,9 +22,8 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -35,7 +34,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -88,18 +87,17 @@ div.csl-indent {
 <meta name="quarto:offset" content="./">
 <link href="./16. Measuring error.html" rel="next">
 <link href="./14. Varying slopes.html" rel="prev">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-5cc8395b10573f07cfedf58f7a45f761.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-785e6f9f9cefe4638bba3361deac6afc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -178,167 +176,7 @@ window.Quarto = {
 <link rel="stylesheet" href="MyStyles.css">
 </head>
 
-<body class="nav-sidebar floating nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
-    const toggleBodyColorMode = (bsSheetEl) => {
-      const mode = bsSheetEl.getAttribute("data-mode");
-      const bodyEl = window.document.querySelector("body");
-      if (mode === "dark") {
-        bodyEl.classList.add("quarto-dark");
-        bodyEl.classList.remove("quarto-light");
-      } else {
-        bodyEl.classList.add("quarto-light");
-        bodyEl.classList.remove("quarto-dark");
-      }
-    }
-    const toggleBodyColorPrimary = () => {
-      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
-      if (bsSheetEl) {
-        toggleBodyColorMode(bsSheetEl);
-      }
-    }
-    const setColorSchemeToggle = (alternate) => {
-      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
-      for (let i=0; i < toggles.length; i++) {
-        const toggle = toggles[i];
-        if (toggle) {
-          if (alternate) {
-            toggle.classList.add("alternate");
-          } else {
-            toggle.classList.remove("alternate");
-          }
-        }
-      }
-    };
-    const toggleColorMode = (alternate) => {
-      // Switch the stylesheets
-      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
-      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
-      manageTransitions('#quarto-margin-sidebar .nav-link', false);
-      if (alternate) {
-        // note: dark is layered on light, we don't disable primary!
-        enableStylesheet(alternateStylesheets);
-        for (const sheetNode of alternateStylesheets) {
-          if (sheetNode.id === "quarto-bootstrap") {
-            toggleBodyColorMode(sheetNode);
-          }
-        }
-      } else {
-        disableStylesheet(alternateStylesheets);
-        enableStylesheet(primaryStylesheets)
-        toggleBodyColorPrimary();
-      }
-      manageTransitions('#quarto-margin-sidebar .nav-link', true);
-      // Switch the toggles
-      setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
-      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
-        manageTransitions("body", false);
-        window.scrollTo(0, 1);
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-          manageTransitions("body", true);
-        }, 40);
-      }
-    }
-    const disableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        stylesheet.rel = 'disabled-stylesheet';
-      }
-    }
-    const enableStylesheet = (stylesheets) => {
-      for (let i=0; i < stylesheets.length; i++) {
-        const stylesheet = stylesheets[i];
-        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
-          stylesheet.rel = 'stylesheet';
-        }
-      }
-    }
-    const manageTransitions = (selector, allowTransitions) => {
-      const els = window.document.querySelectorAll(selector);
-      for (let i=0; i < els.length; i++) {
-        const el = els[i];
-        if (allowTransitions) {
-          el.classList.remove('notransition');
-        } else {
-          el.classList.add('notransition');
-        }
-      }
-    }
-    const isFileUrl = () => {
-      return window.location.protocol === 'file:';
-    }
-    const hasAlternateSentinel = () => {
-      let styleSentinel = getColorSchemeSentinel();
-      if (styleSentinel !== null) {
-        return styleSentinel === "alternate";
-      } else {
-        return false;
-      }
-    }
-    const setStyleSentinel = (alternate) => {
-      const value = alternate ? "alternate" : "default";
-      if (!isFileUrl()) {
-        window.localStorage.setItem("quarto-color-scheme", value);
-      } else {
-        localAlternateSentinel = value;
-      }
-    }
-    const getColorSchemeSentinel = () => {
-      if (!isFileUrl()) {
-        const storageValue = window.localStorage.getItem("quarto-color-scheme");
-        return storageValue != null ? storageValue : localAlternateSentinel;
-      } else {
-        return localAlternateSentinel;
-      }
-    }
-    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
-      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
-      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
-      let newTheme = '';
-      if(authorPrefersDark) {
-        newTheme = isAlternate ? baseTheme : alternateTheme;
-      } else {
-        newTheme = isAlternate ? alternateTheme : baseTheme;
-      }
-      const changeGiscusTheme = () => {
-        // From: https://github.com/giscus/giscus/issues/336
-        const sendMessage = (message) => {
-          const iframe = document.querySelector('iframe.giscus-frame');
-          if (!iframe) return;
-          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
-        }
-        sendMessage({
-          setConfig: {
-            theme: newTheme
-          }
-        });
-      }
-      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
-      if (isGiscussLoaded) {
-        changeGiscusTheme();
-      }
-    };
-    const authorPrefersDark = true;
-    const darkModeDefault = authorPrefersDark;
-    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
-    // Dark / light mode switch
-    window.quartoToggleColorScheme = () => {
-      // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
-      toggleColorMode(toAlternate);
-      setStyleSentinel(toAlternate);
-      toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
-    };
-    // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
-      toggleColorMode(true);
-    } else {
-      toggleColorMode(false);
-    }
-  </script>
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -610,7 +448,6 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Gaussian Processes</h1>
@@ -673,7 +510,7 @@ Caution
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="f709d2f6" class="cell" data-execution_count="1">
+<div id="f977e539" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
@@ -682,11 +519,11 @@ Caution
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Kline2.csv'</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.kline2(only_path<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>data_path2 <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'islandsDistMatrix.csv'</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>data_path2 <span class="op">=</span> files(<span class="st">'BI.Resources'</span>) <span class="op">/</span> <span class="st">'islandsDistMatrix.csv'</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> pd.read_csv(data_path2, index_col<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>])</span>
@@ -714,10 +551,10 @@ Caution
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 16</code></pre>
+<pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:01&lt;32:38,  1.96s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 31/1000 [00:02&lt;00:46, 20.83it/s, 31 steps of size 2.12e-02. acc. prob=0.73]warmup:   5%|▍         | 49/1000 [00:02&lt;00:29, 32.53it/s, 255 steps of size 1.95e-02. acc. prob=0.75]warmup:   6%|▋         | 63/1000 [00:02&lt;00:21, 43.74it/s, 127 steps of size 2.12e-02. acc. prob=0.76]warmup:   8%|▊         | 77/1000 [00:02&lt;00:17, 52.89it/s, 127 steps of size 1.34e-02. acc. prob=0.76]warmup:   9%|▉         | 90/1000 [00:02&lt;00:14, 62.74it/s, 127 steps of size 2.99e-02. acc. prob=0.77]warmup:  11%|█         | 106/1000 [00:02&lt;00:11, 78.21it/s, 127 steps of size 4.38e-02. acc. prob=0.76]warmup:  12%|█▏        | 119/1000 [00:02&lt;00:10, 87.68it/s, 9 steps of size 9.03e-03. acc. prob=0.76]  warmup:  13%|█▎        | 132/1000 [00:02&lt;00:09, 93.95it/s, 127 steps of size 2.46e-02. acc. prob=0.77]warmup:  15%|█▍        | 148/1000 [00:03&lt;00:07, 108.37it/s, 31 steps of size 4.06e-02. acc. prob=0.77]warmup:  16%|█▋        | 165/1000 [00:03&lt;00:07, 118.70it/s, 511 steps of size 1.25e-02. acc. prob=0.77]warmup:  18%|█▊        | 179/1000 [00:03&lt;00:08, 98.24it/s, 63 steps of size 3.18e-02. acc. prob=0.77]  warmup:  19%|█▉        | 192/1000 [00:03&lt;00:07, 104.26it/s, 127 steps of size 7.29e-02. acc. prob=0.77]warmup:  20%|██        | 204/1000 [00:03&lt;00:07, 104.38it/s, 5 steps of size 1.88e-02. acc. prob=0.77]  warmup:  22%|██▏       | 216/1000 [00:03&lt;00:07, 102.66it/s, 4 steps of size 1.88e-02. acc. prob=0.77]warmup:  23%|██▎       | 227/1000 [00:03&lt;00:08, 91.37it/s, 127 steps of size 4.57e-02. acc. prob=0.78]warmup:  24%|██▍       | 238/1000 [00:03&lt;00:08, 94.12it/s, 63 steps of size 8.76e-02. acc. prob=0.78] warmup:  25%|██▌       | 252/1000 [00:04&lt;00:07, 105.50it/s, 3 steps of size 1.47e-02. acc. prob=0.77]warmup:  26%|██▋       | 264/1000 [00:04&lt;00:07, 101.26it/s, 511 steps of size 1.65e-02. acc. prob=0.78]warmup:  28%|██▊       | 278/1000 [00:04&lt;00:06, 110.61it/s, 255 steps of size 1.97e-02. acc. prob=0.78]warmup:  29%|██▉       | 290/1000 [00:04&lt;00:06, 103.82it/s, 63 steps of size 6.28e-02. acc. prob=0.78] warmup:  30%|███       | 304/1000 [00:04&lt;00:06, 110.78it/s, 255 steps of size 2.16e-02. acc. prob=0.78]warmup:  32%|███▏      | 316/1000 [00:04&lt;00:06, 104.92it/s, 127 steps of size 3.80e-02. acc. prob=0.78]warmup:  33%|███▎      | 327/1000 [00:04&lt;00:06, 99.06it/s, 63 steps of size 5.13e-02. acc. prob=0.78]  warmup:  34%|███▍      | 338/1000 [00:04&lt;00:06, 100.87it/s, 5 steps of size 1.93e-02. acc. prob=0.78]warmup:  35%|███▌      | 351/1000 [00:05&lt;00:06, 107.78it/s, 63 steps of size 7.18e-02. acc. prob=0.78]warmup:  36%|███▋      | 365/1000 [00:05&lt;00:05, 113.45it/s, 127 steps of size 4.25e-02. acc. prob=0.78]warmup:  38%|███▊      | 377/1000 [00:05&lt;00:05, 105.18it/s, 63 steps of size 4.28e-02. acc. prob=0.78] warmup:  39%|███▉      | 392/1000 [00:05&lt;00:05, 116.49it/s, 51 steps of size 3.83e-02. acc. prob=0.78]warmup:  41%|████      | 407/1000 [00:05&lt;00:04, 125.58it/s, 127 steps of size 2.85e-02. acc. prob=0.78]warmup:  42%|████▏     | 421/1000 [00:05&lt;00:04, 129.08it/s, 63 steps of size 4.02e-02. acc. prob=0.78] warmup:  44%|████▎     | 435/1000 [00:05&lt;00:04, 130.15it/s, 107 steps of size 2.30e-02. acc. prob=0.78]warmup:  45%|████▍     | 449/1000 [00:05&lt;00:04, 115.32it/s, 63 steps of size 6.64e-02. acc. prob=0.78] warmup:  46%|████▌     | 461/1000 [00:05&lt;00:05, 97.17it/s, 255 steps of size 3.79e-02. acc. prob=0.78]warmup:  47%|████▋     | 472/1000 [00:06&lt;00:05, 90.67it/s, 35 steps of size 2.07e-02. acc. prob=0.78] warmup:  48%|████▊     | 485/1000 [00:06&lt;00:05, 91.39it/s, 511 steps of size 1.52e-02. acc. prob=0.78]warmup:  50%|████▉     | 495/1000 [00:06&lt;00:05, 91.90it/s, 63 steps of size 7.59e-02. acc. prob=0.78] sample:  51%|█████     | 509/1000 [00:06&lt;00:04, 102.46it/s, 127 steps of size 3.06e-02. acc. prob=0.97]sample:  52%|█████▏    | 522/1000 [00:06&lt;00:04, 107.31it/s, 127 steps of size 3.06e-02. acc. prob=0.95]sample:  53%|█████▎    | 534/1000 [00:06&lt;00:04, 101.09it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  55%|█████▍    | 546/1000 [00:06&lt;00:04, 105.94it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  56%|█████▌    | 558/1000 [00:06&lt;00:04, 108.05it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  57%|█████▋    | 570/1000 [00:07&lt;00:04, 107.08it/s, 31 steps of size 3.06e-02. acc. prob=0.93] sample:  58%|█████▊    | 581/1000 [00:07&lt;00:04, 96.96it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  59%|█████▉    | 593/1000 [00:07&lt;00:03, 101.81it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  60%|██████    | 605/1000 [00:07&lt;00:03, 104.19it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  62%|██████▏   | 616/1000 [00:07&lt;00:04, 92.49it/s, 127 steps of size 3.06e-02. acc. prob=0.94] sample:  63%|██████▎   | 626/1000 [00:07&lt;00:04, 82.01it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  64%|██████▍   | 639/1000 [00:07&lt;00:03, 91.95it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  65%|██████▌   | 651/1000 [00:07&lt;00:03, 98.84it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  66%|██████▋   | 663/1000 [00:08&lt;00:03, 103.64it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  68%|██████▊   | 675/1000 [00:08&lt;00:03, 106.17it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  69%|██████▉   | 689/1000 [00:08&lt;00:02, 113.61it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  70%|███████   | 701/1000 [00:08&lt;00:02, 112.92it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  71%|███████▏  | 713/1000 [00:08&lt;00:02, 112.09it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  72%|███████▎  | 725/1000 [00:08&lt;00:02, 108.27it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  74%|███████▎  | 737/1000 [00:08&lt;00:02, 110.43it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  75%|███████▌  | 751/1000 [00:08&lt;00:02, 116.42it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  77%|███████▋  | 766/1000 [00:08&lt;00:01, 124.61it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  78%|███████▊  | 779/1000 [00:09&lt;00:01, 118.27it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  79%|███████▉  | 791/1000 [00:09&lt;00:01, 108.40it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  80%|████████  | 803/1000 [00:09&lt;00:02, 95.03it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  81%|████████▏ | 813/1000 [00:09&lt;00:01, 95.05it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  82%|████████▎ | 825/1000 [00:09&lt;00:01, 101.07it/s, 63 steps of size 3.06e-02. acc. prob=0.94]sample:  84%|████████▎ | 836/1000 [00:09&lt;00:01, 101.83it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  85%|████████▍ | 847/1000 [00:09&lt;00:01, 95.63it/s, 127 steps of size 3.06e-02. acc. prob=0.94] sample:  86%|████████▌ | 858/1000 [00:09&lt;00:01, 98.14it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  87%|████████▋ | 870/1000 [00:09&lt;00:01, 102.62it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  88%|████████▊ | 883/1000 [00:10&lt;00:01, 106.68it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  89%|████████▉ | 894/1000 [00:10&lt;00:01, 100.33it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  90%|█████████ | 905/1000 [00:10&lt;00:00, 97.71it/s, 127 steps of size 3.06e-02. acc. prob=0.94] sample:  92%|█████████▏| 916/1000 [00:10&lt;00:00, 100.74it/s, 63 steps of size 3.06e-02. acc. prob=0.94]sample:  93%|█████████▎| 929/1000 [00:10&lt;00:00, 103.99it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  94%|█████████▍| 940/1000 [00:10&lt;00:00, 100.02it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  95%|█████████▌| 951/1000 [00:10&lt;00:00, 93.73it/s, 127 steps of size 3.06e-02. acc. prob=0.94] sample:  96%|█████████▌| 961/1000 [00:10&lt;00:00, 87.48it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  97%|█████████▋| 971/1000 [00:11&lt;00:00, 89.69it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  98%|█████████▊| 981/1000 [00:14&lt;00:01, 10.51it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  99%|█████████▉| 988/1000 [00:14&lt;00:00, 12.91it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample: 100%|█████████▉| 995/1000 [00:14&lt;00:00, 15.72it/s, 383 steps of size 3.06e-02. acc. prob=0.94]sample: 100%|██████████| 1000/1000 [00:14&lt;00:00, 69.47it/s, 127 steps of size 3.06e-02. acc. prob=0.94]
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;11:41,  1.43it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   4%|▍         | 43/1000 [00:00&lt;00:13, 71.39it/s, 383 steps of size 1.21e-02. acc. prob=0.74]warmup:   8%|▊         | 77/1000 [00:00&lt;00:07, 123.09it/s, 127 steps of size 1.45e-02. acc. prob=0.76]warmup:  11%|█         | 112/1000 [00:01&lt;00:05, 171.41it/s, 255 steps of size 6.22e-02. acc. prob=0.77]warmup:  14%|█▍        | 145/1000 [00:01&lt;00:04, 207.19it/s, 127 steps of size 9.25e-02. acc. prob=0.77]warmup:  18%|█▊        | 177/1000 [00:01&lt;00:03, 222.27it/s, 6 steps of size 8.92e-03. acc. prob=0.77]  warmup:  21%|██        | 207/1000 [00:01&lt;00:03, 220.45it/s, 255 steps of size 3.96e-02. acc. prob=0.78]warmup:  24%|██▍       | 241/1000 [00:01&lt;00:03, 248.30it/s, 191 steps of size 6.20e-02. acc. prob=0.78]warmup:  28%|██▊       | 277/1000 [00:01&lt;00:02, 275.94it/s, 511 steps of size 2.24e-02. acc. prob=0.78]warmup:  31%|███       | 312/1000 [00:01&lt;00:02, 294.31it/s, 511 steps of size 1.65e-02. acc. prob=0.78]warmup:  34%|███▍      | 345/1000 [00:01&lt;00:02, 303.67it/s, 255 steps of size 2.41e-02. acc. prob=0.78]warmup:  38%|███▊      | 385/1000 [00:01&lt;00:01, 330.66it/s, 127 steps of size 2.83e-02. acc. prob=0.78]warmup:  42%|████▏     | 420/1000 [00:01&lt;00:01, 333.90it/s, 63 steps of size 1.98e-02. acc. prob=0.78] warmup:  46%|████▌     | 460/1000 [00:02&lt;00:01, 350.73it/s, 255 steps of size 2.05e-02. acc. prob=0.78]warmup:  50%|████▉     | 496/1000 [00:02&lt;00:01, 338.54it/s, 9 steps of size 1.89e-02. acc. prob=0.78]  sample:  53%|█████▎    | 531/1000 [00:02&lt;00:01, 333.04it/s, 127 steps of size 2.85e-02. acc. prob=0.93]sample:  57%|█████▋    | 567/1000 [00:02&lt;00:01, 339.29it/s, 127 steps of size 2.85e-02. acc. prob=0.92]sample:  60%|██████    | 602/1000 [00:02&lt;00:01, 333.38it/s, 127 steps of size 2.85e-02. acc. prob=0.92]sample:  64%|██████▎   | 636/1000 [00:02&lt;00:01, 320.39it/s, 63 steps of size 2.85e-02. acc. prob=0.93] sample:  67%|██████▋   | 670/1000 [00:02&lt;00:01, 325.67it/s, 127 steps of size 2.85e-02. acc. prob=0.93]sample:  70%|███████   | 703/1000 [00:02&lt;00:00, 318.72it/s, 127 steps of size 2.85e-02. acc. prob=0.94]sample:  74%|███████▎  | 736/1000 [00:02&lt;00:00, 298.84it/s, 127 steps of size 2.85e-02. acc. prob=0.94]sample:  77%|███████▋  | 771/1000 [00:03&lt;00:00, 311.64it/s, 63 steps of size 2.85e-02. acc. prob=0.94] sample:  80%|████████  | 803/1000 [00:03&lt;00:00, 313.58it/s, 127 steps of size 2.85e-02. acc. prob=0.94]sample:  84%|████████▎ | 835/1000 [00:03&lt;00:00, 314.26it/s, 127 steps of size 2.85e-02. acc. prob=0.94]sample:  87%|████████▋ | 867/1000 [00:03&lt;00:00, 311.80it/s, 127 steps of size 2.85e-02. acc. prob=0.94]sample:  90%|█████████ | 902/1000 [00:03&lt;00:00, 321.80it/s, 127 steps of size 2.85e-02. acc. prob=0.94]sample:  94%|█████████▍| 942/1000 [00:03&lt;00:00, 342.14it/s, 127 steps of size 2.85e-02. acc. prob=0.94]sample:  98%|█████████▊| 977/1000 [00:03&lt;00:00, 334.86it/s, 127 steps of size 2.85e-02. acc. prob=0.94]sample: 100%|██████████| 1000/1000 [00:03&lt;00:00, 265.13it/s, 127 steps of size 2.85e-02. acc. prob=0.94]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -742,14 +579,14 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a</td>
-<td>1.40</td>
-<td>1.03</td>
-<td>0.20</td>
-<td>2.82</td>
+<td>1.39</td>
+<td>1.01</td>
+<td>0.17</td>
+<td>2.81</td>
 <td>0.07</td>
-<td>0.07</td>
-<td>162.10</td>
-<td>261.31</td>
+<td>0.05</td>
+<td>133.98</td>
+<td>214.31</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
@@ -760,164 +597,164 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <td>0.41</td>
 <td>0.01</td>
 <td>0.00</td>
-<td>172.66</td>
-<td>189.40</td>
+<td>184.17</td>
+<td>119.24</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">etasq</td>
 <td>0.08</td>
-<td>0.05</td>
+<td>0.07</td>
 <td>0.01</td>
 <td>0.15</td>
-<td>0.00</td>
-<td>0.00</td>
-<td>148.10</td>
-<td>193.35</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>136.57</td>
+<td>149.24</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">g</td>
-<td>0.65</td>
-<td>0.63</td>
-<td>0.01</td>
-<td>1.35</td>
-<td>0.04</td>
-<td>0.07</td>
-<td>190.39</td>
-<td>243.19</td>
+<td>0.64</td>
+<td>0.59</td>
+<td>0.02</td>
+<td>1.31</td>
+<td>0.03</td>
+<td>0.05</td>
+<td>194.77</td>
+<td>235.45</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">k[0]</td>
-<td>-0.20</td>
-<td>0.28</td>
-<td>-0.60</td>
-<td>0.26</td>
+<td>-0.21</td>
+<td>0.30</td>
+<td>-0.64</td>
+<td>0.24</td>
 <td>0.02</td>
-<td>0.02</td>
-<td>176.77</td>
-<td>195.46</td>
+<td>0.03</td>
+<td>170.75</td>
+<td>120.39</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">k[1]</td>
 <td>0.03</td>
-<td>0.26</td>
-<td>-0.37</td>
-<td>0.42</td>
+<td>0.28</td>
+<td>-0.34</td>
+<td>0.48</td>
 <td>0.02</td>
-<td>0.01</td>
-<td>214.62</td>
-<td>210.07</td>
+<td>0.02</td>
+<td>166.01</td>
+<td>144.33</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">k[2]</td>
-<td>-0.06</td>
-<td>0.24</td>
-<td>-0.43</td>
-<td>0.30</td>
-<td>0.02</td>
-<td>0.01</td>
-<td>182.16</td>
-<td>196.83</td>
+<td>-0.07</td>
+<td>0.27</td>
+<td>-0.40</td>
+<td>0.39</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>115.89</td>
+<td>108.80</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">k[3]</td>
-<td>0.36</td>
-<td>0.21</td>
-<td>0.05</td>
-<td>0.71</td>
+<td>0.33</td>
+<td>0.23</td>
+<td>-0.01</td>
+<td>0.74</td>
 <td>0.02</td>
-<td>0.01</td>
-<td>165.96</td>
-<td>179.87</td>
+<td>0.02</td>
+<td>136.59</td>
+<td>96.46</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">k[4]</td>
-<td>0.05</td>
-<td>0.21</td>
-<td>-0.32</td>
-<td>0.35</td>
 <td>0.02</td>
-<td>0.01</td>
-<td>152.21</td>
-<td>146.88</td>
+<td>0.24</td>
+<td>-0.34</td>
+<td>0.33</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>118.65</td>
+<td>96.09</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">k[5]</td>
-<td>-0.37</td>
-<td>0.25</td>
-<td>-0.77</td>
-<td>-0.01</td>
-<td>0.02</td>
-<td>0.01</td>
-<td>153.15</td>
-<td>217.39</td>
+<td>-0.41</td>
+<td>0.28</td>
+<td>-0.78</td>
+<td>-0.00</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>120.78</td>
+<td>94.91</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">k[6]</td>
-<td>0.14</td>
-<td>0.19</td>
-<td>-0.20</td>
-<td>0.43</td>
+<td>0.11</td>
+<td>0.23</td>
+<td>-0.23</td>
+<td>0.42</td>
 <td>0.02</td>
-<td>0.01</td>
-<td>123.67</td>
-<td>208.08</td>
+<td>0.03</td>
+<td>105.71</td>
+<td>78.35</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">k[7]</td>
-<td>-0.21</td>
-<td>0.22</td>
-<td>-0.55</td>
-<td>0.15</td>
-<td>0.02</td>
-<td>0.01</td>
-<td>145.49</td>
-<td>288.18</td>
+<td>-0.24</td>
+<td>0.25</td>
+<td>-0.64</td>
+<td>0.11</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>109.64</td>
+<td>71.99</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">k[8]</td>
-<td>0.26</td>
-<td>0.20</td>
-<td>-0.03</td>
-<td>0.59</td>
-<td>0.02</td>
-<td>0.01</td>
-<td>141.54</td>
-<td>171.81</td>
+<td>0.24</td>
+<td>0.24</td>
+<td>-0.07</td>
+<td>0.61</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>97.87</td>
+<td>68.36</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">k[9]</td>
-<td>-0.20</td>
-<td>0.30</td>
-<td>-0.68</td>
-<td>0.24</td>
-<td>0.03</td>
-<td>0.02</td>
-<td>131.02</td>
-<td>243.52</td>
+<td>-0.23</td>
+<td>0.34</td>
+<td>-0.71</td>
+<td>0.26</td>
+<td>0.04</td>
+<td>0.04</td>
+<td>103.11</td>
+<td>73.45</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rhosq</td>
-<td>1.62</td>
-<td>1.82</td>
-<td>0.00</td>
-<td>3.20</td>
-<td>0.10</td>
-<td>0.17</td>
-<td>199.68</td>
-<td>165.94</td>
+<td>1.69</td>
+<td>1.65</td>
+<td>0.01</td>
+<td>3.62</td>
+<td>0.08</td>
+<td>0.11</td>
+<td>246.84</td>
+<td>201.20</td>
 <td>NaN</td>
 </tr>
 </tbody>
@@ -928,7 +765,7 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div id="8713b437" class="cell" data-execution_count="2">
+<div id="14087e7a" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
@@ -937,39 +774,35 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'Kline2.csv'</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.kline2(only_path<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>data_path2 <span class="op">=</span> files(<span class="st">'BI.resources.data'</span>) <span class="op">/</span> <span class="st">'islandsDistMatrix.csv'</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> pd.read_csv(data_path2, index_col<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>])</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"society"</span>] <span class="op">=</span> jnp.arange(<span class="dv">0</span>,<span class="dv">10</span>)<span class="co"># index observations</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"Dmat"</span>] <span class="op">=</span> islandsDistMatrix.values <span class="co"># Distance matrix</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> m.load.islands_dist_matrix(frame <span class="op">=</span> <span class="va">False</span>)[<span class="st">'data'</span>]</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"society"</span>] <span class="op">=</span> jnp.arange(<span class="dv">0</span>,<span class="dv">10</span>)<span class="co"># index observations</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"Dmat"</span>] <span class="op">=</span> islandsDistMatrix <span class="co"># Distance matrix</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(Dmat, population, society, total_tools):</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>)</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'g'</span>)</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># non-centered Gaussian Process prior</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    etasq <span class="op">=</span> m.dist.exponential(<span class="dv">2</span>, name <span class="op">=</span> <span class="st">'etasq'</span>)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    rhosq <span class="op">=</span> m.dist.exponential(<span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'rhosq'</span>)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.gaussian.gaussian_process(Dmat, etasq, rhosq, <span class="fl">0.01</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(Dmat, population, society, total_tools):</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'g'</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.gaussian.gaussian_process(Dmat)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">**</span>b <span class="op">/</span> g <span class="op">*</span> jnp.exp(k[society])</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(lambda_, obs<span class="op">=</span>total_tools)</span>
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">**</span>b <span class="op">/</span> g <span class="op">*</span> jnp.exp(k[society])</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(lambda_, obs<span class="op">=</span>total_tools)</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 16</code></pre>
+<pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:03&lt;56:20,  3.38s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 26/1000 [00:03&lt;01:33, 10.40it/s, 255 steps of size 1.57e-02. acc. prob=0.71]warmup:   4%|▍         | 41/1000 [00:03&lt;00:55, 17.35it/s, 127 steps of size 2.53e-02. acc. prob=0.74]warmup:   6%|▌         | 56/1000 [00:03&lt;00:35, 26.61it/s, 63 steps of size 5.30e-03. acc. prob=0.74] warmup:   7%|▋         | 70/1000 [00:03&lt;00:26, 35.51it/s, 127 steps of size 3.29e-02. acc. prob=0.76]warmup:   8%|▊         | 82/1000 [00:04&lt;00:20, 44.75it/s, 63 steps of size 2.26e-02. acc. prob=0.76] warmup:   9%|▉         | 94/1000 [00:04&lt;00:17, 51.26it/s, 511 steps of size 1.46e-02. acc. prob=0.76]warmup:  10%|█         | 105/1000 [00:04&lt;00:15, 59.59it/s, 63 steps of size 6.26e-02. acc. prob=0.76]warmup:  12%|█▏        | 119/1000 [00:04&lt;00:11, 73.79it/s, 23 steps of size 7.97e-03. acc. prob=0.76]warmup:  13%|█▎        | 132/1000 [00:04&lt;00:10, 85.11it/s, 31 steps of size 8.22e-02. acc. prob=0.77]warmup:  14%|█▍        | 144/1000 [00:04&lt;00:10, 83.08it/s, 511 steps of size 1.98e-02. acc. prob=0.77]warmup:  16%|█▌        | 156/1000 [00:04&lt;00:09, 87.06it/s, 511 steps of size 1.49e-02. acc. prob=0.77]warmup:  17%|█▋        | 167/1000 [00:04&lt;00:09, 87.71it/s, 255 steps of size 2.23e-02. acc. prob=0.77]warmup:  18%|█▊        | 177/1000 [00:05&lt;00:12, 65.74it/s, 127 steps of size 5.96e-02. acc. prob=0.77]warmup:  19%|█▊        | 186/1000 [00:05&lt;00:12, 63.19it/s, 255 steps of size 3.22e-02. acc. prob=0.77]warmup:  20%|█▉        | 197/1000 [00:05&lt;00:11, 72.28it/s, 255 steps of size 2.34e-02. acc. prob=0.77]warmup:  21%|██        | 209/1000 [00:05&lt;00:09, 82.86it/s, 127 steps of size 6.03e-02. acc. prob=0.78]warmup:  22%|██▏       | 221/1000 [00:05&lt;00:08, 91.73it/s, 127 steps of size 6.78e-02. acc. prob=0.78]warmup:  24%|██▎       | 236/1000 [00:05&lt;00:07, 105.03it/s, 255 steps of size 4.80e-02. acc. prob=0.78]warmup:  25%|██▌       | 250/1000 [00:05&lt;00:06, 112.36it/s, 63 steps of size 5.16e-02. acc. prob=0.78] warmup:  26%|██▌       | 262/1000 [00:05&lt;00:08, 90.86it/s, 127 steps of size 5.86e-02. acc. prob=0.78]warmup:  27%|██▋       | 273/1000 [00:06&lt;00:10, 72.48it/s, 7 steps of size 2.72e-02. acc. prob=0.78]  warmup:  28%|██▊       | 282/1000 [00:06&lt;00:09, 74.56it/s, 127 steps of size 4.68e-02. acc. prob=0.78]warmup:  30%|██▉       | 295/1000 [00:06&lt;00:08, 86.51it/s, 31 steps of size 1.98e-02. acc. prob=0.78] warmup:  31%|███       | 308/1000 [00:06&lt;00:07, 96.25it/s, 255 steps of size 4.95e-02. acc. prob=0.78]warmup:  32%|███▏      | 319/1000 [00:06&lt;00:07, 92.32it/s, 255 steps of size 4.03e-02. acc. prob=0.78]warmup:  33%|███▎      | 333/1000 [00:06&lt;00:06, 103.97it/s, 255 steps of size 3.22e-02. acc. prob=0.78]warmup:  35%|███▍      | 346/1000 [00:06&lt;00:06, 108.34it/s, 63 steps of size 3.57e-02. acc. prob=0.78] warmup:  36%|███▌      | 358/1000 [00:07&lt;00:06, 98.92it/s, 127 steps of size 4.51e-02. acc. prob=0.78]warmup:  37%|███▋      | 369/1000 [00:07&lt;00:06, 101.56it/s, 191 steps of size 2.94e-02. acc. prob=0.78]warmup:  38%|███▊      | 382/1000 [00:07&lt;00:05, 107.41it/s, 255 steps of size 2.82e-02. acc. prob=0.78]warmup:  39%|███▉      | 394/1000 [00:07&lt;00:05, 110.34it/s, 127 steps of size 3.46e-02. acc. prob=0.78]warmup:  41%|████      | 406/1000 [00:07&lt;00:05, 112.35it/s, 139 steps of size 6.85e-02. acc. prob=0.78]warmup:  42%|████▏     | 418/1000 [00:07&lt;00:05, 111.91it/s, 127 steps of size 5.42e-02. acc. prob=0.78]warmup:  44%|████▎     | 435/1000 [00:07&lt;00:04, 124.90it/s, 127 steps of size 5.20e-02. acc. prob=0.78]warmup:  45%|████▍     | 449/1000 [00:07&lt;00:04, 129.07it/s, 31 steps of size 7.42e-02. acc. prob=0.79] warmup:  46%|████▌     | 462/1000 [00:07&lt;00:04, 111.81it/s, 63 steps of size 6.27e-02. acc. prob=0.78]warmup:  47%|████▋     | 474/1000 [00:08&lt;00:05, 93.61it/s, 255 steps of size 2.82e-02. acc. prob=0.78]warmup:  49%|████▊     | 487/1000 [00:08&lt;00:05, 101.53it/s, 63 steps of size 9.56e-02. acc. prob=0.78]sample:  50%|█████     | 502/1000 [00:08&lt;00:04, 112.34it/s, 127 steps of size 3.34e-02. acc. prob=0.98]sample:  51%|█████▏    | 514/1000 [00:08&lt;00:04, 111.73it/s, 63 steps of size 3.34e-02. acc. prob=0.95] sample:  53%|█████▎    | 528/1000 [00:08&lt;00:03, 118.38it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  54%|█████▍    | 541/1000 [00:08&lt;00:03, 118.49it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  56%|█████▌    | 558/1000 [00:08&lt;00:03, 131.66it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  58%|█████▊    | 577/1000 [00:08&lt;00:02, 146.65it/s, 63 steps of size 3.34e-02. acc. prob=0.93] sample:  59%|█████▉    | 592/1000 [00:08&lt;00:02, 139.12it/s, 63 steps of size 3.34e-02. acc. prob=0.93]sample:  61%|██████    | 607/1000 [00:09&lt;00:03, 127.87it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  62%|██████▏   | 622/1000 [00:09&lt;00:02, 130.57it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  64%|██████▎   | 636/1000 [00:09&lt;00:02, 128.10it/s, 63 steps of size 3.34e-02. acc. prob=0.93] sample:  65%|██████▍   | 649/1000 [00:09&lt;00:02, 121.06it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  67%|██████▋   | 666/1000 [00:09&lt;00:02, 130.05it/s, 255 steps of size 3.34e-02. acc. prob=0.94]sample:  68%|██████▊   | 680/1000 [00:09&lt;00:02, 132.14it/s, 31 steps of size 3.34e-02. acc. prob=0.94] sample:  69%|██████▉   | 694/1000 [00:09&lt;00:02, 129.32it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  71%|███████   | 708/1000 [00:09&lt;00:02, 127.15it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  72%|███████▏  | 723/1000 [00:09&lt;00:02, 131.23it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  74%|███████▎  | 737/1000 [00:10&lt;00:01, 132.26it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  75%|███████▌  | 754/1000 [00:10&lt;00:01, 142.76it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  77%|███████▋  | 769/1000 [00:10&lt;00:01, 140.60it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  78%|███████▊  | 784/1000 [00:10&lt;00:01, 134.68it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  80%|███████▉  | 799/1000 [00:10&lt;00:01, 137.71it/s, 191 steps of size 3.34e-02. acc. prob=0.93]sample:  81%|████████▏ | 813/1000 [00:10&lt;00:01, 134.15it/s, 63 steps of size 3.34e-02. acc. prob=0.93] sample:  83%|████████▎ | 827/1000 [00:10&lt;00:01, 127.51it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  84%|████████▍ | 841/1000 [00:10&lt;00:01, 127.34it/s, 255 steps of size 3.34e-02. acc. prob=0.94]sample:  86%|████████▌ | 856/1000 [00:10&lt;00:01, 131.08it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  87%|████████▋ | 870/1000 [00:11&lt;00:00, 133.45it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  88%|████████▊ | 884/1000 [00:11&lt;00:00, 123.59it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  90%|████████▉ | 898/1000 [00:11&lt;00:00, 126.73it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  92%|█████████▏| 916/1000 [00:11&lt;00:00, 140.62it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  93%|█████████▎| 931/1000 [00:11&lt;00:00, 140.11it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  95%|█████████▍| 946/1000 [00:11&lt;00:00, 138.86it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  96%|█████████▌| 960/1000 [00:11&lt;00:00, 138.47it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  97%|█████████▋| 974/1000 [00:11&lt;00:00, 133.85it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  99%|█████████▉| 988/1000 [00:11&lt;00:00, 126.98it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample: 100%|██████████| 1000/1000 [00:12&lt;00:00, 82.77it/s, 63 steps of size 3.34e-02. acc. prob=0.94] 
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;09:37,  1.73it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   5%|▌         | 53/1000 [00:00&lt;00:09, 104.41it/s, 255 steps of size 1.01e-02. acc. prob=0.74]warmup:   9%|▉         | 88/1000 [00:00&lt;00:05, 157.55it/s, 127 steps of size 2.12e-02. acc. prob=0.76]warmup:  12%|█▏        | 122/1000 [00:00&lt;00:04, 200.45it/s, 63 steps of size 9.73e-02. acc. prob=0.77]warmup:  16%|█▌        | 157/1000 [00:00&lt;00:03, 237.27it/s, 127 steps of size 4.46e-02. acc. prob=0.77]warmup:  19%|█▉        | 191/1000 [00:01&lt;00:03, 252.53it/s, 63 steps of size 8.04e-02. acc. prob=0.78] warmup:  23%|██▎       | 229/1000 [00:01&lt;00:02, 285.17it/s, 127 steps of size 2.93e-02. acc. prob=0.78]warmup:  28%|██▊       | 276/1000 [00:01&lt;00:02, 333.55it/s, 255 steps of size 4.56e-02. acc. prob=0.78]warmup:  32%|███▏      | 319/1000 [00:01&lt;00:01, 360.21it/s, 63 steps of size 6.18e-02. acc. prob=0.78] warmup:  36%|███▌      | 359/1000 [00:01&lt;00:01, 370.31it/s, 191 steps of size 2.64e-02. acc. prob=0.78]warmup:  40%|███▉      | 399/1000 [00:01&lt;00:01, 372.82it/s, 23 steps of size 1.74e-02. acc. prob=0.78] warmup:  44%|████▍     | 438/1000 [00:01&lt;00:01, 325.72it/s, 127 steps of size 3.82e-02. acc. prob=0.78]warmup:  47%|████▋     | 473/1000 [00:01&lt;00:01, 296.91it/s, 127 steps of size 3.69e-02. acc. prob=0.78]sample:  51%|█████     | 507/1000 [00:02&lt;00:01, 306.27it/s, 127 steps of size 3.82e-02. acc. prob=0.94]sample:  55%|█████▌    | 551/1000 [00:02&lt;00:01, 341.14it/s, 63 steps of size 3.82e-02. acc. prob=0.91] sample:  59%|█████▉    | 594/1000 [00:02&lt;00:01, 364.29it/s, 127 steps of size 3.82e-02. acc. prob=0.91]sample:  63%|██████▎   | 632/1000 [00:02&lt;00:01, 337.58it/s, 63 steps of size 3.82e-02. acc. prob=0.92] sample:  67%|██████▋   | 667/1000 [00:02&lt;00:01, 328.53it/s, 63 steps of size 3.82e-02. acc. prob=0.92]sample:  71%|███████   | 707/1000 [00:02&lt;00:00, 346.50it/s, 63 steps of size 3.82e-02. acc. prob=0.92]sample:  75%|███████▌  | 751/1000 [00:02&lt;00:00, 370.93it/s, 255 steps of size 3.82e-02. acc. prob=0.92]sample:  80%|███████▉  | 796/1000 [00:02&lt;00:00, 393.18it/s, 63 steps of size 3.82e-02. acc. prob=0.91] sample:  84%|████████▎ | 836/1000 [00:02&lt;00:00, 389.39it/s, 127 steps of size 3.82e-02. acc. prob=0.91]sample:  88%|████████▊ | 878/1000 [00:02&lt;00:00, 398.15it/s, 95 steps of size 3.82e-02. acc. prob=0.91] sample:  92%|█████████▏| 923/1000 [00:03&lt;00:00, 412.32it/s, 63 steps of size 3.82e-02. acc. prob=0.91]sample:  97%|█████████▋| 973/1000 [00:03&lt;00:00, 436.67it/s, 63 steps of size 3.82e-02. acc. prob=0.92]sample: 100%|██████████| 1000/1000 [00:03&lt;00:00, 309.22it/s, 63 steps of size 3.82e-02. acc. prob=0.91]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="2">
@@ -994,182 +827,182 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a</td>
-<td>1.38</td>
-<td>1.02</td>
-<td>0.11</td>
-<td>2.69</td>
+<td>1.42</td>
+<td>1.11</td>
 <td>0.07</td>
-<td>0.06</td>
-<td>192.96</td>
-<td>201.62</td>
+<td>2.72</td>
+<td>0.07</td>
+<td>0.09</td>
+<td>162.72</td>
+<td>159.21</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">b</td>
 <td>0.28</td>
-<td>0.09</td>
-<td>0.15</td>
-<td>0.42</td>
+<td>0.08</td>
+<td>0.17</td>
+<td>0.44</td>
 <td>0.01</td>
-<td>0.01</td>
-<td>177.27</td>
-<td>192.47</td>
+<td>0.00</td>
+<td>80.44</td>
+<td>174.63</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">etasq</td>
-<td>0.19</td>
-<td>0.19</td>
+<td>0.20</td>
+<td>0.18</td>
 <td>0.01</td>
 <td>0.39</td>
+<td>0.01</td>
 <td>0.02</td>
-<td>0.02</td>
-<td>129.19</td>
-<td>254.18</td>
+<td>145.06</td>
+<td>171.68</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">g</td>
-<td>0.60</td>
-<td>0.55</td>
-<td>0.03</td>
-<td>1.27</td>
-<td>0.04</td>
-<td>0.04</td>
-<td>202.92</td>
-<td>271.68</td>
+<td>0.65</td>
+<td>0.66</td>
+<td>0.02</td>
+<td>1.35</td>
+<td>0.07</td>
+<td>0.06</td>
+<td>70.85</td>
+<td>107.84</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[0]</td>
-<td>-0.16</td>
-<td>0.32</td>
-<td>-0.72</td>
+<td>-0.17</td>
+<td>0.33</td>
+<td>-0.74</td>
 <td>0.27</td>
+<td>0.04</td>
 <td>0.03</td>
-<td>0.03</td>
-<td>108.09</td>
-<td>103.43</td>
+<td>54.29</td>
+<td>92.78</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[1]</td>
 <td>-0.02</td>
-<td>0.31</td>
-<td>-0.50</td>
-<td>0.53</td>
+<td>0.32</td>
+<td>-0.54</td>
+<td>0.48</td>
+<td>0.05</td>
 <td>0.03</td>
-<td>0.03</td>
-<td>108.18</td>
-<td>83.40</td>
+<td>48.22</td>
+<td>79.88</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[2]</td>
-<td>-0.08</td>
-<td>0.29</td>
-<td>-0.52</td>
-<td>0.39</td>
-<td>0.03</td>
-<td>0.03</td>
-<td>104.52</td>
-<td>82.13</td>
+<td>-0.07</td>
+<td>0.32</td>
+<td>-0.48</td>
+<td>0.50</td>
+<td>0.05</td>
+<td>0.04</td>
+<td>51.01</td>
+<td>55.60</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[3]</td>
-<td>0.36</td>
-<td>0.26</td>
-<td>-0.06</td>
-<td>0.77</td>
+<td>0.35</td>
+<td>0.28</td>
+<td>-0.10</td>
+<td>0.78</td>
+<td>0.04</td>
 <td>0.03</td>
-<td>0.03</td>
-<td>109.68</td>
-<td>101.92</td>
+<td>51.18</td>
+<td>83.79</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[4]</td>
 <td>0.07</td>
-<td>0.25</td>
-<td>-0.31</td>
-<td>0.48</td>
+<td>0.29</td>
+<td>-0.35</td>
+<td>0.50</td>
+<td>0.04</td>
 <td>0.03</td>
-<td>0.02</td>
-<td>97.98</td>
-<td>100.86</td>
+<td>53.67</td>
+<td>57.59</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[5]</td>
 <td>-0.40</td>
-<td>0.28</td>
-<td>-0.89</td>
-<td>-0.00</td>
-<td>0.03</td>
-<td>0.02</td>
-<td>105.36</td>
-<td>84.04</td>
+<td>0.29</td>
+<td>-0.80</td>
+<td>0.05</td>
+<td>0.04</td>
+<td>0.04</td>
+<td>59.51</td>
+<td>68.94</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[6]</td>
-<td>0.14</td>
-<td>0.24</td>
-<td>-0.23</td>
-<td>0.56</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>98.67</td>
-<td>87.33</td>
+<td>0.12</td>
+<td>0.29</td>
+<td>-0.21</td>
+<td>0.60</td>
+<td>0.04</td>
+<td>0.04</td>
+<td>51.47</td>
+<td>63.64</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[7]</td>
 <td>-0.22</td>
-<td>0.25</td>
-<td>-0.58</td>
-<td>0.19</td>
-<td>0.03</td>
-<td>0.02</td>
-<td>84.80</td>
-<td>101.42</td>
+<td>0.29</td>
+<td>-0.59</td>
+<td>0.27</td>
+<td>0.04</td>
+<td>0.04</td>
+<td>55.68</td>
+<td>76.35</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[8]</td>
-<td>0.25</td>
-<td>0.23</td>
-<td>-0.14</td>
-<td>0.59</td>
+<td>0.26</td>
+<td>0.28</td>
+<td>-0.17</td>
+<td>0.67</td>
+<td>0.04</td>
 <td>0.03</td>
-<td>0.02</td>
-<td>80.88</td>
-<td>114.93</td>
+<td>57.48</td>
+<td>50.38</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[9]</td>
 <td>-0.19</td>
-<td>0.31</td>
-<td>-0.63</td>
-<td>0.34</td>
-<td>0.03</td>
-<td>0.01</td>
-<td>139.57</td>
-<td>199.16</td>
+<td>0.38</td>
+<td>-0.76</td>
+<td>0.39</td>
+<td>0.04</td>
+<td>0.04</td>
+<td>81.79</td>
+<td>95.49</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rhosq</td>
-<td>1.29</td>
-<td>1.61</td>
+<td>1.38</td>
+<td>1.73</td>
 <td>0.03</td>
-<td>3.31</td>
-<td>0.10</td>
-<td>0.10</td>
-<td>155.41</td>
-<td>262.27</td>
+<td>3.37</td>
+<td>0.12</td>
+<td>0.13</td>
+<td>134.65</td>
+<td>216.24</td>
 <td>NaN</td>
 </tr>
 </tbody>
@@ -1187,8 +1020,8 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesianInference"</span>),<span class="st">"/data/Kline2.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="ot">=</span> pd<span class="sc">$</span><span class="fu">read_csv</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BI"</span>),<span class="st">"/data/islandsDistMatrix.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">index_col=</span><span class="fu">as.integer</span>(<span class="dv">0</span>))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">kline2</span>(<span class="at">only_path=</span>T), <span class="at">sep=</span><span class="st">';'</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="ot">=</span> m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">islands_dist_matrix</span>(<span class="at">frame =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>data</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'total_tools'</span>, <span class="st">'population'</span>))</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>society <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">arange</span>(<span class="dv">0</span>,<span class="dv">10</span>, <span class="at">dtype=</span><span class="st">'int64'</span>)</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>Dmat <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">array</span>(islandsDistMatrix)</span>
@@ -1792,255 +1625,383 @@ tippy('#LKJcorr', {
     window.quartoDisableCodeFolding = true;
   </script>
 <script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    // Ensure there is a toggle, if there isn't float one in the top right
-    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
-      const i = window.document.createElement("i");
-      i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
     }
-    setColorSchemeToggle(hasAlternateSentinel())
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
         }
       }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
       return false;
     }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = true;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
       }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
     }
-    const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
-        }
-        return codeEl.innerText;
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
     }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
     });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
         }
       }
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
     }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
-      });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
     }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
-            }
-          }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
-          }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
-          }
-          return note.innerHTML;
-        }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
       } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
         }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
       }
     }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
-            }
-          } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
-            });
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
           }
         } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
+          // See if we can fetch this
+          fetch(url.split('#')[0])
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
+            const note = htmlDoc.getElementById(id);
             if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
+              const html = processXRef(id, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -2048,161 +2009,185 @@ tippy('#LKJcorr', {
             instance.show();
           });
         }
-      }, function(instance) {
-      });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          let top = null;
-          let height = null;
-          let parent = null;
-          if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
-            }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
-            }
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
       } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
             }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
         });
       }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
     }
-  });
-  </script>
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./14. Varying slopes.html" class="pagination-link" aria-label="Varying Slopes Models 🚧">

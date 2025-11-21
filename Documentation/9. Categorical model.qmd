@@ -39,7 +39,7 @@ m = bi('cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'Sim data multinomial.csv'
+data_path = m.load.sim_multinomial(only_path=True)
 m.data(data_path, sep=',') 
 
 # Define model ------------------------------------------------
@@ -68,7 +68,7 @@ jax = reticulate::import('jax')
 m=importBI(platform='cpu')
 
 # import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/Sim data multinomial.csv", sep = ''), sep=',')
+m$data(m$load$sim_multinomial(only_path=T), sep=',')
 keys <- c("income", "career")
 income = unique(m$df$income)
 income = income[order(income)]

@@ -1,5 +1,5 @@
 
-from BI.Utils.np_dists import UnifiedDist as dist
+from BI.Distributions.np_dists import UnifiedDist as dist
 from matplotlib.cm import ScalarMappable
 from matplotlib.patches import Ellipse
 from matplotlib import transforms
