@@ -37,7 +37,7 @@ m = bi(platform='cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'milk.csv'
+data_path = m.load.milk(only_path = True)
 m.data(data_path, sep=';') 
 m.index(["clade"]) # Convert clade names into index
 m.scale(['kcal_per_g']) # Scale
@@ -64,7 +64,7 @@ library(BayesianInference)
 m=importBI(platform='cpu')
 
 # Load csv file
-m$data(paste(system.file(package = "BayesianInference"),"/data/milk.csv", sep = ''), sep=';')
+m$data(m$load$milk(only_path = T), sep=';')
 m$scale(list('kcal.per.g')) # Manipulate
 m$index(list('clade')) # Scale
 m$data_to_model(list('kcal_per_g', 'index_clade')) # Send to model (convert to jax array)

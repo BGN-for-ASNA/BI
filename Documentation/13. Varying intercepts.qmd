@@ -37,7 +37,7 @@ m = bi(platform='cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'reedfrogs.csv'
+data_path = m.load.reedfrogs(only_path=True)
 m.data(data_path, sep=';') 
 # Manipulate
 m.df["tank"] = jnp.arange(m.df.shape[0]) 
@@ -68,7 +68,7 @@ m = bi(platform='cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'reedfrogs.csv'
+data_path =  m.load.reedfrogs(only_path=True)
 m.data(data_path, sep=';') 
 # Manipulate
 m.df["tank"] = jnp.arange(m.df.shape[0]) 
@@ -94,7 +94,7 @@ library(BayesianInference)
 m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/reedfrogs.csv", sep = ''), sep=';')
+m$data(m$load$reedfrogs(only_path=T), sep=';')
 m$df$tank = c(0:(nrow(m$df)-1)) # Manipulate
 m$data_to_model(list('tank', 'surv', 'density')) # Manipulate
 m$data_on_model$tank = m$data_on_model$tank$astype(jnp$int32) # Manipulate

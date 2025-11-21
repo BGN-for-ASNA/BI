@@ -49,7 +49,6 @@ class link:
         """
         return 1 / (1 + jnp.exp(-x))
 
-
     @staticmethod
     @jit
     def inv_logit_scale(x):
@@ -140,23 +139,6 @@ class link:
         return jnp.exp(x)
 
     @staticmethod
-    def identity(x):
-        """
-        Computes the identity function.
-
-        Parameters
-        ----------
-        x : float or array-like
-            Input value(s).
-
-        Returns
-        -------
-        float or array-like
-            The same input value(s), unchanged.
-        """
-        return x
-
-    @staticmethod
     def cloglog(p):
         """
         Computes the complementary log-log transformation.
@@ -205,23 +187,6 @@ class link:
         -------
         float or array-like
             The reciprocal of the input value(s): 1 / x.
-        """
-        return 1 / x
-
-    @staticmethod
-    def inv_reciprocal(x):
-        """
-        Computes the inverse of the reciprocal function.
-
-        Parameters
-        ----------
-        x : float or array-like
-            Input value(s).
-
-        Returns
-        -------
-        float or array-like
-            The same value(s), as the reciprocal function is its own inverse.
         """
         return 1 / x
 

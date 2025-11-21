@@ -35,11 +35,11 @@ m = bi(platform='cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'Kline2.csv'
+data_path = m.load.kline2(only_path=True)
 m.data(data_path, sep=';') 
 
 
-data_path2 = files('BI.resources.data') / 'islandsDistMatrix.csv'
+data_path2 = files('BI.Resources') / 'islandsDistMatrix.csv'
 islandsDistMatrix = pd.read_csv(data_path2, index_col=0)
 
 m.data_to_model(['total_tools', 'population'])
@@ -78,15 +78,14 @@ m = bi(platform='cpu')
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'Kline2.csv'
+data_path = m.load.kline2(only_path=True)
 m.data(data_path, sep=';') 
 
-data_path2 = files('BI.resources.data') / 'islandsDistMatrix.csv'
-islandsDistMatrix = pd.read_csv(data_path2, index_col=0)
+islandsDistMatrix = m.load.islands_dist_matrix(frame = False)['data']
 
 m.data_to_model(['total_tools', 'population'])
 m.data_on_model["society"] = jnp.arange(0,10)# index observations
-m.data_on_model["Dmat"] = islandsDistMatrix.values # Distance matrix
+m.data_on_model["Dmat"] = islandsDistMatrix # Distance matrix
 
 
 def model(Dmat, population, society, total_tools):
@@ -94,10 +93,7 @@ def model(Dmat, population, society, total_tools):
     b = m.dist.exponential(1, name = 'b')
     g = m.dist.exponential(1, name = 'g')
 
-    # non-centered Gaussian Process prior
-    etasq = m.dist.exponential(2, name = 'etasq')
-    rhosq = m.dist.exponential(0.5, name = 'rhosq')
-    k = m.gaussian.gaussian_process(Dmat, etasq, rhosq, 0.01)
+    k = m.gaussian.gaussian_process(Dmat)
 
     lambda_ = a * population**b / g * jnp.exp(k[society])
 
@@ -117,8 +113,8 @@ pd = reticulate::import('pandas')
 m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/Kline2.csv", sep = ''), sep=';')
-islandsDistMatrix = pd$read_csv(paste(system.file(package = "BI"),"/data/islandsDistMatrix.csv", sep = ''), index_col=as.integer(0))
+m$data(m$load$kline2(only_path=T), sep=';')
+islandsDistMatrix = m$load$islands_dist_matrix(frame = FALSE)$data
 m$data_to_model(list('total_tools', 'population'))
 m$data_on_model$society = jnp$arange(0,10, dtype='int64')
 m$data_on_model$Dmat = jnp$array(islandsDistMatrix)

@@ -30,7 +30,7 @@ m = bi(platform='cpu') # Import
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'Sim dat Gamma poisson.csv'
+data_path =  m.load.sim_gamma_poisson(only_path=True)
 m.data(data_path, sep=',') 
 m.data_to_model(['log_days', 'monastery', 'y']) # Send to model (convert to jax array)
 
@@ -57,7 +57,7 @@ library(BayesianInference)
 m=importBI(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/Sim dat Gamma poisson.csv", sep = ''), sep=',')
+m$data(m$load$sim_gamma_poisson(only_path=T), sep = '')
 m$data_to_model(list('log_days', 'monastery', 'y' )) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
