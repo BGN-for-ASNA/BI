@@ -1,7 +1,7 @@
 from BI.Models.surv import survival
 from BI.NBDA.NBDA import NBDA
 from BI.Models.GMM import *
-from BI.Models.DPMM import *
+from BI.Models.DPMM import dpmm
 from BI.Models.PCA import *
 
 
@@ -15,7 +15,7 @@ class models():
         """
         pass
         self.gmm = gmm
-        self.dpmm = dpmm
+        self.dpmm = dpmm(parent)
         self.pca =  pca
         self.nbda = NBDA.model
         self.survival = survival(parent)
