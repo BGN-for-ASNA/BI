@@ -84,6 +84,36 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 # Summary ------------------------------------------------
 m$summary() # Get posterior distributions
 ```
+
+### Julia
+```julia
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.milk(only_path = true)
+m.data(data_path, sep=';')
+m.index("clade") # Convert clade names into index
+m.scale(["kcal_per_g"]) # Scale
+
+# Define model ------------------------------------------------
+@pymodel function model(kcal_per_g, index_clade, mass)
+    a = m.dist.normal(0, 0.5, shape=(4,), name = "a") # shape based on the number of clades
+    b = m.dist.normal(0, 0.5, shape=(4,), name = "b")
+    s = m.dist.exponential( 1, name = 's')    
+    mu = a[index_clade]+b[index_clade]*mass
+    m.dist.normal(mu, s, obs=kcal_per_g)
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
+```
 :::
 
 ::: callout-caution

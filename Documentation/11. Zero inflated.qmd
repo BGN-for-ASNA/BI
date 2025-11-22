@@ -20,7 +20,7 @@ Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson re
 from BI import bi, jnp
 
 # Setup device ------------------------------------------------
-m = bi('cpu')
+m = bi('cpu', rand_seed = False) # Fixing seed for reproducibility
 
 # Simulated data------------------------------------------------
 prob_drink = 0.2  # 20% of days
@@ -85,6 +85,48 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 m$summary() # Get posterior distribution
 
 
+```
+
+### Julia
+```julia
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Simulated data ------------------------------------------------
+prob_drink = 0.2  
+rate_work = 1     
+
+# Sample one year of production
+N = 365
+
+# Note: Use lowercase 'true' for booleans in Julia
+# 'drink' will be a Python/JAX object
+drink = m.dist.binomial(1, prob_drink, shape=(N,), sample=true)
+
+# Math works automatically because 'drink' is a Py object 
+# and we taught Julia how to handle Py arithmetic in the previous step
+y = (1 - drink) * m.dist.poisson(rate_work, shape=(N,), sample=true)
+
+# Send data to BI class object ------------------------------------------------
+m.data_on_model = pydict(Dict("y" =>y))
+
+
+# Define model ------------------------------------------------
+@pymodel function model(y)
+    al = m.dist.normal(1, 0.5, name="al")
+    ap = m.dist.normal(-1.5, 1, name="ap")
+    p = m.link.inv_logit(ap)
+    lambda_ = jnp.exp(al)
+    m.dist.zero_inflated_poisson(p, lambda_, obs=y)
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
 ```
 :::
 

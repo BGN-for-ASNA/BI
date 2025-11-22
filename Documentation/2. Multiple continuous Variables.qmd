@@ -84,6 +84,38 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 m$summary() # Get posterior distributions
 
 ```
+
+### Julia
+```Julia
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.howell1(only_path = true)
+m.data(data_path, sep=';') 
+m.df = m.df[m.df.age > 18] # Subset data to adults
+m.scale(["weight", "age"]) # Normalize
+
+# Define model ------------------------------------------------
+@pymodel function model(height, weight, age)
+    # Parameter prior distributions
+    alpha = m.dist.normal(0, 0.5, name = "alpha")    
+    beta1 = m.dist.normal(0, 0.5, name = "beta1")
+    beta2 = m.dist.normal(0, 0.5, name = "beta2")
+    sigma = m.dist.uniform(0, 50, name = "sigma")
+    # Likelihood
+    m.dist.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
+```
 :::
 
 ::: callout-caution
