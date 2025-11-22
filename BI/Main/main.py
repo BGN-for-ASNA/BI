@@ -2,14 +2,15 @@
 import inspect
 import ast
 
-import jax.random as random
-import jax.numpy as jnp
-from jax import vmap
-from jax import jit
+#import jax.random as random
+#import jax.numpy as jnp
+#from jax import vmap
+#from jax import jit
 import jax 
 
-from numpyro.infer import MCMC, NUTS, Predictive
-from numpyro.handlers import condition
+
+from numpyro.infer import Predictive
+from numpyro import handlers
 import numpyro
 import arviz as az
 
@@ -160,6 +161,7 @@ class bi(manip):
             jit_model_args: Whether to JIT model arguments.
             seed: Random seed.
         """
+        self.num_chains = num_chains
         if obs is None:
             obs = self.data_on_model
         else:
@@ -272,7 +274,11 @@ class bi(manip):
 
         self.run_model_name = self.model_name
         self.model_name = None
+
+
+    
     # Random number generator ----------------------------------------------------------------
+    
     def randint(self, low, high, shape):
         """
         Generate random integers in the given range.
@@ -485,7 +491,7 @@ class bi(manip):
             plot_gmm(X, sampler= self.sampler,figsize=figsize)
 
         elif self.run_model_name == 'dpmm':
-            plot_dpmm(X, sampler= self.sampler,figsize=figsize)
+            self.models.dpmm.plot_dpmm(X, sampler= self.sampler,figsize=figsize)
 
         elif self.run_model_name == 'pca':
             self.models.pca.plot()
