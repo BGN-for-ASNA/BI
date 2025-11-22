@@ -32,7 +32,7 @@ m = bi(platform='cpu') # Import
 from importlib.resources import files
 data_path =  m.load.sim_gamma_poisson(only_path=True)
 m.data(data_path, sep=',') 
-m.data_to_model(['log_days', 'monastery', 'y']) # Send to model (convert to jax array)
+
 
 # Define model ------------------------------------------------
 def model(log_days, monastery, y):
@@ -77,8 +77,35 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 # Summary ------------------------------------------------
 m$summary() # Get posterior distributions
 
+```
 
+### Julia
+```julia
+using BayesianInference
 
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.sim_gamma_poisson(only_path = true)
+m.data(data_path, sep=',')
+
+# Define model ------------------------------------------------
+@pymodel function model(log_days, monastery, y)
+    a = m.dist.normal(0, 1, name = "a", shape=(1,))
+    b = m.dist.normal(0, 1, name = "b", shape=(1,))
+    phi = m.dist.exponential(1, name = "phi", shape=(1,))
+    mu = jnp.exp(log_days + a + b * monastery)
+    Lambda =  m.dist.gamma(rate = mu*phi, concentration = phi, name = "Lambda")
+    m.dist.poisson(rate = Lambda, obs=y)
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
 ```
 :::
 
