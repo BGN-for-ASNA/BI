@@ -98,6 +98,43 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 m$summary() # Get posterior distribution
 
 ```
+
+### Julia
+```julia
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.sim_multinomial(only_path = true)
+m.data(data_path, sep=',')
+
+# Define model ------------------------------------------------
+@pymodel function model(career, income)
+    a = m.dist.normal(0, 1, shape=(2,), name = "a")
+    b = m.dist.half_normal(0.5, shape=(1,), name = "b")
+    
+    # indexing works now because of the package update
+    s_1 = a[0] + b * income[0]
+    s_2 = a[1] + b * income[1]
+    
+    # ⚠️ Use jnp.array to create a Python object, so [0] indexing works
+    s_3 = jnp.array([0.0]) 
+    
+    # Now s_3[0] is valid because it calls Python's __getitem__(0)
+    p = jax.nn.softmax(jnp.stack([s_1[0], s_2[0], s_3[0]]))
+    
+    m.dist.categorical(probs=p, obs=career)
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
+```
 :::
 
 ## Mathematical Details 

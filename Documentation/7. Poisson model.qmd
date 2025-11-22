@@ -98,7 +98,35 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
 
+```
 
+### Julia
+```julia
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.kline(only_path = true)
+m.data(data_path, sep=';')
+m.scale(["population"]) # Normalize
+m.df["cid"] = m.df.contact.eq("high").astype("int")
+
+# Define model ------------------------------------------------
+@pymodel function model(cid, population, total_tools)
+    a = m.dist.normal(3, 0.5, shape= (2,), name="a")
+    b = m.dist.normal(0, 0.2, shape=(2,), name="b")
+    l = jnp.exp(a[cid] + b[cid]*population)
+    m.dist.poisson(l, obs=total_tools)
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
 ```
 :::
 

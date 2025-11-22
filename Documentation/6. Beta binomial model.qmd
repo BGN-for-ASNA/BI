@@ -123,6 +123,55 @@ m$data_on_model
 
 ```
 
+### Julia
+```julia
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.ucbadmit(only_path = true)
+m.data(data_path, sep=';')
+
+m.df["gid"] = m.df["applicant.gender"].ne("male").astype("int")
+
+# Define model ------------------------------------------------
+@pymodel function model(gid, applications, admit)
+    # Prior for overall concentration scaling (positive, via exponential)
+    phi = m.dist.exponential(1, name="phi")
+    
+    # Priors for group-level intercepts (two groups, normal-distributed)
+    alpha = m.dist.normal(0., 1.5, shape=(2,), name="alpha")
+    
+    # Shifted concentration scale (avoids too small values)
+    theta = phi + 2
+    
+    # Group-specific mean success probability (mapped to [0,1] with sigmoid)
+    pbar = m.link.inv_logit(alpha[gid])
+    
+    # Beta distribution parameter for "successes"
+    concentration1 = pbar * theta
+    
+    # Beta distribution parameter for "failures"
+    concentration0 = (1 - pbar) * theta
+    
+    # Likelihood: admissions modeled with Beta-Binomial
+    m.dist.beta_binomial(
+        total_count=applications,
+        concentration1=concentration1,
+        concentration0=concentration0,
+        obs=admit
+    )
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
+```
 :::
 ## Mathematical Details
 ### *Bayesian Model*

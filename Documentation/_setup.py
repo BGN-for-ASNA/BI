@@ -17,6 +17,8 @@ class LastOnlyTQDM(tqdm_auto):
 # Patch NumPyro's tqdm globally
 numpyro.util.tqdm = LastOnlyTQDM
 
+
+
 import sys
 import os
 sys.stdout = open(os.devnull, 'w')

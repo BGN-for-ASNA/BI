@@ -505,10 +505,10 @@ Note
 <h2 class="anchored" data-anchor-id="example">Example</h2>
 <p>Below is an example of code that demonstrates Bayesian regression with an independent categorical variable using the Bayesian Inference (BI) package. The data consist of one continuous dependent variable (<em>kcal_per_g</em>), representing the caloric value of milk per gram, a categorical independent variable (<em>index_clade</em>), representing species clade membership, and a continuous independent variable (<em>mass</em>), representing the mass of individuals in the clade. The goal is to estimate the differences in milk calories between clades. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="cd488903" class="cell" data-execution_count="1">
+<div id="cdc7b6c3" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
@@ -540,7 +540,7 @@ Note
 <pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;07:46,  2.14it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   8%|▊         | 82/1000 [00:00&lt;00:04, 190.46it/s, 511 steps of size 5.98e-03. acc. prob=0.75]warmup:  28%|██▊       | 279/1000 [00:00&lt;00:01, 634.51it/s, 7 steps of size 1.74e-01. acc. prob=0.78] sample:  53%|█████▎    | 533/1000 [00:00&lt;00:00, 1135.10it/s, 15 steps of size 3.48e-01. acc. prob=0.90]sample:  76%|███████▋  | 765/1000 [00:00&lt;00:00, 1456.79it/s, 15 steps of size 3.48e-01. acc. prob=0.93]sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1032.95it/s, 15 steps of size 3.48e-01. acc. prob=0.93]
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;07:33,  2.20it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:  10%|▉         | 95/1000 [00:00&lt;00:03, 226.33it/s, 127 steps of size 1.03e-02. acc. prob=0.76]warmup:  37%|███▋      | 367/1000 [00:00&lt;00:00, 860.28it/s, 15 steps of size 2.96e-01. acc. prob=0.78]sample:  64%|██████▍   | 643/1000 [00:00&lt;00:00, 1365.50it/s, 15 steps of size 3.48e-01. acc. prob=0.92]sample:  95%|█████████▌| 954/1000 [00:00&lt;00:00, 1844.49it/s, 15 steps of size 3.48e-01. acc. prob=0.93]sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1148.87it/s, 15 steps of size 3.48e-01. acc. prob=0.93]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -702,6 +702,34 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.<span class="fu">milk</span>(only_path <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">data</span>(data_path, sep<span class="op">=</span><span class="ch">';'</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">index</span>(<span class="st">"clade"</span>) <span class="co"># Convert clade names into index</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">scale</span>([<span class="st">"kcal_per_g"</span>]) <span class="co"># Scale</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="pp">@pymodel</span> <span class="kw">function</span> <span class="fu">model</span>(kcal_per_g, index_clade, mass)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="fl">4</span>,), name <span class="op">=</span> <span class="st">"a"</span>) <span class="co"># shape based on the number of clades</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="fl">4</span>,), name <span class="op">=</span> <span class="st">"b"</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> m.dist.<span class="fu">exponential</span>( <span class="fl">1</span>, name <span class="op">=</span> <span class="ch">'s'</span>)    </span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a[index_clade]<span class="op">+</span>b[index_clade]<span class="op">*</span>mass</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(mu, s, obs<span class="op">=</span>kcal_per_g)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
