@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="An extension of the Poisson model for count data that exhibits overdispersion.">
+<meta name="description" content="Techniques to account for biases in data collection that can affect the structure and analysis of networks.">
 
-<title>Gamma-Poisson Model – Bayesian Inference (BI)</title>
+<title>Controlling for Network Biases – Bayesian Inference (BI)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -55,18 +55,38 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./9. Categorical model.html" rel="next">
-<link href="./8. Poisson mode with offset.html" rel="prev">
+<link href="./25. Network Metrics.html" rel="next">
+<link href="./23. Network with block model.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -105,9 +125,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
-
-<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -216,7 +233,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./8. Gamma-Poisson.html">Gamma-Poisson Model</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./24. Network control for data collection biases.html">Controlling for Network Biases</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -237,31 +254,31 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Univariate Linear Regression</span></a>
+ <span class="menu-text">1. Univariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./2. Multiple continuous Variables.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multivariate Linear Regression</span></a>
+ <span class="menu-text">2.Multivariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Interaction Terms in Regression</span></a>
+ <span class="menu-text">3. Interaction Terms in Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Regression with a Categorical Independent Variable</span></a>
+ <span class="menu-text">4. Regression with a Categorical Independent Variable</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Binomial Model</span></a>
+ <span class="menu-text">5. Binomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -284,7 +301,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link active">
+  <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gamma-Poisson Model</span></a>
   </div>
 </li>
@@ -295,11 +312,17 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">10. Multinomial model (wip).qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multinomial Model</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
- <span class="menu-text">10. Dirichlet model (wip).qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dirichlet Model 🚧</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
@@ -380,7 +403,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./24. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
 </li>
@@ -412,34 +435,34 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a></li>
-  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations">Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link active" data-scroll-target="#considerations">Considerations</a></li>
+  <li><a href="#example-1" id="toc-example-1" class="nav-link" data-scroll-target="#example-1">Example 1</a></li>
+  <li><a href="#example-2" id="toc-example-2" class="nav-link" data-scroll-target="#example-2">Example 2</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
   <ul class="collapse">
-  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><em>Bayesian model</em></a></li>
+  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><em>Main Formula</em></a></li>
+  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><em>Defining formula sub-equations and prior distributions</em></a></li>
   </ul></li>
-  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Note(s)</a></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="8.-Gamma-Poisson.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="24.-Network-control-for-data-collection-biases.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Gamma-Poisson Model</h1>
+<h1 class="title">Controlling for Network Biases</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">Regression</div>
-    <div class="quarto-category">Count Data</div>
-    <div class="quarto-category">GLM</div>
+    <div class="quarto-category">Network Analysis</div>
+    <div class="quarto-category">Graph Theory</div>
+    <div class="quarto-category">Biases</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    An extension of the Poisson model for count data that exhibits overdispersion.
+    Techniques to account for biases in data collection that can affect the structure and analysis of networks.
   </div>
 </div>
 
@@ -456,10 +479,9 @@ window.Quarto = {
 </header>
 
 
-<section id="general-principles" class="level2">
-<h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
-<p>To model the relationship between a count outcome variable and one or more independent variables with <span id="overdispersion"><span style="color:#0D6EFD">overdispersion 🛈</span></span>, we can use the <em>Negative Binomial model</em>.</p>
-</section>
+<p>Data collection biases are a persistent issue in studies of social networks. Two main types of biases can be considered: <span id="expoB"><span style="color:#0D6EFD">exposure biases 🛈</span></span> and <span id="censoB"><span style="color:#0D6EFD">censoring biases 🛈</span></span>.</p>
+<p>To account for exposure biases, we can switch the network link probability model from a <em>Poisson</em> distribution to a <em>Binomial</em> distribution, as the binomial distribution allows us to account for the number of trials for each data estimation.</p>
+<p>To address censoring biases, we need to add an additional equation to account for the probability of missing an interaction during observation when modeling the interaction between individuals <em>i</em> and <em>j</em>.</p>
 <section id="considerations" class="level2">
 <h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
 <div class="callout callout-style-default callout-caution callout-titled">
@@ -472,308 +494,97 @@ Caution
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ul>
-<li><p>We have the same considerations as for the <a href="./7. Poisson model.html">Poisson model</a>.</p></li>
-<li><p>Overdispersion is handled because the Gamma-Poisson model assumes that each Poisson count observation has its own rate. This is an additional parameter specified in the model (in the code, it is <code>log_days</code>).</p></li>
-</ul>
+
 </div>
 </div>
 </section>
-<section id="example" class="level2">
-<h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating a Bayesian Gamma-Poisson model using the Bayesian Inference (BI) package.</p>
-<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Julia</a></li></ul>
-<div class="tab-content" data-group="language">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="cb398c1c" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device ------------------------------------------------</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>) <span class="co"># Import</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span>  m.load.sim_gamma_poisson(only_path<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(log_days, monastery, y):</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'b'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'phi'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> jnp.exp(log_days <span class="op">+</span> a <span class="op">+</span> b <span class="op">*</span> monastery)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    Lambda <span class="op">=</span>  m.dist.gamma(rate <span class="op">=</span> mu<span class="op">*</span>phi, concentration <span class="op">=</span> phi, name <span class="op">=</span> <span class="st">'Lambda'</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(rate <span class="op">=</span> Lambda, obs<span class="op">=</span>y)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m.fit(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>m.summary() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 32</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;07:53,  2.11it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   1%|          | 10/1000 [00:00&lt;00:44, 22.05it/s, 511 steps of size 9.70e-03. acc. prob=0.58]warmup:   2%|▏         | 16/1000 [00:00&lt;00:31, 30.85it/s, 255 steps of size 1.31e-02. acc. prob=0.67]warmup:   2%|▏         | 22/1000 [00:00&lt;00:25, 37.86it/s, 1023 steps of size 4.12e-03. acc. prob=0.68]warmup:   3%|▎         | 28/1000 [00:00&lt;00:26, 36.60it/s, 255 steps of size 9.52e-03. acc. prob=0.71] warmup:   3%|▎         | 33/1000 [00:01&lt;00:25, 37.91it/s, 511 steps of size 5.53e-03. acc. prob=0.71]warmup:   4%|▍         | 40/1000 [00:01&lt;00:21, 44.66it/s, 511 steps of size 4.30e-03. acc. prob=0.72]warmup:   5%|▍         | 48/1000 [00:01&lt;00:18, 51.08it/s, 511 steps of size 2.94e-03. acc. prob=0.73]warmup:   5%|▌         | 54/1000 [00:01&lt;00:18, 51.18it/s, 511 steps of size 5.01e-03. acc. prob=0.74]warmup:   6%|▋         | 63/1000 [00:01&lt;00:15, 59.39it/s, 255 steps of size 8.47e-03. acc. prob=0.75]warmup:   7%|▋         | 72/1000 [00:01&lt;00:13, 67.48it/s, 127 steps of size 5.29e-03. acc. prob=0.75]warmup:   8%|▊         | 80/1000 [00:01&lt;00:13, 65.86it/s, 255 steps of size 5.46e-03. acc. prob=0.75]warmup:   9%|▊         | 87/1000 [00:01&lt;00:13, 65.95it/s, 127 steps of size 3.13e-03. acc. prob=0.75]warmup:   9%|▉         | 94/1000 [00:02&lt;00:14, 62.69it/s, 511 steps of size 3.41e-03. acc. prob=0.75]warmup:  10%|█         | 101/1000 [00:02&lt;00:15, 58.93it/s, 1023 steps of size 7.36e-02. acc. prob=0.76]warmup:  13%|█▎        | 132/1000 [00:02&lt;00:07, 122.85it/s, 63 steps of size 1.39e-01. acc. prob=0.77] warmup:  16%|█▋        | 164/1000 [00:02&lt;00:04, 175.43it/s, 9 steps of size 3.60e-02. acc. prob=0.77] warmup:  19%|█▉        | 193/1000 [00:02&lt;00:03, 206.71it/s, 31 steps of size 3.85e-01. acc. prob=0.78]warmup:  22%|██▏       | 224/1000 [00:02&lt;00:03, 235.65it/s, 31 steps of size 2.83e-01. acc. prob=0.78]warmup:  26%|██▋       | 264/1000 [00:02&lt;00:02, 282.20it/s, 31 steps of size 2.60e-01. acc. prob=0.78]warmup:  30%|██▉       | 298/1000 [00:02&lt;00:02, 296.51it/s, 95 steps of size 2.00e-01. acc. prob=0.78]warmup:  34%|███▍      | 339/1000 [00:02&lt;00:02, 329.10it/s, 15 steps of size 1.41e-01. acc. prob=0.78]warmup:  38%|███▊      | 376/1000 [00:02&lt;00:01, 339.90it/s, 31 steps of size 1.16e-01. acc. prob=0.78]warmup:  41%|████      | 412/1000 [00:03&lt;00:01, 343.96it/s, 31 steps of size 2.18e-01. acc. prob=0.78]warmup:  45%|████▌     | 450/1000 [00:03&lt;00:01, 354.19it/s, 31 steps of size 1.79e-01. acc. prob=0.79]warmup:  49%|████▊     | 486/1000 [00:03&lt;00:01, 345.65it/s, 31 steps of size 1.62e-01. acc. prob=0.78]sample:  52%|█████▏    | 521/1000 [00:03&lt;00:01, 339.25it/s, 31 steps of size 1.31e-01. acc. prob=0.91]sample:  56%|█████▌    | 557/1000 [00:03&lt;00:01, 343.32it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample:  59%|█████▉    | 592/1000 [00:03&lt;00:01, 342.40it/s, 31 steps of size 1.31e-01. acc. prob=0.88]sample:  63%|██████▎   | 627/1000 [00:03&lt;00:01, 343.35it/s, 31 steps of size 1.31e-01. acc. prob=0.88]sample:  66%|██████▋   | 664/1000 [00:03&lt;00:00, 348.80it/s, 31 steps of size 1.31e-01. acc. prob=0.88]sample:  70%|██████▉   | 699/1000 [00:03&lt;00:00, 347.79it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample:  73%|███████▎  | 734/1000 [00:03&lt;00:00, 336.92it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample:  77%|███████▋  | 768/1000 [00:04&lt;00:00, 324.08it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample:  80%|████████  | 804/1000 [00:04&lt;00:00, 332.85it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample:  84%|████████▍ | 838/1000 [00:04&lt;00:00, 331.62it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample:  88%|████████▊ | 875/1000 [00:04&lt;00:00, 341.76it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample:  91%|█████████ | 910/1000 [00:04&lt;00:00, 342.51it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample:  94%|█████████▍| 945/1000 [00:04&lt;00:00, 338.97it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample:  98%|█████████▊| 980/1000 [00:04&lt;00:00, 339.84it/s, 31 steps of size 1.31e-01. acc. prob=0.89]sample: 100%|██████████| 1000/1000 [00:04&lt;00:00, 209.08it/s, 31 steps of size 1.31e-01. acc. prob=0.88]
-arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="3">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">mean</th>
-<th data-quarto-table-cell-role="th">sd</th>
-<th data-quarto-table-cell-role="th">hdi_5.5%</th>
-<th data-quarto-table-cell-role="th">hdi_94.5%</th>
-<th data-quarto-table-cell-role="th">mcse_mean</th>
-<th data-quarto-table-cell-role="th">mcse_sd</th>
-<th data-quarto-table-cell-role="th">ess_bulk</th>
-<th data-quarto-table-cell-role="th">ess_tail</th>
-<th data-quarto-table-cell-role="th">r_hat</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">Lambda[0]</td>
-<td>1.56</td>
-<td>0.38</td>
-<td>0.97</td>
-<td>2.11</td>
-<td>0.01</td>
-<td>0.02</td>
-<td>793.43</td>
-<td>367.44</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">Lambda[1]</td>
-<td>1.51</td>
-<td>0.36</td>
-<td>1.02</td>
-<td>2.12</td>
-<td>0.01</td>
-<td>0.02</td>
-<td>877.99</td>
-<td>293.31</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">Lambda[2]</td>
-<td>1.58</td>
-<td>0.38</td>
-<td>0.93</td>
-<td>2.12</td>
-<td>0.01</td>
-<td>0.02</td>
-<td>741.78</td>
-<td>372.31</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">Lambda[3]</td>
-<td>1.40</td>
-<td>0.34</td>
-<td>0.93</td>
-<td>1.96</td>
-<td>0.01</td>
-<td>0.02</td>
-<td>937.17</td>
-<td>277.70</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">Lambda[4]</td>
-<td>1.47</td>
-<td>0.37</td>
-<td>0.89</td>
-<td>2.00</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>507.60</td>
-<td>428.36</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">Lambda[3398]</td>
-<td>3.53</td>
-<td>0.77</td>
-<td>2.43</td>
-<td>4.67</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>914.23</td>
-<td>399.13</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">Lambda[3399]</td>
-<td>3.68</td>
-<td>0.79</td>
-<td>2.56</td>
-<td>5.06</td>
-<td>0.03</td>
-<td>0.06</td>
-<td>727.90</td>
-<td>235.65</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">a[0]</td>
-<td>-0.42</td>
-<td>0.01</td>
-<td>-0.45</td>
-<td>-0.40</td>
-<td>0.00</td>
-<td>0.00</td>
-<td>40.06</td>
-<td>101.97</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">b[0]</td>
-<td>-2.75</td>
-<td>0.03</td>
-<td>-2.81</td>
-<td>-2.71</td>
-<td>0.00</td>
-<td>0.00</td>
-<td>57.05</td>
-<td>188.62</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">phi[0]</td>
-<td>17.63</td>
-<td>1.91</td>
-<td>14.32</td>
-<td>20.23</td>
-<td>0.56</td>
-<td>0.18</td>
-<td>12.25</td>
-<td>44.88</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table>
-
-<p>3403 rows × 9 columns</p>
-</div>
-</div>
-</div>
-</div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform------------------------------------------------</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">sim_gamma_poisson</span>(<span class="at">only_path=</span>T), <span class="at">sep =</span> <span class="st">''</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'log_days'</span>, <span class="st">'monastery'</span>, <span class="st">'y'</span> )) <span class="co"># Send to model (convert to jax array)</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(log_days, monastery, y){</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'beta'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  phi <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name=</span><span class="st">'phi'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">exp</span>(log_days <span class="sc">+</span> alpha <span class="sc">+</span> beta <span class="sc">*</span> monastery)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  Lambda <span class="ot">=</span>  <span class="fu">bi.dist.gamma</span>(<span class="at">rate =</span> mu<span class="sc">*</span>phi, <span class="at">concentration =</span> phi, <span class="at">name =</span> <span class="st">'Lambda'</span>)</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bi.dist.poisson</span>(<span class="at">rate=</span>Lambda, <span class="at">obs=</span>y)</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.<span class="fu">sim_gamma_poisson</span>(only_path <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">data</span>(data_path, sep<span class="op">=</span><span class="ch">','</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(log_days, monastery, y)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, name <span class="op">=</span> <span class="st">"a"</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, name <span class="op">=</span> <span class="st">"b"</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name <span class="op">=</span> <span class="st">"phi"</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> jnp.<span class="fu">exp</span>(log_days <span class="op">+</span> a <span class="op">+</span> b <span class="op">*</span> monastery)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    Lambda <span class="op">=</span>  m.dist.<span class="fu">gamma</span>(rate <span class="op">=</span> mu<span class="op">*</span>phi, concentration <span class="op">=</span> phi, name <span class="op">=</span> <span class="st">"Lambda"</span>)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">poisson</span>(rate <span class="op">=</span> Lambda, obs<span class="op">=</span>y)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-</div>
+<section id="example-1" class="level2">
+<h2 class="anchored" data-anchor-id="example-1">Example 1</h2>
+<p>Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect, a dyadic effect, and a block model effect while accounting for exposure biases. This example is based on <span class="citation" data-cites="sosa2024robust">Sosa et al. (<a href="#ref-sosa2024robust" role="doc-biblioref">n.d.</a>)</span>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> idx,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    Any <span class="op">=</span> Any<span class="op">-</span><span class="dv">1</span>, </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    Merica <span class="op">=</span> Merica<span class="op">-</span><span class="dv">1</span>, </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    Quantum <span class="op">=</span> Quantum<span class="op">-</span><span class="dv">1</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    result_outcomes <span class="op">=</span> m.net.mat_to_edgl(data[<span class="st">'outcomes'</span>]), </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    kinship <span class="op">=</span> m.net.mat_to_edgl(kinship),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>],</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> data[<span class="st">'individual_predictors'</span>],</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    exposure_mat <span class="op">=</span> data[<span class="st">'exposure'</span>]</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(idx, result_outcomes, </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    exposure_mat,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    kinship, </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors, target_individual_predictors, </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    Any, Merica, Quantum):</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Block ---------------------------------------</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>      B_any <span class="op">=</span> m.net.block_model(Any,<span class="dv">1</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>      B_Merica <span class="op">=</span> m.net.block_model(Merica,<span class="dv">3</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>      B_Quantum <span class="op">=</span> m.net.block_model(Quantum,<span class="dv">2</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>      <span class="co">## SR shape =  N individuals---------------------------------------</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>      sr <span class="op">=</span>  m.net.sender_receiver(focal_individual_predictors,target_individual_predictors)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Dyadic shape = N dyads--------------------------------------  </span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>      dr <span class="op">=</span> m.net.dyadic_effect(dyadic_predictors)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>      m.dist.binomial(total_count <span class="op">=</span> m.net.mat_to_edgl(exposure_mat), logits <span class="op">=</span> jnp.exp(B_any <span class="op">+</span> B_Merica <span class="op">+</span> B_Quantum <span class="op">+</span> sender_receiver <span class="op">+</span> dr), obs <span class="op">=</span> result_outcomes, name<span class="op">=</span> <span class="st">'latent network'</span> )</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> m.summary()</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>summary.loc[[<span class="st">'focal_effects[0]'</span>, <span class="st">'target_effects[0]'</span>, <span class="st">'dyad_effects[0]'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="example-2" class="level2">
+<h2 class="anchored" data-anchor-id="example-2">Example 2</h2>
+<p>Below is an example code snippet demonstrating a Bayesian network model with a sender-receiver effect, a dyadic effect, and a block model effect while accounting for exposure biases and censoring biases:</p>
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<section id="bayesian-model" class="level3">
-<h3 class="anchored" data-anchor-id="bayesian-model"><em>Bayesian model</em></h3>
-<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express the Bayesian regression model accounting for prior distributions as follows:</p>
+<section id="main-formula" class="level3">
+<h3 class="anchored" data-anchor-id="main-formula"><em>Main Formula</em></h3>
 <p><span class="math display">
-Y_i \sim \text{Poisson}(\lambda_i)
+Y_{[i,j]} \sim \text{Binomial}\Big(E_{[i,j]}, Q_{[i,j]}  \Big)
 </span></p>
 <p><span class="math display">
-\lambda_i \sim \text{Gamma}(\mu_i \phi, \phi)
-</span></p>
-<p><span class="math display">
-\log(\mu_i) = \text{rates}_i + \alpha + \beta X_i
-</span></p>
-<p><span class="math display">
-\alpha \sim \text{Normal}(0,1)
-</span></p>
-<p><span class="math display">
-\beta \sim \text{Normal}(0,1)
-</span></p>
-<p><span class="math display">
-\phi \sim \text{Exponential}(1)
+Q_{[i,j]} = \phi_{[i,j]}\eta_{[i]}\eta_{[j]}
 </span></p>
 <p>Where:</p>
 <ul>
-<li><p><span class="math inline">Y_i</span> is the dependent variable for observation <em>i</em>.</p></li>
-<li><p><span class="math inline">\lambda_i</span> is the rate parameter of the Poisson distribution for observation <em>i</em>, assuming that each Poisson count observation has its own <span class="math inline">rate_i</span>.</p></li>
-<li><p><span class="math inline">\mu_i</span> is the mean rate parameter.</p></li>
-<li></li>
-<li><p><span class="math inline">\phi</span> controls the level of overdispersion in the rates.</p></li>
-<li><p><span class="math inline">\alpha</span> is the intercept term.</p></li>
-<li><p><span class="math inline">\beta</span> is the regression coefficient.</p></li>
-<li><p><span class="math inline">X_i</span> is the value of the predictor variable for observation <em>i</em>.</p></li>
+<li><span class="math inline">E_{[i,j]}</span> is the number of trials for each observation (i.e., the sampling effort).</li>
+<li><span class="math inline">Q_{[i,j]}</span> is the indicator of a true tie between <span class="math inline">i</span> and <span class="math inline">j</span>, defined as: <span class="math display">
+Q_{[i,j]} \sim \begin{cases}
+0 &amp; \text{if no interaction occurs or if } i \text{ or } j \text{ is not detectable} \\
+1 &amp; \text{if } i \text{ and } j \text{ are both detectable}
+\end{cases}
+</span></li>
+<li><span class="math inline">\phi_{[i,j]}</span> is the probability of a true tie between <span class="math inline">i</span> and <span class="math inline">j</span>.</li>
+<li><span class="math inline">\eta_{[i]}</span> is the probability of individual <span class="math inline">i</span> being detectable.</li>
+<li><span class="math inline">\eta_{[j]}</span> is the probability of individual <span class="math inline">j</span> being detectable.</li>
+</ul>
+</section>
+<section id="defining-formula-sub-equations-and-prior-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><em>Defining formula sub-equations and prior distributions</em></h3>
+<p>We can let <span class="math inline">\eta_{[i]}</span> depend on individual-specific covariates. To model the probability of censoring, we can model <span class="math inline">1-\eta_{[i]}</span>: <span class="math display">
+\text{logit}(1-\eta_{[i]}) = \mu_\psi + \hat\psi_{[i]}  \sigma_\psi + \dots
+</span></p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\mu_\psi</span> is the intercept term.</p></li>
+<li><p><span class="math inline">\sigma_\psi</span> is a scalar for the variance of random effects.</p></li>
+<li><p><span class="math inline">\hat\psi_{[i]}\sim \text{Normal}(0,1)</span>, and the ellipsis signifies any linear model of coefficients and individual-level covariates. For example, if <span class="math inline">C</span> is an animal-specific measure, like a binary variable for cryptic coloration, then the ellipsis may be replaced with <span class="math inline">\kappa_{[5]}C_{[i]}</span> to give the effects of coloration on censoring probability.</p></li>
 </ul>
 </section>
 </section>
 <section id="notes" class="level2">
-<h2 class="anchored" data-anchor-id="notes">Notes</h2>
+<h2 class="anchored" data-anchor-id="notes">Note(s)</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -785,20 +596,20 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>We can apply multiple variables similarly as in <a href="2. Multiple continuous variables.qmd">chapter 2</a>.</p></li>
-<li><p>We can apply interaction terms similarly as in <a href="3. Interaction between Continuous Variables.qmd">chapter 3</a>.</p></li>
-<li><p>We can apply categorical variables similarly as in <a href="./4. Categorical variable.html">chapter 4</a>.</p></li>
+<li>One major limitation of this model is the necessity of having an estimation of the censoring bias for each individual.</li>
 </ul>
 </div>
 </div>
-</section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
+
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-sosa2024robust" class="csl-entry" role="listitem">
+Sosa, Sebastian, Mary B. McElreath, Daniel Redhead, and Cody T. Ross. n.d. <span>“Robust Bayesian Analysis of Animal Networks Subject to Biases in Sampling Intensity and Censoring.”</span> <em>Methods in Ecology and Evolution</em>, 1–22. https://doi.org/<a href="https://doi.org/10.1111/2041-210X.70017">https://doi.org/10.1111/2041-210X.70017</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -1818,13 +1629,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./8. Poisson mode with offset.html" class="pagination-link" aria-label="Poisson Model with an Offset">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Poisson Model with an Offset</span>
+      <a href="./23. Network with block model.html" class="pagination-link" aria-label="Stochastic Block Models">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Stochastic Block Models</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./9. Categorical model.html" class="pagination-link" aria-label="Categorical Model">
-        <span class="nav-page-text">Categorical Model</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./25. Network Metrics.html" class="pagination-link" aria-label="Network Metrics">
+        <span class="nav-page-text">Network Metrics</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

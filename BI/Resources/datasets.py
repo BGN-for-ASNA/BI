@@ -462,6 +462,55 @@ class load:
             filename="Sim data multivariatenormal.csv"
         )
 
+    def WaffleDivorce(self, frame=True, only_path=False):
+        """
+        Load the WaffleDivorce dataset.
+        
+        Returns:
+        --------
+        bunch : Bunch
+            Dataset with waffle divorce data
+        """
+        description = """
+        Waffle Divorce Dataset
+        =======================
+        
+        Data from experiments on waffle divorce.
+        
+        Contains data from experiments studying the effect of waffles on divorce rates.
+        """
+        if only_path:
+            return self.data_dir / "WaffleDivorce.csv"
+        if frame:
+            return pd.read_csv(self.data_dir / "WaffleDivorce.csv", index_col=0)
+        
+        return self._load_csv("WaffleDivorce.csv", description, frame=frame, only_path=only_path)
+
+
+    def iris(self, frame=True, only_path=False):
+        """
+        Load the iris dataset.
+        
+        Returns:
+        --------
+        bunch : Bunch
+            Dataset with iris data
+        """
+        description = """
+        Iris Dataset
+        ============
+        
+        This dataset is famous for illustrating Simpson's paradox.
+        
+        Features include sepal length, sepal width, petal length, and petal width.
+        """
+        if only_path:
+            return self.data_dir / "iris.csv"
+        if frame:
+            return pd.read_csv(self.data_dir / "iris.csv", index_col=0)
+        
+        return self._load_csv("iris.csv", description, frame=frame, only_path=only_path)
+
     def NBDA(self, only_path=False):
         """
         Load the NBDA dataset.

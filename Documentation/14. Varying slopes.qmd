@@ -162,6 +162,49 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 m$summary() # Get posterior distribution
 
 ```
+
+## Julia
+```julia
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.sim_multivariate_normal(only_path = true)
+
+m.data(data_path, sep=',') 
+m.data_on_model = pybuiltins.dict(
+    cafe = jnp.array(m.df.cafe.values, dtype=jnp.int32),
+    wait = jnp.array(m.df.wait.values, dtype=jnp.float32),
+    N_cafes = length(m.df.cafe.unique()),    
+    afternoon = jnp.array(m.df.afternoon.values, dtype=jnp.float32)
+)
+
+
+# Define model ------------------------------------------------
+@BI function model(cafe, wait, N_cafes, afternoon)
+    a = m.dist.normal(5, 2,  name = "a")
+    b = m.dist.normal(-1, 0.5, name = "b")
+    sigma_cafe = m.dist.exponential(1, shape=(2,),  name = "sigma_cafe")
+    sigma = m.dist.exponential( 1,  name = "sigma")
+    Rho = m.dist.lkj(2, 2, name = "Rho")
+    cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho
+    a_cafe_b_cafe = m.dist.multivariate_normal(jnp.stack([a, b]), cov, shape = [N_cafes], name = "a_b_cafe")    
+
+    a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
+    mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
+    m.dist.normal(mu, sigma, obs=wait)
+
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
+```
 :::
 
 ## Mathematical Details
