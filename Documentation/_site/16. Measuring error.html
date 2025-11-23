@@ -315,11 +315,17 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">10. Multinomial model (wip).qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multinomial Model</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
- <span class="menu-text">10. Dirichlet model (wip).qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dirichlet Model 🚧</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
@@ -400,7 +406,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./24. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
 </li>
@@ -482,10 +488,10 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="example">Example</h2>
 <p>Below is an example code snippet demonstrating a Bayesian measurement error model using the Bayesian Inference (BI) package. The data consist of three continuous variables (marriage rate, divorce rate, age), and the goal is to estimate the effect of age and marriage rate on the divorce rate while considering that the divorce rate has a measurement error. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="5ccb053e" class="cell" data-execution_count="1">
+<div id="4abfae15" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
@@ -493,8 +499,8 @@ window.Quarto = {
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'WaffleDivorce.csv'</span>, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.WaffleDivorce(only_path<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">'MedianAgeMarriage'</span>, <span class="st">'Marriage'</span>]) <span class="co"># Scale</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>dat <span class="op">=</span> <span class="bu">dict</span>(</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    D_obs <span class="op">=</span> m.z_score(m.df[<span class="st">'Divorce'</span>].values),   </span>
@@ -521,13 +527,13 @@ window.Quarto = {
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>m.summary() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 16</code></pre>
+<pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:01&lt;27:15,  1.64s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   6%|▌         | 57/1000 [00:01&lt;00:20, 45.48it/s, 15 steps of size 8.86e-02. acc. prob=0.76]warmup:  12%|█▏        | 115/1000 [00:01&lt;00:08, 100.43it/s, 15 steps of size 4.09e-01. acc. prob=0.78]warmup:  18%|█▊        | 179/1000 [00:01&lt;00:04, 169.19it/s, 63 steps of size 1.55e-01. acc. prob=0.78]warmup:  25%|██▍       | 248/1000 [00:02&lt;00:03, 249.52it/s, 15 steps of size 5.82e-01. acc. prob=0.78]warmup:  32%|███▏      | 320/1000 [00:02&lt;00:02, 334.13it/s, 7 steps of size 2.15e-01. acc. prob=0.78] warmup:  39%|███▉      | 392/1000 [00:02&lt;00:01, 413.01it/s, 15 steps of size 3.85e-01. acc. prob=0.79]warmup:  46%|████▋     | 465/1000 [00:02&lt;00:01, 484.31it/s, 7 steps of size 8.71e-01. acc. prob=0.79] sample:  53%|█████▎    | 533/1000 [00:02&lt;00:00, 528.14it/s, 15 steps of size 2.98e-01. acc. prob=0.93]sample:  60%|██████    | 602/1000 [00:02&lt;00:00, 568.46it/s, 15 steps of size 2.98e-01. acc. prob=0.92]sample:  67%|██████▋   | 670/1000 [00:02&lt;00:00, 557.47it/s, 15 steps of size 2.98e-01. acc. prob=0.92]sample:  74%|███████▍  | 745/1000 [00:02&lt;00:00, 606.63it/s, 15 steps of size 2.98e-01. acc. prob=0.92]sample:  82%|████████▏ | 815/1000 [00:02&lt;00:00, 630.77it/s, 15 steps of size 2.98e-01. acc. prob=0.92]sample:  88%|████████▊ | 883/1000 [00:02&lt;00:00, 638.25it/s, 15 steps of size 2.98e-01. acc. prob=0.92]sample:  95%|█████████▌| 950/1000 [00:03&lt;00:00, 646.48it/s, 15 steps of size 2.98e-01. acc. prob=0.92]sample: 100%|██████████| 1000/1000 [00:03&lt;00:00, 316.90it/s, 15 steps of size 2.98e-01. acc. prob=0.92]
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;14:15,  1.17it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   7%|▋         | 73/1000 [00:00&lt;00:08, 103.92it/s, 31 steps of size 9.85e-02. acc. prob=0.77]warmup:  16%|█▌        | 156/1000 [00:01&lt;00:03, 226.86it/s, 15 steps of size 4.20e-01. acc. prob=0.78]warmup:  26%|██▋       | 265/1000 [00:01&lt;00:01, 395.07it/s, 7 steps of size 1.03e+00. acc. prob=0.78] warmup:  37%|███▋      | 366/1000 [00:01&lt;00:01, 528.95it/s, 7 steps of size 8.60e-01. acc. prob=0.79]warmup:  48%|████▊     | 477/1000 [00:01&lt;00:00, 664.23it/s, 31 steps of size 2.89e-01. acc. prob=0.79]sample:  58%|█████▊    | 581/1000 [00:01&lt;00:00, 758.45it/s, 15 steps of size 2.98e-01. acc. prob=0.91]sample:  68%|██████▊   | 681/1000 [00:01&lt;00:00, 820.72it/s, 15 steps of size 2.98e-01. acc. prob=0.92]sample:  80%|████████  | 804/1000 [00:01&lt;00:00, 931.75it/s, 15 steps of size 2.98e-01. acc. prob=0.92]sample:  91%|█████████ | 910/1000 [00:01&lt;00:00, 947.38it/s, 15 steps of size 2.98e-01. acc. prob=0.92]sample: 100%|██████████| 1000/1000 [00:01&lt;00:00, 540.97it/s, 15 steps of size 2.98e-01. acc. prob=0.92]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -1201,6 +1207,8 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 </div>
 </div>
 </div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'jax.numpy'</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1234,6 +1242,45 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.<span class="fu">WaffleDivorce</span>(only_path<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">data</span>(data_path, sep<span class="op">=</span><span class="st">";"</span>) </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">scale</span>([<span class="st">"MedianAgeMarriage"</span>, <span class="st">"Marriage"</span>]) <span class="co"># Scale</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>dat <span class="op">=</span> <span class="fu">pydict</span>(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    D_obs <span class="op">=</span> m.<span class="fu">z_score</span>(m.df[<span class="st">"Divorce"</span>].values),   </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    D_sd <span class="op">=</span> jnp.<span class="fu">array</span>(m.df[<span class="st">"Divorce SE"</span>].values <span class="op">/</span> m.df[<span class="st">"Divorce"</span>].<span class="fu">std</span>()), </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> jnp.<span class="fu">array</span>(m.df[<span class="st">"MedianAgeMarriage"</span>].values), </span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    M <span class="op">=</span> jnp.<span class="fu">array</span>(m.df[<span class="st">"Marriage"</span>].values),</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> m.df.shape[<span class="fl">0</span>]   </span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> dat <span class="co"># Send to model (convert to jax array)</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(D_obs, D_sd, A, N, M)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.2</span>, name <span class="op">=</span> <span class="st">"a"</span>) </span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">"beta"</span>)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    eta <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">"eta"</span>)  </span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name <span class="op">=</span> <span class="st">"s"</span>) </span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a <span class="op">+</span> beta <span class="op">*</span> A <span class="op">+</span> eta <span class="op">*</span> M</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    D_true <span class="op">=</span> m.dist.<span class="fu">normal</span>(mu, s, name <span class="op">=</span> <span class="st">"D_true"</span>) </span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(D_true , D_sd, obs <span class="op">=</span> D_obs) </span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

@@ -115,7 +115,7 @@ m.scale(["population"]) # Normalize
 m.df["cid"] = m.df.contact.eq("high").astype("int")
 
 # Define model ------------------------------------------------
-@pymodel function model(cid, population, total_tools)
+@BI function model(cid, population, total_tools)
     a = m.dist.normal(3, 0.5, shape= (2,), name="a")
     b = m.dist.normal(0, 0.2, shape=(2,), name="b")
     l = jnp.exp(a[cid] + b[cid]*population)

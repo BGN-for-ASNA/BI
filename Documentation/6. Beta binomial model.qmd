@@ -138,7 +138,7 @@ m.data(data_path, sep=';')
 m.df["gid"] = m.df["applicant.gender"].ne("male").astype("int")
 
 # Define model ------------------------------------------------
-@pymodel function model(gid, applications, admit)
+@BI function model(gid, applications, admit)
     # Prior for overall concentration scaling (positive, via exponential)
     phi = m.dist.exponential(1, name="phi")
     
