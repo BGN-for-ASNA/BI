@@ -120,7 +120,7 @@ m.df = m.df[m.df.age > 18] # Subset data to adults
 m.scale(["weight"]) # Normalize
 
 # Define model ------------------------------------------------
-@pymodel function model(weight, height)
+@BI function model(weight, height)
     # Priors
     a = m.dist.normal(178, 20, name = 'a') 
     b = m.dist.log_normal(0, 1, name = 'b') 

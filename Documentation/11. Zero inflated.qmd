@@ -114,7 +114,7 @@ m.data_on_model = pydict(Dict("y" =>y))
 
 
 # Define model ------------------------------------------------
-@pymodel function model(y)
+@BI function model(y)
     al = m.dist.normal(1, 0.5, name="al")
     ap = m.dist.normal(-1.5, 1, name="ap")
     p = m.link.inv_logit(ap)

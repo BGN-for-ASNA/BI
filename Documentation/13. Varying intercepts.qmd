@@ -120,6 +120,32 @@ m$summary() # Get posterior distribution
 
 
 ```
+
+## Julia
+```julia
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.reedfrogs(only_path = true)
+m.data(data_path, sep=';')
+m.df["tank"] = jnp.arange(m.df.shape[0]) 
+
+# Define model ------------------------------------------------
+@BI function model(tank, surv, density)
+    alpha = m.effects.varying_intercept(N_groups=48,group_id=tank, group_name = "tank")
+    m.dist.binomial(total_count = density, logits = alpha, obs=surv)
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
+```
 :::
 
 ## Mathematical Details

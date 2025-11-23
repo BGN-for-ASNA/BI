@@ -92,7 +92,7 @@ data_path = m.load.sim_gamma_poisson(only_path = true)
 m.data(data_path, sep=',')
 
 # Define model ------------------------------------------------
-@pymodel function model(log_days, monastery, y)
+@BI function model(log_days, monastery, y)
     a = m.dist.normal(0, 1, name = "a", shape=(1,))
     b = m.dist.normal(0, 1, name = "b", shape=(1,))
     phi = m.dist.exponential(1, name = "phi", shape=(1,))

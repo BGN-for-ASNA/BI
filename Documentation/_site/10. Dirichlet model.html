@@ -31,6 +31,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./11. Zero inflated.html" rel="next">
+<link href="./10. Multinomial model.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -117,7 +119,7 @@ window.Quarto = {
 <link rel="stylesheet" href="MyStyles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -139,7 +141,7 @@ window.Quarto = {
 <span class="menu-text">Get started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./0. Introduction.html"> 
+    <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
   </li>  
   <li class="nav-item">
@@ -172,10 +174,207 @@ window.Quarto = {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./10. Dirichlet model.html">Dirichlet Model 🚧</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0. Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian analysis with BI</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. Univariate Linear Regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./2. Multiple continuous Variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2.Multivariate Linear Regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. Interaction Terms in Regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4. Regression with a Categorical Independent Variable</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Binomial Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./6. Beta binomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta-Binomial Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./7. Poisson model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Poisson Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Poisson Model with an Offset</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gamma-Poisson Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./9. Categorical model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multinomial Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Dirichlet Model 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zero-Inflated Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Analysis 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13. Varying intercepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Varying Intercepts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Varying Slopes Models 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15. Gaussian processes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Processes</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Measurement Error Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17. Missing data (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Handling Missing Data (WIP)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Latent Variable Models 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19. PCA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Principal Component Analysis</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20. GMM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Mixture Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dirichlet Process Mixture Models 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22. Network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Network Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23. Network with block model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Stochastic Block Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Controlling for Network Biases</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25. Network Metrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Network Metrics</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Neural Networks 🚧</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -1351,6 +1550,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./10. Multinomial model.html" class="pagination-link" aria-label="Multinomial Model">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Multinomial Model</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./11. Zero inflated.html" class="pagination-link" aria-label="Zero-Inflated Models">
+        <span class="nav-page-text">Zero-Inflated Models</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 

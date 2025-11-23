@@ -100,7 +100,7 @@ m.index("clade") # Convert clade names into index
 m.scale(["kcal_per_g"]) # Scale
 
 # Define model ------------------------------------------------
-@pymodel function model(kcal_per_g, index_clade, mass)
+@BI function model(kcal_per_g, index_clade, mass)
     a = m.dist.normal(0, 0.5, shape=(4,), name = "a") # shape based on the number of clades
     b = m.dist.normal(0, 0.5, shape=(4,), name = "b")
     s = m.dist.exponential( 1, name = 's')    

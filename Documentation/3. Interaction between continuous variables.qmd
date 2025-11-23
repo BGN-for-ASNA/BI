@@ -104,7 +104,7 @@ data_path = m.load.tulips(only_path = true)
 m.data(data_path, sep=';')
 m.scale(["blooms", "water", "shade"]) # Normalize
 # Define model ------------------------------------------------
-@pymodel function model(blooms,shade, water)
+@BI function model(blooms,shade, water)
     sigma = m.dist.exponential(1, name = "sigma", shape = (1,))
     bws = m.dist.normal(0, 0.25, name = "bws", shape = (1,))
     bs = m.dist.normal(0, 0.25, name = "bs", shape = (1,))

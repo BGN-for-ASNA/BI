@@ -46,7 +46,6 @@ m.data_to_model(['total_tools', 'population'])
 m.data_on_model["society"] = jnp.arange(0,10)# index observations
 m.data_on_model["Dmat"] = islandsDistMatrix.values # Distance matrix
 
-
 def model(Dmat, population, society, total_tools):
     a = m.dist.exponential(1, name = 'a')
     b = m.dist.exponential(1, name = 'b')
@@ -141,6 +140,51 @@ m$fit(model) # Optimize model parameters through MCMC sampling
 # Summary ------------------------------------------------
 m$summary() # Get posterior distribution
 
+```
+
+## Julia
+```julia
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu")
+
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.kline2(only_path = true)
+m.data(data_path, sep=";") 
+
+islandsDistMatrix = m.load.islands_dist_matrix(frame = false)["data"]
+m.data_to_model(["total_tools", "population"])
+m.data_on_model["society"] = jnp.arange(0,10)# index observations
+m.data_on_model["Dmat"] = jnp.array(islandsDistMatrix) # Distance matrix
+
+
+
+# Define model ------------------------------------------------
+@BI function model(Dmat, population, society, total_tools)
+    a = m.dist.exponential(1, name = "a")
+    b = m.dist.exponential(1, name = "b")
+    g = m.dist.exponential(1, name = "g")
+
+    # non-centered Gaussian Process prior
+    etasq = m.dist.exponential(2, name = "etasq")
+    rhosq = m.dist.exponential(0.5, name = "rhosq")
+    SIGMA = etasq * jnp.exp(-rhosq * jnp.square(Dmat))
+    SIGMA = SIGMA.at[jnp.diag_indices(Dmat.shape[0])].add(etasq)
+    k = m.dist.multivariate_normal(0, SIGMA, name = "k")
+
+    lambda_ = a * population^b / g * jnp.exp(k[society])
+
+    m.dist.poisson(lambda_, obs=total_tools)
+
+end
+
+# Run mcmc ------------------------------------------------
+m.fit(model)  # Optimize model parameters through MCMC sampling
+
+# Summary ------------------------------------------------
+m.summary() # Get posterior distributions
 ```
 :::
 

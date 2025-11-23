@@ -105,7 +105,7 @@ data_path = m.load.sim_multinomial(only_path = true)
 m.data(data_path, sep=',')
 
 # Define model ------------------------------------------------
-@pymodel function model(income, career)
+@BI function model(income, career)
     # Parameter prior distributions
     alpha = m.dist.normal(0, 1, shape=(2,), name='a')
     beta = m.dist.half_normal(0.5, shape=(1,), name='b')

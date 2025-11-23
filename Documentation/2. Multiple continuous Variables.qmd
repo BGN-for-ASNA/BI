@@ -100,7 +100,7 @@ m.df = m.df[m.df.age > 18] # Subset data to adults
 m.scale(["weight", "age"]) # Normalize
 
 # Define model ------------------------------------------------
-@pymodel function model(height, weight, age)
+@BI function model(height, weight, age)
     # Parameter prior distributions
     alpha = m.dist.normal(0, 0.5, name = "alpha")    
     beta1 = m.dist.normal(0, 0.5, name = "beta1")
