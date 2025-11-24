@@ -1,5 +1,5 @@
 ---
-title: "Dirichlet Process Mixture Models 🚧"
+title: "🚧 Dirichlet Process Mixture Models"
 description: "A non-parametric Bayesian clustering method that automatically determines the number of clusters."
 categories: [Clustering, Unsupervised Learning, Non-parametric]
 image: "Figures/20.png"
@@ -8,7 +8,7 @@ order: 24
 
 ## General Principles
 
-To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Mixture Model (DPMM)**. This is a unsupervised clustering method @gershman2012tutorial. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:
+To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Mixture Model (DPMM)** @gershman2012tutorial. This is a [<span style="color:#0D6EFD"> unsupervised 🛈</span>]{#unsupervised} clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:
 
 1.  **How many clusters (`K`) exist**: Unlike algorithms like K-Means, the DPMM infers the most probable number of clusters directly from the data.
 2.  **The properties of each cluster**: For each inferred cluster, it estimates its location and its spread.
@@ -39,34 +39,34 @@ Below is an example of a DPMM implemented in BI. The goal is to cluster a synthe
 
 ``` {python}
 from BI import bi, jnp
-from BI.Models.DPMM import mix_weights
 from sklearn.datasets import make_blobs
 import numpyro
 
-m = bi()
+m = bi(rand_seed = False)
 
 # Generate synthetic data
 data, true_labels = make_blobs(
     n_samples=500, centers=8, cluster_std=0.8,
     center_box=(-10,10), random_state=101
 )
+data_mean = jnp.mean(data, axis=0)
+data_std = jnp.std(data, axis=0)*2
 
 #  The model
-def dpmm(data, T=10):
+def dpmm(data, K, data_mean, data_std):
     N, D = data.shape  # Number of features
-    data_mean = jnp.mean(data, axis=0)
-    data_std = jnp.std(data, axis=0)*2
+
 
     # 1) stick-breaking weights
     alpha = m.dist.gamma(1.0, 10.0,name='alpha')
 
-    with m.dist.plate("beta_plate", T - 1):
-        beta = m.dist.beta(1, alpha)
+    with m.dist.plate("beta_plate", K - 1):
+        beta = m.dist.beta(1, alpha, name = "beta")
 
-    w = numpyro.deterministic("w",mix_weights(beta))
+    w = numpyro.deterministic("w",m.models.dpmm.mix_weights(beta))
 
     # 2) component parameters
-    with m.dist.plate("components", T):
+    with m.dist.plate("components", K):
         mu = m.dist.multivariate_normal(loc=data_mean, covariance_matrix=data_std*jnp.eye(D),name='mu')# shape (T, D)        
         sigma = m.dist.log_normal(0.0, 1.0,shape=(D,),event=1,name='sigma')# shape (T, D)
         Lcorr = m.dist.lkj_cholesky(dimension=D, concentration=1.0,name='Lcorr')# shape (T, D, D)
@@ -74,18 +74,21 @@ def dpmm(data, T=10):
         scale_tril = sigma[..., None] * Lcorr  # shape (T, D, D)
 
     # 3) Latent cluster assignments for each data point
-    with m.dist.plate("data", N):
-        # Sample the assignment for each data point
-        z = m.dist.categorical(w, name = 'z') # shape (N,)  
+    m.dist.mixture_same_family(
+        mixing_distribution=m.dist.categorical(probs=w, create_obj=True),
+        component_distribution=m.dist.multivariate_normal(
+            loc=mu, 
+            scale_tril=scale_tril, 
+            create_obj=True
+        ),
+        obs=data
+    )
 
-        # Sample the data point from the assigned component
-        m.dist.multivariate_normal(loc=mu[z], scale_tril=scale_tril[z],
-            obs=data, name = 'Y'
-        )  
-
-m.data_on_model = dict(data=data)
+m.data_on_model = dict(data=data,K = 10, data_mean=data_mean, data_std=data_std)
 m.fit(dpmm)  # Optimize model parameters through MCMC sampling
 m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
+
+
 ```
 
 ## R
@@ -95,6 +98,64 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```
 ![](travaux-routiers.png){fig-align="center"}
 
+## Julia
+```julia
+using BayesianInference
+using PythonCall
+numpyro = pyimport("numpyro")
+
+m = importBI(rand_seed = false)
+
+# 1. Generate Data
+sk_datasets = pyimport("sklearn.datasets")
+output = sk_datasets.make_blobs(n_samples=500, centers=8, cluster_std=0.8, center_box=(-10, 10), random_state=101)
+data = output[0]
+data_mean = jnp.mean(data, axis=0)
+data_std = jnp.std(data, axis=0) * 2
+m.data_on_model = pydict(data=data, K=10, data_mean = data_mean, data_std = data_std)
+
+
+@BI function dpmm(data, K, data_mean , data_std)
+    N, D = data.shape 
+
+    alpha = m.dist.gamma(1.0, 10.0, name="alpha")
+
+    beta = pywith(m.dist.plate("beta_plate", K - 1)) do _
+        m.dist.beta(1, alpha, name = "beta")
+    end
+
+    w = numpyro.deterministic("w", m.models.dpmm.mix_weights(beta))
+
+    mu, scale_tril = pywith(m.dist.plate("components", K)) do _
+        mu_val = m.dist.multivariate_normal(
+            loc=data_mean, 
+            covariance_matrix=data_std * jnp.eye(D),
+            name="mu"
+        )
+        
+        sigma = m.dist.log_normal(0.0, 1.0, shape=(D,), event=1, name="sigma")
+        Lcorr = m.dist.lkj_cholesky(dimension=D, concentration=1.0, name="Lcorr")
+        scale_tril_inner = jnp.expand_dims(sigma, -1) * Lcorr
+        (mu_val, scale_tril_inner)
+    end
+    
+    m.dist.mixture_same_family(
+        mixing_distribution=m.dist.categorical(probs=w, create_obj=true),
+        component_distribution=m.dist.multivariate_normal(
+            loc=mu, 
+            scale_tril=scale_tril, 
+            create_obj=true
+        ),
+        obs=data
+    )
+end
+
+# 4. Run
+
+m.fit(dpmm) 
+
+@pyplot m.models.dpmm.plot_dpmm(m.data_on_model["data"], m.sampler)
+```
 :::
 
 ## Mathematical Details

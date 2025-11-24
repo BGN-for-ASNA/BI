@@ -37,18 +37,18 @@ Here is an example code snippet demonstrating Bayesian PCA using BI:
 
 from BI import bi,jnp
 m=bi()
-m.data('iris.csv', sep=',') # Data is already scaled
+data_path = m.load.iris(only_path=True)
+m.data(data_path)
 m.data_on_model = dict(
-    X=jnp.array(m.df.iloc[:,0:-2].values)
+    X=jnp.array(m.df.iloc[:,1:4].values)
 )
 m.fit(m.models.pca(type="classic"), progress_bar=False) # or robust, sparse, classic, sparse_robust_ard
 m.models.pca.plot(
-    X=m.df.iloc[:,0:-2].values,
-    y=m.df.iloc[:,-2].values, 
-    feature_names=m.df.columns[0:-2], 
-    target_names=m.df.iloc[:,-1].unique(),
-    color_var=m.df.iloc[:,0].values,
-    shape_var=m.df.iloc[:,-2].values
+    X = m.df.iloc[:,1:4].values,
+    y = m.df.iloc[:,5].values, 
+    feature_names = m.df.columns[1:4], 
+    target_names = m.df.iloc[:,6].unique(),
+    color_var = m.df.iloc[:,1].values
 )
 ```
 
@@ -254,6 +254,53 @@ m.summary()
 
 ```
 -->
+
+## Julia
+```julia
+using BayesianInference
+m = importBI(platform="cpu")
+data_path = m.load.iris(only_path=true)
+m.data(data_path)
+m.data_on_model = pydict(
+    X=jnp.array(m.df.iloc[:,1:4].values)
+)
+m.fit(m.models.pca(type="classic"))
+
+# ------------------------------------------------------------------------
+#  ⚠️ Forcing Matplotlib to use the "Inline" backend for jupyter notebook
+# ------------------------------------------------------------------------
+plt = pyimport("matplotlib.pyplot")
+
+# 1. Create empty contexts 
+globals_dict = pybuiltins.dict()
+locals_dict = pybuiltins.dict()
+
+# 2. Define the dummy function safely
+dummy_show = pybuiltins.eval("lambda *args, **kwargs: None", globals_dict, locals_dict)
+
+# 3. Save the real show function
+real_show = plt.show
+
+# 4. Overwrite
+plt.show = dummy_show
+
+# 5. Run your plot
+m.models.pca.plot(
+    X = m.df.iloc[:,1:4].values,
+    y = m.df.iloc[:,5].values, 
+    feature_names = m.df.columns[1:4], 
+    target_names = m.df.iloc[:,6].unique(),
+    color_var = m.df.iloc[:,1].values
+)
+
+# 6. Restore real show
+plt.show = real_show
+
+# 7. Display the result
+display(plt.gcf())
+plt.close()
+```
+
 :::
 
 
