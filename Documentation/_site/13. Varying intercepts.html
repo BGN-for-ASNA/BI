@@ -315,11 +315,17 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">10. Multinomial model (wip).qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multinomial Model</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
- <span class="menu-text">10. Dirichlet model (wip).qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dirichlet Model 🚧</span></a>
+  </div>
+</li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
@@ -383,7 +389,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Process Mixture Models 🚧</span></a>
+ <span class="menu-text">🚧 Dirichlet Process Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -400,7 +406,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./24. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
 </li>
@@ -503,7 +509,7 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python (Raw)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="aff91512" class="cell" data-execution_count="1">
+<div id="ca1f4a33" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
@@ -534,10 +540,10 @@ Note
 <pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;09:35,  1.73it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:  21%|██        | 207/1000 [00:00&lt;00:01, 410.44it/s, 15 steps of size 4.31e-01. acc. prob=0.78]warmup:  45%|████▌     | 454/1000 [00:00&lt;00:00, 864.93it/s, 15 steps of size 4.90e-01. acc. prob=0.79]sample:  70%|███████   | 701/1000 [00:00&lt;00:00, 1249.73it/s, 7 steps of size 4.21e-01. acc. prob=0.90]sample:  97%|█████████▋| 969/1000 [00:00&lt;00:00, 1613.52it/s, 7 steps of size 4.21e-01. acc. prob=0.90]sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1009.84it/s, 7 steps of size 4.21e-01. acc. prob=0.89]
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;08:02,  2.07it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:  22%|██▏       | 222/1000 [00:00&lt;00:01, 505.55it/s, 15 steps of size 4.65e-01. acc. prob=0.78]warmup:  50%|████▉     | 499/1000 [00:00&lt;00:00, 1061.86it/s, 7 steps of size 2.27e-01. acc. prob=0.79]sample:  76%|███████▋  | 763/1000 [00:00&lt;00:00, 1470.40it/s, 15 steps of size 4.21e-01. acc. prob=0.90]sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1147.33it/s, 7 steps of size 4.21e-01. acc. prob=0.89]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 
 
@@ -1165,7 +1171,7 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div id="30e6de78" class="cell" data-execution_count="2">
+<div id="86e7eb9b" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1194,10 +1200,10 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;07:16,  2.29it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:  17%|█▋        | 170/1000 [00:00&lt;00:01, 417.73it/s, 7 steps of size 2.37e-01. acc. prob=0.78]warmup:  43%|████▎     | 430/1000 [00:00&lt;00:00, 985.46it/s, 7 steps of size 4.61e-01. acc. prob=0.79]sample:  74%|███████▍  | 741/1000 [00:00&lt;00:00, 1560.58it/s, 7 steps of size 4.53e-01. acc. prob=0.88]sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1220.19it/s, 7 steps of size 4.53e-01. acc. prob=0.88]
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;07:27,  2.23it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:  20%|█▉        | 196/1000 [00:00&lt;00:01, 473.55it/s, 15 steps of size 5.67e-01. acc. prob=0.78]warmup:  47%|████▋     | 466/1000 [00:00&lt;00:00, 1044.43it/s, 15 steps of size 5.59e-01. acc. prob=0.79]sample:  75%|███████▍  | 746/1000 [00:00&lt;00:00, 1515.14it/s, 7 steps of size 4.53e-01. acc. prob=0.88] sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1193.10it/s, 7 steps of size 4.53e-01. acc. prob=0.88]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
@@ -2395,6 +2401,22 @@ tippy('#LKJcorr', {
         });
       },
     });
+
+tippy('#unsupervised', {
+      content: `
+  <span style='color: white;'>
+    An unsupervised algorithm is a method that processes unlabeled data to automatically uncover patterns, groupings, or structures without predefined output targets.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
 
 </script>
 <script>
