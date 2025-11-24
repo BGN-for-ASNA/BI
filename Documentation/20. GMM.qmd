@@ -70,7 +70,12 @@ def gmm(data, K, initial_means): # Here K is the *exact* number of clusters
         obs=data
     )
 
+# Kmeans clustering do initiate the means
+m.ml.KMEANS(data, n_clusters=8)
 m.data_on_model = {"data": data,"K": 8 }
+m.data_on_model['initial_means'] = m.ml.results['centroids']
+
+
 m.fit(gmm) # Optimize model parameters through MCMC sampling
 m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```
@@ -79,6 +84,45 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 ![](travaux-routiers.png){fig-align="center"}
 
+
+## Julia
+```julia
+@BI function gmm(data, K, initial_means)
+    D = data.shape[1] 
+    alpha_prior = 0.5 * jnp.ones(K)
+    w = m.dist.dirichlet(concentration=alpha_prior, name="weights") 
+
+    # We capture the output of the pywith block
+    # The block returns a tuple (mu, scale_tril)
+    mu, scale_tril = pywith(m.dist.plate("components", K)) do _
+        mu_inner = m.dist.multivariate_normal(
+            loc=initial_means, 
+            covariance_matrix=0.1*jnp.eye(D), 
+            name="mu"
+        )        
+        
+        sigma = m.dist.half_cauchy(1, shape=(D,), event=1, name="sigma")
+        Lcorr = m.dist.lkj_cholesky(dimension=D, concentration=1.0, name="Lcorr")
+
+        # FIX: Use expand_dims instead of slicing
+        scale_tril_inner = jnp.expand_dims(sigma, -1) * Lcorr
+        
+        # Return them so they are available outside
+        (mu_inner, scale_tril_inner)
+    end
+
+    m.dist.mixture_same_family(
+        mixing_distribution=m.dist.categorical(probs=w, create_obj=true),
+        component_distribution=m.dist.multivariate_normal(loc=mu, scale_tril=scale_tril, create_obj=true),
+        name="obs",
+        obs=data
+    )
+end
+
+# Run
+m.fit(gmm)
+m.summary()
+```
 
 :::
 ## Mathematical Details
