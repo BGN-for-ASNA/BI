@@ -461,5 +461,21 @@ tippy('#unsupervised', {
       },
     });
 
+tippy('#stickProcess', {
+      content: `
+  <span style='color: white;'>
+The stick-breaking process is a way to generate a random distribution by imagining a unit-length stick that gets broken into pieces one step at a time. At each step, a random fraction of whatever stick remains is snapped off to form a new weight, and the rest is left for future breaks. Each weight is paired with a randomly chosen parameter value. Repeating this indefinitely yields a distribution made of infinitely many weighted parameter, where earlier pieces tend to be larger and later ones smaller.
+
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
 
 </script>

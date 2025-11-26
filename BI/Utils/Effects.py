@@ -62,20 +62,43 @@ class effects:
             centered = False,
             sample=False
         ):
-        print("⚠️ This function is still in development. Use it with caution. ⚠️")
+        """
+        Models a varying intercept and varying slope for a continuous predictor.
+
+        This uses a "centered" parameterization to sample a correlated
+        [intercept, slope] pair for each group from a Multivariate Normal distribution.
+
+        Args:
+            N_vars (int): The total number of covariates for the model.
+            N_group (int): The total number of unique groups (e.g., 7 subjects).
+            group_id (array): An array of integer indices for the group of each observation.
+            group_name (str, optional): A descriptive name for the grouping factor.
+            alpha_bar (distribution, optional): The hyperprior for the mean of the intercepts.
+            beta_bar (distribution, optional): The hyperprior for the mean of the slopes.
+            sd_intercept (distribution, optional): The hyperprior for the standard deviation of the intercepts.
+            sd_beta (distribution, optional): The hyperprior for the standard deviation of the slopes.
+            corr (distribution, optional): The prior for the correlation matrix.
+            centered (bool, optional): Whether to use a centered parameterization. Defaults to False.
+            sample (bool, optional): Whether to sample from the posterior. Defaults to False.
+
+        Returns:
+            tuple: A tuple containing two arrays:
+                - varying_intercepts (array): The intercept for each observation.
+                - varying_slopes (array): The slope for each observation.        
+        """
         # 1. Priors.
         if alpha_bar is None:
-            alpha_bar = dist.normal(5, 2, name='global_intercept', sample=sample, shape = (1,))
+            alpha_bar = dist.normal(0, 5, name='global_intercept', sample=sample, shape = (1,))
 
         if beta_bar is None:
-            beta_bar = dist.normal(-1, 0.5, name='global_beta', sample=sample, shape = (N_vars,))
+            beta_bar = dist.normal(0, 5, name='global_beta', sample=sample, shape = (N_vars,))
 
         # 2. Hyperpriors.
         if sd_intercept is None:
-            sd_intercept = dist.exponential(1, shape=(1,), name = 'sd_intercept', sample = sample)
+            sd_intercept = dist.exponential(1, shape=(1,), name = f'{group_name}_sd_intercept', sample = sample)
 
         if sd_beta is None:
-            sd_beta = dist.exponential(1, shape=(N_vars,), name = 'sd_beta', sample = sample)
+            sd_beta = dist.exponential(1, shape=(N_vars,), name = f'{group_name}_sd_beta', sample = sample)
 
         mu = jnp.concat([alpha_bar, beta_bar])
         sigma = jnp.concat([sd_intercept, sd_beta])
@@ -83,9 +106,9 @@ class effects:
 
         if centered == False:       
             if corr is None:
-                L_corr = dist.lkj_cholesky(dimension =(N_vars + 1), concentration = 2, name = f'L_corr', sample = sample) 
+                L_corr = dist.lkj_cholesky(dimension =(N_vars + 1), concentration = 2, name = f'{group_name}_L_corr', sample = sample) 
 
-            z = dist.normal(0, 1, name="z", shape=(N_vars + 1 , N_group), sample=sample)
+            z = dist.normal(0, 1, name=f"{group_name}_z", shape=(N_vars + 1 , N_group), sample=sample)
 
             effects = (L_corr @ z).T * sigma + mu
 

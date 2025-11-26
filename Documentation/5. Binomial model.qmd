@@ -40,7 +40,7 @@ m.data_to_model(['pulled_left'])
 # Define model ------------------------------------------------
 def model(pulled_left):
     alpha = m.dist.normal( 0, 10,  name = 'alpha')
-    m.dist.binomial(total_count = 1, logits=a, obs=pulled_left)
+    m.dist.binomial(total_count = 1, logits=alpha, obs=pulled_left)
 
 # Run sampler ------------------------------------------------
 m.fit(model, num_samples=500)

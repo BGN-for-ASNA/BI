@@ -522,7 +522,7 @@ Incorporating categorical predictors (i.e., factor variables) into a regression 
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="4" data-categories="Classification,Regression,GLM" data-listing-file-modified-sort="1763904707374" data-listing-reading-time-sort="4" data-listing-word-count-sort="762">
+<div class="g-col-1" data-index="4" data-categories="Classification,Regression,GLM" data-listing-file-modified-sort="1764153654850" data-listing-reading-time-sort="4" data-listing-word-count-sort="762">
 <a href="./5. Binomial model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -620,7 +620,7 @@ Modeling count data, such as the number of events occurring in a fixed interval 
 </p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-Poisson Model with an Offset
+🚧 Poisson Model with an Offset
 </h5>
 <div class="listing-reading-time card-text text-muted">
 4 min
@@ -741,7 +741,7 @@ Modeling the counts of outcomes across multiple categorical trials.
 </p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-Dirichlet Model 🚧
+🚧 Dirichlet Model
 </h5>
 <div class="listing-reading-time card-text text-muted">
 2 min
@@ -851,7 +851,7 @@ Modeling grouped or hierarchical data by allowing the intercept to vary for each
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="15" data-categories="Hierarchical Models,Regression" data-listing-file-modified-sort="1763904707362" data-listing-reading-time-sort="9" data-listing-word-count-sort="1757">
+<div class="g-col-1" data-index="15" data-categories="Hierarchical Models,Regression" data-listing-file-modified-sort="1764161226330" data-listing-reading-time-sort="11" data-listing-word-count-sort="2029">
 <a href="./14. Varying slopes.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -862,7 +862,7 @@ Modeling grouped or hierarchical data by allowing the intercept to vary for each
 Varying Slopes Models 🚧
 </h5>
 <div class="listing-reading-time card-text text-muted">
-9 min
+11 min
 </div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('Hierarchical Models'); return false;">
@@ -1016,7 +1016,7 @@ A dimensionality reduction technique to transform a large set of variables into 
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="21" data-categories="Clustering,Unsupervised Learning" data-listing-file-modified-sort="1763974958288" data-listing-reading-time-sort="7" data-listing-word-count-sort="1291">
+<div class="g-col-1" data-index="21" data-categories="Clustering,Unsupervised Learning" data-listing-file-modified-sort="1764160417939" data-listing-reading-time-sort="7" data-listing-word-count-sort="1371">
 <a href="./20. GMM.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1044,7 +1044,7 @@ A probabilistic model for representing normally distributed subpopulations, ofte
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="22" data-categories="Clustering,Unsupervised Learning,Non-parametric" data-listing-file-modified-sort="1763990293751" data-listing-reading-time-sort="8" data-listing-word-count-sort="1559">
+<div class="g-col-1" data-index="22" data-categories="Clustering,Unsupervised Learning,Non-parametric" data-listing-file-modified-sort="1764161770556" data-listing-reading-time-sort="8" data-listing-word-count-sort="1513">
 <a href="./21. DPMM.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1052,7 +1052,7 @@ A probabilistic model for representing normally distributed subpopulations, ofte
 </p>
 <div class="card-body post-contents">
 <h5 class="no-anchor card-title listing-title">
-🚧 Dirichlet Process Mixture Models
+Dirichlet Process Mixture Models
 </h5>
 <div class="listing-reading-time card-text text-muted">
 8 min
@@ -1103,7 +1103,7 @@ Modeling relationships and interactions between entities as a graph of nodes and
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="24" data-categories="Network Analysis,Graph Theory,Community Detection" data-listing-file-modified-sort="1763376565261" data-listing-reading-time-sort="5" data-listing-word-count-sort="805">
+<div class="g-col-1" data-index="24" data-categories="Network Analysis,Graph Theory,Community Detection" data-listing-file-modified-sort="1764151017060" data-listing-reading-time-sort="6" data-listing-word-count-sort="1085">
 <a href="./23. Network with block model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1114,7 +1114,7 @@ Modeling relationships and interactions between entities as a graph of nodes and
 Stochastic Block Models
 </h5>
 <div class="listing-reading-time card-text text-muted">
-5 min
+6 min
 </div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
@@ -1678,6 +1678,22 @@ tippy('#unsupervised', {
       content: `
   <span style='color: white;'>
     An unsupervised algorithm is a method that processes unlabeled data to automatically uncover patterns, groupings, or structures without predefined output targets.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#stickProcess', {
+      content: `
+  <span style='color: white;'>
+The stick-breaking process is a way to generate a random distribution by imagining a unit-length stick that gets broken into pieces one step at a time. At each step, a random fraction of whatever stick remains is snapped off to form a new weight, and the rest is left for future breaks. Each weight is paired with a randomly chosen parameter value. Repeating this indefinitely yields a distribution made of infinitely many weighted parameter, where earlier pieces tend to be larger and later ones smaller.
+
   </span>
   `, allowHTML: true,
       interactive: true,
