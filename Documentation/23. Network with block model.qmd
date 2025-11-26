@@ -17,13 +17,15 @@ Within networks, nodes can belong to different categories, and these categories 
 ## Example
 Below is an example code snippet demonstrating a Bayesian network model using the stochastic block model approach. The data is identical to the [Network model](20.&#32;Network&#32;model.qmd) example, with the addition of covariates *Any*, *Merica*, and *Quantum*, representing the block membership of each node. This example is based on @ross2024modelling.
 
+::: {.panel-tabset group="language"}
+## Python
 ```{python}
 
 # Setup device------------------------------------------------
 from BI import bi, jnp
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bi(platform='cpu', rand_seed = False)
 # Simulate data ------------------------------------------------
 N = 50
 individual_predictor = m.dist.normal(0,1, shape = (N,1), sample = True)
@@ -74,8 +76,8 @@ def model(network, dyadic_predictors, focal_individual_predictors, target_indivi
     N_id = focal_individual_predictors.shape[0]
 
     # Block ---------------------------------------
-    B_intercept = m.net.block_model(jnp.full((N_id,),0), 1, N_id, sample = True)
-    B_category = m.net.block_model(category, N_grp, N_by_grp, sample = True)
+    B_intercept = m.net.block_model(jnp.full((N_id,),0), 1, N_id, name = "B_intercept")
+    B_category = m.net.block_model(category, N_grp, N_by_grp, name = "B_category")
 
     ## SR shape =  N individuals---------------------------------------
     sr =  m.net.sender_receiver(
@@ -89,10 +91,85 @@ def model(network, dyadic_predictors, focal_individual_predictors, target_indivi
     m.dist.bernoulli(logits = B_intercept + B_category + sr + dr, obs=network)
 
 m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1)
-
+m.summary()
 ```
 
-`
+## R
+```R
+![](travaux-routiers.png){fig-align="center"}
+```
+
+## Julia
+```julia
+# Setup device------------------------------------------------
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI(platform="cpu", rand_seed = false)
+
+# Simulate data ------------------------------------------------
+N = 50
+individual_predictor = m.dist.normal(0,1, shape = (N,1), sample = true)
+
+kinship = m.dist.bernoulli(0.3, shape = (N,N), sample = true)
+kinship = kinship.at[jnp.diag_indices(N)].set(0)
+
+category = m.dist.categorical(jnp.array([.25,.25,.25,.25]), sample = true, shape  = (N,))
+N_grp, N_by_grp = jnp.unique(category, return_counts=true)
+N_grp = N_grp.shape[0]
+
+
+function sim_network(kinship, individual_predictor)
+  # Intercept
+  alpha = m.dist.normal(0,1, sample = true)
+
+  # SR
+  sr = m.net.sender_receiver(individual_predictor, individual_predictor, s_mu = 0.4, r_mu = -0.4, sample = true)
+
+  # D
+  DR = m.net.dyadic_effect(kinship, d_sd=2.5, sample = true)
+
+  return m.dist.bernoulli(logits = alpha + sr + DR, sample = true)
+
+end
+
+network = sim_network(m.net.mat_to_edgl(kinship), individual_predictor)
+
+
+# Predictive model ------------------------------------------------
+
+m.data_on_model = pydict(
+    network = network, 
+    dyadic_predictors = m.net.mat_to_edgl(kinship),
+    focal_individual_predictors = individual_predictor,
+    target_individual_predictors = individual_predictor, 
+    category = category
+)
+
+
+@BI function model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors,category) 
+    N_id = focal_individual_predictors.shape[0]
+
+    # Block ---------------------------------------
+    B_intercept = m.net.block_model(jnp.full((N_id,),0), 1, N_id, name = "B_intercept")
+    B_category = m.net.block_model(category, N_grp, N_by_grp, name = "B_category")
+
+    ## SR shape =  N individuals---------------------------------------
+    sr =  m.net.sender_receiver(
+      focal_individual_predictors,
+      target_individual_predictors, 
+      s_mu = 0.4, r_mu = -0.4
+    )
+
+    # Dyadic shape = N dyads--------------------------------------  
+    dr = m.net.dyadic_effect(dyadic_predictors, d_sd=2.5) # Diadic effect intercept only 
+    m.dist.bernoulli(logits = B_intercept + B_category + sr + dr, obs=network)
+end 
+
+m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1)
+m.summary()
+```
+:::
 
 ## Mathematical Details
 
