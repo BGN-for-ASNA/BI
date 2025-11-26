@@ -166,11 +166,11 @@ B
 $$
 
 $$
-\Sigma_k = \sigma_k \Omega_k \sigma_k
+\Sigma_k &= \text{Diag}(\sigma_k) \Omega_k  \text{Diag}(\sigma_k)
 $$
 
 $$
-\sigma_k \sim \text{HalfCauchy}(1)
+\sigma_{[k,d]} &\sim \text{HalfCauchy}(1) 
 $$
 
 $$
@@ -193,7 +193,18 @@ Where :
 *   $\begin{pmatrix} A_{[k,1]} \\ \vdots \\ A_{[k,D]} \end{pmatrix}$ is a prior for the $k$-th mean vector as derived by a *KMEANS* clustering algorithm. 
 *   $B$ is the prior covariance of the cluster means, and is setup as a diagonal matrix with 0.1 along the diagonal.
 *   $\Sigma_k$ is the DxD covariance matrix of the $k$-th cluster (it is composed from $\sigma_k$ and $\Omega_k$).
-*   $\sigma_k$ is a diagonal matrix of standard deviations for the $k$-th cluster.
+*  $\text{Diag}(\sigma_k)$ is a diagonal matrix whose diagonal entries are the standard deviations:
+  $$
+  \text{Diag}(\sigma_k) =
+  \begin{pmatrix}
+  \sigma_{[k,1]} & 0 & \cdots & 0 \\
+  0 & \sigma_{[k,2]} &        & \vdots \\
+  \vdots &        & \ddots & 0 \\
+  0 & \cdots & 0 & \sigma_{[k,D]}
+  \end{pmatrix}.
+  $$
+
+*   $\sigma_{k}$ is a $D$-vector of standard deviations for the $k$-th cluster where each element, $d$, has a half-cauchy prior.
 *   $\Omega_k$ is a correlation matrix for the $k$-th cluster.
 *   $z_i$ is a latent variable that maps observation $i$ to cluster $k$.
 *   $\pi$ is a vector of $K$ cluster weights.
