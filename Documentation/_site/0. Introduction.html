@@ -275,7 +275,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Poisson Model with an Offset</span></a>
+ <span class="menu-text">🚧 Poisson Model with an Offset</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -299,19 +299,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Model 🚧</span></a>
+ <span class="menu-text">🚧 Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Zero-Inflated Models</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Survival Analysis 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -346,12 +340,6 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Latent Variable Models 🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./19. PCA.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Principal Component Analysis</span></a>
   </div>
@@ -365,7 +353,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Process Mixture Models 🚧</span></a>
+ <span class="menu-text">Dirichlet Process Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -402,6 +390,18 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Bayesian Neural Networks 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Analysis 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Latent Variable Models 🚧</span></a>
   </div>
 </li>
     </ul>
@@ -1179,6 +1179,22 @@ tippy('#LKJcorr', {
         });
       },
     });
+
+tippy('#unsupervised', {
+      content: `
+  <span style='color: white;'>
+    An unsupervised algorithm is a method that processes unlabeled data to automatically uncover patterns, groupings, or structures without predefined output targets.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
 
 </script>
 <script>

@@ -372,6 +372,44 @@ $$
 
 - We can apply categorical variables similarly to [Chapter 4](/4.%20Categorical%20variable.qmd).
 
+- We can apply multiple random effects in Bayesian inference as follows:
+
+```python
+def model(cafe, wait, N_cafes, afternoon, state):
+    sigma = m.dist.exponential( 1,  name = 'sigma')
+    
+    # ⚠️ Note: `alpha_bar` and `beta_bar` are set to zero to ensure the same intercepts for all varying effects. ⚠️
+    varying_intercept_1, varying_slope_1 = m.effects.varying_effects(
+        N_vars = 1,
+        N_group = N_cafes,
+        group_id = cafe, 
+        group_name='cafe',
+        alpha_bar = jnp.array([0]),
+        beta_bar = jnp.array([0]),
+        centered=True,
+    )
+
+    varying_intercept_2, varying_slope_2 = m.effects.varying_effects(
+        N_vars = 1,
+        N_group = 4,
+        group_id = states, 
+        group_name='states',
+        alpha_bar = jnp.array([0]),
+        beta_bar = jnp.array([0]),
+        centered=True,
+    )
+
+    varying_intercept = varying_intercept_1 + varying_intercept_2
+    varying_slope = varying_slope_1 + varying_slope_2
+
+    mu = varying_intercept + varying_slope[:,0] * afternoon 
+    m.dist.normal(mu, sigma, obs=wait
+
+```
+
+Where `state` is a second varying effect, representing cafes clustered by state.
+
+⚠️ Note: `alpha_bar` and `beta_bar` are set to zero to ensure the same intercepts for all varying effects. ⚠️
 <!---
 - We can apply varying slopes with any distribution presented in previous chapters. Below is the formula and the code snippet for a Binomial multivariate model with an interaction between two independent variables $X_1$ and $X_2$ and multiple varying effects for each actor and each group.
 
@@ -511,6 +549,7 @@ m.sampler.print_summary(0.89)
 ```
 --->
 :::
+
 
 ## Reference(s)
 

@@ -1,5 +1,5 @@
 ---
-title: "🚧 Dirichlet Process Mixture Models"
+title: "Dirichlet Process Mixture Models"
 description: "A non-parametric Bayesian clustering method that automatically determines the number of clusters."
 categories: [Clustering, Unsupervised Learning, Non-parametric]
 image: "Figures/20.png"
@@ -8,7 +8,7 @@ order: 24
 
 ## General Principles
 
-To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Mixture Model (DPMM)** @gershman2012tutorial. This is a [<span style="color:#0D6EFD"> unsupervised 🛈</span>]{#unsupervised} clustering method. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:
+To discover group structures or clusters in data without pre-specifying the number of groups, we can use a **Dirichlet Process Mixture Model (DPMM)** @gershman2012tutorial. This is a [<span style="color:#0D6EFD"> unsupervised clustering method 🛈</span>]{#unsupervised}. Essentially, the model assumes the data is generated from a collection of different Gaussian distributions, and it simultaneously tries to figure out:
 
 1.  **How many clusters (`K`) exist**: Unlike algorithms like K-Means, the DPMM infers the most probable number of clusters directly from the data.
 2.  **The properties of each cluster**: For each inferred cluster, it estimates its location and its spread.
@@ -17,7 +17,7 @@ To discover group structures or clusters in data without pre-specifying the numb
 ## Considerations
 
 ::: callout-caution
--   A DPMM is a Bayesian model 🛈 that considers uncertainty in all its parameters. The core idea is to use the Dirichlet Process prior that allows for a potentially infinite number of clusters. In practice, we use a finite approximation where we cap the maximum number of clusters at $K$ and use the [Stick-Breaking Process 🛈]{style="color:#0D6EFD"}.
+-   A DPMM is a Bayesian model 🛈 that considers uncertainty in all its parameters. The core idea is to use the Dirichlet Process prior that allows for a potentially infinite number of clusters. In practice, we use a finite approximation where we cap the maximum number of clusters at $K$ and use the [<span style="color:#0D6EFD"> Stick-Breaking Process 🛈</span>]{#stickProcess}.
 
 -   The key parameters and their priors are:
 
@@ -38,7 +38,7 @@ Below is an example of a DPMM implemented in BI. The goal is to cluster a synthe
 ## Python
 
 ``` {python}
-from BI import bi, jnp
+from BI import bi, jnp 
 from sklearn.datasets import make_blobs
 import numpyro
 
@@ -195,9 +195,9 @@ A_{D}
 \, B
 \right) \\
 \\
-\Sigma_k &= \sigma_k \Omega_k \sigma_k \\
+\Sigma_k &= \text{Diag}(\sigma_k) \Omega_k  \text{Diag}(\sigma_k) \\
 \\
-\sigma_{k} &\sim \text{HalfCauchy}(1) \\
+\sigma_{[k,d]} &\sim \text{HalfCauchy}(1) \\
 \\
 \Omega_k &\sim \text{LKJ}(2) \\
 \\
@@ -223,7 +223,18 @@ Where :
 
 *   $\Sigma_k$ is the DxD covariance matrix of the $k$-th cluster (it is composed from $\sigma_k$ and $\Omega_k$).
 
-*   $\sigma_k$ is a diagonal matrix of standard deviations for the $k$-th cluster.
+*  $\text{Diag}(\sigma_k)$ is a diagonal matrix whose diagonal entries are the standard deviations:
+  $$
+  \text{Diag}(\sigma_k) =
+  \begin{pmatrix}
+  \sigma_{[k,1]} & 0 & \cdots & 0 \\
+  0 & \sigma_{[k,2]} &        & \vdots \\
+  \vdots &        & \ddots & 0 \\
+  0 & \cdots & 0 & \sigma_{[k,D]}
+  \end{pmatrix}.
+  $$
+
+*   $\sigma_{k}$ is a $D$-vector of standard deviations for the $k$-th cluster where each element, $d$, has a half-cauchy prior.
 
 *   $\Omega_k$ is a correlation matrix for the $k$-th cluster.
 
@@ -243,15 +254,14 @@ Where :
 
 * Prior $\alpha$ strongly influence the predicted number of clusters. Below are examples of this relationship:
 
-| Shape | Rate | $E[\alpha]$ | $E[K]$ (approx) | Behavior |
-|:---:|:---:|:---:|:---:|:---|
-| 1     | 15   | 0.067       | 0.35            | Forces very few clusters |
-| 5     | 1    | 5           | 26              | Encourages many small clusters |
-| 10    | 2    | 5           | 26              | Same mean, less variance |
-| 2     | 0.5  | 4           | 21              | Moderately many clusters |
-| 15    | 1    | 15          | 78              | Explosive prior cluster count |
+| Shape | Rate | Behavior |
+|:---:|:---:|:---:|
+| 1     | 15    | Forces very few clusters |
+| 5     | 1     | Encourages many small clusters |
+| 10    | 2     | Same mean, less variance |
+| 2     | 0.5   | Moderately many clusters |
+| 15    | 1     | Explosive prior cluster count |
 : Impact of Gamma Prior Hyperparameters on Cluster Counts {tbl-colwidths="[10,10,15,25,40]"}
-
 :::
 
 ## Reference(s)

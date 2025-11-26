@@ -257,25 +257,25 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">1. Univariate Linear Regression</span></a>
+ <span class="menu-text">Univariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./2. Multiple continuous Variables.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">2.Multivariate Linear Regression</span></a>
+ <span class="menu-text">Multivariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">3. Interaction Terms in Regression</span></a>
+ <span class="menu-text">Interaction Terms in Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">4. Regression with a Categorical Independent Variable</span></a>
+ <span class="menu-text">Regression with a Categorical Independent Variable</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -299,7 +299,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Poisson Model with an Offset</span></a>
+ <span class="menu-text">🚧 Poisson Model with an Offset</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -323,7 +323,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Model 🚧</span></a>
+ <span class="menu-text">🚧 Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -389,7 +389,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Process Mixture Models 🚧</span></a>
+ <span class="menu-text">🚧 Dirichlet Process Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -512,7 +512,7 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="1e696ded" class="cell" data-execution_count="1">
+<div id="054fc0cb" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
@@ -526,8 +526,8 @@ Note
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(pulled_left):</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal( <span class="dv">0</span>, <span class="dv">10</span>, shape<span class="op">=</span>(<span class="dv">1</span>,), name <span class="op">=</span> <span class="st">'a'</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    m.dist.binomial(total_count <span class="op">=</span> <span class="dv">1</span>, logits<span class="op">=</span>a[<span class="dv">0</span>], obs<span class="op">=</span>pulled_left)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal( <span class="dv">0</span>, <span class="dv">10</span>,  name <span class="op">=</span> <span class="st">'alpha'</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    m.dist.binomial(total_count <span class="op">=</span> <span class="dv">1</span>, logits<span class="op">=</span>alpha, obs<span class="op">=</span>pulled_left)</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m.fit(model, num_samples<span class="op">=</span><span class="dv">500</span>)</span>
@@ -538,7 +538,7 @@ Note
 <pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;06:03,  2.75it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:  40%|████      | 403/1000 [00:00&lt;00:00, 1134.04it/s, 3 steps of size 7.44e-01. acc. prob=0.79]sample:  84%|████████▍ | 842/1000 [00:00&lt;00:00, 2068.00it/s, 7 steps of size 1.10e+00. acc. prob=0.93]sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1656.92it/s, 3 steps of size 1.10e+00. acc. prob=0.93]
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;06:10,  2.70it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:  45%|████▍     | 447/1000 [00:00&lt;00:00, 1241.55it/s, 3 steps of size 9.89e-01. acc. prob=0.79]sample:  90%|█████████ | 905/1000 [00:00&lt;00:00, 2189.42it/s, 3 steps of size 1.10e+00. acc. prob=0.93]sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1685.25it/s, 3 steps of size 1.10e+00. acc. prob=0.93]
 arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -562,7 +562,7 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">a[0]</td>
+<td data-quarto-table-cell-role="th">alpha</td>
 <td>0.33</td>
 <td>0.09</td>
 <td>0.2</td>
@@ -1181,6 +1181,22 @@ tippy('#LKJcorr', {
       },
     });
 
+tippy('#unsupervised', {
+      content: `
+  <span style='color: white;'>
+    An unsupervised algorithm is a method that processes unlabeled data to automatically uncover patterns, groupings, or structures without predefined output targets.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+
 </script>
 <script>
     // Disable Quarto code folding scripts globally
@@ -1752,8 +1768,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./4. Categorical variable.html" class="pagination-link" aria-label="4. Regression with a Categorical Independent Variable">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">4. Regression with a Categorical Independent Variable</span>
+      <a href="./4. Categorical variable.html" class="pagination-link" aria-label="Regression with a Categorical Independent Variable">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Regression with a Categorical Independent Variable</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
