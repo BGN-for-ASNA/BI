@@ -207,7 +207,7 @@ class dpmm:
         # Shape: (Total_Samples, N_components)
         cluster_proportions = np.array(cluster_probs).mean(axis=1)
 
-        # === CRITICAL FIX: SORT BY SIZE ===
+        # === SORT BY SIZE ===
         # We sort the proportions for each sample descending (largest to smallest).
         # This aligns the "big" clusters across chains, regardless of their ID.
         sorted_proportions = np.sort(cluster_proportions, axis=1)[:, ::-1]
@@ -238,7 +238,7 @@ class dpmm:
 
         plt.show()
     
-    def predict_dpmm(self, data, sampler):
+    def predict(self, data, sampler):
         """
         Performs Consensus Clustering. 
         Robust to Label Switching across multiple chains.
@@ -278,13 +278,13 @@ class dpmm:
         # Averaging parameters (mu_mean) destroys information if chains swapped labels.
         return w_samps, mu_samps, sigma_samps, Lcorr_samps, final_labels
 
-    def plot_dpmm(self, data, sampler, figsize=(10, 8), point_size=10):
+    def plot(self, data, sampler, figsize=(10, 8), point_size=10):
         """
         Plots the Posterior Predictive Density.
         Correctly handles multiple chains by averaging Densities, not Parameters.
         """
         # Get raw samples and labels
-        w_samps, mu_samps, sigma_samps, Lcorr_samps, final_labels = self.predict_dpmm(data, sampler)
+        w_samps, mu_samps, sigma_samps, Lcorr_samps, final_labels = self.predict(data, sampler)
 
         # 1. Create Grid
         x_min, x_max = data[:, 0].min() - 2, data[:, 0].max() + 2

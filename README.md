@@ -109,6 +109,10 @@ m.summary() # Get posterior distributions
 
 # Todo
 
-1.  GUI
-2.  Documentation
-3.  Implementation of additional MCMC sampling methods
+```         
+1. Documentation
+2. DPMM prediction 
+3. Survival analysis results comparaison
+4. BNN load data
+5. Implementation of additional MCMC sampling methods
+```

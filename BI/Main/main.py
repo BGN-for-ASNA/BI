@@ -491,7 +491,7 @@ class bi(manip):
             plot_gmm(X, sampler= self.sampler,figsize=figsize)
 
         elif self.run_model_name == 'dpmm':
-            self.models.dpmm.plot_dpmm(X, sampler= self.sampler,figsize=figsize)
+            self.models.dpmm.plot(X, sampler= self.sampler,figsize=figsize)
 
         elif self.run_model_name == 'pca':
             self.models.pca.plot()
