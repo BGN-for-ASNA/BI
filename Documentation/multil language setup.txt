@@ -1,0 +1,18 @@
+<!--
+```{r}
+#| label: setup R, python and Julia
+#| message: false
+#| warning: false
+#| include: false
+venv_path <- "/home/sosa/work/.venv/bin/python"
+
+reticulate::use_virtualenv("/home/sosa/work/.venv", required = TRUE)
+reticulate::py_run_string("import sys; sys.path.append('..')")
+library(reticulate)
+library(JuliaCall)
+Sys.setenv(JULIA_PYTHONCALL_EXE = venv_path)
+# Initialize Julia (this creates the connection)
+# NOTE: The first run might take a few seconds.
+julia_setup(verbose = FALSE)
+```
+-->
