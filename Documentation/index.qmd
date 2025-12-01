@@ -50,7 +50,7 @@ listing:
 
 ::: {.panel .welcome-panel}
 
-## An open-source library for Python and R
+## An open-source library for Python, R and Julia
 
 <div class="container">
 
@@ -74,6 +74,61 @@ listing:
 </div>
 
 ::: 
+
+::: {.panel .welcome-show}
+<div class="container">
+## One Mental Model. Three Languages.
+
+**BI** provides a unified experience across Julia, Python, and R. Whether you work in R's formula syntax, Python's object-oriented approach, or Julia's mathematical elegance, the model logic remains consistent.
+
+
+### Compare the Syntax
+
+
+::: {.panel-tabset group="language"}
+### Python Syntax
+```python
+def model(height, weight):
+    # Priors
+    sigma = bi.dist.uniform(0, 50, name='sigma', shape=(1,))
+    alpha = bi.dist.normal(178, 20, name='alpha', shape=(1,))
+    beta  = bi.dist.normal(0, 1, name='beta', shape=(1,))
+
+    # Likelihood
+    mu = alpha + beta * weight
+    bi.dist.normal(mu, sigma, obs=height)
+```
+
+### R Syntax
+```r
+model <- function(height, weight){
+  # Priors
+  sigma = bi.dist.uniform(0, 50, name='sigma', shape=c(1))
+  alpha = bi.dist.normal(178, 20, name='alpha', shape=c(1))
+  beta  = bi.dist.normal(0, 1, name='beta', shape=c(1))
+
+  # Likelihood
+  mu = alpha + beta * weight
+  bi.dist.normal(mu, sigma, obs=height)
+}
+```
+
+### Julia Syntax
+```Julia
+@BI function model(weight, height)
+    # Priors
+    sigma = bi.dist.uniform(0, 50, name='sigma', shape=(1,))
+    alpha = bi.dist.normal(178, 20, name='alpha', shape=(1,))
+    beta  = bi.dist.normal(0, 1, name='beta', shape=(1,))
+
+    # Likelihood
+    mu = alpha + beta * weight
+    bi.dist.normal(mu, sigma, obs=height)
+end
+```
+:::
+</div>
+:::
 
 
 ::: {.panel .welcome-show}
