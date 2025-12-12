@@ -1,0 +1,229 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Build in models\"\n",
+        "sidebar: start\n",
+        "---\n",
+        "\n",
+        "# PCA"
+      ],
+      "id": "3296523f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from BI import bi, jnp\n",
+        "\n",
+        "m=bi()\n",
+        "m.data('iris.csv', sep=',') # Data is already scaled\n",
+        "m.data_on_model = dict(\n",
+        "    X=jnp.array(m.df.iloc[:,0:-2].values)\n",
+        ")\n",
+        "m.fit(m.models.pca(type=\"classic\"), progress_bar=False) # or robust, sparse, classic, sparse_robust_ard\n",
+        "\n",
+        "m.models.pca.plot(\n",
+        "    X=m.df.iloc[:,0:-2].values,\n",
+        "    y=m.df.iloc[:,-2].values, \n",
+        "    feature_names=m.df.columns[0:-2], \n",
+        "    target_names=m.df.iloc[:,-1].unique(),\n",
+        "    color_var=m.df.iloc[:,0].values,\n",
+        "    shape_var=m.df.iloc[:,-2].values\n",
+        ")"
+      ],
+      "id": "d5f72a97",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Survival analysis"
+      ],
+      "id": "e894246d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from BI import bi, jnp\n",
+        "\n",
+        "m = bi()\n",
+        "m.data('mastectomy.csv', sep=',').head()\n",
+        "m.df.metastasized = (m.df.metastasized.values == \"yes\").astype(jnp.int64)\n",
+        "\n",
+        "# Import time-steps and events\n",
+        "m.models.survival.import_time_even(\n",
+        "    m.df.time.values, \n",
+        "    m.df.event.values, interval_length=3\n",
+        ")\n",
+        "\n",
+        "# To import time-fixed covariates\n",
+        "m.models.survival.import_covF(\n",
+        "    m.df.metastasized.values, ['metastasized']\n",
+        ") \n",
+        "\n",
+        "# To import time-varying covariates ⚠️ Experimental feature\n",
+        "# m.models.survival.import_covV \n",
+        "\n",
+        "m.fit(m.models.survival.model, num_samples=500) \n",
+        "\n",
+        "m.summary()\n",
+        "\n",
+        "m.models.survival.plot_surv( beta = 'Hazard_rate_metastasized')"
+      ],
+      "id": "8e838624",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Gaussian Mixture Models"
+      ],
+      "id": "64ebb29a"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from BI import bi\n",
+        "from sklearn.datasets import make_blobs\n",
+        "m = bi()\n",
+        "\n",
+        "# Generate synthetic data\n",
+        "data, true_labels = make_blobs(\n",
+        "    n_samples=500, centers=8, cluster_std=0.8,\n",
+        "    center_box=(-10,10), random_state=101\n",
+        ")\n",
+        "\n",
+        "m.data_on_model = {\"data\": data,\"K\": 8 }\n",
+        "m.fit(m.models.gmm) # Optimize model parameters through MCMC sampling\n",
+        "m.plot(X=data,sampler=m.sampler)  # ⚠️ Experimental feature"
+      ],
+      "id": "23ce2dd8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Dirichlet Process Mixture Models\n",
+        "\n",
+        "\n",
+        "## Python"
+      ],
+      "id": "870184f4"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from BI import bi\n",
+        "from sklearn.datasets import make_blobs\n",
+        "m = bi()\n",
+        "\n",
+        "# Generate synthetic data\n",
+        "data, true_labels = make_blobs(\n",
+        "    n_samples=500, centers=8, cluster_std=0.8,\n",
+        "    center_box=(-10,10), random_state=101\n",
+        ")\n",
+        "m.data_on_model = dict(data=data,T=10)\n",
+        "m.fit(m.models.dpmm)\n",
+        "m.plot(data,m.sampler) # ⚠️ Experimental feature"
+      ],
+      "id": "5a85bada",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Network Models\n",
+        "\n",
+        "::: {.panel-tabset group=\"language\"}\n",
+        "## Python\n",
+        "```Python\n",
+        "# Setup device------------------------------------------------\n",
+        "from BI import bi, jnp\n",
+        "\n",
+        "# Setup device------------------------------------------------\n",
+        "m = bi(platform='cpu')\n",
+        "# Simulate data ------------------------------------------------\n",
+        "N = 50\n",
+        "individual_predictor = m.dist.normal(0,1, shape = (N,1), sample = True)\n",
+        "\n",
+        "kinship = m.dist.bernoulli(0.3, shape = (N,N), sample = True)\n",
+        "kinship = kinship.at[jnp.diag_indices(N)].set(0)\n",
+        "\n",
+        "def sim_network(kinship, individual_predictor):\n",
+        "  # Intercept\n",
+        "  alpha = m.dist.normal(0,1, sample = True)\n",
+        "\n",
+        "  # SR\n",
+        "  sr = m.net.sender_receiver(individual_predictor, individual_predictor, s_mu = 0.4, r_mu = -0.4, sample = True)\n",
+        "\n",
+        "  # D\n",
+        "  DR = m.net.dyadic_effect(kinship, d_sd=2.5, sample = True)\n",
+        "\n",
+        "  return m.dist.bernoulli(logits = alpha + sr + DR, sample = True)\n",
+        "\n",
+        "\n",
+        "network = sim_network(m.net.mat_to_edgl(kinship), individual_predictor)\n",
+        "\n",
+        "# Predictive model ------------------------------------------------\n",
+        "\n",
+        "m.data_on_model = dict(\n",
+        "    network = network, \n",
+        "    dyadic_predictors = m.net.mat_to_edgl(kinship),\n",
+        "    focal_individual_predictors = individual_predictor,\n",
+        "    target_individual_predictors = individual_predictor\n",
+        ")\n",
+        "\n",
+        "\n",
+        "def model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors):\n",
+        "    N_id = network.shape[0]\n",
+        "\n",
+        "    # Block ---------------------------------------\n",
+        "    alpha = m.dist.normal(0,1, sample = True)\n",
+        "\n",
+        "    ## SR shape =  N individuals---------------------------------------\n",
+        "    sr =  m.net.sender_receiver(\n",
+        "      focal_individual_predictors,\n",
+        "      target_individual_predictors,\n",
+        "      s_mu = 0.4, r_mu = -0.4\n",
+        "    )\n",
+        "\n",
+        "    # Dyadic shape = N dyads--------------------------------------  \n",
+        "    dr = m.net.dyadic_effect(dyadic_predictors, d_sd=2.5) # Diadic effect intercept only \n",
+        "\n",
+        "    m.dist.bernoulli(logits = alpha + sr + dr, obs=network)\n",
+        "\n",
+        "m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1)\n",
+        "\n",
+        "```\n",
+        "\n",
+        ":::\n"
+      ],
+      "id": "83e6d984"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/home/sosa/.local/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
