@@ -1,0 +1,278 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Model Diagnostic\"\n",
+        "sidebar: start\n",
+        "---\n",
+        "\n",
+        "The BI class can compute model diagnostics for a given model.\n",
+        "\n",
+        "Lets consider the following model for a linear regression:\n",
+        "\n",
+        "$$\n",
+        "Y_i \\sim \\text{Normal}(\\alpha + \\beta   X_i, \\sigma)\n",
+        "$$\n",
+        "\n",
+        "$$\n",
+        "\\alpha \\sim \\text{Normal}(0, 1)\n",
+        "$$\n",
+        "\n",
+        "$$\n",
+        "\\beta \\sim \\text{Normal}(0, 1)\n",
+        "$$\n",
+        "\n",
+        "$$\n",
+        "\\sigma \\sim \\text{Uniform}(0, 50)\n",
+        "$$"
+      ],
+      "id": "00935630"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from BI import bi\n",
+        "import jax.numpy as jnp\n",
+        "# setup platform------------------------------------------------\n",
+        "m = bi(platform='cpu')\n",
+        "\n",
+        "# import data ------------------------------------------------\n",
+        "m.data('Howell1.csv', sep=';') \n",
+        "m.df = m.df[m.df.age > 18]\n",
+        "m.scale(data=['weight'])\n",
+        "\n",
+        "\n",
+        " # define model ------------------------------------------------\n",
+        "def model(weight, height):    \n",
+        "    a = m.dist.normal( 178, 20, name = 'a')\n",
+        "    b = m.dist.log_normal(  0, 1, name = 'b')   \n",
+        "    s = m.dist.uniform( 0, 50, name = 's')\n",
+        "    m.dist.normal(a + b * weight , s, obs=height, shape=(weight.shape[0],))\n",
+        "\n",
+        "# Run sampler ------------------------------------------------\n",
+        "m.fit(model, num_samples=500,num_chains=4) \n",
+        "m.summary()"
+      ],
+      "id": "4ef92862",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# List of all available diagnostics\n",
+        "\n",
+        "For additional documentation check the [diagnostics API reference](../api_diag.qmd)\n",
+        "\n",
+        "## Predictions from model based on specific data value"
+      ],
+      "id": "d48e0e8c"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.sample() # Predictions from model base on data in data_on_model\n",
+        "m.sample(data=dict(weight=jnp.array([0.4])), remove_obs=False)# Predictions from a given value"
+      ],
+      "id": "8be620d3",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Forest plot of estimated values"
+      ],
+      "id": "e36466c8"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.forest()"
+      ],
+      "id": "fe08468a",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Density plots of the posterior distribution"
+      ],
+      "id": "37e0c425"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.density()"
+      ],
+      "id": "a685e870",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Posterior distribution plots"
+      ],
+      "id": "0ff2f8aa"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.posterior()"
+      ],
+      "id": "0d54341b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Trace plots for MCMC chains"
+      ],
+      "id": "848f83fc"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.plot_trace()"
+      ],
+      "id": "1dcbbc2e",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Pairwise plots of the posterior distribution"
+      ],
+      "id": "40f3ec63"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.pair()"
+      ],
+      "id": "20765ad8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Plot autocorrelation of MCMC chains"
+      ],
+      "id": "80a0ca8c"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.autocor()"
+      ],
+      "id": "4f59d87f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Create rank plots for MCMC chains"
+      ],
+      "id": "a59cf87e"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.rank()"
+      ],
+      "id": "f92199bf",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Evolution of effective sample size across iterations"
+      ],
+      "id": "e3bf78a1"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.plot_ess()"
+      ],
+      "id": "8a9a4fe5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Pareto-smoothed"
+      ],
+      "id": "1755758e"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.loo()"
+      ],
+      "id": "e7918b91",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "##  Widely applicable information criterion"
+      ],
+      "id": "2001e9b0"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "m.diag.WAIC()"
+      ],
+      "id": "d0146593",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/home/sosa/.local/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

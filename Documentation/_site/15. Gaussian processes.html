@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="A Bayesian approach to regression and classification that defines a distribution over functions.">
+
+<title>Gaussian Processes – Bayesian Inference (BI)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./16. Measuring error.html" rel="next">
+<link href="./14. Varying slopes.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-5cc8395b10573f07cfedf58f7a45f761.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-785e6f9f9cefe4638bba3361deac6afc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="MyStyles.css">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Bayesian Inference (BI)</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./start/Installation.html"> 
+<span class="menu-text">Get started</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./0. Introduction.qmd"> 
+<span class="menu-text">Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./api_dist.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Help</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-help">    
+        <li>
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/issues"><i class="bi bi-bug" role="img">
+</i> 
+ <span class="dropdown-text">Report a Bug</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/discussions"><i class="bi bi-chat-dots" role="img">
+</i> 
+ <span class="dropdown-text">Ask a Question</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="https://twitter.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
+    <a href="https://github.com/BGN-for-ASNA/BI" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./15. Gaussian processes.html">Gaussian Processes</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./0.Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian analysis with BI</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Univariate Linear Regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./2. Multiple continuous Variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multivariate Linear Regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Interaction Terms in Regression</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression with a Categorical Independent Variable</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Binomial Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./6. Beta binomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Beta-Binomial Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./7. Poisson model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Poisson Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧 Poisson Model with an Offset</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gamma-Poisson Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./9. Categorical model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Categorical Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Multinomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multinomial Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧 Dirichlet Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zero-Inflated Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13. Varying intercepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Varying Intercepts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Varying Slopes Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15. Gaussian processes.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Gaussian Processes</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Measurement Error Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17. Missing data (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Handling Missing Data (WIP)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19. PCA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Principal Component Analysis</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20. GMM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Gaussian Mixture Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dirichlet Process Mixture Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22. Network model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Network Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23. Network with block model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Stochastic Block Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Controlling for Network Biases</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25. Network Metrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Network Metrics</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Neural Networks 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Analysis 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Latent Variable Models 🚧</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a></li>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations">Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula"><em>Formula</em></a></li>
+  <li><a href="#bayesian-model" id="toc-bayesian-model" class="nav-link" data-scroll-target="#bayesian-model"><em>Bayesian model</em></a></li>
+  </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="15.-Gaussian-processes.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Gaussian Processes</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Regression</div>
+    <div class="quarto-category">Non-parametric</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A Bayesian approach to regression and classification that defines a distribution over functions.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="general-principles" class="level2">
+<h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
+<p>Through varying intercepts and slopes, we have seen how to quantify some of the unique features that generate variation across clusters and covariance among the observations within each cluster. But through the covariance matrix that is used to account for correlation between clusters, we are inherently assuming linear relationships between clusters. What if we want to model the relationship between two variables that are not linearly related? In this case, we can use a Gaussian Process (GP) to model the relationship between two variables. <!---
+Basically, a GP is a varying-slope model with a covariance matrix where each element of the matrix is a [<span style="color:#0D6EFD">kernel function 🛈</span>]{#kernel}.
+--></p>
+</section>
+<section id="considerations" class="level2">
+<h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Caution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>To capture complex, non-linear relationships in data where the underlying function is smooth but has an unknown functional form, GPs use a <span id="kernel"><span style="color:#0D6EFD">kernel 🛈</span></span>.</li>
+<li>The choice of kernel hyperparameters can significantly impact results; thus, GPs require choosing an appropriate kernel function that captures the expected behavior of your data.</li>
+<li>Through kernel definition, we can incorporate domain knowledge.</li>
+<li>They scale poorly with dataset size (O(n³) complexity) due to matrix operations; thus, memory requirements can be substantial for large datasets, which has led to neural networks being used instead to resolve large non-linear problems. <!--- Check scale of the GP --></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="example" class="level2">
+<h2 class="anchored" data-anchor-id="example">Example</h2>
+<p>Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist of a continuous dependent variable (<em>total_tools</em>), representing the number of tools invented in the islands, and a continuous independent variable (<em>population</em>), representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance matrix of the islands for the kernel function in order to capture the spatial dependence of the relationship. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Julia</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div id="a8054731" class="cell" data-execution_count="1">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.kline2(only_path<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>data_path2 <span class="op">=</span> files(<span class="st">'BI.Resources'</span>) <span class="op">/</span> <span class="st">'islandsDistMatrix.csv'</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> pd.read_csv(data_path2, index_col<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>])</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"society"</span>] <span class="op">=</span> jnp.arange(<span class="dv">0</span>,<span class="dv">10</span>)<span class="co"># index observations</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"Dmat"</span>] <span class="op">=</span> islandsDistMatrix.values <span class="co"># Distance matrix</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(Dmat, population, society, total_tools):</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'g'</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># non-centered Gaussian Process prior</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    etasq <span class="op">=</span> m.dist.exponential(<span class="dv">2</span>, name <span class="op">=</span> <span class="st">'etasq'</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    rhosq <span class="op">=</span> m.dist.exponential(<span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">'rhosq'</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    SIGMA <span class="op">=</span> etasq <span class="op">*</span> jnp.exp(<span class="op">-</span>rhosq <span class="op">*</span> jnp.square(Dmat))</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    SIGMA <span class="op">=</span> SIGMA.at[jnp.diag_indices(Dmat.shape[<span class="dv">0</span>])].add(etasq)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.dist.multivariate_normal(<span class="dv">0</span>, SIGMA, name <span class="op">=</span> <span class="st">'k'</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">**</span>b <span class="op">/</span> g <span class="op">*</span> jnp.exp(k[society])</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(lambda_, obs<span class="op">=</span>total_tools)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>jax.local_device_count 16</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:04&lt;1:15:12,  4.52s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 26/1000 [00:04&lt;02:04,  7.85it/s, 255 steps of size 1.44e-02. acc. prob=0.71]warmup:   4%|▍         | 39/1000 [00:04&lt;01:16, 12.59it/s, 127 steps of size 1.80e-02. acc. prob=0.74]warmup:   5%|▌         | 50/1000 [00:05&lt;00:59, 16.09it/s, 95 steps of size 3.19e-02. acc. prob=0.75] warmup:   6%|▌         | 58/1000 [00:05&lt;00:47, 19.93it/s, 191 steps of size 1.58e-02. acc. prob=0.75]warmup:   7%|▋         | 66/1000 [00:05&lt;00:37, 24.85it/s, 127 steps of size 5.67e-03. acc. prob=0.75]warmup:   7%|▋         | 74/1000 [00:05&lt;00:33, 28.06it/s, 95 steps of size 2.62e-02. acc. prob=0.76] warmup:   8%|▊         | 81/1000 [00:05&lt;00:29, 31.13it/s, 127 steps of size 2.29e-02. acc. prob=0.76]warmup:   9%|▊         | 87/1000 [00:05&lt;00:26, 34.76it/s, 127 steps of size 2.42e-02. acc. prob=0.76]warmup:  10%|▉         | 99/1000 [00:05&lt;00:18, 48.75it/s, 95 steps of size 2.46e-02. acc. prob=0.77] warmup:  11%|█         | 107/1000 [00:06&lt;00:17, 50.52it/s, 63 steps of size 7.46e-02. acc. prob=0.76]warmup:  11%|█▏        | 114/1000 [00:06&lt;00:19, 44.90it/s, 383 steps of size 2.25e-02. acc. prob=0.76]warmup:  12%|█▏        | 120/1000 [00:06&lt;00:18, 46.66it/s, 255 steps of size 1.67e-02. acc. prob=0.76]warmup:  13%|█▎        | 126/1000 [00:06&lt;00:19, 44.81it/s, 5 steps of size 8.79e-03. acc. prob=0.76]  warmup:  13%|█▎        | 132/1000 [00:06&lt;00:23, 37.47it/s, 127 steps of size 2.46e-02. acc. prob=0.77]warmup:  14%|█▍        | 138/1000 [00:06&lt;00:20, 41.10it/s, 127 steps of size 3.43e-02. acc. prob=0.77]warmup:  14%|█▍        | 145/1000 [00:06&lt;00:19, 44.54it/s, 255 steps of size 2.95e-02. acc. prob=0.77]warmup:  15%|█▌        | 151/1000 [00:07&lt;00:17, 47.68it/s, 31 steps of size 2.53e-01. acc. prob=0.77] warmup:  16%|█▌        | 157/1000 [00:07&lt;00:18, 45.93it/s, 127 steps of size 6.04e-02. acc. prob=0.77]warmup:  16%|█▌        | 162/1000 [00:07&lt;00:19, 43.02it/s, 127 steps of size 4.11e-02. acc. prob=0.77]warmup:  17%|█▋        | 167/1000 [00:07&lt;00:25, 32.74it/s, 255 steps of size 4.43e-02. acc. prob=0.77]warmup:  17%|█▋        | 171/1000 [00:07&lt;00:26, 31.79it/s, 511 steps of size 1.79e-02. acc. prob=0.77]warmup:  18%|█▊        | 175/1000 [00:07&lt;00:24, 33.43it/s, 6 steps of size 9.64e-03. acc. prob=0.77]  warmup:  18%|█▊        | 179/1000 [00:08&lt;00:31, 25.79it/s, 63 steps of size 3.18e-02. acc. prob=0.77]warmup:  19%|█▊        | 186/1000 [00:08&lt;00:23, 33.95it/s, 255 steps of size 3.61e-02. acc. prob=0.77]warmup:  19%|█▉        | 191/1000 [00:08&lt;00:23, 34.15it/s, 255 steps of size 4.68e-02. acc. prob=0.77]warmup:  20%|█▉        | 195/1000 [00:08&lt;00:26, 30.30it/s, 255 steps of size 5.64e-02. acc. prob=0.77]warmup:  20%|██        | 200/1000 [00:08&lt;00:23, 33.81it/s, 127 steps of size 3.84e-02. acc. prob=0.77]warmup:  20%|██        | 205/1000 [00:08&lt;00:22, 34.98it/s, 255 steps of size 3.04e-02. acc. prob=0.77]warmup:  21%|██        | 209/1000 [00:08&lt;00:22, 34.47it/s, 127 steps of size 5.53e-02. acc. prob=0.78]warmup:  21%|██▏       | 213/1000 [00:09&lt;00:22, 35.04it/s, 127 steps of size 4.42e-02. acc. prob=0.78]warmup:  22%|██▏       | 218/1000 [00:09&lt;00:21, 35.66it/s, 255 steps of size 4.07e-02. acc. prob=0.78]warmup:  22%|██▏       | 222/1000 [00:09&lt;00:24, 32.30it/s, 511 steps of size 3.12e-02. acc. prob=0.78]warmup:  23%|██▎       | 227/1000 [00:09&lt;00:21, 36.29it/s, 127 steps of size 4.57e-02. acc. prob=0.78]warmup:  23%|██▎       | 232/1000 [00:09&lt;00:20, 37.88it/s, 127 steps of size 6.04e-02. acc. prob=0.78]warmup:  24%|██▎       | 237/1000 [00:09&lt;00:19, 38.41it/s, 127 steps of size 6.16e-02. acc. prob=0.78]warmup:  24%|██▍       | 241/1000 [00:09&lt;00:22, 33.26it/s, 255 steps of size 4.26e-02. acc. prob=0.78]warmup:  24%|██▍       | 245/1000 [00:09&lt;00:22, 33.08it/s, 63 steps of size 5.84e-02. acc. prob=0.78] warmup:  25%|██▍       | 249/1000 [00:10&lt;00:23, 32.32it/s, 127 steps of size 5.20e-02. acc. prob=0.78]warmup:  25%|██▌       | 253/1000 [00:10&lt;00:23, 31.97it/s, 127 steps of size 1.56e-02. acc. prob=0.77]warmup:  26%|██▌       | 257/1000 [00:10&lt;00:25, 29.60it/s, 63 steps of size 7.81e-02. acc. prob=0.78] warmup:  26%|██▌       | 261/1000 [00:10&lt;00:25, 29.47it/s, 127 steps of size 4.11e-02. acc. prob=0.78]warmup:  26%|██▋       | 264/1000 [00:10&lt;00:28, 26.01it/s, 511 steps of size 1.65e-02. acc. prob=0.78]warmup:  27%|██▋       | 267/1000 [00:10&lt;00:28, 25.75it/s, 31 steps of size 3.86e-02. acc. prob=0.78] warmup:  27%|██▋       | 270/1000 [00:10&lt;00:27, 26.30it/s, 255 steps of size 3.00e-02. acc. prob=0.78]warmup:  27%|██▋       | 274/1000 [00:11&lt;00:26, 27.79it/s, 127 steps of size 3.73e-02. acc. prob=0.78]warmup:  28%|██▊       | 278/1000 [00:11&lt;00:25, 28.83it/s, 255 steps of size 1.97e-02. acc. prob=0.78]warmup:  28%|██▊       | 282/1000 [00:11&lt;00:24, 29.67it/s, 127 steps of size 1.50e-02. acc. prob=0.78]warmup:  28%|██▊       | 285/1000 [00:11&lt;00:24, 29.15it/s, 127 steps of size 5.82e-02. acc. prob=0.78]warmup:  29%|██▉       | 289/1000 [00:11&lt;00:23, 30.28it/s, 127 steps of size 3.76e-02. acc. prob=0.78]warmup:  29%|██▉       | 294/1000 [00:11&lt;00:20, 34.78it/s, 127 steps of size 4.89e-02. acc. prob=0.78]warmup:  30%|███       | 300/1000 [00:11&lt;00:17, 39.28it/s, 127 steps of size 3.27e-02. acc. prob=0.78]warmup:  30%|███       | 305/1000 [00:11&lt;00:17, 40.37it/s, 127 steps of size 3.46e-02. acc. prob=0.78]warmup:  31%|███       | 311/1000 [00:11&lt;00:15, 44.26it/s, 127 steps of size 3.31e-02. acc. prob=0.78]warmup:  32%|███▏      | 316/1000 [00:12&lt;00:15, 45.25it/s, 127 steps of size 3.80e-02. acc. prob=0.78]warmup:  32%|███▏      | 321/1000 [00:12&lt;00:15, 43.86it/s, 63 steps of size 4.73e-02. acc. prob=0.78] warmup:  33%|███▎      | 328/1000 [00:12&lt;00:13, 50.79it/s, 63 steps of size 6.13e-02. acc. prob=0.78]warmup:  33%|███▎      | 334/1000 [00:12&lt;00:13, 48.53it/s, 255 steps of size 3.03e-02. acc. prob=0.78]warmup:  34%|███▍      | 339/1000 [00:12&lt;00:13, 48.25it/s, 127 steps of size 2.61e-02. acc. prob=0.78]warmup:  34%|███▍      | 345/1000 [00:12&lt;00:13, 49.39it/s, 383 steps of size 2.52e-02. acc. prob=0.78]warmup:  35%|███▌      | 351/1000 [00:12&lt;00:12, 50.91it/s, 63 steps of size 7.18e-02. acc. prob=0.78] warmup:  36%|███▌      | 357/1000 [00:12&lt;00:13, 46.81it/s, 127 steps of size 3.88e-02. acc. prob=0.78]warmup:  37%|███▋      | 367/1000 [00:12&lt;00:10, 58.96it/s, 127 steps of size 4.95e-02. acc. prob=0.78]warmup:  38%|███▊      | 378/1000 [00:13&lt;00:08, 71.81it/s, 63 steps of size 5.89e-02. acc. prob=0.78] warmup:  39%|███▉      | 388/1000 [00:13&lt;00:07, 78.71it/s, 63 steps of size 4.71e-02. acc. prob=0.78]warmup:  40%|████      | 404/1000 [00:13&lt;00:05, 100.92it/s, 127 steps of size 5.14e-02. acc. prob=0.78]warmup:  42%|████▏     | 415/1000 [00:13&lt;00:06, 91.98it/s, 63 steps of size 4.13e-02. acc. prob=0.78]  warmup:  42%|████▎     | 425/1000 [00:13&lt;00:07, 72.91it/s, 63 steps of size 5.87e-02. acc. prob=0.78]warmup:  43%|████▎     | 434/1000 [00:13&lt;00:09, 57.40it/s, 127 steps of size 5.95e-02. acc. prob=0.78]warmup:  44%|████▍     | 441/1000 [00:14&lt;00:14, 38.45it/s, 63 steps of size 7.60e-02. acc. prob=0.78] warmup:  45%|████▍     | 447/1000 [00:14&lt;00:13, 39.69it/s, 127 steps of size 3.87e-02. acc. prob=0.78]warmup:  46%|████▌     | 455/1000 [00:14&lt;00:12, 42.13it/s, 255 steps of size 2.98e-02. acc. prob=0.78]warmup:  46%|████▌     | 461/1000 [00:15&lt;00:20, 26.88it/s, 255 steps of size 3.79e-02. acc. prob=0.78]warmup:  46%|████▋     | 465/1000 [00:15&lt;00:18, 28.31it/s, 127 steps of size 3.49e-02. acc. prob=0.78]warmup:  47%|████▋     | 469/1000 [00:15&lt;00:25, 20.68it/s, 511 steps of size 2.14e-02. acc. prob=0.78]warmup:  47%|████▋     | 472/1000 [00:15&lt;00:24, 21.59it/s, 35 steps of size 2.07e-02. acc. prob=0.78] warmup:  48%|████▊     | 476/1000 [00:15&lt;00:22, 23.81it/s, 63 steps of size 8.16e-02. acc. prob=0.78]warmup:  48%|████▊     | 480/1000 [00:15&lt;00:22, 23.25it/s, 63 steps of size 4.78e-02. acc. prob=0.78]warmup:  48%|████▊     | 485/1000 [00:16&lt;00:22, 23.30it/s, 511 steps of size 1.52e-02. acc. prob=0.78]warmup:  49%|████▉     | 488/1000 [00:16&lt;00:22, 22.92it/s, 63 steps of size 7.24e-02. acc. prob=0.78] warmup:  49%|████▉     | 491/1000 [00:16&lt;00:22, 22.19it/s, 255 steps of size 2.88e-02. acc. prob=0.78]warmup:  49%|████▉     | 494/1000 [00:16&lt;00:21, 23.13it/s, 127 steps of size 4.66e-02. acc. prob=0.78]warmup:  50%|████▉     | 497/1000 [00:16&lt;00:21, 23.67it/s, 255 steps of size 3.26e-02. acc. prob=0.78]sample:  50%|█████     | 502/1000 [00:16&lt;00:18, 26.54it/s, 127 steps of size 3.06e-02. acc. prob=0.97]sample:  51%|█████     | 506/1000 [00:16&lt;00:17, 27.94it/s, 127 steps of size 3.06e-02. acc. prob=0.97]sample:  51%|█████     | 509/1000 [00:17&lt;00:17, 27.33it/s, 127 steps of size 3.06e-02. acc. prob=0.97]sample:  51%|█████     | 512/1000 [00:17&lt;00:17, 27.88it/s, 127 steps of size 3.06e-02. acc. prob=0.97]sample:  52%|█████▏    | 515/1000 [00:17&lt;00:17, 27.24it/s, 127 steps of size 3.06e-02. acc. prob=0.96]sample:  52%|█████▏    | 518/1000 [00:17&lt;00:18, 26.15it/s, 127 steps of size 3.06e-02. acc. prob=0.97]sample:  52%|█████▏    | 521/1000 [00:17&lt;00:18, 25.88it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  52%|█████▏    | 524/1000 [00:17&lt;00:21, 22.27it/s, 255 steps of size 3.06e-02. acc. prob=0.95]sample:  53%|█████▎    | 527/1000 [00:17&lt;00:21, 22.09it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  53%|█████▎    | 530/1000 [00:18&lt;00:21, 21.58it/s, 127 steps of size 3.06e-02. acc. prob=0.95]sample:  53%|█████▎    | 533/1000 [00:18&lt;00:20, 22.78it/s, 127 steps of size 3.06e-02. acc. prob=0.95]sample:  54%|█████▎    | 537/1000 [00:18&lt;00:18, 25.02it/s, 127 steps of size 3.06e-02. acc. prob=0.95]sample:  54%|█████▍    | 541/1000 [00:18&lt;00:16, 27.84it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  55%|█████▍    | 545/1000 [00:18&lt;00:15, 29.77it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  55%|█████▍    | 549/1000 [00:18&lt;00:15, 29.70it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  55%|█████▌    | 553/1000 [00:18&lt;00:15, 28.93it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  56%|█████▌    | 557/1000 [00:18&lt;00:14, 29.95it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  56%|█████▌    | 561/1000 [00:19&lt;00:15, 27.74it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  56%|█████▋    | 564/1000 [00:19&lt;00:15, 27.34it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  57%|█████▋    | 568/1000 [00:19&lt;00:15, 28.55it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  57%|█████▋    | 572/1000 [00:19&lt;00:15, 27.49it/s, 255 steps of size 3.06e-02. acc. prob=0.93]sample:  57%|█████▊    | 575/1000 [00:19&lt;00:15, 27.75it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  58%|█████▊    | 578/1000 [00:19&lt;00:15, 27.49it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  58%|█████▊    | 582/1000 [00:19&lt;00:14, 29.65it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  59%|█████▊    | 587/1000 [00:19&lt;00:13, 31.72it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  59%|█████▉    | 591/1000 [00:20&lt;00:15, 26.04it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  60%|█████▉    | 595/1000 [00:20&lt;00:15, 26.88it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  60%|█████▉    | 598/1000 [00:20&lt;00:16, 24.22it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  60%|██████    | 601/1000 [00:20&lt;00:17, 22.42it/s, 127 steps of size 3.06e-02. acc. prob=0.93]sample:  60%|██████    | 604/1000 [00:20&lt;00:17, 22.59it/s, 255 steps of size 3.06e-02. acc. prob=0.93]sample:  61%|██████    | 608/1000 [00:20&lt;00:15, 25.25it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  61%|██████    | 611/1000 [00:21&lt;00:16, 23.87it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  61%|██████▏   | 614/1000 [00:21&lt;00:15, 24.82it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  62%|██████▏   | 617/1000 [00:21&lt;00:16, 23.39it/s, 191 steps of size 3.06e-02. acc. prob=0.94]sample:  62%|██████▏   | 622/1000 [00:21&lt;00:13, 28.05it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  63%|██████▎   | 626/1000 [00:21&lt;00:13, 26.98it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  63%|██████▎   | 629/1000 [00:21&lt;00:14, 25.82it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  63%|██████▎   | 633/1000 [00:21&lt;00:13, 27.20it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  64%|██████▎   | 637/1000 [00:21&lt;00:12, 28.46it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  64%|██████▍   | 641/1000 [00:22&lt;00:12, 28.89it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  64%|██████▍   | 645/1000 [00:22&lt;00:11, 30.40it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  65%|██████▍   | 649/1000 [00:22&lt;00:11, 30.12it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  65%|██████▌   | 653/1000 [00:22&lt;00:11, 31.30it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  66%|██████▌   | 657/1000 [00:22&lt;00:10, 31.91it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  66%|██████▌   | 661/1000 [00:22&lt;00:11, 29.92it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  66%|██████▋   | 665/1000 [00:22&lt;00:11, 30.42it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  67%|██████▋   | 669/1000 [00:22&lt;00:10, 30.73it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  67%|██████▋   | 673/1000 [00:23&lt;00:11, 28.82it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  68%|██████▊   | 676/1000 [00:23&lt;00:11, 28.93it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  68%|██████▊   | 679/1000 [00:23&lt;00:12, 24.88it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  68%|██████▊   | 682/1000 [00:23&lt;00:12, 25.83it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  68%|██████▊   | 685/1000 [00:23&lt;00:12, 25.26it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  69%|██████▉   | 688/1000 [00:23&lt;00:12, 24.77it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  69%|██████▉   | 691/1000 [00:23&lt;00:11, 25.93it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  69%|██████▉   | 694/1000 [00:24&lt;00:13, 23.22it/s, 191 steps of size 3.06e-02. acc. prob=0.94]sample:  70%|██████▉   | 697/1000 [00:24&lt;00:12, 24.35it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  70%|███████   | 700/1000 [00:24&lt;00:11, 25.42it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  70%|███████   | 703/1000 [00:24&lt;00:11, 25.20it/s, 63 steps of size 3.06e-02. acc. prob=0.94]sample:  71%|███████   | 706/1000 [00:24&lt;00:11, 25.36it/s, 63 steps of size 3.06e-02. acc. prob=0.94]sample:  71%|███████   | 709/1000 [00:24&lt;00:11, 24.49it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  71%|███████▏  | 713/1000 [00:24&lt;00:10, 26.54it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  72%|███████▏  | 716/1000 [00:24&lt;00:10, 26.51it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  72%|███████▏  | 721/1000 [00:24&lt;00:09, 30.89it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  72%|███████▎  | 725/1000 [00:25&lt;00:09, 28.38it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  73%|███████▎  | 728/1000 [00:25&lt;00:10, 26.99it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  73%|███████▎  | 732/1000 [00:25&lt;00:09, 28.74it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  74%|███████▎  | 737/1000 [00:25&lt;00:07, 32.88it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  74%|███████▍  | 742/1000 [00:25&lt;00:06, 37.04it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  75%|███████▍  | 748/1000 [00:25&lt;00:05, 42.60it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  75%|███████▌  | 754/1000 [00:25&lt;00:05, 45.00it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  76%|███████▌  | 761/1000 [00:25&lt;00:04, 51.28it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  77%|███████▋  | 768/1000 [00:26&lt;00:04, 55.27it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  77%|███████▋  | 774/1000 [00:26&lt;00:04, 50.84it/s, 127 steps of size 3.06e-02. acc. prob=0.95]sample:  78%|███████▊  | 780/1000 [00:26&lt;00:04, 49.00it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  79%|███████▊  | 787/1000 [00:26&lt;00:04, 53.16it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  79%|███████▉  | 794/1000 [00:26&lt;00:03, 57.35it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  80%|████████  | 802/1000 [00:26&lt;00:03, 61.81it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  81%|████████  | 809/1000 [00:26&lt;00:03, 56.14it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  82%|████████▏ | 815/1000 [00:26&lt;00:03, 54.16it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  82%|████████▏ | 821/1000 [00:27&lt;00:03, 54.66it/s, 63 steps of size 3.06e-02. acc. prob=0.94] sample:  83%|████████▎ | 829/1000 [00:27&lt;00:02, 58.52it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  84%|████████▎ | 836/1000 [00:27&lt;00:02, 59.88it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  84%|████████▍ | 843/1000 [00:27&lt;00:02, 54.76it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  85%|████████▌ | 850/1000 [00:27&lt;00:02, 58.03it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  86%|████████▌ | 862/1000 [00:27&lt;00:01, 72.96it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  87%|████████▋ | 873/1000 [00:27&lt;00:01, 81.17it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  88%|████████▊ | 883/1000 [00:27&lt;00:01, 85.99it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  89%|████████▉ | 894/1000 [00:27&lt;00:01, 92.58it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  90%|█████████ | 904/1000 [00:28&lt;00:01, 93.05it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  91%|█████████▏| 914/1000 [00:28&lt;00:00, 94.00it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  92%|█████████▏| 924/1000 [00:28&lt;00:00, 94.57it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  93%|█████████▎| 934/1000 [00:28&lt;00:00, 94.82it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  94%|█████████▍| 945/1000 [00:28&lt;00:00, 99.14it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  96%|█████████▌| 956/1000 [00:28&lt;00:00, 99.45it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  97%|█████████▋| 967/1000 [00:28&lt;00:00, 99.62it/s, 255 steps of size 3.06e-02. acc. prob=0.94]sample:  98%|█████████▊| 977/1000 [00:28&lt;00:00, 83.20it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample:  99%|█████████▉| 988/1000 [00:28&lt;00:00, 88.88it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample: 100%|█████████▉| 998/1000 [00:29&lt;00:00, 90.90it/s, 127 steps of size 3.06e-02. acc. prob=0.94]sample: 100%|██████████| 1000/1000 [00:29&lt;00:00, 34.40it/s, 127 steps of size 3.06e-02. acc. prob=0.94]
+arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_5.5%</th>
+<th data-quarto-table-cell-role="th">hdi_94.5%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">a</td>
+<td>1.40</td>
+<td>1.03</td>
+<td>0.20</td>
+<td>2.82</td>
+<td>0.07</td>
+<td>0.07</td>
+<td>162.10</td>
+<td>261.31</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">b</td>
+<td>0.29</td>
+<td>0.08</td>
+<td>0.17</td>
+<td>0.41</td>
+<td>0.01</td>
+<td>0.00</td>
+<td>172.66</td>
+<td>189.40</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">etasq</td>
+<td>0.08</td>
+<td>0.05</td>
+<td>0.01</td>
+<td>0.15</td>
+<td>0.00</td>
+<td>0.00</td>
+<td>148.10</td>
+<td>193.35</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">g</td>
+<td>0.65</td>
+<td>0.63</td>
+<td>0.01</td>
+<td>1.35</td>
+<td>0.04</td>
+<td>0.07</td>
+<td>190.39</td>
+<td>243.19</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[0]</td>
+<td>-0.20</td>
+<td>0.28</td>
+<td>-0.60</td>
+<td>0.26</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>176.77</td>
+<td>195.46</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[1]</td>
+<td>0.03</td>
+<td>0.26</td>
+<td>-0.37</td>
+<td>0.42</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>214.62</td>
+<td>210.07</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[2]</td>
+<td>-0.06</td>
+<td>0.24</td>
+<td>-0.43</td>
+<td>0.30</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>182.16</td>
+<td>196.83</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[3]</td>
+<td>0.36</td>
+<td>0.21</td>
+<td>0.05</td>
+<td>0.71</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>165.96</td>
+<td>179.87</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[4]</td>
+<td>0.05</td>
+<td>0.21</td>
+<td>-0.32</td>
+<td>0.35</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>152.21</td>
+<td>146.88</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[5]</td>
+<td>-0.37</td>
+<td>0.25</td>
+<td>-0.77</td>
+<td>-0.01</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>153.15</td>
+<td>217.39</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[6]</td>
+<td>0.14</td>
+<td>0.19</td>
+<td>-0.20</td>
+<td>0.43</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>123.67</td>
+<td>208.08</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[7]</td>
+<td>-0.21</td>
+<td>0.22</td>
+<td>-0.55</td>
+<td>0.15</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>145.49</td>
+<td>288.18</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">k[8]</td>
+<td>0.26</td>
+<td>0.20</td>
+<td>-0.03</td>
+<td>0.59</td>
+<td>0.02</td>
+<td>0.01</td>
+<td>141.54</td>
+<td>171.81</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">k[9]</td>
+<td>-0.20</td>
+<td>0.30</td>
+<td>-0.68</td>
+<td>0.24</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>131.02</td>
+<td>243.52</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rhosq</td>
+<td>1.62</td>
+<td>1.82</td>
+<td>0.00</td>
+<td>3.20</td>
+<td>0.10</td>
+<td>0.17</td>
+<td>199.68</td>
+<td>165.94</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="341c5e0d" class="cell" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.kline2(only_path<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> m.load.islands_dist_matrix(frame <span class="op">=</span> <span class="va">False</span>)[<span class="st">'data'</span>]</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"society"</span>] <span class="op">=</span> jnp.arange(<span class="dv">0</span>,<span class="dv">10</span>)<span class="co"># index observations</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"Dmat"</span>] <span class="op">=</span> islandsDistMatrix <span class="co"># Distance matrix</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(Dmat, population, society, total_tools):</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'g'</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.gaussian.gaussian_process(Dmat)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">**</span>b <span class="op">/</span> g <span class="op">*</span> jnp.exp(k[society])</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(lambda_, obs<span class="op">=</span>total_tools)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>jax.local_device_count 16</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:04&lt;1:14:31,  4.48s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 31/1000 [00:04&lt;01:42,  9.48it/s, 31 steps of size 1.29e-02. acc. prob=0.72]warmup:   5%|▍         | 49/1000 [00:04&lt;00:57, 16.57it/s, 159 steps of size 1.74e-02. acc. prob=0.75]warmup:   7%|▋         | 66/1000 [00:04&lt;00:37, 24.71it/s, 127 steps of size 2.99e-02. acc. prob=0.76]warmup:   8%|▊         | 81/1000 [00:04&lt;00:27, 33.05it/s, 127 steps of size 1.77e-02. acc. prob=0.76]warmup:  10%|▉         | 95/1000 [00:05&lt;00:22, 41.07it/s, 255 steps of size 2.07e-02. acc. prob=0.76]warmup:  11%|█         | 108/1000 [00:05&lt;00:17, 50.42it/s, 191 steps of size 2.88e-02. acc. prob=0.76]warmup:  12%|█▏        | 122/1000 [00:05&lt;00:14, 62.39it/s, 63 steps of size 4.92e-02. acc. prob=0.77] warmup:  14%|█▎        | 135/1000 [00:05&lt;00:12, 71.02it/s, 191 steps of size 3.10e-02. acc. prob=0.77]warmup:  15%|█▍        | 147/1000 [00:05&lt;00:10, 78.14it/s, 127 steps of size 7.39e-02. acc. prob=0.77]warmup:  16%|█▌        | 159/1000 [00:05&lt;00:10, 81.43it/s, 127 steps of size 3.46e-02. acc. prob=0.77]warmup:  17%|█▋        | 170/1000 [00:05&lt;00:10, 75.97it/s, 57 steps of size 5.88e-02. acc. prob=0.77] warmup:  18%|█▊        | 180/1000 [00:06&lt;00:11, 73.64it/s, 511 steps of size 2.03e-02. acc. prob=0.77]warmup:  19%|█▉        | 193/1000 [00:06&lt;00:09, 84.54it/s, 127 steps of size 3.35e-02. acc. prob=0.77]warmup:  20%|██        | 203/1000 [00:06&lt;00:09, 83.29it/s, 127 steps of size 6.34e-02. acc. prob=0.78]warmup:  22%|██▏       | 219/1000 [00:06&lt;00:07, 98.09it/s, 255 steps of size 3.68e-02. acc. prob=0.78]warmup:  24%|██▎       | 235/1000 [00:06&lt;00:06, 112.63it/s, 127 steps of size 3.61e-02. acc. prob=0.78]warmup:  25%|██▍       | 248/1000 [00:06&lt;00:06, 110.60it/s, 63 steps of size 5.24e-02. acc. prob=0.78] warmup:  26%|██▋       | 265/1000 [00:06&lt;00:05, 122.92it/s, 255 steps of size 1.71e-02. acc. prob=0.78]warmup:  28%|██▊       | 281/1000 [00:06&lt;00:05, 131.89it/s, 127 steps of size 5.27e-02. acc. prob=0.78]warmup:  30%|██▉       | 297/1000 [00:06&lt;00:05, 138.03it/s, 63 steps of size 5.29e-02. acc. prob=0.78] warmup:  31%|███       | 312/1000 [00:07&lt;00:05, 137.39it/s, 511 steps of size 3.37e-02. acc. prob=0.78]warmup:  33%|███▎      | 326/1000 [00:07&lt;00:05, 126.56it/s, 63 steps of size 4.41e-02. acc. prob=0.78] warmup:  34%|███▍      | 342/1000 [00:07&lt;00:05, 131.31it/s, 191 steps of size 5.09e-02. acc. prob=0.78]warmup:  36%|███▌      | 356/1000 [00:07&lt;00:04, 130.66it/s, 127 steps of size 3.18e-02. acc. prob=0.78]warmup:  37%|███▋      | 372/1000 [00:07&lt;00:04, 136.52it/s, 63 steps of size 3.87e-02. acc. prob=0.78] warmup:  39%|███▊      | 386/1000 [00:07&lt;00:04, 135.21it/s, 43 steps of size 3.02e-02. acc. prob=0.78]warmup:  40%|████      | 400/1000 [00:07&lt;00:04, 126.66it/s, 127 steps of size 3.70e-02. acc. prob=0.78]warmup:  41%|████▏     | 413/1000 [00:07&lt;00:04, 122.50it/s, 5 steps of size 2.61e-02. acc. prob=0.78]  warmup:  43%|████▎     | 433/1000 [00:07&lt;00:04, 141.72it/s, 159 steps of size 4.96e-02. acc. prob=0.78]warmup:  45%|████▍     | 448/1000 [00:08&lt;00:03, 138.50it/s, 127 steps of size 5.64e-02. acc. prob=0.78]warmup:  46%|████▋     | 463/1000 [00:08&lt;00:04, 123.22it/s, 31 steps of size 1.13e-01. acc. prob=0.78] warmup:  48%|████▊     | 476/1000 [00:08&lt;00:04, 112.40it/s, 63 steps of size 8.72e-02. acc. prob=0.78]warmup:  49%|████▉     | 488/1000 [00:08&lt;00:04, 105.39it/s, 5 steps of size 1.46e-02. acc. prob=0.78] sample:  50%|█████     | 503/1000 [00:08&lt;00:04, 115.61it/s, 127 steps of size 3.34e-02. acc. prob=0.99]sample:  52%|█████▏    | 515/1000 [00:08&lt;00:04, 112.82it/s, 63 steps of size 3.34e-02. acc. prob=0.95] sample:  53%|█████▎    | 527/1000 [00:08&lt;00:04, 108.65it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  54%|█████▍    | 539/1000 [00:08&lt;00:04, 109.39it/s, 31 steps of size 3.34e-02. acc. prob=0.93]sample:  56%|█████▌    | 556/1000 [00:09&lt;00:03, 123.86it/s, 191 steps of size 3.34e-02. acc. prob=0.93]sample:  57%|█████▋    | 572/1000 [00:09&lt;00:03, 133.42it/s, 63 steps of size 3.34e-02. acc. prob=0.93] sample:  59%|█████▉    | 589/1000 [00:09&lt;00:02, 142.28it/s, 63 steps of size 3.34e-02. acc. prob=0.93]sample:  60%|██████    | 604/1000 [00:09&lt;00:02, 132.11it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  62%|██████▏   | 618/1000 [00:09&lt;00:02, 131.19it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  63%|██████▎   | 634/1000 [00:09&lt;00:02, 135.34it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  65%|██████▍   | 648/1000 [00:09&lt;00:02, 130.06it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  66%|██████▋   | 663/1000 [00:09&lt;00:02, 135.44it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  68%|██████▊   | 677/1000 [00:09&lt;00:02, 128.93it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  69%|██████▉   | 691/1000 [00:10&lt;00:02, 125.67it/s, 255 steps of size 3.34e-02. acc. prob=0.94]sample:  70%|███████   | 704/1000 [00:10&lt;00:02, 119.80it/s, 255 steps of size 3.34e-02. acc. prob=0.94]sample:  72%|███████▏  | 717/1000 [00:10&lt;00:02, 116.68it/s, 63 steps of size 3.34e-02. acc. prob=0.93] sample:  73%|███████▎  | 730/1000 [00:10&lt;00:02, 119.29it/s, 63 steps of size 3.34e-02. acc. prob=0.93]sample:  74%|███████▍  | 745/1000 [00:10&lt;00:02, 125.27it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  76%|███████▌  | 761/1000 [00:10&lt;00:01, 134.33it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  78%|███████▊  | 775/1000 [00:10&lt;00:02, 107.48it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  79%|███████▊  | 787/1000 [00:10&lt;00:02, 94.18it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  80%|███████▉  | 798/1000 [00:11&lt;00:02, 96.16it/s, 31 steps of size 3.34e-02. acc. prob=0.94]sample:  81%|████████  | 809/1000 [00:11&lt;00:03, 60.48it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  82%|████████▏ | 818/1000 [00:11&lt;00:03, 53.76it/s, 127 steps of size 3.34e-02. acc. prob=0.93]sample:  82%|████████▎ | 825/1000 [00:11&lt;00:03, 55.36it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  83%|████████▎ | 834/1000 [00:11&lt;00:02, 60.52it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  84%|████████▍ | 843/1000 [00:11&lt;00:02, 66.38it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  85%|████████▌ | 853/1000 [00:12&lt;00:02, 72.02it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  86%|████████▌ | 862/1000 [00:12&lt;00:01, 75.06it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  87%|████████▋ | 871/1000 [00:12&lt;00:01, 77.84it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  88%|████████▊ | 880/1000 [00:12&lt;00:01, 79.87it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  89%|████████▉ | 889/1000 [00:12&lt;00:01, 72.29it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  90%|████████▉ | 897/1000 [00:12&lt;00:01, 67.71it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  91%|█████████ | 908/1000 [00:12&lt;00:01, 76.35it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  92%|█████████▏| 918/1000 [00:12&lt;00:00, 82.14it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  93%|█████████▎| 927/1000 [00:13&lt;00:00, 74.91it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  94%|█████████▎| 935/1000 [00:13&lt;00:01, 56.42it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  94%|█████████▍| 942/1000 [00:13&lt;00:01, 50.32it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  95%|█████████▍| 948/1000 [00:13&lt;00:01, 40.38it/s, 95 steps of size 3.34e-02. acc. prob=0.94]sample:  95%|█████████▌| 953/1000 [00:13&lt;00:01, 38.38it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  96%|█████████▌| 958/1000 [00:14&lt;00:01, 38.80it/s, 191 steps of size 3.34e-02. acc. prob=0.94]sample:  96%|█████████▋| 964/1000 [00:14&lt;00:00, 41.99it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  97%|█████████▋| 970/1000 [00:14&lt;00:00, 45.11it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  98%|█████████▊| 975/1000 [00:14&lt;00:00, 43.32it/s, 63 steps of size 3.34e-02. acc. prob=0.94] sample:  98%|█████████▊| 980/1000 [00:14&lt;00:00, 43.30it/s, 63 steps of size 3.34e-02. acc. prob=0.94]sample:  98%|█████████▊| 985/1000 [00:14&lt;00:00, 44.26it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample:  99%|█████████▉| 990/1000 [00:14&lt;00:00, 44.15it/s, 127 steps of size 3.34e-02. acc. prob=0.94]sample: 100%|█████████▉| 995/1000 [00:14&lt;00:00, 36.85it/s, 255 steps of size 3.34e-02. acc. prob=0.94]sample: 100%|██████████| 1000/1000 [00:14&lt;00:00, 66.81it/s, 63 steps of size 3.34e-02. acc. prob=0.94]
+arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_5.5%</th>
+<th data-quarto-table-cell-role="th">hdi_94.5%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">a</td>
+<td>1.38</td>
+<td>1.02</td>
+<td>0.11</td>
+<td>2.69</td>
+<td>0.07</td>
+<td>0.06</td>
+<td>192.96</td>
+<td>201.62</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">b</td>
+<td>0.28</td>
+<td>0.09</td>
+<td>0.15</td>
+<td>0.42</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>177.27</td>
+<td>192.47</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">etasq</td>
+<td>0.19</td>
+<td>0.19</td>
+<td>0.01</td>
+<td>0.39</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>129.19</td>
+<td>254.18</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">g</td>
+<td>0.60</td>
+<td>0.55</td>
+<td>0.03</td>
+<td>1.27</td>
+<td>0.04</td>
+<td>0.04</td>
+<td>202.92</td>
+<td>271.68</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[0]</td>
+<td>-0.16</td>
+<td>0.32</td>
+<td>-0.72</td>
+<td>0.27</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>108.09</td>
+<td>103.43</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[1]</td>
+<td>-0.02</td>
+<td>0.31</td>
+<td>-0.50</td>
+<td>0.53</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>108.18</td>
+<td>83.40</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[2]</td>
+<td>-0.08</td>
+<td>0.29</td>
+<td>-0.52</td>
+<td>0.39</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>104.52</td>
+<td>82.13</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[3]</td>
+<td>0.36</td>
+<td>0.26</td>
+<td>-0.06</td>
+<td>0.77</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>109.68</td>
+<td>101.92</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[4]</td>
+<td>0.07</td>
+<td>0.25</td>
+<td>-0.31</td>
+<td>0.48</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>97.98</td>
+<td>100.86</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[5]</td>
+<td>-0.40</td>
+<td>0.28</td>
+<td>-0.89</td>
+<td>-0.00</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>105.36</td>
+<td>84.04</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[6]</td>
+<td>0.14</td>
+<td>0.24</td>
+<td>-0.23</td>
+<td>0.56</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>98.67</td>
+<td>87.33</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[7]</td>
+<td>-0.22</td>
+<td>0.25</td>
+<td>-0.58</td>
+<td>0.19</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>84.80</td>
+<td>101.42</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kernel[8]</td>
+<td>0.25</td>
+<td>0.23</td>
+<td>-0.14</td>
+<td>0.59</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>80.88</td>
+<td>114.93</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">kernel[9]</td>
+<td>-0.19</td>
+<td>0.31</td>
+<td>-0.63</td>
+<td>0.34</td>
+<td>0.03</td>
+<td>0.01</td>
+<td>139.57</td>
+<td>199.16</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rhosq</td>
+<td>1.29</td>
+<td>1.61</td>
+<td>0.03</td>
+<td>3.31</td>
+<td>0.10</td>
+<td>0.10</td>
+<td>155.41</td>
+<td>262.27</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'jax.numpy'</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>pd <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'pandas'</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">kline2</span>(<span class="at">only_path=</span>T), <span class="at">sep=</span><span class="st">';'</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="ot">=</span> m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">islands_dist_matrix</span>(<span class="at">frame =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>data</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'total_tools'</span>, <span class="st">'population'</span>))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>society <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">arange</span>(<span class="dv">0</span>,<span class="dv">10</span>, <span class="at">dtype=</span><span class="st">'int64'</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>Dmat <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">array</span>(islandsDistMatrix)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(Dmat, population, society, total_tools){</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'g'</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># non-centered Gaussian Process prior</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  etasq <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">2</span>, <span class="at">name =</span> <span class="st">'etasq'</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  rhosq <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'rhosq'</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  k <span class="ot">=</span> m<span class="sc">$</span>gaussian<span class="sc">$</span><span class="fu">gaussian_process</span>(Dmat, etasq, rhosq, <span class="fl">0.01</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  lambda_ <span class="ot">=</span> a <span class="sc">*</span> population<span class="sc">**</span>b <span class="sc">/</span> g <span class="sc">*</span> jnp<span class="sc">$</span><span class="fu">exp</span>(k[society])</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">poisson</span>(lambda_, <span class="at">obs=</span>total_tools)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
+<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.<span class="fu">kline2</span>(only_path <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">data</span>(data_path, sep<span class="op">=</span><span class="st">";"</span>) </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> m.load.<span class="fu">islands_dist_matrix</span>(frame <span class="op">=</span> <span class="cn">false</span>)[<span class="st">"data"</span>]</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">data_to_model</span>([<span class="st">"total_tools"</span>, <span class="st">"population"</span>])</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"society"</span>] <span class="op">=</span> jnp.<span class="fu">arange</span>(<span class="fl">0</span>,<span class="fl">10</span>)<span class="co"># index observations</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"Dmat"</span>] <span class="op">=</span> jnp.<span class="fu">array</span>(islandsDistMatrix) <span class="co"># Distance matrix</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(Dmat, population, society, total_tools)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name <span class="op">=</span> <span class="st">"a"</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name <span class="op">=</span> <span class="st">"b"</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name <span class="op">=</span> <span class="st">"g"</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># non-centered Gaussian Process prior</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    etasq <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">2</span>, name <span class="op">=</span> <span class="st">"etasq"</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    rhosq <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">"rhosq"</span>)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    SIGMA <span class="op">=</span> etasq <span class="op">*</span> jnp.<span class="fu">exp</span>(<span class="op">-</span>rhosq <span class="op">*</span> jnp.<span class="fu">square</span>(Dmat))</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    SIGMA <span class="op">=</span> SIGMA.at[jnp.<span class="fu">diag_indices</span>(Dmat.shape[<span class="fl">0</span>])].<span class="fu">add</span>(etasq)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.dist.<span class="fu">multivariate_normal</span>(<span class="fl">0</span>, SIGMA, name <span class="op">=</span> <span class="st">"k"</span>)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">^</span>b <span class="op">/</span> g <span class="op">*</span> jnp.<span class="fu">exp</span>(k[society])</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">poisson</span>(lambda_, obs<span class="op">=</span>total_tools)</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="mathematical-details" class="level2">
+<h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
+<section id="formula" class="level3">
+<h3 class="anchored" data-anchor-id="formula"><em>Formula</em></h3>
+<p>The following equation allows us to evaluate the relationship between the dependent variable <span class="math inline">Y</span> distributed normal, and the independent variable <span class="math inline">X</span> while incorporating a GP for the effect of variable <span class="math inline">Q</span>:</p>
+<p><span class="math display">
+Y_{[i]} \sim \text{Normal}( \alpha + \beta  X_{[i]} + \gamma_{[Q_{[i]}]}, \sigma)
+</span></p>
+<p>where:</p>
+<ul>
+<li><p><span class="math inline">Y_{[i]}</span> is the i-th value for the dependent variable <span class="math inline">Y</span>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficient term.</p></li>
+<li><p><span class="math inline">X_{[i]}</span> is the i-th value for the independent variable <span class="math inline">X</span>.</p></li>
+<li><p><span class="math inline">Q_{[i]}</span> is an integer-valued independent variable (e.g., year-of-birth, age, year) for observation <span class="math inline">i</span>.</p></li>
+<li><p><span class="math inline">\gamma</span> is a vector output from a Gaussian process:</p></li>
+</ul>
+<p><span class="math display">
+\gamma
+\sim \text{MVNormal} \left(
+Z,
+\varsigma\Omega\varsigma
+\right)
+</span></p>
+<p>where:</p>
+<ul>
+<li><p><span class="math inline">Z</span> represents the mean vector of the multivariate normal distribution and set to <span id="kernelMean0"><span style="color:#0D6EFD">zero 🛈</span></span>.</p></li>
+<li><p><span class="math inline">\varsigma</span> is a diagonal matrix of standard deviations.</p></li>
+<li><p><span class="math inline">\Omega</span> is a correlation matrix.</p></li>
+<li><p>Multiple kernel functions for <span class="math inline">\Omega</span> exist and will be discussed in the <a href="#notes">Note(s)</a> section. But the most common one is the quadratic kernel:</p></li>
+</ul>
+<p><span class="math display">
+\Omega_{[i,j]} = \eta \exp(-\phi^2 D_{[i,j]}^2)
+</span></p>
+<p>Where:</p>
+<ul>
+<li><p><span class="math inline">\eta</span> is the maximal correlation.</p></li>
+<li><p><span class="math inline">\phi</span> determines the rate of decline.</p></li>
+<li><p><span class="math inline">D_{[i,j]}</span> is the distance between the <span class="math inline">i</span>-th and <span class="math inline">j</span>-th categories.</p></li>
+</ul>
+</section>
+<section id="bayesian-model" class="level3">
+<h3 class="anchored" data-anchor-id="bayesian-model"><em>Bayesian model</em></h3>
+<p>In the Bayesian formulation, we define each parameter with <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span>. We can express a Bayesian version of this GP using the following model:</p>
+<p><span class="math display">
+Y_i = \alpha + \beta  X_i + \gamma_{Z_i}
+</span></p>
+<p><span class="math display">
+\gamma \sim \text{MVNormal} \left(
+\begin{pmatrix}
+    0 \\
+    \vdots \\
+    0
+\end{pmatrix},
+K
+\right)
+</span></p>
+<p><span class="math display">
+K_{ij} = \eta^2 \exp(-p^2D_{ij}^2) + \delta_{ij} \sigma^2
+</span></p>
+<p><span class="math display">
+\alpha \sim \text{Normal}(0,1)
+</span></p>
+<p><span class="math display">
+\eta^2 \sim \text{HalfCauchy}(0,1)
+</span></p>
+<p><span class="math display">
+p^2 \sim \text{HalfCauchy}(0,1)
+</span></p>
+<p>where:</p>
+<ul>
+<li><p><span class="math inline">Y_i</span> is the i-th value for the dependent variable <span class="math inline">Y</span>.</p></li>
+<li><p><span class="math inline">\alpha</span> is the intercept term with a prior of <span class="math inline">\text{Normal}(0,1)</span>.</p></li>
+<li><p><span class="math inline">\beta</span> is the regression coefficient term with a prior of <span class="math inline">\text{Normal}(0,1)</span>.</p></li>
+<li><p><span class="math inline">X_i</span> is the i-th value for the independent variable <span class="math inline">X</span>.</p></li>
+<li><p><span class="math inline">\gamma_{Z_i}</span> is the Gaussian process i-th value for the independent variable <span class="math inline">Z</span>.</p></li>
+<li><p><span class="math inline">\gamma</span> is the latent function modeled by the GP.</p></li>
+<li><p><span class="math inline">K_{ij}</span> is the kernel function evaluated at the corresponding points, <span class="math inline">K_{ij} = k(Z_i, Z_j)</span>, with priors of HalfCauchy(0,1) for <span class="math inline">\eta^2</span> and <span class="math inline">p^2</span> to ensure positive values.</p></li>
+</ul>
+</section>
+</section>
+<section id="notes" class="level2">
+<h2 class="anchored" data-anchor-id="notes">Notes</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Common kernel functions include:</p>
+<ul>
+<li><p><em>Radial Basis Function</em> (RBF) or Squared Exponential Kernel: <span class="math display">k(x,x') = \sigma^2 \exp\left(-\frac{||x-x'||^2}{2l^2}\right)</span></p></li>
+<li><p><em>Rational Quadratic Kernel</em>, this kernel is equivalent to adding together many RBF kernels with different length scales: <span class="math display">k(x,x') = \sigma^2 \left(1 + \frac{||x-x'||^2}{2l^2}\right)^{-\alpha}</span></p></li>
+<li><p><em>Periodic kernel</em> allows for modeling functions that repeat themselves exactly: <span class="math display">k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right)</span></p></li>
+<li><p><em>Locally Periodic Kernel</em>:</p></li>
+</ul>
+<p><span class="math display">k(x,x') = \sigma^2 \exp\left(-\frac{2\sin^2(\pi||x-x'||/p)}{l^2}\right) \exp\left(-\frac{||x-x'||^2}{2l^2}\right)</span></p>
+<ul>
+<li>Any slope or intercept in your model can be defined using a Gaussian Process.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em><span class="nocase">Statistical Rethinking: A Bayesian course with examples in R and Stan</span></em>. Chapman; Hall/CRC.
+</div>
+</div>
+<p>https://www.cs.toronto.edu/~duvenaud/cookbook/</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<script>
+function convertMarkdownToHTML(markdown) {
+  const options = {
+    breaks: true,
+    gfm: true,
+  };
+  const htmlContent = marked.parse(markdown, options);
+  return htmlContent;
+}
+
+tippy('#Elasticity', {
+  content: convertMarkdownToHTML('The elasticity of the response variable with respect to the exposure is the percent change in the response with respect to a percent change in the exposure. For example, an elasticity of 1.0 means that doubling the exposure time will double the response'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+
+tippy('#Uncertainty', {
+  content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#priorKnowledge', {
+  content: convertMarkdownToHTML('When data are sparse or noisy, incorporating prior knowledge through the prior distribution can improve the model’s performance. This is especially useful in fields where previous research or expert opinion is available.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#Flexibility', {
+  content: convertMarkdownToHTML('Bayesian approaches naturally extend to complex settings such as hierarchical models, models with latent variables, or situations with missing data. Their ability to blend different sources of information makes them ideal for modern, data-rich applications.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#PPCs', {
+  content: convertMarkdownToHTML('PPCs involve generating *dummy data* (or simulated observations) from the posterior predictive distribution and comparing these simulated datasets with the actual observed data.By comparing summary statistics (e.g., means, variances) or visualizations (e.g., histograms, scatter plots) between \( y^{\text{rep}} \) and the observed data, we can assess if our model is capable of reproducing key features of the data.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#HPDI', {
+  content: convertMarkdownToHTML('HPDI is a metric that describe the distribution of a parameter. The Highest Posterior Density Interval is the narrowest interval that contains a specified proportion (e.g., 95%) of the posterior probability. HPDIs are especially useful when the posterior distribution is skewed or multimodal as it help in understanding the uncertainty of parameter estimates and in communicating the degree of uncertainty in predictions.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#convDiag', {
+  content: convertMarkdownToHTML('Convergence diagnostics are statistical tools and methods used to assess whether a Markov Chain Monte Carlo (MCMC) algorithm has sufficiently explored the target posterior distribution in Bayesian analysis. They help ensure that the chain has stabilized and that samples are reliable for inference.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#ESS', {
+  content: convertMarkdownToHTML('ESS estimates how many independent samples our MCMC chain is equivalent to. Low ESS values indicate that samples are highly correlated, which might affect the reliability of posterior summaries.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#Rhat', {
+  content: convertMarkdownToHTML('Rhat compares the variance between multiple chains to the variance within each chain. Values close to 1 (typically below 1.1) indicate good convergence.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+  tippy('#TP', {
+    content: convertMarkdownToHTML('Trace plots are graphical tools used in MCMC diagnostics to visualize the sampled values of a parameter over iterations. They help assess the convergence and mixing behavior of the Markov chain.'),
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+  });
+
+  tippy('#AutoCor', {
+    content: convertMarkdownToHTML('Autocorrelation plots visualize the correlation between samples in an MCMC chain as a function of the lag (distance between samples). They help assess how dependent the samples are and whether the chain is mixing efficiently.'),
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+  });
+
+  tippy('#DesPlot', {
+    content: convertMarkdownToHTML('Density plots visualize the estimated posterior distribution of a parameter based on MCMC samples. They provide a smoothed representation of the distribution, helping assess central tendency, spread, and shape.'),
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+  });
+
+
+
+tippy('#DP', {
+  content: convertMarkdownToHTML('A dependent variable  is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#IP', {
+  content: convertMarkdownToHTML('An independent variable is the variable that is manipulated or controlled in an analysis to observe its effect on a dependent variable. It represents the input or cause in a cause-and-effect relationship and is often denoted as X in statistical models.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#lk', {
+  content: convertMarkdownToHTML('Likelihood is a statistical concept representing the probability of observing a given set of data, assuming specific values of the *parameters* in a model.It is not the same as probability; instead, it measures how well a model with certain parameters explains the observed data.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#pdist', {
+  content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilities are assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variable takes finite or infinite values.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#intercept ', {
+  content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as α in linear models.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#slope ', {
+  content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+
+tippy('#prior', {
+  content: convertMarkdownToHTML('Priors are distributions that represent the value of the parameter before conditioning it on the data.'),
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#BT', {
+  content: '<span style="color: white;">Bayes\' Theorem describes how to update the probability of a hypothesis given new evidence. It states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use ofBayesian updating to improve the accuracy of the model.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#BUpdating', {
+    content: '<span style="color: white;">Bayesian updating is the iterative process of refining beliefs by applying Bayes\' Theorem as new data becomes available.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+  });
+
+
+
+tippy('#overdispersion', {
+  content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#linkF', {
+    content: '<span style="color: white;">The link function is a key component of the generalized linear model (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges. For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link (used in logistic regression), the coefficients relate to the log - odds of the outcome.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#simplex', {
+  content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+  
+tippy('#triptych', {
+    content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+    
+tippy('#hyperP', {
+  content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#cov', {
+    content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#centerRF', {
+  content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#NodeF', {
+    content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#DyadicF', {
+    content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#senderF', {
+    content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#receiverF', {
+    content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#DyadicF2', {
+    content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#expoB', {
+    content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#censoB', {
+    content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#assor', {
+    content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+tippy('#disassor', {
+    content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
+    allowHTML: true,
+    interactive: true,
+    delay: 100,
+});
+
+
+tippy('#chol', {
+  content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#uncertainty', {
+  content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#posterior', {
+  content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#scaled', {
+  content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#grandMean', {
+  content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their mean levels. </span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#ohe', {
+  content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#indices', {
+  content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
+  allowHTML: true,
+  interactive: true,
+  delay: 100,
+});
+
+tippy('#softmax', {
+  content: `
+  <span style='color: white;'>
+    takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
+    then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
+    The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
+    <strong>Formula:</strong><br>
+    $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
+  </span>
+  `,  allowHTML: true,
+  interactive: true,
+  delay: 100,
+  onShow(instance) {
+    MathJax.typesetPromise([instance.reference]).then(() => {
+      // Optional: if you want to do something after the typesetting
+    });
+  },
+});
+
+tippy('#kernel', {
+  content: `
+  <span style='color: white;'>
+    A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
+    in a higher-dimensional feature space without explicitly transforming them. 
+    The kernel function allows for non-linear relationships by mapping input space to feature space, 
+    where linear techniques can then be applied. 
+    Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
+  </span>
+  `,  allowHTML: true,
+  interactive: true,
+  delay: 100,
+  onShow(instance) {
+    MathJax.typesetPromise([instance.reference]).then(() => {
+      // Optional: if you want to do something after the typesetting
+    });
+  },
+});
+
+tippy('#kernelMean0', {
+  content: `
+  <span style='color: white;'>
+    GP mean is usually set to zero as by setting the mean to zero, 
+    we center the distribution around the origin. 
+    This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
+    can be thought of as deviations from this mean.
+  </span>
+  `,  allowHTML: true,
+  interactive: true,
+  delay: 100,
+  onShow(instance) {
+    MathJax.typesetPromise([instance.reference]).then(() => {
+      // Optional: if you want to do something after the typesetting
+    });
+  },
+});
+
+tippy('#signAmbiguity', {
+  content: `
+  <span style='color: white;'>
+    PCA identifies directions (principal components) that capture the maximum variance in the data. However, the orientation of these components is not unique; both a vector and its negation represent the same principal direction. This means that if 𝑤 is a principal component, −𝑤 is equally valid.
+  </span>
+  `,  allowHTML: true,
+  interactive: true,
+  delay: 100,
+  onShow(instance) {
+    MathJax.typesetPromise([instance.reference]).then(() => {
+      // Optional: if you want to do something after the typesetting
+    });
+  },
+});
+
+tippy('#MatCov', {
+  content: `
+  <span style='color: white;'>
+    A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
+  </span>
+  `, allowHTML: true,
+    interactive: true,
+    delay: 100,
+    onShow(instance) {
+      MathJax.typesetPromise([instance.reference]).then(() => {
+        // Optional: if you want to do something after the typesetting
+      });
+    },
+});
+
+tippy('#RFcentered', {
+  content: `
+  <span style='color: white;'>
+    The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
+  </span>
+  `, allowHTML: true,
+    interactive: true,
+    delay: 100,
+    onShow(instance) {
+      MathJax.typesetPromise([instance.reference]).then(() => {
+        // Optional: if you want to do something after the typesetting
+      });
+    },
+});
+
+tippy('#LKJcorr', {
+      content: `
+  <span style='color: white;'>
+    The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#unsupervised', {
+      content: `
+  <span style='color: white;'>
+    An unsupervised algorithm is a method that processes unlabeled data to automatically uncover patterns, groupings, or structures without predefined output targets.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#stickProcess', {
+      content: `
+  <span style='color: white;'>
+The stick-breaking process is a way to generate a random distribution by imagining a unit-length stick that gets broken into pieces one step at a time. At each step, a random fraction of whatever stick remains is snapped off to form a new weight, and the rest is left for future breaks. Each weight is paired with a randomly chosen parameter value. Repeating this indefinitely yields a distribution made of infinitely many weighted parameter, where earlier pieces tend to be larger and later ones smaller.
+
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/s-sosa\.com\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./14. Varying slopes.html" class="pagination-link" aria-label="Varying Slopes Models">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Varying Slopes Models</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./16. Measuring error.html" class="pagination-link" aria-label="Measurement Error Models">
+        <span class="nav-page-text">Measurement Error Models</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,173 @@
+
+
+
+body:not(.gallery-in-view) .quarto-listing-category-title,
+body:not(.gallery-in-view) .quarto-listing-category {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    /* Optional: slide-up effect */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+/* When the body gets the 'gallery-in-view' class, reveal them. */
+body.gallery-in-view .quarto-listing-category-title,
+body.gallery-in-view .quarto-listing-category {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.categories-hidden .quarto-listing-categories {
+  display: none;
+}
+
+
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+
+[data-bs-theme="light"] .welcome-panel {
+    background-color: #495057; /* A dark gray background for contrast */
+    color: #f8f9fa;            /* Light text color */
+}
+
+.panel {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+    /* Ensures padding is included in height calculation */
+}
+
+/* --- Welcome (Hero) Section Styling --- */
+
+.welcome-panel {
+    text-align: center;
+}
+
+.welcome-show {
+
+}
+
+.welcome-panel h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 0.rem;
+}
+
+.welcome-panel h1 sup {
+    font-size: 1.5rem;
+    font-weight: 300;
+}
+
+.welcome-panel h2 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+}
+.welcome-panel h3 {
+    font-size: 1.75rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+}
+
+.btn-get-started {
+    display: inline-block;
+    /* Good practice for <a> tags styled as buttons */
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.8rem 2.5rem;
+    margin-top: 2rem;
+    border-radius: 50px;
+    /* Fully rounded corners */
+    text-decoration: none;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* --- 2. Light Theme Specific Styles --- */
+[data-bs-theme="light"] .btn-get-started {
+    background-color: #ee6331;
+    /* Your original orange color */
+    color: #ffffff;
+    /* White text */
+}
+
+/* --- 3. Dark Theme Specific Styles --- */
+[data-bs-theme="dark"] .btn-get-started {
+    background-color: #fca311;
+    /* A brighter, more vibrant orange for dark backgrounds */
+    color: #14213d;
+    /* Dark blue text for contrast */
+}
+
+/* --- 4. (Optional) Add a hover effect for interactivity --- */
+.btn-get-started:hover {
+    transform: translateY(-2px);
+    /* Lifts the button slightly */
+    opacity: 0.9;
+}
+
+/* --- Alternating Background for other panels --- */
+.showcase-panel {
+    background-color: #ffffff;
+}
+
+.features-panel {
+    background-color: #f8f9fa;
+    /* Light gray */
+}
+
+
+/* Dark mode adjustments */
+body.quarto-dark .showcase-panel {
+    background-color: #1e1e1e;
+}
+
+body.quarto-dark .features-panel {
+    background-color: #2a2a2a;
+}
+
+
+
+
+/* --- General Content Styling for Panels --- */
+.panel .container {
+    max-width: 1140px;
+}
+
+.panel h2 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.feature-item {
+    text-align: left;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.quarto-dark .feature-item {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-item h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
