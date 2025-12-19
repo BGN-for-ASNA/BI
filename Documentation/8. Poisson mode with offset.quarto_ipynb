@@ -5,18 +5,25 @@
       "metadata": {},
       "source": [
         "---\n",
+<<<<<<< HEAD
         "title: \"🚧 Poisson Model with an Offset 🚧\"\n",
+=======
+        "title: \"🚧 Poisson Model with an Offset\"\n",
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
         "description: \"Modeling count data that has been collected over different levels of exposure using an offset.\"\n",
         "categories: [Regression,  Count Data]\n",
         "image: \"Figures/7.png\"\n",
         "order: 9\n",
         "---\n",
         "\n",
+<<<<<<< HEAD
         "\n",
         "\n",
         "\n",
         "\n",
         "\n",
+=======
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
         "## General Principles\n",
         "When we want to model count data, where the counts are observed over different periods or areas of exposure, we use a _Poisson model with an offset_. This is a type of generalized linear model used for modeling count data and contingency tables.\n",
         "\n",
@@ -37,14 +44,22 @@
         "Below is an example of code that demonstrates a Bayesian Poisson regression with an offset. The data consists of the number of elephant aggressions (`agressions`), the age of the elephants (`age`), and the number of years they have been observed (`years_obs`). The goal is to model the rate of aggressions per year, accounting for the age of the elephants.\n",
         "\n",
         "::: {.panel-tabset group=\"language\"}\n",
+<<<<<<< HEAD
         "### Python\n"
       ],
       "id": "1e6ac56a"
+=======
+        "### Python\n",
+        "<!---"
+      ],
+      "id": "bc465bcb"
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+<<<<<<< HEAD
         "from BI import bi\n",
         "import jax.numpy as jnp\n",
         "# Setup device------------------------------------------------\n",
@@ -71,6 +86,34 @@
         "m.summary()"
       ],
       "id": "63d43c51",
+=======
+        "#from BI import bi, jnp\n",
+        "#\n",
+        "## Setup device------------------------------------------------\n",
+        "#m = bi(platform='cpu')\n",
+        "#\n",
+        "## Import Data & Data Manipulation ------------------------------------------------\n",
+        "## Import\n",
+        "#m.data('elephants.csv', sep=';') \n",
+        "#jnp.log(['years_obs']) # Log transform the exposure variable\n",
+        "#m.data_to_model(['agressions', 'age', \"log_years_obs\"]) # Send to model\n",
+        "#\n",
+        "## Define model ------------------------------------------------\n",
+        "#def model(agressions, age, log_years_obs):\n",
+        "#    a = m.bi.dist.normal(0, 1, name = 'a') \n",
+        "#    b = m.bi.dist.normal(0, 0.5, name = 'b')\n",
+        "#    log_lambda = a + b * age + log_years_obs # Add offset to the linear model\n",
+        "#    m.dist.poisson(jnp.exp(log_lambda), obs=agressions)\n",
+        "#\n",
+        "#\n",
+        "## Run mcmc ------------------------------------------------\n",
+        "#m.fit(model) # Optimize model parameters through MCMC sampling\n",
+        "#\n",
+        "## Summary ------------------------------------------------\n",
+        "#m.summary()"
+      ],
+      "id": "e11d6b5d",
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
       "execution_count": null,
       "outputs": []
     },
@@ -78,6 +121,11 @@
       "cell_type": "markdown",
       "metadata": {},
       "source": [
+<<<<<<< HEAD
+=======
+        "--->\n",
+        "\n",
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
         "![](travaux-routiers.png){fig-align=\"center\"}\n",
         "\n",
         "### R\n",
@@ -172,7 +220,11 @@
         "\n",
         "## Reference(s)"
       ],
+<<<<<<< HEAD
       "id": "06c49bf1"
+=======
+      "id": "7dbaaaf6"
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
     }
   ],
   "metadata": {

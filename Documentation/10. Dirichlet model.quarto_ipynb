@@ -5,18 +5,25 @@
       "metadata": {},
       "source": [
         "---\n",
+<<<<<<< HEAD
         "title: \"🚧 Dirichlet Model 🚧\"\n",
+=======
+        "title: \"🚧 Dirichlet Model\"\n",
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
         "description: \"Modeling uncertainty about the probabilities of categories themselves.\"\n",
         "categories: [Regression, GLM, Classification]\n",
         "image: \"Figures/10.png\"\n",
         "order: 13\n",
         "---\n",
         "\n",
+<<<<<<< HEAD
         "\n",
         "\n",
         "\n",
         "\n",
         "\n",
+=======
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
         "## General Principles\n",
         "To model the relationship between a vector outcome variable in which each element of the vector is a frequency from a set of more than two categories and one or more independent variables, we can use a _Dirichlet_ model.\n",
         "\n",
@@ -29,14 +36,23 @@
         "## Example\n",
         "::: {.panel-tabset group=\"language\"}\n",
         "## Python\n",
+<<<<<<< HEAD
         "![](travaux-routiers.png){fig-align=\"center\"}\n"
       ],
       "id": "62f75483"
+=======
+        "![](travaux-routiers.png){fig-align=\"center\"}\n",
+        "\n",
+        "<!---"
+      ],
+      "id": "04620a5e"
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
     },
     {
       "cell_type": "code",
       "metadata": {},
       "source": [
+<<<<<<< HEAD
         "from BI import bi, jnp\n",
         "import jax\n",
         "# Setup device ------------------------------------------------\n",
@@ -66,6 +82,38 @@
         "m.summary()"
       ],
       "id": "a477f930",
+=======
+        "#from BI import bi, jnp\n",
+        "#import jax\n",
+        "## Setup device ------------------------------------------------\n",
+        "#m = bi('cpu')\n",
+        "#\n",
+        "## Import Data & Data Manipulation ------------------------------------------------\n",
+        "## Import\n",
+        "#from importlib.resources import files\n",
+        "#data_path = files('BI.resources.data') / 'Sim data multinomial.csv'\n",
+        "#m.data(data_path, sep=',') \n",
+        "#\n",
+        "## Define model ------------------------------------------------\n",
+        "#def model(income, career):\n",
+        "#    # Parameter prior distributions\n",
+        "#    alpha = m.dist.normal(0, 1, shape=(2,), name='a')\n",
+        "#    beta = m.dist.half_normal(0.5, shape=(1,), name='b')\n",
+        "#    s_1 = alpha[0] + beta * income[0]\n",
+        "#    s_2 = alpha[1] + beta * income[1]\n",
+        "#    s_3 = [0]\n",
+        "#    p = jnp.exp(jnp.stack([s_1[0], s_2[0], s_3[0]]))\n",
+        "#    # Likelihood\n",
+        "#    m.dist.dirichlet(p[career], obs=career)\n",
+        "#\n",
+        "## Run sampler ------------------------------------------------ \n",
+        "#m.fit(model)  \n",
+        "#\n",
+        "## Summary ------------------------------------------------\n",
+        "#m.summary()"
+      ],
+      "id": "f863e82b",
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
       "execution_count": null,
       "outputs": []
     },
@@ -73,6 +121,10 @@
       "cell_type": "markdown",
       "metadata": {},
       "source": [
+<<<<<<< HEAD
+=======
+        "--->\n",
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
         "## R\n",
         "![](travaux-routiers.png){fig-align=\"center\"}\n",
         "<!---\n",
@@ -113,7 +165,11 @@
         "\n",
         "## Reference(s)"
       ],
+<<<<<<< HEAD
       "id": "0d349dd2"
+=======
+      "id": "c74e27bd"
+>>>>>>> 9ba7a667d655f408e7b5a9c3897d8b55113721d1
     }
   ],
   "metadata": {

@@ -36,14 +36,13 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 ::: {.panel-tabset group="language"}
 ## Python (Raw)
 
-``` {python}
+``` python
 from BI import bi, jnp
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
-from importlib.resources import files
 data_path = m.load.sim_multivariate_normal(only_path=True)
 m.data(data_path, sep=',') 
 m.data_on_model = dict(

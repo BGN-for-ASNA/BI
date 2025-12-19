@@ -2084,7 +2084,7 @@ class UnifiedDist:
         
 
         r"""### Gamma Poisson 
-        The Gamma-Poisson distribution, also known as the Negative Binomial distribution, models overdispersed count data. It arises from a hierarchical process where the rate parameter of a Poisson distribution is itself a random variable following a Gamma distribution. This structure allows the model to capture variability in count data that exceeds what is predicted by the Poisson distribution, making it suitable for applications like modeling RNA-sequencing data and microbial count [1].
+        The Gamma-Poisson distribution, also known as the Negative Binomial distribution, models overdispersed count data. It arises from a hierarchical process where the rate parameter of a Poisson distribution is itself a random variable following a Gamma distribution. This structure allows the model to capture variability in count data that exceeds what is predicted by the Poisson distribution, making it suitable for applications like modeling RNA-sequencing data and microbial count.
         
         $$
         f(x) = \frac{\Gamma(x + \beta) \alpha^x}{\Gamma(\beta)(1 + \alpha)^{\beta + x} x!}, \quad x = 0, 1, 2, \ldots
@@ -3477,7 +3477,7 @@ class UnifiedDist:
         r"""### Levy 
         
         Samples from a Levy distribution.
-        The Lévy distribution is a continuous probability distribution on the positive real line (or shifted positive line) that is *heavy-tailed*, *skewed*, and arises naturally in connection with stable distributions (specifically the case with stability index $\alpha = \tfrac12$. 
+        The Lévy distribution is a continuous probability distribution on the positive real line (or shifted positive line) that is *heavy-tailed*, *skewed*, and arises naturally in connection with stable distributions specifically the case with stability index $\alpha = \tfrac12$. 
         It is often used in contexts such as hitting‐time problems for Brownian motion, physics (e.g., van der Waals line‐shapes), and modelling very heavy‐tailed phenomena. Let (X) be a Lévy‐distributed random variable with **location** parameter $\mu$ and **scale** parameter (c > 0). The support is $x \ge \mu$.
         
         **PDF**
@@ -3930,8 +3930,6 @@ class UnifiedDist:
 
         r"""### Lower Truncated Power Law
         The *Lower-Truncated Power-Law* distribution (also known as the *Pareto Type I* or *power-law with a lower bound*) models quantities that follow a heavy-tailed power-law behavior but are bounded below by a minimum value ( x_{\min} ). It is commonly used to describe phenomena such as wealth distributions, city sizes, and biological scaling laws.
-        
-        Lower truncated power law distribution with $\alpha` index.
         
         The probability density function (PDF) is given by:
         
