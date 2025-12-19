@@ -55,7 +55,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -65,6 +85,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./12. Survival analysis.html" rel="next">
 <link href="./26. Network Based Diffusion analysis (wip).html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -212,7 +233,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./27. BNN.html">Bayesian Neural Networks 🚧</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./27. BNN.html">Bayesian Neural Networks</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -275,7 +296,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Poisson Model with an Offset</span></a>
+ <span class="menu-text">🚧 Poisson Model with an Offset 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -291,21 +312,21 @@ window.Quarto = {
   </div>
 </li>
         <li class="sidebar-item">
- <span class="menu-text">10. Multinomial model (wip).qmd</span>
-  </li>
-        <li class="sidebar-item">
- <span class="menu-text">10. Dirichlet model (wip).qmd</span>
-  </li>
-        <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Zero-Inflated Models</span></a>
+  <a href="./10. Multinomial model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multinomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Survival Analysis 🚧</span></a>
+  <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧 Dirichlet Model 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zero-Inflated Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -317,7 +338,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Varying Slopes Models 🚧</span></a>
+ <span class="menu-text">Varying Slopes Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -334,14 +355,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Missing data (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Handling Missing Data (WIP)</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Latent Variable Models 🚧</span></a>
+  <a href="./17. Missing data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧 Handling Missing Data 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -359,7 +374,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dirichlet Process Mixture Models 🚧</span></a>
+ <span class="menu-text">Dirichlet Process Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -376,7 +391,7 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./24. Network control for data collection biases (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
 </li>
@@ -395,7 +410,19 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./27. BNN.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Bayesian Neural Networks 🚧</span></a>
+ <span class="menu-text">Bayesian Neural Networks</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧 Survival Analysis 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧 Latent Variable Models 🚧</span></a>
   </div>
 </li>
     </ul>
@@ -450,11 +477,12 @@ window.Quarto = {
 
 <section id="general-principles" class="level2">
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
-<p>To model complex, non-linear relationships between variables, we can use multiple approaches including, splines, polynomials, gaussian processes, and neural networks. Here, we will focus on a Bayesian Neural Network (BNN). Think of a neural network as a highly flexible function made of interconnected layers of “neurons.” Each connection between neurons has a <em>weight</em>, and each neuron has a <em>bias</em>. These <em>weights</em> and <em>biases</em> are like a vast set of adjustable knobs. In a standard network, the goal is to find the single best setting for all these knobs to map inputs to outputs. Unlike a standard neural network which learns a single set of optimal weights, a BNN learns distributions over its <em>weights</em> and <em>biases</em>. This allows it to capture not just the relationship in the data, but also its own uncertainty about that relationship. For this, we need to define:</p>
+<p>To model complex, non-linear relationships between variables, we can utilize various approaches, including <a href="https://en.wikipedia.org/wiki/Spline_(mathematics)">splines</a>, <a href="https://en.wikipedia.org/wiki/Polynomial">polynomials</a>, <a href="./15. Gaussian processes.html">Gaussian processes</a>, and neural networks. Here, we focus on the <em>Bayesian Neural Network (BNN)</em>. Think of a neural network as a highly flexible function composed of interconnected layers of <span id="Neurons"><span style="color:#0D6EFD">neurons 🛈</span></span>. Each connection possesses a <em>weight</em>, and each neuron has a <em>bias</em>. These <em>weights</em> and <em>biases</em> act as a vast set of adjustable knobs. In a standard neural network, the goal is to find the single best setting for these knobs to map inputs to outputs. Conversely, a BNN learns <strong>distributions</strong> over its <em>weights</em> and <em>biases</em> rather than single optimal values. This allows the model to capture not only the patterns in the data but also its own uncertainty regarding those patterns.</p>
+<p>To construct a <em>BNN</em>, we must define:</p>
 <ol type="1">
-<li><p><strong>A Network Architecture</strong>, which specifies the number of layers, the number of neurons in each layer, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the structure of our “knobs.”</p></li>
-<li><p><strong>Priors for Arrays of Weights and Biases</strong>. In a simple model like linear regression, we define a prior for each individual parameter (e.g., one prior for the slope <span class="math inline">\beta</span>). In a neural network, which can have thousands or millions of weights, we don’t define a unique prior for every single one. Instead, we define a prior that acts as a template for an entire <strong>array of parameters</strong>. For example, we might declare that all weights in a specific layer are drawn from the same <code>Normal(0, 1)</code> distribution. This allows us to efficiently specify our beliefs about the entire set of network parameters.</p></li>
-<li><p><strong>An Output Distribution (Likelihood)</strong>, which defines the probability of the data given the network’s predictions. For a continuous variable (regression), this is often a Normal distribution with a variance term <span class="math inline">\sigma</span> that quantifies the data’s noise around the model’s predictions.</p></li>
+<li><p><strong>A Network Architecture</strong>: This specifies the structural design—the number of layers, the number of neurons per <span id="Layers"><span style="color:#0D6EFD">layer 🛈</span></span>, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the arrangement of our “knobs.”</p></li>
+<li><p><strong>Priors for Arrays of Weights and Biases</strong>: In simple models like linear regression, we define a prior for each individual parameter (e.g., the slope <span class="math inline">\beta</span>). However, neural networks often contain thousands or millions of parameters, making it impractical to define a unique prior for each one. Instead, we define priors that act as templates for entire <strong>arrays of parameters</strong>. For instance, we might specify that all weights in a given layer are drawn from the same <code>Normal(0, 1)</code> distribution. This allows us to efficiently quantify our beliefs about the entire set of network parameters.</p></li>
+<li><p><strong>An Output Distribution (Likelihood)</strong>: This defines the probability of the observed data given the network’s predictions. For continuous variables (regression), this is typically a <em>Normal distribution</em> with a variance term <span class="math inline">\sigma</span>, which quantifies the noise of the data around the model’s predictions.</p></li>
 </ol>
 </section>
 <section id="considerations" class="level2">
@@ -470,26 +498,27 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>Like all Bayesian models, BNNs consider <span id="uncertainty"><span style="color:#0D6EFD">model parameter uncertainty 🛈</span></span>. The parameters here are the network’s <strong>weights (W)</strong> and <strong>biases (b)</strong>. We quantify our uncertainty about them through their <span id="posterior"><span style="color:#0D6EFD">posterior distribution 🛈</span></span>. Therefore, we must declare <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for all <em>weights</em> and <em>biases</em>, as well as for the output variance <span class="math inline">\sigma</span>.</p></li>
-<li><p>Unlike in a linear regression where the coefficient <span class="math inline">\beta</span> has a direct interpretation (e.g., the effect of weight on height), the individual <em>weights</em> and <em>biases</em> in a BNN are not directly interpretable. A single <em>weight</em>’s influence is entangled with thousands of other parameters through non-linear functions. Consequently, BNNs are best viewed as powerful <strong>predictive tools</strong> rather than explanatory ones. They excel at learning complex patterns and quantifying predictive uncertainty, but if the goal is to isolate and interpret the effect of a specific variable, a simpler model is often more appropriate.</p></li>
-<li><p>Prior distributions are built following these considerations:</p>
+<li><p><strong>Uncertainty</strong>: Like all Bayesian models, BNNs explicitly account for <span id="uncertainty"><span style="color:#0D6EFD">model parameter uncertainty 🛈</span></span>. Here, the parameters are the network’s <strong>weights (W)</strong> and <strong>biases (b)</strong>. We quantify uncertainty through their <span id="posterior"><span style="color:#0D6EFD">posterior distribution 🛈</span></span>. Consequently, we must declare <span id="prior"><span style="color:#0D6EFD">prior distributions 🛈</span></span> for all <em>weights</em> and <em>biases</em>, as well as for the output variance <span class="math inline">\sigma</span>.</p></li>
+<li><p><strong>Interpretation</strong>: Unlike in a linear regression where the coefficient <span class="math inline">\beta</span> has a direct interpretation (e.g., the change in <span class="math inline">Y</span> given a unit increase in <span class="math inline">X</span>), the individual <em>weights</em> and <em>biases</em> in a <em>BNN</em> are not directly interpretable. A single weight’s influence is entangled with thousands of others through non-linear functions. Therefore, BNNs should be viewed as powerful <strong>predictive tools</strong> rather than explanatory ones. They excel at learning complex topologies and quantifying predictive uncertainty, but if the goal is to isolate the effect of a specific variable, a simpler model is often more appropriate.</p></li>
+<li><p><strong>Prior distributions</strong>: are built following these considerations:</p>
 <ul>
 <li><p>As the data is typically <span id="scaled"><span style="color:#0D6EFD">scaled 🛈</span></span> (see introduction), we can use a standard Normal distribution (mean 0, standard deviation 1) as a weakly-informative prior for all weights and biases. This acts as a form of regularization.</p></li>
 <li><p>Since the output variance <span class="math inline">\sigma</span> must be positive, we can use a positively-defined distribution, such as the Exponential or Half-Normal.</p></li>
 </ul></li>
 <li><p>BNNs can be used for both <em>regression</em> and <em>classification</em>. The final layer’s activation and the chosen likelihood distribution depend on the task. For binary classification, a <em>sigmoid</em> activation is paired with a Bernoulli likelihood, which requires a <span id="linkF"><span style="color:#0D6EFD">link function 🛈</span></span> (logit) to connect the linear output of the network to the probability space [0, 1]. For regression, the identity activation is often used with a Gaussian likelihood.</p></li>
+<li><p><strong>Computational Scalability</strong>: Strictly applying Bayes’ theorem to update the posterior distribution becomes computationally intractable for very large neural networks. Calculating the model evidence (the denominator in Bayes’ rule) requires integrating over a parameter space that may contain millions of dimensions. Furthermore, the posterior landscape in deep networks is often highly non-convex and multimodal. Consequently, sampling algorithms (such as MCMC) may suffer from poor mixing or become “stuck” in local modes, failing to explore the full posterior. In such high-dimensional scenarios, practitioners often must rely on approximate methods, such as <span id="VI"><span style="color:#0D6EFD">Variational Inference 🛈</span></span> or <span id="SG-MCMC"><span style="color:#0D6EFD">Stochastic Gradient MCMC 🛈</span></span>, to ensure convergence.</p></li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating a <em>Bayesian Neural Network</em> for regression using the Bayesian Inference (BI) package. Data consist of two continuous variables (height and weight), and the goal is to predict height from weight using a non-linear model.</p>
+<p>Below is an example code snippet demonstrating a <em>Bayesian Neural Network</em> for regression using the Bayesian Inference (BI) package. Simulated data consist of two continuous variables (<span class="math inline">Y</span> and <span class="math inline">X</span>), and the goal is to predict <span class="math inline">X</span> from <span class="math inline">Y</span> using a non-linear model.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="bf97cb5f" class="cell" data-execution_count="1">
+<div id="ca39c298" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
@@ -552,7 +581,7 @@ Caution
 <span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>ax.plot(X[:, <span class="dv">1</span>], mean_prediction, <span class="st">"blue"</span>, ls<span class="op">=</span><span class="st">"solid"</span>, lw<span class="op">=</span><span class="fl">2.0</span>)</span>
 <span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"X"</span>, ylabel<span class="op">=</span><span class="st">"Y"</span>, title<span class="op">=</span><span class="st">"Mean predictions with 90% CI"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 16
+<pre><code>jax.local_device_count 32
 ⚠️This function is still in development. Use it with caution. ⚠️
 ⚠️This function is still in development. Use it with caution. ⚠️
 ⚠️This function is still in development. Use it with caution. ⚠️
@@ -562,7 +591,7 @@ Caution
 ⚠️This function is still in development. Use it with caution. ⚠️
 ⚠️This function is still in development. Use it with caution. ⚠️</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="9">
 <pre><code>[Text(0.5, 0, 'X'),
  Text(0, 0.5, 'Y'),
  Text(0.5, 1.0, 'Mean predictions with 90% CI')]</code></pre>
@@ -570,7 +599,7 @@ Caution
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="27. BNN_files/figure-html/cell-2-output-3.png" class="img-fluid figure-img"></p>
+<p><img src="27. BNN_files/figure-html/cell-2-output-3.png" width="779" height="587" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -614,44 +643,34 @@ Caution
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
-<p><img src="travaux-routiers.png" class="img-fluid quarto-figure quarto-figure-center"> <!---
-In the Bayesian formulation, we place [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} on all weights and biases and define a likelihood for the output. For a regression task with a one-layer BNN:
-
-$$
-Y_i \sim \text{Normal}(\mu_i, \sigma)
-$$
-
-$$
-\mu_i = g(h_i W_2 + b_2)
-$$
-
-$$
-h_i = f(X_i W_1 + b_1)
-$$
-
-The parameters are now distributions:
-$$
-W_1 \sim \text{Normal}(0, 1)
-$$
-$$
-b_1 \sim \text{Normal}(0, 1)
-$$
-$$
-W_2 \sim \text{Normal}(0, 1)
-$$
-$$
-b_2 \sim \text{Normal}(0, 1)
-$$
-$$
-\sigma \sim \text{Exponential}(1)
-$$
-
-Where:
--   $Y_i$ is the observed dependent variable for observation *i*.
--   $\mu_i$ is the mean predicted by the network, which is itself a distribution because it is a function of the distributions of weights and biases.
--   $W_1, b_1, W_2, b_2$ are the weights and biases, treated as random variables.
--   $\sigma$ is the standard deviation of the normal distribution, quantifying observation noise.
----></p>
+<p>In the Bayesian formulation, we place <span id="prior"><span style="color:#0D6EFD">priors 🛈</span></span> on all weights and biases and define a likelihood for the output. For a regression task with a one-hidden-layer BNN with <span class="math inline">J</span> neurons per hidden layer and a <span class="math inline">5</span>-vector of predictors and a <span class="math inline">2</span>-vector of outcomes we can run the model as below.</p>
+<p>For a given individual <span class="math inline">i</span> assuming you have data on their height <span class="math inline">H_i</span>, weight <span class="math inline">W_i</span>, age <span class="math inline">A_i</span>, and strength <span class="math inline">S_i</span>, the the covariate vector (including the intercept of 1) can be written as: <span class="math display">
+X_i = [1, H_i, W_i, A_i, S_i]
+</span></p>
+<p>We can map this into a hidden layer as follows. Let <span class="math inline">\Theta_1</span> be a <span class="math inline">J \times 5</span> matrix of weights and <span class="math inline">b_1</span> be a <span class="math inline">5</span>-vector of biases, then the first hidden layer can be written as: <span class="math display">
+\Omega_{i,1} = f(X_i \Theta_1 + b_1)
+</span></p>
+<p>Next, we can had an arbitrary number of hidden layers. In this case, we will include only a single additional layer, <span class="math inline">\Omega_{i,2}</span>. In this case, <span class="math inline">\Theta_2</span> is an <span class="math inline">J \times J</span> matrix of weights and <span class="math inline">b_2</span> is a <span class="math inline">J</span>-vector of biases. This second hidden layer can be written as:</p>
+<p><span class="math display">
+\Omega_{i,2}  = f(\Omega_{i,1} \Theta_2 + b_2)
+</span></p>
+<p>Finally we can map to the output layer. In this case, <span class="math inline">\Theta_3</span> is a <span class="math inline">J \times 2</span> matrix of weights and <span class="math inline">b_3</span> is a <span class="math inline">2</span>-vector of biases. This leads to a final output layer mapping to the dimensions of the observed outcome (in this a <span class="math inline">2</span>-vector):</p>
+<p><span class="math display">
+\Omega_{i,3}  = f(\Omega_{i,2} \Theta_3 + b_3)
+</span></p>
+<p>Finally, we can model the observed outcomes using <span class="math inline">\Omega_{i,3}</span> as the mean vector of a normal distribution, with a standard deviation of <span class="math inline">\sigma</span>. This is the likelihood function for the output layer:</p>
+<p><span class="math display">
+\mu = \Omega_{i,3}
+</span> <span class="math display">
+Y_{i,1} \sim \text{Normal}(\mu_{1}, \sigma_1)
+</span> <span class="math display">
+Y_{i,2} \sim \text{Normal}(\mu_{2}, \sigma_2)
+</span></p>
+<p>With priors for <span class="math inline">\sigma</span>: <span class="math display">
+\sigma_1 \sim \text{Exponential}(1)
+</span> <span class="math display">
+\sigma_2 \sim \text{Exponential}(1)
+</span></p>
 </section>
 <section id="notes" class="level2">
 <h2 class="anchored" data-anchor-id="notes">Notes</h2>
@@ -666,7 +685,7 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li>The primary difference between a <em>Frequentist</em> and <em>Bayesian</em> neural network lies in how parameters are treated. In the frequentist approach, weights and biases are point estimates found by minimizing a loss function (e.g., via gradient descent). Techniques like <em>Dropout</em> or <em>L2 regularization</em> are often used to prevent <em>overfitting</em>, which can be interpreted as approximations to a Bayesian treatment. In contrast, the <em>Bayesian</em> formulation does not seek a single best set of weights. Instead, it uses methods like MCMC or Variational Inference to approximate the entire posterior distribution for every <em>weight</em> and <em>bias</em>. This provides a principled and direct way to quantify model uncertainty.</li>
+<li>The primary difference between a <em>Frequentist</em> and <em>Bayesian</em> neural network lies in how parameters are treated. In the frequentist approach, weights and biases are point estimates found by minimizing a loss function (e.g., via gradient descent). Techniques like <span id="Dropout"><span style="color:#0D6EFD">Dropout 🛈</span></span>or <span id="L2"><span style="color:#0D6EFD">L2 regularization 🛈</span></span> are often used to prevent <span id="overfitting"><span style="color:#0D6EFD">overfitting 🛈</span></span>, which can be interpreted as approximations to a Bayesian treatment. In contrast, the <em>Bayesian</em> formulation does not seek a single best set of weights. Instead, it uses methods like MCMC or Variational Inference to approximate the entire posterior distribution for every <em>weight</em> and <em>bias</em>. This provides a principled and direct way to quantify model uncertainty.</li>
 <li>While present an example of non-linear regression, the Bayesian Neural Network can be used for linear regressions as well (keeping in mind that interpretation of the weights are impossible).</li>
 </ul>
 </div>
@@ -674,12 +693,17 @@ Note
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
-<p><span class="citation" data-cites="neal1995bayesian">(<a href="#ref-neal1995bayesian" role="doc-biblioref"><strong>neal1995bayesian?</strong></a>)</span></p>
+<p><span class="citation" data-cites="phan2019composable">Phan, Pradhan, and Jankowiak (<a href="#ref-phan2019composable" role="doc-biblioref">2019</a>)</span></p>
+
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-phan2019composable" class="csl-entry" role="listitem">
+Phan, Du, Neeraj Pradhan, and Martin Jankowiak. 2019. <span>“Composable Effects for Flexible and Accelerated Probabilistic Programming in NumPyro.”</span> <em>arXiv Preprint arXiv:1912.11554</em>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -1128,6 +1152,142 @@ tippy('#LKJcorr', {
       },
     });
 
+tippy('#unsupervised', {
+      content: `
+  <span style='color: white;'>
+    An unsupervised algorithm is a method that processes unlabeled data to automatically uncover patterns, groupings, or structures without predefined output targets.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#stickProcess', {
+      content: `
+  <span style='color: white;'>
+The stick-breaking process is a way to generate a random distribution by imagining a unit-length stick that gets broken into pieces one step at a time. At each step, a random fraction of whatever stick remains is snapped off to form a new weight, and the rest is left for future breaks. Each weight is paired with a randomly chosen parameter value. Repeating this indefinitely yields a distribution made of infinitely many weighted parameter, where earlier pieces tend to be larger and later ones smaller.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#Neurons', {
+      content: `
+  <span style='color: white;'>
+ In a neural network, a neuron (or node) is a fundamental computational unit. It receives inputs, applies a weighted sum and an activation function to these inputs, and produces an output. It's analogous to a biological neuron, processing and transmitting signals.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#Layers', {
+      content: `
+  <span style='color: white;'>
+Layers are groups of neurons organized in a 2D array. Each layer processes the output from the previous layer and passes its output to the next. Common layer types include input layers, hidden layers (where the main computation occurs), and output layers (which produce the final predictions).
+</span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+
+tippy('#Dropout', {
+      content: `
+  <span style='color: white;'>
+ Dropout is a regularization technique where, during training, a random subset of neurons (and their connections) are temporarily ignored or "dropped out" for each training iteration. This prevents neurons from co-adapting too much and encourages the network to learn more robust features, thus reducing overfitting.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#L2', {
+      content: `
+  <span style='color: white;'>
+L2 regularization (also known as weight decay) is a technique to prevent overfitting by adding a penalty term to the loss function. This penalty is proportional to the sum of the squares of the network's weights. It encourages the model to use smaller weights, leading to a simpler and more generalized model.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+
+tippy('#Overfitting', {
+      content: `
+  <span style='color: white;'>
+Overfitting occurs when a machine learning model learns the training data too well, including its noise and random fluctuations. As a result, the model performs very poorly on new, unseen data because it has failed to generalize the underlying patterns.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#VI', {
+      content: `
+  <span style='color: white;'>
+An optimization-based method for approximating complex, intractable posterior distributions. Instead of sampling (as in MCMC), VI posits a parameterized family of simpler distributions (e.g., Gaussians) and optimizes their parameters to minimize the Kullback-Leibler (KL) divergence between the approximation and the true posterior. This effectively converts an integration problem into an optimization problem
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+    
+tippy('#SG-MCMC', {
+      content: `
+  <span style='color: white;'>
+A class of algorithms designed to scale Markov Chain Monte Carlo methods to large datasets. It approximates the gradient of the log-posterior using mini-batches (subsets) of data rather than the full dataset. To ensure convergence to the true posterior distribution despite the noise introduced by subsampling, these methods (such as Stochastic Gradient Langevin Dynamics) introduce specific noise injection and step-size schedules.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
 </script>
 <script>
     // Disable Quarto code folding scripts globally
@@ -1704,6 +1864,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="./12. Survival analysis.html" class="pagination-link" aria-label="🚧 Survival Analysis 🚧">
+        <span class="nav-page-text">🚧 Survival Analysis 🚧</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->

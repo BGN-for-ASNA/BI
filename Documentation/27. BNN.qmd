@@ -1,5 +1,5 @@
 ---
-title: "Bayesian Neural Networks 🚧"
+title: "Bayesian Neural Networks"
 description: "Neural networks that incorporate Bayesian inference to quantify uncertainty in their predictions."
 categories: [Neural Networks,  Deep Learning]
 image: "Figures/24.png"
@@ -8,34 +8,42 @@ order: 30
 
 ## General Principles
 
-To model complex, non-linear relationships between variables, we can use multiple approaches including, splines, polynomials, gaussian processes, and neural networks. Here, we will focus on a Bayesian Neural Network (BNN). Think of a neural network as a highly flexible function made of interconnected layers of "neurons." Each connection between neurons has a *weight*, and each neuron has a *bias*. These *weights* and *biases* are like a vast set of adjustable knobs. In a standard network, the goal is to find the single best setting for all these knobs to map inputs to outputs. Unlike a standard neural network which learns a single set of optimal weights, a BNN learns distributions over its *weights* and *biases*. This allows it to capture not just the relationship in the data, but also its own uncertainty about that relationship. For this, we need to define:
+To model complex, non-linear relationships between variables, we can utilize various approaches, including [splines](https://en.wikipedia.org/wiki/Spline_(mathematics)), [polynomials](https://en.wikipedia.org/wiki/Polynomial),
+[Gaussian processes](15.&#32;Gaussian&#32;processes.qmd), and neural networks. Here, we focus on the *Bayesian Neural Network (BNN)*. Think of a neural network as a highly flexible function composed of interconnected layers of [<span style="color:#0D6EFD">neurons 🛈</span>]{#Neurons}. Each connection possesses a *weight*, and each neuron has a *bias*. These *weights* and *biases* act as a vast set of adjustable knobs. In a standard neural network, the goal is to find the single best setting for these knobs to map inputs to outputs. Conversely, a BNN learns **distributions** over its *weights* and *biases* rather than single optimal values. This allows the model to capture not only the patterns in the data but also its own uncertainty regarding those patterns.
 
+To construct a *BNN*, we must define:
 
-1)  **A Network Architecture**, which specifies the number of layers, the number of neurons in each layer, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the structure of our "knobs."
+1)  **A Network Architecture**: This specifies the structural design—the number of layers, the number of neurons per [<span style="color:#0D6EFD">layer 🛈</span>]{#Layers}, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the arrangement of our "knobs."
 
-2)  **Priors for Arrays of Weights and Biases**. In a simple model like linear regression, we define a prior for each individual parameter (e.g., one prior for the slope $\beta$). In a neural network, which can have thousands or millions of weights, we don't define a unique prior for every single one. Instead, we define a prior that acts as a template for an entire **array of parameters**. For example, we might declare that all weights in a specific layer are drawn from the same `Normal(0, 1)` distribution. This allows us to efficiently specify our beliefs about the entire set of network parameters.
+2)  **Priors for Arrays of Weights and Biases**: In simple models like linear regression, we define a prior for each individual parameter (e.g., the slope $\beta$). However, neural networks often contain thousands or millions of parameters, making it impractical to define a unique prior for each one. Instead, we define priors that act as templates for entire **arrays of parameters**. For instance, we might specify that all weights in a given layer are drawn from the same `Normal(0, 1)` distribution. This allows us to efficiently quantify our beliefs about the entire set of network parameters.
 
-3)  **An Output Distribution (Likelihood)**, which defines the probability of the data given the network's predictions. For a continuous variable (regression), this is often a Normal distribution with a variance term $\sigma$ that quantifies the data's noise around the model's predictions.
+3)  **An Output Distribution (Likelihood)**: This defines the probability of the observed data given the network's predictions. For continuous variables (regression), this is typically a *Normal distribution* with a variance term $\sigma$, which quantifies the noise of the data around the model's predictions.
 
 ## Considerations
 
 ::: callout-caution
--   Like all Bayesian models, BNNs consider [<span style="color:#0D6EFD">model parameter uncertainty 🛈</span>]{#uncertainty}. The parameters here are the network's **weights (W)** and **biases (b)**. We quantify our uncertainty about them through their [<span style="color:#0D6EFD">posterior distribution 🛈</span>]{#posterior}. Therefore, we must declare [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for all *weights* and *biases*, as well as for the output variance $\sigma$.
+-   **Uncertainty**: Like all Bayesian models, BNNs explicitly account for [<span style="color:#0D6EFD">model parameter uncertainty 🛈</span>]{#uncertainty}. Here, the parameters are the network's  **weights (W)** and **biases (b)**. We quantify uncertainty through their [<span style="color:#0D6EFD">posterior distribution 🛈</span>]{#posterior}. Consequently, we must declare [<span style="color:#0D6EFD">prior distributions 🛈</span>]{#prior} for all *weights* and *biases*, as well as for the output variance $\sigma$.
 
--   Unlike in a linear regression where the coefficient $\beta$ has a direct interpretation (e.g., the effect of weight on height), the individual *weights* and *biases* in a BNN are not directly interpretable. A single *weight*'s influence is entangled with thousands of other parameters through non-linear functions. Consequently, BNNs are best viewed as powerful **predictive tools** rather than explanatory ones. They excel at learning complex patterns and quantifying predictive uncertainty, but if the goal is to isolate and interpret the effect of a specific variable, a simpler model is often more appropriate.
+-   **Interpretation**: Unlike in a linear regression where the coefficient $\beta$ has a direct interpretation (e.g., the change in $Y$ given a unit increase in $X$), the individual *weights* and *biases* in a *BNN* are not directly interpretable. A single weight's influence is entangled with thousands of others through non-linear functions. Therefore, BNNs should be viewed as powerful **predictive tools** rather than explanatory ones. They excel at learning complex topologies and quantifying predictive uncertainty, but if the goal is to isolate the effect of a specific variable, a simpler model is often more appropriate.
 
--   Prior distributions are built following these considerations:
+-   **Prior distributions**: are built following these considerations:
 
     -   As the data is typically [<span style="color:#0D6EFD">scaled 🛈</span>]{#scaled} (see introduction), we can use a standard Normal distribution (mean 0, standard deviation 1) as a weakly-informative prior for all weights and biases. This acts as a form of regularization.
 
     -   Since the output variance $\sigma$ must be positive, we can use a positively-defined distribution, such as the Exponential or Half-Normal.
 
 -   BNNs can be used for both *regression* and *classification*. The final layer's activation and the chosen likelihood distribution depend on the task. For binary classification, a *sigmoid* activation is paired with a Bernoulli likelihood, which requires a [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF} (logit) to connect the linear output of the network to the probability space [0, 1]. For regression, the identity activation is often used with a Gaussian likelihood.
+
+-   **Computational Scalability**: Strictly applying Bayes' theorem to update the posterior distribution becomes computationally intractable for very large neural networks. Calculating the model evidence (the denominator in Bayes' rule) requires integrating over a parameter space that may contain millions of dimensions. Furthermore, the posterior landscape in deep networks is often highly non-convex and multimodal. Consequently, sampling algorithms (such as MCMC) may suffer from poor mixing or become "stuck" in local modes, failing to explore the full posterior. In such high-dimensional scenarios, practitioners often must rely on approximate methods, such as 
+[<span style="color:#0D6EFD">Variational Inference  🛈</span>]{#VI}
+or [<span style="color:#0D6EFD">Stochastic Gradient MCMC 🛈</span>]{#SG-MCMC}, to ensure convergence. 
+
+
 :::
 
 ## Example
 
-Below is an example code snippet demonstrating a *Bayesian Neural Network* for regression using the Bayesian Inference (BI) package. Data consist of two continuous variables (height and weight), and the goal is to predict height from weight using a non-linear model.
+Below is an example code snippet demonstrating a *Bayesian Neural Network* for regression using the Bayesian Inference (BI) package. Simulated data consist of two continuous variables ($Y$ and $X$), and the goal is to predict $X$ from $Y$ using a non-linear model.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -143,53 +151,57 @@ m$fit(model) # Approximate posterior distributions
 
 
 ## Mathematical Details
-![](travaux-routiers.png){fig-align="center"}
-<!---
-In the Bayesian formulation, we place [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} on all weights and biases and define a likelihood for the output. For a regression task with a one-layer BNN:
+In the Bayesian formulation, we place [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} on all weights and biases and define a likelihood for the output. For a regression task with a one-hidden-layer BNN with $J$ neurons per hidden layer and a $5$-vector of predictors and a $2$-vector of outcomes we can run the model as below.
 
+For a given individual $i$ assuming you have data on their height $H_i$, weight $W_i$, age $A_i$, and strength $S_i$, the the covariate vector (including the intercept of 1) can be written as:
 $$
-Y_i \sim \text{Normal}(\mu_i, \sigma)
-$$
-
-$$
-\mu_i = g(h_i W_2 + b_2)
+X_i = [1, H_i, W_i, A_i, S_i]
 $$
 
+We can map this into a hidden layer as follows. Let $\Theta_1$ be a $J \times 5$ matrix of weights and $b_1$ be a $5$-vector of biases, then the first hidden layer can be written as:
 $$
-h_i = f(X_i W_1 + b_1)
-$$
-
-The parameters are now distributions:
-$$
-W_1 \sim \text{Normal}(0, 1)
-$$
-$$
-b_1 \sim \text{Normal}(0, 1)
-$$
-$$
-W_2 \sim \text{Normal}(0, 1)
-$$
-$$
-b_2 \sim \text{Normal}(0, 1)
-$$
-$$
-\sigma \sim \text{Exponential}(1)
+\Omega_{i,1} = f(X_i \Theta_1 + b_1)
 $$
 
-Where:
--   $Y_i$ is the observed dependent variable for observation *i*.
--   $\mu_i$ is the mean predicted by the network, which is itself a distribution because it is a function of the distributions of weights and biases.
--   $W_1, b_1, W_2, b_2$ are the weights and biases, treated as random variables.
--   $\sigma$ is the standard deviation of the normal distribution, quantifying observation noise.
---->
+Next, we can had an arbitrary number of hidden layers. In this case, we will include only a single additional layer, $\Omega_{i,2}$. In this case, $\Theta_2$ is an $J \times J$ matrix of weights and $b_2$ is a $J$-vector of biases. This second hidden layer can be written as:
+
+$$
+\Omega_{i,2}  = f(\Omega_{i,1} \Theta_2 + b_2)
+$$
+
+Finally we can map to the output layer. In this case, $\Theta_3$ is a $J \times 2$ matrix of weights and $b_3$ is a $2$-vector of biases. This leads to a final output layer mapping to the dimensions of the observed outcome (in this a $2$-vector):
+
+$$
+\Omega_{i,3}  = f(\Omega_{i,2} \Theta_3 + b_3)
+$$
+
+Finally, we can model the observed outcomes using $\Omega_{i,3}$ as the mean vector of a normal distribution, with a standard deviation of $\sigma$. This is the likelihood function for the output layer:
+
+$$
+\mu = \Omega_{i,3}
+$$
+$$
+Y_{i,1} \sim \text{Normal}(\mu_{1}, \sigma_1)
+$$
+$$
+Y_{i,2} \sim \text{Normal}(\mu_{2}, \sigma_2) 
+$$
+
+With priors for $\sigma$:
+$$
+\sigma_1 \sim \text{Exponential}(1)
+$$
+$$
+\sigma_2 \sim \text{Exponential}(1)
+$$
 
 ## Notes
 ::: callout-note
-- The primary difference between a *Frequentist* and *Bayesian* neural network lies in how parameters are treated. In the frequentist approach, weights and biases are point estimates found by minimizing a loss function (e.g., via gradient descent). Techniques like *Dropout* or *L2 regularization* are often used to prevent *overfitting*, which can be interpreted as approximations to a Bayesian treatment. In contrast, the *Bayesian* formulation does not seek a single best set of weights. Instead, it uses methods like MCMC or Variational Inference to approximate the entire posterior distribution for every *weight* and *bias*. This provides a principled and direct way to quantify model uncertainty.
+- The primary difference between a *Frequentist* and *Bayesian* neural network lies in how parameters are treated. In the frequentist approach, weights and biases are point estimates found by minimizing a loss function (e.g., via gradient descent). Techniques like  [<span style="color:#0D6EFD">Dropout 🛈</span>]{#Dropout}or [<span style="color:#0D6EFD">L2 regularization 🛈</span>]{#L2} are often used to prevent [<span style="color:#0D6EFD">overfitting 🛈</span>]{#overfitting}, which can be interpreted as approximations to a Bayesian treatment. In contrast, the *Bayesian* formulation does not seek a single best set of weights. Instead, it uses methods like MCMC or Variational Inference to approximate the entire posterior distribution for every *weight* and *bias*. This provides a principled and direct way to quantify model uncertainty.
 - While present an example of non-linear regression, the Bayesian Neural Network can be used for linear regressions as well (keeping in mind that interpretation of the weights are impossible).
 
 :::
 
 ## Reference(s)
 
-@neal1995bayesian
+@phan2019composable

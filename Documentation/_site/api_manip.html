@@ -903,6 +903,142 @@ tippy('#LKJcorr', {
       },
     });
 
+tippy('#unsupervised', {
+      content: `
+  <span style='color: white;'>
+    An unsupervised algorithm is a method that processes unlabeled data to automatically uncover patterns, groupings, or structures without predefined output targets.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#stickProcess', {
+      content: `
+  <span style='color: white;'>
+The stick-breaking process is a way to generate a random distribution by imagining a unit-length stick that gets broken into pieces one step at a time. At each step, a random fraction of whatever stick remains is snapped off to form a new weight, and the rest is left for future breaks. Each weight is paired with a randomly chosen parameter value. Repeating this indefinitely yields a distribution made of infinitely many weighted parameter, where earlier pieces tend to be larger and later ones smaller.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#Neurons', {
+      content: `
+  <span style='color: white;'>
+ In a neural network, a neuron (or node) is a fundamental computational unit. It receives inputs, applies a weighted sum and an activation function to these inputs, and produces an output. It's analogous to a biological neuron, processing and transmitting signals.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#Layers', {
+      content: `
+  <span style='color: white;'>
+Layers are groups of neurons organized in a 2D array. Each layer processes the output from the previous layer and passes its output to the next. Common layer types include input layers, hidden layers (where the main computation occurs), and output layers (which produce the final predictions).
+</span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+
+tippy('#Dropout', {
+      content: `
+  <span style='color: white;'>
+ Dropout is a regularization technique where, during training, a random subset of neurons (and their connections) are temporarily ignored or "dropped out" for each training iteration. This prevents neurons from co-adapting too much and encourages the network to learn more robust features, thus reducing overfitting.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#L2', {
+      content: `
+  <span style='color: white;'>
+L2 regularization (also known as weight decay) is a technique to prevent overfitting by adding a penalty term to the loss function. This penalty is proportional to the sum of the squares of the network's weights. It encourages the model to use smaller weights, leading to a simpler and more generalized model.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+
+tippy('#Overfitting', {
+      content: `
+  <span style='color: white;'>
+Overfitting occurs when a machine learning model learns the training data too well, including its noise and random fluctuations. As a result, the model performs very poorly on new, unseen data because it has failed to generalize the underlying patterns.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#VI', {
+      content: `
+  <span style='color: white;'>
+An optimization-based method for approximating complex, intractable posterior distributions. Instead of sampling (as in MCMC), VI posits a parameterized family of simpler distributions (e.g., Gaussians) and optimizes their parameters to minimize the Kullback-Leibler (KL) divergence between the approximation and the true posterior. This effectively converts an integration problem into an optimization problem
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+    
+tippy('#SG-MCMC', {
+      content: `
+  <span style='color: white;'>
+A class of algorithms designed to scale Markov Chain Monte Carlo methods to large datasets. It approximates the gradient of the log-posterior using mini-batches (subsets) of data rather than the full dataset. To ensure convergence to the true posterior distribution despite the noise introduced by subsampling, these methods (such as Stochastic Gradient Langevin Dynamics) introduce specific noise injection and step-size schedules.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
 </script>
 <script>
     // Disable Quarto code folding scripts globally
