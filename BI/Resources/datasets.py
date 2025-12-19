@@ -486,6 +486,29 @@ class load:
         
         return self._load_csv("WaffleDivorce.csv", description, frame=frame, only_path=only_path)
 
+    def elephants(self, frame=True, only_path=False):
+        """
+        Load the elephants dataset.
+        
+        Returns:
+        --------
+        bunch : Bunch
+            Dataset with elephant data
+        """
+        description = """
+        Elephants Dataset
+        =================
+        
+        Data from experiments on elephant aggression.
+        
+        Contains data from experiments studying the effect of elephant aggression on survival.
+        """
+        if only_path:
+            return self.data_dir / "elephants.csv"
+        if frame:
+            return pd.read_csv(self.data_dir / "elephants.csv", index_col=0)
+        
+        return self._load_csv("elephants.csv", description, frame=frame, only_path=only_path)
 
     def iris(self, frame=True, only_path=False):
         """
@@ -535,5 +558,6 @@ class load:
         else:
             return data
         
+
 
         

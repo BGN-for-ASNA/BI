@@ -1,5 +1,5 @@
 ---
-title: "🚧 Poisson Model with an Offset"
+title: "🚧 Poisson Model with an Offset 🚧"
 description: "Modeling count data that has been collected over different levels of exposure using an offset."
 categories: [Regression,  Count Data]
 image: "Figures/7.png"
@@ -27,32 +27,33 @@ Below is an example of code that demonstrates a Bayesian Poisson regression with
 
 ::: {.panel-tabset group="language"}
 ### Python
-<!---
-```{python}
-#from BI import bi, jnp
-#
-## Setup device------------------------------------------------
-#m = bi(platform='cpu')
-#
-## Import Data & Data Manipulation ------------------------------------------------
-## Import
-#m.data('elephants.csv', sep=';') 
-#jnp.log(['years_obs']) # Log transform the exposure variable
-#m.data_to_model(['agressions', 'age', "log_years_obs"]) # Send to model
-#
-## Define model ------------------------------------------------
-#def model(agressions, age, log_years_obs):
-#    a = m.bi.dist.normal(0, 1, name = 'a') 
-#    b = m.bi.dist.normal(0, 0.5, name = 'b')
-#    log_lambda = a + b * age + log_years_obs # Add offset to the linear model
-#    m.dist.poisson(jnp.exp(log_lambda), obs=agressions)
-#
-#
-## Run mcmc ------------------------------------------------
-#m.fit(model) # Optimize model parameters through MCMC sampling
-#
-## Summary ------------------------------------------------
-#m.summary()
+
+<!--
+```python
+from BI import bi
+import jax.numpy as jnp
+# Setup device------------------------------------------------
+m = bi(platform='cpu')
+
+# import data ------------------------------------------------
+# Import
+from importlib.resources import files
+data_path = m.load.kline(only_path = True)
+m.data(data_path, sep=';')
+m.scale(['population'])
+m.df["cid"] = (m.df.contact == "high").astype(int)
+#m.data_to_model(['total_tools', 'population', 'cid'])
+def model(cid, population, total_tools):
+    a = m.dist.normal(3, 0.5, shape= (2,), name='a')
+    b = m.dist.normal(0, 0.2, shape=(2,), name='b')
+    l = jnp.exp(a[cid] + b[cid]*population + )
+    m.dist.poisson(l, obs=total_tools)
+
+# Run sampler ------------------------------------------------
+m.fit(model)
+
+# Diagnostic ------------------------------------------------
+m.summary()
 ```
 --->
 
