@@ -72,8 +72,8 @@ plot_benchmark <- function(cpu, gpu){
   
   
   p <- ggplot(res, aes(N, Time, color = Backend, group = Backend)) +
-    geom_line(linewidth = 0.8, linetype = 'dashed') +
-    geom_point(size = 3) +
+    geom_line(linewidth = 1.5, linetype = 'dashed') +
+    geom_point(size = 4) +
     
     # labels at first N (show log10(Time))
     geom_text_repel(
@@ -116,12 +116,17 @@ plot_benchmark <- function(cpu, gpu){
     ) +
     
     theme_minimal(base_size = 13) +
-    theme(
+    theme(   
+      axis.title.x = element_text(size = 18, face = "bold"),
+      axis.title.y = element_text(size = 18, face = "bold"),
+      axis.text.x = element_text(size = 16),
+      axis.text.y = element_text(size = 16),
       legend.position = "top",
-      panel.grid.minor = element_blank(),
-      axis.title = element_text(face = "bold")
+      legend.title = element_text(size = 16),
+      legend.text  = element_text(size = 16)
+      
     )
-  ggsave("Benchmark_plot.png", plot = p, width = 8, height = 8, dpi = 300)
+  
   return(p)
   
 }
@@ -667,9 +672,10 @@ for i in range(len(D)):
 
 # 5. Plot Benchmarks
 ```{r}
-cpu = read.csv("Benchmarks.txt", sep = ";")
+cpu = read.csv("Benchmarks2.txt", sep = ";")
 gpu = read.csv("time_results.txt", sep = ";", header = FALSE)
-plot_benchmark(cpu, gpu)
+p = plot_benchmark(cpu, gpu)
+ggsave("Benchmark_plot.png", plot = p, width = 8.27, height = 11.69,units = "in", dpi = 300)
 ```
 
 # 6. Plot posteriors
@@ -681,13 +687,30 @@ posteriors_comparison <- function(BI_samples, res_stan){
     if(names(BI_samples)[a] == "dyadic_random_effects"){next}
     if(names(BI_samples)[a] == "error_sd"){next}
     if(names(BI_samples)[a] == "focal_target_random_effects"){next}
+    
     if(is.null(dim(BI_samples[[a]]))){
       for(b in 1:length(BI_samples[[a]])){
-        BI_mean = apply(BI_samples[[a]][[b]], 2, mean)
-        BI_std = apply(BI_samples[[a]][[b]], 2, sd)
+        if(names(BI_samples)[a] == "block_parameters" & b == 2){
+          BI_mean =  as.vector(apply(BI_samples[[a]][[b]], c(2, 3), mean)) # by rows
+          BI_std = as.vector(apply(BI_samples[[a]][[b]], c(2, 3), sd))
+          
+          STAN_mean = as.vector(apply(res_stan[[a]][[b]], c(2, 3), mean))
+          STAN_std =  as.vector(apply(res_stan[[a]][[b]], c(2, 3), sd))
+        }else{
+          if(names(BI_samples)[a] == "block_parameters" & b == 1){
+            BI_samples[[a]][[b]] = unlist(BI_samples[[a]][[b]])
+            BI_mean = mean(BI_samples[[a]][[b]])
+            BI_std = sd(BI_samples[[a]][[b]])
+          }else{
+            BI_mean = apply(BI_samples[[a]][[b]], 2, mean)
+            BI_std = apply(BI_samples[[a]][[b]], 2, sd)
+          }
+          
+          STAN_mean = apply(res_stan[[a]][[b]], 2, mean)
+          STAN_std = apply(res_stan[[a]][[b]], 2, sd)
+        }
         
-        STAN_mean = apply(res_stan[[a]][[b]], 2, mean)
-        STAN_std = apply(res_stan[[a]][[b]], 2, sd)
+        
         
         name = paste0(names(BI_samples)[a],'_',b)
         names = NULL
@@ -705,7 +728,7 @@ posteriors_comparison <- function(BI_samples, res_stan){
     }else{
       BI_mean = apply(BI_samples[[a]], 2, mean)
       BI_std = apply(BI_samples[[a]], 2, sd)
-      BI_ess <- apply(BI_samples[[a]], MARGIN = 2, FUN = posterior::ess_bulk)
+      BI_ess <- apply(res_stan[[a]], MARGIN = 2, FUN = posterior::ess_bulk)
       
       STAN_mean = apply(res_stan[[a]], 2, mean)
       STAN_std = apply(res_stan[[a]], 2, sd)
@@ -721,7 +744,6 @@ posteriors_comparison <- function(BI_samples, res_stan){
     }
   }
   
-  
   combined_df <- bind_rows(res)
   long_df <- combined_df %>%
     pivot_longer(
@@ -731,26 +753,29 @@ posteriors_comparison <- function(BI_samples, res_stan){
     ) %>%
     mutate(group = paste0(var, "_", var))
   
-  
-  ggplot(long_df, aes(x = var, y = ess, group = Backend, color = Backend ))+geom_jitter()
-  
   # Create the plot
-  ggplot(long_df, aes(x = mean, y = var, group = Backend, color = Backend)) +
+  p = ggplot(long_df, aes(x = mean, y = var, group = Backend, color = Backend)) +
     geom_point(
-      size = 3,
+      size = 4,
       position = position_nudge(y = ifelse(long_df$Backend == "STAN", 0.2, 0))
     ) +
     geom_linerange(
       aes(xmin = mean - std, xmax = mean + std),
       position = position_nudge(y = ifelse(long_df$Backend == "STAN", 0.2, 0)),
-      linewidth = 1
+      linewidth = 1.5
     ) +
     scale_y_discrete(
       labels = c(
-        "block_parameters_1_1" = "Any", 
-        "block_parameters_2_1" = "Merica 1-1", 
-        "block_parameters_2_2" = "Merica 1-2", 
-        "block_parameters_2_3" = "Merica 1-3", 
+        "block_parameters_1_1" = "Block_intercept", 
+        "block_parameters_2_1" = "Block_Merica 1-1", 
+        "block_parameters_2_2" = "Block_Merica 2-1",   
+        "block_parameters_2_3" = "Block_Merica 3-1", 
+        "block_parameters_2_4" = "Block_Merica 1-2",
+        "block_parameters_2_5" = "Block_Merica 2-2", 
+        "block_parameters_2_6" = "Block_Merica 3-2", 
+        "block_parameters_2_7" = "Block_Merica 1-3",
+        "block_parameters_2_8" = "Block_Merica 2-3", 
+        "block_parameters_2_9" = "Block_Merica 3-3", 
         "target_effects_1"= "Receiver_mass_Effect",
         "target_effects_2"= "Receiver_age_Effect",
         "target_effects_3"= "Receiver_love_Effect",
@@ -771,13 +796,39 @@ posteriors_comparison <- function(BI_samples, res_stan){
         "dyadic_sd_1" = "Dyads_Effect_sd"
       )
     ) +
-    theme_minimal()
+    theme_minimal()+
+    theme(   
+      axis.title.x = element_text(size = 18, face = "bold"),
+      axis.title.y = element_text(size = 18, face = "bold"),
+      axis.text.x = element_text(size = 16),
+      axis.text.y = element_text(size = 16),
+      legend.position = "top",
+      legend.title = element_text(size = 16),
+      legend.text  = element_text(size = 16)
+      
+    )+
+    labs(
+      y = "SRM parameters",
+      x = "Posteriors",
+      color = "Backend"
+    )
+
+  return(p)
 }
+
 ```
 
 ```{r setup, include=FALSE}
-BI_post = fromJSON("post_BI_50.json")
-STAN_post = fromJSON("post_STAN_50.json")
-posteriors_comparison(BI_post,STAN_post)
+BI_post = fromJSON("post_BI_100.json")
+STAN_post = fromJSON("post_STAN_100.json")
+r = posteriors_comparison(BI_post,STAN_post)
+ggsave(
+  "Posteriors_plot.png",
+  plot = r,
+  width = 8.27,
+  height = 11.69,
+  units = "in",
+  dpi = 300
+)
 ```
 
