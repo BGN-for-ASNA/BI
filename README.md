@@ -2,6 +2,7 @@
 
 
 <div align="center">
+
 **A Julia wrapper for the unified probabilistic programming library, bringing JAX-powered Bayesian inference to the Julia ecosystem.**\
 *Run bespoke models on CPU, GPU, or TPU with Julia's native syntax.*
 
