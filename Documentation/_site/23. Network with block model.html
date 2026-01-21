@@ -1,17 +1,14 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.5.57">
 
-<meta charset="utf-8" />
-<meta name="generator" content="quarto-1.5.57" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="description" content="A generative model for random graphs used to find communities of nodes with similar connection patterns.">
 
-<meta name="description" content="A probabilistic model for representing normally distributed subpopulations, often used for clustering." />
-
-<title>Gaussian Mixture Models – Bayesian Inference (BI)</title>
+<title>Stochastic Block Models – Bayesian Inference (BI)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,9 +22,8 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -38,7 +34,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -129,8 +125,11 @@ div.csl-indent {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 
-  <script defer="" src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
  var mathElements = document.getElementsByClassName("math");
  var macros = [];
@@ -145,7 +144,7 @@ div.csl-indent {
    });
 }}});
   </script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css" />
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -174,7 +173,7 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="MyStyles.css" />
+<link rel="stylesheet" href="MyStyles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -184,48 +183,40 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="/index.html">
+    <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Bayesian Inference (BI)</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-  aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation"
-  onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="/start/Installation.html"> 
+    <a class="nav-link" href="./start/Installation.html"> 
 <span class="menu-text">Get started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./0. Introduction.html" aria-current="page"> 
+    <a class="nav-link" href="./0. Introduction.qmd"> 
 <span class="menu-text">Models</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="/api_dist.html"> 
+    <a class="nav-link" href="./api_dist.html"> 
 <span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false" >
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-help" role="link" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">Help</span>
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-help">    
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/issues"><i 
-  class="bi bi-bug" 
-  role="img" 
->
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/issues"><i class="bi bi-bug" role="img">
 </i> 
  <span class="dropdown-text">Report a Bug</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/discussions"><i 
-  class="bi bi-chat-dots" 
-  role="img" 
->
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/discussions"><i class="bi bi-chat-dots" role="img">
 </i> 
  <span class="dropdown-text">Ask a Question</span></a>
   </li>  
@@ -234,24 +225,19 @@ window.Quarto = {
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools tools-wide">
-    <a href="https://twitter.com"  title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
-    <a href="https://github.com/BGN-for-ASNA/BI"  title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+    <a href="https://twitter.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
+    <a href="https://github.com/BGN-for-ASNA/BI" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn"
-      data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" 
-      aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation"
-      onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <h1 class="quarto-secondary-nav-title no-breadcrumbs"></h1>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" role="link"
-        aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation"
-        onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./23. Network with block model.html">Stochastic Block Models</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
   </nav>
@@ -264,92 +250,86 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./0. Introduction.html" class="sidebar-item-text sidebar-link">
+  <a href="./0.Introduction.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Bayesian analysis with BI</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
+  <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Univariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/2. Multiple continuous Variables.html" class="sidebar-item-text sidebar-link">
+  <a href="./2. Multiple continuous Variables.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Multivariate Linear Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
+  <a href="./3. Interaction between continuous variables.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Interaction Terms in Regression</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/4. Categorical variable.html" class="sidebar-item-text sidebar-link">
+  <a href="./4. Categorical variable.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Regression with a Categorical Independent Variable</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/5. Binomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Binomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/6. Beta binomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./6. Beta binomial model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Beta-Binomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/7. Poisson model.html" class="sidebar-item-text sidebar-link">
+  <a href="./7. Poisson model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Poisson Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 Poisson Model with an Offset 🚧</span></a>
+  <a href="./8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Poisson Model with an Offset</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
+  <a href="./8. Gamma-Poisson.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gamma-Poisson Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/9. Categorical model.html" class="sidebar-item-text sidebar-link">
+  <a href="./9. Categorical model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Categorical Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/10. Multinomial model.html" class="sidebar-item-text sidebar-link">
+  <a href="./10. Multinomial model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Multinomial Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
+  <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">🚧 Dirichlet Model 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/11. Zero inflated.html" class="sidebar-item-text sidebar-link">
+  <a href="./11. Zero inflated.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Zero-Inflated Models</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Survival Analysis 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -361,31 +341,25 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Varying Slopes Models 🚧</span></a>
+ <span class="menu-text">Varying Slopes Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/15. Gaussian processes.html" class="sidebar-item-text sidebar-link">
+  <a href="./15. Gaussian processes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gaussian Processes</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/16. Measuring error.html" class="sidebar-item-text sidebar-link">
+  <a href="./16. Measuring error.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Measurement Error Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/17. Missing data.html" class="sidebar-item-text sidebar-link">
+  <a href="./17. Missing data.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">🚧 Handling Missing Data 🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Latent Variable Models 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -396,100 +370,102 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/20. GMM.html" class="sidebar-item-text sidebar-link active">
+  <a href="./20. GMM.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gaussian Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./21. DPMM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 Dirichlet Process Mixture Models</span></a>
+ <span class="menu-text">Dirichlet Process Mixture Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/22. Network model.html" class="sidebar-item-text sidebar-link">
+  <a href="./22. Network model.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Network Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/23. Network with block model.html" class="sidebar-item-text sidebar-link">
+  <a href="./23. Network with block model.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Stochastic Block Models</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
+  <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/25. Network Metrics.html" class="sidebar-item-text sidebar-link">
+  <a href="./25. Network Metrics.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Network Metrics</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
+  <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Network-Based Diffusion Analysis</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/27. BNN.html" class="sidebar-item-text sidebar-link">
+  <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Bayesian Neural Networks</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/12. Survival analysis.html" class="sidebar-item-text sidebar-link">
+  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">🚧 Survival Analysis 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 Latent Variable Models 🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Survival Analysis 🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Latent Variable Models 🚧</span></a>
+ <span class="menu-text">🚧 Latent Variable Models 🚧</span></a>
   </div>
 </li>
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" ></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <div id="quarto-toc-target"></div>
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#considerations" id="toc-considerations" class="nav-link active" data-scroll-target="#considerations">Considerations</a></li>
+  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
+  <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
+  <ul class="collapse">
+  <li><a href="#main-formula" id="toc-main-formula" class="nav-link" data-scroll-target="#main-formula"><em>Main Formula</em></a></li>
+  <li><a href="#defining-formula-sub-equations-and-prior-distributions" id="toc-defining-formula-sub-equations-and-prior-distributions" class="nav-link" data-scroll-target="#defining-formula-sub-equations-and-prior-distributions"><em>Defining formula sub-equations and prior distributions</em></a></li>
+  </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Note(s)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="23.-Network-with-block-model.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Gaussian Mixture Models</h1>
+<h1 class="title">Stochastic Block Models</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">Clustering</div>
-    <div class="quarto-category">Unsupervised Learning</div>
+    <div class="quarto-category">Network Analysis</div>
+    <div class="quarto-category">Graph Theory</div>
+    <div class="quarto-category">Community Detection</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    A probabilistic model for representing normally distributed subpopulations, often used for clustering.
+    A generative model for random graphs used to find communities of nodes with similar connection patterns.
   </div>
 </div>
 
@@ -505,33 +481,14 @@ window.Quarto = {
 
 </header>
 
-<nav id="TOC" role="doc-toc">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#general-principles" id="toc-general-principles">General Principles</a></li>
-  <li><a href="#considerations" id="toc-considerations">Considerations</a></li>
-  <li><a href="#example" id="toc-example">Example</a></li>
-  <li><a href="#mathematical-details" id="toc-mathematical-details">Mathematical Details</a></li>
-  <li><a href="#notes" id="toc-notes">Notes</a></li>
-  <li><a href="#references" id="toc-references">Reference(s)</a></li>
-  </ul>
-</nav>
-<section id="general-principles" class="level2">
-<h2>General Principles</h2>
-<p>To discover group structures or clusters in data, we can use a <strong>Gaussian Mixture Model (GMM)</strong>. This is a parametric clustering method. A GMM assumes that the data is generated from a mixture of a <strong>pre-specified number (<code>K</code>)</strong> of different Gaussian distributions. The model’s goal is to figure out:</p>
-<ol type="1">
-<li><strong>The properties of each of the <code>K</code> clusters</strong>: For each of the <code>K</code> clusters, it estimates its center (mean <span class="math inline">\mu</span>) and its shape/spread (covariance <span class="math inline">\Sigma</span>).</li>
-<li><strong>The mixture weights</strong>: It estimates the proportion of the data that belongs to each cluster.</li>
-<li><strong>The assignment of each data point</strong>: It determines the probability of each data point belonging to each of the <span class="math inline">K</span> clusters.</li>
-</ol>
-</section>
+
+<p>Within networks, nodes can belong to different categories, and these categories can potentially affect the propensity for node interactions. For example, nodes can have different sex categories, and the propensity to interact with nodes of the same sex can be higher than with nodes of different sexes. To model the propensity for interaction between nodes based on the categories they belong to, we can use a stochastic block model approach.</p>
 <section id="considerations" class="level2">
-<h2>Considerations</h2>
+<h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class='callout-icon'></i>
+<i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
 Caution
@@ -539,63 +496,58 @@ Caution
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><p>A GMM is a Bayesian model 🛈 that considers uncertainty in all its parameters, <em>except for the number of clusters, <span class="math inline">K</span></em>, which must be fixed in advance.</p></li>
-<li><p>The key parameters and their priors are:</p>
-<ul>
-<li><strong>Number of Clusters <span class="math inline">K</span></strong>: This is a <strong>fixed hyperparameter</strong> that you must choose before running the model. Choosing the right <code>K</code> often involves running the model multiple times and using model comparison criteria (like cross-validation, AIC, or BIC).</li>
-<li><strong>Cluster Weights <code>w</code></strong>: These are the probabilities of drawing a data point from any given cluster. Since there are a fixed number <code>K</code> of them and they must sum to 1, they are typically given a <code>Dirichlet</code> prior. A symmetric <code>Dirichlet</code> prior (e.g., <code>Dirichlet(1, 1, ..., 1)</code>) represents an initial belief that all clusters are equally likely.</li>
-<li>**Cluster Parameters (<span class="math inline">\mu</span>, <span class="math inline">\Sigma</span>): Each of the <code>K</code> clusters has a mean <span class="math inline">\mu</span> and a covariance matrix <span class="math inline">\Sigma</span>. We place priors on these to define our beliefs about their plausible values.</li>
-</ul></li>
-<li><p>Like the DPMM, the model is often implemented in its marginalized form . Instead of explicitly assigning each data point to a cluster, we integrate out this choice. This creates a smoother probability surface for the inference algorithm to explore, leading to much more efficient computation.</p></li>
-<li><p>To increase accuracy we run a k-means algorithm to initialize the cluster mean priors.</p></li>
+<li>We consider predefined groups here, with the goal of evaluating the propensity for interaction between nodes within each group.</li>
+<li>In addition to the block model(s) being tested, we need to include a block where all individuals are considered as belonging to the same group (<code>Any</code> in the example). This allows us to assess whether interaction tendencies differ between groups or if the propensity to interact is uniform across all individuals.</li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example" class="level2">
-<h2>Example</h2>
-<p>Below is an example of a GMM implemented in BI. The goal is to cluster a synthetic dataset into a pre-specified K=4 groups.</p>
-<div class="panel-tabset" data-group="language">
+<h2 class="anchored" data-anchor-id="example">Example</h2>
+<p>Below is an example code snippet demonstrating a Bayesian network model using the stochastic block model approach. The data is identical to the <a href="20. Network model.qmd">Network model</a> example, with the addition of covariates <em>Any</em>, <em>Merica</em>, and <em>Quantum</em>, representing the block membership of each node. This example is based on <span class="citation" data-cites="ross2024modelling">Ross, McElreath, and Redhead (<a href="#ref-ross2024modelling" role="doc-biblioref">2024</a>)</span>.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div id="669100de" class="cell" data-execution_count="1">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic data</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>data, true_labels <span class="op">=</span> make_blobs(</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    n_samples<span class="op">=</span><span class="dv">500</span>, centers<span class="op">=</span><span class="dv">8</span>, cluster_std<span class="op">=</span><span class="fl">0.8</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    center_box<span class="op">=</span>(<span class="op">-</span><span class="dv">10</span>,<span class="dv">10</span>), random_state<span class="op">=</span><span class="dv">101</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  The model</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gmm(data, K, initial_means): <span class="co"># Here K is the *exact* number of clusters</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> data.shape[<span class="dv">1</span>]  <span class="co"># Number of features</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    alpha_prior <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> jnp.ones(K)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> m.dist.dirichlet(concentration<span class="op">=</span>alpha_prior, name<span class="op">=</span><span class="st">&#39;weights&#39;</span>) </span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> m.dist.plate(<span class="st">&quot;components&quot;</span>, K): <span class="co"># Use fixed K</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        mu <span class="op">=</span> m.dist.multivariate_normal(loc<span class="op">=</span>initial_means, covariance_matrix<span class="op">=</span><span class="fl">0.1</span><span class="op">*</span>jnp.eye(D), name<span class="op">=</span><span class="st">&#39;mu&#39;</span>)        </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        sigma <span class="op">=</span> m.dist.half_cauchy(<span class="dv">1</span>, shape<span class="op">=</span>(D,), event<span class="op">=</span><span class="dv">1</span>, name<span class="op">=</span><span class="st">&#39;sigma&#39;</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        Lcorr <span class="op">=</span> m.dist.lkj_cholesky(dimension<span class="op">=</span>D, concentration<span class="op">=</span><span class="fl">1.0</span>, name<span class="op">=</span><span class="st">&#39;Lcorr&#39;</span>)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        scale_tril <span class="op">=</span> sigma[..., <span class="va">None</span>] <span class="op">*</span> Lcorr</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    m.dist.mixture_same_family(</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        mixing_distribution<span class="op">=</span>m.dist.categorical(probs<span class="op">=</span>w, create_obj<span class="op">=</span><span class="va">True</span>),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        component_distribution<span class="op">=</span>m.dist.multivariate_normal(loc<span class="op">=</span>mu, scale_tril<span class="op">=</span>scale_tril, create_obj<span class="op">=</span><span class="va">True</span>),</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        name<span class="op">=</span><span class="st">&quot;obs&quot;</span>,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        obs<span class="op">=</span>data</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>, rand_seed <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data ------------------------------------------------</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>individual_predictor <span class="op">=</span> m.dist.normal(<span class="dv">0</span>,<span class="dv">1</span>, shape <span class="op">=</span> (N,<span class="dv">1</span>), sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>kinship <span class="op">=</span> m.dist.bernoulli(<span class="fl">0.3</span>, shape <span class="op">=</span> (N,N), sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>kinship <span class="op">=</span> kinship.at[jnp.diag_indices(N)].<span class="bu">set</span>(<span class="dv">0</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>category <span class="op">=</span> m.dist.categorical(jnp.array([<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>]), sample <span class="op">=</span> <span class="va">True</span>, shape  <span class="op">=</span> (N,))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>N_grp, N_by_grp <span class="op">=</span> jnp.unique(category, return_counts<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>N_grp <span class="op">=</span> N_grp.shape[<span class="dv">0</span>]</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sim_network(kinship, individual_predictor,category):</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Intercept</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  B_intercept <span class="op">=</span> m.net.block_model(jnp.full((N,),<span class="dv">0</span>), <span class="dv">1</span>, N, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  B_category <span class="op">=</span> m.net.block_model(category, N_grp, N_by_grp, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SR</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  sr <span class="op">=</span> m.net.sender_receiver(</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    individual_predictor, </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    individual_predictor, </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    s_mu <span class="op">=</span> <span class="fl">0.4</span>, r_mu <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># D</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  DR <span class="op">=</span> m.net.dyadic_effect(kinship, d_sd<span class="op">=</span><span class="fl">2.5</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Kmeans clustering do initiate the means</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>m.ml.KMEANS(data, n_clusters<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> {<span class="st">&quot;data&quot;</span>: data,<span class="st">&quot;K&quot;</span>: <span class="dv">8</span> }</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">&#39;initial_means&#39;</span>] <span class="op">=</span> m.ml.results[<span class="st">&#39;centroids&#39;</span>]</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> m.dist.bernoulli(</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    logits <span class="op">=</span> B_intercept <span class="op">+</span> B_category <span class="op">+</span> sr <span class="op">+</span> DR, </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    sample <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>network <span class="op">=</span> sim_network(m.net.mat_to_edgl(kinship), individual_predictor, category)</span>
@@ -631,181 +583,328 @@ Caution
 <span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>m.fit(model, num_samples <span class="op">=</span> <span class="dv">500</span>, num_warmup <span class="op">=</span> <span class="dv">500</span>, num_chains <span class="op">=</span> <span class="dv">1</span>, thinning <span class="op">=</span> <span class="dv">1</span>)</span>
 <span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;15:56,  1.04it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   4%|▍         | 43/1000 [00:01&lt;00:17, 55.36it/s, 7 steps of size 7.14e-02. acc. prob=0.75]warmup:  10%|█         | 102/1000 [00:01&lt;00:06, 138.54it/s, 15 steps of size 8.02e-01. acc. prob=0.77]warmup:  16%|█▌        | 155/1000 [00:01&lt;00:04, 209.41it/s, 15 steps of size 3.71e-01. acc. prob=0.78]warmup:  22%|██▏       | 215/1000 [00:01&lt;00:02, 287.93it/s, 31 steps of size 2.70e-01. acc. prob=0.78]warmup:  27%|██▋       | 269/1000 [00:01&lt;00:02, 344.06it/s, 15 steps of size 4.77e-01. acc. prob=0.78]warmup:  33%|███▎      | 332/1000 [00:01&lt;00:01, 413.62it/s, 7 steps of size 7.34e-01. acc. prob=0.78] warmup:  41%|████▏     | 414/1000 [00:01&lt;00:01, 517.71it/s, 15 steps of size 3.42e-01. acc. prob=0.79]warmup:  48%|████▊     | 478/1000 [00:01&lt;00:00, 545.05it/s, 7 steps of size 6.10e-01. acc. prob=0.79] sample:  54%|█████▍    | 543/1000 [00:01&lt;00:00, 572.31it/s, 7 steps of size 4.15e-01. acc. prob=0.87]sample:  61%|██████    | 607/1000 [00:01&lt;00:00, 584.40it/s, 15 steps of size 4.15e-01. acc. prob=0.89]sample:  68%|██████▊   | 675/1000 [00:02&lt;00:00, 610.49it/s, 15 steps of size 4.15e-01. acc. prob=0.89]sample:  74%|███████▍  | 740/1000 [00:02&lt;00:00, 558.41it/s, 7 steps of size 4.15e-01. acc. prob=0.89] sample:  80%|███████▉  | 799/1000 [00:02&lt;00:00, 502.77it/s, 7 steps of size 4.15e-01. acc. prob=0.89]sample:  85%|████████▌ | 853/1000 [00:02&lt;00:00, 461.20it/s, 23 steps of size 4.15e-01. acc. prob=0.89]sample:  90%|█████████ | 902/1000 [00:02&lt;00:00, 428.81it/s, 7 steps of size 4.15e-01. acc. prob=0.89] sample:  95%|█████████▍| 947/1000 [00:02&lt;00:00, 432.01it/s, 7 steps of size 4.15e-01. acc. prob=0.89]sample:  99%|█████████▉| 992/1000 [00:02&lt;00:00, 408.44it/s, 7 steps of size 4.15e-01. acc. prob=0.89]sample: 100%|██████████| 1000/1000 [00:02&lt;00:00, 345.42it/s, 15 steps of size 4.15e-01. acc. prob=0.89]</code></pre>
+<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:01&lt;19:50,  1.19s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   1%|▏         | 14/1000 [00:01&lt;01:07, 14.62it/s, 31 steps of size 8.90e-03. acc. prob=0.64]warmup:   3%|▎         | 26/1000 [00:01&lt;00:34, 28.47it/s, 63 steps of size 1.34e-01. acc. prob=0.74]warmup:   5%|▌         | 51/1000 [00:01&lt;00:15, 63.21it/s, 127 steps of size 5.56e-02. acc. prob=0.76]warmup:   8%|▊         | 76/1000 [00:01&lt;00:09, 97.26it/s, 31 steps of size 1.46e-01. acc. prob=0.77] warmup:  10%|▉         | 98/1000 [00:01&lt;00:07, 122.72it/s, 63 steps of size 9.14e-02. acc. prob=0.77]warmup:  12%|█▏        | 120/1000 [00:01&lt;00:06, 144.83it/s, 31 steps of size 1.30e-01. acc. prob=0.77]warmup:  15%|█▍        | 147/1000 [00:01&lt;00:04, 175.04it/s, 63 steps of size 1.65e-01. acc. prob=0.78]warmup:  17%|█▋        | 171/1000 [00:02&lt;00:04, 191.70it/s, 31 steps of size 1.20e-01. acc. prob=0.77]warmup:  19%|█▉        | 194/1000 [00:02&lt;00:04, 198.03it/s, 63 steps of size 1.48e-01. acc. prob=0.78]warmup:  22%|██▏       | 217/1000 [00:02&lt;00:03, 204.59it/s, 127 steps of size 6.60e-02. acc. prob=0.78]warmup:  24%|██▍       | 240/1000 [00:02&lt;00:03, 210.69it/s, 31 steps of size 1.29e-01. acc. prob=0.78] warmup:  26%|██▋       | 264/1000 [00:02&lt;00:03, 216.52it/s, 127 steps of size 7.61e-02. acc. prob=0.78]warmup:  29%|██▉       | 288/1000 [00:02&lt;00:03, 222.74it/s, 18 steps of size 4.58e-02. acc. prob=0.78] warmup:  31%|███       | 311/1000 [00:02&lt;00:03, 213.64it/s, 127 steps of size 7.67e-02. acc. prob=0.78]warmup:  34%|███▍      | 339/1000 [00:02&lt;00:02, 231.55it/s, 31 steps of size 2.06e-01. acc. prob=0.78] warmup:  37%|███▋      | 369/1000 [00:02&lt;00:02, 250.55it/s, 63 steps of size 8.97e-02. acc. prob=0.78]warmup:  40%|████      | 402/1000 [00:02&lt;00:02, 272.29it/s, 63 steps of size 8.39e-02. acc. prob=0.78]warmup:  43%|████▎     | 433/1000 [00:03&lt;00:02, 282.02it/s, 31 steps of size 1.18e-01. acc. prob=0.79]warmup:  46%|████▌     | 462/1000 [00:03&lt;00:02, 266.14it/s, 127 steps of size 6.96e-02. acc. prob=0.78]warmup:  49%|████▉     | 489/1000 [00:03&lt;00:02, 240.85it/s, 31 steps of size 2.24e-01. acc. prob=0.79] sample:  51%|█████▏    | 514/1000 [00:03&lt;00:02, 232.57it/s, 63 steps of size 8.49e-02. acc. prob=0.93]sample:  54%|█████▍    | 538/1000 [00:03&lt;00:02, 227.02it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  56%|█████▌    | 561/1000 [00:03&lt;00:01, 225.19it/s, 63 steps of size 8.49e-02. acc. prob=0.93]sample:  58%|█████▊    | 584/1000 [00:03&lt;00:01, 222.42it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  61%|██████    | 607/1000 [00:03&lt;00:01, 219.78it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  63%|██████▎   | 630/1000 [00:03&lt;00:01, 216.51it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  65%|██████▌   | 653/1000 [00:04&lt;00:01, 218.68it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  68%|██████▊   | 676/1000 [00:04&lt;00:01, 219.76it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  70%|██████▉   | 699/1000 [00:04&lt;00:01, 219.60it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  72%|███████▏  | 722/1000 [00:04&lt;00:01, 221.24it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  74%|███████▍  | 745/1000 [00:04&lt;00:01, 221.91it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  77%|███████▋  | 768/1000 [00:04&lt;00:01, 220.95it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  79%|███████▉  | 791/1000 [00:04&lt;00:00, 218.50it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  81%|████████▏ | 814/1000 [00:04&lt;00:00, 220.07it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  84%|████████▎ | 837/1000 [00:04&lt;00:00, 218.10it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  86%|████████▌ | 860/1000 [00:05&lt;00:00, 218.42it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  88%|████████▊ | 882/1000 [00:05&lt;00:00, 217.99it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  90%|█████████ | 904/1000 [00:05&lt;00:00, 216.67it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  93%|█████████▎| 926/1000 [00:05&lt;00:00, 216.37it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  95%|█████████▍| 948/1000 [00:05&lt;00:00, 213.90it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  97%|█████████▋| 970/1000 [00:05&lt;00:00, 215.33it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample:  99%|█████████▉| 992/1000 [00:05&lt;00:00, 215.51it/s, 63 steps of size 8.49e-02. acc. prob=0.94]sample: 100%|██████████| 1000/1000 [00:05&lt;00:00, 176.32it/s, 63 steps of size 8.49e-02. acc. prob=0.94]
+arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)
+/home/sosa/work/3.12venv/lib/python3.12/site-packages/arviz/stats/diagnostics.py:991: RuntimeWarning:
+
+invalid value encountered in scalar divide
+
+/home/sosa/work/3.12venv/lib/python3.12/site-packages/arviz/stats/diagnostics.py:991: RuntimeWarning:
+
+invalid value encountered in scalar divide
+</code></pre>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>⚠️This function is still in development. Use it with caution. ⚠️
-⚠️This function is still in development. Use it with caution. ⚠️</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+<div class="cell-output cell-output-display" data-execution_count="1">
 <div>
-<figure>
-<p><img src="20.%20GMM_files/figure-html/cell-2-output-4.png" width="638" height="523" /></p>
-</figure>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">sd</th>
+<th data-quarto-table-cell-role="th">hdi_5.5%</th>
+<th data-quarto-table-cell-role="th">hdi_94.5%</th>
+<th data-quarto-table-cell-role="th">mcse_mean</th>
+<th data-quarto-table-cell-role="th">mcse_sd</th>
+<th data-quarto-table-cell-role="th">ess_bulk</th>
+<th data-quarto-table-cell-role="th">ess_tail</th>
+<th data-quarto-table-cell-role="th">r_hat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">b_B_category[0, 0]</td>
+<td>-5.00</td>
+<td>2.07</td>
+<td>-8.57</td>
+<td>-2.06</td>
+<td>0.07</td>
+<td>0.09</td>
+<td>923.76</td>
+<td>426.62</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">b_B_category[0, 1]</td>
+<td>-6.59</td>
+<td>2.28</td>
+<td>-10.12</td>
+<td>-2.80</td>
+<td>0.06</td>
+<td>0.10</td>
+<td>1349.49</td>
+<td>453.84</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">b_B_category[0, 2]</td>
+<td>-6.65</td>
+<td>2.38</td>
+<td>-10.36</td>
+<td>-3.05</td>
+<td>0.07</td>
+<td>0.12</td>
+<td>1179.34</td>
+<td>284.27</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">b_B_category[0, 3]</td>
+<td>-6.22</td>
+<td>2.37</td>
+<td>-9.77</td>
+<td>-2.31</td>
+<td>0.07</td>
+<td>0.13</td>
+<td>1057.71</td>
+<td>264.83</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">b_B_category[1, 0]</td>
+<td>-7.20</td>
+<td>2.08</td>
+<td>-10.24</td>
+<td>-3.82</td>
+<td>0.06</td>
+<td>0.09</td>
+<td>1349.49</td>
+<td>395.60</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sr_rf[48, 1]</td>
+<td>-0.05</td>
+<td>1.33</td>
+<td>-1.80</td>
+<td>2.40</td>
+<td>0.04</td>
+<td>0.11</td>
+<td>1349.49</td>
+<td>247.22</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">sr_rf[49, 0]</td>
+<td>0.03</td>
+<td>1.79</td>
+<td>-2.79</td>
+<td>2.67</td>
+<td>0.07</td>
+<td>0.10</td>
+<td>748.76</td>
+<td>384.71</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sr_rf[49, 1]</td>
+<td>-1.03</td>
+<td>1.20</td>
+<td>-2.95</td>
+<td>0.75</td>
+<td>0.07</td>
+<td>0.05</td>
+<td>290.28</td>
+<td>453.84</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">sr_sigma[0]</td>
+<td>1.64</td>
+<td>0.58</td>
+<td>0.75</td>
+<td>2.57</td>
+<td>0.03</td>
+<td>0.02</td>
+<td>349.74</td>
+<td>428.71</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sr_sigma[1]</td>
+<td>1.32</td>
+<td>0.65</td>
+<td>0.30</td>
+<td>2.37</td>
+<td>0.05</td>
+<td>0.02</td>
+<td>178.29</td>
+<td>117.33</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+<p>5131 rows × 9 columns</p>
 </div>
 </div>
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img src="travaux-routiers.png" class="img-fluid quarto-figure quarto-figure-center" /></p>
-</figure>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="sc">!</span>[](travaux<span class="sc">-</span>routiers.png){fig<span class="sc">-</span>align<span class="ot">=</span><span class="st">"center"</span>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb5"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">gmm</span>(data, K, initial_means)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> data.shape[<span class="fl">1</span>] </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    alpha_prior <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> jnp.<span class="fu">ones</span>(K)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> m.dist.<span class="fu">dirichlet</span>(concentration<span class="op">=</span>alpha_prior, name<span class="op">=</span><span class="st">&quot;weights&quot;</span>) </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We capture the output of the pywith block</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The block returns a tuple (mu, scale_tril)</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    mu, scale_tril <span class="op">=</span> <span class="fu">pywith</span>(m.dist.<span class="fu">plate</span>(<span class="st">&quot;components&quot;</span>, K)) <span class="cf">do</span> _</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        mu_inner <span class="op">=</span> m.dist.<span class="fu">multivariate_normal</span>(</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>            loc<span class="op">=</span>initial_means, </span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            covariance_matrix<span class="op">=</span><span class="fl">0.1</span><span class="op">*</span>jnp.<span class="fu">eye</span>(D), </span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            name<span class="op">=</span><span class="st">&quot;mu&quot;</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        )        </span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        sigma <span class="op">=</span> m.dist.<span class="fu">half_cauchy</span>(<span class="fl">1</span>, shape<span class="op">=</span>(D,), event<span class="op">=</span><span class="fl">1</span>, name<span class="op">=</span><span class="st">&quot;sigma&quot;</span>)</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        Lcorr <span class="op">=</span> m.dist.<span class="fu">lkj_cholesky</span>(dimension<span class="op">=</span>D, concentration<span class="op">=</span><span class="fl">1.0</span>, name<span class="op">=</span><span class="st">&quot;Lcorr&quot;</span>)</span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>, rand_seed <span class="op">=</span> <span class="cn">false</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data ------------------------------------------------</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="fl">50</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>individual_predictor <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>,<span class="fl">1</span>, shape <span class="op">=</span> (N,<span class="fl">1</span>), sample <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>kinship <span class="op">=</span> m.dist.<span class="fu">bernoulli</span>(<span class="fl">0.3</span>, shape <span class="op">=</span> (N,N), sample <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>kinship <span class="op">=</span> kinship.at[jnp.<span class="fu">diag_indices</span>(N)].<span class="fu">set</span>(<span class="fl">0</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>category <span class="op">=</span> m.dist.<span class="fu">categorical</span>(jnp.<span class="fu">array</span>([<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>]), sample <span class="op">=</span> <span class="cn">true</span>, shape  <span class="op">=</span> (N,))</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>N_grp, N_by_grp <span class="op">=</span> jnp.<span class="fu">unique</span>(category, return_counts<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>N_grp <span class="op">=</span> N_grp.shape[<span class="fl">0</span>]</span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># FIX: Use expand_dims instead of slicing</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        scale_tril_inner <span class="op">=</span> jnp.<span class="fu">expand_dims</span>(sigma, <span class="op">-</span><span class="fl">1</span>) <span class="op">*</span> Lcorr</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Return them so they are available outside</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        (mu_inner, scale_tril_inner)</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">mixture_same_family</span>(</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        mixing_distribution<span class="op">=</span>m.dist.<span class="fu">categorical</span>(probs<span class="op">=</span>w, create_obj<span class="op">=</span><span class="cn">true</span>),</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>        component_distribution<span class="op">=</span>m.dist.<span class="fu">multivariate_normal</span>(loc<span class="op">=</span>mu, scale_tril<span class="op">=</span>scale_tril, create_obj<span class="op">=</span><span class="cn">true</span>),</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>        name<span class="op">=</span><span class="st">&quot;obs&quot;</span>,</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        obs<span class="op">=</span>data</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">sim_network</span>(kinship, individual_predictor)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Intercept</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  alpha <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>,<span class="fl">1</span>, sample <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SR</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  sr <span class="op">=</span> m.net.<span class="fu">sender_receiver</span>(individual_predictor, individual_predictor, s_mu <span class="op">=</span> <span class="fl">0.4</span>, r_mu <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span>, sample <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># D</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  DR <span class="op">=</span> m.net.<span class="fu">dyadic_effect</span>(kinship, d_sd<span class="op">=</span><span class="fl">2.5</span>, sample <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> m.dist.<span class="fu">bernoulli</span>(logits <span class="op">=</span> alpha <span class="op">+</span> sr <span class="op">+</span> DR, sample <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
 <span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Run</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(gmm)</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>()</span></code></pre></div>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>network <span class="op">=</span> <span class="fu">sim_network</span>(m.net.<span class="fu">mat_to_edgl</span>(kinship), individual_predictor)</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Predictive model ------------------------------------------------</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="fu">pydict</span>(</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    network <span class="op">=</span> network, </span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    dyadic_predictors <span class="op">=</span> m.net.<span class="fu">mat_to_edgl</span>(kinship),</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> individual_predictor,</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> individual_predictor, </span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    category <span class="op">=</span> category</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors,category) </span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> focal_individual_predictors.shape[<span class="fl">0</span>]</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Block ---------------------------------------</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    B_intercept <span class="op">=</span> m.net.<span class="fu">block_model</span>(jnp.<span class="fu">full</span>((N_id,),<span class="fl">0</span>), <span class="fl">1</span>, N_id, name <span class="op">=</span> <span class="st">"B_intercept"</span>)</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    B_category <span class="op">=</span> m.net.<span class="fu">block_model</span>(category, N_grp, N_by_grp, name <span class="op">=</span> <span class="st">"B_category"</span>)</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    <span class="co">## SR shape =  N individuals---------------------------------------</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>    sr <span class="op">=</span>  m.net.<span class="fu">sender_receiver</span>(</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>      focal_individual_predictors,</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>      target_individual_predictors, </span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>      s_mu <span class="op">=</span> <span class="fl">0.4</span>, r_mu <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic shape = N dyads--------------------------------------  </span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span> m.net.<span class="fu">dyadic_effect</span>(dyadic_predictors, d_sd<span class="op">=</span><span class="fl">2.5</span>) <span class="co"># Diadic effect intercept only </span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">bernoulli</span>(logits <span class="op">=</span> B_intercept <span class="op">+</span> B_category <span class="op">+</span> sr <span class="op">+</span> dr, obs<span class="op">=</span>network)</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> </span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model, num_samples <span class="op">=</span> <span class="fl">500</span>, num_warmup <span class="op">=</span> <span class="fl">500</span>, num_chains <span class="op">=</span> <span class="fl">1</span>)</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
 </section>
 <section id="mathematical-details" class="level2">
-<h2>Mathematical Details</h2>
-<p>This section describes the generative process for a GMM.</p>
+<h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
+<section id="main-formula" class="level3">
+<h3 class="anchored" data-anchor-id="main-formula"><em>Main Formula</em></h3>
+<p>The model’s block structure can be represented by the following formula. Note that the sender-receiver and dyadic effects are not represented here, as they are already accounted for in the <a href="20. Network model.qmd">Network model</a> chapter:</p>
 <p><span class="math display">
-\begin{pmatrix}
-Y_{i,1} \\
-\vdots \\
-Y_{i,D}
-\end{pmatrix}
-\sim
-\text{MVN}\left(
-\begin{pmatrix}
-\mu_{z_i,1} \\
-\vdots \\
-\mu_{z_i,D}
-\end{pmatrix},
-\Sigma_{z_i}
-\right)
+G_{ij} \sim \text{Poisson}(Y_{ij})
 </span></p>
 <p><span class="math display">
-\begin{pmatrix}
-\mu_{k,1} \\
-\vdots \\
-\mu_{k,D}
-\end{pmatrix}
-\sim
-\text{MVN}\left(
-\begin{pmatrix}
-A_{k,1} \\
-\vdots \\
-A_{k,D}
-\end{pmatrix},
-B
-\right)
+\log(Y_{ij}) = B_{k(i), k(j)}
 </span></p>
-<p><span class="math display">
-\Sigma_k = \text{Diag}(\sigma_k) \Omega_k  \text{Diag}(\sigma_k)
-</span></p>
-<p><span class="math display">
-\sigma_{[k,d]} &amp;\sim \text{HalfCauchy}(1)
-</span></p>
-<p><span class="math display">
-\Omega_k \sim \text{LKJ}(2)
-</span></p>
-<p><span class="math display">
-z_{i} \sim \text{Categorical}(\pi)
-</span></p>
-<p><span class="math display">
-\pi \sim \text{Dirichlet}(0.5, \dots, 0.5)
-</span></p>
-<p>Where :</p>
+<p>where:</p>
 <ul>
-<li><p><span class="math inline">\begin{pmatrix} Y_{[i,1]} \\ \vdots \\ Y_{[i,D]} \end{pmatrix}</span> is the <span class="math inline">i</span>-th observation of a D-dimensional data array.</p></li>
-<li><p><span class="math inline">\begin{pmatrix}\mu_{[k,1]} \\ \vdots \\ \mu_{[k,D]}\end{pmatrix}</span> is the <span class="math inline">k</span>-th parameter vector of dimension D.</p></li>
-<li><p><span class="math inline">\begin{pmatrix} A_{[k,1]} \\ \vdots \\ A_{[k,D]} \end{pmatrix}</span> is a prior for the <span class="math inline">k</span>-th mean vector as derived by a <em>KMEANS</em> clustering algorithm.</p></li>
-<li><p><span class="math inline">B</span> is the prior covariance of the cluster means, and is setup as a diagonal matrix with 0.1 along the diagonal.</p></li>
-<li><p><span class="math inline">\Sigma_k</span> is the DxD covariance matrix of the <span class="math inline">k</span>-th cluster (it is composed from <span class="math inline">\sigma_k</span> and <span class="math inline">\Omega_k</span>).</p></li>
-<li><p><span class="math inline">\text{Diag}(\sigma_k)</span> is a diagonal matrix whose diagonal entries are the standard deviations: <span class="math display">
-  \text{Diag}(\sigma_k) =
-  \begin{pmatrix}
-  \sigma_{[k,1]} &amp; 0 &amp; \cdots &amp; 0 \\
-  0 &amp; \sigma_{[k,2]} &amp;        &amp; \vdots \\
-  \vdots &amp;        &amp; \ddots &amp; 0 \\
-  0 &amp; \cdots &amp; 0 &amp; \sigma_{[k,D]}
-  \end{pmatrix}.
-  </span></p></li>
-<li><p><span class="math inline">\sigma_{k}</span> is a <span class="math inline">D</span>-vector of standard deviations for the <span class="math inline">k</span>-th cluster where each element, <span class="math inline">d</span>, has a half-cauchy prior.</p></li>
-<li><p><span class="math inline">\Omega_k</span> is a correlation matrix for the <span class="math inline">k</span>-th cluster.</p></li>
-<li><p><span class="math inline">z_i</span> is a latent variable that maps observation <span class="math inline">i</span> to cluster <span class="math inline">k</span>.</p></li>
-<li><p><span class="math inline">\pi</span> is a vector of <span class="math inline">K</span> cluster weights.</p></li>
-</ul>
-<p>Where :</p>
-<ul>
-<li><p><span class="math inline">\begin{pmatrix} Y_{[i,1]} \\ \vdots \\ Y_{[i,D]} \end{pmatrix}</span> is the <span class="math inline">i</span>-th observation of a D-dimensional data array.</p></li>
-<li><p><span class="math inline">\begin{pmatrix}\mu_{[k,1]} \\ \vdots \\ \mu_{[k,D]}\end{pmatrix}</span> is the <span class="math inline">k</span>-th parameter vector of dimension D.</p></li>
-<li><p><span class="math inline">\begin{pmatrix} A_{[k,1]} \\ \vdots \\ A_{[k,D]} \end{pmatrix}</span> is a prior for the <span class="math inline">k</span>-th mean vector as derived by a <em>KMEANS</em> clustering algorithm.</p></li>
-<li><p><span class="math inline">B</span> is the prior covariance of the cluster means, and is setup as a diagonal matrix with 0.1 along the diagonal.</p></li>
-<li><p><span class="math inline">\Sigma_k</span> is the DxD covariance matrix of the <span class="math inline">k</span>-th cluster (it is composed from <span class="math inline">\sigma_k</span> and <span class="math inline">\Omega_k</span>).</p></li>
-<li><p><span class="math inline">\sigma_k</span> is a diagonal matrix of standard deviations for the <span class="math inline">k</span>-th cluster.</p></li>
-<li><p><span class="math inline">\Omega_k</span> is a correlation matrix for the <span class="math inline">k</span>-th cluster.</p></li>
-<li><p><span class="math inline">z_i</span> is a latent variable that maps observation <span class="math inline">i</span> to cluster <span class="math inline">k</span>.</p></li>
-<li><p><span class="math inline">\pi</span> is a vector of <span class="math inline">K</span> cluster weights.</p></li>
+<li><p><span class="math inline">B</span> is a matrix of intercept parameters unique to the interaction of categories. For example, if there are three groups, then <span class="math inline">B</span> will be a 3x3 matrix where each element give the rate an individual in group <span class="math inline">k</span> interacting with an individual in group <span class="math inline">l</span>.</p></li>
+<li><p>We use the function <span class="math inline">k</span>, to return the group identity (i.e., the block) of individual <em>i</em>.</p></li>
 </ul>
 </section>
+<section id="defining-formula-sub-equations-and-prior-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="defining-formula-sub-equations-and-prior-distributions"><em>Defining formula sub-equations and prior distributions</em></h3>
+<p>To account for all link rates between categories, we can define a square matrix <span class="math inline">B</span> as follows: the off-diagonal elements represent the link rates between categories <span class="math inline">i</span> and <span class="math inline">j</span>, while the diagonal elements represent the link rates within category <span class="math inline">i</span>.</p>
+<p><span class="math display">
+B_{i,j} =
+\begin{bmatrix}
+a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,j} \\
+a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,j} \\
+\vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
+a_{i,1} &amp; a_{i,2} &amp; \cdots &amp; a_{i,j}
+\end{bmatrix}
+</span></p>
+<p>As we consider the link probability within categories to be higher than the link probabilities between categories, we define different priors for the diagonal and the off-diagonal. Priors should also depend on sample size, N, so that the resultant network density approximates empirical networks. Basic priors could be:</p>
+<p><span class="math display">
+a_{k \rightarrow k} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.1}{\sqrt{N_k}}\right), 1.5\right)
+</span></p>
+<p><span class="math display">
+a_{k \rightarrow \tilde{k}} \sim \text{Normal}\left(\text{Logit}\left(\frac{0.01}{0.5 \sqrt{N_k} + 0.5 \sqrt{N_{\tilde{k}}}}\right), 1.5\right)
+</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">k \rightarrow k</span> indicates a diagonal element.</li>
+<li><span class="math inline">k \rightarrow \tilde{k}</span> indicates an off-diagonal element.</li>
+</ul>
+</section>
+</section>
 <section id="notes" class="level2">
-<h2>Notes</h2>
+<h2 class="anchored" data-anchor-id="notes">Note(s)</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class='callout-icon'></i>
+<i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
 Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The primary challenge of the GMM compared to the DPMM is the need to <strong>manually specify the number of clusters <code>K</code></strong>. If the chosen <code>K</code> is too small, the model may merge distinct clusters. If <code>K</code> is too large, it may split natural clusters into meaningless sub-groups. Therefore, applying a GMM often involves an outer loop of model selection where one fits the model for a range of <code>K</code> values and uses a scoring metric to select the best one.</p>
+<ul>
+<li><p>By defining this block model within our network model, we are estimating <span id="assor"><span style="color:#0D6EFD">assortativity 🛈</span></span> and <span id="disassor"><span style="color:#0D6EFD">disassortativity 🛈</span></span> for categorical variables.</p></li>
+<li><p>Similarly, for continuous variables, we can generate a block model that includes all continuous variables. <!--Correct? --></p></li>
+</ul>
 </div>
 </div>
 </section>
 <section id="references" class="level2">
-<h2>Reference(s)</h2>
-<p>C. M. Bishop (2006). <em>Pattern Recognition and Machine Learning</em>. Springer. (Chapter 9)</p>
-<div id="quarto-navigation-envelope" class="hidden">
-<p><span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar-title">Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar-title">Bayesian Inference (BI)</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-next">Dirichlet Process Mixture Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-prev">Principal Component Analysis</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/0. Introduction.htmlBayesian-analysis-with-BI">Bayesian analysis with BI</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/1. Linear Regression for continuous variable.htmlUnivariate-Linear-Regression">Univariate Linear Regression</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/2. Multiple continuous Variables.htmlMultivariate-Linear-Regression">Multivariate Linear Regression</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/3. Interaction between continuous variables.htmlInteraction-Terms-in-Regression">Interaction Terms in Regression</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/4. Categorical variable.htmlRegression-with-a-Categorical-Independent-Variable">Regression with a Categorical Independent Variable</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/5. Binomial model.htmlBinomial-Model">Binomial Model</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/6. Beta binomial model.htmlBeta-Binomial-Model">Beta-Binomial Model</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/7. Poisson model.htmlPoisson-Model">Poisson Model</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/8. Poisson mode with offset.html🚧-Poisson-Model-with-an-Offset-🚧">🚧 Poisson Model with an Offset 🚧</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/8. Gamma-Poisson.htmlGamma-Poisson-Model">Gamma-Poisson Model</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/9. Categorical model.htmlCategorical-Model">Categorical Model</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/10. Multinomial model.htmlMultinomial-Model">Multinomial Model</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/10. Dirichlet model.html🚧-Dirichlet-Model-🚧">🚧 Dirichlet Model 🚧</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/11. Zero inflated.htmlZero-Inflated-Models">Zero-Inflated Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/13. Varying intercepts.htmlVarying-Intercepts-Models">Varying Intercepts Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/14. Varying slopes.htmlVarying-Slopes-Models">Varying Slopes Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/15. Gaussian processes.htmlGaussian-Processes">Gaussian Processes</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/16. Measuring error.htmlMeasurement-Error-Models">Measurement Error Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/17. Missing data.html🚧-Handling-Missing-Data-🚧">🚧 Handling Missing Data 🚧</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/19. PCA.htmlPrincipal-Component-Analysis">Principal Component Analysis</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/20. GMM.htmlGaussian-Mixture-Models">Gaussian Mixture Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/21. DPMM.htmlDirichlet-Process-Mixture-Models">Dirichlet Process Mixture Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/22. Network model.htmlNetwork-Models">Network Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/23. Network with block model.htmlStochastic-Block-Models">Stochastic Block Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/24. Network control for data collection biases.htmlControlling-for-Network-Biases">Controlling for Network Biases</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/25. Network Metrics.htmlNetwork-Metrics">Network Metrics</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/26. Network Based Diffusion analysis (wip).htmlNetwork-Based-Diffusion-Analysis">Network-Based Diffusion Analysis</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/27. BNN.htmlBayesian-Neural-Networks">Bayesian Neural Networks</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/12. Survival analysis.html🚧-Survival-Analysis-🚧">🚧 Survival Analysis 🚧</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-sidebar:/18. Latent variable (wip).html🚧-Latent-Variable-Models-🚧">🚧 Latent Variable Models 🚧</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:Get started">Get started</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:/start/Installation.html">/start/Installation.html</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:Models">Models</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:/0. Introduction.html">/0. Introduction.html</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:API Reference">API Reference</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:/api_dist.html">/api_dist.html</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:Help">Help</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:Report a Bug">Report a Bug</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:https://github.com/BGN-for-ASNA/BI/issues">https://github.com/BGN-for-ASNA/BI/issues</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:Ask a Question">Ask a Question</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-int-navbar:https://github.com/BGN-for-ASNA/BI/discussions">https://github.com/BGN-for-ASNA/BI/discussions</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-navbar-tools:https://twitter.com">https://twitter.com</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-navbar-tools:https://github.com/BGN-for-ASNA/BI">https://github.com/BGN-for-ASNA/BI</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-breadcrumbs-Gaussian-Mixture-Models">Gaussian Mixture Models</span></p>
+<h2 class="anchored" data-anchor-id="references">Reference(s)</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-ross2024modelling" class="csl-entry" role="listitem">
+Ross, Cody T, Richard McElreath, and Daniel Redhead. 2024. <span>“Modelling Animal Network Data in r Using STRAND.”</span> <em>Journal of Animal Ecology</em> 93 (3): 254–66.
 </div>
-<div id="quarto-meta-markdown" class="hidden">
-<p><span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-metatitle">Gaussian Mixture Models – Bayesian Inference (BI)</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-twittercardtitle">Gaussian Mixture Models – Bayesian Inference (BI)</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-ogcardtitle">Gaussian Mixture Models – Bayesian Inference (BI)</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-metasitename">Bayesian Inference (BI)</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-twittercarddesc">A probabilistic model for representing normally distributed subpopulations, often used for clustering.</span> <span class="hidden quarto-markdown-envelope-contents" data-render-id="quarto-ogcardddesc">A probabilistic model for representing normally distributed subpopulations, often used for clustering.</span></p>
 </div>
+
+
 </section>
 
 </main> <!-- /main -->
@@ -814,7 +913,7 @@ Note
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <script>
 function convertMarkdownToHTML(markdown) {
@@ -1272,12 +1371,128 @@ tippy('#unsupervised', {
       },
     });
 
+tippy('#stickProcess', {
+      content: `
+  <span style='color: white;'>
+The stick-breaking process is a way to generate a random distribution by imagining a unit-length stick that gets broken into pieces one step at a time. At each step, a random fraction of whatever stick remains is snapped off to form a new weight, and the rest is left for future breaks. Each weight is paired with a randomly chosen parameter value. Repeating this indefinitely yields a distribution made of infinitely many weighted parameter, where earlier pieces tend to be larger and later ones smaller.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
 
+tippy('#Neurons', {
+      content: `
+  <span style='color: white;'>
+ In a neural network, a neuron (or node) is a fundamental computational unit. It receives inputs, applies a weighted sum and an activation function to these inputs, and produces an output. It's analogous to a biological neuron, processing and transmitting signals.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#Layers', {
+      content: `
+  <span style='color: white;'>
+Layers are groups of neurons organized in a 2D array. Each layer processes the output from the previous layer and passes its output to the next. Common layer types include input layers, hidden layers (where the main computation occurs), and output layers (which produce the final predictions).
+</span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+
+tippy('#Dropout', {
+      content: `
+  <span style='color: white;'>
+ Dropout is a regularization technique where, during training, a random subset of neurons (and their connections) are temporarily ignored or "dropped out" for each training iteration. This prevents neurons from co-adapting too much and encourages the network to learn more robust features, thus reducing overfitting.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#L2', {
+      content: `
+  <span style='color: white;'>
+L2 regularization (also known as weight decay) is a technique to prevent overfitting by adding a penalty term to the loss function. This penalty is proportional to the sum of the squares of the network's weights. It encourages the model to use smaller weights, leading to a simpler and more generalized model.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+
+tippy('#Overfitting', {
+      content: `
+  <span style='color: white;'>
+Overfitting occurs when a machine learning model learns the training data too well, including its noise and random fluctuations. As a result, the model performs very poorly on new, unseen data because it has failed to generalize the underlying patterns.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+
+tippy('#VI', {
+      content: `
+  <span style='color: white;'>
+An optimization-based method for approximating complex, intractable posterior distributions. Instead of sampling (as in MCMC), VI posits a parameterized family of simpler distributions (e.g., Gaussians) and optimizes their parameters to minimize the Kullback-Leibler (KL) divergence between the approximation and the true posterior. This effectively converts an integration problem into an optimization problem
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
+    
+tippy('#SG-MCMC', {
+      content: `
+  <span style='color: white;'>
+A class of algorithms designed to scale Markov Chain Monte Carlo methods to large datasets. It approximates the gradient of the log-posterior using mini-batches (subsets) of data rather than the full dataset. To ensure convergence to the true posterior distribution despite the noise introduced by subsampling, these methods (such as Stochastic Gradient Langevin Dynamics) introduce specific noise injection and step-size schedules.
+  </span>
+  `, allowHTML: true,
+      interactive: true,
+      delay: 100,
+      onShow(instance) {
+        MathJax.typesetPromise([instance.reference]).then(() => {
+          // Optional: if you want to do something after the typesetting
+        });
+      },
+    });
 </script>
-<script>
-    // Disable Quarto code folding scripts globally
-    window.quartoDisableCodeFolding = true;
-  </script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -1514,7 +1729,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
+      var filterRegex = new RegExp("https:\/\/s-sosa\.com\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -1844,18 +2059,19 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a  href="/19. PCA.html" class="pagination-link" aria-label="Principal Component Analysis">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Principal Component Analysis</span>
+      <a href="./22. Network model.html" class="pagination-link" aria-label="Network Models">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Network Models</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a  href="/21. DPMM.html" class="pagination-link" aria-label="Dirichlet Process Mixture Models">
-        <span class="nav-page-text">Dirichlet Process Mixture Models</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./24. Network control for data collection biases.html" class="pagination-link" aria-label="Controlling for Network Biases">
+        <span class="nav-page-text">Controlling for Network Biases</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
 
-</body>
 
-</html>
+
+
+</body></html>
