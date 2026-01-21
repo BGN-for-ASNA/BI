@@ -107,80 +107,72 @@ Download and install [Julia 1.12 or later](https://julialang.org/downloads/)
 
 ### 2. Install Package
 
-#### From Julia Registry (after registration)
+#### From pip
 
-``` julia
-using Pkg
-Pkg.add("BayesianInference")
+``` python
+pip install BayesInference
 ```
 
 #### Development Installation
 
-``` julia
-using Pkg
-Pkg.add(url="https://github.com/BGN-for-ASNA/BIJ")
+``` python
+pip install git+https://github.com/BGN-for-ASNA/BI.git
 ```
 
 Or clone the repository and activate it locally:
 
 ``` bash
-git clone https://github.com/BGN-for-ASNA/BIJ.git
-cd BIJ
-julia --project=.
+git clone https://github.com/BGN-for-ASNA/BI.git
+cd BI
 ```
 
-Then in Julia:
+Then in Python:
 
-``` julia
-using Pkg
-Pkg.instantiate()
-using BayesianInference
+``` python
+pip install -e .
 ```
 
 ### 3. Initialize Environment
 
-The package automatically manages Python dependencies via CondaPkg. On first use:
-
-``` julia
-using BayesianInference
-# Python dependencies are installed automatically
-m = importBI()  # This will set up the environment on first run
+``` python
+from BI import bi
+m = bi()
 ```
 
 ### 4. Select Backend
 
 Choose `"cpu"`, `"gpu"`, or `"tpu"` when importing the library.
 
-``` julia
+``` python
 # Initialize on CPU (default)
-m = importBI(platform="cpu")
+m = bi(platform="cpu")
 
 # Or on GPU (requires JAX GPU installation)
-m = importBI(platform="gpu")
+m = bi(platform="gpu")
 ```
 
 ---
 
 ## Quick Start
 
-``` julia
-using BayesianInference
+``` python
+from BI import bi
 
 # Initialize BI
-m = importBI()
+m = bi()
 
 # Generate some data
-x = m.dist.normal(0, 1, shape=(100,), sample=true)
-y = m.dist.normal(0.2 + 0.6 * x, 1.2, sample=true)
+x = m.dist.normal(0, 1, shape=(100,), sample=True)
+y = m.dist.normal(0.2 + 0.6 * x, 1.2, sample=True)
 
 # Define a Bayesian linear regression model
-@BI function linear_model(; x, y)
+def linear_model(x, y):
     alpha = m.dist.normal(loc=0, scale=1, name="alpha")
     beta  = m.dist.normal(loc=0, scale=1, name="beta")
     sigma = m.dist.exponential(1, name="sigma")
     mu = alpha + beta * x
     m.dist.normal(mu, sigma, obs=y)
-end
+
 
 # Fit the model
 m.fit(linear_model, num_warmup=1000, num_samples=1000, num_chains=1)
@@ -189,22 +181,12 @@ m.fit(linear_model, num_warmup=1000, num_samples=1000, num_chains=1)
 m.summary()
 
 # Plot results with @pyplot
-@pyplot begin
-    m.plot_trace()
-    plt.tight_layout()
-end
+m.plot_trace()
 ```
 
 ---
 
 ## Features
-
-### Julia-Specific Features
-
--   **`@BI` Macro**: Define models with proper Python interoperability
--   **`@pyplot` Macro**: Display matplotlib plots directly in Julia
--   **JAX Integration**: Direct access to JAX's NumPy API (`jnp` and `jax` constants)
--   **Automatic Array Conversion**: Seamless conversion between Julia and JAX arrays
 
 ### Data Manipulation
 
