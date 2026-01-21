@@ -635,7 +635,7 @@
     "section": "",
     "text": "When we want to model count data, where the counts are observed over different periods or areas of exposure, we use a Poisson model with an offset. This is a type of generalized linear model used for modeling count data and contingency tables.\nAn offset is a predictor variable with a coefficient that is fixed at 1. It is used to account for the “exposure” variable, which represents the opportunity for an event to occur. For instance, if we are counting the number of sick individuals in different cities, the population of each city would be the exposure variable. A city with a larger population is expected to have more sick individuals. The offset accounts for this by essentially modeling the rate of events per unit of exposure.",
     "crumbs": [
-      "🚧 Poisson Model with an Offset"
+      "Poisson Model with an Offset"
     ]
   },
   {
@@ -645,7 +645,7 @@
     "section": "",
     "text": "When we want to model count data, where the counts are observed over different periods or areas of exposure, we use a Poisson model with an offset. This is a type of generalized linear model used for modeling count data and contingency tables.\nAn offset is a predictor variable with a coefficient that is fixed at 1. It is used to account for the “exposure” variable, which represents the opportunity for an event to occur. For instance, if we are counting the number of sick individuals in different cities, the population of each city would be the exposure variable. A city with a larger population is expected to have more sick individuals. The offset accounts for this by essentially modeling the rate of events per unit of exposure.",
     "crumbs": [
-      "🚧 Poisson Model with an Offset"
+      "Poisson Model with an Offset"
     ]
   },
   {
@@ -655,7 +655,7 @@
     "section": "Considerations",
     "text": "Considerations\n\n\n\n\n\n\nNote\n\n\n\n\nThe dependent variable in a Poisson regression must be a non-negative count.\nThe exposure variable used as an offset cannot contain zeros.\nA key assumption of the Poisson distribution is that the mean and variance of the count variable are equal. If the variance is greater than the mean, a condition known as overdispersion, a Negative Binomial regression might be more appropriate.\nThe logarithm of the exposure variable is typically used as the offset. This is because Poisson regression models the logarithm of the expected count. By including the log of the exposure as an offset, we are effectively modeling the rate.",
     "crumbs": [
-      "🚧 Poisson Model with an Offset"
+      "Poisson Model with an Offset"
     ]
   },
   {
@@ -663,9 +663,9 @@
     "href": "8. Poisson mode with offset.html#example",
     "title": "Poisson Model with an Offset",
     "section": "Example",
-    "text": "Example\nBelow is an example of code that demonstrates a Bayesian Poisson regression with an offset. The data consists of the number of elephant aggressions (agressions), the age of the elephants (age), and the number of years they have been observed (years_obs). The goal is to model the rate of aggressions per year, accounting for the age of the elephants.\n\nPythonR",
+    "text": "Example\nBelow is an example of code that demonstrates a Bayesian Poisson regression with an offset. The data consists of the number of elephant aggressions (agressions), the age of the elephants (age), and the number of years they have been observed (years_obs). The goal is to model the rate of aggressions per year, accounting for the age of the elephants.\n\nPythonRJulia\n\n\nfrom BI import bi\nimport jax.numpy as jnp\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Simulated data ------------------------------------------------\npopulation = m.dist.normal(0,1, shape = (100,), sample = True)\ncid = m.dist.binomial(1, 0.5, shape = (100,), sample = True)\nhours = m.dist.uniform(1, 10, shape=(100,), sample=True) \n\na = m.dist.normal(3, 0.5, shape= (2,), name='a', sample = True)\nb = m.dist.normal(0, 0.2, shape=(2,), name='b', sample = True)\nl = hours * jnp.exp(a[cid] + b[cid]*population)\ntotal_tools = m.dist.poisson(l,  sample = True)\n\n# Model data ------------------------------------------------\ndef model_offset(cid, population, hours, total_tools):\n    a = m.dist.normal(3, 0.5, shape= (2,), name='a')\n    b = m.dist.normal(0, 0.2, shape=(2,), name='b')\n    l = hours * jnp.exp(a[cid] + b[cid]*population)\n    m.dist.poisson(l, obs=total_tools)\n\nm.data_on_model = dict(cid=cid, population=population, hours=hours, total_tools=total_tools)\n\n# Run sampler ------------------------------------------------\nm.fit(model_offset)\n\n# Diagnostic ------------------------------------------------\nm.summary()\n\n\nlibrary(BayesianInference)\nm=importBI(platform='cpu')\njnp = reticulate::import('jax.numpy')\n\n# Simulated data ------------------------------------------------\npopulation = bi.dist.normal(0,1,shape = c(100), sample = TRUE)\ncid = bi.dist.binomial(probs = c(0.5), shape = c(100),sample = TRUE)\nhours = bi.dist.uniform(1, 10, shape=c(100), sample=TRUE) \n\na = bi.dist.normal(3, 0.5, shape= (2), name='a', sample = TRUE)\nb = bi.dist.normal(0, 0.2, shape=(2), name='b', sample = TRUE)\nl = hours * jnp$exp(a[cid] + b[cid]*population)\ntotal_tools = bi.dist.poisson(l,  sample = TRUE)\n\n# Define model ------------------------------------------------\nmodel &lt;- function(cid, population, hours, total_tools_offset){\n  # Parameter prior distributions\n  alpha = bi.dist.normal(3, 0.5, name='alpha', shape = c(2))\n  beta = bi.dist.normal(0, 0.2, name='beta', shape = c(2))\n  l = hours * jnp$exp(alpha[cid] + beta[cid]*population)\n  # Likelihood\n  bi.dist.poisson(l, obs=total_tools)\n}\n\nm$data_on_model = list()\nm$data_on_model$total_tools = total_tools\nm$data_on_model$population = population\nm$data_on_model$cid = cid\nm$data_on_model$hours = hours\n\n# Run mcmc ------------------------------------------------\nm$fit(model) # Optimize model parameters through MCMC sampling\n\n# Summary ------------------------------------------------\nm$summary() # Get posterior distributions\n\n\nusing BayesianInference\n\n# Setup device------------------------------------------------\nm = importBI(platform=\"cpu\")\n\n# Simulated data ------------------------------------------------\npopulation = m.dist.normal(0, 1, shape = (100,), sample = true)\ncid = m.dist.binomial(1, 0.5, shape = (100,), sample = true)\nhours = m.dist.uniform(1, 10, shape=(100,), sample=true)\n\na = m.dist.normal(3, 0.5, shape= (2,), name=\"a\", sample = true)\nb = m.dist.normal(0, 0.2, shape=(2,), name=\"b\", sample = true)\nl = hours * jnp.exp(a[cid] + b[cid]*population)\ntotal_tools = m.dist.poisson(l,  sample = true)\n\n# Define model ------------------------------------------------\n@BI function model(cid, population, hours, total_tools)\n    a = m.dist.normal(3, 0.5, shape= (2,), name=\"a\")\n    b = m.dist.normal(0, 0.2, shape=(2,), name=\"b\")\n    l = hours * jnp.exp(a[cid] + b[cid]*population)\n    m.dist.poisson(l, obs=total_tools)\nend\n\n# Pass data to model\nm.data_on_model = Dict(\"cid\" =&gt; cid, \"population\" =&gt; population, \"hours\" =&gt; hours, \"total_tools\" =&gt; total_tools)\n\n# Run mcmc ------------------------------------------------\nm.fit(model)  # Optimize model parameters through MCMC sampling\n\n# Summary ------------------------------------------------\nm.summary() # Get posterior distributions",
     "crumbs": [
-      "🚧 Poisson Model with an Offset"
+      "Poisson Model with an Offset"
     ]
   },
   {
@@ -675,7 +675,7 @@
     "section": "Mathematical Details",
     "text": "Mathematical Details\n\nFrequentist formulation\nWe model the relationship between the independent variables (X) and the expected count (λ) using the following equation:\n\n\\log(\\lambda_i) = \\alpha + \\beta X_i + \\log(\\text{exposure}_i)\n\nWhere:\n\n\\lambda_i is the expected count for observation i.\n\\alpha is the intercept term.\n\\beta is the regression coefficient for the independent variable.\nX_i is the value of the independent variable for observation i.\n\\log(\\text{exposure}_i) is the offset, which is the natural logarithm of the exposure for observation i.\n\nThe number of observed counts Y_i is assumed to follow a Poisson distribution with mean \\lambda_i:\n\nY_i \\sim \\text{Poisson}(\\lambda_i)\n\n\n\nBayesian formulation\nIn the Bayesian framework, we assign prior distributions to the model parameters. The model can be expressed as:\n\nY_i \\sim \\text{Poisson}(\\lambda_i)\n\n\n\\log(\\lambda_i) = \\alpha + \\beta X_i + \\log(\\text{exposure}_i)\n\n\n\\alpha \\sim \\text{Normal}(0,1)\n\n\n\\beta \\sim \\text{Normal}(0,1)\n\nWhere:\n\nY_i is the observed count for observation i.\n\\lambda_i is the expected count.\n\\alpha is the intercept with a unit-normal prior.\n\\beta is the slope coefficient with a unit-normal prior.\nX_i is the independent variable.\n\\log(\\text{exposure}_i) is the offset.",
     "crumbs": [
-      "🚧 Poisson Model with an Offset"
+      "Poisson Model with an Offset"
     ]
   },
   {
@@ -685,7 +685,7 @@
     "section": "Notes",
     "text": "Notes\n\n\n\n\n\n\nNote\n\n\n\n\nThe use of an offset is crucial when the goal is to compare rates of events rather than absolute counts.\nIt is a common practice to use the natural logarithm of the exposure variable as the offset.",
     "crumbs": [
-      "🚧 Poisson Model with an Offset"
+      "Poisson Model with an Offset"
     ]
   },
   {
@@ -695,7 +695,7 @@
     "section": "Reference(s)",
     "text": "Reference(s)",
     "crumbs": [
-      "🚧 Poisson Model with an Offset"
+      "Poisson Model with an Offset"
     ]
   },
   {
@@ -1489,61 +1489,61 @@
   {
     "objectID": "10. Dirichlet model.html",
     "href": "10. Dirichlet model.html",
-    "title": "Dirichlet Model 🚧",
+    "title": "🚧 Dirichlet Model 🚧",
     "section": "",
     "text": "To model the relationship between a vector outcome variable in which each element of the vector is a frequency from a set of more than two categories and one or more independent variables, we can use a Dirichlet model.",
     "crumbs": [
-      "🚧 Dirichlet Model"
+      "🚧 Dirichlet Model 🚧"
     ]
   },
   {
     "objectID": "10. Dirichlet model.html#general-principles",
     "href": "10. Dirichlet model.html#general-principles",
-    "title": "Dirichlet Model 🚧",
+    "title": "🚧 Dirichlet Model 🚧",
     "section": "",
     "text": "To model the relationship between a vector outcome variable in which each element of the vector is a frequency from a set of more than two categories and one or more independent variables, we can use a Dirichlet model.",
     "crumbs": [
-      "🚧 Dirichlet Model"
+      "🚧 Dirichlet Model 🚧"
     ]
   },
   {
     "objectID": "10. Dirichlet model.html#considerations",
     "href": "10. Dirichlet model.html#considerations",
-    "title": "Dirichlet Model 🚧",
+    "title": "🚧 Dirichlet Model 🚧",
     "section": "Considerations",
     "text": "Considerations\n\n\n\n\n\n\nNote\n\n\n\n\nWe have the same considerations as for the Multinomial model.",
     "crumbs": [
-      "🚧 Dirichlet Model"
+      "🚧 Dirichlet Model 🚧"
     ]
   },
   {
     "objectID": "10. Dirichlet model.html#example",
     "href": "10. Dirichlet model.html#example",
-    "title": "Dirichlet Model 🚧",
+    "title": "🚧 Dirichlet Model 🚧",
     "section": "Example",
-    "text": "Example\n\nPythonR",
+    "text": "Example\n\nPython",
     "crumbs": [
-      "🚧 Dirichlet Model"
+      "🚧 Dirichlet Model 🚧"
     ]
   },
   {
     "objectID": "10. Dirichlet model.html#mathematical-details",
     "href": "10. Dirichlet model.html#mathematical-details",
-    "title": "Dirichlet Model 🚧",
+    "title": "🚧 Dirichlet Model 🚧",
     "section": "Mathematical Details",
     "text": "Mathematical Details\nWe can model a vector of frequencies using a Dirichlet distribution. For an outcome variable Y_i with 𝐾 categories, the Dirichlet likelihood function is:\n\nY_i \\sim \\text{Dirichlet}(\\theta_i  \\kappa) \\\\\n\\theta_i = \\text{Softmax}(\\phi_i) \\\\\n\\phi_{[i,1]} = \\alpha_1 + \\beta_1 X_i \\\\\n\\phi_{[i,2]} = \\alpha_2 + \\beta_2 X_i \\\\\n... \\\\\n\\phi_{[i,k]} = 0 \\\\\n\\kappa \\sim \\text{Exponential}(1) \\\\\n\\alpha_{k} \\sim \\text{Normal}(0,1) \\\\\n\\beta_{k} \\sim \\text{Normal}(0.1)\n\nWhere:\n\nY_i is the outcome simplex 🛈 for observation i.\n\\kappa is the concentration parameter, it controls the prior weight on each category.\n\\theta_i is a vector unique to each observation, i, which gives the probability of observing i in category k.\n\\phi_i give the linear model for each of the k categories. Note that we use the softmax function to ensure that that the probabilities \\theta_i form a simplex 🛈.\nEach element of \\phi_i is obtained by applying a linear regression model with its own respective intercept \\alpha_k and slope coefficient \\beta_k. To ensure the model is identifiable, one category, K, is arbitrarily chosen as a reference or baseline category. The linear predictor for this reference category is set to zero. The coefficients for the other categories then represent the change in the log-odds of being in that category versus the reference category.",
     "crumbs": [
-      "🚧 Dirichlet Model"
+      "🚧 Dirichlet Model 🚧"
     ]
   },
   {
     "objectID": "10. Dirichlet model.html#references",
     "href": "10. Dirichlet model.html#references",
-    "title": "Dirichlet Model 🚧",
+    "title": "🚧 Dirichlet Model 🚧",
     "section": "Reference(s)",
     "text": "Reference(s)",
     "crumbs": [
-      "🚧 Dirichlet Model"
+      "🚧 Dirichlet Model 🚧"
     ]
   },
   {
@@ -2506,6 +2506,66 @@
     "text": "Reference(s)\n\n\nMcElreath, Richard. 2018. Statistical Rethinking: A Bayesian course with examples in R and Stan. Chapman; Hall/CRC.\n\n\nhttps://www.cs.toronto.edu/~duvenaud/cookbook/",
     "crumbs": [
       "Gaussian Processes"
+    ]
+  },
+  {
+    "objectID": "17. Missing data.html#general-principles",
+    "href": "17. Missing data.html#general-principles",
+    "title": "🚧 Handling Missing Data 🚧",
+    "section": "General Principles",
+    "text": "General Principles",
+    "crumbs": [
+      "🚧 Handling Missing Data 🚧"
+    ]
+  },
+  {
+    "objectID": "17. Missing data.html#considerations",
+    "href": "17. Missing data.html#considerations",
+    "title": "🚧 Handling Missing Data 🚧",
+    "section": "Considerations",
+    "text": "Considerations\n\n\n\n\n\n\nCaution",
+    "crumbs": [
+      "🚧 Handling Missing Data 🚧"
+    ]
+  },
+  {
+    "objectID": "17. Missing data.html#example",
+    "href": "17. Missing data.html#example",
+    "title": "🚧 Handling Missing Data 🚧",
+    "section": "Example",
+    "text": "Example\nBelow is an example code snippet demonstrating Bayesian Missing data model using the Bayesian Inference (BI) package:\n\nPython",
+    "crumbs": [
+      "🚧 Handling Missing Data 🚧"
+    ]
+  },
+  {
+    "objectID": "17. Missing data.html#mathematical-details",
+    "href": "17. Missing data.html#mathematical-details",
+    "title": "🚧 Handling Missing Data 🚧",
+    "section": "Mathematical Details",
+    "text": "Mathematical Details\n\nFrequentist formulation\n\n\nBayesian formulation",
+    "crumbs": [
+      "🚧 Handling Missing Data 🚧"
+    ]
+  },
+  {
+    "objectID": "17. Missing data.html#notes",
+    "href": "17. Missing data.html#notes",
+    "title": "🚧 Handling Missing Data 🚧",
+    "section": "Notes",
+    "text": "Notes\n\n\n\n\n\n\nNote",
+    "crumbs": [
+      "🚧 Handling Missing Data 🚧"
+    ]
+  },
+  {
+    "objectID": "17. Missing data.html#references",
+    "href": "17. Missing data.html#references",
+    "title": "🚧 Handling Missing Data 🚧",
+    "section": "Reference(s)",
+    "text": "Reference(s)\nMcElreath (2018)",
+    "crumbs": [
+      "🚧 Handling Missing Data 🚧"
     ]
   }
 ]
