@@ -41,7 +41,7 @@ from BI.BNN.bnn import bnn
 
 
 class bi(manip):
-    def __init__(self, platform='cpu', cores=None, rand_seed = True, deallocate = False, print_devices_found = True, backend='numpyro'):
+    def __init__(self, platform='cpu', cores=None, rand_seed = True, deallocate = False, print_devices_found = True, backend='numpyro', loss=None, optim=None, guide=None):
         """
         Initialize the BI class with platform, cores, deallocate, print_devices_found, and backend parameters.
         
@@ -66,6 +66,9 @@ class bi(manip):
         self.trace = None
         self.history = {}
         self.backend = backend
+        self.loss = loss
+        self.optim = optim
+        self.guide = guide
 
         self.gaussian = gaussian
         self.survival = survival(self)
@@ -272,9 +275,80 @@ class bi(manip):
             self.models.pca.posterior = self.posteriors
             self.models.pca.get_attributes(self.models.pca.X.T)
 
+    def svi(self, 
+            model = None, 
+            guide = None,
+            optim = None,
+            loss = None,
+            num_steps = 1000,
+            num_samples = 1000,
+            seed = 0,
+            **kwargs):
+        """
+        Fit the model using SVI (Stochastic Variational Inference).
+        """
+        if model is None:
+            model = self.model
+        else:
+            self.model = model
+            if isinstance(model, functools.partial):
+                self.model_name = model.func.__name__
+            else:
+                if self.model_name is None:
+                    self.model_name = model.__name__
+
+        if self.data_on_model is None :
+            self.data_on_model = self.pd_to_jax(self.model)
+
+        if optim is None:
+            optim = self.optim
+            if optim is None:
+                import numpyro
+                optim = numpyro.optim.Adam(step_size=1e-3)
+        
+        if loss is None:
+            loss = self.loss
+            if loss is None:
+                from numpyro.infer import Trace_ELBO
+                loss = Trace_ELBO(num_particles=10)
+
+        if guide is None:
+            guide = self.guide
+            if guide is None:
+                from numpyro.infer.autoguide import AutoDiagonalNormal
+                guide = AutoDiagonalNormal(self.model)
+        elif isinstance(guide, str):
+            from numpyro.infer import autoguide
+            guides = {
+                'diagonal': autoguide.AutoDiagonalNormal,
+                'multivariate': autoguide.AutoMultivariateNormal,
+                'laplace': autoguide.AutoLaplaceApproximation,
+                'delta': autoguide.AutoDelta,
+                'normal': autoguide.AutoNormal,
+                'low_rank': autoguide.AutoLowRankMultivariateNormal
+            }
+            if guide.lower() in guides:
+                guide = guides[guide.lower()](self.model)
+            else:
+                raise ValueError(f"Unknown autoguide: {guide}. Available options: {list(guides.keys())}")
+
+        if self.backend == 'numpyro':
+            from BI.Samplers.SVI.svi_numpyro import svi_numpyro
+            self.sampler = svi_numpyro(
+                model=self.model,
+                guide=guide,
+                optim=optim,
+                loss=loss,
+                **kwargs
+            )
+            
+            self.sampler.run(jax.random.PRNGKey(seed), num_steps=num_steps, **self.data_on_model)
+            self.posteriors = self.sampler.get_samples(num_samples=num_samples, seed=seed)
+            self.diag = diag(sampler = self.sampler)
+            self.get_history()
+
         self.run_model_name = self.model_name
         self.model_name = None
-
 
     
     # Random number generator ----------------------------------------------------------------
