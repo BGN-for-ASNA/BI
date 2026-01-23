@@ -6,7 +6,7 @@
 **A unified probabilistic programming library, bringing JAX-powered Bayesian inference to the Python, R and Julia ecosystem.**\
 *Run bespoke models on CPU, GPU, or TPU with Julia's native syntax.*
 
-[![bioRxiv](https://img.shields.io/badge/bioRxiv-10.64898%2F2026.01.19.700318v1-BD271E?style=flat&logo=biorxiv&logoColor=white)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v1) [![License: GPL (\>= 3)](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Julia](https://img.shields.io/badge/Julia-1+-9558B2?logo=julia)](https://julialang.org/)
+[![Website](https://img.shields.io/badge/Website-s--sosa.com/BI-blue?style=flat&logo=google-chrome&logoColor=white)](https://s-sosa.com/BI/) [![bioRxiv](https://img.shields.io/badge/bioRxiv-10.64898%2F2026.01.19.700318v1-BD271E?style=flat&logo=biorxiv&logoColor=white)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v1)  ![Python](https://img.shields.io/badge/Python-3+-3776AB?logo=python&logoColor=white) [![License: GPL (\>= 3)](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 </div>
 
 ---
@@ -300,4 +300,5 @@ Based on "The Bayesian Inference library for Python, R, Julia" by Sosa, McElreat
 
 © 2025 BayesianInference Team. Released under GPL-3.0.
 </div>
+
 
