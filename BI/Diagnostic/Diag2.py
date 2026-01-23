@@ -57,7 +57,12 @@ class diagWIP():
             self.trace: The arviz trace object containing the diagnostic data
         """
         if backend == "numpyro":
-            self.trace = az.from_numpyro(self.sampler)
+            if hasattr(self.sampler, 'svi'):
+                # Handle SVI wrapper
+                posterior_samples = self.sampler.get_samples(group_by_chain=True)
+                self.trace = az.from_dict(posterior=posterior_samples)
+            else:
+                self.trace = az.from_numpyro(self.sampler)
             self.priors_name = list(self.trace['posterior'].data_vars.keys())
             return self.trace
         
