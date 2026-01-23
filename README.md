@@ -294,7 +294,7 @@ GPU support available on compatible systems with JAX GPU installation.
 
 <div align="center">
 **BayesianInference**\
-Based on "The Bayesian Inference library for Python, R, Julia" by Sosa, McElreath, & Ross (2026).
+Based on "The Bayesian Inference library for Python, R, Julia" by [Sosa, McElreath, & Ross (2026)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v1).
 
 [Official website](https://s-sosa.com/BI) \| [Issues](https://github.com/BGN-for-ASNA/BIJ/issues) \| [Quick Start](https://s-sosa.com/BI/start/Installation.html)
 
