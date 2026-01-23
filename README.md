@@ -3,10 +3,10 @@
 
 <div align="center">
 
-**A Julia wrapper for the unified probabilistic programming library, bringing JAX-powered Bayesian inference to the Julia ecosystem.**\
+**A unified probabilistic programming library, bringing JAX-powered Bayesian inference to the Python, R and Julia ecosystem.**\
 *Run bespoke models on CPU, GPU, or TPU with Julia's native syntax.*
 
-[![License: GPL (\>= 3)](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Julia](https://img.shields.io/badge/Julia-1+-9558B2?logo=julia)](https://julialang.org/)
+[![Website](https://img.shields.io/badge/Website-s--sosa.com/BI-blue?style=flat&logo=google-chrome&logoColor=white)](https://s-sosa.com/BI/) [![bioRxiv](https://img.shields.io/badge/bioRxiv-10.64898%2F2026.01.19.700318v1-BD271E?style=flat&logo=biorxiv&logoColor=white)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v1)  ![Python](https://img.shields.io/badge/Python-3+-3776AB?logo=python&logoColor=white) [![License: GPL (\>= 3)](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 </div>
 
 ---
@@ -95,7 +95,7 @@ Leveraging Just-In-Time (JIT) compilation via JAX, BI outperforms traditional en
 | **BI (CPU)**   | `████████████`                 | **\~30x Faster**     |
 | **BI (GPU)**   | `██`                           | **\~200x Faster**    |
 
-*\> Comparison of execution time for a Social Relations Model. Source: Sosa et al. (2025).*
+*\> Comparison of execution time for a Social Relations Model. Source: Sosa et al. (2026).*
 
 ---
 
@@ -288,15 +288,17 @@ GPU support available on compatible systems with JAX GPU installation.
 ## Related Packages
 
 -   [BIR](https://github.com/BGN-for-ASNA/BIR) - R implementation
--   [BIJ](https://pypi.org/project/PyBayesInference) - Python implementation
+-   [BIJ](https://pypi.org/project/PyBayesInference) - Julia implementation
 
 ---
 
 <div align="center">
 **BayesianInference**\
-Based on "The Bayesian Inference library for Python, R, Julia" by Sosa, McElreath, & Ross (2025).
+Based on "The Bayesian Inference library for Python, R, Julia" by Sosa, McElreath, & Ross (2026).
 
 [GitHub](https://github.com/BGN-for-ASNA/BIJ) \| [Issues](https://github.com/BGN-for-ASNA/BIJ/issues) \| [Quick Start](QUICKSTART.md)
 
 © 2025 BayesianInference Team. Released under GPL-3.0.
 </div>
+
+
