@@ -158,7 +158,19 @@
 
 \begin{abstract}
 
-Bayesian modeling constitutes a powerful paradigm in contemporary statistics and machine learning; however, its application is often hindered by a fragmented software ecosystem and significant computational bottlenecks. Researchers frequently face a trade-off between the accessibility of high-level interfaces, such as \textit{brms}, and the flexibility required for bespoke modeling found in lower-level languages like \textit{Stan}. To address these challenges, we introduce Bayesian Inference (\textit{BI}), a cross-platform library for Python, R, and Julia. \textit{BI} bridges the gap between abstraction levels by offering intuitive pre-built functions alongside the capability for low-level custom coding. Crucially, \textit{BI} facilitates hardware-accelerated GPU computation, enabling the fitting of high-dimensional models up to 200 times faster than comparable Stan implementations. This library provides a unified, efficient framework that democratizes access to complex Bayesian inference without compromising on performance or flexibility.
+\begin{enumerate}
+  \item Bayesian modeling is a powerful paradigm in modern statistics and machine learning. However, practitioners face significant obstacles in building bespoke models.
+  
+  \item The landscape of Bayesian software is fragmented across programming languages and abstraction levels. Newcomers often gravitate towards high-level interfaces, like \textit{R}, in order to use simple generalized linear models (\textit{GLMs}) through interfaces like \textit{brms}.
+
+  \item For niche problems, researchers must often transition to writing directly in lower-level programming languages, like \textit{Stan} or \textit{JAX}, which require specialist knowledge.
+  
+  \item  Furthermore, computational demands remain a significant bottleneck, often limiting the feasibility of applying Bayesian methods on large datasets and complex, high-dimensional models.
+
+\item The Bayesian Inference \textit{(}\href{https://s-sosa.com/BI}{BI}\textit{)} is a cross-platform software distributed as a \href{https://pypi.org/project/BayesInference/}{Python}, \href{https://cran.r-project.org/web/packages/BayesSIM/index.html}{R} and \href{https://juliapackages.com/p/PyBaeysianInference}{Julia} library. It provides an intuitive model-building syntax with the flexibility of low-level abstraction coding, while also providing pre-built \textit{GLM} functions. Further, by facilitating hardware-accelerated GPU computation under-the-hood, \textit{BI}  permits high-dimensional models to be fit in a fraction of the time  of comparable Stan models (up to 200-fold). 
+
+\end{enumerate}
+
 
 % Please include a maximum of seven keywords
 \keywords{Bayesian methods, scalability, software, Python, R, Julia, GPU parallelization, social networks}
@@ -183,7 +195,7 @@ Finally, even when model specification is achievable, with either general-purpos
 Stepping back a bit, we contend that the added challenges of learning Bayesian methods, while simultaneously struggling with various programming language back-ends, may be discouraging end-users from fully exploring the capabilities of Bayesian methods, simply due to the friction introduced by language barriers. There is thus a pressing need for a Bayesian modeling package that synergistically addresses the interconnected limitations reviewed above. Here, we introduce \textit{Bayesian Inference (BI)}, a software package designed to unify the modeling experience across the three dominant data-science languages, Python, R and Julia. \textit{BI} tackles the \textit{interoperability} barrier head-on by offering native interfaces in all environments. It aims to resolve the \textit{accessibility-flexibility trade-off} by providing an intuitive model definition syntax reminiscent of \texttt{lm} in base R, while permitting advanced customization. \textit{BI} also includes pre-built functions tailored for specialized models in areas like network analysis, survival analysis, and phylogenetic analysis, while still allowing extension and modification within its general framework. Crucially, \textit{BI} enhances \textit{scalability} by integrating with hardware-accelerated computation via \textit{JAX} (using \textit{NumPyro} or \textit{TFP} as back-ends), which lets users choose between execution on CPUs, GPUs, and TPUs. By providing a streamlined, efficient, and unified environment for the end-to-end Bayesian workflow---from model specification and fitting, to diagnostics, and prediction---\textit{BI} lowers the barrier-to-entry for sophisticated Bayesian analysis, allowing researchers across disciplines annd programming languages to confidently apply advanced Bayesian methods to their research problems.
 
 
-\section{Results}\label{results}
+\section{Software Presentation}\label{software-presentation}
 \subsection{Interoperability}\label{Interoperability}
 \textit{BI} directly confronts the \textbf{interoperability} challenge by offering native, feature-equivalent implementations in Python, R and Julia. While minor syntactic differences exist to adhere to the idiomatic conventions of each language, the core model specification syntax, the procedural workflow for analysis, and the underlying computational engines remain fundamentally consistent. For instance, Python utilizes dot notation for method calls on class objects (e.g., \texttt{bi.dist.normal(0,1)}), while R employs dollar sign notation for accessing elements or methods within its object system (e.g., \texttt{bi\$dist\$normal(0,1)}). This triple-language availability significantly lowers the adoption barrier for researchers, allowing them to work entirely within their preferred programming environment without sacrificing access to a common, powerful Bayesian modeling framework. More critically, it supports seamless collaboration across heterogeneous programming environments, thereby enhancing reproducibility, methodological coherence, and interdisciplinary research.
 
@@ -420,7 +432,8 @@ varying_intercept, varying_slope = m.effects.varying_effects(
 \subsection{Scalability}\label{Scalability}
  Finally, a fundamental design principle of \texttt{BI} is to directly address the \texttt{scalability} challenge by building upon modern, high-performance computational backends. By utilizing *JAX*-based libraries like \texttt{NumPyro} and \texttt{TFP}, \texttt{BI} inherits their significant computational efficiencies, stemming from features such as Just-In-Time (JIT) compilation and seamless hardware acceleration (GPU/TPU support). These are critical for tackling the large datasets and complex models prevalent in contemporary research. This strategic reliance on the \texttt{JAX} ecosystem allows \texttt{BI} users to tackle computationally intensive problems that might be infeasible or prohibitively slow using frameworks lacking comparable optimization and hardware acceleration capabilities (e.g. NBDA for large networks). By abstracting the backend complexities while retaining their power, \texttt{BI} significantly enhances the practical \texttt{scalability} of sophisticated Bayesian inference for a wider audience.
 
-\subsection{Example : SRM model}
+
+\section{Example : SRM model}
 To illustrate how these design features of \textit{BI} coalesce to provide a streamlined, flexible, and powerful solution, effectively addressing the limitations identified in the existing Bayesian software landscape we will provide a basic example of how an SRM model is declared in BI, compare it with the equivalent model in  STAN (Appendix 1). We will also show how this model can be build from scratch with BI \hyperref[code:block3_example]{(\textbf{Code block 3})} or its custom functions \hyperref[code:block4_example]{(\textbf{Code block 4})} to highligh the aceessibility-flexibility of our package by demonstrating how advance user can build custom model (with less code than STAN) as well as how new user can apply pre-build \textit{BI} models. Finally we show how it is also called in R \hyperref[code:block5_example]{(\textbf{Code block 5})} and Julia \hyperref[code:block6_example]{(\textbf{Code block 6})} to cross language use with \textit{BI}. Readers interested in further details on data structure, data import, data manipulation, and model fitting for SRM models can refer directly to the \textit{BI} documentation \href{https://s-sosa.com/BI/22.%20Network%20model.html}{Modeling Network}.
 
 \label{code:block3_example} 
@@ -570,7 +583,7 @@ m = importBI()
 end 
 \end{lstlisting}
 
-\subsection{Scalability}
+\section{Scalability}
 Finally, we evaluate computational performance by comparing the execution time of the
 \textit{Social Relations Model} (SRM) across networks of increasing size
 (50, 100, 200, and 400 nodes) using both \textit{Stan} and \textit{BI}
