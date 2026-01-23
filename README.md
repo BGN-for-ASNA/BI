@@ -95,15 +95,15 @@ Leveraging Just-In-Time (JIT) compilation via JAX, BI outperforms traditional en
 | **BI (CPU)**   | `████████████`                 | **\~30x Faster**     |
 | **BI (GPU)**   | `██`                           | **\~200x Faster**    |
 
-*\> Comparison of execution time for a Social Relations Model. Source: Sosa et al. (2026).*
+*\> Comparison of execution time for a Social Relations Model. Source: [Sosa et al. (2026)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v1).*
 
 ---
 
 ## Installation & Setup
 
-### 1. Install Julia
+### 1. Install Python
 
-Download and install [Julia 1.12 or later](https://julialang.org/downloads/)
+Download and install [Python 3.10 or later](https://www.python.org/downloads/)
 
 ### 2. Install Package
 
