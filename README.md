@@ -298,7 +298,7 @@ Based on "The Bayesian Inference library for Python, R, Julia" by Sosa, McElreat
 
 [Official website](https://s-sosa.com/BI) \| [Issues](https://github.com/BGN-for-ASNA/BIJ/issues) \| [Quick Start](https://s-sosa.com/BI/start/Installation.html)
 
-© 2026 BayesianInference Team. Released under GPL-3.0.
+© 2026 Bayesian Inference Team. Released under GPL-3.0.
 </div>
 
 
