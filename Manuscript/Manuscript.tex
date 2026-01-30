@@ -84,23 +84,11 @@
 
 % Include full author names and degrees, when required by the journal.
 % Use the \authfn to add symbols for additional footnotes and present addresses, if any. Usually start with 1 for notes about author contributions; then continuing with 2 etc if any author has a different present address.
-\author[1]{Sebastian Sosa}
-\author[1,2]{Mary B. McElreath}
-\author[1]{Cody T. Ross}
+\author[1]{}
 
-
-% Include full affiliation details for all authors
-\affil[1]{Department of Human Behavior, Ecology and Culture. Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany }
-\affil[2]{Department of Human Behavior, Ecology and Culture. Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany }
-
-\corraddress{Sebastian Sosa}
-\corremail{sebastian\_sosa@eva.mpg.de}
-
-
-\fundinginfo{Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany}
 
 % Include the name of the author that should appear in the running header
-\runningauthor{Sosa et al. (2025)}
+\runningauthor{Resources}
 
 \usepackage{graphicx}
 \usepackage{listings}
@@ -158,7 +146,8 @@
 
 \begin{abstract}
 
-Bayesian modeling constitutes a powerful paradigm in contemporary statistics and machine learning; however, its application is often hindered by a fragmented software ecosystem and significant computational bottlenecks. Researchers frequently face a trade-off between the accessibility of high-level interfaces, such as \textit{brms}, and the flexibility required for bespoke modeling found in lower-level languages like \textit{Stan}. To address these challenges, we introduce Bayesian Inference (\textit{BI}), a cross-platform library for Python, R, and Julia. \textit{BI} bridges the gap between abstraction levels by offering intuitive pre-built functions alongside the capability for low-level custom coding. Crucially, \textit{BI} facilitates hardware-accelerated GPU computation, enabling the fitting of high-dimensional models up to 200 times faster than comparable Stan implementations. This library provides a unified, efficient framework that democratizes access to complex Bayesian inference without compromising on performance or flexibility.
+Bayesian modeling constitutes a powerful paradigm in statistics and machine learning, yet practitioners often encounter significant barriers when constructing bespoke models. The current software landscape is fragmented, forcing a trade-off between accessibility and flexibility; users must typically choose between high-level interfaces for simple generalized linear models (GLMs) or complex low-level languages like Stan for niche problems. Additionally, computational demands frequently create bottlenecks for high-dimensional data. To address these challenges, we present \textit{Bayesian Inference} (BI), a cross-platform library available for Python, R, and Julia. BI combines an intuitive model-building syntax with the flexibility of low-level abstraction, while also providing pre-built functions. By leveraging hardware-accelerated GPU computation, BI significantly reduces runtime, fitting high-dimensional models up to 200 times faster than comparable Stan implementations. This framework effectively bridges the gap between ease of use and computational performance in Bayesian analysis.
+
 
 % Please include a maximum of seven keywords
 \keywords{Bayesian methods, scalability, software, Python, R, Julia, GPU parallelization, social networks}
@@ -641,25 +630,6 @@ By providing a streamlined and efficient environment for the end-to-end Bayesian
 
 
 
-\section*{DATA AVAILABILITY STATEMENT}
-All implementations of \textit{BI} are publicly available through their respective
-GitHub repositories for \href{https://github.com/BGN-for-ASNA/BI}{Python},
-\href{https://github.com/BGN-for-ASNA/BIR}{R}, and
-\href{https://github.com/BGN-for-ASNA/BIJ}{Julia}. In addition, each implementation
-can be installed via the standard package repositories of the corresponding
-programming languages: 
-\href{https://pypi.org/project/BayesInference/}{pip} for the Python version, \href{https://cran.r-project.org/web/packages/BayesianInference/index.html}{CRAN} for the R
-version, and the \href{https://github.com/JuliaRegistries/General/tree/master/P/PyBayesianInference}{Julia package registry} for the Julia version. Comprehensive documentation, including installation instructions, tutorials, and
-extended examples, are available on the official project website:
-\href{https://s-sosa.com/BI}{https://s-sosa.com/BI}.
-
-
-\section*{Authors' Contributions}
-Sebastian Sosa conceived the research idea, developed the software, and co-authored the manuscript. Mary B. McElreath contributed to the writing of the manuscript. Cody T. Ross contributed to the development of the network models, the documentation of the models included in the software, and the writing of the manuscript.
-
-
-\section*{FUNDING INFORMATION}
-This research has been funded by the Max Planck Institute for Evolutionary Anthropology, Deutscher Platz 6, 04103 Leipzig, Germany.
 
 \section*{CONFLICT OF INTEREST STATEMENT}
 The authors declare that there are no conflicts of interest related to the content, data or conclusions presented in this study.
