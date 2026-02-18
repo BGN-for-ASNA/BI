@@ -138,7 +138,7 @@
   \else
 %     \RequirePackage[partial=upright]{unicode-math}
     \setmainfont[Ligatures=TeX]{Lato}
-    \setmathfont{TeX Gyre DejaVu Math}
+    \setmathfont{Latin Modern Math}
     \setmathfont[range={\int}]{Latin Modern Math}
     \setmathfont[range=\mathup/{num,latin,Latin,greek,Greek}, Ligatures=TeX]{Lato}
     \setmathfont[range=\mathit/{num,latin,Latin,greek,Greek}, Ligatures=TeX]{Lato Italic}
@@ -669,7 +669,7 @@
 \newcommand{\thead}[1]{\multicolumn{1}{l}{\bfseries #1\rule[-1.2ex]{0pt}{2em}}}
 
 %% Boxes!
-\RequirePackage{stfloats}
+% \RequirePackage{stfloats}
 \RequirePackage{newfloat}
 \DeclareFloatingEnvironment[placement=bt,name=box]{featurebox}
 \captionsetup*[featurebox]{skip=1em,labelformat={default},font={heavy,boxcaption},labelfont={sc,color=black!75}}
