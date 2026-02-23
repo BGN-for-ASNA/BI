@@ -1,0 +1,114 @@
+# BayesInference MCP Server
+
+## 1. Goal
+
+The goal of this MCP server is to bridge the **BayesInference** package with AI assistants (like Claude). By running this server, you provide the AI with direct access to: - **Bayesian Modeling Tools**: Initialize models, fit data, sample posteriors, and inspect diagnostics using `BayesInference`. - **Documentation Library**: Over 30 complete Quarto documentation examples that the AI can read and learn from to solve complex modeling problems. - **Datasets**: Built-in datasets (Howell1, Milk, etc.) readily available for analysis.
+
+## 2. Installation
+
+To install the server and its dependencies:
+
+1.  **Install the BayesInference package**: `bash     pip install BayesInference` *Note: The server expects `from BI import bi` to work, which this package provides.*
+
+2.  **Install the MCP Server**: Navigate to the `mcp_server` directory and install it in editable mode: `bash     cd mcp_server     pip install -e .`
+
+## 3. How to Turn On
+
+You can run the server in two ways:
+
+### Option A: Integration with Claude Desktop (Recommended)
+
+Configure Claude Desktop to launch the server automatically. Add this to your configuration file (e.g., `~/.config/Claude/claude_desktop_config.json` on Linux):
+
+``` json
+{
+  "mcpServers": {
+    "bayesinference": {
+      "command": "python",
+      "args": ["-m", "mcp_server"],
+      "cwd": "/absolute/path/to/BI/mcp_server"
+    }
+  }
+}
+```
+
+*Make sure to replace `/absolute/path/to/BI/mcp_server` with your actual path.* Restart Claude Desktop, and the server will start automatically.
+
+### Option B: Manual Testing
+
+To run the server manually for testing or debugging:
+
+``` bash
+python -m mcp_server
+```
+
+The server will start and listen on stdio (standard input/output).
+
+## 4. How to Turn Off
+
+-   **If running via Claude Desktop**: simply close the Claude Desktop application. The server process will terminate automatically.
+-   **If running manually**: press `Ctrl+C` in the terminal where the server is running to stop it.
+
+------------------------------------------------------------------------
+
+## Features & Resources
+
+-   **Resources**: Access to 10 built-in datasets and **34+ model examples** from Quarto documentation.
+-   **Tools**: Model initialization, fitting, sampling, and diagnostics.
+-   **Platform Support**: CPU, GPU, and TPU acceleration via JAX.
+
+### Available Resources
+
+#### Datasets
+
+-   `dataset://howell1` - Demographic data from !Kung San people
+-   `dataset://milk` - Primate milk composition data
+-   `dataset://iris` - Classic iris dataset
+-   `dataset://chimpanzees` - Chimpanzee behavioral data
+-   `dataset://reedfrogs` - Reed frog survival experiments
+-   `dataset://tulips` - Tulip growth experiments
+-   `dataset://ucbadmit` - UC Berkeley admissions (Simpson's paradox)
+-   `dataset://trolley` - Trolley problem moral judgment data
+-   `dataset://elephants` - Elephant matriarch data
+-   `dataset://waffle_divorce` - Waffle House and divorce rates
+
+#### Documentation (34 Resources)
+
+The server provides access to your complete Quarto documentation, organized by category:
+
+**Getting Started** - `docs://getting_started` - Quick start guide - `docs://introduction` - Package introduction
+
+**Basic Regression** - `docs://linear_regression` - Simple linear models - `docs://multiple_regression` - Multiple predictors - `docs://interactions` - Interaction terms - `docs://categorical_predictors` - Categorical variables
+
+**Generalized Linear Models** - `docs://binomial_model`, `docs://beta_binomial`, `docs://poisson_model` - `docs://gamma_poisson`, `docs://poisson_offset`, `docs://categorical_outcomes` - `docs://dirichlet_model`, `docs://multinomial_model`, `docs://zero_inflated`
+
+**Advanced Models** - `docs://survival_analysis`, `docs://varying_intercepts`, `docs://varying_slopes` - `docs://gaussian_processes`, `docs://measurement_error`, `docs://missing_data`
+
+**Machine Learning** - `docs://pca`, `docs://gmm`, `docs://dpmm`, `docs://bnn`
+
+**Network Models** - `docs://network_model`, `docs://network_block_model`, `docs://network_biases` - `docs://network_metrics`, `docs://nbda`
+
+**API Reference** - `docs://api_distributions`, `docs://api_diagnostics`, `docs://api_manipulation`
+
+### Available Tools
+
+1.  **initialize_model**: Initialize a new BayesInference model instance (`platform="cpu"|"gpu"|"tpu"`).
+2.  **load_dataset**: Load a built-in dataset (e.g., "howell1").
+3.  **fit_model**: Fit a Bayesian model using MCMC sampling.
+4.  **get_summary**: Get posterior summary statistics.
+5.  **sample_posterior**: Generate posterior predictive samples.
+6.  **get_diagnostics**: Get MCMC diagnostics (R-hat, ESS).
+7.  **create_simple_linear_model**: Convenience tool for simple regressions.
+
+## Development
+
+### Running Tests
+
+``` bash
+cd mcp_server
+pytest test_server.py -v
+```
+
+## License
+
+GPL-3.0-or-later (same as BayesInference package)
