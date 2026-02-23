@@ -1,0 +1,92 @@
+[
+  {
+    "id": "example_1",
+    "description": "Continuous variable: Model (model 4.3)",
+    "stan": {
+      "code": "data{\n  vector[346] height;\n  vector[346] weight;\n}\nparameters{\n  real a;\n  real<lower=0> b;\n  real<lower=0,upper=50> s;\n}\nmodel{\n  vector[346] mu;\n  s ~ uniform( 0 , 50 );\n  b ~ lognormal( 0 , 1 );\n  a ~ normal( 178 , 20 );\n  for ( i in 1:346 ) {\n    mu[i] = a + b* weight[i] ;\n  }\n  height ~ normal( mu , s );  \n  \n}"
+    },
+    "bi": {
+      "code": "def model(weight, height):    \n    alpha = m.dist.normal( 178, 20, name = 'a')\n    beta = m.dist.log_normal( 0, 1, name = 'b')   \n    sigma = m.dist.uniform( 0, 50, name = 's')\n    m.dist.normal(alpha + beta * weight , sigma, obs=height)"
+    },
+    "mapping": {
+      "data": "Passed implicitly via params or m.data()",
+      "parameters": "Defined as m.dist.*(..., name='...')",
+      "model": "Distributions with obs=... arguments"
+    }
+  },
+  {
+    "id": "example_2",
+    "description": "Categorical variable: Model (model 5.9)",
+    "stan": {
+      "code": "data{\n    vector[29] K;\n    array[29] int clade_id;\n}\nparameters{\n    vector[4] a;\n    real<lower=0> s;\n}\nmodel{\n    vector[29] mu;\n    s ~ exponential( 1 );\n    a ~ normal( 0 , 0.5 );\n    for ( i in 1:29 ) {\n        mu[i] = a[clade_id[i]];\n    }\n    K ~ normal( mu , s );\n    \n}"
+    },
+    "bi": {
+      "code": "def model(kcal_per_g, index_clade):\n    a = m.dist.normal(0, 0.5, shape=(4,), name = 'a')\n    s = m.dist.exponential( 1, name = 's')    \n    mu = a[index_clade]\n    m.dist.normal(mu, s, obs=kcal_per_g)"
+    },
+    "mapping": {
+      "data": "Passed implicitly via params or m.data()",
+      "parameters": "Defined as m.dist.*(..., name='...')",
+      "model": "Distributions with obs=... arguments"
+    }
+  },
+  {
+    "id": "example_3",
+    "description": "Continuous interactions terms (model 8.3)",
+    "stan": {
+      "code": "data{\n    vector[27] blooms_std;\n    array[27] int shade_cent;\n    array[27] int water_cent;\n}\nparameters{\n    real a;\n    real bs;\n    real bw;    \n    real bws;\n    real<lower=0> sigma;\n}\nmodel{\n    vector[27] mu;\n    sigma ~ exponential( 1 );\n    bws ~ normal( 0 , 0.25 );\n    bs ~ normal( 0 , 0.25 );\n    bw ~ normal( 0 , 0.25 );\n    a ~ normal( 0.5 , 0.25 );\n    for ( i in 1:27 ) {\n        mu[i] = a + bw * water_cent[i] + bs * shade_cent[i] + bws * water_cent[i] * shade_cent[i];\n    }\n\n    \n    blooms_std ~ normal( mu , sigma );\n}"
+    },
+    "bi": {
+      "code": "def model(blooms,shade, water):\n    sigma = m.dist.exponential(1, name = 'sigma')\n    beta_s = m.dist.normal(0, 0.25, name = 'bws')\n    beta_w = m.dist.normal(0, 0.25, name = 'bs')\n    beta_ws = m.dist.normal(0, 0.25, name = 'bw')\n    a = m.dist.normal(0.5, 0.25, name = 'a')\n    mu = a + beta_w*water +  beta_s*shade +  beta_ws*water*shade\n    m.dist.normal(mu, sigma, obs=blooms)"
+    },
+    "mapping": {
+      "data": "Passed implicitly via params or m.data()",
+      "parameters": "Defined as m.dist.*(..., name='...')",
+      "model": "Distributions with obs=... arguments"
+    }
+  },
+  {
+    "id": "example_4",
+    "description": "Binomial (model 11.1)",
+    "stan": {
+      "code": "data{\n    array[504] int pulled_left;\n}\nparameters{\n    real a;\n}\nmodel{\n    real p;\n    a ~ normal( 0 , 10 );\n    p = a;\n    p = inv_logit(p);\n    pulled_left ~ binomial( 1 , p );    \n}"
+    },
+    "bi": {
+      "code": "def model(pulled_left):\n    alpha = m.dist.normal( 0, 10,  name = 'a')\n    m.dist.binomial(total_count = 1, logits=alpha, obs=pulled_left)"
+    },
+    "mapping": {
+      "data": "Passed implicitly via params or m.data()",
+      "parameters": "Defined as m.dist.*(..., name='...')",
+      "model": "Distributions with obs=... arguments"
+    }
+  },
+  {
+    "id": "example_5",
+    "description": "Binomial with indices (model 11.4)",
+    "stan": {
+      "code": "data{\n    array[504] int pulled_left;\n    array[504] int treatment;\n    array[504] int actor;\n}\nparameters{\n    vector[7] a;\n    vector[4] b;\n}\nmodel{\n    vector[504] p;\n    a ~ normal( 0 , 1.5 );\n    b ~ normal( 0 , 0.5 );    \n    for ( i in 1:504 ) {\n        p[i] = a[actor[i]] + b[treatment[i]];\n        p[i] = inv_logit(p[i]);\n    }\n    pulled_left ~ binomial( 1 , p );\n}"
+    },
+    "bi": {
+      "code": "def model(actor, treatment, pulled_left):\n    alpha = m.dist.normal(0, 1.5, shape = (7,), name='a')\n    beta = m.dist.normal(0, 0.5, shape = (4,), name='b')\n    p = alpha[actor] + beta[treatment]\n    m.dist.binomial(total_count = 1, logits=p, obs=pulled_left)"
+    },
+    "mapping": {
+      "data": "Passed implicitly via params or m.data()",
+      "parameters": "Defined as m.dist.*(..., name='...')",
+      "model": "Distributions with obs=... arguments"
+    }
+  },
+  {
+    "id": "example_6",
+    "description": "Poisson (model 11.10)",
+    "stan": {
+      "code": "data{\n    int len;\n    int N_cafes;\n    vector[len] wait;\n    array[len] int afternoon;\n    array[len] int cafe;\n}\n\nparameters{\n    corr_matrix[2] Rho;\n    real a;\n    vector[N_cafes] a_cafe;\n    real b;\n    vector[N_cafes] b_cafe;      \n    real<lower=0> sigma;\n    vector<lower=0>[2] sigma_cafe;   \n    \n}\nmodel{\n    vector[len] mu;\n    Rho ~ lkj_corr( 2 );\n    sigma ~ exponential( 1 );\n    sigma_cafe ~ exponential( 1 );\n    b ~ normal( -1 , 0.5 );    \n    a ~ normal( 5 , 2 );\n    {\n        array[N_cafes] vector[2] YY;\n        vector[2] MU;\n        MU = [ a , b ]';\n        for ( j in 1:N_cafes ) YY[j] = [ a_cafe[j] , b_cafe[j] ]';\n        YY ~ multi_normal( MU , quad_form_diag(Rho , sigma_cafe) );\n    }\n    for ( i in 1:len ) {\n        mu[i] = a_cafe[cafe[i]] + b_cafe[cafe[i]] * afternoon[i];        \n    }\n    \n    wait ~ normal( mu , sigma );\n\n}"
+    },
+    "bi": {
+      "code": "def model(cid, population, total_tools):\n    alpha = m.dist.normal(3, 0.5, shape= (2,), name='a')\n    beta = m.dist.normal(0, 0.2, shape=(2,), name='b')\n    lambda_ = jnp.exp(alpha[cid] + beta[cid]*population)\n    m.dist.poisson(lambda_, obs=total_tools)"
+    },
+    "mapping": {
+      "data": "Passed implicitly or explicitly mapped",
+      "parameters": "Distributions defined with a name handle parameters",
+      "model": "Same mapped with obs="
+    }
+  }
+]

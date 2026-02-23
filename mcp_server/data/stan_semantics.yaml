@@ -1,0 +1,62 @@
+stan_blocks:
+  data: "Implicitly or explicitly passed in python as data dictionaries or arrays to the model function."
+  parameters: "BI uses variable assignments via m.dist.* with the 'name=' keyword. For example: `mu = m.dist.normal(0, 1, name='mu')`."
+  model: "BI uses m.dist.* with the 'obs=' keyword. For example: `m.dist.normal(mu, sigma, obs=y)`."
+  transformed_parameters: "In BI, this is just normal python code computations between parameters and observed variables. Example: `mu = a + b * x`."
+  generated_quantities: "In BI, handled post-sampling via posterior predictive checks or explicit simulation (sample=True)."
+
+syntax_mappings:
+  vector_declaration: "vector[N] x -> x = jnp.zeros(N) or implicitly shaped by obs/sample"
+  matrix_declaration: "matrix[N, K] x -> x = jnp.zeros((N, K))"
+  array_declaration: "array[N] int x -> x = np.zeros(N, dtype=int)"
+  lower_upper_bounds: "real<lower=0> x -> Use positive-constrained distributions like HalfNormal, Exponential, LogNormal, or Gamma."
+  for_loops: "Stan vectorized loops `for (i in 1:N) { mu[i] = ... }` -> BI vectorized arrays `mu = a + b * x` (no loop needed)."
+
+distributions:
+  normal:
+    stan: "y ~ normal(mu, sigma);"
+    bi: "m.dist.normal(mu, sigma, obs=y)"
+  lognormal:
+    stan: "y ~ lognormal(mu, sigma);"
+    bi: "m.dist.log_normal(mu, sigma, obs=y)"
+  uniform:
+    stan: "y ~ uniform(lower, upper);"
+    bi: "m.dist.uniform(lower, upper, obs=y)"
+  exponential:
+    stan: "y ~ exponential(beta);"
+    bi: "m.dist.exponential(beta, obs=y)"
+  binomial:
+    stan: "y ~ binomial(N, p);"
+    bi: "m.dist.binomial(n=N, probs=p, obs=y)"
+  poisson:
+    stan: "y ~ poisson(lambda);"
+    bi: "m.dist.poisson(rate=lambda, obs=y)"
+  beta_binomial:
+    stan: "y ~ beta_binomial(N, alpha, beta);"
+    bi: "m.dist.beta_binomial(concentration1=alpha, concentration0=beta, total_count=N, obs=y)"
+  categorical:
+    stan: "y ~ categorical(p);"
+    bi: "m.dist.categorical(probs=p, obs=y)"
+  multi_normal:
+    stan: "y ~ multi_normal(mu, Sigma);"
+    bi: "m.dist.multivariatenormal(loc=mu, covariance_matrix=Sigma, obs=y)"
+  lkj_corr:
+    stan: "Rho ~ lkj_corr(eta);"
+    bi: "Rho = m.dist.lkj(dimension=K, concentration=eta, name='Rho')"
+
+functions:
+  inv_logit:
+    stan: "inv_logit(x)"
+    bi: "jax.scipy.special.expit(x)"
+  softmax:
+    stan: "softmax(x)"
+    bi: "jax.nn.softmax(x)"
+  exp:
+    stan: "exp(x)"
+    bi: "jnp.exp(x)"
+
+best_practices:
+  - "Stan parameters become BI prior distributions with a `name=` attribute."
+  - "Stan model statements with `~` become BI likelihood distributions with an `obs=` attribute."
+  - "Stan `data` block variables become arguments to the BI model function."
+  - "BI uses JAX internally, so prefer `jnp` for mathematical operations over standard `math` or `np`."

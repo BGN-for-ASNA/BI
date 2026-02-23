@@ -1,0 +1,154 @@
+----- Cell 170 (len 1780) -----
+def slice_array_to_dict(array, name="slice"):
+
+    _, dim2, dim3 = array.shape
+    
+    # Create the dictionary
+    slices_dict = {
+        f"{name}_{i}_{j}": array[:, i, j]
+        for i in range(dim2)
+        for j in range(dim3)
+    }
+    
+    return slices_dict
+def slice_array_to_dict_2(array, name="slice"):
+
+    _, dim2  = array.shape
+    
+    # Create the dictionary
+    slices_dict = {
+        f"{name}_{i}": array[:, i]
+        for i in range(dim2)
+    }
+    
+    return slices_dict
+
+# Change posteriors dictionary so that parameters  are in the same order as the data of stan
+r = slice_array_to_dict(m.posteriors['Rho'], name="Rho")
+a = dict(a=m.posteriors['a'])
+b = dict(b=m.posteriors['b'])
+sigma = dict(sigma=m.posteriors['sigma'])
+a_cafe = slice_array_to_dict_2(m.posteriors['a_b_cafe'][:,:,0], name="a_cafe")
+b_cafe = slice_array_to_dict_2(m.posteriors['a_b_cafe'][:,:,1], name="b_cafe")
+sigma_cafe_1 = dict(sigma_cafe_1=m.posteriors['sigma_cafe'][:, 0])
+sigma_cafe_2 = dict(sigma_cafe_2=m.posteriors['sigma_cafe'][:, 1])
+r.update(a)
+r.update(a_cafe)
+r.update(b)
+r.update(b_cafe)
+r.update(sigma)
+r.update(sigma_cafe_1)
+r.update(sigma_cafe_2)
+m.posteriors=r
+d = prepare_stan_data(df)
+df_bi = prepare_bi_data(m)
+
+# Plot the density of the parameters
+df_bi.columns =d.columns
+for col in df_bi.columns:
+    if col in d.columns:  # Ensure the column exists in both DataFrames
+        plt.figure(figsize=(10, 6))  # Create a new figure for each plot
+        sns.kdeplot(df_bi[col], label=f'bi_{col}', fill=True)
+        sns.kdeplot(d[col], label=f'stan_{col}', fill=True)
+
+        # Add labels and title
+        plt.xlabel('Value')
+        plt.ylabel('Density')
+        plt.title(f'Density Plot of {col}')
+        plt.legend()
+
+        # Show the plot
+        plt.show()
+
+----- Cell 172 (len 4190) -----
+def model(cafe, wait, N_cafes, afternoon):
+    a = m.dist.normal(5, 2, name = 'a')
+    b =  m.dist.normal(-1, 0.5,  name = 'b')
+    sigma_cafe =  m.dist.exponential(1, shape=(2,),  name = 'sigma_cafe')
+    sigma =  m.dist.exponential( 1, name = 'sigma')
+    Rho =  m.dist.lkj(2, 2, name = 'Rho')
+    cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho
+    a_cafe_b_cafe =  m.dist.multivariatenormal(jnp.stack([a, b]), cov, shape = [N_cafes], name = 'a_b_cafe')    
+
+    a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
+    mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
+    m.dist.normal(mu, sigma, obs=wait)
+
+def sim(N_cafes = 20, N_visits = 10, a = 3.5,b = -1, sigma_a = 1, sigma_b = 0.5, rho = -0.7 ):
+    Mu = jnp.array([a,b])
+    
+    cov_ab = sigma_a * sigma_b *  rho
+    
+    Sigma = jnp.array([[sigma_a**2, cov_ab], [cov_ab, sigma_b**2]])
+    
+    jnp.array([1, 2, 3, 4]).reshape(2, 2).T
+    
+    sigmas = jnp.array([sigma_a, sigma_b])  # standard deviations
+    
+    Rho = jnp.array([[1, rho], [rho, 1]])  # correlation matrix
+
+    # now matrix multiply to get covariance matrix
+    Sigma = jnp.diag(sigmas) @ Rho @ jnp.diag(sigmas)
+
+    seed = jax.random.PRNGKey(5)  # used to replicate example
+    vary_effects = m.dist.multivariatenormal(Mu, Sigma, shape=(N_cafes,), sample = True)
+    a_cafe = vary_effects[:, 0]
+    b_cafe = vary_effects[:, 1]
+
+    seed = jax.random.PRNGKey(22)
+    afternoon = jnp.tile(jnp.arange(2), N_visits * N_cafes // 2)
+    cafe_id = jnp.repeat(jnp.arange(N_cafes), N_visits)
+    mu = a_cafe[cafe_id] + b_cafe[cafe_id] * afternoon
+    sigma = 0.5  # std dev within cafes
+    wait =  m.dist.normal(mu, sigma, sample = True)
+    d = pd.DataFrame(dict(cafe=cafe_id, afternoon=afternoon, wait=wait))
+    return d
+
+def estimate(N_cafes = 20, N_visits = 10, a = 3.5,b = -1,sigma_a = 1, sigma_b = 0.5, rho = -0.7):
+    d = sim(N_cafes,N_visits , a, b, sigma_a, sigma_b, rho)
+    m = bi(print_devices_found=False)
+    m.data_on_model = dict(
+        cafe = d.cafe.values, 
+        wait = d.wait.values, 
+        N_cafes = len(d.cafe.unique()),
+        afternoon =d.afternoon.values
+    )
+
+    m.fit(model, num_samples=500, progress_bar=False) 
+    s = m.summary()
+    return s.iloc[:,0]
+
+def plot_recovery(res):
+    g = sns.FacetGrid(res, col="parameter", col_wrap=3, height=4, sharey=False, sharex = False)
+    res['simulated'] = res['simulated'].astype(float)
+    res['estimations'] = res['estimations'].astype(float)
+    g.map(sns.scatterplot, "simulated", "estimations")
+
+def param_recovery(nsim, N_cafes = 20, N_visits = 10, a = 3.5,b = -1,sigma_a = 1, sigma_b = 0.5, rho = -0.7 ):
+    df = pd.DataFrame(columns=['sim', 'parameter', 'simulated', 'estimations'])
+
+    for i in range(nsim):
+        estimations = estimate(N_cafes = N_cafes, N_visits = N_visits,a = a[i], b = b[i], sigma_a = sigma_a[i], sigma_b = sigma_b[i], rho = rho[i])
+        estimations_filtered = estimations.loc[estimations.index.isin(['Rho[0, 1]', 'a', 'b', 'sigma_cafe[0]', 'sigma_cafe[1]'])] # Selecting paramters from model
+        data = {'sim': np.repeat(i, len(estimations_filtered.values)), 
+                'parameter': estimations_filtered.index, 
+                'simulated' : jnp.array([Rho[i],  a[i], b[i], sigma_a[i], sigma_b[i]]), 
+                'estimations': estimations_filtered.values}
+        df = pd.concat([df, pd.DataFrame(data)], axis = 0, ignore_index=True)
+
+    plot_recovery(df)    
+
+    return df
+
+m = bi()
+nsim = 100
+a =  m.dist.normal(0, 1, shape= (nsim,), name = 'a', sample=True).tolist()
+b =  m.dist.normal(0, 0.5, shape=(nsim,), name = 'b', sample=True).tolist()
+sigma_cafe =  m.dist.exponential(1, shape=(nsim,2), name = 'sigma_cafe', sample=True)
+Rho =  m.dist.beta(2, 5, shape=(nsim,), name = 'b', sample=True).tolist()
+sigma_a =  sigma_cafe[:,0].tolist()
+sigma_b = sigma_cafe[:,1].tolist()
+i=0
+#sim(N_cafes = 20, N_visits = 10, a = a[i],b = b[i],sigma_a = sigma_a[i], sigma_b = sigma_b[i], rho = Rho[i] )
+#estimations = estimate(a = a[1], b = b[1], sigma_a = sigma_a[1], sigma_b = sigma_b[1], rho = Rho[1])
+param_recovery(nsim = nsim, N_cafes = 20, N_visits = 10, a =a, b = b, sigma_a =  sigma_cafe[:,0], sigma_b = sigma_cafe[:,1], rho = Rho)

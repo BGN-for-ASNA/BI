@@ -79,6 +79,10 @@ DATASETS = {
 DOCS_PATH = Path(__file__).parent.parent / "Documentation"
 
 
+STAN_EXAMPLES_PATH = Path(__file__).parent / "data" / "stan_bi_examples.json"
+STAN_SEMANTICS_PATH = Path(__file__).parent / "data" / "stan_semantics.yaml"
+
+
 # Mapping of documentation resources to their Quarto files
 QUARTO_DOCS = {
     # Getting Started
@@ -422,3 +426,47 @@ def get_docs_by_category() -> Dict[str, List[str]]:
             "api_manipulation"
         ]
     }
+
+
+def get_stan_conversion_examples() -> str:
+    """
+    Get the list of all paired Stan to BI conversion examples.
+    """
+    try:
+        if STAN_EXAMPLES_PATH.exists():
+            with open(STAN_EXAMPLES_PATH, 'r', encoding='utf-8') as f:
+                return f.read()
+        return json.dumps({"error": "Stan examples file not found."})
+    except Exception as e:
+        return json.dumps({"error": f"Error loading Stan examples: {str(e)}"})
+
+
+def get_stan_conversion_example(example_id: str) -> str:
+    """
+    Get a specific Stan to BI conversion example by ID.
+    """
+    try:
+        if STAN_EXAMPLES_PATH.exists():
+            with open(STAN_EXAMPLES_PATH, 'r', encoding='utf-8') as f:
+                examples = json.load(f)
+                for ex in examples:
+                    if ex.get("id") == example_id:
+                        return json.dumps(ex, indent=2)
+                return json.dumps({"error": f"Example ID '{example_id}' not found."})
+        return json.dumps({"error": "Stan examples file not found."})
+    except Exception as e:
+        return json.dumps({"error": f"Error loading Stan example: {str(e)}"})
+
+
+def get_stan_semantics() -> str:
+    """
+    Get the formal Stan -> BI semantic mapping specification.
+    """
+    try:
+        if STAN_SEMANTICS_PATH.exists():
+            with open(STAN_SEMANTICS_PATH, 'r', encoding='utf-8') as f:
+                return f.read()
+        return "Stan semantics file not found."
+    except Exception as e:
+        return f"Error loading Stan semantics: {str(e)}"
+

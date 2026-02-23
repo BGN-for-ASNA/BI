@@ -51,6 +51,24 @@ async def list_resources() -> list[Resource]:
                 )
             )
     
+    # Add Stan/BI conversion resources
+    resource_list.append(
+        Resource(
+            uri="bi://stan_conversion_examples",
+            name="Stan to BI Conversion Examples",
+            mimeType="application/json",
+            description="A collection of paired Stan and BI models demonstrating semantic equivalence."
+        )
+    )
+    resource_list.append(
+        Resource(
+            uri="bi://stan_semantics",
+            name="Stan to BI Semantic Mapping",
+            mimeType="text/yaml",
+            description="Formal specification defining how Stan blocks map to BI API calls."
+        )
+    )
+    
     return resource_list
 
 
@@ -66,6 +84,16 @@ async def read_resource(uri: str) -> str:
         doc_name = uri.replace("docs://", "")
         return resources.get_docs_resource(doc_name)
     
+    elif uri == "bi://stan_conversion_examples":
+        return resources.get_stan_conversion_examples()
+        
+    elif uri.startswith("bi://stan_conversion_examples/"):
+        example_id = uri.replace("bi://stan_conversion_examples/", "")
+        return resources.get_stan_conversion_example(example_id)
+        
+    elif uri == "bi://stan_semantics":
+        return resources.get_stan_semantics()
+        
     else:
         raise ValueError(f"Unknown resource URI: {uri}")
 
@@ -298,6 +326,34 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["x_data", "y_data"]
             }
+        ),
+        Tool(
+            name="convert_stan_to_bi",
+            description="Parses a Stan model and applies semantic mapping rules to generate an equivalent BI Python model.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "stan_code": {
+                        "type": "string",
+                        "description": "The raw Stan model code to convert."
+                    }
+                },
+                "required": ["stan_code"]
+            }
+        ),
+        Tool(
+            name="validate_bi_model",
+            description="Validates BI Python code syntax and basic API usage using abstract syntax trees.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "bi_code": {
+                        "type": "string",
+                        "description": "The BI Python code block to validate."
+                    }
+                },
+                "required": ["bi_code"]
+            }
         )
     ]
 
@@ -324,6 +380,10 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
             result = tools.get_diagnostics(**arguments)
         elif name == "create_simple_linear_model":
             result = tools.create_simple_linear_model(**arguments)
+        elif name == "convert_stan_to_bi":
+            result = tools.convert_stan_to_bi(**arguments)
+        elif name == "validate_bi_model":
+            result = tools.validate_bi_model(**arguments)
         else:
             result = {
                 "success": False,

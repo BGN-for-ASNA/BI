@@ -482,3 +482,185 @@ def create_simple_linear_model(
             "error": str(e),
             "traceback": traceback.format_exc()
         }
+
+
+def convert_stan_to_bi(stan_code: str) -> Dict[str, Any]:
+    """
+    Parses a Stan model and applies semantic mapping rules to generate an equivalent BI Python model.
+    Note: This is a best-effort structural mapping.
+    
+    Args:
+        stan_code: The raw Stan model code to convert.
+        
+    Returns:
+        Conversion result containing the BI code, explanation, and confidence.
+    """
+    try:
+        explanation = []
+        assumptions = []
+        confidence = 0.8  # Start high, lower if we hit unknown constructs
+        
+        # Very basic parsing to find blocks
+        import re
+        
+        data_block_match = re.search(r'data\s*\{([^}]*)\}', stan_code, re.DOTALL)
+        params_block_match = re.search(r'parameters\s*\{([^}]*)\}', stan_code, re.DOTALL)
+        model_block_match = re.search(r'model\s*\{([^}]*)\}', stan_code, re.DOTALL)
+        
+        bi_code_lines = ["def model(data):"]
+        explanation.append("Created a Python 'model' function that takes 'data' as argument.")
+        
+        # Data block
+        if data_block_match:
+            explanation.append("Found Stan 'data' block.")
+            assumptions.append("Assuming data variables are passed inside the 'data' dictionary or available in scope.")
+            data_vars = []
+            for line in data_block_match.group(1).split('\n'):
+                line = line.strip()
+                if not line or line.startswith('//'): continue
+                # Match e.g., 'int N;', 'array[10] int T;', 'vector[N] K;'
+                m = re.search(r'\\b([a-zA-Z0-9_]+)\s*;', line)
+                if m:
+                    var_name = m.group(1)
+                    bi_code_lines.append(f"    {var_name} = data.get('{var_name}')")
+                    data_vars.append(var_name)
+        
+        # Params block
+        if params_block_match:
+            explanation.append("Found Stan 'parameters' block.")
+            bi_code_lines.append("")
+            bi_code_lines.append("    # Parameters (Priors must be defined below based on model block)")
+            for line in params_block_match.group(1).split('\n'):
+                line = line.strip()
+                if not line or line.startswith('//'): continue
+                m = re.search(r'\\b([a-zA-Z0-9_]+)\s*;', line)
+                if m:
+                    var_name = m.group(1)
+                    bi_code_lines.append(f"    # TODO: Define prior for '{var_name}' (e.g., {var_name} = m.dist.normal(..., name='{var_name}'))")
+        
+        # Model block
+        if model_block_match:
+            explanation.append("Found Stan 'model' block.")
+            bi_code_lines.append("")
+            bi_code_lines.append("    # Model Likelihood")
+            for line in model_block_match.group(1).split('\n'):
+                line = line.strip()
+                if not line or line.startswith('//'): continue
+                
+                # Check for sampling statements
+                sample_match = re.search(r'([a-zA-Z0-9_\[\]]+)\s*~\s*([a-zA-Z0-9_]+)\s*\(([^;]+)\)\s*;', line)
+                if sample_match:
+                    lhs = sample_match.group(1).strip()
+                    dist = sample_match.group(2).strip()
+                    args = sample_match.group(3).strip()
+                    
+                    if dist == 'normal':
+                        bi_dist = 'normal'
+                    elif dist == 'poisson':
+                        bi_dist = 'poisson'
+                    elif dist == 'binomial':
+                        bi_dist = 'binomial'
+                    elif dist == 'exponential':
+                        bi_dist = 'exponential'
+                    else:
+                        bi_dist = f"TODO_mapped_{dist}"
+                        confidence -= 0.1
+                        
+                    # If it's a known parameter vs observed data
+                    # This requires deeper semantic analysis, we do a basic heuristic
+                    if '[' in lhs or lhs in (data_vars if data_block_match else []):
+                        bi_code_lines.append(f"    m.dist.{bi_dist}({args}, obs={lhs})")
+                    else:
+                        bi_code_lines.append(f"    {lhs} = m.dist.{bi_dist}({args}, name='{dist}_{lhs}')")
+                
+                # Check for assignments
+                assign_match = re.search(r'([a-zA-Z0-9_\[\]]+)\s*=\s*([^;]+);', line)
+                if assign_match:
+                    lhs = assign_match.group(1).strip()
+                    rhs = assign_match.group(2).strip()
+                    rhs = rhs.replace('inv_logit', 'jax.scipy.special.expit')
+                    rhs = rhs.replace('exp', 'jnp.exp')
+                    bi_code_lines.append(f"    {lhs} = {rhs}")
+                    
+        if not (data_block_match or params_block_match or model_block_match):
+            assumptions.append("Stan code didn't perfectly match standard block structures, mapping might be incomplete.")
+            confidence -= 0.3
+            
+        return {
+            "success": True,
+            "bi_code": "\n".join(bi_code_lines),
+            "explanation": explanation,
+            "assumptions": assumptions,
+            "confidence": max(0.0, min(1.0, confidence))
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }
+
+
+def validate_bi_model(bi_code: str) -> Dict[str, Any]:
+    """
+    Validates BI Python code syntax and basic API usage using abstract syntax trees.
+    
+    Args:
+        bi_code: The BI Python code block to validate.
+        
+    Returns:
+        Validation results containing syntax check and API usage warnings.
+    """
+    import ast
+    try:
+        # Check basic Python Syntax
+        tree = ast.parse(bi_code)
+        
+        errors = []
+        warnings = []
+        
+        # Check if a function named 'model' is defined
+        has_model_func = False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == 'model':
+                has_model_func = True
+                
+            # Check for m.dist usage
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Attribute):
+                    if isinstance(node.func.value, ast.Attribute) and node.func.value.attr == 'dist':
+                        # Validating m.dist.<dist> call
+                        has_name_or_obs = False
+                        for kw in node.keywords:
+                            if kw.arg in ['name', 'obs']:
+                                has_name_or_obs = True
+                        if not has_name_or_obs:
+                            warnings.append(f"Line {node.lineno}: m.dist call missing 'name=' or 'obs=' keyword argument.")
+
+        if not has_model_func:
+            warnings.append("No function named 'model' found. BI expects a 'model' method to fit.")
+            
+        return {
+            "success": True,
+            "is_valid_python": True,
+            "errors": errors,
+            "warnings": warnings,
+            "message": "Validation complete."
+        }
+    except SyntaxError as e:
+        return {
+            "success": False,
+            "is_valid_python": False,
+            "error": f"SyntaxError: {str(e)}",
+            "line": e.lineno,
+            "offset": e.offset,
+            "text": e.text
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "is_valid_python": False,
+            "error": f"Validation failed: {str(e)}",
+            "traceback": traceback.format_exc()
+        }
+
