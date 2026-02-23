@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bayesinference-mcp-server"
+version = "0.1.0"
+authors = [
+    {name = "Sebastian Sosa", email = "bi@s-sosa.com"}
+]
+description = "MCP server for BayesInference - Expose Bayesian modeling to AI assistants"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "GPL-3.0-or-later"}
+keywords = ["mcp", "bayesian", "inference", "ai", "llm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "mcp>=0.1.0",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/BGN-for-ASNA/BI"
+"Bug Tracker" = "https://github.com/BGN-for-ASNA/BI/issues"
+
+[project.scripts]
+bayesinference-mcp = "mcp_server.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mcp_server*"]
