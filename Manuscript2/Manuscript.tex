@@ -50,7 +50,7 @@
 % Examples:
 % =======================
 %% Example: Using numerical, sort-by-authors citations.
-\documentclass[num-refs]{wiley-article}
+\documentclass[blind,lineno,num-refs]{wiley-article}
 
 %% Example: Using author-year citations and anonymising submission
 % \documentclass[blind,alpha-refs]{wiley-article}
@@ -71,9 +71,12 @@
 
 % Add additional packages here if required
 \usepackage{siunitx}
+\usepackage{setspace}
+\doublespacing
 
 % Update article type if known
-%\papertype{Practical Tools}
+% Update article type if known
+\papertype{Practical Tools}
 % Include section in journal if known, otherwise delete
 %\paperfield{Methods in Ecology and Evolution}
 
@@ -84,23 +87,23 @@
 
 % Include full author names and degrees, when required by the journal.
 % Use the \authfn to add symbols for additional footnotes and present addresses, if any. Usually start with 1 for notes about author contributions; then continuing with 2 etc if any author has a different present address.
-\author[1]{Sebastian Sosa}
-\author[1,2]{Mary B. McElreath}
-\author[1]{Cody T. Ross}
+% \author[1]{Sebastian Sosa}
+% \author[1,2]{Mary B. McElreath}
+% \author[1]{Cody T. Ross}
 
 
 % Include full affiliation details for all authors
-\affil[1]{Department of Human Behavior, Ecology and Culture. Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany }
-\affil[2]{Department of Human Behavior, Ecology and Culture. Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany }
+% \affil[1]{Department of Human Behavior, Ecology and Culture. Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany }
+% \affil[2]{Department of Human Behavior, Ecology and Culture. Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany }
 
-\corraddress{Sebastian Sosa}
-\corremail{sebastian\_sosa@eva.mpg.de}
+% \corraddress{Sebastian Sosa}
+% \corremail{sebastian\_sosa@eva.mpg.de}
 
 
-\fundinginfo{Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany}
+% \fundinginfo{Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany}
 
 % Include the name of the author that should appear in the running header
-\runningauthor{Sosa et al. (2025)}
+\runningauthor{Blinded for Review}
 
 \usepackage{graphicx}
 \usepackage{listings}
@@ -131,7 +134,7 @@
   keywordstyle=\color{codered},
   numberstyle=\tiny\color{codegray},
   stringstyle=\color{codeorange},
-  basicstyle=\ttfamily\footnotesize,
+  basicstyle=\ttfamily\footnotesize\singlespacing,
   breakatwhitespace=false,     
   breaklines=true,         
   captionpos=b,          
@@ -167,7 +170,7 @@
   
   \item  Furthermore, computational demands remain a significant bottleneck, often limiting the feasibility of applying Bayesian methods on large datasets and complex, high-dimensional models.
 
-\item The Bayesian Inference \textit{(}\href{https://s-sosa.com/BI}{BI}\textit{)} is a cross-platform software distributed as a \href{https://pypi.org/project/BayesInference/}{Python}, \href{https://cran.r-project.org/web/packages/BayesSIM/index.html}{R} and \href{https://juliapackages.com/p/PyBaeysianInference}{Julia} library. It provides an intuitive model-building syntax with the flexibility of low-level abstraction coding, while also providing pre-built \textit{GLM} functions. Further, by facilitating hardware-accelerated GPU computation under-the-hood, \textit{BI}  permits high-dimensional models to be fit in a fraction of the time  of comparable Stan models (up to 200-fold). 
+\item The Bayesian Inference \textit{(}\href{https://shorturl.at/CWHSD}{BI}\textit{)} is a cross-platform software distributed as a \href{https://anonymous.4open.science/r/BI-F5E4/README.md}{Python}, \href{https://anonymous.4open.science/r/BIR-4C37/}{R} and \href{https://anonymous.4open.science/r/PyBayesianInference_jl_5A2222100/README.md}{Julia} library. It provides an intuitive model-building syntax with the flexibility of low-level abstraction coding, while also providing pre-built \textit{GLM} functions. Further, by facilitating hardware-accelerated GPU computation under-the-hood, \textit{BI}  permits high-dimensional models to be fit in a fraction of the time  of comparable Stan models (up to 200-fold). 
 
 \end{enumerate}
 
@@ -175,7 +178,6 @@
 % Please include a maximum of seven keywords
 \keywords{Bayesian methods, scalability, software, Python, R, Julia, GPU parallelization, social networks}
 \end{abstract}
-\end{frontmatter}
 
 
 
@@ -216,7 +218,7 @@ Stepping back a bit, we contend that the added challenges of learning Bayesian m
   \item  \textbf{Visualize Results:} Generate standard diagnostic plots (e.g., trace plots, rank plots, posterior distributions) and visualizations of model parameters, effects, and predictions using integrated plotting functions that leverage the \textit{arviz} library.
 \end{enumerate}
 
- This unified structure minimizes the need for users to juggle multiple disparate software tools or manually transfer data and results between different stages of the analysis, thereby enhancing efficiency and reproducibility. Finally, \textit{BI} includes over 29 well-documented implementations of various standard and advanced Bayesian models \hyperlink{tab1}{Table 1}. Examples include Generalized Linear Models (GLMs), Generalized Linear Mixed Models (GLMMs), survival analysis models (e.g., Cox proportional hazards), Principal Component Analysis (PCA), phylogenetic comparative methods, and various network models. Each implementation is accompanied by detailed documentation that encompasses: 1) general principles, 2) underlying assumptions, 3) code snippets in Python and R, and 4) mathematical details, enabling users to gain a deeper understanding of the modeling process and its nuances. Additionally, the framework's flexibility allows models to be combined; for example, building a zero-inflated model with varying intercepts and slopes, or constructing a joint model where principal components (derived from PCA) serve as predictors in a subsequent regression, allowing uncertainty to be propagated through all stages of the analysis.
+ This unified structure minimizes the need for users to juggle multiple disparate software tools or manually transfer data and results between different stages of the analysis, thereby enhancing efficiency and reproducibility. Finally, \textit{BI} includes over 26 well-documented implementations of various standard and advanced Bayesian models \hyperlink{tab1}{Table 1}. Examples include Generalized Linear Models (GLMs), Generalized Linear Mixed Models (GLMMs), survival analysis models (e.g., Cox proportional hazards), Principal Component Analysis (PCA), phylogenetic comparative methods, and various network models. Each implementation is accompanied by detailed documentation that encompasses: 1) general principles, 2) underlying assumptions, 3) code snippets in Python and R, and 4) mathematical details, enabling users to gain a deeper understanding of the modeling process and its nuances. Additionally, the framework's flexibility allows models to be combined; for example, building a zero-inflated model with varying intercepts and slopes, or constructing a joint model where principal components (derived from PCA) serve as predictors in a subsequent regression, allowing uncertainty to be propagated through all stages of the analysis.
 
  \label{tab1}
 \begin{table}[bt]
@@ -226,90 +228,87 @@ Stepping back a bit, we contend that the added challenges of learning Bayesian m
 \headrow
 \thead{Documented Models} & \thead{Source} \\
 
-\href{https://s-sosa.com/BI/1.%20Linear%20Regression%20for%20continuous%20variable.html}{Linear Regression} & Statistical Rethinking, chapter 4 \citep{rethinking} \\
+\href{https://shorturl.at/KVOc8}{Linear Regression} & Statistical Rethinking, chapter 4 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/2.%20Multiple%20continuous%20Variables.html}{Multiple Regression}
+\href{https://shorturl.at/IoCbE}{Multiple Regression}
 & Statistical Rethinking, chapter 4 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/3.%20Interaction%20between%20continuous%20variables.html}{Interactions}
+\href{https://shorturl.at/QkEyC}{Interactions}
 & Statistical Rethinking, chapter 8 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/4.%20Categorical%20variable.html}{Categorical models}
+\href{https://shorturl.at/tILn8}{Categorical models}
 & Statistical Rethinking, chapter 5 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/5.%20Binomial%20model.html}{Binomial models}
+\href{https://tinyurl.com/yc7uvey9}{Binomial models}
 & Statistical Rethinking, chapter 11 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/7.%20Poisson%20model.html}{Poisson models}
+\href{https://tinyurl.com/bdr8d594}{Poisson models}
 & Statistical Rethinking, chapter 11 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/8.%20Poisson%20mode%20with%20offset.html}{Poisson models with offset}
+\href{https://tinyurl.com/yxxdn4f2}{Poisson models with offset}
 & Statistical Rethinking, chapter 11 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/8.%20Gamma-Poisson.html}{Gamma-Poisson models}
+\href{https://tinyurl.com/3rcu2wud}{Gamma-Poisson models}
 & Statistical Rethinking, chapter 11 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/9.%20Categorical%20model.html}{Categorical models}
+\href{https://tinyurl.com/24r7vu7y}{Categorical models}
 & Statistical Rethinking, chapter 11 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/10.%20Multinomial%20model.html}{Multinomial models}
+\href{https://tinyurl.com/ye255x2s}{Multinomial models}
 & Statistical Rethinking, chapter 11 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/10.%20Dirichlet%20model.html}{Dirichlet models}
+\href{https://tinyurl.com/y5tb7cvc}{Dirichlet models}
 & Statistical Rethinking, chapter X \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/6.%20Beta%20binomial%20model.html}{Beta-binomial models}
+\href{https://tinyurl.com/2s4xvkej}{Beta-binomial models}
 & Statistical Rethinking, chapter 12 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/11.%20Zero%20inflated.html}{Zero-inflated models}
+\href{https://tinyurl.com/9cbn8fjb}{Zero-inflated models}
 & Statistical Rethinking, chapter 12 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/13.%20Varying%20intercepts.html}{Varying-intercept models}
+\href{https://tinyurl.com/ycy8ed3n}{Varying-intercept models}
 & Statistical Rethinking, chapter 13 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/14.%20Varying%20slopes.html}{Varying-intercept models}
+\href{https://tinyurl.com/3nejcbbz}{Varying-intercept models}
 & Statistical Rethinking, chapter 13 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/15.%20Gaussian%20processes.html}{Gaussian process models}
+\href{https://tinyurl.com/ysnms3t6}{Gaussian process models}
 & Statistical Rethinking, chapter 14 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/16.%20Measuring%20error.html}{Measurement-error models}
+\href{https://tinyurl.com/3jhbszv3}{Measurement-error models}
 & Statistical Rethinking, chapter 15 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/17.%20Missing%20data%20(wip).html}{Missing-data models}
+\href{https://tinyurl.com/4wzc8m3w}{Missing-data models}
 & Statistical Rethinking, chapter 15 \citep{rethinking} \\
 
-\href{https://s-sosa.com/BI/18.%20Latent%20variable%20(wip).html}{Latent variable models}
+\href{https://tinyurl.com/4daz4s5b}{Latent variable models}
 & Bishop \& al. \citep{bishop1998latent} \\
 
-\href{https://s-sosa.com/BI/19.%20PCA.html}{Principal Component Analysis}
+\href{https://tinyurl.com/mrpcjjhd}{Principal Component Analysis}
 & Tipping \& al. \citep{tipping1999probabilistic} \\
 
-\href{https://s-sosa.com/BI/20.%20GMM.html}{Gaussian Mixture Models}
+\href{https://tinyurl.com/ys342rve}{Gaussian Mixture Models}
 & Bishop \& al. \citep{bishop2006pattern} \\
 
-\href{https://s-sosa.com/BI/21.%20DPMM.html}{Dirichlet Process Mixture Models}
+\href{https://tinyurl.com/374undnp}{Dirichlet Process Mixture Models}
 & Pyro \citep{bingham2019pyro} \\
 
-\href{https://s-sosa.com/BI/22.%20Network%20model.html}{Basic social network models}
+\href{https://tinyurl.com/3nrzkrjk}{Basic social network models}
 & STRAND \citep{STRAND1} \\
 
-\href{https://s-sosa.com/BI/23.%20Network%20with%20block%20model.html}{Stochastic blockmodels}
+\href{https://tinyurl.com/5t57zh7f}{Stochastic blockmodels}
 & STRAND \citep{STRAND1} \\
 
-\href{https://s-sosa.com/BI/24.%20Network%20control%20for%20data%20collection%20biases.html}{Network control for data collection biases}
+\href{https://tinyurl.com/2cnfhtzr}{Network control for data collection biases}
 & STRAND \citep{STRAND2025} \\
 
-\href{https://s-sosa.com/BI/25.%20Network%20Metrics.html}{Network metrics} &
+\href{https://tinyurl.com/8zpct5r9}{Network metrics} &
 ANTs \citep{sosa2020multilevel,sosa2021network} \\
 
-\href{https://s-sosa.com/BI/26.%20Network%20Based%20Diffusion%20analysis%20(wip).html}{Network-based diffusion analysis}
-& NBDA \citep{hoppitt2011detecting} \\
-
-\href{https://s-sosa.com/BI/27.%20BNN.html}{Bayesian Neural Networks}
+\href{https://tinyurl.com/yc7tp6j6}{Bayesian Neural Networks}
 & Numpyro \citep{phan2019composable} \\
 
-\href{https://s-sosa.com/BI/12.%20Survival%20analysis.html}{Survival Analysis}
+\href{https://tinyurl.com/vpd38745}{Survival Analysis}
 & PYMC \citep{abril2023pymc} \\
 
 
@@ -434,7 +433,7 @@ varying_intercept, varying_slope = m.effects.varying_effects(
 
 
 \section{Example : SRM model}
-To illustrate how these design features of \textit{BI} coalesce to provide a streamlined, flexible, and powerful solution, effectively addressing the limitations identified in the existing Bayesian software landscape we will provide a basic example of how an SRM model is declared in BI, compare it with the equivalent model in  STAN (Appendix 1). We will also show how this model can be build from scratch with BI \hyperref[code:block3_example]{(\textbf{Code block 3})} or its custom functions \hyperref[code:block4_example]{(\textbf{Code block 4})} to highligh the aceessibility-flexibility of our package by demonstrating how advance user can build custom model (with less code than STAN) as well as how new user can apply pre-build \textit{BI} models. Finally we show how it is also called in R \hyperref[code:block5_example]{(\textbf{Code block 5})} and Julia \hyperref[code:block6_example]{(\textbf{Code block 6})} to cross language use with \textit{BI}. Readers interested in further details on data structure, data import, data manipulation, and model fitting for SRM models can refer directly to the \textit{BI} documentation \href{https://s-sosa.com/BI/22.%20Network%20model.html}{Modeling Network}.
+To illustrate how these design features of \textit{BI} coalesce to provide a streamlined, flexible, and powerful solution, effectively addressing the limitations identified in the existing Bayesian software landscape we will provide a basic example of how an SRM model is declared in BI, compare it with the equivalent model in  STAN (Appendix 1). We will also show how this model can be build from scratch with BI \hyperref[code:block3_example]{(\textbf{Code block 3})} or its custom functions \hyperref[code:block4_example]{(\textbf{Code block 4})} to highligh the aceessibility-flexibility of our package by demonstrating how advance user can build custom model (with less code than STAN) as well as how new user can apply pre-build \textit{BI} models. Finally we show how it is also called in R \hyperref[code:block5_example]{(\textbf{Code block 5})} and Julia \hyperref[code:block6_example]{(\textbf{Code block 6})} to cross language use with \textit{BI}. Readers interested in further details on data structure, data import, data manipulation, and model fitting for SRM models can refer directly to the \textit{BI} documentation \href{https://tinyurl.com/3nrzkrjk}{Modeling Network}.
 
 \label{code:block3_example} 
 \noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
@@ -648,34 +647,9 @@ Figure~\ref{fig:posterior}. Code to reproduce the benchmark tests and the poster
 
 \section{Discussion}
 
-\textbf{BI} framework is built on top of the popular Python programming language, with a focus on providing a user-friendly interface for model development and interpretation. Our framework is designed to be modular and extensible, allowing users to easily incorporate their own custom models and data types into the framework. One of the key features of this software is its comprehensive library of 27 predefined Bayesian models, covering a wide range of common applications and use cases. These models are accompanied by detailed explanations, making it easier for users to understand the underlying assumptions and apply the models to their specific research questions. In addition to these built-in models, the software includes several custom functions tailored for advanced statistical and network modeling. This curated library serves not only as a collection of ready-to-use tools but also as a valuable pedagogical resource, demonstrating best practices for constructing, fitting, and interpreting models within the \textit{BI} framework, and providing robust templates for users aiming to develop novel model variants. Whether users are interested in hierarchical models, time-series analysis, or cutting-edge network modeling approaches, our library caters to a variety of analytical needs. This accessibility fosters an environment where users can confidently explore and implement Bayesian methods, ultimately enhancing their research capabilities.
+\textbf{BI} framework is built on top of the popular Python programming language, with a focus on providing a user-friendly interface for model development and interpretation. Our framework is designed to be modular and extensible, allowing users to easily incorporate their own custom models and data types into the framework. One of the key features of this software is its comprehensive library of 26 predefined Bayesian models, covering a wide range of common applications and use cases. These models are accompanied by detailed explanations, making it easier for users to understand the underlying assumptions and apply the models to their specific research questions. In addition to these built-in models, the software includes several custom functions tailored for advanced statistical and network modeling. This curated library serves not only as a collection of ready-to-use tools but also as a valuable pedagogical resource, demonstrating best practices for constructing, fitting, and interpreting models within the \textit{BI} framework, and providing robust templates for users aiming to develop novel model variants. Whether users are interested in hierarchical models, time-series analysis, or cutting-edge network modeling approaches, our library caters to a variety of analytical needs. This accessibility fosters an environment where users can confidently explore and implement Bayesian methods, ultimately enhancing their research capabilities.
 
 By providing a streamlined and efficient environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction, \textit{BI} lowers the barrier to entry for sophisticated Bayesian modeling. We aim to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems; leveraging open-source, industry-standard frameworks such as NumPyro and TensorFlow Probability.
-
-
-
-\section*{DATA AVAILABILITY STATEMENT}
-All implementations of \textit{BI} are publicly available through their respective
-GitHub repositories for \href{https://github.com/BGN-for-ASNA/BI}{Python},
-\href{https://github.com/BGN-for-ASNA/BIR}{R}, and
-\href{https://github.com/BGN-for-ASNA/BIJ}{Julia}. In addition, each implementation
-can be installed via the standard package repositories of the corresponding
-programming languages: 
-\href{https://pypi.org/project/BayesInference/}{pip} for the Python version, \href{https://cran.r-project.org/web/packages/BayesianInference/index.html}{CRAN} for the R
-version, and the \href{https://github.com/JuliaRegistries/General/tree/master/P/PyBayesianInference}{Julia package registry} for the Julia version. Comprehensive documentation, including installation instructions, tutorials, and
-extended examples, are available on the official project website:
-\href{https://s-sosa.com/BI}{https://s-sosa.com/BI}.
-
-
-\section*{Authors' Contributions}
-Sebastian Sosa conceived the research idea, developed the software, and co-authored the manuscript. Mary B. McElreath contributed to the writing of the manuscript. Cody T. Ross contributed to the development of the network models, the documentation of the models included in the software, and the writing of the manuscript.
-
-
-\section*{FUNDING INFORMATION}
-This research has been funded by the Max Planck Institute for Evolutionary Anthropology, Deutscher Platz 6, 04103 Leipzig, Germany.
-
-\section*{CONFLICT OF INTEREST STATEMENT}
-The authors declare that there are no conflicts of interest related to the content, data or conclusions presented in this study.
 
 \printendnotes
 
