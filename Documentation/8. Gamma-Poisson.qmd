@@ -43,7 +43,7 @@ def model(log_days, monastery, y):
     Lambda =  m.dist.gamma(rate = mu*phi, concentration = phi, name = 'Lambda')
     m.dist.poisson(rate = Lambda, obs=y)
 # Run MCMC ------------------------------------------------
-m.fit(model) # Optimize model parameters through MCMC sampling
+m.fit(model, progress_bar=False) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary() # Get posterior distributions

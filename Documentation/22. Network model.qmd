@@ -75,7 +75,7 @@ def model(network, dyadic_predictors, focal_individual_predictors, target_indivi
 
     m.dist.bernoulli(logits = alpha + sr + dr, obs=network)
 
-m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1)
+m.fit(model, progress_bar=False)
 
 ```
 

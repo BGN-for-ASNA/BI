@@ -28,7 +28,7 @@ Below is an example code snippet demonstrating a *Bayesian Neural Network for mu
 ::: {.panel-tabset group="language"}
 ## Python
 
-```python
+```{python}
 from BI import bi
 import jax.numpy as jnp
 import jax
@@ -70,7 +70,7 @@ def model(X, Y, D_H1=5, K=3):
     m.dist.categorical(probs=p, obs=Y)
 
 # Run mcmc ------------------------------------------------
-m.fit(model, num_samples=500, progress_bar=False) # Approximate posterior distributions
+m.fit(model) # Approximate posterior distributions
 
 # Predictions from the model ------------------------------------------------
 import matplotlib.pyplot as plt
@@ -84,7 +84,7 @@ X_grid = jnp.c_[xx0.ravel(), xx1.ravel()]
 
 # Swap data on model temporarily to predict on the grid
 m.data_on_model = dict(X=X_grid, Y=jnp.zeros(X_grid.shape[0], dtype=jnp.int32))
-pred = m.sample(samples=500)['Y']
+pred = m.sample(data = m.data_on_model)['x']
 p_mean = jnp.mean(pred, axis=0)
 
 # Plotting the posterior predictive mean (categorical blending)

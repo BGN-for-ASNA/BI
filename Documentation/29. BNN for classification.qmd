@@ -27,7 +27,7 @@ Below is an example code snippet demonstrating a *Bayesian Neural Network for cl
 ::: {.panel-tabset group="language"}
 ## Python
 
-```python
+```{python}
 from BI import bi
 import jax.numpy as jnp
 from sklearn.datasets import make_moons
@@ -76,7 +76,7 @@ def model(X, Y, D_H1=4, D_H2=3):
     m.dist.binomial(total_count=1, logits=logits, obs=Y, name='Y')
 
 # Run mcmc ------------------------------------------------
-m.fit(model, num_samples=500, progress_bar=False) # Approximate posterior distributions
+m.fit(model, progress_bar=False) # Approximate posterior distributions
 
 # Predictions from the model ------------------------------------------------
 import matplotlib.pyplot as plt

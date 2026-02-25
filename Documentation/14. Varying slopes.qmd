@@ -36,7 +36,7 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 ::: {.panel-tabset group="language"}
 ## Python (Raw)
 
-``` python
+``` {python}
 from BI import bi, jnp
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
@@ -67,7 +67,7 @@ def model(cafe, wait, N_cafes, afternoon):
     m.dist.normal(mu, sigma, obs=wait)
 
 # Run sampler ------------------------------------------------
-m.fit(model) 
+m.fit(model, progress_bar=False) 
 
 # Summary ------------------------------------------------
 m.summary()
@@ -75,7 +75,7 @@ m.summary()
 
 ## Python (Build in function)
 
-``` python
+``` {python}
 from BI import bi
 
 # Setup device------------------------------------------------
@@ -111,9 +111,10 @@ def model(cafe, wait, N_cafes, afternoon):
     m.dist.normal(mu, sigma, obs=wait)
 
 # Run sampler ------------------------------------------------
-m.fit(model) 
+m.fit(model, progress_bar=False) 
 
 ```
+
 ## R
 
 ``` r

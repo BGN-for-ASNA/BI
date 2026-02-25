@@ -45,7 +45,7 @@ def model(income, career):
     m.dist.multinomial(probs = p[career], obs=career)
     
 # Run sampler ------------------------------------------------ 
-m.fit(model)  
+m.fit(model, progress_bar=False)  
 
 # Summary ------------------------------------------------
 m.summary()
