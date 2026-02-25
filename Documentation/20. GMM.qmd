@@ -76,7 +76,7 @@ m.data_on_model = {"data": data,"K": 8 }
 m.data_on_model['initial_means'] = m.ml.results['centroids']
 
 
-m.fit(gmm) # Optimize model parameters through MCMC sampling
+m.fit(gmm, progress_bar=False) # Optimize model parameters through MCMC sampling
 m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 ```
 

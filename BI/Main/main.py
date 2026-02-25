@@ -423,10 +423,11 @@ class bi(manip):
         """
         rng_key = jax.random.PRNGKey(int(seed))
         self.build_model_with_Y_None(self.model)
-  
+        # If data is not provided, use the data on the model
         if data is None:
             data = self.data_on_model.copy() 
         
+        # If remove_obs is True, remove the observed arguments to 
         if remove_obs:
             for intem in self.obs_args:            
                 del data[intem]

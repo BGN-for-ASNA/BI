@@ -52,7 +52,7 @@ def model(kcal_per_g, index_clade, mass):
 
 
 # Run mcmc ------------------------------------------------
-m.fit(model) # Optimize model parameters through MCMC sampling
+m.fit(model, progress_bar=False) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary()

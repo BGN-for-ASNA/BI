@@ -55,7 +55,7 @@ def model_offset(cid, population, hours, total_tools):
 m.data_on_model = dict(cid=cid, population=population, hours=hours, total_tools=total_tools)
 
 # Run sampler ------------------------------------------------
-m.fit(model_offset)
+m.fit(model_offset, progress_bar=False)
 
 # Diagnostic ------------------------------------------------
 m.summary()

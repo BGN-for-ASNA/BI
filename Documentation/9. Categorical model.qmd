@@ -53,7 +53,7 @@ def model(career, income):
     m.dist.categorical(probs=p, obs=career)
 
 # Run sampler ------------------------------------------------ 
-m.fit(model)  # Optimize model parameters through MCMC sampling
+m.fit(model, progress_bar=False)  # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary() # Get posterior distributions

@@ -92,7 +92,7 @@ def model(X, Y,  D_H=5, D_Y=1):
     m.dist.normal(w2, sigma, obs=Y,name='Y')
 
 # Run mcmc ------------------------------------------------
-m.fit(model, num_samples=500, progress_bar=False)   # Approximate posterior distributions for weights, biases, and sigma
+m.fit(model, progress_bar=False)   # Approximate posterior distributions for weights, biases, and sigma
 
 # Predictions from the model ------------------------------------------------
 pred = m.sample(samples = 500)['Y']

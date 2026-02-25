@@ -63,7 +63,7 @@ def model(cid, population, total_tools):
     m.dist.poisson(l, obs=total_tools)
 
 # Run sampler ------------------------------------------------
-m.fit(model)
+m.fit(model, progress_bar=False)
 
 # Diagnostic ------------------------------------------------
 m.summary()

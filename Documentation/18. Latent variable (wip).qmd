@@ -89,7 +89,7 @@ def model(NY, NV, Y2):
     m.dist.normal(mu_l, jnp.tile(sigma, [NV, 1]), obs=Y2)
 
 # Run sampler ------------------------------------------------
-m.fit(model)
+m.fit(model, progress_bar=False)
 
 # Summary ------------------------------------------------
 m.summary()

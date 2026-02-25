@@ -45,7 +45,7 @@ def model(y):
     m.dist.zero_inflated_poisson(p, lambda_, obs=y)
 
 # Run MCMC ------------------------------------------------
-m.fit(model)
+m.fit(model, progress_bar=False)
 
 # Summary ------------------------------------------------
 m.summary()
