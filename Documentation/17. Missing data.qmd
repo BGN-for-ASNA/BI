@@ -6,26 +6,29 @@ image: "Figures/21.png"
 order: 20
 ---
 
-
-
 ## General Principles
 
-In many real-world datasets, some observations or parameters may be missing or partially known. In a standard frequentist approach, these missing values are often dropped, leading to biased estimates and lost information. 
+In many real-world datasets, some observations or parameters may be missing or partially known. In a standard frequentist approach, these missing values are often dropped, leading to biased estimates and a loss of information. 
 
-In the Bayesian framework, **missing data are simply treated as unknown parameters to be estimated within the model itself**. The entire joint distribution is evaluated, allowing the model to smoothly "impute" the missing values based on the observed data and prior relationships.
+In the Bayesian framework, **missing data are simply treated as unknown parameters to be estimated within the model itself**. The entire joint distribution is evaluated, allowing the model to smoothly "impute" the missing values based on the observed data and prior relationships. 
 
-This page translates classic missing data models (like those detailed in the [Stan User's Guide](https://mc-stan.org/docs/stan-users-guide/missing-data.html)) into the **BayesInference (BI)** framework.
+## Considerations
 
----
+::: callout-note
+- **Parameters vs. Data**: In generative models, there is minimal mathematical distinction between "unobserved parameters" (like regression weights) and "unobserved data" (like missing survey responses). Both are simply unknowns governed by probability distributions.
+- **JAX Arrays are Immutable**: `BayesInference` uses JAX in the backend. JAX arrays do not support direct heterogeneous assignments (e.g., `y[ii_mis] = y_mis`). When splicing missing data into a larger array, you must use `.at[...].set(...)` operations.
+- **Partial Knowledge**: Sometimes covariance or correlation matrices are only partially known. Instead of discarding the known parts, we only sample the unknown cells uniformly within mathematically valid positive-definite bounds and reconstruct the matrix deterministically.
+:::
 
-## 1. Simple Missing Data Imputation
+## Example
 
-Consider a scenario where you have a dataset of height measurements, but several are missing. Rather than dropping them, we define an array of variables for the explicit purpose of capturing the unknown values, then bind the entire combined dataset to the likelihood.
+Below are three typical missing data patterns translated into the **BayesInference (BI)** framework:
+1. **Simple Missing Imputation**: Treating missing observations as a vector of latent variables.
+2. **Partially Known Parameters**: Reconstructing a covariance matrix from known variances and an unknown covariance.
+3. **Sliced Missing Data**: Inserting missing time-series steps cleanly into an array using JAX `at`.
 
-With `BayesInference`, missing data in variables can often be handled elegantly with JAX array masking/concatenation, or by passing arrays that contain `jnp.nan` values which BI processes seamlessly if supported, but typically we model explicitly.
-
-### Python Example
-Here is how you would translate a basic missing observations model in BI:
+::: {.panel-tabset group="language"}
+## Python
 
 ```python
 from BI import bi
@@ -33,143 +36,134 @@ import jax.numpy as jnp
 
 m = bi(platform="cpu")
 
+# 1. Simple Missing Data Imputation ---------------------------
 def missing_data_model(y_obs, N_mis):
-    # 1. Priors for our distribution
     mu = m.dist.normal(0, 10, name="mu")
     sigma = m.dist.half_normal(10, name="sigma")
     
-    # 2. Treat missing data block as latent parameters
-    # The shape here dictates how many missing variables we are estimating
+    # Treat missing data block as latent parameters
     with m.dist.plate("missing_obs", N_mis):
         y_mis = m.dist.normal(mu, sigma, name="y_mis")
         
-    # 3. Likelihood for OBSERVED data
+    # Likelihood for OBSERVED data
     m.dist.normal(mu, sigma, obs=y_obs)
-```
 
-**Stan Equivalent** *(for reference)*:
-```stan
-data {
-  int<lower=0> N_obs;
-  int<lower=0> N_mis;
-  array[N_obs] real y_obs;
-}
-parameters {
-  real mu;
-  real<lower=0> sigma;
-  array[N_mis] real y_mis;
-}
-model {
-  y_obs ~ normal(mu, sigma);
-  y_mis ~ normal(mu, sigma);
-}
-```
-
----
-
-## 2. Partially Known Parameters (Covariance Matrix)
-
-Sometimes parameters are partially known. For example, in a bivariate setting, you may know the exact variances (`var1`, `var2`) via deterministic measurement, but the **covariance** between the items is unknown and must be estimated.
-
-In BI, we can construct the partially known parameter deterministically using JAX functions and the partially estimated parameter.
-
-### Python Example
-
-```python
-import jax.numpy as jnp
-
+# 2. Partially Known Parameters (Covariance) -------------------
 def partially_known_model(y, var1, var2):
     # Determine bounds based on positive-definite requirements
     max_cov = jnp.sqrt(var1 * var2)
     min_cov = -max_cov
     
-    # 1. Unobserved parameters
     mu = m.dist.normal(0, 5, shape=(2,), name="mu")
+    # Sample the unknown covariance within valid bounds
     cov = m.dist.uniform(min_cov, max_cov, name="cov")
     
-    # 2. Deterministically assemble the partially known matrix
-    # Note how we use jnp.array to combine known (var1/var2) and unknown (cov)
+    # Deterministically assemble the partially known matrix
     Sigma = jnp.array([
         [var1, cov],
         [cov,  var2]
     ])
     
-    # 3. Fit the Likelihood
+    # Fit the Likelihood
     m.dist.multivariatenormal(loc=mu, covariance_matrix=Sigma, obs=y)
-```
 
-**Stan Equivalent** *(for reference)*:
-```stan
-data {
-  int<lower=0> N;
-  array[N] vector[2] y;
-  real<lower=0> var1;
-  real<lower=0> var2;
-}
-transformed data {
-  real<lower=0> max_cov = sqrt(var1 * var2);
-  real<upper=0> min_cov = -max_cov;
-}
-parameters {
-  vector[2] mu;
-  real<lower=min_cov, upper=max_cov> cov;
-}
-transformed parameters {
-  matrix[2, 2] Sigma;
-  Sigma[1, 1] = var1;
-  Sigma[1, 2] = cov;
-  Sigma[2, 1] = cov;
-  Sigma[2, 2] = var2;
-}
-model {
-  y ~ multi_normal(mu, Sigma);
-}
-```
-
----
-
-## 3. Sliced Missing Data (Time Series)
-
-If missing data are part of a larger structural sequence (e.g. a time-series where day 3 and day 5 are missing, but others are observed), you can use JAX indexing to piece the complete dataset back together. 
-
-Because `jax.numpy` arrays do not support direct heterogeneous assignments (like `y = y.at[ii_obs].set(y_obs)` easily with distributions sometimes), a cleaner alternative via BI is iterating or utilizing specific structural assumptions (such as scan/loop unrolling).
-
-### Python Example
-
-```python
-import jax.numpy as jnp
-
+# 3. Sliced Missing Data (Time Series) -------------------------
 def sliced_missing_model(y_obs, ii_obs, N_mis, ii_mis, N_total):
-    # 1. Priors
     sigma = m.dist.gamma(1, 1, name="sigma")
     
-    # 2. Missing points are parameters
+    # Missing points are parameters
     y_mis = m.dist.normal(0, 10, shape=(N_mis,), name="y_mis")
     
-    # 3. Assemble full array
-    # We create an empty JAX array and fill it using .at[] mutations
+    # Assemble full array without in-place mutation using JAX .at
     y_full = jnp.zeros(N_total)
     y_full = y_full.at[ii_obs].set(y_obs)
     y_full = y_full.at[ii_mis].set(y_mis)
     
-    # 4. State-Space Time Series Likelihood
-    # y[t] ~ normal(y[t-1], sigma)
-    # y[0] ~ normal(0, 100)
-    
-    # The first element
+    # State-Space Time Series Likelihood: y[t] ~ normal(y[t-1], sigma)
     m.dist.normal(0, 100, obs=y_full[0])
-    
-    # The rest of the series
     m.dist.normal(y_full[:-1], sigma, obs=y_full[1:])
 ```
 
+## Julia
 
-## Considerations
-::: callout-caution
-JAX Arrays (which BI uses heavily) are **immutable**. When assembling sliced missing data arrays (like passing `y_obs` and `y_mis` into a single sequence `y_full`), you *must* use `jnp.zeros().at[...].set(...)` operations, unlike in Stan where you directly query `y[ii_obs] = y_obs`.
+```julia
+using BayesianInference
+using PythonCall
+
+m = importBI(platform="cpu")
+jnp = pyimport("jax.numpy")
+
+# 1. Simple Missing Data Imputation ---------------------------
+@BI function missing_data_model(y_obs, N_mis)
+    mu = m.dist.normal(0, 10, name="mu")
+    sigma = m.dist.half_normal(10, name="sigma")
+    
+    # Treat missing data block as latent parameters
+    tmp = m.dist.plate("missing_obs", N_mis)
+    m.dist.normal(mu, sigma, name="y_mis")
+    # Note: In Python, `with plate:` is used. For Julia, follow the macro constraints or vectorized shape arguments as supported.
+        
+    # Likelihood for OBSERVED data
+    m.dist.normal(mu, sigma, obs=y_obs)
+end
+
+# 2. Partially Known Parameters (Covariance) -------------------
+@BI function partially_known_model(y, var1, var2)
+    max_cov = jnp.sqrt(var1 * var2)
+    min_cov = -max_cov
+    
+    mu = m.dist.normal(0, 5, shape=(2,), name="mu")
+    cov = m.dist.uniform(min_cov, max_cov, name="cov")
+    
+    # Assemble the matrix row-by-row
+    row1 = jnp.stack([var1, cov])
+    row2 = jnp.stack([cov, var2])
+    Sigma = jnp.stack([row1, row2])
+    
+    # Fit the Likelihood
+    m.dist.multivariatenormal(loc=mu, covariance_matrix=Sigma, obs=y)
+end
+
+# 3. Sliced Missing Data (Time Series) -------------------------
+@BI function sliced_missing_model(y_obs, ii_obs, N_mis, ii_mis, N_total)
+    sigma = m.dist.gamma(1, 1, name="sigma")
+    y_mis = m.dist.normal(0, 10, shape=(N_mis,), name="y_mis")
+    
+    # Assemble full array using JAX immutable setters
+    y_full = jnp.zeros(N_total)
+    y_full = y_full.at[ii_obs].set(y_obs)
+    y_full = y_full.at[ii_mis].set(y_mis)
+    
+    m.dist.normal(0, 100, obs=y_full[0])
+    m.dist.normal(y_full[0:end-1], sigma, obs=y_full[1:end])
+end
+```
+:::
+
+## Mathematical Details
+
+### *Bayesian Formulation*
+
+Missing data imputation assumes that the underlying generative process connects both the observed variables $Y_{\text{obs}}$ and the missing variables $Y_{\text{mis}}$. 
+
+For a simple Gaussian imputation, the joint posterior of the parameters $(\mu, \sigma)$ and the missing data $Y_{\text{mis}}$ is proportional to:
+$$
+P(\mu, \sigma, Y_{\text{mis}} | Y_{\text{obs}}) \propto P(Y_{\text{obs}} | \mu, \sigma) \, P(Y_{\text{mis}} | \mu, \sigma) \, P(\mu, \sigma)
+$$
+
+Because both $Y_{\text{obs}}$ and $Y_{\text{mis}}$ are generated from the identical normal distribution $\text{Normal}(\mu, \sigma)$, the sampler naturally infers values for $Y_{\text{mis}}$ that are highly plausible given the parameters $\mu, \sigma$ fitted to $Y_{\text{obs}}$.
+
+For partially known covariance matrices, the reconstructed parameter $\Sigma$ is mathematically bound by the positive-definite limits of a $2 \times 2$ matrix, leading to:
+$$
+\det(\Sigma) > 0 \implies \text{var}_1 \text{var}_2 - \text{cov}^2 > 0 \implies |\text{cov}| < \sqrt{\text{var}_1 \text{var}_2}
+$$
+
+## Notes
+
+::: callout-note
+- **Missing Completely At Random (MCAR) vs Not Missing At Random (NMAR)**: The structural examples shown above effectively operate under the assumption that the probability of data being missing is independent of the value itself (MCAR or MAR). If the missingness mechanism depends on the missing value itself (NMAR)—e.g., people with low income refusing to report their income—a secondary likelihood must explicitly model the probability of the data being missing (`is_missing ~ Bernoulli(p)`).
 :::
 
 ## Reference(s)
 
-* [Stan User's Guide: Missing Data](https://mc-stan.org/docs/stan-users-guide/missing-data.html)
-
+1. [Stan User's Guide: Missing Data](https://mc-stan.org/docs/stan-users-guide/missing-data.html)
