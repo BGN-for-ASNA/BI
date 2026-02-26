@@ -6,7 +6,10 @@ from BI.Distributions.np_dists import UnifiedDist as dist
 from BI.Utils.link import link
 import numpyro
 from functools import partial 
-from IPython.display import Markdown
+try:
+    from IPython.display import Markdown
+except Exception:
+    pass
 
 class NBDA:
     """
