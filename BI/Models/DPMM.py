@@ -63,7 +63,7 @@ class dpmm:
         Latent Variable formulation: Explicitly samples 'z'.
         Requires a sampler that supports discrete variables (e.g., MixedHMC or DiscreteHMCGibbs).
         """
-        print("⚠️This function is still in development. Use it with caution. ⚠️")
+        print("⚠️This function is still in development. Use it with caution.⚠️")
         N, D = data.shape  # Number of features
         data_mean = jnp.mean(data, axis=0)
         data_std = jnp.std(data, axis=0)*2
@@ -243,6 +243,7 @@ class dpmm:
         Performs Consensus Clustering. 
         Robust to Label Switching across multiple chains.
         """
+        print("⚠️This function is still in development. Use it with caution.⚠️")
         # 1. Flatten chains: (N_chains, N_samples) -> (Total_samples)
         posterior_samples = sampler.get_samples(group_by_chain=False)
 
@@ -283,6 +284,7 @@ class dpmm:
         Plots the Posterior Predictive Density.
         Correctly handles multiple chains by averaging Densities, not Parameters.
         """
+        print("⚠️This function is still in development. Use it with caution.⚠️")
         # Get raw samples and labels
         w_samps, mu_samps, sigma_samps, Lcorr_samps, final_labels = self.predict(data, sampler)
 

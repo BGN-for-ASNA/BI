@@ -14,7 +14,7 @@ In the Bayesian framework, **missing data are simply treated as unknown paramete
 
 ## Considerations
 
-::: callout-note
+::: callout-caution
 - **Parameters vs. Data**: In generative models, there is minimal mathematical distinction between "unobserved parameters" (like regression weights) and "unobserved data" (like missing survey responses). Both are simply unknowns governed by probability distributions.
 - **JAX Arrays are Immutable**: `BayesInference` uses JAX in the backend. JAX arrays do not support direct heterogeneous assignments (e.g., `y[ii_mis] = y_mis`). When splicing missing data into a larger array, you must use `.at[...].set(...)` operations.
 - **Partial Knowledge**: Sometimes covariance or correlation matrices are only partially known. Instead of discarding the known parts, we only sample the unknown cells uniformly within mathematically valid positive-definite bounds and reconstruct the matrix deterministically.
@@ -82,6 +82,64 @@ def sliced_missing_model(y_obs, ii_obs, N_mis, ii_mis, N_total):
     # State-Space Time Series Likelihood: y[t] ~ normal(y[t-1], sigma)
     m.dist.normal(0, 100, obs=y_full[0])
     m.dist.normal(y_full[:-1], sigma, obs=y_full[1:])
+```
+
+## R
+
+```r
+library(BayesianInference)
+m <- importBI(platform = "cpu")
+jnp <- reticulate::import("jax.numpy")
+
+# 1. Simple Missing Data Imputation ---------------------------
+missing_data_model <- function(y_obs, N_mis) {
+    mu <- m$dist$normal(0, 10, name="mu")
+    sigma <- m$dist$half_normal(10, name="sigma")
+    
+    # Treat missing data block as latent parameters
+    tmp <- m$dist$plate("missing_obs", N_mis)
+    y_mis <- m$dist$normal(mu, sigma, name="y_mis")
+        
+    # Likelihood for OBSERVED data
+    m$dist$normal(mu, sigma, obs=y_obs)
+}
+
+# 2. Partially Known Parameters (Covariance) -------------------
+partially_known_model <- function(y, var1, var2) {
+    # Determine bounds based on positive-definite requirements
+    max_cov <- jnp$sqrt(var1 * var2)
+    min_cov <- -max_cov
+    
+    mu <- m$dist$normal(0, 5, shape=c(2L), name="mu")
+    # Sample the unknown covariance within valid bounds
+    cov <- m$dist$uniform(min_cov, max_cov, name="cov")
+    
+    # Deterministically assemble the partially known matrix
+    Sigma <- jnp$array(list(
+        list(var1, cov),
+        list(cov,  var2)
+    ))
+    
+    # Fit the Likelihood
+    m$dist$multivariatenormal(loc=mu, covariance_matrix=Sigma, obs=y)
+}
+
+# 3. Sliced Missing Data (Time Series) -------------------------
+sliced_missing_model <- function(y_obs, ii_obs, N_mis, ii_mis, N_total) {
+    sigma <- m$dist$gamma(1, 1, name="sigma")
+    
+    # Missing points are parameters
+    y_mis <- m$dist$normal(0, 10, shape=c(N_mis), name="y_mis")
+    
+    # Assemble full array without in-place mutation using JAX .at
+    y_full <- jnp$zeros(N_total)
+    y_full <- y_full$at[ii_obs]$set(y_obs)
+    y_full <- y_full$at[ii_mis]$set(y_mis)
+    
+    # State-Space Time Series Likelihood
+    m$dist$normal(0, 100, obs=y_full[0L])
+    m$dist$normal(y_full[0L:(N_total-2L)], sigma, obs=y_full[1L:(N_total-1L)])
+}
 ```
 
 ## Julia
@@ -158,7 +216,7 @@ $$
 \det(\Sigma) > 0 \implies \text{var}_1 \text{var}_2 - \text{cov}^2 > 0 \implies |\text{cov}| < \sqrt{\text{var}_1 \text{var}_2}
 $$
 
-## Notes
+## Notes{#notes}
 
 ::: callout-note
 - **Missing Completely At Random (MCAR) vs Not Missing At Random (NMAR)**: The structural examples shown above effectively operate under the assumption that the probability of data being missing is independent of the value itself (MCAR or MAR). If the missingness mechanism depends on the missing value itself (NMAR)—e.g., people with low income refusing to report their income—a secondary likelihood must explicitly model the probability of the data being missing (`is_missing ~ Bernoulli(p)`).
