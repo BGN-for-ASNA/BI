@@ -1,5 +1,5 @@
 ---
-title: " 🚧 BNN for Multiclass Classification 🚧"
+title: " BNN for Multiclass Classification"
 description: "Neural networks that incorporate Bayesian inference to predict probabilities across three or more mutually exclusive classes."
 categories: [Neural Networks, Classification, Deep Learning]
 image: "Figures/24.png"
@@ -25,8 +25,7 @@ Instead of the final layer returning a single output, the final layer in a multi
 
 Below is an example code snippet demonstrating a *Bayesian Neural Network for multiclass classification* using the Bayesian Inference (**BI**) package. This example generates a synthetic $K=3$ cluster dataset.
 
-::: {.panel-tabset group="language"}
-## Python
+::: {.panel-tabset group="language"}## Python
 
 ```{python}
 from BI import bi
@@ -150,34 +149,30 @@ m.fit(model, num_samples=500, progress_bar=false)
 :::
 
 ## Mathematical Details
+In the Bayesian formulation, we place [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} on all weights and biases and define a likelihood for the output. For a multiclass classification task with a $K$-hidden-layer BNN with $J$ neurons per hidden layer and a $D_X$-vector of predictors we can run the model as below.
+For the code example, we consider a single hidden layer with a hyperbolic tangent ($\tanh$) [<span style="color:#0D6EFD">activation function 🛈</span>]{#Activation}, mapped to a softmax output layer. Because the input matrix $X$ incorporates the intercept as its first column, the bias term is implicitly included in the layer's weights:
 
-### *Bayesian Formulation*
+$$ 
+\begin{aligned}
+Y_i &\sim \text{Categorical}(\theta_i) \\
+\theta_i & = \text{Softmax}(\phi_i) \\
+\phi_i & = H_i W_2 \\
+H_i & = \tanh(X_i W_1) \\
+W_1 & \sim \text{Normal}(0, 1) \\
+W_2 & \sim \text{Normal}(0, 1) \\
+\end{aligned}
+$$
 
-For a multiclass classification task spanning $N$ observations and $K$ mutually exclusive classes, we model the probability vector $\theta_i$ that the response $Y_i \in \{0, 1, ..., K-1\}$ falls into each respective class.
+where:
 
-1. **Hidden Layer**:
-   $$
-   \Omega_{i,1} = \tanh(X_i \Theta_1)
-   $$
-   Where $X_i$ is a $2$-vector of features and $\Theta_1$ is a $2 \times 5$ weight matrix parameterized by a Standard Normal prior: $\Theta_1 \sim \text{Normal}(0, 1)$.
-
-2. **Output Layer (Logits)**:
-   $$
-   \phi_i = \Omega_{i,1} \Theta_2
-   $$
-   Where $\Theta_2$ is a $5 \times 3$ weight matrix mapping the hidden features to the logits for the $K=3$ classes. This is parameterized by: $\Theta_2 \sim \text{Normal}(0, 1)$.
-
-3. **Softmax Transformation**:
-   $$
-   \theta_i = \text{Softmax}(\phi_i)
-   $$
-   The softmax function ensures that for every observation $i$, the sum of probabilities across the 3 classes equals exactly 1. 
-
-4. **Likelihood**:
-   $$
-   Y_i \sim \text{Categorical}(\theta_i)
-   $$
-   The observed class index $Y_i$ is drawn from a Categorical distribution parameterized by the probability vector $\theta_i$.
+* $Y_i$ is the observed class index for the $i$-th observation ($Y_i \in \{0, 1, ..., K-1\}$).
+* $\theta_i$ is the predicted probability vector for the $i$-th observation.
+* $\phi_i$ is the $K$-dimensional vector of scores (logits) for the $i$-th observation.
+* $X_i$ is the input row vector for the $i$-th observation, containing the intercept and the predictor variables. It has length $D_X = 2$.
+* $H_i$ is the hidden layer representation vector for the $i$-th observation. It has length $D_H = 5$.
+* $W_1$ is the weight matrix of the first hidden layer, with a shape of $D_X \times D_H$ (i.e., $2 \times 5$).
+* $W_2$ is the final layer weight matrix mapping the hidden features to the logits for the $K=3$ classes, with a shape of $D_H \times K$ (i.e., $5 \times 3$).
+* All elements within the weight matrices $W_1$ and $W_2$ are assigned independent standard Normal priors.
 
 ## Notes
 

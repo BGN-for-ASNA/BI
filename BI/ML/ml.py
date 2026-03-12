@@ -5,6 +5,7 @@ from typing import Optional, Union
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 from BI.ML.KMeans import JAXKMeans
+from BI.ML.ClusteringEvaluator import ClusteringEvaluator
 import numpy as onp
 class ml():
     """
@@ -27,6 +28,7 @@ class ml():
         self.results = {}
         self.predictions = None
         self.model_params = {}
+        self.evaluator = ClusteringEvaluator()
 
     def fit(self, X: ArrayLike) -> Array:
         """
@@ -77,6 +79,30 @@ class ml():
             raise RuntimeError("No model has been fitted. Call fit() first.")
         
         self.model.plot(X)
+
+    def evaluate(self, X: ArrayLike, labels_true: Optional[ArrayLike] = None) -> dict:
+        """
+        Evaluates the fitted clustering model using internal metrics, and 
+        optionally ARI if true labels are provided.
+        """
+        if self.predictions is None:
+            self.predictions = self.predict(X)
+        
+        pred = jnp.asarray(self.predictions)
+        X_arr = jnp.asarray(X)
+        
+        metrics = {}
+        # Internal Metrics
+        metrics['silhouette'] = float(self.evaluator.silhouette_score(X_arr, pred))
+        metrics['davies_bouldin'] = float(self.evaluator.davies_bouldin_score(X_arr, pred))
+        metrics['calinski_harabasz'] = float(self.evaluator.calinski_harabasz_score(X_arr, pred))
+        
+        # External Metric
+        if labels_true is not None:
+            labels_true_arr = jnp.asarray(labels_true)
+            metrics['ari'] = float(self.evaluator.adjusted_rand_score(labels_true_arr, pred))
+            
+        return metrics
 
     def KMEANS(self, X: ArrayLike, n_clusters: int, n_iterations: int = 100, random_state: Optional[int] = None):
         """

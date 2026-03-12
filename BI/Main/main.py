@@ -35,6 +35,7 @@ from BI.Models.models import models
 from BI.Models.surv import survival
 from BI.Models.GMM import *
 from BI.Models.DPMM import *
+from BI.Models.BNNC import bnnc
 from BI.ML.ml import ml
 from BI.BNN.bnn import bnn 
 
@@ -77,6 +78,7 @@ class bi(manip):
 
         self.dpmm = dpmm
         self.gmm = gmm    
+        self.bnnc = bnnc
         self.NBDA = NBDA
 
 
@@ -567,6 +569,9 @@ class bi(manip):
 
         elif self.run_model_name == 'dpmm':
             self.models.dpmm.plot(X, sampler= self.sampler,figsize=figsize)
+
+        elif self.run_model_name == 'bnnc':
+            self.models.bnnc.plot(X, sampler= self.sampler,figsize=figsize)
 
         elif self.run_model_name == 'pca':
             self.models.pca.plot()
