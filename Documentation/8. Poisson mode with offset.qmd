@@ -32,22 +32,31 @@ Below is an example of code that demonstrates a Bayesian Poisson regression with
 ```python
 from BI import bi
 import jax.numpy as jnp
+import numpy as np
+
 # Setup device------------------------------------------------
 m = bi(platform='cpu')
 
 # Simulated data ------------------------------------------------
-population = m.dist.normal(0,1, shape = (100,), sample = True)
-cid = m.dist.binomial(1, 0.5, shape = (100,), sample = True)
-hours = m.dist.uniform(1, 10, shape=(100,), sample=True) 
+# Using numpy for simulation to easily set the true values
+np.random.seed(42)
+N = 100
+population = np.random.normal(0, 1, size=N)
+cid = np.random.binomial(1, 0.5, size=N)
+hours = np.random.uniform(1, 10, size=N)
 
-a = m.dist.normal(3, 0.5, shape= (2,), name='a', sample = True)
-b = m.dist.normal(0, 0.2, shape=(2,), name='b', sample = True)
-l = hours * jnp.exp(a[cid] + b[cid]*population)
-total_tools = m.dist.poisson(l,  sample = True)
+true_a = np.array([2.5, 3.5])
+true_b = np.array([-0.1, 0.2])
+
+l = hours * np.exp(true_a[cid] + true_b[cid] * population)
+total_tools = np.random.poisson(l)
+
+print(f"True a: {true_a}")
+print(f"True b: {true_b}")
 
 # Model data ------------------------------------------------
 def model_offset(cid, population, hours, total_tools):
-    a = m.dist.normal(3, 0.5, shape= (2,), name='a')
+    a = m.dist.normal(3, 0.5, shape=(2,), name='a')
     b = m.dist.normal(0, 0.2, shape=(2,), name='b')
     l = hours * jnp.exp(a[cid] + b[cid]*population)
     m.dist.poisson(l, obs=total_tools)
@@ -58,8 +67,9 @@ m.data_on_model = dict(cid=cid, population=population, hours=hours, total_tools=
 m.fit(model_offset, progress_bar=False)
 
 # Diagnostic ------------------------------------------------
-m.summary()
-
+summ = m.summary()
+print("\nSummary results:")
+print(summ[['mean']])
 ```
 
 ### R
@@ -70,70 +80,89 @@ m=importBI(platform='cpu')
 jnp = reticulate::import('jax.numpy')
 
 # Simulated data ------------------------------------------------
-population = bi.dist.normal(0,1,shape = c(100), sample = TRUE)
-cid = bi.dist.binomial(probs = c(0.5), shape = c(100),sample = TRUE)
-hours = bi.dist.uniform(1, 10, shape=c(100), sample=TRUE) 
+set.seed(42)
+N = 100
+population = rnorm(N, 0, 1)
+cid = rbinom(N, 1, 0.5) + 1 # R indices are 1-based
+hours = runif(N, 1, 10)
 
-a = bi.dist.normal(3, 0.5, shape= (2), name='a', sample = TRUE)
-b = bi.dist.normal(0, 0.2, shape=(2), name='b', sample = TRUE)
-l = hours * jnp$exp(a[cid] + b[cid]*population)
-total_tools = bi.dist.poisson(l,  sample = TRUE)
+true_a = c(2.5, 3.5)
+true_b = c(-0.1, 0.2)
+
+l = hours * exp(true_a[cid] + true_b[cid] * population)
+total_tools = rpois(N, l)
+
+print(paste("True a:", paste(true_a, collapse=" ")))
+print(paste("True b:", paste(true_b, collapse=" ")))
 
 # Define model ------------------------------------------------
-model <- function(cid, population, hours, total_tools_offset){
+model <- function(cid, population, hours, total_tools){
   # Parameter prior distributions
-  alpha = bi.dist.normal(3, 0.5, name='alpha', shape = c(2))
-  beta = bi.dist.normal(0, 0.2, name='beta', shape = c(2))
-  l = hours * jnp$exp(alpha[cid] + beta[cid]*population)
+  a = bi.dist.normal(3, 0.5, name='a', shape = c(2))
+  b = bi.dist.normal(0, 0.2, name='b', shape = c(2))
+  l = hours * jnp$exp(a[cid] + b[cid]*population)
   # Likelihood
   bi.dist.poisson(l, obs=total_tools)
 }
 
-m$data_on_model = list()
-m$data_on_model$total_tools = total_tools
-m$data_on_model$population = population
-m$data_on_model$cid = cid
-m$data_on_model$hours = hours
+m$data_on_model = list(
+  cid = as.integer(cid - 1), # Back to 0-based for JAX/BI if needed, check BI convention
+  population = population,
+  hours = hours,
+  total_tools = total_tools
+)
 
 # Run mcmc ------------------------------------------------
-m$fit(model) # Optimize model parameters through MCMC sampling
+m$fit(model, progress_bar=FALSE)
 
 # Summary ------------------------------------------------
-m$summary() # Get posterior distributions
-
+m$summary()
 ```
 
 ### Julia
 
 ```julia
 using BayesianInference
+using Random
+using Distributions
 
 # Setup device------------------------------------------------
 m = importBI(platform="cpu")
 
 # Simulated data ------------------------------------------------
-population = m.dist.normal(0, 1, shape = (100,), sample = true)
-cid = m.dist.binomial(1, 0.5, shape = (100,), sample = true)
-hours = m.dist.uniform(1, 10, shape=(100,), sample=true)
+Random.seed!(42)
+N = 100
+population = rand(Normal(0, 1), N)
+cid = rand(Binomial(1, 0.5), N) .+ 1 # Julia indices are 1-based
+hours = rand(Uniform(1, 10), N)
 
-a = m.dist.normal(3, 0.5, shape= (2,), name="a", sample = true)
-b = m.dist.normal(0, 0.2, shape=(2,), name="b", sample = true)
-l = hours * jnp.exp(a[cid] + b[cid]*population)
-total_tools = m.dist.poisson(l,  sample = true)
+true_a = [2.5, 3.5]
+true_b = [-0.1, 0.2]
+
+l = hours .* exp.(true_a[cid] .+ true_b[cid] .* population)
+total_tools = [rand(Poisson(λ)) for λ in l]
+
+println("True a: ", true_a)
+println("True b: ", true_b)
 
 # Define model ------------------------------------------------
 @BI function model(cid, population, hours, total_tools)
     a = m.dist.normal(3, 0.5, shape= (2,), name="a")
     b = m.dist.normal(0, 0.2, shape=(2,), name="b")
-    l = hours * jnp.exp(a[cid] + b[cid]*population)
+    l = hours .* exp.(a[cid] .+ b[cid] .* population)
     m.dist.poisson(l, obs=total_tools)
 end
 
 # Pass data to model
-m.data_on_model = Dict("cid" => cid, "population" => population, "hours" => hours, "total_tools" => total_tools)
+m.data_on_model = Dict(
+    "cid" => cid .- 1, # Back to 0-based for JAX/BI if needed
+    "population" => population, 
+    "hours" => hours, 
+    "total_tools" => total_tools
+)
 
 # Run mcmc ------------------------------------------------
-m.fit(model)  # Optimize model parameters through MCMC sampling
+m.fit(model, progress_bar=false)  # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary() # Get posterior distributions
