@@ -4,7 +4,7 @@ sidebar: start
 ---
 
 # PCA
-``` {python}
+``` python
 from BI import bi, jnp
 
 m=bi()
@@ -26,7 +26,7 @@ m.models.pca.plot(
 
 
 # Survival analysis
-```{python}
+```python
 from BI import bi, jnp
 
 m = bi()
@@ -57,7 +57,7 @@ m.models.survival.plot_surv( beta = 'Hazard_rate_metastasized')
 
 # Gaussian Mixture Models
 
-```{python}
+```python
 from BI import bi
 from sklearn.datasets import make_blobs
 m = bi()
@@ -79,7 +79,7 @@ m.plot(X=data,sampler=m.sampler)  # ⚠️ Experimental feature
 
 ## Python
 
-```{python}
+```python
 from BI import bi
 from sklearn.datasets import make_blobs
 m = bi()
@@ -89,13 +89,29 @@ data, true_labels = make_blobs(
     n_samples=500, centers=8, cluster_std=0.8,
     center_box=(-10,10), random_state=101
 )
-m.data_on_model = dict(data=data,T=10)
+m.data_on_model = dict(data=data,T=10, empirical_bayes=True) # Set empirical_bayes=True for data-driven priors
 m.fit(m.models.dpmm)
-m.plot(data,m.sampler) # ⚠️ Experimental feature
+m.plot(data,m.sampler) 
 ```
 
+# Bayesian Neural Network Unsupervised Clustering Models
 
+## Python
 
+```python
+from BI import bi
+from sklearn.datasets import make_blobs
+m = bi()
+
+# Generate synthetic data
+data, true_labels = make_blobs(
+    n_samples=1000, centers=9, cluster_std=0.5,
+    center_box=(-10,10), random_state=101
+)
+m.data_on_model = dict(data=data, K=11, D_H1=10, empirical_bayes=True) # Set empirical_bayes=True for data-driven priors
+m.fit(m.models.bnnc, progress_bar=False)
+m.plot(data,m.sampler)
+```
 
 # Network Models
 

@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD
 title: "🚧 BNN for Classification 🚧"
+=======
+title: "BNN for Classification"
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 description: "Neural networks that incorporate Bayesian inference to predict probabilities of binary outcomes."
 categories: [Neural Networks, Classification, Deep Learning]
 image: "Figures/24.png"
@@ -157,6 +161,7 @@ m.fit(model, num_samples=500, progress_bar=false)
 :::
 
 ## Mathematical Details
+<<<<<<< HEAD
 
 ### *Bayesian Formulation*
 
@@ -185,6 +190,34 @@ For a binary classification task spanning $N$ observations, we model the probabi
    Y_i \sim \text{Binomial}(1, p_i)
    $$
    Here, the model predicts $Y_i$ using a Binomial distribution with 1 trial (equivalent to a Bernoulli distribution). The logits calculated from the network are implicitly passed through the sigmoid function to represent the expected probability $p_i$.
+=======
+In the Bayesian formulation, we place [<span style="color:#0D6EFD">priors 🛈</span>]{#prior} on all weights and biases and define a likelihood for the output. For a classification task with a $K$-hidden-layer BNN with $J$ neurons per hidden layer and a $D_X$-vector of predictors we can run the model as below.
+For the code example, we consider two hidden layers with a hyperbolic tangent ($\tanh$) [<span style="color:#0D6EFD">activation function 🛈</span>]{#Activation}, mapped to a logit output. Because the input matrix $X$ incorporates the intercept as its first column, the bias term is implicitly included in the layer's weights:
+
+$$ 
+\begin{aligned}
+Y_i &\sim \text{Binomial}(1, p_i) \\
+\text{logit}(p_i) & = H_{i,2} W_3 \\
+H_{i,2} & = \tanh(H_{i,1} W_2) \\
+H_{i,1} & = \tanh(X_i W_1) \\
+W_1 & \sim \text{Normal}(0, 1) \\
+W_2 & \sim \text{Normal}(0, 1) \\
+W_3 & \sim \text{Normal}(0, 1) \\
+\end{aligned}
+$$
+
+where:
+
+* $Y_i$ is the observed binary outcome for the $i$-th observation.
+* $p_i$ is the predicted probability of the outcome being 1 for the $i$-th observation.
+* $X_i$ is the input row vector for the $i$-th observation, containing the intercept and the predictor variables. It has length $D_X = 2$.
+* $H_{i,1}$ is the first hidden layer representation vector for the $i$-th observation. It has length $D_{H1} = 4$.
+* $H_{i,2}$ is the second hidden layer representation vector for the $i$-th observation. It has length $D_{H2} = 3$.
+* $W_1$ is the weight matrix of the first hidden layer, with a shape of $D_X \times D_{H1}$ (i.e., $2 \times 4$).
+* $W_2$ is the weight matrix of the second hidden layer, with a shape of $D_{H1} \times D_{H2}$ (i.e., $4 \times 3$).
+* $W_3$ is the final layer weight matrix used to compute the logits, with a shape of $D_{H2} \times 1$ (i.e., $3 \times 1$).
+* All elements within the weight matrices $W_1$, $W_2$, and $W_3$ are assigned independent standard Normal priors.
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 
 ## Notes
 
@@ -196,3 +229,7 @@ For a binary classification task spanning $N$ observations, we model the probabi
 ## Reference(s)
 
 1. [PyData Berlin 2025: Introduction to Stochastic Variational Inference with NumPyro](https://juanitorduz.github.io/intro_svi/)
+<<<<<<< HEAD
+=======
+2. [Variational Inference: Bayesian Neural Networks](https://www.pymc.io/projects/examples/en/latest/variational_inference/bayesian_neural_network_advi.html)
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b

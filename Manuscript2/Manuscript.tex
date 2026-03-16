@@ -1,0 +1,660 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A template for Wiley article submissions developed by 
+% Overleaf for the Overleaf-Wiley pilot which ran 
+% during 2017 and 2018.
+% 
+% This template is no longer supported, but is provided
+% for historical reference. Last updated January 2019.
+%
+% Please note that whilst this template provides a 
+% preview of the typeset manuscript for submission, it 
+% will not necessarily be the final publication layout.
+%
+% Document class options:
+% =======================
+% blind: Anonymise all author, affiliation, correspondence
+%    and funding information.
+%
+% lineno: Adds line numbers.
+%
+% serif: Sets the body font to be serif. 
+%
+% twocolumn: Sets the body text in two-column layout. 
+% 
+% num-refs: Uses numerical citation and references style 
+%      (Vancouver-authoryear).
+%
+% alpha-refs: Uses author-year citation and references style
+%       (rss).
+%
+% Using other bibliography styles:
+% =======================
+%
+% To specify a different bibiography style
+%
+% 1) Do not use either num-refs or alpha-refs in documentclass.
+% 2) Load natbib package with the options set as needed.
+% 3) Use the \bibliographystyle command to specify the style
+% 
+% Included NJD styles are: 
+%  WileyNJD-ACS
+%  WileyNJD-AMA
+%  WileyNJD-AMS
+%  WileyNJD-APA
+%  WileyNJD-Harvardj
+%  WileyNJD-VANCOUVER
+%
+% or you may upload an alternative .bst file 
+% (if requested by the journal).
+%
+% Examples:
+% =======================
+%% Example: Using numerical, sort-by-authors citations.
+\documentclass[blind,lineno,num-refs]{wiley-article}
+
+%% Example: Using author-year citations and anonymising submission
+% \documentclass[blind,alpha-refs]{wiley-article}
+
+%% Example: Using unsrtnat for numerical, in-sequence citations
+% \documentclass{wiley-article}
+% \usepackage[numbers]{natbib}
+% \bibliographystyle{unsrtnat}
+
+%% Example: Using WileyNJD-AMA reference style and superscript
+%%     citations, two-column and serif fonts for AIChE
+% \documentclass[serif,twocolumn,lineno]{wiley-article}
+% \usepackage[super]{natbib}
+% \bibliographystyle{WileyNJD-AMA}
+% \makeatletter
+% \renewcommand{\@biblabel}[1]{#1.}
+% \makeatother
+
+% Add additional packages here if required
+\usepackage{siunitx}
+\usepackage{setspace}
+\doublespacing
+
+% Update article type if known
+% Update article type if known
+\papertype{Applications}
+% Include section in journal if known, otherwise delete
+%\paperfield{Methods in Ecology and Evolution}
+
+\title{The Bayesian Inference library for Python R and Julia}
+
+% List abbreviations here, if any. Please note that it is preferred that abbreviations be defined at the first instance they appear in the text, rather than creating an abbreviations list.
+%\abbrevs{ABC, a black cat; DEF, doesn't ever fret; GHI, goes home immediately.}
+
+% Include full author names and degrees, when required by the journal.
+% Use the \authfn to add symbols for additional footnotes and present addresses, if any. Usually start with 1 for notes about author contributions; then continuing with 2 etc if any author has a different present address.
+% \author[1]{Sebastian Sosa}
+% \author[1,2]{Mary B. McElreath}
+% \author[1]{Cody T. Ross}
+
+
+% Include full affiliation details for all authors
+% \affil[1]{Department of Human Behavior, Ecology and Culture. Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany }
+% \affil[2]{Department of Human Behavior, Ecology and Culture. Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany }
+
+% \corraddress{Sebastian Sosa}
+% \corremail{sebastian\_sosa@eva.mpg.de}
+
+
+% \fundinginfo{Max Planck Institute for Evolutionary Anthropology. Leipzig, Germany}
+
+% Include the name of the author that should appear in the running header
+\runningauthor{Blinded for Review}
+
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{subcaption} 
+\captionsetup[subfigure]{position=top}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{pdflscape}
+\usepackage{fancyhdr}
+\usepackage[absolute,overlay]{textpos}
+\hypersetup{
+  colorlinks,
+  linkcolor={red!50!black},
+  citecolor={blue!50!black},
+  urlcolor={blue!80!black}
+}
+
+\definecolor{codegreen}{rgb}{0.2,0.48,0.2}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codeorange}{rgb}{0.77,0.3,0.0}
+\definecolor{backcolour}{rgb}{0.93,0.93,0.93}
+\definecolor{codered}{rgb}{0.7,0.035,0.035}
+
+\lstdefinestyle{mystyle}{
+  backgroundcolor=\color{backcolour},  
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{codered},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codeorange},
+  basicstyle=\ttfamily\footnotesize\singlespacing,
+  breakatwhitespace=false,     
+  breaklines=true,         
+  captionpos=b,          
+  keepspaces=true,         
+  numbers=left,          
+  numbersep=5pt,         
+  showspaces=false,        
+  showstringspaces=false,
+  showtabs=false,         
+  tabsize=2,
+  otherkeywords = {install_github, setup_folders, standardize_photos, build_survey, enter_data, compile_data, calculate_payouts, check_classification, downsize, pre_process, auto_enter_all, annotate_data, simulate_selfreport_network, make_strand_data, fit_latent_network_model, summarize_strand_results, data.frame, set.seed, summarize_bsrm_hh_results, simulate_multiplex_network, multiplex_plot, fit_block_plus_social_relations_hh_model, simulate_sbm_plus_srm_hh_network, fit_multiplex_model, fit_block_plus_social_relations_model, fit_social_relations_model, strand_caterpillar_plot, fit_longitudinal_model, longitudinal_plot, standardize, simulate_longitudinal_network, process_block_parameters, jnp.outer, numpyro.sample, dist.Normal, dist.Exponential, expand, dist.LKJ, dist.MultivariateNormal, jnp.stack, jax.random.PRNGKey, tfd.Sample, yield, Root, tfd.Normal, tfd.Exponential, tfd.LKJ, tf.concat, tf.linalg.LinearOperatorDiag, matmul, tf.squeeze, bi.dist.normal, tfp.distributions.Normal, random_centered2, bi.dist.lkjcholesky, bi.dist.exponential, dist.normal, dist.uniform, Normal },
+ alsoletter ={_},
+ deletekeywords={path, start, stop, ordered, case, colors, order, add, data, mode, R, distance}
+}
+
+\lstset{style=mystyle}
+
+
+
+\begin{document}
+
+\begin{frontmatter}
+\maketitle
+
+\begin{abstract}
+
+\begin{enumerate}
+  \item Bayesian modeling is a powerful paradigm in modern statistics and machine learning. However, practitioners face significant obstacles in building bespoke models.
+  
+  \item The landscape of Bayesian software is fragmented across programming languages and abstraction levels. Newcomers often gravitate towards high-level interfaces, like \textit{R}, in order to use simple generalized linear models (\textit{GLMs}) through interfaces like \textit{brms}.
+
+  \item For niche problems, researchers must often transition to writing directly in lower-level programming languages, like \textit{Stan} or \textit{JAX}, which require specialist knowledge.
+  
+  \item  Furthermore, computational demands remain a significant bottleneck, often limiting the feasibility of applying Bayesian methods on large datasets and complex, high-dimensional models.
+
+\item The Bayesian Inference \textit{(}\href{https://shorturl.at/CWHSD}{BI}\textit{)} is a cross-platform software distributed as a \href{https://anonymous.4open.science/r/BI-F5E4/README.md}{Python}, \href{https://anonymous.4open.science/r/BIR-4C37/}{R} and \href{https://anonymous.4open.science/r/PyBayesianInference_jl_5A2222100/README.md}{Julia} library. It provides an intuitive model-building syntax with the flexibility of low-level abstraction coding, while also providing pre-built \textit{GLM} functions. Further, by facilitating hardware-accelerated GPU computation under-the-hood, \textit{BI}  permits high-dimensional models to be fit in a fraction of the time  of comparable Stan models (up to 200-fold). 
+
+\end{enumerate}
+
+
+% Please include a maximum of seven keywords
+\keywords{Bayesian methods, scalability, software, Python, R, Julia, GPU parallelization, social networks}
+\end{abstract}
+\end{frontmatter}
+
+
+
+\section{Introduction}\label{introduction}
+
+Bayesian modeling has emerged as an essential part of the toolbox of modern statistics and machine learning, providing a framework for robust inference under uncertainty. Bayesian methods are valuable across the academic disciplines, but are especially useful in evolution, ecology, and animal behavior, where missing data, measurement bias, and non-standard (i.e., scientifically motivated) data-generating models are ubiquitous. The potential of Bayesian methods to address applied challenges in the field is large, but the current ecosystem of Bayesian software is difficult for many end-users (i.e., academic researchers) to navigate. Key challenges stem from the diverse array of different programming languages and packages users may be required to learn, trade-offs between ease-of-use and flexibility, and persistent computational scalability limitations for complex models or large datasets.
+
+
+The first major obstacle is the fragmented landscape of Bayesian software, which features tools scattered across different programming languages (e.g., \texttt{Stan}, \texttt{TensorFlow probability (TFP)}, \texttt{NumPyro}, \texttt{JAX}) and software environments (e.g., \texttt{R}, \texttt{Python}, \texttt{Julia}). Within each of these settings, there are different notational conventions for defining the same types of models, and different packages require users to work at different levels of abstraction. Researchers may encounter domain-specific languages (like \texttt{Stan}), low level-of-abstraction libraries (like \textit{PyMC}), or high level-of-abstraction libraries (like \textit{brms} or \textit{STRAND}, which aim to facilitate construction of general-use Stan models under-the-hood). This diverse landscape can prove difficult for new users, especially non-statisticians, to navigate. For instance, applied researchers new to Bayesian analysis may initially gravitate towards high level-of-abstraction solutions in their preferred programming environment (e.g., \textit{brms} \citep{BRMS} in \textit{R} \citep{R}), only to find that their specific data analysis problem requires a bespoke solution that necessitates writing or editing raw Stan code. The Stan models, however, might be too slow to use, requiring users to rework their code into \texttt{JAX}, in order to permit GPU accelerated computation.
+
+The difficulty of navigating such disparate software environments naturally leads practitioners to prioritize using tools that they are already familiar with, or that appear easiest to learn, even if they aren't necessarily the most appropriate tools for their research questions. As such, the diverse software landscape is characterized by an accessibility-flexibility trade-off. While high-level interfaces like \textit{brms} offer an intuitive formula-based syntax for model definition, significantly lowering the initial barrier to entry---to the great benefit of the scientific community---this accessibility often comes at the cost of flexibility. Many generative scientific models are not easily defined in a formula-based syntax, and might require custom likelihood functions, multiple simultaneous equations, intricate prior structures, or other non-standard model components. For such models, the limitations of high-level wrappers become quite apparent. To gain the necessary flexibility, researchers must typically transition to lower-level probabilistic programming languages (PPLs), such as \textit{Stan} \citep{Stan}, \textit{PyMC}, \textit{NumPyro}, or \textit{TFP}. This transition imposes a much steeper learning curve, demanding a deeper understanding of probabilistic programming concepts (like computational graphs or tensor manipulation), and often requires users to write more verbose code. This significant jump in complexity can deter end-users, divert focus from statistical modeling to software engineering challenges, and ultimately slow down the pace of research.
+
+Similar accessibility and flexibility constraints manifest as domain-specific limitations within specialized Bayesian packages. Fields like phylogenetics or network analysis benefit from tools such as \textit{BEAST} \citep{BEAST}, \textit{RevBayes} \citep{RevBayes}, \textit{STRAND} \citep{STRAND1}, or \textit{BISON} \citep{BISON}, which provide accessible, pre-packaged models tailored to common domain-specific problems. A phylogeneticist might initially find \textit{BEAST} convenient for running standard molecular clock models. However, when they wish to incorporate a novel evolutionary hypothesis requiring modification of the core model structure, or need to integrate data types not originally envisioned by the developers, they encounter rigid constraints. Extending these specialized tools frequently requires deep engagement with their underlying, often complex, codebase, or abandoning the domain-specific tool entirely in favor of writing bespoke code in a general-purpose PPL. This forces researchers to either compromise on their methodological innovations or undertake a significant software development effort. 
+
+Finally, even when model specification is achievable, with either general-purpose or specialized tools, computational feasibility remains a significant bottleneck for many Bayesian models. For the large datasets (e.g., millions of observations) and complex, high-dimensional models prevalent in modern research (e.g., in fields like genomics, neuroscience, and machine learning), Bayesian approaches can be prohibitively slow unless computation can be parallelized. While established tools like \textit{Stan} feature highly optimized inference algorithms (particularly its NUTS sampler), high-dimension models can still take days-to-weeks to run (e.g., social network models in \texttt{STRAND} have a parameter complexity that scales with the square of the number of nodes, and so MCMC run-times can become unacceptable with as few as a few hundred individuals in the sample). Emerging frameworks built on \textit{JAX} \citep{jax2018github} (powering \textit{NumPyro} and parts of \textit{TFP}) promise substantial speedups via automatic differentiation, JIT compilation, and native support for parallel hardware architectures (e.g., GPUs and TPUs). Domain-specific tools often inherit the scalability limitations of the frameworks they are built upon, and there is now scope to consider building ease-of-use wrappers for JAX to complement those developed for Stan. This is an ongoing challenge. 
+
+Stepping back a bit, we contend that the added challenges of learning Bayesian methods, while simultaneously struggling with various programming language back-ends, may be discouraging end-users from fully exploring the capabilities of Bayesian methods, simply due to the friction introduced by language barriers. There is thus a pressing need for a Bayesian modeling package that synergistically addresses the interconnected limitations reviewed above. Here, we introduce \textit{Bayesian Inference (BI)}, a software package designed to unify the modeling experience across the three dominant data-science languages, Python, R and Julia. \textit{BI} tackles the \textit{interoperability} barrier head-on by offering native interfaces in all environments. It aims to resolve the \textit{accessibility-flexibility trade-off} by providing an intuitive model definition syntax reminiscent of \texttt{lm} in base R, while permitting advanced customization. \textit{BI} also includes pre-built functions tailored for specialized models in areas like network analysis, survival analysis, and phylogenetic analysis, while still allowing extension and modification within its general framework. Crucially, \textit{BI} enhances \textit{scalability} by integrating with hardware-accelerated computation via \textit{JAX} (using \textit{NumPyro} or \textit{TFP} as back-ends), which lets users choose between execution on CPUs, GPUs, and TPUs. By providing a streamlined, efficient, and unified environment for the end-to-end Bayesian workflow---from model specification and fitting, to diagnostics, and prediction---\textit{BI} lowers the barrier-to-entry for sophisticated Bayesian analysis, allowing researchers across disciplines annd programming languages to confidently apply advanced Bayesian methods to their research problems.
+
+
+\section{Software Presentation}\label{software-presentation}
+\subsection{Interoperability}\label{Interoperability}
+\textit{BI} directly confronts the \textbf{interoperability} challenge by offering native, feature-equivalent implementations in Python, R and Julia. While minor syntactic differences exist to adhere to the idiomatic conventions of each language, the core model specification syntax, the procedural workflow for analysis, and the underlying computational engines remain fundamentally consistent. For instance, Python utilizes dot notation for method calls on class objects (e.g., \texttt{bi.dist.normal(0,1)}), while R employs dollar sign notation for accessing elements or methods within its object system (e.g., \texttt{bi\$dist\$normal(0,1)}). This triple-language availability significantly lowers the adoption barrier for researchers, allowing them to work entirely within their preferred programming environment without sacrificing access to a common, powerful Bayesian modeling framework. More critically, it supports seamless collaboration across heterogeneous programming environments, thereby enhancing reproducibility, methodological coherence, and interdisciplinary research.
+
+\subsection{Accessibility}\label{Accessibility}
+\textit{BI} is designed to encapsulate the entire Bayesian modeling workflow within a cohesive object-oriented structure, promoting a streamlined and reproducible analysis pipeline. Typically, a user interacts with a primary \texttt{BI} object, through which they can sequentially:
+
+\begin{enumerate}
+  \item  \textbf{Handle Data:} Load, preprocess, and associate dataset(s) with the model object.
+ 
+  \item  \textbf{Define Model:} Specify the model structure, including the likelihood(s), priors for all parameters, and incorporate any pre-built components using an intuitive formula syntax.
+% ---
+% -  **Specify Inference:** Select the desired inference engine (e.g., NUTS via *NumPyro* or *TFP*, potentially Variational Inference methods) and configure its parameters (e.g., number of chains, warmup iterations, target acceptance rate). Crucially, the choice of computational backend (*NumPyro*, *TFP*) can often be switched with minimal changes to the model specification code.
+% --- % Converted to comment
+  \item  \textbf{Run Inference:} Execute the model fitting process using the No-U-Turn Sampler (NUTS), which triggers the backend PPL (e.g., \textit{NumPyro}, \textit{TFP}) to perform Markov Chain Monte Carlo (MCMC) sampling. Progress indicators and diagnostics are typically provided.
+ 
+  \item  \textbf{Analyze Posterior:} Access, summarize, and diagnose the posterior distributions of parameters. This includes methods for calculating posterior means, medians, credible intervals, convergence diagnostics (e.g., $\hat{R}$, Effective Sample Size - ESS), and retrieving raw posterior samples for custom analysis.
+  
+  \item  \textbf{Visualize Results:} Generate standard diagnostic plots (e.g., trace plots, rank plots, posterior distributions) and visualizations of model parameters, effects, and predictions using integrated plotting functions that leverage the \textit{arviz} library.
+\end{enumerate}
+
+ This unified structure minimizes the need for users to juggle multiple disparate software tools or manually transfer data and results between different stages of the analysis, thereby enhancing efficiency and reproducibility. Finally, \textit{BI} includes over 26 well-documented implementations of various standard and advanced Bayesian models \hyperlink{tab1}{Table 1}. Examples include Generalized Linear Models (GLMs), Generalized Linear Mixed Models (GLMMs), survival analysis models (e.g., Cox proportional hazards), Principal Component Analysis (PCA), phylogenetic comparative methods, and various network models. Each implementation is accompanied by detailed documentation that encompasses: 1) general principles, 2) underlying assumptions, 3) code snippets in Python and R, and 4) mathematical details, enabling users to gain a deeper understanding of the modeling process and its nuances. Additionally, the framework's flexibility allows models to be combined; for example, building a zero-inflated model with varying intercepts and slopes, or constructing a joint model where principal components (derived from PCA) serve as predictors in a subsequent regression, allowing uncertainty to be propagated through all stages of the analysis.
+
+ \label{tab1}
+\begin{table}[bt]
+\caption{Comprehensive list of all models available in BI}\label{tab1}
+\begin{threeparttable}
+\begin{tabular}{lccc}
+\headrow
+\thead{Documented Models} & \thead{Source} \\
+
+\href{https://shorturl.at/KVOc8}{Linear Regression} & Statistical Rethinking, chapter 4 \citep{rethinking} \\
+
+\href{https://shorturl.at/IoCbE}{Multiple Regression}
+& Statistical Rethinking, chapter 4 \citep{rethinking} \\
+
+\href{https://shorturl.at/QkEyC}{Interactions}
+& Statistical Rethinking, chapter 8 \citep{rethinking} \\
+
+\href{https://shorturl.at/tILn8}{Categorical models}
+& Statistical Rethinking, chapter 5 \citep{rethinking} \\
+
+\href{https://tinyurl.com/yc7uvey9}{Binomial models}
+& Statistical Rethinking, chapter 11 \citep{rethinking} \\
+
+\href{https://tinyurl.com/bdr8d594}{Poisson models}
+& Statistical Rethinking, chapter 11 \citep{rethinking} \\
+
+\href{https://tinyurl.com/yxxdn4f2}{Poisson models with offset}
+& Statistical Rethinking, chapter 11 \citep{rethinking} \\
+
+\href{https://tinyurl.com/3rcu2wud}{Gamma-Poisson models}
+& Statistical Rethinking, chapter 11 \citep{rethinking} \\
+
+\href{https://tinyurl.com/24r7vu7y}{Categorical models}
+& Statistical Rethinking, chapter 11 \citep{rethinking} \\
+
+\href{https://tinyurl.com/ye255x2s}{Multinomial models}
+& Statistical Rethinking, chapter 11 \citep{rethinking} \\
+
+\href{https://tinyurl.com/y5tb7cvc}{Dirichlet models}
+& Statistical Rethinking, chapter X \citep{rethinking} \\
+
+\href{https://tinyurl.com/2s4xvkej}{Beta-binomial models}
+& Statistical Rethinking, chapter 12 \citep{rethinking} \\
+
+\href{https://tinyurl.com/9cbn8fjb}{Zero-inflated models}
+& Statistical Rethinking, chapter 12 \citep{rethinking} \\
+
+\href{https://tinyurl.com/ycy8ed3n}{Varying-intercept models}
+& Statistical Rethinking, chapter 13 \citep{rethinking} \\
+
+\href{https://tinyurl.com/3nejcbbz}{Varying-intercept models}
+& Statistical Rethinking, chapter 13 \citep{rethinking} \\
+
+\href{https://tinyurl.com/ysnms3t6}{Gaussian process models}
+& Statistical Rethinking, chapter 14 \citep{rethinking} \\
+
+\href{https://tinyurl.com/3jhbszv3}{Measurement-error models}
+& Statistical Rethinking, chapter 15 \citep{rethinking} \\
+
+\href{https://tinyurl.com/4wzc8m3w}{Missing-data models}
+& Statistical Rethinking, chapter 15 \citep{rethinking} \\
+
+\href{https://tinyurl.com/4daz4s5b}{Latent variable models}
+& Bishop \& al. \citep{bishop1998latent} \\
+
+\href{https://tinyurl.com/mrpcjjhd}{Principal Component Analysis}
+& Tipping \& al. \citep{tipping1999probabilistic} \\
+
+\href{https://tinyurl.com/ys342rve}{Gaussian Mixture Models}
+& Bishop \& al. \citep{bishop2006pattern} \\
+
+\href{https://tinyurl.com/374undnp}{Dirichlet Process Mixture Models}
+& Pyro \citep{bingham2019pyro} \\
+
+\href{https://tinyurl.com/3nrzkrjk}{Basic social network models}
+& STRAND \citep{STRAND1} \\
+
+\href{https://tinyurl.com/5t57zh7f}{Stochastic blockmodels}
+& STRAND \citep{STRAND1} \\
+
+\href{https://tinyurl.com/2cnfhtzr}{Network control for data collection biases}
+& STRAND \citep{STRAND2025} \\
+
+\href{https://tinyurl.com/8zpct5r9}{Network metrics} &
+ANTs \citep{sosa2020multilevel,sosa2021network} \\
+
+\href{https://tinyurl.com/yc7tp6j6}{Bayesian Neural Networks}
+& Numpyro \citep{phan2019composable} \\
+
+\href{https://tinyurl.com/vpd38745}{Survival Analysis}
+& PYMC \citep{abril2023pymc} \\
+
+
+\hline % Please only put a hline at the end of the table
+\end{tabular}
+
+\begin{tablenotes}
+\item ~
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Accessibility-flexibility trade-off}\label{Accessibility-flexibility trade-off}
+\textit{BI} is designed to navigate the critical \textit{accessibility-flexibility trade-off} by providing multiple layers of abstraction and utility, catering effectively to users with varying levels of Bayesian modeling expertise and diverse complexity requirements through : simplified backend interaction via intuitive syntax, pre-built components for complex model features, addressing domain-specific limitations within a general framework, integrated End-to-End Workflow and extensive model library and documentation.
+
+At its computational core, \textit{BI} leverages the power and efficiency of established Probabilistic Programming Languages (PPLs) like \textit{NumPyro} and \textit{TFP}, both of which are built upon the \textit{JAX} framework for high-performance numerical computation and automatic differentiation. However, \textit{BI} deliberately abstracts away much of the inherent complexity of these lower-level tools \hyperref[code:block1_example]{(\textbf{Code block 1})}. This significantly enhances \textbf{accessibility} for a broader range of users.
+
+\label{code:block1_example} 
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
+\noindent\textbf{\textit{Code block 1: }} \textit{Prior specification differences between NumPyro, TFP, and BI}\\[-10pt]
+\noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
+\vspace{-\parskip}\vspace{0pt}
+
+% % Bottom rule
+\begin{lstlisting}[language=Python]
+# NumPyro prior specification
+numpyro.sample("mu", dist.Normal(0, 1)).expand([10])
+
+# TFP prior specification (within a JointDistributionCoroutine)
+yield Root(tfd.Sample(tfd.Normal(loc=1.0, scale=1.0), sample_shape=10))
+
+# BI prior specification
+bi.dist.normal(0, 1, name = "mu", shape = (10,))
+\end{lstlisting}
+
+To enhance \textbf{flexibility} without unduly sacrificing the accessibility provided by the high-level syntax, \textit{BI} includes a library of pre-built, computationally optimized functions implemented directly in \textit{JAX} (e.g., \textbf{Code block 2}). These components encapsulate common but potentially complex modeling structures, allowing users to incorporate them easily within the model specification. Key examples include:
+
+\begin{enumerate}
+  \item \textit{Varying effects} are implemented automatically, relieving the user from manually specifying the reparameterization. These cover hierarchical (multi-level) model components \citep{rethinking}, including varying intercepts, varying slopes, and combined varying intercepts and slopes, with support for both \textit{centered} and \textit{non-centered} parameterizations. The non-centered parameterization—often essential for efficient sampling in hierarchical models, particularly when data are sparse—is handled internally.
+  
+  \item \textit{Kernels for Gaussian Processes} for modeling spatial, temporal, phylogenetic, or other forms of structured correlation or dependency.
+
+  \item \textit{Gaussian mixture models} are implemented with automatic handling of component weights, means, and covariances, allowing flexible modeling of heterogeneous data. They provide a probabilistic framework for clustering and density estimation without requiring manual specification of component assignments.
+
+  \item \textit{Dirichlet process mixture models} extend mixture modeling to an unbounded number of components, automatically adapting model complexity to the data. The nonparametric prior enables flexible clustering without the need to predefine the number of mixture components.
+
+  \item \textit{Principal component analysis} is provided for dimensionality reduction, with automatic computation of orthogonal transformations that capture maximum variance. This allows efficient representation of high-dimensional data without manual specification of projection directions.
+
+  \item \textit{Survival models} are supported with automatic handling of censored data, enabling inference on time-to-event outcomes. Parametric and semi-parametric formulations allow flexible modeling of hazard functions without requiring manual adjustment for incomplete observations.
+  
+  \item \textit{Block Model Effects} for implementing stochastic block models in network analysis.
+  
+  \item \textit{SRM effects} for modeling pairwise interactions in networks while accounting for sender effects, receiver effects, dyadic effects, nodal predictors, dyadic predictors, and observation biases \citep{STRAND2025}.
+  
+  \item \textit{Network-Based Diffusion Approach (NBDA)} components for modeling the effect of network edges on the rates of transmission of phenomena (e.g., behavioral, epidemiological) while accounting for nodal or dyadic covariates \citep{hoppitt2011detecting}.
+
+  \item \textit{Network metrics} ranging from nodal, dyadic, and global network measures with a total of 11 that can be used to build custom models of social network analysis \citep{sosa2021network}.
+
+  \item \textit{Dense neural network layer} for modeling complex, non-linear relationships between variables \citep{phan2019composable}.
+
+  
+\end{enumerate}
+
+These pre-built \textit{JAX} functions provide tailored model components for common patterns in specific fields, while keeping them fully integrated within the general, extensible modeling framework \hyperref[code:block2_example]{(\textbf{Code block 2})}. By providing these optimized building blocks within its general syntax, \textit{BI} allows researchers in these fields to rapidly implement standard domain models using familiar concepts. Crucially, however, users retain the full flexibility of the \textit{BI} framework to combine these domain-specific components with other model features (e.g., complex non-linear effects via splines, hierarchical structures across groups of networks or phylogenies) or to customize or extend them using \textit{BI}'s underlying mechanisms if needed—a capability often missing in more narrowly focused domain-specific packages. This design aims to foster methodological innovation \textit{within} specialized domains by lowering the barrier to implementing more complex or novel models.
+
+\label{code:block2_example} 
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
+\noindent\textbf{\textit{Code block 2: }} \textit{Random effect specification differences between NumPyro, TFP, and BI}\\[-10pt]
+\noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
+\vspace{-\parskip}\vspace{0pt}
+
+\begin{lstlisting}[language=Python]
+import numpyro.distributions as dist
+import tensorflow_probability as tf
+import jax.numpy as jnp
+import jax.random as random
+import numpyro
+import tensorflow as tf
+from BI import bi
+tfd = tfp.distributions
+m = bi()
+
+# Numpyro version of random centered effect ----------------------------------------
+a = numpyro.distributions.Normal(5, 2).sample(random.PRNGKey(0), sample_shape=(1,))
+b = numpyro.distributions.Normal(-1, 0.5).sample(random.PRNGKey(1), sample_shape=(1,) )
+sigma_cafe = numpyro.distributions.Exponential(1).sample(random.PRNGKey(2), sample_shape=(2,))
+sigma = numpyro.distributions.Exponential(1).sample(random.PRNGKey(3))
+Rho = numpyro.distributions.LKJ(2, 2).sample(random.PRNGKey(4))
+cov = jnp.outer(sigma_cafe, sigma_cafe) * Rho
+a_cafe_b_cafe =numpyro.distributions.MultivariateNormal(jnp.stack([a, b]), cov).sample(random.PRNGKey(5), sample_shape=(5,))
+a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
+
+# TFP version of random centered effect ----------------------------------------
+a = tfd.Normal(5., 2.).sample()
+b = tfd.Normal(-1., 0.5).sample()
+sigma_cafe = tfd.Exponential(rate=1.).sample(sample_shape=(2,))
+sigma = tfd.Exponential(rate=1.).sample()
+Rho = tfd.LKJ(dimension=2, concentration=2.).sample()
+cov = tf.einsum('i,j->ij', sigma_cafe, sigma_cafe) * Rho
+a_cafe_b_cafe = tfd.MultivariateNormalFullCovariance(
+    loc=tf.stack([a, b], axis=-1),   # shape (2,)
+    covariance_matrix=cov
+).sample(sample_shape=(5,))          # shape (5, 2)
+a_cafe, b_cafe = a_cafe_b_cafe[:, 0], a_cafe_b_cafe[:, 1]
+
+# BI version of random centered effect----------------------------------------
+a = m.dist.normal(5, 2,  name = 'a',sample=True)
+b = m.dist.normal(-1, 0.5, name = 'b',sample=True)
+sigma = m.dist.exponential( 1,  name = 'sigma',sample=True)
+varying_intercept, varying_slope = m.effects.varying_effects(
+    N_vars = 1,
+    N_group = 20,
+    group_id = jnp.repeat(jnp.arange(20), 2),
+    group_name = 'cafe',
+    centered = False,
+    sample=True
+)
+\end{lstlisting}
+
+\subsection{Scalability}\label{Scalability}
+ Finally, a fundamental design principle of \texttt{BI} is to directly address the \texttt{scalability} challenge by building upon modern, high-performance computational backends. By utilizing *JAX*-based libraries like \texttt{NumPyro} and \texttt{TFP}, \texttt{BI} inherits their significant computational efficiencies, stemming from features such as Just-In-Time (JIT) compilation and seamless hardware acceleration (GPU/TPU support). These are critical for tackling the large datasets and complex models prevalent in contemporary research. This strategic reliance on the \texttt{JAX} ecosystem allows \texttt{BI} users to tackle computationally intensive problems that might be infeasible or prohibitively slow using frameworks lacking comparable optimization and hardware acceleration capabilities (e.g. NBDA for large networks). By abstracting the backend complexities while retaining their power, \texttt{BI} significantly enhances the practical \texttt{scalability} of sophisticated Bayesian inference for a wider audience.
+
+
+\section{Example : SRM model}
+To illustrate how these design features of \textit{BI} coalesce to provide a streamlined, flexible, and powerful solution, effectively addressing the limitations identified in the existing Bayesian software landscape we will provide a basic example of how an SRM model is declared in BI, compare it with the equivalent model in  STAN (Appendix 1). We will also show how this model can be build from scratch with BI \hyperref[code:block3_example]{(\textbf{Code block 3})} or its custom functions \hyperref[code:block4_example]{(\textbf{Code block 4})} to highligh the aceessibility-flexibility of our package by demonstrating how advance user can build custom model (with less code than STAN) as well as how new user can apply pre-build \textit{BI} models. Finally we show how it is also called in R \hyperref[code:block5_example]{(\textbf{Code block 5})} and Julia \hyperref[code:block6_example]{(\textbf{Code block 6})} to cross language use with \textit{BI}. Readers interested in further details on data structure, data import, data manipulation, and model fitting for SRM models can refer directly to the \textit{BI} documentation \href{https://tinyurl.com/3nrzkrjk}{Modeling Network}.
+
+\label{code:block3_example} 
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
+\noindent\textbf{\textit{Code block 3: }} \textit{SRM model from scratch with BI}\\[-10pt]
+\noindent\rule{\linewidth}{0.4pt}\\[-8pt] % % Bottom rule
+\vspace{-\parskip}\vspace{0pt}
+
+\begin{lstlisting}[language=Python, label=lst:srm_scratch]
+from BI import bi
+m = bi()
+
+def model(N_id, idx, result_outcomes,
+     focal_individual_predictors, 
+     target_individual_predictors):
+
+  # Intercept 
+  intercept = bi.dist.normal(
+    logit(0.1/jnp.sqrt(N_id)), 
+    2.5, shape=(1,), name = 'intercept'
+  )
+
+  # Sender receiver ----------------------
+  N_var = focal_individual_predictors.shape[0]
+  N_id = focal_individual_predictors.shape[1]  
+  focal_effects = m.dist.normal(0, 1, name = 'focal_effects')
+  target_effects = m.dist.normal( 0, 1, name = 'target_effects')
+  terms = jnp.stack([
+    focal_effects @ focal_individual_predictors,
+    target_effects @ target_individual_predictors
+    ], axis = -1)
+  sr_raw = m.dist.normal(0, 1, shape=(2, N_id), name = 'sr_raw')
+  sr_sigma = m.dist.exponential( 1, shape= (2,), name = 'sr_sigma')
+  sr_L = m.dist.lkjcholesky(2, 2, name = "sr_L")
+  rf = (((sr_L @ sr_raw).T * sr_sigma))
+  ids = jnp.arange(0,sr_effects.shape[0])
+  edgl_idx = m.net.vec_node_to_edgle(jnp.stack([ids, ids], axis = -1))
+  sender = sr_effects[edgl_idx[:,0],0] + sr_effects[edgl_idx[:,1],1]
+  receiver = sr_effects[edgl_idx[:,1],0] + sr_effects[edgl_idx[:,0],1]
+  sr = jnp.stack([sender, receiver], axis = 1)
+
+  # dyadic effects ------------------------------------------
+  m.net.mat_to_edgl(dyadic_effect_mat)
+  dr_raw = m.dist.normal(0, 1, shape=(2,N_dyads), name = 'dr_raw')
+  dr_sigma = m.dist.exponential(1, name = 'dr_sigma' )
+  dr_L = m.dist.lkjcholesky(2, 2, name = 'dr_L')
+  dr_rf = deterministic('dr_rf', (
+    ((dr_L @ dr_raw).T * jnp.repeat(dr_sigma, 2))
+    ))
+
+  dyad_effects = dist.normal(0, 1, 
+    name= 'dyad_effects', shape = (dyadic_predictors.ndim - 1,
+  ))
+  dr = dyad_effects * dyadic_predictors
+
+  # Likelihood                            
+  m.dist.poisson(jnp.exp(intercept + sr + dr), obs=result_outcomes) 
+\end{lstlisting}
+
+\label{code:block4_example} 
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
+\noindent\textbf{\textit{Code block 4: }} \textit{SRM model with prebuild functions in Python}\\[-10pt]
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % % Bottom rule
+\vspace{-\parskip}\vspace{0pt}
+
+\begin{lstlisting}[language=Python, label=lst:srm_prebuild_py]
+from BI import bi
+m = bi()
+
+def model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors,category):
+    N_id = focal_individual_predictors.shape[0]
+    # Block ---------------------------------------
+    B_intercept = m.net.block_model(jnp.full((N_id,),0), 1, N_id, name = "B_intercept")
+
+    ## SR shape =  N individuals---------------------------------------
+    sr =  m.net.sender_receiver(
+      focal_individual_predictors,
+      target_individual_predictors, 
+      s_mu = 0.4, r_mu = -0.4
+    )
+
+    # Dyadic shape = N dyads--------------------------------------  
+    dr = m.net.dyadic_effect(dyadic_predictors, d_sd=2.5) # Diadic effect intercept only 
+    m.dist.bernoulli(logits = B_intercept + B_category + sr + dr, obs=network)
+\end{lstlisting}
+
+\label{code:block5_example} 
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
+\noindent\textbf{\textit{Code block 5: }} \textit{SRM model with prebuild functions in R.}\\[-10pt]
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % % Bottom rule
+\vspace{-\parskip}\vspace{0pt}
+
+\begin{lstlisting}[language=R, label=lst:srm_prebuild_r]
+library(BayesianInference)
+m = imortBI()
+model <- function(N_id, idxShape, result_outcomes,
+        focal_individual_predictors, target_individual_predictors){
+
+ x=0.1/jnp$sqrt(N_id)
+ tmp=jnp$log(x / (1 - x))
+ 
+ # Intercept 
+ intercept = bi.dist.normal(tmp, 2.5, shape=c(1), name = 'block')
+ 
+ # SR 
+ sr = m$net$sender_receiver(
+      focal_individual_predictors,
+      target_individual_predictors
+    )
+ 
+ # Dyadic 
+ dr = m$net$dyadic_effect(shape = c(idxShape))
+
+ # Likelihood                            
+ bi.distpoisson(jnp$exp(intercept + sr + dr), obs=result_outcomes) 
+}
+\end{lstlisting}
+
+\label{code:block6_example} 
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % Top rule, line break, add 2pt space
+\noindent\textbf{\textit{Code block 6: }} \textit{SRM model with prebuild functions in Julia.}\\[-10pt]
+\noindent\rule{\linewidth}{0.4pt}\\[0pt] % % Bottom rule
+\vspace{-\parskip}\vspace{0pt}
+
+\begin{lstlisting}[language=Python, label=lst:srm_prebuild_julia]
+using BayesianInference
+
+# Setup device------------------------------------------------
+m = importBI()
+@BI function model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors,category) 
+    N_id = focal_individual_predictors.shape[0]
+
+    # Block ---------------------------------------
+    B_intercept = m.net.block_model(jnp.full((N_id,),0), 1, N_id, name = "B_intercept")
+    B_category = m.net.block_model(category, N_grp, N_by_grp, name = "B_category")
+
+    ## SR shape =  N individuals---------------------------------------
+    sr =  m.net.sender_receiver(
+      focal_individual_predictors,
+      target_individual_predictors, 
+      s_mu = 0.4, r_mu = -0.4
+    )
+
+    # Dyadic shape = N dyads--------------------------------------  
+    dr = m.net.dyadic_effect(dyadic_predictors, d_sd=2.5) # Diadic effect intercept only 
+    m.dist.bernoulli(logits = B_intercept + B_category + sr + dr, obs=network)
+end 
+\end{lstlisting}
+
+\section{Scalability}
+Finally, we evaluate computational performance by comparing the execution time of the
+\textit{Social Relations Model} (SRM) across networks of increasing size
+(50, 100, 200, and 400 nodes) using both \textit{Stan} and \textit{BI}
+(Figure~\ref{fig:benchmark}). For \textit{BI}, computations were performed using
+both CPU and GPU implementations. CPU-based executions were carried out on a
+120-core processor, while GPU-based executions were conducted on an NVIDIA A40
+accelerator.
+
+Overall, \textit{BI} exhibits substantially faster computation times than
+\textit{Stan}, with the performance gap widening markedly as network size
+increases. In particular, for networks with 400 nodes, \textit{BI} achieves up to
+a 270-fold reduction in execution time relative to \textit{Stan}. An
+additional noteworthy observation concerns GPU-based computation in \textit{BI}:
+although GPU execution does not outperform CPU execution for smaller networks
+(e.g., 50 nodes), its rate of increase in computation time is considerably lower
+as network size grows, ultimately yielding superior performance for larger
+networks. Collectively, these results highlight the strong scalability of
+\textit{BI} for complex models and large datasets, both on CPU and GPU
+architectures. 
+
+Finally, we demonstrate that parameter estimates obtained using \textit{Stan} and
+\textit{BI} for the SRM are highly consistent, as evidenced by the posterior
+distribution estimates for all networks analyzed in the benchmark tests
+Figure~\ref{fig:posterior}. Code to reproduce the benchmark tests and the posterior comparisons are available in Appendix 2.
+
+\begin{landscape}
+\thispagestyle{empty}
+
+% Manual header matching Wiley style
+\noindent Sosa et al. (2025) \hfill \textbar\hspace{0.3em}\thepage
+\vskip 0.0cm
+\noindent\rule{\linewidth}{0.4pt}
+
+\vspace{0.5cm}
+\begin{figure}[h!]
+    \centering
+
+    % -------- (a) Benchmark --------
+    \begin{subfigure}{0.48\linewidth}
+        \caption{}
+        \centering
+        \includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{Benchmark_plot.png}
+        \label{fig:benchmark}
+    \end{subfigure}%
+    \hfill
+    % -------- (b) Posterior --------
+    \begin{subfigure}{0.48\linewidth}
+        \caption{}
+        \centering
+        \includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{Posteriors_plot.png}
+        \label{fig:posterior}
+    \end{subfigure}
+
+    \caption{
+    \textbf{(A)} Benchmarking runtime performance of STAN and BI (CPU and GPU implementations)
+    for the Social Relations Model (SRM) across networks of varying sizes (50, 100, 200, and 400 nodes).
+    \textbf{(B)} Posterior distributions for model parameters.
+    }
+    \label{fig:benchmark_posterior}
+\end{figure}
+\end{landscape}
+
+\section{Discussion}
+
+\textbf{BI} framework is built on top of the popular Python programming language, with a focus on providing a user-friendly interface for model development and interpretation. Our framework is designed to be modular and extensible, allowing users to easily incorporate their own custom models and data types into the framework. One of the key features of this software is its comprehensive library of 26 predefined Bayesian models, covering a wide range of common applications and use cases. These models are accompanied by detailed explanations, making it easier for users to understand the underlying assumptions and apply the models to their specific research questions. In addition to these built-in models, the software includes several custom functions tailored for advanced statistical and network modeling. This curated library serves not only as a collection of ready-to-use tools but also as a valuable pedagogical resource, demonstrating best practices for constructing, fitting, and interpreting models within the \textit{BI} framework, and providing robust templates for users aiming to develop novel model variants. Whether users are interested in hierarchical models, time-series analysis, or cutting-edge network modeling approaches, our library caters to a variety of analytical needs. This accessibility fosters an environment where users can confidently explore and implement Bayesian methods, ultimately enhancing their research capabilities.
+
+By providing a streamlined and efficient environment for the end-to-end Bayesian workflow—from model specification and fitting to diagnostics and prediction, \textit{BI} lowers the barrier to entry for sophisticated Bayesian modeling. We aim to empower a broader community of researchers across disciplines to confidently apply advanced Bayesian methods to their complex research problems; leveraging open-source, industry-standard frameworks such as NumPyro and TensorFlow Probability.
+
+\printendnotes
+
+\bibliography{sample}
+
+
+\end{document}

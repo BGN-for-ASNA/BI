@@ -7,23 +7,24 @@ import jax
 import time
 from BI.Utils.SampledData import SampledData as SampledData
 
+
 class UnifiedDist:
     """A class to unify various distribution methods and provide a consistent interface for sampling and inference."""
 
-    def __init__(self, rand_seed = True):
+    def __init__(self, rand_seed=True):
         self.seed = rand_seed
 
-    def track(self,name, x):
-        return numpyro.deterministic(name,x)
-        
-    def normalize_seed(self,seed):
+    def track(self, name, x):
+        return numpyro.deterministic(name, x)
+
+    def normalize_seed(self, seed):
         if seed is None:
             seed = self.seed
         # If seed is exactly a bool, return True or False
         if isinstance(seed, bool):
             if seed:
-                return  int(time.time_ns())
-            else:   
+                return int(time.time_ns())
+            else:
                 return 0
         # If seed is an integer (but not a bool), return it
         if isinstance(seed, int) and not isinstance(seed, bool):
@@ -32,16 +33,33 @@ class UnifiedDist:
         raise ValueError(f"Invalid seed type: {type(seed)}")
 
     @staticmethod
-    def mask( mask):
+    def deterministic(name, x):
+        return numpyro.deterministic(name, x)
+
+    @staticmethod
+    def mask(mask):
         return numpyro.handlers.mask(mask=mask)
 
     @staticmethod
     def plate(name, shape):
         return numpyro.plate(name, shape)
 
-    def asymmetric_laplace(self,loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def asymmetric_laplace(
+        self,
+        loc=0.0,
+        scale=1.0,
+        asymmetry=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Asymmetric Laplace
         
         Samples from an Asymmetric Laplace distribution.
@@ -113,17 +131,18 @@ class UnifiedDist:
                :doi:`10.1007/PL00022717`
         """
 
-           
-        d = numpyro.distributions.continuous.AsymmetricLaplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args)
+        d = numpyro.distributions.continuous.AsymmetricLaplace(
+            loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -137,16 +156,29 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def asymmetric_laplace_quantile(self,loc=0.0, scale=1.0, quantile=0.5, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def asymmetric_laplace_quantile(
+        self,
+        loc=0.0,
+        scale=1.0,
+        quantile=0.5,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Asymmetric Laplace Quantile
-        
+
         Samples from an AsymmetricLaplaceQuantile distribution.
-        
+
         This distribution is an alternative parameterization of the AsymmetricLaplace
         distribution, commonly used in Bayesian quantile regression. It utilizes a
         `quantile` parameter to define the balance between the left- and right-hand
@@ -156,24 +188,24 @@ class UnifiedDist:
         #### Args:
 
         - *loc* (float): The location parameter of the distribution.
-        
+
         - *sample* (float): The scale parameter of the distribution.
-        
+
         - *quantile* (float): The quantile parameter, representing the proportion of probability density to the left of the median. Must be between 0 and 1.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
 
         #### Returns:
@@ -183,27 +215,28 @@ class UnifiedDist:
         - When `sample=True`: A JAX array of samples drawn from the AsymmetricLaplaceQuantile distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI AsymmetricLaplaceQuantile distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.asymmetric_laplace_quantile(loc=0.0, scale=1.0, quantile=0.5, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#asymmetriclaplacequantile
         """
 
-           
-        d = numpyro.distributions.continuous.AsymmetricLaplaceQuantile(loc=loc, scale=scale, quantile=quantile, validate_args=validate_args)
+        d = numpyro.distributions.continuous.AsymmetricLaplaceQuantile(
+            loc=loc, scale=scale, quantile=quantile, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -216,81 +249,93 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def bernoulli_logits(self,logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def bernoulli_logits(
+        self,
+        logits=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Bernoulli Logits
-        
-        Samples from a Bernoulli distribution parameterized by logits.
-        
-        The Bernoulli distribution models a single binary event (success or failure),
-        parameterized by the log-odds ratio of success.  The probability of success
-        is given by the sigmoid function applied to the logit.
-        
-        $
-        p = \sigma(\eta) = \frac{1}{1 + e^{-\eta}}
-        $
-        where (\eta) is the log-odds (the *logit*).
 
-        #### Args:
-        - *logits* (jnp.ndarray, optional): Log-odds ratio of success.  Must be real-valued.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int, optional): The number of batch dimensions to reinterpret as *event* dimensions (used in model building). Defaults to 0.
-        
-        - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask
-                observations. Defaults to None.
-        
-        - *create_obj* (bool, optional): If True, returns the raw BI
-                distribution object instead of creating a sample site. This is
-                essential for building complex distributions like `MixtureSameFamily`.
-                Defaults to False.
+          Samples from a Bernoulli distribution parameterized by logits.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          The Bernoulli distribution models a single binary event (success or failure),
+          parameterized by the log-odds ratio of success.  The probability of success
+          is given by the sigmoid function applied to the logit.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+          $
+          p = \sigma(\eta) = \frac{1}{1 + e^{-\eta}}
+          $
+          where (\eta) is the log-odds (the *logit*).
 
-        #### Returns:
+          #### Args:
+          - *logits* (jnp.ndarray, optional): Log-odds ratio of success.  Must be real-valued.
 
-      - When `sample=False`: A BI BernoulliLogits distribution object (for  model building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.bernoulli_logits(logits=jnp.array([0.2, 1, 2]), sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#bernoulli-logits
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int, optional): The number of batch dimensions to reinterpret as *event* dimensions (used in model building). Defaults to 0.
+
+          - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask
+                  observations. Defaults to None.
+
+          - *create_obj* (bool, optional): If True, returns the raw BI
+                  distribution object instead of creating a sample site. This is
+                  essential for building complex distributions like `MixtureSameFamily`.
+                  Defaults to False.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+
+        - When `sample=False`: A BI BernoulliLogits distribution object (for  model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.bernoulli_logits(logits=jnp.array([0.2, 1, 2]), sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#bernoulli-logits
 
 
-        #### References
-        [1]: https://en.wikipedia.org/wiki/Bernoulli_distribution "Bernoulli distribution"
-        [2]: https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Bernoulli "tfp.        distributions.Bernoulli - Probability"
-        [3]: https://mc-stan.org/docs/2_19/functions-reference/bernoulli-logit-distribution.html "11.2 Bernoulli Distribution, Logit Parameterization - Stan"
+          #### References
+          [1]: https://en.wikipedia.org/wiki/Bernoulli_distribution "Bernoulli distribution"
+          [2]: https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Bernoulli "tfp.        distributions.Bernoulli - Probability"
+          [3]: https://mc-stan.org/docs/2_19/functions-reference/bernoulli-logit-distribution.html "11.2 Bernoulli Distribution, Logit Parameterization - Stan"
 
         """
 
-           
-        d = numpyro.distributions.discrete.BernoulliLogits(logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.discrete.BernoulliLogits(
+            logits=logits, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -303,12 +348,23 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def bernoulli_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def bernoulli_probs(
+        self,
+        probs,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Bernoulli Probs
         
         Samples from a Bernoulli distribution parameterized by probabilities.
@@ -361,17 +417,18 @@ class UnifiedDist:
             https://num.pyro.ai/en/stable/distributions.html#bernoulliprobs
         """
 
-           
-        d = numpyro.distributions.discrete.BernoulliProbs(probs=probs, validate_args=validate_args)
+        d = numpyro.distributions.discrete.BernoulliProbs(
+            probs=probs, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -384,12 +441,24 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def beta(self,concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def beta(
+        self,
+        concentration1,
+        concentration0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Beta 
         Samples from a Beta distribution, defined on the interval [0, 1].
         The Beta distribution is a versatile distribution often used to model
@@ -456,17 +525,20 @@ class UnifiedDist:
 
         """
 
-           
-        d = numpyro.distributions.continuous.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Beta(
+            concentration1=concentration1,
+            concentration0=concentration0,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -479,80 +551,97 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def beta_binomial(self,concentration1, concentration0, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def beta_binomial(
+        self,
+        concentration1,
+        concentration0,
+        total_count=1,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### BetaBinomial
+          Samples from a BetaBinomial distribution, a compound distribution where the probability of success in a binomial
+          experiment is drawn from a Beta distribution. This models situations where the underlying probability of success
+          is not fixed but varies according to a prior belief represented by the Beta distribution. It is often used to model over-dispersion relative to the binomial distribution.
 
-        r"""### BetaBinomial 
-        Samples from a BetaBinomial distribution, a compound distribution where the probability of success in a binomial
-        experiment is drawn from a Beta distribution. This models situations where the underlying probability of success
-        is not fixed but varies according to a prior belief represented by the Beta distribution. It is often used to model over-dispersion relative to the binomial distribution.
-        
-        For $X \sim \mathrm{BetaBinomial}(N,\alpha,\beta)$, for $k = 0,1,\dots,N$:
+          For $X \sim \mathrm{BetaBinomial}(N,\alpha,\beta)$, for $k = 0,1,\dots,N$:
 
-        $$
-        \Pr(X = k) = \binom{N}{k} ; \frac{B(k + \alpha,; N - k + \beta)}{B(\alpha,\beta)},
-        $$
+          $$
+          \Pr(X = k) = \binom{N}{k} ; \frac{B(k + \alpha,; N - k + \beta)}{B(\alpha,\beta)},
+          $$
 
-        where ($B(u,v)$) is the Beta function $(B(u,v) = \frac{\Gamma(u),\Gamma(v)}{\Gamma(u+v)})$. 
+          where ($B(u,v)$) is the Beta function $(B(u,v) = \frac{\Gamma(u),\Gamma(v)}{\Gamma(u+v)})$.
 
-        #### Args:
+          #### Args:
 
-        - *concentration1* (jnp.ndarray): The first concentration parameter (alpha) of the Beta distribution.
-        
-        - *concentration0* (jnp.ndarray): The second concentration parameter (beta) of the Beta distribution.
+          - *concentration1* (jnp.ndarray): The first concentration parameter (alpha) of the Beta distribution.
 
-        - *total_count* (jnp.ndarray): The number of Bernoulli trials in the Binomial part of the distribution.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+          - *concentration0* (jnp.ndarray): The second concentration parameter (beta) of the Beta distribution.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          - *total_count* (jnp.ndarray): The number of Bernoulli trials in the Binomial part of the distribution.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-      - When `sample=False`: A BI BetaBinomial distribution object (for model building).
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
-      - When `sample=True`: A JAX array of samples drawn from the BetaBinomial distribution (for direct sampling).
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
 
-      - When `create_obj=True`: The raw BI BetaBinomial distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.beta_binomial(concentration1=1.0, concentration0=1.0, total_count=10, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#betabinomial
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
-        #### References:
-        [1]: https://en.wikipedia.org/wiki/Beta-binomial_distribution "Beta-binomial distribution"
-        [2]: https://www.statisticshowto.com/beta-binomial-distribution/ "Beta-Binomial Distribution: Definition - Statistics How To"
-        [3]: https://mc-stan.org/docs/2_19/functions-reference/beta-binomial-distribution.html "12.3 Beta-Binomial Distribution | Stan Functions Reference"
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+
+        - When `sample=False`: A BI BetaBinomial distribution object (for model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the BetaBinomial distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI BetaBinomial distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.beta_binomial(concentration1=1.0, concentration0=1.0, total_count=10, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#betabinomial
+
+          #### References:
+          [1]: https://en.wikipedia.org/wiki/Beta-binomial_distribution "Beta-binomial distribution"
+          [2]: https://www.statisticshowto.com/beta-binomial-distribution/ "Beta-Binomial Distribution: Definition - Statistics How To"
+          [3]: https://mc-stan.org/docs/2_19/functions-reference/beta-binomial-distribution.html "12.3 Beta-Binomial Distribution | Stan Functions Reference"
         """
 
-           
-        d = numpyro.distributions.conjugate.BetaBinomial(concentration1=concentration1, concentration0=concentration0, total_count=total_count, validate_args=validate_args)
+        d = numpyro.distributions.conjugate.BetaBinomial(
+            concentration1=concentration1,
+            concentration0=concentration0,
+            total_count=total_count,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -565,12 +654,24 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def beta_proportion(self,mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def beta_proportion(
+        self,
+        mean,
+        concentration,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Beta Proportion 
         
         The Beta Proportion distribution is a reparameterization of the conventional
@@ -633,17 +734,18 @@ class UnifiedDist:
         https://mc-stan.org/docs/2_19/functions-reference/beta-proportion-distribution.html "19.2 Beta Proportion Distribution | Stan Functions Reference"
         """
 
-           
-        d = numpyro.distributions.continuous.BetaProportion(mean=mean, concentration=concentration, validate_args=validate_args)
+        d = numpyro.distributions.continuous.BetaProportion(
+            mean=mean, concentration=concentration, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -656,41 +758,53 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def binomial_logits(self,logits, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Binomial Logits 
+    def binomial_logits(
+        self,
+        logits,
+        total_count=1,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Binomial Logits
         The BinomialLogits distribution represents a binomial distribution parameterized by logits.
         It is useful when the probability of success is not directly known but is instead
         expressed as logits, which are the natural logarithm of the odds ratio.
-        
+
         $$
         p = \mathrm{logit}^{-1}(\alpha) = \frac{1}{1 + e^{-\alpha}}.
         $$
-        
+
         #### Args:
         - *logits* (jnp.ndarray): Log-odds of each success.
 
         - *total_count* (int): Number of trials.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event
                 dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
 
         - When `sample=False`: A BI BinomialLogits distribution object (for  model building).
@@ -699,27 +813,28 @@ class UnifiedDist:
 
         - When `create_obj=True`: The raw BI BinomialLogits object (for advanced use cases).
 
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.binomial_logits(logits=jnp.zeros(10), total_count=5, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#binomialllogits
         """
 
-           
-        d = numpyro.distributions.discrete.BinomialLogits(logits=logits, total_count=total_count, validate_args=validate_args)
+        d = numpyro.distributions.discrete.BinomialLogits(
+            logits=logits, total_count=total_count, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -732,73 +847,86 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def binomial_probs(self,probs, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def binomial_probs(
+        self,
+        probs,
+        total_count=1,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Binomial Probs
-        
+
         Samples from a Binomial distribution with specified probabilities for each trial.
-        
+
         The Binomial distribution models the number of successes in a sequence of independent Bernoulli trials, where each trial has the same probability of success.
-        
+
         For $k = 0,1,2,\dots,N$:
-        $$   
+        $$
         \Pr(X = k) = \binom{N}{k} ; p^k ; (1 - p)^{,N - k}
         $$
 
         where $\binom{N}{k} = \frac{N!}{k!(N-k)!}$.
-        
+
         #### Args:
 
         - *probs* (jnp.ndarray): The probability of success for each trial. Must be between 0 and 1.
-        
+
         - *total_count* (int): The number of trials in each sequence.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
-        
+
         - When `sample=False`: A BI BinomialProbs distribution object (for  model building).
 
         - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI BinomialLogits object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.binomial_probs(probs=0.5, total_count=10, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#binomialprobs
         """
 
-           
-        d = numpyro.distributions.discrete.BinomialProbs(probs=probs, total_count=total_count, validate_args=validate_args)
+        d = numpyro.distributions.discrete.BinomialProbs(
+            probs=probs, total_count=total_count, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -811,17 +939,33 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def car(self,loc, correlation, conditional_precision, adj_matrix, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-
-        r"""### Conditional Autoregressive (CAR) 
+    def car(
+        self,
+        loc,
+        correlation,
+        conditional_precision,
+        adj_matrix,
+        is_sparse=False,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Conditional Autoregressive (CAR)
         The CAR distribution models a vector of variables where each variable is a linear
         combination of its neighbors in a graph. The CAR model captures spatial dependence in areal data by modeling each observation as conditionally dependent on its neighbors.It specifies a joint distribution of a vector of random variables $\mathbf{y} = (y_1, y_2, \dots, y_N)$ based on their conditional distributions, where each $y_i$ is conditionally independent of all other variables given its neighbors.
 
         * **Application**: Widely used in disease mapping, environmental modeling, and spatial econometrics to account for spatial autocorrelation.
-        
+
         * **Conditional Distribution**: Each $y_i$ given its neighbors $\mathbf{y}_{-i}$ follows a normal distribution:
 
         $$
@@ -835,8 +979,8 @@ class UnifiedDist:
         * $\sigma^2$ is the variance term.
               where $\mu_i$ is a function of the values of the neighbors of site $i$
               and $\Sigma_i$ is the variance of site $i$.
-        
-        
+
+
         #### Args:
         - *loc* (Union[float, Array]): Mean of the distribution.
 
@@ -852,11 +996,11 @@ class UnifiedDist:
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
 
         #### Returns:
-        
+
         - When `sample=False`: A BI CAR distribution object (for  model building).
 
         - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
@@ -870,18 +1014,23 @@ class UnifiedDist:
 
         """
 
-        
-           
-        d = numpyro.distributions.continuous.CAR(loc=loc, correlation=correlation, conditional_precision=conditional_precision, adj_matrix=adj_matrix, is_sparse=is_sparse, validate_args=validate_args)
+        d = numpyro.distributions.continuous.CAR(
+            loc=loc,
+            correlation=correlation,
+            conditional_precision=conditional_precision,
+            adj_matrix=adj_matrix,
+            is_sparse=is_sparse,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -894,15 +1043,26 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def categorical_logits(self,logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Categorical Logits 
+    def categorical_logits(
+        self,
+        logits,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Categorical Logits
         Samples from a Categorical distribution with logits. This distribution represents a discrete probability distribution over a finite set of outcomes, where the probabilities are determined by the logits. The probability of each outcome is given by the softmax function applied to the logits.
-        
+
         Given logits $ \gamma = (\gamma_1, \dots, \gamma_K) $, the probability of each category $ i $ is:
 
         $$
@@ -910,24 +1070,24 @@ class UnifiedDist:
         $$
 
         where $ p_i  is the probability of category $ i , and the sum in the denominator ensures that the probabilities sum to 1.
-        
+
         #### Args:
         - *logits* (jnp.ndarray): Log-odds of each category.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
 
         - When `sample=False`: A BI CategoricalLogits distribution object (for  model building).
@@ -935,28 +1095,29 @@ class UnifiedDist:
         - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI CategoricalLogits object (for advanced use cases).
-        
-        
+
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.categorical_logits(logits=jnp.zeros(5), sample=True)
-        
+
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#categoricallogits
         """
 
-           
-        d = numpyro.distributions.discrete.CategoricalLogits(logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.discrete.CategoricalLogits(
+            logits=logits, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -969,71 +1130,83 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def categorical_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def categorical_probs(
+        self,
+        probs,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Categorical Probs distribution.
-        
+
         Samples from a Categorical distribution.
-        
+
         The Categorical distribution is a discrete probability distribution that
         represents the probability of each outcome from a finite set of possibilities.
         It is often used to model the outcome of a random process with a fixed number
         of possible outcomes, such as the roll of a die or the selection of an item
         from a list.
-        
-        $$   
+
+        $$
         P(x) = \frac{probs_i}{\sum_{k=1}^{K} probs_k}
         $$
 
         #### Args:
         - *probs* (jnp.ndarray): Probabilities for each category. Must sum to 1.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions
                 (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
         - When `sample=False`: A BI CategoricalProbs distribution object (for  model building).
 
         - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI CategoricalProbs object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.categorical_probs(probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#categoricalprobs
         """
 
-           
-        d = numpyro.distributions.discrete.CategoricalProbs(probs=probs, validate_args=validate_args)
+        d = numpyro.distributions.discrete.CategoricalProbs(
+            probs=probs, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1046,79 +1219,92 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def cauchy(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def cauchy(
+        self,
+        loc=0.0,
+        scale=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Cauchy
+          Samples from a Cauchy
 
-        r"""### Cauchy 
-        Samples from a Cauchy
-        
-        The Cauchy distribution, also known as the Lorentz distribution, is a continuous probability distribution
-        that arises frequently in various fields, including physics and statistics. It is characterized by its
-        heavy tails, which extend indefinitely. This means it has a higher probability of extreme values compared to the normal distribution.
-        
-        * **Parameters**:
-            * **Location parameter** ($\mu$): Determines the peak of the distribution.
-            * **Scale parameter** ($\gamma$): Describes the half-width at half-maximum (HWHM) of the peak.
-        $$
-        f(x; \mu, \gamma) = \frac{1}{\pi \gamma \left[1 + \left(\frac{x - \mu}{\gamma}\right)^2\right]}
-        $$
+          The Cauchy distribution, also known as the Lorentz distribution, is a continuous probability distribution
+          that arises frequently in various fields, including physics and statistics. It is characterized by its
+          heavy tails, which extend indefinitely. This means it has a higher probability of extreme values compared to the normal distribution.
 
-        where:
+          * **Parameters**:
+              * **Location parameter** ($\mu$): Determines the peak of the distribution.
+              * **Scale parameter** ($\gamma$): Describes the half-width at half-maximum (HWHM) of the peak.
+          $$
+          f(x; \mu, \gamma) = \frac{1}{\pi \gamma \left[1 + \left(\frac{x - \mu}{\gamma}\right)^2\right]}
+          $$
 
-        * $x$ is the random variable,
-        * $\mu$ is the location parameter,
-        * $\gamma$ is the scale parameter.
-        
-        #### Args:
-        - *loc* (jnp.ndarray or float, optional): Location parameter.  Defaults to 0.0.
+          where:
 
-        - *sample* (jnp.ndarray or float, optional): Scale parameter. Must be positive. Defaults to 1.0.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building). Defaults to None.
-        
-        - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
-        
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+          * $x$ is the random variable,
+          * $\mu$ is the location parameter,
+          * $\gamma$ is the scale parameter.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          #### Args:
+          - *loc* (jnp.ndarray or float, optional): Location parameter.  Defaults to 0.0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
+          - *sample* (jnp.ndarray or float, optional): Scale parameter. Must be positive. Defaults to 1.0.
 
-      - When `sample=False`: A BI Cauchy distribution object (for model building).
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-      - When `sample=True`: A JAX array of samples drawn from the Cauchy distribution (for direct sampling).
+          - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building). Defaults to None.
 
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.cauchy(loc=0.0, scale=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#cauchy
+          - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
+
+          - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+
+        - When `sample=False`: A BI Cauchy distribution object (for model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the Cauchy distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.cauchy(loc=0.0, scale=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#cauchy
         """
 
-           
-        d = numpyro.distributions.continuous.Cauchy(loc=loc, scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Cauchy(
+            loc=loc, scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1131,12 +1317,23 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def chi2(self,df, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def chi2(
+        self,
+        df,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Chi-squared
         
         The Chi-squared distribution is a continuous probability distribution that arises
@@ -1191,17 +1388,16 @@ class UnifiedDist:
             https://num.pyro.ai/en/stable/distributions.html#chi2
         """
 
-           
         d = numpyro.distributions.continuous.Chi2(df=df, validate_args=validate_args)
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1214,19 +1410,32 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def circulant_normal(self,loc: jax.Array, covariance_row: jax.Array = None, covariance_rfft: jax.Array = None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Circulant Normal Multivariate normal 
+    def circulant_normal(
+        self,
+        loc: jax.Array,
+        covariance_row: jax.Array = None,
+        covariance_rfft: jax.Array = None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Circulant Normal Multivariate normal
 
         Circulant Normal Multivariate normal distribution with covariance matrix $\mathbf{C}` that is
         positive-definite and circulant [1], i.e., has periodic boundary conditions. The
         density of a sample $\mathbf{x}\in\mathbb{R}^n` is the standard multivariate
         normal density
-        
+
         $$
             p\left(\mathbf{x}\mid \mu,\mathbf{C}\right) =
             \frac{\left(\mathrm{det}\,\mathbf{C}\right)^{-1/2}}{\left(2\pi\right)^{n / 2}}
@@ -1238,14 +1447,14 @@ class UnifiedDist:
         transpose. Circulant matrices can be diagnolized efficiently using the discrete
         Fourier transform [1], allowing the log likelihood to be evaluated in
         $n \log n` time for $n` observations [2].
-        
+
         - *loc:* Mean of the distribution $\mu$.
 
         - *covariance_row:* First row of the circulant covariance matrix
             $C$. Because of periodic boundary conditions, the covariance
             matrix is fully determined by its first row (see
             `jax.scipy.linalg.toeplitz` for further details).
-            
+
         - *covariance_rfft:* Real part of the real fast Fourier transform of
             :code:`covariance_row`, the first row of the circulant covariance matrix
             $C$.
@@ -1253,18 +1462,18 @@ class UnifiedDist:
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         References:
-        
+
         1. Wikipedia. (n.d.). Circulant matrix. Retrieved March 6, 2025, from
            https://en.wikipedia.org/wiki/Circulant_matrix
 
         2. Wood, A. T. A., & Chan, G. (1994). Simulation of Stationary Gaussian Processes in
            $\left[0, 1\right]^d`. *Journal of Computational and Graphical Statistics*,
            3(4), 409--432. https://doi.org/10.1080/10618600.1994.10474655
-        
+
         #### Args:
 
         - *loc* : jnp.ndarray Mean of the distribution $\mu$.
@@ -1280,7 +1489,7 @@ class UnifiedDist:
         - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI Circulant Normal Distribution object (for advanced use cases).
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#circulantnormal
 
         #### References:
@@ -1289,17 +1498,21 @@ class UnifiedDist:
         Wood, A. T. A., & Chan, G. (1994). Simulation of Stationary Gaussian Processes in $[0,1]^d$. Journal of Computational and Graphical Statistics, 3(4), 409–432. https://doi.org/10.1080/10618600.1994.10474655
         """
 
-           
-        d = numpyro.distributions.continuous.CirculantNormal(loc=loc, covariance_row=covariance_row, covariance_rfft=covariance_rfft, validate_args=validate_args)
+        d = numpyro.distributions.continuous.CirculantNormal(
+            loc=loc,
+            covariance_row=covariance_row,
+            covariance_rfft=covariance_rfft,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1312,12 +1525,25 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def delta(self,v=0.0, log_density=0.0, event_dim=0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def delta(
+        self,
+        v=0.0,
+        log_density=0.0,
+        event_dim=0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Delta
         
         The Delta distribution, also known as a point mass distribution, assigns probability 1 to a single point and 0 elsewhere. It's useful for representing deterministic variables or as a building block for more complex distributions.
@@ -1368,17 +1594,21 @@ class UnifiedDist:
             https://num.pyro.ai/en/stable/distributions.html#delta
         """
 
-           
-        d = numpyro.distributions.distribution.Delta(v=v, log_density=log_density, event_dim=event_dim, validate_args=validate_args)
+        d = numpyro.distributions.distribution.Delta(
+            v=v,
+            log_density=log_density,
+            event_dim=event_dim,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1391,49 +1621,60 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def dirichlet(self,concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def dirichlet(
+        self,
+        concentration,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Dirichlet
-        
+
         Samples from a Dirichlet distribution.
-        
+
         The Dirichlet distribution is a multivariate generalization of the Beta distribution.
         It is a probability distribution over a simplex, which is a set of vectors where each element is non-negative and sums to one. It is often used as a prior distribution for categorical distributions.
 
         For ( X = (X_1, \dots, X_K) \sim \mathrm{Dir}(\alpha)), the density is
-        
-        
+
+
         $$
         f( x; \alpha) = \frac{1}{B(\alpha)} \prod_{i=1}^K x_i^{\alpha_i - 1}
         $$
 
         for ( x) in the simplex, and 0 otherwise. Here (B(\alpha)) is the multivariate Beta function (the normalization constant):
-        
+
         $$
         B(\alpha) = \frac{\prod_{i=1}^K \Gamma(\alpha_i)}{\Gamma\left(\sum_{i=1}^K \alpha_i\right)}.
         $$
-        
+
         #### Args:
         - *concentration* (jnp.ndarray): The concentration parameter(s) of the Dirichlet distribution. Must be a positive array.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-        
+
         #### Returns:
 
         - When `sample=False`: A BI Dirichlet Distribution distribution object (for  model building).
@@ -1441,12 +1682,12 @@ class UnifiedDist:
         - When `sample=True`: A JAX array of samples drawn from the Dirichlet distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI Dirichlet Distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.dirichlet(concentration=jnp.array([1.0, 1.0, 1.0]), sample=True)
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#dirichlet
 
         #### References
@@ -1456,17 +1697,18 @@ class UnifiedDist:
 
         """
 
-           
-        d = numpyro.distributions.continuous.Dirichlet(concentration=concentration, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Dirichlet(
+            concentration=concentration, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1479,12 +1721,26 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def dirichlet_multinomial(self,concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
+    def dirichlet_multinomial(
+        self,
+        concentration,
+        total_count=1,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Dirichlet-Multinomial
-    
+
         Creates a Dirichlet-Multinomial compound distribution, which is a Multinomial
         distribution with a Dirichlet prior on its probabilities. It is often used in
         Bayesian statistics to model count data where the proportions of categories are
@@ -1498,13 +1754,13 @@ class UnifiedDist:
         $$
           \mathbf{x} = (x_1, \dots, x_K) \sim \mathrm{Multinomial}(n, \mathbf{p}).
         $$
-        
-        Integrating out $\mathbf{p}$ gives you the marginal distribution of $\mathbf{x}). 
-        * It generalizes the **Beta-Binomial** model to multiple categories (i.e. (K > 2)). 
+
+        Integrating out $\mathbf{p}$ gives you the marginal distribution of $\mathbf{x}).
+        * It generalizes the **Beta-Binomial** model to multiple categories (i.e. (K > 2)).
         * A key feature is that it introduces **overdispersion** relative to a standard multinomial: counts are more “clumped” because the underlying probabilities vary according to the Dirichlet prior.
 
 
-    
+
         #### Args:
         - *concentration* (jnp.ndarray): The concentration parameter (alpha) for the Dirichlet prior. Values must be positive. The last dimension is interpreted as the number of categories.
 
@@ -1525,7 +1781,7 @@ class UnifiedDist:
         - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
         - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to `False`.
-        
+
 
         #### Returns:
 
@@ -1539,11 +1795,11 @@ class UnifiedDist:
             from BI import bi
             import jax.numpy as jnp
             m = bi('cpu')
-        
+
             # Direct sampling
             # Sample a single vector of counts for 10 trials from 3 categories
             counts = m.dist.dirichlet_multinomial(concentration=jnp.array([1.0, 1.0, 1.0]),total_count=10,sample=True)
-        
+
             # Usage within a model
             def my_model(obs_data=None):
                 # Define a prior on the concentration parameter
@@ -1557,7 +1813,7 @@ class UnifiedDist:
                         name='y',
                         obs=obs_data
                     )
-    
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#dirichletmultinomial
 
@@ -1567,16 +1823,20 @@ class UnifiedDist:
 
         """
 
-        d = numpyro.distributions.conjugate.DirichletMultinomial(concentration=concentration, total_count=total_count, validate_args=validate_args)
+        d = numpyro.distributions.conjugate.DirichletMultinomial(
+            concentration=concentration,
+            total_count=total_count,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1589,45 +1849,57 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def discrete_uniform(self,low=0, high=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Discrete Uniform 
+    def discrete_uniform(
+        self,
+        low=0,
+        high=1,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Discrete Uniform
         Samples from a Discrete Uniform distribution.
-        
+
         The Discrete Uniform distribution defines a uniform distribution over a range of integers.
         It is characterized by a lower bound (`low`) and an upper bound (`high`), inclusive.
-        
-        $$   
+
+        $$
         P(X = k) = \frac{1}{high - low + 1}, \quad k \in \{low, low+1, ..., high\}
         $$
 
         Otherwise (if $k$ is outside the range), $ P(X = k) = 0 $.
 
-        
+
         #### Args:
         - *low* (jnp.ndarray): The lower bound of the uniform range, inclusive.
 
         - *high* (jnp.ndarray): The upper bound of the uniform range, inclusive.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a
                 sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
 
         - When `sample=False`: A BI DiscreteUniform Distribution distribution object (for  model building).
@@ -1635,12 +1907,12 @@ class UnifiedDist:
         - When `sample=True`: A JAX array of samples drawn from the DiscreteUniform distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BI DiscreteUniform Distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.discrete_uniform(low=0, high=5, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#discreteuniform
 
@@ -1648,17 +1920,18 @@ class UnifiedDist:
 
         """
 
-           
-        d = numpyro.distributions.discrete.DiscreteUniform(low=low, high=high, validate_args=validate_args)
+        d = numpyro.distributions.discrete.DiscreteUniform(
+            low=low, high=high, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1671,10 +1944,25 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def doubly_truncated_power_law(self,alpha, low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def doubly_truncated_power_law(
+        self,
+        alpha,
+        low,
+        high,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Doubly Truncated Power Law 
 
         This distribution represents a continuous power law with a finite support bounded
@@ -1746,16 +2034,18 @@ class UnifiedDist:
        https://reference.wolframcloud.com/language/ref/TruncatedDistribution.html
         """
 
-        d = numpyro.distributions.truncated.DoublyTruncatedPowerLaw(alpha=alpha, low=low, high=high, validate_args=validate_args)
+        d = numpyro.distributions.truncated.DoublyTruncatedPowerLaw(
+            alpha=alpha, low=low, high=high, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1768,34 +2058,47 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def euler_maruyama(self,t, sde_fn, init_dist, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,   shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def euler_maruyama(
+        self,
+        t,
+        sde_fn,
+        init_dist,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=0,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""###  Euler–Maruyama
-         
+
         Euler–Maruyama methode is a method for the approximate numerical solution
         of a stochastic differential equation (SDE). It simulates the solution
         to an SDE by iteratively applying the Euler method to each time step,
         incorporating a random perturbation to account for the diffusion term.
-        
+
         $$
            dX_t = f(X_t, t) dt + g(X_t, t) dW_t
         $$
-        
+
         where:
         - $X_t` is the state of the system at time $t`.
         - $f(X_t, t)` is the drift coefficient.
         - $g(X_t, t)` is the diffusion coefficient.
         - $dW_t` is a Wiener process (Brownian motion).
 
-        
+
         #### Args:
         - *t* (jnp.ndarray): Discretized time steps.
 
-        - *sde_fn* (callable): A function that takes the current state and time as input and returns the drift and diffusion coefficients. 
+        - *sde_fn* (callable): A function that takes the current state and time as input and returns the drift and diffusion coefficients.
 
         - *init_dist* (Distribution): The initial distribution of the system.
 
@@ -1808,29 +2111,30 @@ class UnifiedDist:
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             jnp.ndarray: Samples drawn from the Euler–Maruyama distribution.
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.euler_maruyama(t=jnp.array([0.0, 0.1, 0.2]), sde_fn=lambda x, t: (x, 1.0), init_dist=m.dist.normal(0.0, 1.0, create_obj=True), sample = True)
         """
 
-           
-        d = numpyro.distributions.continuous.EulerMaruyama(t=t, sde_fn=sde_fn, init_dist=init_dist, validate_args=validate_args)
+        d = numpyro.distributions.continuous.EulerMaruyama(
+            t=t, sde_fn=sde_fn, init_dist=init_dist, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1843,69 +2147,81 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def exponential(self,rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def exponential(
+        self,
+        rate=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Exponential
-        
-        The Exponential distribution is a continuous probability distribution that models the time until an event occurs in a Poisson process, where events occur continuously and independently at a constant average rate. It is often used to model the duration of events, such as the time until a machine fails or the length of a phone call.
-        
-        For ( x \ge 0 )
-        $$   
-        F(x; \lambda) = 1 - e^{-\lambda x}
-        $$
 
-        Zhere ( \lambda > 0 ) is the rate parameter (the mean is ( 1/\lambda )).
-        
-        #### Args:
-        - *rate* (jnp.ndarray): The rate parameter, $\lambda`. Must be positive.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+          The Exponential distribution is a continuous probability distribution that models the time until an event occurs in a Poisson process, where events occur continuously and independently at a constant average rate. It is often used to model the duration of events, such as the time until a machine fails or the length of a phone call.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          For ( x \ge 0 )
+          $$
+          F(x; \lambda) = 1 - e^{-\lambda x}
+          $$
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI Exponential distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the Exponential distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.exponential(rate=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#exponential
+          Zhere ( \lambda > 0 ) is the rate parameter (the mean is ( 1/\lambda )).
 
-        #### References
-            https://reference.wolfram.com/language/ref/ExponentialDistribution.html
-            https://en.wikipedia.org/wiki/Exponential_distribution
+          #### Args:
+          - *rate* (jnp.ndarray): The rate parameter, $\lambda`. Must be positive.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI Exponential distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the Exponential distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.exponential(rate=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#exponential
+
+          #### References
+              https://reference.wolfram.com/language/ref/ExponentialDistribution.html
+              https://en.wikipedia.org/wiki/Exponential_distribution
         """
 
-           
-        d = numpyro.distributions.continuous.Exponential(rate=rate, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Exponential(
+            rate=rate, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1918,17 +2234,28 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def folded_distribution(self,base_dist, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def folded_distribution(
+        self,
+        base_dist,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Folded
 
         Samples from a Folded distribution, which is the absolute value of a base univariate distribution.
         This distribution reflects the base distribution across the origin, effectively taking the absolute value of each sample.
-    
+
         $$
            p(x) = \sum_{k=-\infty}^{\infty} p(x - 2k)
         $$
@@ -1937,46 +2264,47 @@ class UnifiedDist:
         - *loc* (float, optional): Location parameter of the base distribution. Defaults to 0.0.
 
         - *sample* (float, optional): Scale parameter of the base distribution. Defaults to 1.0.
-    
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-    
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-    
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-    
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI FoldedDistribution distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the FoldedDistribution distribution (for direct sampling) when `sample=True`.
             The raw BI distribution object (for advanced use cases) when `create_obj=True`.
-    
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.folded_distribution(m.dist.normal(loc=0.0, scale=1.0, create_obj = True), sample=True)
-    
+
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#foldeddistribution
         """
 
-           
-        d = numpyro.distributions.distribution.FoldedDistribution(base_dist=base_dist, validate_args=validate_args)
+        d = numpyro.distributions.distribution.FoldedDistribution(
+            base_dist=base_dist, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -1989,62 +2317,74 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gamma(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Gamma 
+    def gamma(
+        self,
+        concentration,
+        rate=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Gamma
         Samples from a Gamma distribution.
-        
+
         The Gamma distribution is a continuous probability distribution frequently used in Bayesian statistics, particularly as a prior distribution for variance parameters. It is defined by two positive shape parameters: concentration ((k)) and rate ((\lambda)).
 
         There are two common parameterizations:
-        
+
         1. **Shape–scale**: parameters ((\alpha, \theta)), with density
            [
            f(x) = \frac{1}{\Gamma(\alpha) \theta^\alpha} x^{\alpha - 1} e^{-x/\theta}, \quad x \ge 0
            ]
-        
+
         2. **Shape–rate**: parameters ((\alpha, \lambda)) where (\lambda = 1/\theta), with density
            [
            f(x) = \frac{\lambda^\alpha}{\Gamma(\alpha)} x^{\alpha - 1} e^{-\lambda x}, \quad x \ge 0
            ]
-        
+
         #### Args:
         - *concentration* (jnp.ndarray): The shape parameter of the Gamma distribution (k > 0).
-        
+
         - *rate* (jnp.ndarray): The rate parameter of the Gamma distribution (theta > 0).
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             Gamma: A BI Gamma distribution object (for model building).
-        
+
             jnp.ndarray: A JAX array of samples drawn from the Gamma distribution (for direct sampling).
-        
+
             Gamma: The raw BI distribution object (for advanced use cases).
-        
-        
-        
+
+
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.gamma(concentration=2.0, rate=0.5, sample=True)
-        
+
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#gamma
 
@@ -2054,17 +2394,18 @@ class UnifiedDist:
 
         """
 
-           
-        d = numpyro.distributions.continuous.Gamma(concentration=concentration, rate=rate, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Gamma(
+            concentration=concentration, rate=rate, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2077,76 +2418,89 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gamma_poisson(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def gamma_poisson(
+        self,
+        concentration,
+        rate=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Gamma Poisson
+          The Gamma-Poisson distribution, also known as the Negative Binomial distribution, models overdispersed count data. It arises from a hierarchical process where the rate parameter of a Poisson distribution is itself a random variable following a Gamma distribution. This structure allows the model to capture variability in count data that exceeds what is predicted by the Poisson distribution, making it suitable for applications like modeling RNA-sequencing data and microbial count.
 
-        r"""### Gamma Poisson 
-        The Gamma-Poisson distribution, also known as the Negative Binomial distribution, models overdispersed count data. It arises from a hierarchical process where the rate parameter of a Poisson distribution is itself a random variable following a Gamma distribution. This structure allows the model to capture variability in count data that exceeds what is predicted by the Poisson distribution, making it suitable for applications like modeling RNA-sequencing data and microbial count.
-        
-        $$
-        f(x) = \frac{\Gamma(x + \beta) \alpha^x}{\Gamma(\beta)(1 + \alpha)^{\beta + x} x!}, \quad x = 0, 1, 2, \ldots
-        $$
-        Where $\Gamma$ denotes the gamma function.
+          $$
+          f(x) = \frac{\Gamma(x + \beta) \alpha^x}{\Gamma(\beta)(1 + \alpha)^{\beta + x} x!}, \quad x = 0, 1, 2, \ldots
+          $$
+          Where $\Gamma$ denotes the gamma function.
 
-        This CDF expresses the probability that the count variable ( X ) takes a value less than or equal to ( x ), incorporating the overdispersion introduced by the Gamma distribution.
-        
-        #### Args:
-        - *concentration* (jnp.ndarray): Shape parameter (alpha) of the Gamma distribution.
+          This CDF expresses the probability that the count variable ( X ) takes a value less than or equal to ( x ), incorporating the overdispersion introduced by the Gamma distribution.
 
-        - *rate* (jnp.ndarray): Rate parameter (beta) for the Gamma distribution.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event
-                dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+          #### Args:
+          - *concentration* (jnp.ndarray): Shape parameter (alpha) of the Gamma distribution.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          - *rate* (jnp.ndarray): Rate parameter (beta) for the Gamma distribution.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI GammaPoisson distribution object (for model
-                building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the GammaPoisson
-                distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for advanced
-                use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.gamma_poisson(concentration=1.0, rate=2.0, sample=True)
-        
-        #### Wrapper of:
-        https://num.pyro.ai/en/stable/distributions.html#gammapoisson
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-        #### References
-        [1] https://www.statisticshowto.com/gamma-poisson-distribution
-        https://en.wikipedia.org/wiki/Negative_binomial_distribution
+          - *event* (int): The number of batch dimensions to reinterpret as event
+                  dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI GammaPoisson distribution object (for model
+                  building).
+
+        - When `sample=True`: A JAX array of samples drawn from the GammaPoisson
+                  distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced
+                  use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.gamma_poisson(concentration=1.0, rate=2.0, sample=True)
+
+          #### Wrapper of:
+          https://num.pyro.ai/en/stable/distributions.html#gammapoisson
+
+          #### References
+          [1] https://www.statisticshowto.com/gamma-poisson-distribution
+          https://en.wikipedia.org/wiki/Negative_binomial_distribution
         """
 
-           
-        d = numpyro.distributions.conjugate.GammaPoisson(concentration=concentration, rate=rate, validate_args=validate_args)
+        d = numpyro.distributions.conjugate.GammaPoisson(
+            concentration=concentration, rate=rate, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2159,20 +2513,33 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gaussian_copula(self,marginal_dist, correlation_matrix=None, correlation_cholesky=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def gaussian_copula(
+        self,
+        marginal_dist,
+        correlation_matrix=None,
+        correlation_cholesky=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""###  Gaussian Copula
 
         A distribution that links the `batch_shape[:-1]` of a marginal distribution with a multivariate Gaussian copula,
         modelling the correlation between the axes. A copula is a multivariate distribution over the uniform distribution
         on [0, 1]. The Gaussian copula links the marginal distributions through a multivariate normal distribution.
-        
 
-        
+
+
         #### Args:
         - *marginal_dist* (Distribution): Distribution whose last batch axis is to be coupled.
 
@@ -2191,38 +2558,42 @@ class UnifiedDist:
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI GaussianCopula distribution object: When `sample=False` (for model building).
             JAX array: When `sample=True` (for direct sampling).
             BI distribution object: When `create_obj=True` (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.gaussian_copula(
-                marginal_dist = m.dist.beta(2.0, 5.0, create_obj = True), 
-                correlation_matrix = jnp.array([[1.0, 0.7],[0.7, 1.0]]), 
+                marginal_dist = m.dist.beta(2.0, 5.0, create_obj = True),
+                correlation_matrix = jnp.array([[1.0, 0.7],[0.7, 1.0]]),
                 sample = True
             )
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gaussiancopula
         """
 
-           
-        d = numpyro.distributions.copula.GaussianCopula(marginal_dist=marginal_dist, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
+        d = numpyro.distributions.copula.GaussianCopula(
+            marginal_dist=marginal_dist,
+            correlation_matrix=correlation_matrix,
+            correlation_cholesky=correlation_cholesky,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2235,73 +2606,92 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gaussian_copula_beta(self,concentration1, concentration0, correlation_matrix=None, correlation_cholesky=None, validate_args=False, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def gaussian_copula_beta(
+        self,
+        concentration1,
+        concentration0,
+        correlation_matrix=None,
+        correlation_cholesky=None,
+        validate_args=False,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Gaussian Copula Beta
 
-        r"""### Gaussian Copula Beta 
-    
         This distribution combines a Gaussian copula with a Beta distribution.
         The Gaussian copula models the dependence structure between random variables,
         while the Beta distribution defines the marginal distributions of each variable.
 
-    
+
         #### Args:
         - *concentration1* (jnp.ndarray): The first shape parameter of the Beta distribution.
 
         - *concentration0* (jnp.ndarray): The second shape parameter of the Beta distribution.
 
         - *correlation_matrix* (array_like, optional): Correlation matrix of the coupling multivariate normal distribution. Defaults to None.
-            
+
         - *correlation_cholesky* (jnp.ndarray): The Cholesky decomposition of the correlation matrix.
 
             - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-    
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-    
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-    
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample
                 site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             GaussianCopulaBeta: A BI GaussianCopulaBeta distribution object (for model building).
             jnp.ndarray: A JAX array of samples drawn from the GaussianCopulaBeta distribution (for direct sampling).
             Distribution: The raw BI distribution object (for advanced use cases).
-    
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.gaussian_copula_beta(
-                concentration1 = jnp.array([2.0, 3.0]), 
+                concentration1 = jnp.array([2.0, 3.0]),
                 concentration0 = jnp.array([5.0, 3.0]),
-                correlation_cholesky = jnp.linalg.cholesky(jnp.array([[1.0, 0.7],[0.7, 1.0]])), 
+                correlation_cholesky = jnp.linalg.cholesky(jnp.array([[1.0, 0.7],[0.7, 1.0]])),
                 sample = True
             )
-    
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gaussiancopulabetadistribution
         """
 
-           
-        d = numpyro.distributions.copula.GaussianCopulaBeta(concentration1=concentration1, concentration0=concentration0, correlation_matrix=correlation_matrix, correlation_cholesky=correlation_cholesky, validate_args=validate_args)
+        d = numpyro.distributions.copula.GaussianCopulaBeta(
+            concentration1=concentration1,
+            concentration0=concentration0,
+            correlation_matrix=correlation_matrix,
+            correlation_cholesky=correlation_cholesky,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2314,18 +2704,32 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gaussian_random_walk(self,scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
-        r"""### Gaussian Random Walk 
-    
+    def gaussian_random_walk(
+        self,
+        scale=1.0,
+        num_steps=1,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Gaussian Random Walk
+
         Creates a distribution over a Gaussian random walk of a specified number of steps.
         This is a discrete-time stochastic process where the value at each step is the
         previous value plus a Gaussian-distributed increment. The distribution is over
         the entire path.
 
-    
+
         #### Args:
         - *scale* (float, jnp.ndarray, optional): The standard deviation ($\sigma`) of the Gaussian increments. Must be positive. Defaults to 1.0.
 
@@ -2348,32 +2752,32 @@ class UnifiedDist:
         - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
         - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to `False`.
-        
+
         #### Returns:
             BI.primitives.Messenger: A BI sample site object when used in a model context (`sample=False`).
             jnp.ndarray: A JAX array of samples drawn from the GaussianRandomWalk distribution (for direct sampling, `sample=True`).
             numpyro.distributions.Distribution: The raw BI distribution object (if `create_obj=True`).
-    
+
         #### Example Usage:
             from BI import bi
             import jax.numpy as jnp
             m = bi('cpu')
-            
+
             # Direct sampling of a random walk with 100 steps
             path = m.dist.gaussian_random_walk(scale=0.5, num_steps=100, sample=True)
-            
+
             # Usage within a model for a latent time series
             def my_model(data=None):
                 # Prior on the volatility of the random walk
                 volatility = m.dist.half_cauchy(scale=1.0, name='volatility')
-                
+
                 # The latent random walk
                 latent_process = m.dist.gaussian_random_walk(
                     scale=volatility,
                     num_steps=len(data) if data is not None else 10,
                     name='latent_process'
                 )
-                
+
                 # Observation model
                 # Assumes the observed data is the latent process plus some noise
                 obs_noise = m.dist.half_cauchy(scale=1.0, name='obs_noise')
@@ -2383,16 +2787,18 @@ class UnifiedDist:
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gaussianrandomwalk
         """
-        d = numpyro.distributions.continuous.GaussianRandomWalk(scale=scale,    num_steps=num_steps, validate_args=validate_args)
+        d = numpyro.distributions.continuous.GaussianRandomWalk(
+            scale=scale, num_steps=num_steps, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2405,67 +2811,88 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gaussian_state_space(self,num_steps, transition_matrix, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def gaussian_state_space(
+        self,
+        num_steps,
+        transition_matrix,
+        covariance_matrix=None,
+        precision_matrix=None,
+        scale_tril=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Gaussian State Space
+          Samples from a Gaussian state space model.
 
-        r"""### Gaussian State Space 
-        Samples from a Gaussian state space model.
 
 
-        
-        #### Args:
-        - *num_steps* (int): Number of steps.
+          #### Args:
+          - *num_steps* (int): Number of steps.
 
-        - *transition_matrix* (jnp.ndarray): State space transition matrix $\mathbf{A}$.
+          - *transition_matrix* (jnp.ndarray): State space transition matrix $\mathbf{A}$.
 
-        - *covariance_matrix* (jnp.ndarray, optional): Covariance of the innovation noise ${\epsilon}$. Defaults to None.
+          - *covariance_matrix* (jnp.ndarray, optional): Covariance of the innovation noise ${\epsilon}$. Defaults to None.
 
-        - *precision_matrix (jnp.ndarray, optional): Precision matrix of the innovation noise  $\epsilon$. Defaults to None.
+          - *precision_matrix (jnp.ndarray, optional): Precision matrix of the innovation noise  $\epsilon$. Defaults to None.
 
-        - *scale_tril (jnp.ndarray, optional): Scale matrix of the innovation noise $\epsilon$. Defaults to None.
+          - *scale_tril (jnp.ndarray, optional): Scale matrix of the innovation noise $\epsilon$. Defaults to None.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used   with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
 
-        - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
+          - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
 
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. Defaults to False.
+          - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. Defaults to False.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI GaussianStateSpace distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the GaussianStateSpace distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.gaussian_state_space(num_steps=5, transition_matrix=jnp.array([[0.5]]), covariance_matrix =  jnp.array([[1.0, 0.6],[0.6, 1.0]]), sample=True)
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
 
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#gaussianstate
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI GaussianStateSpace distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the GaussianStateSpace distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.gaussian_state_space(num_steps=5, transition_matrix=jnp.array([[0.5]]), covariance_matrix =  jnp.array([[1.0, 0.6],[0.6, 1.0]]), sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#gaussianstate
         """
 
-           
-        d = numpyro.distributions.continuous.GaussianStateSpace(num_steps=num_steps, transition_matrix=transition_matrix, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args)
+        d = numpyro.distributions.continuous.GaussianStateSpace(
+            num_steps=num_steps,
+            transition_matrix=transition_matrix,
+            covariance_matrix=covariance_matrix,
+            precision_matrix=precision_matrix,
+            scale_tril=scale_tril,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2478,54 +2905,65 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def geometric_logits(self,logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### GeometricLogits 
+    def geometric_logits(
+        self,
+        logits,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### GeometricLogits
         Samples from a GeometricLogits distribution, which models the number of failures before the first success in a sequence of independent Bernoulli trials.  It is parameterized by logits, which are transformed into probabilities using the sigmoid function.
-        
+
 
         $$
         P(X = k) = (1 - p)^k , p,
         $$
-            
+
 
         where:
-        
+
         *   X is the number of failures before the first success.
         *   k is the number of failures.
         *   p is the probability of success on each trial (derived from the logits).
 
         #### Args:
         - *logits* (jnp.ndarray): Log-odds parameterization of the probability of success.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI GeometricLogits distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the GeometricLogits distribution (for direct sampling) when `sample=True`.
             The raw BI distribution object (for advanced use cases) when `create_obj=True`.
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.geometric_logits(logits=jnp.zeros(10), sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#geometriclogits
 
@@ -2533,17 +2971,18 @@ class UnifiedDist:
              https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Geometric
         """
 
-           
-        d = numpyro.distributions.discrete.GeometricLogits(logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.discrete.GeometricLogits(
+            logits=logits, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2556,64 +2995,76 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def geometric_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def geometric_probs(
+        self,
+        probs,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### GeometricProbs
-        
+
         Samples from a Geometric
-        
+
         The Geometric distribution models the number of trials until the first success in a sequence of independent Bernoulli trials, where each trial has the same probability of success.
-        
+
         $$
            P(X = k) = (1 - p)^k p
         $$
-        
+
         #### Args:
         - *probs* (jnp.ndarray): Probability of success on each trial. Must be between 0 and 1.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI GeometricProbs distribution object (for model building).
             JAX array of samples drawn from the GeometricProbs distribution (for direct sampling).
             The raw BI distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.geometric_probs(probs=0.5, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#geometricprobs
         """
 
-           
-        d = numpyro.distributions.discrete.GeometricProbs(probs=probs, validate_args=validate_args)
+        d = numpyro.distributions.discrete.GeometricProbs(
+            probs=probs, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2626,18 +3077,30 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gompertz(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def gompertz(
+        self,
+        concentration,
+        rate=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Gompertz
-        
+
         The Gompertz distribution is a distribution with support on the positive real line that is closely
         related to the Gumbel distribution. This implementation follows the notation used in the Wikipedia
         entry for the Gompertz distribution. See https://en.wikipedia.org/wiki/Gompertz_distribution.
-        
+
         The probability density function (PDF) is:
 
 
@@ -2646,53 +3109,54 @@ class UnifiedDist:
         $$
 
 
-        
+
         #### Args:
         - *concentration* (jnp.ndarray): The concentration parameter. Must be positive.
 
         - *rate* (jnp.ndarray): The rate parameter. Must be positive.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI Gompertz distribution object: When `sample=False` (for model building).
             JAX array: When `sample=True` (for direct sampling).
             BI distribution object: When `create_obj=True` (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.gompertz(concentration=1.0, rate=1.0, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gompertz
         #### References:
            https://en.wikipedia.org/wiki/Gompertz_distribution
         """
 
-           
-        d = numpyro.distributions.continuous.Gompertz(concentration=concentration, rate=rate, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Gompertz(
+            concentration=concentration, rate=rate, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2705,71 +3169,84 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gumbel(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def gumbel(
+        self,
+        loc=0.0,
+        scale=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Gumbel
-        
-        Samples from a Gumbel (or Extreme Value) distribution.
-        
-        The Gumbel distribution is a continuous probability distribution named after German mathematician Carl Gumbel.
-        It is often used to model the distribution of maximum values in a sequence of independent random variables.
+
+          Samples from a Gumbel (or Extreme Value) distribution.
+
+          The Gumbel distribution is a continuous probability distribution named after German mathematician Carl Gumbel.
+          It is often used to model the distribution of maximum values in a sequence of independent random variables.
 
 
-        $$
-        F(x;\mu,\beta) = \exp\bigl( -\exp\bigl( -\tfrac{x - \mu}{\beta} \bigr) \bigr), \quad x \in \mathbb{R}.
-        $$
+          $$
+          F(x;\mu,\beta) = \exp\bigl( -\exp\bigl( -\tfrac{x - \mu}{\beta} \bigr) \bigr), \quad x \in \mathbb{R}.
+          $$
 
 
-        #### Args:
-        - *loc* (jnp.ndarray or float, optional): Location parameter. Defaults to 0.0.
+          #### Args:
+          - *loc* (jnp.ndarray or float, optional): Location parameter. Defaults to 0.0.
 
-        - *scale* (jnp.ndarray or float, optional): Scale parameter. Must be positive. Defaults to 1.0.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building). Defaults to None.
-        
-        - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
-        
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+          - *scale* (jnp.ndarray or float, optional): Scale parameter. Must be positive. Defaults to 1.0.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI Gumbel distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the Gumbel distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.gumbel(loc=0.0, scale=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#gumbel
-        #### References:
-            https://en.wikipedia.org/wiki/Gumbel_distribution
+          - *event* (int, optional): The number of batch dimensions to reinterpret as event dimensions (used in model building). Defaults to None.
+
+          - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. Defaults to None.
+
+          - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI Gumbel distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the Gumbel distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.gumbel(loc=0.0, scale=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#gumbel
+          #### References:
+              https://en.wikipedia.org/wiki/Gumbel_distribution
         """
 
-           
-        d = numpyro.distributions.continuous.Gumbel(loc=loc, scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Gumbel(
+            loc=loc, scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2782,62 +3259,74 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def half_cauchy(self,scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def half_cauchy(
+        self,
+        scale=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### HalfCauchy
 
-        r"""### HalfCauchy 
+          The HalfCauchy distribution is a probability distribution that is half of the Cauchy distribution. It is defined on the positive real numbers and is often used in situations where only positive values are relevant.
 
-        The HalfCauchy distribution is a probability distribution that is half of the Cauchy distribution. It is defined on the positive real numbers and is often used in situations where only positive values are relevant.
-        
-        $$   
-        f(x) = \frac{1}{2} \cdot \frac{1}{\pi \cdot \frac{1}{scale} \cdot (x^2 + \frac{1}{scale^2})}
-        $$
-        
-        #### Args:
+          $$
+          f(x) = \frac{1}{2} \cdot \frac{1}{\pi \cdot \frac{1}{scale} \cdot (x^2 + \frac{1}{scale^2})}
+          $$
 
-        - *scale* (jnp.ndarray): The scale parameter of the Cauchy distribution. Must be positive.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+          #### Args:
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          - *scale* (jnp.ndarray): The scale parameter of the Cauchy distribution. Must be positive.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI HalfCauchy distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the HalfCauchy distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.half_cauchy(scale=1.0, sample=True)
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#halfcauchy
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI HalfCauchy distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the HalfCauchy distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.half_cauchy(scale=1.0, sample=True)
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#halfcauchy
         """
 
-           
-        d = numpyro.distributions.continuous.HalfCauchy(scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.HalfCauchy(
+            scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2850,68 +3339,80 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def half_normal(self,scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def half_normal(
+        self,
+        scale=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### HalfNormal
-        
-        Samples from a HalfNormal distribution.
-        
-        The HalfNormal distribution is a distribution of the absolute value of a normal random variable.
-        It is defined by a location parameter (implicitly 0) and a scale parameter.
 
-        $$
-        f(x; \sigma) = \frac{2}{\pi,\sigma} ; \frac{1}{1 + \bigl(x/\sigma\bigr)^2}, \qquad x \ge 0.
-        $$
+          Samples from a HalfNormal distribution.
 
-        #### Args:
-        - *scale* (float, array): The scale parameter of the distribution. Must be positive.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a  sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+          The HalfNormal distribution is a distribution of the absolute value of a normal random variable.
+          It is defined by a location parameter (implicitly 0) and a scale parameter.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          $$
+          f(x; \sigma) = \frac{2}{\pi,\sigma} ; \frac{1}{1 + \bigl(x/\sigma\bigr)^2}, \qquad x \ge 0.
+          $$
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI HalfNormal distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the HalfNormal distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.half_normal(scale=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#halfnormal
+          #### Args:
+          - *scale* (float, array): The scale parameter of the distribution. Must be positive.
 
-        #### References:
-            https://distribution-explorer.github.io/continuous/halfcauchy.html
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a  sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI HalfNormal distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the HalfNormal distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.half_normal(scale=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#halfnormal
+
+          #### References:
+              https://distribution-explorer.github.io/continuous/halfcauchy.html
         """
 
-           
-        d = numpyro.distributions.continuous.HalfNormal(scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.HalfNormal(
+            scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2924,65 +3425,82 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def improper_uniform(self,support, batch_shape, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def improper_uniform(
+        self,
+        support,
+        batch_shape,
+        event_shape,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Improper Uniform
+          A helper distribution with zero :meth:`log_prob` over the `support` domain.
 
-        r"""### Improper Uniform 
-        A helper distribution with zero :meth:`log_prob` over the `support` domain.
+          #### Args:
+          - *support* (numpyro.distributions.constraints.Constraint): The support of this distribution.
 
-        #### Args:
-        - *support* (numpyro.distributions.constraints.Constraint): The support of this distribution.
+          - *batch_shape* (tuple): Batch shape of this distribution. It is usually safe to set `batch_shape=()`.
 
-        - *batch_shape* (tuple): Batch shape of this distribution. It is usually safe to set `batch_shape=()`.
+          - *event_shape* (tuple): Event shape of this distribution.
 
-        - *event_shape* (tuple): Event shape of this distribution.
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
+                  (model building), this is used with `.expand(shape)` to set the
+                  distribution's batch shape. When `sample=True` (direct sampling), this is
+                  used as `sample_shape` to draw a raw JAX array of the given shape.
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                (model building), this is used with `.expand(shape)` to set the
-                distribution's batch shape. When `sample=True` (direct sampling), this is
-                used as `sample_shape` to draw a raw JAX array of the given shape.
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
 
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+          - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
 
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI ImproperUniform distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the ImproperUniform distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import sample
-            from numpyro.distributions import ImproperUniform, Normal, constraints
-        
-            def model():
-                x = sample('x', ImproperUniform(constraints.ordered_vector, (), event_shape=(10,)))
-        
-            #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#improperuniform
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI ImproperUniform distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the ImproperUniform distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import sample
+              from numpyro.distributions import ImproperUniform, Normal, constraints
+
+              def model():
+                  x = sample('x', ImproperUniform(constraints.ordered_vector, (), event_shape=(10,)))
+
+              #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#improperuniform
         """
 
-           
-        d = numpyro.distributions.distribution.ImproperUniform(support=support, batch_shape=batch_shape, event_shape=event_shape, validate_args=validate_args)
+        d = numpyro.distributions.distribution.ImproperUniform(
+            support=support,
+            batch_shape=batch_shape,
+            event_shape=event_shape,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -2995,67 +3513,80 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def inverse_gamma(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def inverse_gamma(
+        self,
+        concentration,
+        rate=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Inverse Gamma
+          The InverseGamma distribution is a two-parameter family of continuous probability
+          distributions. It is defined by its shape $\alpha$ and rate $\beta$ parameters. It is often used as a prior distribution for precision parameters (inverse variance) in Bayesian statistics.
 
-        r"""### Inverse Gamma 
-        The InverseGamma distribution is a two-parameter family of continuous probability
-        distributions. It is defined by its shape $\alpha$ and rate $\beta$ parameters. It is often used as a prior distribution for precision parameters (inverse variance) in Bayesian statistics.
-        
-        $$
-        f(x; \alpha, \beta) = \frac{\beta^\alpha}{\Gamma(\alpha)} x^{-(\alpha + 1)} \exp\left(-\frac{\beta}{x}\right), \quad x > 0
-        $$
+          $$
+          f(x; \alpha, \beta) = \frac{\beta^\alpha}{\Gamma(\alpha)} x^{-(\alpha + 1)} \exp\left(-\frac{\beta}{x}\right), \quad x > 0
+          $$
 
-        where:
-        * (\Gamma(\alpha)) is the Gamma function.
-        
-        #### Args:
-        - *concentration* (jnp.ndarray): The concentration parameter $\alpha$ of the InverseGamma distribution. Must be positive.
+          where:
+          * (\Gamma(\alpha)) is the Gamma function.
 
-        - *rate* (jnp.ndarray): The rate parameter $\beta$ of the InverseGamma distribution. Must be positive.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+          #### Args:
+          - *concentration* (jnp.ndarray): The concentration parameter $\alpha$ of the InverseGamma distribution. Must be positive.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          - *rate* (jnp.ndarray): The rate parameter $\beta$ of the InverseGamma distribution. Must be positive.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI InverseGamma distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the InverseGamma distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.inverse_gamma(concentration=2.0, rate=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#inversegamma
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI InverseGamma distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the InverseGamma distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.inverse_gamma(concentration=2.0, rate=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#inversegamma
         """
 
-           
-        d = numpyro.distributions.continuous.InverseGamma(concentration=concentration, rate=rate, validate_args=validate_args)
+        d = numpyro.distributions.continuous.InverseGamma(
+            concentration=concentration, rate=rate, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3068,73 +3599,88 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def kumaraswamy(self,concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def kumaraswamy(
+        self,
+        concentration1,
+        concentration0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Kumaraswamy
-        
-        The Kumaraswamy distribution is a continuous probability distribution defined on the interval [0, 1].
-        It is a flexible distribution that can take on various shapes depending on its parameters.
-        
-        $$
-        $$
-        f(x; a, b) = a b x^{a-1} (1 - x^a)^{b-1}, \quad x \in (0, 1)
-        $$
 
-        where:
-        * ( a ) and ( b ) are shape parameters.
-        * ( x ) is the random variable.
-        
-        #### Args:
-        - *concentration1* (jnp.ndarray): The first shape parameter. Must be positive.
+          The Kumaraswamy distribution is a continuous probability distribution defined on the interval [0, 1].
+          It is a flexible distribution that can take on various shapes depending on its parameters.
 
-        - *concentration0* (jnp.ndarray): The second shape parameter. Must be positive.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+          $$
+          $$
+          f(x; a, b) = a b x^{a-1} (1 - x^a)^{b-1}, \quad x \in (0, 1)
+          $$
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          where:
+          * ( a ) and ( b ) are shape parameters.
+          * ( x ) is the random variable.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI Kumaraswamy distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the Kumaraswamy distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.kumaraswamy(concentration1=2.0, concentration0=3.0, sample=True)
-        
-        #### Wrapper of: 
-            https://num.pyro.ai/en/stable/distributions.html#kumaraswamy
-        #### Rerferences:
-            https://en.wikipedia.org/wiki/Kumaraswamy_distribution
+          #### Args:
+          - *concentration1* (jnp.ndarray): The first shape parameter. Must be positive.
+
+          - *concentration0* (jnp.ndarray): The second shape parameter. Must be positive.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI Kumaraswamy distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the Kumaraswamy distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.kumaraswamy(concentration1=2.0, concentration0=3.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#kumaraswamy
+          #### Rerferences:
+              https://en.wikipedia.org/wiki/Kumaraswamy_distribution
 
         """
 
-           
-        d = numpyro.distributions.continuous.Kumaraswamy(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Kumaraswamy(
+            concentration1=concentration1,
+            concentration0=concentration0,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3147,74 +3693,91 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def lkj(self,dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def lkj(
+        self,
+        dimension,
+        concentration=1.0,
+        sample_method="onion",
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Lewandowski Kurowicka Joe (LKJ)
 
-        r"""### Lewandowski Kurowicka Joe (LKJ)  
-        
-        The LKJ distribution is controlled by the concentration parameter $\eta$ to make the probability
-        of the correlation matrix $M` proportional to $\det(M)^{\eta - 1}$. When $\eta = 1$,
-        the distribution is uniform over correlation matrices.  When $\eta > 1$, the distribution favors
-        samples with large determinants. When $\eta < 1$, the distribution favors samples with small
-        determinants.
-        
-        $$
-           P(M) \propto |\det(M)|^{\eta - 1}
-        $$
-        
-        #### Args:
-        - *dimension* (int): The dimension of the correlation matrices.
-        
-        - *concentration* (ndarray): The concentration/shape parameter of the distribution (often referred to as eta). Must be positive.
+          The LKJ distribution is controlled by the concentration parameter $\eta$ to make the probability
+          of the correlation matrix $M` proportional to $\det(M)^{\eta - 1}$. When $\eta = 1$,
+          the distribution is uniform over correlation matrices.  When $\eta > 1$, the distribution favors
+          samples with large determinants. When $\eta < 1$, the distribution favors samples with small
+          determinants.
 
-        - *sample_method* (str): Either “cvine” or “onion”. Both methods are proposed in [1] and offer the same distribution over correlation matrices. But they are different in how to generate samples. Defaults to “onion”.
+          $$
+             P(M) \propto |\det(M)|^{\eta - 1}
+          $$
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+          #### Args:
+          - *dimension* (int): The dimension of the correlation matrices.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+          - *concentration* (ndarray): The concentration/shape parameter of the distribution (often referred to as eta). Must be positive.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI LKJ distribution object (for model building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the LKJ distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.lkj(dimension=2, concentration=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#lkj
-        #### References:
-            https://en.wikipedia.org/wiki/Kumaraswamy_distribution
+          - *sample_method* (str): Either “cvine” or “onion”. Both methods are proposed in [1] and offer the same distribution over correlation matrices. But they are different in how to generate samples. Defaults to “onion”.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI LKJ distribution object (for model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the LKJ distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.lkj(dimension=2, concentration=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#lkj
+          #### References:
+              https://en.wikipedia.org/wiki/Kumaraswamy_distribution
         """
 
-           
-        d = numpyro.distributions.continuous.LKJ(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args)
+        d = numpyro.distributions.continuous.LKJ(
+            dimension=dimension,
+            concentration=concentration,
+            sample_method=sample_method,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3227,13 +3790,26 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def lkj_cholesky(self,dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### LKJ Cholesky 
+    def lkj_cholesky(
+        self,
+        dimension,
+        concentration=1.0,
+        sample_method="onion",
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### LKJ Cholesky
 
         The LKJ (Leonard-Kjærgaard-Jørgensen) Cholesky distribution is a family of distributions
         on symmetric matrices, often used as a prior for the Cholesky decomposition of a
@@ -3258,38 +3834,43 @@ class UnifiedDist:
         - *concentration (float): A parameter controlling the concentration of the distribution around the identity matrix. Higher values indicate greater concentration. Must be greater than 1.
 
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
             Attributes:
                 concentration (float): The concentration parameter.
-            
+
         #### References:
             https://mc-stan.org/docs/2_21/functions-reference/cholesky-lkj-correlation-distribution.html
         """
-        
-        d = numpyro.distributions.continuous.LKJCholesky(dimension=dimension, concentration=concentration, sample_method=sample_method, validate_args=validate_args)
+
+        d = numpyro.distributions.continuous.LKJCholesky(
+            dimension=dimension,
+            concentration=concentration,
+            sample_method=sample_method,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3302,71 +3883,84 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def laplace(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def laplace(
+        self,
+        loc=0.0,
+        scale=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Laplace
+          Samples from a Laplace distribution, also known as the double exponential distribution.
+          The Laplace distribution is defined by its location parameter (loc) and scale parameter (scale).
 
-        r"""### Laplace 
-        Samples from a Laplace distribution, also known as the double exponential distribution.
-        The Laplace distribution is defined by its location parameter (loc) and scale parameter (scale).
-        
-        $$
-        f(x \mid \mu, b) = \frac{1}{2b} \exp\left( -\frac{|x - \mu|}{b} \right)
-        $$
+          $$
+          f(x \mid \mu, b) = \frac{1}{2b} \exp\left( -\frac{|x - \mu|}{b} \right)
+          $$
 
-        Where:
-        * ($\mu$) is the **location parameter**, indicating the peak of the distribution.
-        * (b > 0) is the **scale parameter**, controlling the spread of the distribution.
-        
-        #### Args:
-        - *loc* (jnp.ndarray): Location parameter of the Laplace distribution.
-        
-        - *sample* (jnp.ndarray): Scale parameter of the Laplace distribution. Must be positive.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a
-                sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+          Where:
+          * ($\mu$) is the **location parameter**, indicating the peak of the distribution.
+          * (b > 0) is the **scale parameter**, controlling the spread of the distribution.
 
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          #### Args:
+          - *loc* (jnp.ndarray): Location parameter of the Laplace distribution.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI Laplace distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the Laplace distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.laplace(loc=0.0, scale=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#laplace
+          - *sample* (jnp.ndarray): Scale parameter of the Laplace distribution. Must be positive.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a
+                  sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI Laplace distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the Laplace distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.laplace(loc=0.0, scale=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#laplace
         """
 
-           
-        d = numpyro.distributions.continuous.Laplace(loc=loc, scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Laplace(
+            loc=loc, scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3379,83 +3973,96 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def left_truncated_distribution(self,base_dist, low=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def left_truncated_distribution(
+        self,
+        base_dist,
+        low=0.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Left Truncated
 
-        r"""### Left Truncated 
+          Samples from a left-truncated distribution.
 
-        Samples from a left-truncated distribution.
-        
-        A left-truncated distribution is a probability distribution
-        obtained by restricting the support of another distribution
-        to values greater than a specified lower bound. This is useful
-        when dealing with data that is known to be greater than a certain value. All the “mass” below (or equal to) (a) is **excluded** (not just unobserved, but removed from the sample/analysis).
-        
-        Let (X) be a random variable with PDF (f_X(x)) and CDF (F_X(x)). Choose a truncation point (a). Then define a new random variable (Y = X \mid (X > a)). The PDF and CDF of (Y) are:
+          A left-truncated distribution is a probability distribution
+          obtained by restricting the support of another distribution
+          to values greater than a specified lower bound. This is useful
+          when dealing with data that is known to be greater than a certain value. All the “mass” below (or equal to) (a) is **excluded** (not just unobserved, but removed from the sample/analysis).
 
-        * **PDF** for ( y > a ):
-        $$
-        f_Y(y) = \frac{f_X(y)}{1 - F_X(a)} .
-        $$
-        (Here (1 - F_X(a) = P(X > a)) is the normalising constant) ([Wikipédia][1])
+          Let (X) be a random variable with PDF (f_X(x)) and CDF (F_X(x)). Choose a truncation point (a). Then define a new random variable (Y = X \mid (X > a)). The PDF and CDF of (Y) are:
 
-        * **CDF** for (y > a):
-        $$
-        F_Y(y) = P(Y \le y) = \frac{F_X(y) - F_X(a)}{1 - F_X(a)} .
-        $$
+          * **PDF** for ( y > a ):
+          $$
+          f_Y(y) = \frac{f_X(y)}{1 - F_X(a)} .
+          $$
+          (Here (1 - F_X(a) = P(X > a)) is the normalising constant) ([Wikipédia][1])
 
-        #### Args:
-        - *base_dist*: The base distribution to truncate. Must be univariate and have real support.
+          * **CDF** for (y > a):
+          $$
+          F_Y(y) = P(Y \le y) = \frac{F_X(y) - F_X(a)}{1 - F_X(a)} .
+          $$
 
-        - *low*: The lower truncation bound. Values less than this are excluded from the distribution.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          #### Args:
+          - *base_dist*: The base distribution to truncate. Must be univariate and have real support.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI LeftTruncatedDistribution distribution object (for model building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the LeftTruncatedDistribution distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
+          - *low*: The lower truncation bound. Values less than this are excluded from the distribution.
 
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#lefttruncateddistribution
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-        #### References:
-        https://en.wikipedia.org/wiki/Truncated_distribution
-        https://encyclopediaofmath.org/wiki/Truncated_distribution
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI LeftTruncatedDistribution distribution object (for model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the LeftTruncatedDistribution distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#lefttruncateddistribution
+
+          #### References:
+          https://en.wikipedia.org/wiki/Truncated_distribution
+          https://encyclopediaofmath.org/wiki/Truncated_distribution
 
         """
 
-           
-        d = numpyro.distributions.truncated.LeftTruncatedDistribution(base_dist=base_dist, low=low, validate_args=validate_args)
+        d = numpyro.distributions.truncated.LeftTruncatedDistribution(
+            base_dist=base_dist, low=low, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3468,18 +4075,30 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def levy(self,loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def levy(
+        self,
+        loc,
+        scale,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Levy
 
-        r"""### Levy 
-        
         Samples from a Levy distribution.
-        The Lévy distribution is a continuous probability distribution on the positive real line (or shifted positive line) that is *heavy-tailed*, *skewed*, and arises naturally in connection with stable distributions specifically the case with stability index $\alpha = \tfrac12$. 
+        The Lévy distribution is a continuous probability distribution on the positive real line (or shifted positive line) that is *heavy-tailed*, *skewed*, and arises naturally in connection with stable distributions specifically the case with stability index $\alpha = \tfrac12$.
         It is often used in contexts such as hitting‐time problems for Brownian motion, physics (e.g., van der Waals line‐shapes), and modelling very heavy‐tailed phenomena. Let (X) be a Lévy‐distributed random variable with **location** parameter $\mu$ and **scale** parameter (c > 0). The support is $x \ge \mu$.
-        
+
         **PDF**
         $$
         f(x; \mu, c) = \sqrt{\frac{c}{2\pi}} ; \frac{1}{(x - \mu)^{3/2}} ; \exp!\Bigl( -\frac{c}{2 (x - \mu)} \Bigr),
@@ -3493,7 +4112,7 @@ class UnifiedDist:
         = 2 - 2,\Phi!\Bigl(\sqrt{\tfrac{c}{(x - \mu)}}\Bigr),
         \quad x \ge \mu.
         $$
-        Here $\operatorname{erfc}$ is the complementary error function and $\Phi$ is the standard normal CDF.  
+        Here $\operatorname{erfc}$ is the complementary error function and $\Phi$ is the standard normal CDF.
 
         In the *standard* case with $\mu = 0$ and $c = 1$, one often simply writes $X \sim \text{Lévy}(0,1)$.
 
@@ -3502,7 +4121,7 @@ class UnifiedDist:
         - *loc* (jnp.ndarray): Location parameter.
 
         - *sample* (jnp.ndarray): Scale parameter.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
@@ -3510,40 +4129,41 @@ class UnifiedDist:
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
 
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI Levy distribution object: When `sample=False` (for model building).
             JAX array: When `sample=True` (for direct sampling).
             BI distribution object: When `create_obj=True` (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.levy(loc=0.0, scale=1.0, sample=True)
-        
+
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#levy
         """
 
-           
-        d = numpyro.distributions.continuous.Levy(loc=loc, scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Levy(
+            loc=loc, scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3556,22 +4176,34 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def log_normal(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def log_normal(
+        self,
+        loc=0.0,
+        scale=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Log-Normal
-        
+
         The Log-Normal distribution is a probability distribution defined for positive real-valued random variables, parameterized by a location parameter (loc : $\mu$) and a scale parameter (scale).  It arises when the logarithm of a random variable is normally distributed.
-        * A random variable (X) is **log-normal** if its natural logarithm (\ln X) is (approximately) normally distributed.  Equivalently, one can write: 
+        * A random variable (X) is **log-normal** if its natural logarithm (\ln X) is (approximately) normally distributed.  Equivalently, one can write:
         $$
         X = \exp(Y), \quad \text{where } Y \sim \mathcal{N}(\mu, \sigma^2).
         $$
 
         Because (X) is the exponential of a normal, it is always positive (support (x>0)).
-        It is useful in contexts where growth, multiplicative effects, or compounding factors dominate (e.g. stock prices, income, sizes of biological organisms). 
+        It is useful in contexts where growth, multiplicative effects, or compounding factors dominate (e.g. stock prices, income, sizes of biological organisms).
 
         ## Parameters
 
@@ -3590,60 +4222,61 @@ class UnifiedDist:
         $$
         F(x; \mu, \sigma) = \Pr(X \le x) = \Phi!\bigl( \frac{\ln x - \mu}{\sigma} \bigr),
         $$
-        where $\Phi$ is the standard normal CDF. 
+        where $\Phi$ is the standard normal CDF.
 
         ---
-        
+
         #### Args:
         - *loc* (float): Location parameter.
 
         - *scale* (float): Scale parameter.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample
                 site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI LogNormal distribution object (for model building).
             JAX array of samples drawn from the LogNormal distribution (for direct sampling).
             The raw BI distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.log_normal(loc=0.0, scale=1.0, sample=True)
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#lognormal
 
-        #### References:    
+        #### References:
         https://en.wikipedia.org/wiki/Log-normal_distribution
 
         """
 
-           
-        d = numpyro.distributions.continuous.LogNormal(loc=loc, scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.LogNormal(
+            loc=loc, scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3656,19 +4289,31 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def log_uniform(self,low, high, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def log_uniform(
+        self,
+        low,
+        high,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Log-Uniform
-        
+
         Samples from a Log Uniform distribution.
-        
+
         The Log Uniform distribution is defined over the positive real numbers and is the result of applying an exponential transformation to a uniform distribution over the interval [low, high]. It is often used when modeling parameters that must be positive.
 
-        A random variable $X$ is **log-uniform** on $[a, b]$, with $0 < a < b$, if $\ln X$ is uniformly distributed on $[\ln a, \ln b]$. 
+        A random variable $X$ is **log-uniform** on $[a, b]$, with $0 < a < b$, if $\ln X$ is uniformly distributed on $[\ln a, \ln b]$.
         Equivalently, the density of $X$ is proportional to $1/x$ over that interval. This distribution is sometimes called the *reciprocal distribution*.
         It is useful in modeling scales spanning several orders of magnitude, where you want every decade (or log-interval) to have equal weight.
 
@@ -3688,37 +4333,37 @@ class UnifiedDist:
 
         #### Args:
         - *low* (jnp.ndarray): The lower bound of the uniform distribution's log-space. Must be positive.
-        
+
         - *high* (jnp.ndarray): The upper bound of the uniform distribution's log-space. Must be positive.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI LogUniform distribution object (for model building) when `sample=False`.
-        
+
             JAX array of samples drawn from the LogUniform distribution (for direct sampling) when `sample=True`.
-        
+
             The raw BI distribution object (for advanced use cases) when `create_obj=True`.
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.log_uniform(low=0.1, high=10.0, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#loguniform
 
@@ -3729,17 +4374,18 @@ class UnifiedDist:
 
         """
 
-           
-        d = numpyro.distributions.continuous.LogUniform(low=low, high=high, validate_args=validate_args)
+        d = numpyro.distributions.continuous.LogUniform(
+            low=low, high=high, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3752,15 +4398,27 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def logistic(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Logistic 
+    def logistic(
+        self,
+        loc=0.0,
+        scale=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Logistic
         Samples from a Logistic distribution.
-        
+
         The Logistic distribution is a continuous probability distribution defined by two parameters: location and scale. It is often used to model growth processes and is closely related to the normal distribution.Its CDF is the logistic (sigmoid) function, which makes it appealing in modeling probabilities, logistic regression, and various growth models. It resembles the normal distribution in shape (bell‐shaped, symmetric) but has **heavier tails** (i.e. more probability in the extremes) and simpler closed‐form expressions for the CDF.
 
         * **Location parameter**: $\mu \in \mathbb{R}$\ — the center or “mean” of the distribution.
@@ -3768,7 +4426,7 @@ class UnifiedDist:
         * **Support**: $\ x \in (-\infty, +\infty) $\.
 
         Let (X \sim \mathrm{Logistic}(\mu, s)). Then:
-        
+
         $$
         F(x; \mu, s) = \frac{1}{1 + \exp\bigl(-\frac{x - \mu}{s}\bigr)}.
         $$
@@ -3777,56 +4435,57 @@ class UnifiedDist:
         $$
         F(x) = \frac12 + \frac12 \tanh!\bigl(\frac{x - \mu}{2s}\bigr).
         $$
-        
+
         #### Args:
         - *loc* (jnp.ndarray or float): The location parameter, specifying the median of the distribution. Defaults to 0.0.
-        
+
         - *scale* (jnp.ndarray or float): The scale parameter, which determines the spread of the distribution. Must be positive. Defaults to 1.0.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI Logistic distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Logistic distribution (for direct sampling) when `sample=True`.
             The raw BI distribution object (for advanced use cases) when `create_obj=True`.
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.logistic(loc=0.0, scale=1.0, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#logistic
 
-        #### Reference: 
+        #### Reference:
              https://en.wikipedia.org/wiki/Logistic_distribution
         """
 
-           
-        d = numpyro.distributions.continuous.Logistic(loc=loc, scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Logistic(
+            loc=loc, scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3839,19 +4498,32 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def low_rank_multivariate_normal(self,loc, cov_factor, cov_diag, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Low Rank Multivariate Normal 
+    def low_rank_multivariate_normal(
+        self,
+        loc,
+        cov_factor,
+        cov_diag,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Low Rank Multivariate Normal
         The *Low-Rank Multivariate Normal* (LRMVN) distribution is a parameterization of the multivariate normal distribution where the covariance matrix is expressed as a low-rank plus diagonal decomposition:
         $$
         \Sigma = F F^\top + D
         $$
         where $F$ is a low-rank matrix (capturing correlations) and $D$ is a diagonal matrix (capturing independent noise). This representation is often used in probabilistic modeling and variational inference to efficiently handle high-dimensional Gaussian distributions with structured covariance.
-        
+
 
 
         For a (d)-dimensional random vector ( x \in \mathbb{R}^d ),
@@ -3861,55 +4533,60 @@ class UnifiedDist:
         $$
         where ( \Sigma = F F^\top + D ).
 
-        
+
         Parameters:
         - *loc* (jnp.ndarray): Mean vector.
 
             cov_factor (jnp.ndarray): Matrix used to construct the covariance matrix.
 
             cov_diag (jnp.ndarray): Diagonal elements of the covariance matrix.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
 
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             event_size = 100  # Our distribution has 100 dimensions
-            rank = 5   
+            rank = 5
             m.dist.low_rank_multivariate_normal(
-            - *loc*=m.dist.normal(0,1, shape = (event_size,), sample=True)*2, 
+            - *loc*=m.dist.normal(0,1, shape = (event_size,), sample=True)*2,
                 cov_factor=m.dist.normal(0,1, shape = (event_size, rank), sample=True),
                 cov_diag=jnp.exp(m.dist.normal(0,1, shape = (event_size,), sample=True)) * 0.1, sample=True
             )
-        
+
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#lowrankmultivariatenormal
 
         #### Reference:
-        
+
         * [Multivariate normal distribution – Wikipedia](https://en.wikipedia.org/wiki/Multivariate_normal_distribution)
 
         * [TensorFlow Probability: LowRankMultivariateNormal](https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/MultivariateNormalDiagPlusLowRank)
         """
 
-        d = numpyro.distributions.continuous.LowRankMultivariateNormal(loc=loc, cov_factor=cov_factor, cov_diag=cov_diag, validate_args=validate_args)
+        d = numpyro.distributions.continuous.LowRankMultivariateNormal(
+            loc=loc,
+            cov_factor=cov_factor,
+            cov_diag=cov_diag,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -3922,80 +4599,93 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def lower_truncated_power_law(self,alpha, low, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def lower_truncated_power_law(
+        self,
+        alpha,
+        low,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Lower Truncated Power Law
-        The *Lower-Truncated Power-Law* distribution (also known as the *Pareto Type I* or *power-law with a lower bound*) models quantities that follow a heavy-tailed power-law behavior but are bounded below by a minimum value ( x_{\min} ). It is commonly used to describe phenomena such as wealth distributions, city sizes, and biological scaling laws.
-        
-        The probability density function (PDF) is given by:
-        
-        For ( x \ge x_{\min} > 0 ):
-        $$
-        f(x \mid \alpha, x_{\min}) = \frac{\alpha - 1}{x_{\min}} \left( \frac{x_{\min}}{x} \right)^{\alpha}
-        $$
+          The *Lower-Truncated Power-Law* distribution (also known as the *Pareto Type I* or *power-law with a lower bound*) models quantities that follow a heavy-tailed power-law behavior but are bounded below by a minimum value ( x_{\min} ). It is commonly used to describe phenomena such as wealth distributions, city sizes, and biological scaling laws.
 
-        where $ \alpha > 1 $ is the shape (scaling) parameter.
+          The probability density function (PDF) is given by:
 
-        
-        #### Args:
-        - `alpha` (jnp.ndarray): index of the power law distribution. Must be less than -1.
+          For ( x \ge x_{\min} > 0 ):
+          $$
+          f(x \mid \alpha, x_{\min}) = \frac{\alpha - 1}{x_{\min}} \left( \frac{x_{\min}}{x} \right)^{\alpha}
+          $$
 
-        - `low` (jnp.ndarray): lower bound of the distribution. Must be greater than 0.
-        
-        - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - `event` (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - `mask` (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - `create_obj` (bool): If True, returns the raw BI distribution object instead of creating a sample site.This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
-
-        - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - `name` (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI LowerTruncatedPowerLaw distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the LowerTruncatedPowerLaw distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.lower_truncated_power_law(alpha=-2.0, low=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#lowertruncatedpowerlaw
-
-        #### Reference:
+          where $ \alpha > 1 $ is the shape (scaling) parameter.
 
 
-        * [Power-law distribution – Wikipedia](https://en.wikipedia.org/wiki/Power_law#Continuous_power-law_distribution)
+          #### Args:
+          - `alpha` (jnp.ndarray): index of the power law distribution. Must be less than -1.
 
-        * [Pareto distribution – Wikipedia](https://en.wikipedia.org/wiki/Pareto_distribution)
+          - `low` (jnp.ndarray): lower bound of the distribution. Must be greater than 0.
 
-        * [Truncated Pareto distribution](https://arxiv.org/abs/0706.1062)
+          - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - `event` (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - `mask` (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - `create_obj` (bool): If True, returns the raw BI distribution object instead of creating a sample site.This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - `name` (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI LowerTruncatedPowerLaw distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the LowerTruncatedPowerLaw distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.lower_truncated_power_law(alpha=-2.0, low=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#lowertruncatedpowerlaw
+
+          #### Reference:
+
+
+          * [Power-law distribution – Wikipedia](https://en.wikipedia.org/wiki/Power_law#Continuous_power-law_distribution)
+
+          * [Pareto distribution – Wikipedia](https://en.wikipedia.org/wiki/Pareto_distribution)
+
+          * [Truncated Pareto distribution](https://arxiv.org/abs/0706.1062)
         """
 
-           
-        d = numpyro.distributions.truncated.LowerTruncatedPowerLaw(alpha=alpha, low=low, validate_args=validate_args)
+        d = numpyro.distributions.truncated.LowerTruncatedPowerLaw(
+            alpha=alpha, low=low, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4008,106 +4698,123 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def matrix_normal(self,loc, scale_tril_row, scale_tril_column, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def matrix_normal(
+        self,
+        loc,
+        scale_tril_row,
+        scale_tril_column,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Matrix Normal
+          Samples from a Matrix Normal distribution, which is a multivariate normal distribution over matrices.
+          The distribution is characterized by a location matrix and two lower triangular matrices that define the correlation structure.
+          The distribution is related to the multivariate normal distribution in the following way.
+          If $X ~ MN(loc,U,V)$ then $vec(X) ~ MVN(vec(loc), kron(V,U) )$.
 
-        r"""### Matrix Normal 
-        Samples from a Matrix Normal distribution, which is a multivariate normal distribution over matrices.
-        The distribution is characterized by a location matrix and two lower triangular matrices that define the correlation structure.
-        The distribution is related to the multivariate normal distribution in the following way.
-        If $X ~ MN(loc,U,V)$ then $vec(X) ~ MVN(vec(loc), kron(V,U) )$.
-        
-        Let (X) be (n \times p), with mean matrix $$M\in\mathbb R^{n\times p}$$, row-covariance matrix $U\in\mathbb R^{n\times n}$ (positive-definite), and column-covariance matrix $V\in\mathbb R^{p\times p}$(positive-definite). Then the PDF is:
+          Let (X) be (n \times p), with mean matrix $$M\in\mathbb R^{n\times p}$$, row-covariance matrix $U\in\mathbb R^{n\times n}$ (positive-definite), and column-covariance matrix $V\in\mathbb R^{p\times p}$(positive-definite). Then the PDF is:
 
-        $$
-        f(X;M,U,V) = \frac{1}{(2\pi)^{\tfrac{np}{2}},|V|^{\tfrac n2},|U|^{\tfrac p2}},
-        \exp!\Big[-\tfrac12,\mathrm{tr}!\big( V^{-1}(X-M)^\top,U^{-1}(X-M)\big)\Big].
-        $$
+          $$
+          f(X;M,U,V) = \frac{1}{(2\pi)^{\tfrac{np}{2}},|V|^{\tfrac n2},|U|^{\tfrac p2}},
+          \exp!\Big[-\tfrac12,\mathrm{tr}!\big( V^{-1}(X-M)^\top,U^{-1}(X-M)\big)\Big].
+          $$
 
-        Also the equivalence to vec-form is given:
-        $$
-        \mathrm{vec}(X) \sim \mathcal N_{np}\big(\mathrm{vec}(M),,V\otimes U\big). ; ; \text{([The Book of Statistical Proofs][3])}
-        $$
+          Also the equivalence to vec-form is given:
+          $$
+          \mathrm{vec}(X) \sim \mathcal N_{np}\big(\mathrm{vec}(M),,V\otimes U\big). ; ; \text{([The Book of Statistical Proofs][3])}
+          $$
 
-        
-        #### Args:
-        - `loc` (array_like): Location of the distribution.
-        
-        - `scale_tril_row` (array_like): Lower cholesky of rows correlation matrix.
-        
-        - `scale_tril_column` (array_like): Lower cholesky of columns correlation matrix.
-        
-        - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - `event` (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - `mask` (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - `create_obj` (bool): If True, returns the raw BI distribution object instead of creating a sample site.This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - `name` (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI MatrixNormal distribution object (for model building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the MatrixNormal distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            import jax.numpy as jnp
-            m = bi('cpu')            
-            n_rows, n_cols = 3, 4
+          #### Args:
+          - `loc` (array_like): Location of the distribution.
 
-        - *loc* = jnp.zeros((n_rows, n_cols))
-            U_row_cov = jnp.array([[1.0, 0.5, 0.2],
-                                   [0.5, 1.0, 0.3],
-                                   [0.2, 0.3, 1.0]])
-            scale_tril_row = jnp.linalg.cholesky(U_row_cov)
+          - `scale_tril_row` (array_like): Lower cholesky of rows correlation matrix.
 
-            V_col_cov = jnp.array([[2.0, -0.8, 0.1, 0.4],
-                                   [-0.8, 2.0, 0.2, -0.2],
-                                   [0.1, 0.2, 2.0, 0.0],
-                                   [0.4, -0.2, 0.0, 2.0]])
+          - `scale_tril_column` (array_like): Lower cholesky of columns correlation matrix.
 
-            # The argument passed to the distribution is its Cholesky factor
-            scale_tril_column = jnp.linalg.cholesky(V_col_cov)
+          - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-            m.dist.matrix_normal(
-                oc=loc, 
-                scale_tril_row=scale_tril_row, 
-                scale_tril_column=scale_tril_column, 
-                sample=True
-            )
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#matrixnormal_lowercase
+          - `event` (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
-        #### Reference: 
-        * [1]: https://en.wikipedia.org/wiki/Matrix_normal_distribution "Matrix normal distribution"
-        * [2]: https://statproofbook.github.io/P/matn-pdf.html "Probability density function of the matrix-normal distribution | The Book of Statistical Proofs"
+          - `mask` (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - `create_obj` (bool): If True, returns the raw BI distribution object instead of creating a sample site.This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - `name` (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI MatrixNormal distribution object (for model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the MatrixNormal distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              import jax.numpy as jnp
+              m = bi('cpu')
+              n_rows, n_cols = 3, 4
+
+          - *loc* = jnp.zeros((n_rows, n_cols))
+              U_row_cov = jnp.array([[1.0, 0.5, 0.2],
+                                     [0.5, 1.0, 0.3],
+                                     [0.2, 0.3, 1.0]])
+              scale_tril_row = jnp.linalg.cholesky(U_row_cov)
+
+              V_col_cov = jnp.array([[2.0, -0.8, 0.1, 0.4],
+                                     [-0.8, 2.0, 0.2, -0.2],
+                                     [0.1, 0.2, 2.0, 0.0],
+                                     [0.4, -0.2, 0.0, 2.0]])
+
+              # The argument passed to the distribution is its Cholesky factor
+              scale_tril_column = jnp.linalg.cholesky(V_col_cov)
+
+              m.dist.matrix_normal(
+                  oc=loc,
+                  scale_tril_row=scale_tril_row,
+                  scale_tril_column=scale_tril_column,
+                  sample=True
+              )
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#matrixnormal_lowercase
+
+          #### Reference:
+          * [1]: https://en.wikipedia.org/wiki/Matrix_normal_distribution "Matrix normal distribution"
+          * [2]: https://statproofbook.github.io/P/matn-pdf.html "Probability density function of the matrix-normal distribution | The Book of Statistical Proofs"
         """
 
-           
-        d = numpyro.distributions.continuous.MatrixNormal(loc=loc, scale_tril_row=scale_tril_row, scale_tril_column=scale_tril_column, validate_args=validate_args)
+        d = numpyro.distributions.continuous.MatrixNormal(
+            loc=loc,
+            scale_tril_row=scale_tril_row,
+            scale_tril_column=scale_tril_column,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4120,12 +4827,25 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def mixture_general(self,mixing_distribution, component_distributions, support=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def mixture_general(
+        self,
+        mixing_distribution,
+        component_distributions,
+        support=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Mixture General 
         A mixture distribution is a probability distribution constructed by selecting one of several component distributions according to specified weights, and then drawing a sample from the chosen component. It allows modelling of heterogeneous populations and multimodal data.
         
@@ -4174,18 +4894,22 @@ class UnifiedDist:
         * [2]: https://reliability.readthedocs.io/en/latest/Mixture%20models.html "Mixture models — reliability 0.9.0 documentation"
         * [3]: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.Mixture.html "Mixture — SciPy v1.16.2 Manual"
         """
-        
-           
-        d = numpyro.distributions.mixtures.MixtureGeneral(mixing_distribution=mixing_distribution, component_distributions=component_distributions, support=support, validate_args=validate_args)
+
+        d = numpyro.distributions.mixtures.MixtureGeneral(
+            mixing_distribution=mixing_distribution,
+            component_distributions=component_distributions,
+            support=support,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4198,29 +4922,41 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def mixture_same_family(self,mixing_distribution, component_distribution, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def mixture_same_family(
+        self,
+        mixing_distribution,
+        component_distribution,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""###  Finite mixture of component distributions from the same family.
-        
-        A *Mixture (Same-Family)* distribution is a finite mixture in which **all components come from the same parametric family** (for example, all Normal distributions but with different parameters), and are combined via mixing weights. The class is typically denoted as: 
-        
+
+        A *Mixture (Same-Family)* distribution is a finite mixture in which **all components come from the same parametric family** (for example, all Normal distributions but with different parameters), and are combined via mixing weights. The class is typically denoted as:
+
         Let the mixture have (K) components. Let weights (w_i\ge0), (\sum_{i=1}^K w_i = 1). Let the component family have density (f(x \mid \theta_i)) for each component (i). Then the mixture’s PDF is
         $$
         f_X(x) = \sum_{i=1}^K w_i ; f(x \mid \theta_i).
         $$
 
-        where each $f(x \mid \theta_i)$ is from the same family with parameter $\theta_i$. 
-        
+        where each $f(x \mid \theta_i)$ is from the same family with parameter $\theta_i$.
+
         #### Args:
             *   **Distribution Args**:
                 *   **mixing_distribution**:  A `Categorical` distribution representing the mixing weights.
 
                 *   **component_distributions**: A list of distributions representing the components of the mixture.
-        
+
             *   **Sampling / Modeling Args**:
                 * `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
@@ -4231,45 +4967,48 @@ class UnifiedDist:
                     site. This is essential for building complex distributions like `MixtureSameFamily`.
 
                 *   **sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
                 *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
                 *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
                 *   **name (str, optional)**:  The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-            
+
+
         #### Returns:
             *   **When `sample=False`**: A BI MixtureSameFamily distribution object (for model building).
             *   **When `sample=True`**: A JAX array of samples drawn from the MixtureSameFamily distribution (for direct sampling).
             *   **When `create_obj=True`**: The raw BI distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.mixture_same_family(
-                mixing_distribution=m.dist.categorical(probs=jnp.array([0.3, 0.7]), create_obj = True), 
+                mixing_distribution=m.dist.categorical(probs=jnp.array([0.3, 0.7]), create_obj = True),
                 component_distribution=m.dist.normal(loc=0.0, scale=1.0, shape = (2,), create_obj=True),
                 sample = True
             )
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#mixture-, to_jax = True)same-family
 
-        #### Reference: 
+        #### Reference:
         * [Mixture distributions ](https://cseweb.ucsd.edu/~elkan/250Bwinter2011/mixturemodels.pdf)
         """
 
-           
-        d = numpyro.distributions.mixtures.MixtureSameFamily(mixing_distribution=mixing_distribution, component_distribution=component_distribution, validate_args=validate_args)
+        d = numpyro.distributions.mixtures.MixtureSameFamily(
+            mixing_distribution=mixing_distribution,
+            component_distribution=component_distribution,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4282,84 +5021,101 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multinomial_logits(self,logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def multinomial_logits(
+        self,
+        logits,
+        total_count=1,
+        total_count_max=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Multinomial Logits
+          A *multinomial logits* distribution refers to a categorical (or more generally multinomial) distribution over (K) classes whose probabilities are given via the softmax of a vector of logits. That is, given a vector of real-valued logits $\ell = (\ell_1, …, \ell_K)$, the class probabilities are:
+          $$
+          p_k = \frac{\exp(\ell_k)}{\sum_{j=1}^K \exp(\ell_j)}.
+          $$
+          Then a single draw from the distribution yields one of the (K) classes (or for a multinomial count version, counts over the classes) with those probabilities.
 
-        r"""### Multinomial Logits 
-        A *multinomial logits* distribution refers to a categorical (or more generally multinomial) distribution over (K) classes whose probabilities are given via the softmax of a vector of logits. That is, given a vector of real-valued logits $\ell = (\ell_1, …, \ell_K)$, the class probabilities are:
-        $$
-        p_k = \frac{\exp(\ell_k)}{\sum_{j=1}^K \exp(\ell_j)}.
-        $$
-        Then a single draw from the distribution yields one of the (K) classes (or for a multinomial count version, counts over the classes) with those probabilities.
+          **Categorical version (one draw):**
+          Let (X \in {1,2,\dots,K}) be the class. Then
+          $$
+          \Pr(X=k \mid \ell) ;=; p_k = \frac{\exp(\ell_k)}{\sum_{j=1}^K \exp(\ell_j)}.
+          $$
+          This directly uses the logits $\ell$.
 
-        **Categorical version (one draw):**
-        Let (X \in {1,2,\dots,K}) be the class. Then
-        $$
-        \Pr(X=k \mid \ell) ;=; p_k = \frac{\exp(\ell_k)}{\sum_{j=1}^K \exp(\ell_j)}.
-        $$
-        This directly uses the logits $\ell$. 
+          **Multinomial version (n draws):**
+          If you draw (n) independent draws (or equivalently count vector) with probabilities (p = (p_1,…,p_K)), then for a count vector (x = (x_1,…,x_K)) with (\sum_k x_k = n),
+          $$
+          \Pr(X = x \mid n, p) = \frac{n!}{x_1! \cdots x_K!} ; \prod_{k=1}^K p_k^{x_k}
+          $$
+          and $p_k$ is given by the softmax of logits.
 
-        **Multinomial version (n draws):**
-        If you draw (n) independent draws (or equivalently count vector) with probabilities (p = (p_1,…,p_K)), then for a count vector (x = (x_1,…,x_K)) with (\sum_k x_k = n),
-        $$
-        \Pr(X = x \mid n, p) = \frac{n!}{x_1! \cdots x_K!} ; \prod_{k=1}^K p_k^{x_k}
-        $$
-        and $p_k$ is given by the softmax of logits. 
+          #### Args:
+          - *logits* (jnp.ndarray): Logits for each outcome. Must be at least one-dimensional.
 
-        #### Args:
-        - *logits* (jnp.ndarray): Logits for each outcome. Must be at least one-dimensional.
-        
-        - *total_count* (jnp.ndarray): The total number of trials.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          - *total_count* (jnp.ndarray): The total number of trials.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI MultinomialLogits distribution object (for model building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the MultinomialLogits distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.multinomial_logits(logits=jnp.array([1.0, 0.5], dtype=jnp.float32), total_count=jnp.array(5, dtype=jnp.int32), sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#multinomiallogits
-        
-        #### Reference:
-        *   https://en.wikipedia.org/wiki/Multinomial_distribution
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI MultinomialLogits distribution object (for model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the MultinomialLogits distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.multinomial_logits(logits=jnp.array([1.0, 0.5], dtype=jnp.float32), total_count=jnp.array(5, dtype=jnp.int32), sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#multinomiallogits
+
+          #### Reference:
+          *   https://en.wikipedia.org/wiki/Multinomial_distribution
         """
 
-           
-        d = numpyro.distributions.discrete.MultinomialLogits(logits=logits, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args)
+        d = numpyro.distributions.discrete.MultinomialLogits(
+            logits=logits,
+            total_count=total_count,
+            total_count_max=total_count_max,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4372,64 +5128,81 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multinomial_probs(self,probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Multinomial Probs 
+    def multinomial_probs(
+        self,
+        probs,
+        total_count=1,
+        total_count_max=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Multinomial Probs
         Samples from a Multinomial distribution.
-        
+
         The Multinomial distribution models the number of times each of several discrete outcomes occurs in a fixed number of trials.  Each trial independently results in one of several outcomes, and each outcome has a probability of occurring.
 
-        
+
         #### Args:
         - *probs* (jnp.ndarray): Vector of probabilities for each outcome. Must sum to 1.
 
         - *total_count* (jnp.ndarray): The number of trials.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI MultinomialProbs distribution object (for model building).
             JAX array of samples drawn from the MultinomialProbs distribution (for direct sampling).
             The raw BI distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.multinomial_probs(probs=jnp.array([0.2, 0.3, 0.5]), total_count=10, sample=True)
-        
+
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#multinomialprobs
         """
 
-           
-        d = numpyro.distributions.discrete.MultinomialProbs(probs=probs, total_count=total_count, total_count_max=total_count_max, validate_args=validate_args)
+        d = numpyro.distributions.discrete.MultinomialProbs(
+            probs=probs,
+            total_count=total_count,
+            total_count_max=total_count_max,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4442,93 +5215,112 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multivariate_normal(self,loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def multivariate_normal(
+        self,
+        loc=0.0,
+        covariance_matrix=None,
+        precision_matrix=None,
+        scale_tril=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Multivariate Normal
-        
-        The Multivariate Normal distribution, also known as the Gaussian distribution in multiple dimensions,
-        is a probability distribution that arises frequently in statistics and machine learning. It is
-        defined by its mean vector and covariance matrix, which describe the central tendency and
-        spread of the distribution, respectively.
-        
-        $$
-           p(x) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left(-\frac{1}{2}(x - \mu)^T \Sigma^{-1} (x - \mu)\right)
-        $$
-            
 
-        where:
-        - $x$ is a $n$-dimensional vector of random variables.
-        - $\mu$ is the mean vector.
-        - $\Sigma$ is the covariance matrix.
+          The Multivariate Normal distribution, also known as the Gaussian distribution in multiple dimensions,
+          is a probability distribution that arises frequently in statistics and machine learning. It is
+          defined by its mean vector and covariance matrix, which describe the central tendency and
+          spread of the distribution, respectively.
 
-        
-        #### Args:
-        - *loc* (tuple): The mean vector of the distribution.
-        
-        - *covariance_matrix* (jnp.ndarray, optional): The covariance matrix of the distribution. Must be positive definite.
-        
-        - *precision_matrix* (jnp.ndarray, optional): The precision matrix (inverse of the covariance matrix) of the distribution. Must be positive definite.
-        
-        - *scale_tril* (jnp.ndarray, optional): The lower triangular Cholesky decomposition of the covariance matrix.
-        
-        - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          $$
+             p(x) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp\left(-\frac{1}{2}(x - \mu)^T \Sigma^{-1} (x - \mu)\right)
+          $$
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI MultivariateNormal distribution object (for model building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the MultivariateNormal distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
 
-        from BI import bi
-        m = bi('cpu')
-        m.dist.multivariate_normal(
-        - *loc*=jnp.array([1.0, 0.0, -2.0]), 
-            covariance_matrix=jnp.array([[ 2.0,  0.7, -0.3],
-                                        [ 0.7,  1.0,  0.5],
-                                        [-0.3,  0.5,  1.5]]), 
-            sample=True
-        )
+          where:
+          - $x$ is a $n$-dimensional vector of random variables.
+          - $\mu$ is the mean vector.
+          - $\Sigma$ is the covariance matrix.
 
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#multivariate-normal
 
-        #### Reference:
+          #### Args:
+          - *loc* (tuple): The mean vector of the distribution.
 
-        * [Multivariate normal distribution – Wikipedia](https://en.wikipedia.org/wiki/Multivariate_normal_distribution)
+          - *covariance_matrix* (jnp.ndarray, optional): The covariance matrix of the distribution. Must be positive definite.
+
+          - *precision_matrix* (jnp.ndarray, optional): The precision matrix (inverse of the covariance matrix) of the distribution. Must be positive definite.
+
+          - *scale_tril* (jnp.ndarray, optional): The lower triangular Cholesky decomposition of the covariance matrix.
+
+          - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI MultivariateNormal distribution object (for model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the MultivariateNormal distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+
+          from BI import bi
+          m = bi('cpu')
+          m.dist.multivariate_normal(
+          - *loc*=jnp.array([1.0, 0.0, -2.0]),
+              covariance_matrix=jnp.array([[ 2.0,  0.7, -0.3],
+                                          [ 0.7,  1.0,  0.5],
+                                          [-0.3,  0.5,  1.5]]),
+              sample=True
+          )
+
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#multivariate-normal
+
+          #### Reference:
+
+          * [Multivariate normal distribution – Wikipedia](https://en.wikipedia.org/wiki/Multivariate_normal_distribution)
         """
 
-           
-        d = numpyro.distributions.continuous.MultivariateNormal(loc=loc, covariance_matrix=covariance_matrix, precision_matrix=precision_matrix, scale_tril=scale_tril, validate_args=validate_args)
+        d = numpyro.distributions.continuous.MultivariateNormal(
+            loc=loc,
+            covariance_matrix=covariance_matrix,
+            precision_matrix=precision_matrix,
+            scale_tril=scale_tril,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4541,93 +5333,215 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multivariate_student_t(self,df, loc=0.0, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def multivariate_student_t(
+        self,
+        df,
+        loc=0.0,
+        scale_tril=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Multivariate Student's t
+          The Multivariate Student's t distribution is a generalization of the Student's t
+          distribution to multiple dimensions. It is a heavy-tailed distribution that is
+          often used to model data that is not normally distributed.
 
-        r"""### Multivariate Student's t 
-        The Multivariate Student's t distribution is a generalization of the Student's t
-        distribution to multiple dimensions. It is a heavy-tailed distribution that is
-        often used to model data that is not normally distributed.
-        
-        The PDF of the multivariate Student's t-distribution for a random vector ( \mathbf{x} \in \mathbb{R}^d ) is given by:
+          The PDF of the multivariate Student's t-distribution for a random vector ( \mathbf{x} \in \mathbb{R}^d ) is given by:
+
+          $$
+          f(\mathbf{x}) = \frac{\Gamma\left(\frac{\nu + d}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right) \nu^{d/2} \pi^{d/2} | \Sigma|^{1/2}} \left(1 + \frac{1}{\nu} (\mathbf{x} - \mu)^T \Sigma^{-1} (\mathbf{x} - \mu)\right)^{-(\nu + d)/2}
+          $$
+
+          where:
+
+          * $ \Gamma(\cdot) $ is the Gamma function.
+          * $ \mu $ is the mean vector.
+          * $ \Sigma $ is the scale (covariance) matrix.
+          * $ \nu $ is the degrees of freedom.
+          * $ d $ is the dimensionality of $ \mathbf{x} $.
+
+          #### Args:
+
+          - *df* (jnp.ndarray): Degrees of freedom, must be positive.
+
+          - *loc* (jnp.ndarray): Location vector, representing the mean of the distribution.
+              scale_tril (jnp.ndarray): Lower triangular matrix defining the scale.
+
+          - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI MultivariateStudentT distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the MultivariateStudentT distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              import jax.numpy as jnp
+              m = bi('cpu')
+              m.dist.multivariate_student_t(
+                  df = 2,
+              - *loc*=jnp.array([1.0, 0.0, -2.0]),
+                  scale_tril=jnp.linalg.cholesky(
+                      jnp.array([[ 2.0,  0.7, -0.3],
+                                  [ 0.7,  1.0,  0.5],
+                                  [-0.3,  0.5,  1.5]])),
+                  sample=True
+              )
+
+
+          #### Wrapper of:
+          https://num.pyro.ai/en/stable/distributions.html#multivariatestudentt
+
+          #### Reference:
+
+          * [Multivariate Student-t distribution – Wikipedia](https://en.wikipedia.org/wiki/Multivariate_Student%27s_t-distribution)
+        """
+
+        d = numpyro.distributions.continuous.MultivariateStudentT(
+            df=df, loc=loc, scale_tril=scale_tril, validate_args=validate_args
+        )
+        if sample:
+            seed = self.normalize_seed(seed)
+            seed_key = random.PRNGKey(seed)
+            samples = d.sample(seed_key, sample_shape=shape)
+
+            # Apply mask if provided
+            if mask is not None:
+                samples = jnp.where(mask, samples, jnp.nan)
+
+            if to_jax:
+                return samples
+            else:
+                return SampledData(samples)
+        else:
+            if shape:
+                d = d.expand(shape)
+            if event > 0:
+                d = d.to_event(event)
+            if create_obj:
+                return d
+            else:
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
+
+    def negative_binomial2(
+        self,
+        mean,
+        concentration,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""###
+        Samples from a Negative Binomial
+
+        The NB2 parameterisation of the negative-binomial distribution is a count distribution used for modelling over-dispersed count data (variance > mean). It is defined such that the variance grows **quadratically** in the mean:
 
         $$
-        f(\mathbf{x}) = \frac{\Gamma\left(\frac{\nu + d}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right) \nu^{d/2} \pi^{d/2} | \Sigma|^{1/2}} \left(1 + \frac{1}{\nu} (\mathbf{x} - \mu)^T \Sigma^{-1} (\mathbf{x} - \mu)\right)^{-(\nu + d)/2}
+        mathrm{Var}(Y) = \mu + \alpha,\mu^2,
+        $$
+        where (\mu = \mathbb{E}[Y]) and (\alpha>0) is the dispersion (heterogeneity) parameter.
+        Because of this quadratic variance growth, it is called the NB2 family.
+
+        $$
+        P(k) = \frac{\Gamma(k + \alpha)}{\Gamma(k + 1) \Gamma(\alpha)} \left(\frac{\beta}{\alpha + \beta}\right)^k \left(1 - \frac{\beta}{\alpha + \beta}\right)^k
         $$
 
-        where:
+        One commonly used form of the NB2 parameterisation is obtained via a Poisson‐Gamma mixture:
+        $$
+        Y \mid \lambda \sim \text{Poisson}(\lambda), \quad \lambda \sim \text{Gamma}!\Big(\frac{1}{\alpha},,\frac{\mu,\alpha}{1}\Big)
+        $$
 
-        * $ \Gamma(\cdot) $ is the Gamma function.
-        * $ \mu $ is the mean vector.
-        * $ \Sigma $ is the scale (covariance) matrix.
-        * $ \nu $ is the degrees of freedom.
-        * $ d $ is the dimensionality of $ \mathbf{x} $.
-        
+        which marginalises to:
+
+        $$
+        \Pr(Y = y) = \frac{\Gamma(y + \tfrac1\alpha)}{\Gamma(\tfrac1\alpha); y!}; \bigg(\frac{1}{1 + \alpha,\mu}\bigg)^{1/\alpha}; \bigg(\frac{\alpha,\mu}{1 + \alpha,\mu}\bigg)^{y}, \quad y = 0,1,2,\dots
+        $$
+        This parameterisation matches the NB2 form with mean $\mu$ and dispersion $\alpha$. (See Hilbe (2011) forderivation.)
+
+
         #### Args:
+        - *mean* (jnp.ndarray or float): The mean of the distribution.  This is equivalent to the `mu` parameter.
 
-        - *df* (jnp.ndarray): Degrees of freedom, must be positive.
+        - *concentration* (jnp.ndarray or float): The concentration parameter. This is equivalent to the $alpha$ parameter.
 
-        - *loc* (jnp.ndarray): Location vector, representing the mean of the distribution.
-            scale_tril (jnp.ndarray): Lower triangular matrix defining the scale.
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-        - `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
-      - When `sample=False`: A BI MultivariateStudentT distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the MultivariateStudentT distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
+            BI NegativeBinomial distribution object: When `sample=False` (for model building).
+            jnp.ndarray: A JAX array of samples drawn from the NegativeBinomial distribution (for direct sampling).
+            BI NegativeBinomial distribution object: When `create_obj=True` (for advanced use cases).
+
         #### Example Usage:
             from BI import bi
-            import jax.numpy as jnp
             m = bi('cpu')
-            m.dist.multivariate_student_t(
-                df = 2,
-            - *loc*=jnp.array([1.0, 0.0, -2.0]), 
-                scale_tril=jnp.linalg.cholesky(
-                    jnp.array([[ 2.0,  0.7, -0.3],
-                                [ 0.7,  1.0,  0.5],
-                                [-0.3,  0.5,  1.5]])), 
-                sample=True
-            )   
+            m.dist.negative_binomial2(mean=2.0, concentration=3.0, sample=True)
 
-        
-        #### Wrapper of:
-        https://num.pyro.ai/en/stable/distributions.html#multivariatestudentt
+        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomial
 
         #### Reference:
-
-        * [Multivariate Student-t distribution – Wikipedia](https://en.wikipedia.org/wiki/Multivariate_Student%27s_t-distribution)
+        * [Negative Binomial Regression]9https://www.cambridge.org/core/books/negative-binomial-regression/12D6281A46B9A980DC6021080C9419E7)
+        * [Negative Binomial Regression: Second Edition](https://assets.cambridge.org/97805211/98158/excerpt/9780521198158_excerpt.pdf)
         """
 
-           
-        d = numpyro.distributions.continuous.MultivariateStudentT(df=df, loc=loc, scale_tril=scale_tril, validate_args=validate_args)
+        d = numpyro.distributions.conjugate.NegativeBinomial2(
+            mean=mean, concentration=concentration, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4640,162 +5554,80 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def negative_binomial2(self,mean, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### 
-            Samples from a Negative Binomial 
-        
-            The NB2 parameterisation of the negative-binomial distribution is a count distribution used for modelling over-dispersed count data (variance > mean). It is defined such that the variance grows **quadratically** in the mean:
-
-            $$
-            mathrm{Var}(Y) = \mu + \alpha,\mu^2,
-            $$
-            where (\mu = \mathbb{E}[Y]) and (\alpha>0) is the dispersion (heterogeneity) parameter.
-            Because of this quadratic variance growth, it is called the NB2 family.
-        
-            $$
-            P(k) = \frac{\Gamma(k + \alpha)}{\Gamma(k + 1) \Gamma(\alpha)} \left(\frac{\beta}{\alpha + \beta}\right)^k \left(1 - \frac{\beta}{\alpha + \beta}\right)^k
-            $$
-
-            One commonly used form of the NB2 parameterisation is obtained via a Poisson‐Gamma mixture:
-            $$
-            Y \mid \lambda \sim \text{Poisson}(\lambda), \quad \lambda \sim \text{Gamma}!\Big(\frac{1}{\alpha},,\frac{\mu,\alpha}{1}\Big)
-            $$
-
-            which marginalises to:
-
-            $$
-            \Pr(Y = y) = \frac{\Gamma(y + \tfrac1\alpha)}{\Gamma(\tfrac1\alpha); y!}; \bigg(\frac{1}{1 + \alpha,\mu}\bigg)^{1/\alpha}; \bigg(\frac{\alpha,\mu}{1 + \alpha,\mu}\bigg)^{y}, \quad y = 0,1,2,\dots
-            $$
-            This parameterisation matches the NB2 form with mean $\mu$ and dispersion $\alpha$. (See Hilbe (2011) forderivation.) 
-
-
-            #### Args:
-            - *mean* (jnp.ndarray or float): The mean of the distribution.  This is equivalent to the `mu` parameter.
-        
-            - *concentration* (jnp.ndarray or float): The concentration parameter. This is equivalent to the $alpha$ parameter.
-        
-            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-            - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-            - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-            - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-            - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
-
-            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-            - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-            #### Returns:
-                BI NegativeBinomial distribution object: When `sample=False` (for model building).
-                jnp.ndarray: A JAX array of samples drawn from the NegativeBinomial distribution (for direct sampling).
-                BI NegativeBinomial distribution object: When `create_obj=True` (for advanced use cases).
-        
-            #### Example Usage:
-                from BI import bi
-                m = bi('cpu')
-                m.dist.negative_binomial2(mean=2.0, concentration=3.0, sample=True)
-        
-            #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomial
-
-            #### Reference:
-            * [Negative Binomial Regression]9https://www.cambridge.org/core/books/negative-binomial-regression/12D6281A46B9A980DC6021080C9419E7)
-            * [Negative Binomial Regression: Second Edition](https://assets.cambridge.org/97805211/98158/excerpt/9780521198158_excerpt.pdf)
-        """
-
-           
-        d = numpyro.distributions.conjugate.NegativeBinomial2(mean=mean, concentration=concentration, validate_args=validate_args)
-        if sample:
-            seed = self.normalize_seed(seed)
-            seed_key = random.PRNGKey(seed)
-            samples = d.sample(seed_key, sample_shape=shape)
-        
-            # Apply mask if provided
-            if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
-            if to_jax:
-                return samples
-            else:
-                return SampledData(samples)
-        else:
-            if shape:
-                d = d.expand(shape)
-            if event > 0:
-                d = d.to_event(event)
-            if create_obj:
-                return d
-            else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
-    def negative_binomial_logits(self,total_count, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def negative_binomial_logits(
+        self,
+        total_count,
+        logits,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Negative Binomial Logits
-        
+
         Samples from a Negative Binomial Logits distribution.
-        
+
         The Negative Binomial Logits distribution is a generalization of the Negative Binomial distribution where the parameter 'r' (number of successes) is expressed as a function of a logit parameter. This allows for more flexible modeling of count data.
-        
- 
+
+
         #### Args:
         - *total_count* (jnp.ndarray): The parameter controlling the shape of the distribution.  Represents the total number of trials.
-        
+
         - *logits* (jnp.ndarray): The log-odds parameter.  Related to the probability of success.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             Negative Binomial Logits: A BI Negative Binomial Logits distribution object (for model building).
-        
+
             jnp.ndarray: A JAX array of samples drawn from the Negative Binomial Logits distribution (for direct sampling).
-        
+
             Negative Binomial Logits: The raw BI distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.negative_binomial_logits(total_count=5.0, logits=0.0, sample=True)
-        
+
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#Negative Binomial Logits
         """
 
-           
-        d = numpyro.distributions.conjugate.NegativeBinomialLogits(total_count=total_count, logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.conjugate.NegativeBinomialLogits(
+            total_count=total_count, logits=logits, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4808,63 +5640,76 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def negative_binomial_probs(self,total_count, probs, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def negative_binomial_probs(
+        self,
+        total_count,
+        probs,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Negative Binomial with probabilities.
-        
-        The Negative Binomial distribution models the number of failures before the first success in a sequence of independent Bernoulli trials.  It is characterized by two parameters: 'concentration' (r) and 'rate' (p).  In this implementation, the 'concentration' parameter is derived from 'total_count' and the 'rate' parameter is derived from 'probs'.
-        
 
-        
+        The Negative Binomial distribution models the number of failures before the first success in a sequence of independent Bernoulli trials.  It is characterized by two parameters: 'concentration' (r) and 'rate' (p).  In this implementation, the 'concentration' parameter is derived from 'total_count' and the 'rate' parameter is derived from 'probs'.
+
+
+
         #### Args:
         - *total_count* (jnp.ndarray):  A numeric vector, matrix, or array representing the parameter.
 
         - *probs* (jnp.ndarray): A numeric vector representing event probabilities. Must sum to 1.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample  site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI NegativeBinomialProbs distribution object (for model building).
             JAX array of samples drawn from the NegativeBinomialProbs distribution (for direct sampling).
             The raw BI distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.negative_binomial_probs(total_count=10.0, probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomialprobs
         """
 
-           
-        d = numpyro.distributions.conjugate.NegativeBinomialProbs(total_count=total_count, probs=probs, validate_args=validate_args)
+        d = numpyro.distributions.conjugate.NegativeBinomialProbs(
+            total_count=total_count, probs=probs, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4877,75 +5722,88 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def normal(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
-        
+    def normal(
+        self,
+        loc=0.0,
+        scale=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Normal
+          Samples from a Normal (Gaussian) distribution.
 
-        r"""### Normal 
-        Samples from a Normal (Gaussian) distribution.
-        
-        The Normal distribution is characterized by its mean (loc) and standard deviation (scale).
-        It's a continuous probability distribution that arises frequently in statistics and
-        probability theory.
-        
-        $$   
-        f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp!\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)
-        $$
-        
-        #### Args:
-        - *loc* (jnp.ndarray): The mean of the distribution.
-        
-        - *scale* (jnp.ndarray): The standard deviation of the distribution.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          The Normal distribution is characterized by its mean (loc) and standard deviation (scale).
+          It's a continuous probability distribution that arises frequently in statistics and
+          probability theory.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI Normal distribution object (for model building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the Normal distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.normal(loc=0.0, scale=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#normal
+          $$
+          f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp!\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)
+          $$
 
-        #### References:
-        * [Wikipedia: Normal distribution – PDF](https://en.wikipedia.org/wiki/Normal_distribution#Probability_density_function)
-        * [Wolfram MathWorld: Normal Distribution](https://mathworld.wolfram.com/NormalDistribution.html)
+          #### Args:
+          - *loc* (jnp.ndarray): The mean of the distribution.
+
+          - *scale* (jnp.ndarray): The standard deviation of the distribution.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI Normal distribution object (for model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the Normal distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.normal(loc=0.0, scale=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#normal
+
+          #### References:
+          * [Wikipedia: Normal distribution – PDF](https://en.wikipedia.org/wiki/Normal_distribution#Probability_density_function)
+          * [Wolfram MathWorld: Normal Distribution](https://mathworld.wolfram.com/NormalDistribution.html)
         """
 
-           
-        d = numpyro.distributions.continuous.Normal(loc=loc, scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Normal(
+            loc=loc, scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
-            seed_key = random.PRNGKey(seed)    
+            seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -4958,91 +5816,104 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def ordered_logistic(self,predictor, cutpoints, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def ordered_logistic(
+        self,
+        predictor,
+        cutpoints,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Ordered Logistic
-        
-        The ordered logistic distribution is used for modeling **ordinal** outcome variables $ Y \in {1,2,\dots,K} $ (i.e., categories with a natural order) via a latent continuous predictor $ \eta $ and a set of increasing *cut-points* $ c_1 < c_2 < \cdots < c_{K-1} $. When $ \eta $ crosses thresholds, the observed  $Y$  
-        
-        ### PMF (Probability Mass Function)
 
-        Let $ \eta \in \mathbb R $ be the linear predictor (for example $ \eta = x^\top \beta $), let cutpoints $ c = (c_1, \dots,c_{K-1}) $ satisfy $ c_1 < c_2 < \cdots < c_{K-1} $. Define also $ c_0 = -\infty $, $ c_K = +\infty $.
-        Then for (k \in {1,\dots,K}),
-        $$
-        \Pr(Y = k \mid \eta, c) =
-        \begin{cases}
-        1 - \mathrm{logit}^{-1}(\eta - c_1), & k = 1, [6pt]
-        \mathrm{logit}^{-1}(\eta - c_{k-1}) - \mathrm{logit}^{-1}(\eta - c_{k}), & 1 < k < K, [6pt]
-        \mathrm{logit}^{-1}(\eta - c_{K-1}), & k = K.
-        \end{cases}
-        $$
-        Here $ \mathrm{logit}^{-1}(z) = \frac{1}{1 + e^{-z}} $. ([Stan][2])
-        In other words:
-        $$
-        \Pr(Y \le k \mid \eta, c) = \mathrm{logit}^{-1}(\eta - c_k),
-        $$
-        and so
-        $$
-        \Pr(Y = k) = \Pr(Y \le k) - \Pr(Y \le k-1).
-        $$
-        This formulation appears in e.g. the CDF‐link setup of the proportional odds model. 
-        
-        #### Args:
+          The ordered logistic distribution is used for modeling **ordinal** outcome variables $ Y \in {1,2,\dots,K} $ (i.e., categories with a natural order) via a latent continuous predictor $ \eta $ and a set of increasing *cut-points* $ c_1 < c_2 < \cdots < c_{K-1} $. When $ \eta $ crosses thresholds, the observed  $Y$
 
-        - *predictor* (jnp.ndarray): Prediction in real domain; typically this is output of a linear model.
-        
-        - *cutpoints* (jnp.ndarray): Positions in real domain to separate categories.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+          ### PMF (Probability Mass Function)
 
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          Let $ \eta \in \mathbb R $ be the linear predictor (for example $ \eta = x^\top \beta $), let cutpoints $ c = (c_1, \dots,c_{K-1}) $ satisfy $ c_1 < c_2 < \cdots < c_{K-1} $. Define also $ c_0 = -\infty $, $ c_K = +\infty $.
+          Then for (k \in {1,\dots,K}),
+          $$
+          \Pr(Y = k \mid \eta, c) =
+          \begin{cases}
+          1 - \mathrm{logit}^{-1}(\eta - c_1), & k = 1, [6pt]
+          \mathrm{logit}^{-1}(\eta - c_{k-1}) - \mathrm{logit}^{-1}(\eta - c_{k}), & 1 < k < K, [6pt]
+          \mathrm{logit}^{-1}(\eta - c_{K-1}), & k = K.
+          \end{cases}
+          $$
+          Here $ \mathrm{logit}^{-1}(z) = \frac{1}{1 + e^{-z}} $. ([Stan][2])
+          In other words:
+          $$
+          \Pr(Y \le k \mid \eta, c) = \mathrm{logit}^{-1}(\eta - c_k),
+          $$
+          and so
+          $$
+          \Pr(Y = k) = \Pr(Y \le k) - \Pr(Y \le k-1).
+          $$
+          This formulation appears in e.g. the CDF‐link setup of the proportional odds model.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI OrderedLogistic distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the OrderedLogistic distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.ordered_logistic(predictor=jnp.array([0.2, 0.5, 0.8]), cutpoints=jnp.array([-1.0, 0.0, 1.0]), sample=True)
-        
-        #### Wrapper of:
-        https://num.pyro.ai/en/stable/distributions.html#orderedlogistic
+          #### Args:
 
-        #### Reference:
-        [1]: https://en.wikipedia.org/wiki/Ordered_logit 
-        [2]: https://mc-stan.org/docs/2_21/functions-reference/ordered-logistic-distribution.html 
-        [3]: https://labdisia.disia.unifi.it/grilli/files/Papers/Ordered_Logit.pdf"
+          - *predictor* (jnp.ndarray): Prediction in real domain; typically this is output of a linear model.
+
+          - *cutpoints* (jnp.ndarray): Positions in real domain to separate categories.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI OrderedLogistic distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the OrderedLogistic distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.ordered_logistic(predictor=jnp.array([0.2, 0.5, 0.8]), cutpoints=jnp.array([-1.0, 0.0, 1.0]), sample=True)
+
+          #### Wrapper of:
+          https://num.pyro.ai/en/stable/distributions.html#orderedlogistic
+
+          #### Reference:
+          [1]: https://en.wikipedia.org/wiki/Ordered_logit
+          [2]: https://mc-stan.org/docs/2_21/functions-reference/ordered-logistic-distribution.html
+          [3]: https://labdisia.disia.unifi.it/grilli/files/Papers/Ordered_Logit.pdf"
         """
 
-           
-        d = numpyro.distributions.discrete.OrderedLogistic(predictor=predictor, cutpoints=cutpoints, validate_args=validate_args)
+        d = numpyro.distributions.discrete.OrderedLogistic(
+            predictor=predictor, cutpoints=cutpoints, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5055,12 +5926,24 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def pareto(self,scale, alpha, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def pareto(
+        self,
+        scale,
+        alpha,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Pareto 
         Samples from a Pareto distribution.
         
@@ -5126,17 +6009,18 @@ class UnifiedDist:
 
         """
 
-           
-        d = numpyro.distributions.continuous.Pareto(scale=scale, alpha=alpha, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Pareto(
+            scale=scale, alpha=alpha, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5149,79 +6033,92 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def poisson(self,rate, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def poisson(
+        self,
+        rate,
+        is_sparse=False,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Poisson
 
-        The **Poisson distribution** models the probability of observing a given number of events $k$ occurring in a fixed interval of time or space when these events happen independently and at a constant average rate $ \lambda > 0 $.
-        It is widely used for modeling **count data**, such as the number of emails received per hour or mutations in a DNA strand per unit length.
+          The **Poisson distribution** models the probability of observing a given number of events $k$ occurring in a fixed interval of time or space when these events happen independently and at a constant average rate $ \lambda > 0 $.
+          It is widely used for modeling **count data**, such as the number of emails received per hour or mutations in a DNA strand per unit length.
 
-        Formally,
-        $$
-        K \sim \text{Poisson}(\lambda)
-        $$
-        where $ \lambda $ is both the **mean** and **variance** of the distribution.
+          Formally,
+          $$
+          K \sim \text{Poisson}(\lambda)
+          $$
+          where $ \lambda $ is both the **mean** and **variance** of the distribution.
 
-        The probability mass function (PMF) of the Poisson distribution is given by:
-        $$
-        P(K = k \mid \lambda) =
-        \frac{e^{-\lambda} \lambda^k}{k!},
-        \quad k = 0, 1, 2, \dots
-        $$
+          The probability mass function (PMF) of the Poisson distribution is given by:
+          $$
+          P(K = k \mid \lambda) =
+          \frac{e^{-\lambda} \lambda^k}{k!},
+          \quad k = 0, 1, 2, \dots
+          $$
 
-        #### Args:
-        - *rate* (jnp.ndarray): The rate parameter, representing the average number of events.
+          #### Args:
+          - *rate* (jnp.ndarray): The rate parameter, representing the average number of events.
 
-        - *is_sparse* (bool, optional): Indicates whether the `rate` parameter is sparse. If `True`, a specialized sparse sampling implementation is used, which can be more efficient for models with many zero-rate components (e.g., zero-inflated models). Defaults to `False`.
+          - *is_sparse* (bool, optional): Indicates whether the `rate` parameter is sparse. If `True`, a specialized sparse sampling implementation is used, which can be more efficient for models with many zero-rate components (e.g., zero-inflated models). Defaults to `False`.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-        - When `sample=False`: A BI Poisson distribution object (for model building).
-        - When `sample=True`: A JAX array of samples drawn from the Poisson distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.poisson(rate=2.0, sample=True)
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#poisson
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
 
-        #### References:
-        * [Wikipedia: Poisson distribution – PMF](https://en.wikipedia.org/wiki/Poisson_distribution#Probability_mass_function)
-        * Johnson, N. L., Kotz, S., & Kemp, A. W. (1992). *Univariate Discrete Distributions* (2nd ed.). Wiley.
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+          - When `sample=False`: A BI Poisson distribution object (for model building).
+          - When `sample=True`: A JAX array of samples drawn from the Poisson distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.poisson(rate=2.0, sample=True)
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#poisson
+
+          #### References:
+          * [Wikipedia: Poisson distribution – PMF](https://en.wikipedia.org/wiki/Poisson_distribution#Probability_mass_function)
+          * Johnson, N. L., Kotz, S., & Kemp, A. W. (1992). *Univariate Discrete Distributions* (2nd ed.). Wiley.
         """
 
-           
-        d = numpyro.distributions.discrete.Poisson(rate=rate, is_sparse=is_sparse, validate_args=validate_args)
+        d = numpyro.distributions.discrete.Poisson(
+            rate=rate, is_sparse=is_sparse, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5234,69 +6131,81 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def projected_normal(self,concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def projected_normal(
+        self,
+        concentration,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Projected Normal
 
-        r"""### Projected Normal 
-        
-        The projected normal distribution arises by taking a multivariate normal vector $ \mathbf X \sim \mathcal N_n (\mu, \Sigma) $ in $\mathbb R^n$ and projecting it to the unit sphere. This distribution is commonly used in directional statistics (data on circles or spheres) and supports asymmetric and even multimodal behaviours depending on parameters.
+          The projected normal distribution arises by taking a multivariate normal vector $ \mathbf X \sim \mathcal N_n (\mu, \Sigma) $ in $\mathbb R^n$ and projecting it to the unit sphere. This distribution is commonly used in directional statistics (data on circles or spheres) and supports asymmetric and even multimodal behaviours depending on parameters.
 
-        
-        #### Args:
-        - *concentration* (jnp.ndarray): The concentration parameter, representing the direction towards which the samples are concentrated.  Must be a JAX array with at least one dimension.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI ProjectedNormal distribution object (for
-                model building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the
-                ProjectedNormal distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for
-                advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.projected_normal(concentration=jnp.array([1.0, 3.0, 2.0]), sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#projectednormal
+          #### Args:
+          - *concentration* (jnp.ndarray): The concentration parameter, representing the direction towards which the samples are concentrated.  Must be a JAX array with at least one dimension.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI ProjectedNormal distribution object (for
+                  model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the
+                  ProjectedNormal distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for
+                  advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.projected_normal(concentration=jnp.array([1.0, 3.0, 2.0]), sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#projectednormal
 
 
 
         """
 
-           
-        d = numpyro.distributions.directional.ProjectedNormal(concentration=concentration, validate_args=validate_args)
+        d = numpyro.distributions.directional.ProjectedNormal(
+            concentration=concentration, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5309,80 +6218,93 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def relaxed_bernoulli_logits(self,temperature, logits, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def relaxed_bernoulli_logits(
+        self,
+        temperature,
+        logits,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Relaxed Bernoulli Logits
-        
-            The Relaxed Bernoulli (logits) is a **continuous** relaxation of the standard Bernoulli distribution, parameterised by logits (or probabilities) and a **temperature** parameter. Rather than producing strictly 0 or 1, it produces values in the continuous interval (0, 1). As the temperature → 0 the distribution approximates a Bernoulli; as temperature → $\infty$ the distribution approximates a uniform distribution.
 
-            It is used in variational inference and deep-learning contexts to allow gradient-based optimisation through otherwise discrete Bernoulli draws (see the “Concrete” or “Gumbel-Softmax” literature: The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables  and Categorical Reparameterization with Gumbel‑Softmax ). 
+        The Relaxed Bernoulli (logits) is a **continuous** relaxation of the standard Bernoulli distribution, parameterised by logits (or probabilities) and a **temperature** parameter. Rather than producing strictly 0 or 1, it produces values in the continuous interval (0, 1). As the temperature → 0 the distribution approximates a Bernoulli; as temperature → $\infty$ the distribution approximates a uniform distribution.
 
-            Because this is a continuous relaxation, the “density” is defined over the unit interval (0,1) rather than a pmf at {0,1}. Using logistic or Gumbel‐softmax style construction one can express it as:
+        It is used in variational inference and deep-learning contexts to allow gradient-based optimisation through otherwise discrete Bernoulli draws (see the “Concrete” or “Gumbel-Softmax” literature: The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables  and Categorical Reparameterization with Gumbel‑Softmax ).
 
-            If logits = ( \ell ), and temperature = ( \tau > 0 ), then one generates
-            $$
-            u \sim \mathrm{Uniform}(0,1),\quad
-            g = -\log(-\log(u)),\quad
-            x = \sigma\big((\ell + g)/\tau\big)
-            $$
-            where $ \sigma(\cdot) $ is the logistic (sigmoid) function. Then $x \in (0,1)$ has the RelaxedBernoulli distribution. 
+        Because this is a continuous relaxation, the “density” is defined over the unit interval (0,1) rather than a pmf at {0,1}. Using logistic or Gumbel‐softmax style construction one can express it as:
 
-            The exact density formula can be derived via change of variables from logistic/Gumbel, but is somewhat involved (including Jacobian of sigmoid transform). 
-      
+        If logits = ( \ell ), and temperature = ( \tau > 0 ), then one generates
+        $$
+        u \sim \mathrm{Uniform}(0,1),\quad
+        g = -\log(-\log(u)),\quad
+        x = \sigma\big((\ell + g)/\tau\big)
+        $$
+        where $ \sigma(\cdot) $ is the logistic (sigmoid) function. Then $x \in (0,1)$ has the RelaxedBernoulli distribution.
 
-            #### Args:
-            - *temperature* (jnp.ndarray): The temperature parameter, must be positive.
+        The exact density formula can be derived via change of variables from logistic/Gumbel, but is somewhat involved (including Jacobian of sigmoid transform).
 
-            - *logits* (jnp.ndarray): The logits parameter.
-        
-            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-            - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-            - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-            - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-            - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-            - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-            #### Returns:
-                RelaxedBernoulliLogits: A BI RelaxedBernoulliLogits distribution object (for model building).
-                jnp.ndarray: A JAX array of samples drawn from the RelaxedBernoulliLogits distribution (for direct sampling).
-                RelaxedBernoulliLogits: The raw BI distribution object (for advanced use cases).
-        
-            #### Example Usage:
-                from BI import bi
-                m = bi('cpu')
-                m.dist.relaxed_bernoulli_logits(temperature=1.0, logits=0.0, sample=True)
-        
-            #### Wrapper of:
-                https://num.pyro.ai/en/stable/distributions.html#relaxed-bernoulli-logits
-            
-            #### Reference:
-            * https://arxiv.org/pdf/1611.00712
+        #### Args:
+        - *temperature* (jnp.ndarray): The temperature parameter, must be positive.
+
+        - *logits* (jnp.ndarray): The logits parameter.
+
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+        #### Returns:
+            RelaxedBernoulliLogits: A BI RelaxedBernoulliLogits distribution object (for model building).
+            jnp.ndarray: A JAX array of samples drawn from the RelaxedBernoulliLogits distribution (for direct sampling).
+            RelaxedBernoulliLogits: The raw BI distribution object (for advanced use cases).
+
+        #### Example Usage:
+            from BI import bi
+            m = bi('cpu')
+            m.dist.relaxed_bernoulli_logits(temperature=1.0, logits=0.0, sample=True)
+
+        #### Wrapper of:
+            https://num.pyro.ai/en/stable/distributions.html#relaxed-bernoulli-logits
+
+        #### Reference:
+        * https://arxiv.org/pdf/1611.00712
         """
 
-           
-        d = numpyro.distributions.continuous.RelaxedBernoulliLogits(temperature=temperature, logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.continuous.RelaxedBernoulliLogits(
+            temperature=temperature, logits=logits, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5395,12 +6317,24 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def right_truncated_distribution(self,base_dist, high=0.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def right_truncated_distribution(
+        self,
+        base_dist,
+        high=0.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Right Truncated
         
         A right-truncated distribution is a statistical distribution that arises when the possible values  of a random variable are restricted to be below a certain specified value `high`. In essence, the right tail of the original distribution is "cut off" at a particular point, and the remaining probability is redistributed among the allowable values. This type of distribution is common in various fields where there are inherent upper limits or observational constraints.
@@ -5464,17 +6398,18 @@ class UnifiedDist:
         * https://en.wikipedia.org/wiki/Truncated_normal_distribution
         """
 
-           
-        d = numpyro.distributions.truncated.RightTruncatedDistribution(base_dist=base_dist, high=high, validate_args=validate_args)
+        d = numpyro.distributions.truncated.RightTruncatedDistribution(
+            base_dist=base_dist, high=high, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5487,11 +6422,27 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def sine_bivariate_vonmises(self,phi_loc, psi_loc, phi_concentration, psi_concentration, correlation=None, weighted_correlation=None,    validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0, create_obj=False):
-
+    def sine_bivariate_vonmises(
+        self,
+        phi_loc,
+        psi_loc,
+        phi_concentration,
+        psi_concentration,
+        correlation=None,
+        weighted_correlation=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+    ):
         r"""### Sine Bivariate Von Mises
 
         [In probability theory and statistics, the bivariate von Mises distribution is a probability distribution describing values on a torus. It may be thought of as an analogue on the torus of the bivariate normal distribution. The distribution belongs to the field of directional statistics. The general bivariate von Mises distribution was first proposed by Kanti Mardia in 1975. One of its variants is today used in the field of bioinformatics to formulate a probabilistic model of protein structure in atomic detail, such as backbone-dependent rotamer libraries.](https://en.wikipedia.org/wiki/Bivariate_von_Mises_distribution)
@@ -5572,7 +6523,7 @@ class UnifiedDist:
             psi_concentration=psi_concentration,
             correlation=correlation,
             weighted_correlation=weighted_correlation,
-            validate_args=validate_args
+            validate_args=validate_args,
         )
         if sample:
             seed = self.normalize_seed(seed)
@@ -5586,35 +6537,48 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if mask is not None else None
+                infer_dict = {"obs_mask": mask} if mask is not None else None
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def sine_skewed(self,base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def sine_skewed(
+        self,
+        base_dist: numpyro.distributions.distribution.Distribution,
+        skewness,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Sine-skewing
 
         The sine-skewed von Mises distribution is an extension of the symmetric circular (or toroidal) von Mises (or bivariate von Mises) distribution to allow for skewness (asymmetry) via a sine-based skewing function. It is used to model directional data on the circle (or torus) that depart from symmetry.[1](https://arxiv.org/abs/1902.02579)
-        
 
-        
+
+
         **Parameters:**
-        
+
         *   **base\_dist:** Base density on a d-dimensional torus. Supported base distributions include: 1D :class:`~numpyro.distributions.VonMises`, :class:`~numnumpyro.distributions.SineBivariateVonMises`, 1D :class:`~numpyro.distributions.ProjectedNormal`, and :class:`~numpyro.distributions.Uniform` (-pi, pi).
         *   **skewness:** Skewness of the distribution.
-                
+
         *   **sample (bool, optional):** A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         *   **seed (int, optional):** An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         *   **obs (jnp.ndarray, optional):** The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         *   **name (str, optional):** The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         **PDF:**
-        
+
         The probability density function (PDF) of the Sine Skewed X distribution is not explicitly defined here, but it is derived from the base distribution and the skewness parameter.
-        
-        #### Example Usage:        
+
+        #### Example Usage:
             from num.pyro import distributions as dist
             import num.pyro as pyro
             import num.numpy as np
@@ -5624,17 +6588,19 @@ class UnifiedDist:
             sine_skewed = dist.SineSkewed(base_dist=m, skewness=skewness)
             samples = sine_skewed.sample((1000,))
         """
-           
-        d = numpyro.distributions.directional.SineSkewed(base_dist=base_dist, skewness=skewness, validate_args=validate_args)
+
+        d = numpyro.distributions.directional.SineSkewed(
+            base_dist=base_dist, skewness=skewness, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5647,76 +6613,89 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def soft_laplace(self,loc, scale, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def soft_laplace(
+        self,
+        loc,
+        scale,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### SoftLaplace
-        
-        Smooth distribution with Laplace-like tail behavior.
 
-        This distribution corresponds to the log-convex density:
+          Smooth distribution with Laplace-like tail behavior.
 
-        $$
-        z = (value - loc) / scale
-        log_prob = log(2 / pi) - log(scale) - logaddexp(z, -z)
-        $$
+          This distribution corresponds to the log-convex density:
 
-        Like the Laplace density, this density has the heaviest possible tails (asymptotically) while still being log-convex. Unlike the Laplace distribution, this distribution is infinitely differentiable everywhere,
-        and is thus suitable for HMC and Laplace approximation.
+          $$
+          z = (value - loc) / scale
+          log_prob = log(2 / pi) - log(scale) - logaddexp(z, -z)
+          $$
 
-        
-        #### Args:
-        - *loc*: Location parameter.
+          Like the Laplace density, this density has the heaviest possible tails (asymptotically) while still being log-convex. Unlike the Laplace distribution, this distribution is infinitely differentiable everywhere,
+          and is thus suitable for HMC and Laplace approximation.
 
-        - *scale*: Scale parameter.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event
-                dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution
-                object instead of creating a sample site. This is essential for
-                building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          #### Args:
+          - *loc*: Location parameter.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI SoftLaplace distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the SoftLaplace distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.soft_laplace(loc=0.0, scale=1.0, sample=True)
-        
-        #### Wrapper of:
-        https://num.pyro.ai/en/stable/distributions.html#softlaplace
+          - *scale*: Scale parameter.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event
+                  dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution
+                  object instead of creating a sample site. This is essential for
+                  building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI SoftLaplace distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the SoftLaplace distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.soft_laplace(loc=0.0, scale=1.0, sample=True)
+
+          #### Wrapper of:
+          https://num.pyro.ai/en/stable/distributions.html#softlaplace
         """
 
-           
-        d = numpyro.distributions.continuous.SoftLaplace(loc=loc, scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.SoftLaplace(
+            loc=loc, scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5729,88 +6708,102 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def student_t(self,df, loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def student_t(
+        self,
+        df,
+        loc=0.0,
+        scale=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Student's t
-        
-        The Student's t-distribution is a probability distribution that arises in hypothesis testing involving the mean of a normally distributed population when the population standard deviation is unknown. It is similar to the normal distribution, but has heavier tails, making it more robust to outliers. For large $ \nu $, it converges to the Normal distribution.
-        $$
-        X \sim t_\nu(\mu, \sigma)
-        $$
-        where:
 
-        * $ \mu $ is the **location (mean)** parameter
-        * $ \sigma > 0 $ is the **scale** parameter
-        * $ \nu > 0 $ is the **degrees of freedom** controlling the tail heaviness
-        
-        The probability density function (pdf) of the Student's t distribution is:
-        $$
-        f(x \mid \nu, \mu, \sigma) = \frac{\Gamma!\left(\frac{\nu+1}{2}\right)}
-        {\Gamma!\left(\frac{\nu}{2}\right)\sqrt{\pi\nu}\sigma}
-        \left[1 + \frac{1}{\nu}
-        \left(\frac{x - \mu}{\sigma}\right)^2
-        \right]^{-\frac{\nu+1}{2}}
-        $$
+          The Student's t-distribution is a probability distribution that arises in hypothesis testing involving the mean of a normally distributed population when the population standard deviation is unknown. It is similar to the normal distribution, but has heavier tails, making it more robust to outliers. For large $ \nu $, it converges to the Normal distribution.
+          $$
+          X \sim t_\nu(\mu, \sigma)
+          $$
+          where:
 
-        * The heavier tails (for small $ν$) allow for larger outliers.
-        * For $ \nu \to \infty $, this approaches $ \mathcal{N}(\mu, \sigma^2) $.
-        
-        #### Args:
-        - *df* (jnp.ndarray): Degrees of freedom, must be positive.
+          * $ \mu $ is the **location (mean)** parameter
+          * $ \sigma > 0 $ is the **scale** parameter
+          * $ \nu > 0 $ is the **degrees of freedom** controlling the tail heaviness
 
-        - *loc* (jnp.ndarray): Location parameter, defaults to 0.0.
+          The probability density function (pdf) of the Student's t distribution is:
+          $$
+          f(x \mid \nu, \mu, \sigma) = \frac{\Gamma!\left(\frac{\nu+1}{2}\right)}
+          {\Gamma!\left(\frac{\nu}{2}\right)\sqrt{\pi\nu}\sigma}
+          \left[1 + \frac{1}{\nu}
+          \left(\frac{x - \mu}{\sigma}\right)^2
+          \right]^{-\frac{\nu+1}{2}}
+          $$
 
-        - *scale* (jnp.ndarray): Scale parameter, defaults to 1.0.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          * The heavier tails (for small $ν$) allow for larger outliers.
+          * For $ \nu \to \infty $, this approaches $ \mathcal{N}(\mu, \sigma^2) $.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI StudentT distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the StudentT distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.student_t(df = 2, loc=0.0, scale=1.0, sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#studentt
+          #### Args:
+          - *df* (jnp.ndarray): Degrees of freedom, must be positive.
 
-        #### References:
-        * [Wikipedia – Student’s t distribution: PDF](https://en.wikipedia.org/wiki/Student%27s_t-distribution#Probability_density_function)
+          - *loc* (jnp.ndarray): Location parameter, defaults to 0.0.
+
+          - *scale* (jnp.ndarray): Scale parameter, defaults to 1.0.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`  (model building), this is used with `.expand(shape)` to set the distribution's     batch shape. When `sample=True` (direct sampling), this is    used as `sample_shape`    to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI StudentT distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the StudentT distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.student_t(df = 2, loc=0.0, scale=1.0, sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#studentt
+
+          #### References:
+          * [Wikipedia – Student’s t distribution: PDF](https://en.wikipedia.org/wiki/Student%27s_t-distribution#Probability_density_function)
 
         """
 
-           
-        d = numpyro.distributions.continuous.StudentT(df=df, loc=loc, scale=scale, validate_args=validate_args)
+        d = numpyro.distributions.continuous.StudentT(
+            df=df, loc=loc, scale=scale, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5823,62 +6816,74 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def truncated_polya_gamma(self,batch_shape=(), validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def truncated_polya_gamma(
+        self,
+        batch_shape=(),
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Truncated PolyaGamma
+          Samples from a Truncated PolyaGamma distribution.
 
-        r"""### Truncated PolyaGamma 
-        Samples from a Truncated PolyaGamma distribution.
-        
-        This distribution is a truncated version of the PolyaGamma distribution,
-        defined over the interval [0, truncation_point]. It is often used in
-        Bayesian non-parametric models.
-        
-        
-        #### Args:
-        - *batch_shape* (tuple): The shape of the batch dimension.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions.
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          This distribution is a truncated version of the PolyaGamma distribution,
+          defined over the interval [0, truncation_point]. It is often used in
+          Bayesian non-parametric models.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI Truncated PolyaGamma distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the Truncated PolyaGamma distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.truncated_polya_gamma(batch_shape=(), sample=True)
-        
-        #### Wrapper of:
-        https://num.pyro.ai/en/stable/distributions.html#truncatedpolygammadistribution
+
+          #### Args:
+          - *batch_shape* (tuple): The shape of the batch dimension.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions.
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI Truncated PolyaGamma distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the Truncated PolyaGamma distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.truncated_polya_gamma(batch_shape=(), sample=True)
+
+          #### Wrapper of:
+          https://num.pyro.ai/en/stable/distributions.html#truncatedpolygammadistribution
         """
 
-           
-        d = numpyro.distributions.truncated.TruncatedPolyaGamma(batch_shape=batch_shape, validate_args=validate_args)
+        d = numpyro.distributions.truncated.TruncatedPolyaGamma(
+            batch_shape=batch_shape, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5891,58 +6896,73 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def two_sided_truncated_distribution(self,base_dist, low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def two_sided_truncated_distribution(
+        self,
+        base_dist,
+        low=0.0,
+        high=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Two Sided Truncated
+          A “two-sided truncated distribution” is a general concept: you take a base continuous distribution and **restrict it** to an interval ([`low`, `high`]), discarding all mass outside, then **renormalize** so the inner portion integrates to 1. I’ll spell out the general formulas, caveats, sampling strategies, and special cases (e.g. truncated normal) to illustrate.
 
-        r"""### Two Sided Truncated 
-        A “two-sided truncated distribution” is a general concept: you take a base continuous distribution and **restrict it** to an interval ([`low`, `high`]), discarding all mass outside, then **renormalize** so the inner portion integrates to 1. I’ll spell out the general formulas, caveats, sampling strategies, and special cases (e.g. truncated normal) to illustrate.
-        
-        $$
-        f(x) =
-        \begin{cases}
-        \dfrac{p(x)}{P(\text{low} \le X \le \text{high})}, & \text{if } \text{low} \le x \le \text{high}, \\[6pt]
-        0, & \text{otherwise}.
-        \end{cases}
-        $$
+          $$
+          f(x) =
+          \begin{cases}
+          \dfrac{p(x)}{P(\text{low} \le X \le \text{high})}, & \text{if } \text{low} \le x \le \text{high}, \\[6pt]
+          0, & \text{otherwise}.
+          \end{cases}
+          $$
 
-        where $p(x)$ is the probability density function of the base distribution.
-        
-        #### Args:
-        - *base_dist*: The base distribution to truncate.
+          where $p(x)$ is the probability density function of the base distribution.
 
-        - *low*: The lower bound for truncation.
+          #### Args:
+          - *base_dist*: The base distribution to truncate.
 
-        - *high*: The upper bound for truncation.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          - *low*: The lower bound for truncation.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI TwoSidedTruncatedDistribution distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the TwoSidedTruncatedDistribution distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#twosidedtruncateddistribution
+          - *high*: The upper bound for truncation.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI TwoSidedTruncatedDistribution distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the TwoSidedTruncatedDistribution distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#twosidedtruncateddistribution
         """
-           
-        d = numpyro.distributions.truncated.TwoSidedTruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args)
+
+        d = numpyro.distributions.truncated.TwoSidedTruncatedDistribution(
+            base_dist=base_dist, low=low, high=high, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -5955,58 +6975,70 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def uniform(self,low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Uniform 
+    def uniform(
+        self,
+        low=0.0,
+        high=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Uniform
         The Uniform distribution is the simplest continuous distribution: every value in the interval ([a, b]) is **equally likely**. It is widely used for modeling complete randomness within a fixed range, random sampling, and as a building block for other distributions.
-        
-        $$   
+
+        $$
         f(x) =
         \begin{cases}
         \dfrac{1}{b - a}, & a \le x \le b, [2mm]
         0, & \text{otherwise}.
         \end{cases}
         $$
-        
+
         #### Args:
         - *low* (jnp.ndarray): The lower bound of the uniform interval.
-        
+
         - *high* (jnp.ndarray): The upper bound of the uniform interval.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to False.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI Uniform distribution object (for model building) when `sample=False`.
-        
+
             JAX array of samples drawn from the Uniform distribution (for direct
             sampling) when `sample=True`.
-        
+
             The raw BI distribution object (for advanced use cases) when
             `create_obj=True`.
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.uniform(low=0.0, high=1.0, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#uniform
 
@@ -6014,17 +7046,18 @@ class UnifiedDist:
         * [Wikipedia – Uniform distribution (continuous)](https://en.wikipedia.org/wiki/Uniform_distribution_%28continuous%29)
         """
 
-           
-        d = numpyro.distributions.continuous.Uniform(low=low, high=high, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Uniform(
+            low=low, high=high, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6037,68 +7070,80 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def unit(self,log_factor, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def unit(
+        self,
+        log_factor,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Unit
+        * The Unit distribution is the simplest continuous probability distribution.
+        * Every number in ([0,1]) is equally likely.
+        * Often used in simulation, Monte Carlo methods, and as a building block for generating other distributions via the inverse-CDF method.
+        $$
+        f(x) =
+        \begin{cases}
+        1, & 0 \le x \le 1, [1mm]
+        0, & \text{otherwise}.
+        \end{cases}
+        $$
 
-        r"""### Unit 
-            * The Unit distribution is the simplest continuous probability distribution.
-            * Every number in ([0,1]) is equally likely.
-            * Often used in simulation, Monte Carlo methods, and as a building block for generating other distributions via the inverse-CDF method.
-            $$
-            f(x) =
-            \begin{cases}
-            1, & 0 \le x \le 1, [1mm]
-            0, & \text{otherwise}.
-            \end{cases}
-            $$
-        
-            #### Args:
-            - *log_factor* (jnp.ndarray): Log factor for the unit distribution. This parameter determines the *shape* and batch size of the distribution.
-        
-            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-            - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-            - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-            - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-            - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+        #### Args:
+        - *log_factor* (jnp.ndarray): Log factor for the unit distribution. This parameter determines the *shape* and batch size of the distribution.
 
-            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-            - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-            #### Returns:
-                BI Unit distribution object: When `sample=False` (for model building).
-                jnp.ndarray: A JAX array of samples drawn from the Unit distribution (for direct sampling).
-                BI Unit distribution object: When `create_obj=True` (for advanced use cases).
-        
-            #### Example Usage:
-                from BI import bi
-                m = bi('cpu')
-                m.dist.unit(log_factor=jnp.ones(5), sample=True)
-        
-            #### Wrapper of:
-                https://num.pyro.ai/en/stable/distributions.html#unit
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+        #### Returns:
+            BI Unit distribution object: When `sample=False` (for model building).
+            jnp.ndarray: A JAX array of samples drawn from the Unit distribution (for direct sampling).
+            BI Unit distribution object: When `create_obj=True` (for advanced use cases).
+
+        #### Example Usage:
+            from BI import bi
+            m = bi('cpu')
+            m.dist.unit(log_factor=jnp.ones(5), sample=True)
+
+        #### Wrapper of:
+            https://num.pyro.ai/en/stable/distributions.html#unit
         """
 
-           
-        d = numpyro.distributions.distribution.Unit(log_factor=log_factor, validate_args=validate_args)
+        d = numpyro.distributions.distribution.Unit(
+            log_factor=log_factor, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6111,21 +7156,33 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def weibull(self,scale, concentration, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
-        r"""### Weibull 
+    def weibull(
+        self,
+        scale,
+        concentration,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Weibull
         Samples from a Weibull distribution.
-        
+
         The Weibull distribution is widely used for modeling **lifetime or reliability data**. Its shape parameter (k) controls the hazard function:
 
         * (k < 1): decreasing hazard (infant mortality)
         * (k = 1): constant hazard → reduces to **Exponential distribution**
         * (k > 1): increasing hazard (aging/failure over time)
-        
+
         $$
         f(x \mid \lambda, k) =
         \begin{cases}
@@ -6133,40 +7190,40 @@ class UnifiedDist:
         0, & x < 0
         \end{cases}
         $$
-        
 
-        
+
+
         #### Args:
         - *scale* (jnp.ndarray): The scale parameter of the Weibull distribution. Must be positive.
 
         - *concentration* (jnp.ndarray): The concentration parameter of the Weibull distribution. Must be positive.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI Weibull distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Weibull distribution (for direct sampling) when `sample=True`.
             The raw BI distribution object (for advanced use cases) when `create_obj=True`.
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.weibull(scale=1.0, concentration=2.0, sample=True)
-        
+
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#weibull
 
@@ -6177,17 +7234,18 @@ class UnifiedDist:
 
         """
 
-           
-        d = numpyro.distributions.continuous.Weibull(scale=scale, concentration=concentration, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Weibull(
+            scale=scale, concentration=concentration, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6200,94 +7258,113 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def wishart(self,concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def wishart(
+        self,
+        concentration,
+        scale_matrix=None,
+        rate_matrix=None,
+        scale_tril=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Wishart
+          The Wishart distribution is a multivariate distribution used to model positive definite matrices,
+          often representing covariance matrices. It's commonly used in Bayesian statistics and machine learning,
+          particularly in models involving covariance estimation.
 
-        r"""### Wishart 
-        The Wishart distribution is a multivariate distribution used to model positive definite matrices,
-        often representing covariance matrices. It's commonly used in Bayesian statistics and machine learning,
-        particularly in models involving covariance estimation.
+          $$
+          \mathbf{X} \sim \text{Wishart}(\text{scale_matrix}=\mathbf{V}, \text{concentration}=n)
+          $$
 
-        $$
-        \mathbf{X} \sim \text{Wishart}(\text{scale_matrix}=\mathbf{V}, \text{concentration}=n)
-        $$
+          where:
 
-        where:
+          * (p) = dimension of the square matrices
+          * (\mathbf{V} \in \mathbb{R}^{p \times p}) = positive definite **scale matrix** (`scale_matrix`)
+          * (n \ge p) = **degrees of freedom** (`concentration`)
 
-        * (p) = dimension of the square matrices
-        * (\mathbf{V} \in \mathbb{R}^{p \times p}) = positive definite **scale matrix** (`scale_matrix`)
-        * (n \ge p) = **degrees of freedom** (`concentration`)
+          The Wishart distribution is the **multivariate generalization of the chi-squared distribution**. It is commonly used as the distribution of the **sample covariance matrix** for multivariate normal samples.
 
-        The Wishart distribution is the **multivariate generalization of the chi-squared distribution**. It is commonly used as the distribution of the **sample covariance matrix** for multivariate normal samples.
-        
-        $$
-        f(\mathbf{X} \mid \mathbf{V}, n) =
-        \frac{ |\mathbf{X}|^{(n-p-1)/2} \exp\big(-\frac{1}{2} \mathrm{tr}(\mathbf{V}^{-1} \mathbf{X}) \big) }
-        { 2^{np/2} |\mathbf{V}|^{n/2} \Gamma_p(n/2) }, \quad \mathbf{X} \succ 0
-        $$
-        where:
+          $$
+          f(\mathbf{X} \mid \mathbf{V}, n) =
+          \frac{ |\mathbf{X}|^{(n-p-1)/2} \exp\big(-\frac{1}{2} \mathrm{tr}(\mathbf{V}^{-1} \mathbf{X}) \big) }
+          { 2^{np/2} |\mathbf{V}|^{n/2} \Gamma_p(n/2) }, \quad \mathbf{X} \succ 0
+          $$
+          where:
 
-        * $|\mathbf{X}|$ = determinant of $\mathbf{X}$
-        * $\mathrm{tr}(\cdot)$ = trace
-        * $\Gamma_p(\cdot)$ = multivariate Gamma function:
-        
-        #### Args:
-        - *concentration* (jnp.ndarray): Positive concentration parameter analogous to the concentration of a Gamma distribution. The concentration must be larger than the dimensionality of the scale matrix.
-        
-        - *scale_matrix* (jnp.ndarray, optional): Scale matrix analogous to the inverse rate of a Gamma distribution.
-        
-        - *rate_matrix* (jnp.ndarray, optional): Rate matrix anaologous to the rate of a Gamma distribution.
-        
-        - *scale_tril* (jnp.ndarray, optional): Cholesky decomposition of the :code:`scale_matrix`.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
-        
-        - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample
-                site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          * $|\mathbf{X}|$ = determinant of $\mathbf{X}$
+          * $\mathrm{tr}(\cdot)$ = trace
+          * $\Gamma_p(\cdot)$ = multivariate Gamma function:
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI Wishart distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the Wishart distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.wishart(concentration=5.0, scale_matrix=jnp.eye(2), sample=True)
-        
-        #### Wrapper of:
-            https://num.pyro.ai/en/stable/distributions.html#wishart
+          #### Args:
+          - *concentration* (jnp.ndarray): Positive concentration parameter analogous to the concentration of a Gamma distribution. The concentration must be larger than the dimensionality of the scale matrix.
 
-        #### References:
-        * [Wikipedia – Wishart distribution](https://en.wikipedia.org/wiki/Wishart_distribution)
+          - *scale_matrix* (jnp.ndarray, optional): Scale matrix analogous to the inverse rate of a Gamma distribution.
+
+          - *rate_matrix* (jnp.ndarray, optional): Rate matrix anaologous to the rate of a Gamma distribution.
+
+          - *scale_tril* (jnp.ndarray, optional): Cholesky decomposition of the :code:`scale_matrix`.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions    (used in model building).
+
+          - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
+
+          - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample
+                  site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI Wishart distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the Wishart distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.wishart(concentration=5.0, scale_matrix=jnp.eye(2), sample=True)
+
+          #### Wrapper of:
+              https://num.pyro.ai/en/stable/distributions.html#wishart
+
+          #### References:
+          * [Wikipedia – Wishart distribution](https://en.wikipedia.org/wiki/Wishart_distribution)
         """
 
-           
-        d = numpyro.distributions.continuous.Wishart(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args)
+        d = numpyro.distributions.continuous.Wishart(
+            concentration=concentration,
+            scale_matrix=scale_matrix,
+            rate_matrix=rate_matrix,
+            scale_tril=scale_tril,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6300,23 +7377,37 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def wishart_cholesky(self,concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def wishart_cholesky(
+        self,
+        concentration,
+        scale_matrix=None,
+        rate_matrix=None,
+        scale_tril=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Wishart Cholesky
 
-        r"""### Wishart Cholesky 
-
-        * The **Wishart** distribution is a distribution over positive definite matrices, often used as a prior for covariance or precision matrices in multivariate normal models. 
-        * The **Cholesky parameterization** of the Wishart (called “wishart_cholesky” in Stan, for example) reparameterizes the Wishart over its **lower (or upper) triangular Cholesky factor**. This is useful for numerical stability and unconstrained parameterization in Bayesian sampling frameworks. 
+        * The **Wishart** distribution is a distribution over positive definite matrices, often used as a prior for covariance or precision matrices in multivariate normal models.
+        * The **Cholesky parameterization** of the Wishart (called “wishart_cholesky” in Stan, for example) reparameterizes the Wishart over its **lower (or upper) triangular Cholesky factor**. This is useful for numerical stability and unconstrained parameterization in Bayesian sampling frameworks.
         * In this parameterization, one works with a lower‐triangular matrix $L_W$ such that
         $$
         \Sigma = L_W L_W^\top
         $$
         and imposes a density over $L_W$ corresponding to the induced Wishart density on (\Sigma).
 
-        
+
         The probability density function (PDF) is given by:
 
         If the dimension is $K$, degrees of freedom $\nu > K - 1$, and $L_S$ is the lower‐triangular Cholesky factor of the scale matrix $S$, then the log density for $L_W$ under the **wishart_cholesky** distribution is:
@@ -6336,9 +7427,9 @@ class UnifiedDist:
 
         Thus the density includes both the usual Wishart density on $\Sigma$ plus this extra Jacobian (which penalizes or weights the diagonal entries of $L_W$).
 
-        
+
         #### Parameters
-        
+
         - concentration: (Tensor) Positive concentration parameter analogous to the
             concentration of a :class:`Gamma` distribution. The concentration must be larger
             than the dimensionality of the scale matrix.
@@ -6351,31 +7442,37 @@ class UnifiedDist:
 
         - scale_tril: (Tensor, optional) Cholesky decomposition of the :code:`scale_matrix`.
             If not provided, `scale_matrix` or `rate_matrix` must be.
-                
+
         - sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - name (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
 
         #### References:
         [1]: https://en.wikipedia.org/wiki/Wishart_distribution "Wishart distribution"
         [2]: https://mc-stan.org/docs/2_32/functions-reference/wishart-cholesky-distribution.html"28.2 Wishart distribution, Cholesky Parameterization - Stan"
-            
+
         """
-        
-        d = numpyro.distributions.continuous.WishartCholesky(concentration=concentration, scale_matrix=scale_matrix, rate_matrix=rate_matrix, scale_tril=scale_tril, validate_args=validate_args)
+
+        d = numpyro.distributions.continuous.WishartCholesky(
+            concentration=concentration,
+            scale_matrix=scale_matrix,
+            rate_matrix=rate_matrix,
+            scale_tril=scale_tril,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6388,89 +7485,102 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def zero_inflated_poisson(self,gate, rate=1.0, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def zero_inflated_poisson(
+        self,
+        gate,
+        rate=1.0,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### A Zero Inflated Poisson
 
-        r"""### A Zero Inflated Poisson 
-        
-            The Zero-Inflated Poisson distribution is a discrete count‐distribution designed for data with *more zeros* than would be expected under a standard Poisson. Essentially, it assumes two underlying processes:
+        The Zero-Inflated Poisson distribution is a discrete count‐distribution designed for data with *more zeros* than would be expected under a standard Poisson. Essentially, it assumes two underlying processes:
 
-            * With probability $\pi$ you are in a “structural zero” state (i.e., you automatically get a zero count).
-            * With probability $1 - \pi$ you draw from a standard Poisson distribution with parameter $\lambda$.
+        * With probability $\pi$ you are in a “structural zero” state (i.e., you automatically get a zero count).
+        * With probability $1 - \pi$ you draw from a standard Poisson distribution with parameter $\lambda$.
 
-            This results in a mixture distribution that places more mass at zero than a Poisson alone would.
-            It’s widely used in, for instance, ecology (species counts with many zeros), insurance/claims problems, and any count‐data setting with excess zeros.
-        
-            The probability density function (PDF) is given by:
+        This results in a mixture distribution that places more mass at zero than a Poisson alone would.
+        It’s widely used in, for instance, ecology (species counts with many zeros), insurance/claims problems, and any count‐data setting with excess zeros.
 
-            Let $X$ be a random variable following a Zero-Inflated Poisson with parameters
+        The probability density function (PDF) is given by:
 
-            * $\pi\in[0,1]$: zero-inflation probability (chance of being structural zero)
-            * $\lambda>0$: mean of the Poisson component
+        Let $X$ be a random variable following a Zero-Inflated Poisson with parameters
 
-            Then:
-            $$
-            P(X = k) =
-            \begin{cases}
-            \pi ;+; (1 - \pi),e^{-\lambda}, & \text{if } k = 0, [6pt]
-            (1 - \pi),\dfrac{\lambda^k e^{-\lambda}}{k!}, & \text{if } k = 1,2,3,\dots
-            \end{cases}
-            $$  
-            (Here the Poisson component contributes also a mass at zero of $(1 - \pi)e^{-\lambda}$, plus the extra $\pi$ mass.) 
+        * $\pi\in[0,1]$: zero-inflation probability (chance of being structural zero)
+        * $\lambda>0$: mean of the Poisson component
 
-        
-            #### Args:
-            - *gate* (jnp.ndarray): The probability of observing a zero.
+        Then:
+        $$
+        P(X = k) =
+        \begin{cases}
+        \pi ;+; (1 - \pi),e^{-\lambda}, & \text{if } k = 0, [6pt]
+        (1 - \pi),\dfrac{\lambda^k e^{-\lambda}}{k!}, & \text{if } k = 1,2,3,\dots
+        \end{cases}
+        $$
+        (Here the Poisson component contributes also a mass at zero of $(1 - \pi)e^{-\lambda}$, plus the extra $\pi$ mass.)
 
-            - *rate* (jnp.ndarray): The rate parameter of the underlying Poisson distribution.
-        
-            - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-            - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-            - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-            - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-            - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
-            - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-            - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-            #### Returns:
-                BI ZeroInflatedPoisson distribution object (when `sample=False`).
-                JAX array of samples drawn from the ZeroInflatedPoisson distribution (when `sample=True`).
-                The raw BI distribution object (when `create_obj=True`).
-        
-            #### Example Usage:
-                from BI import bi
-                m = bi('cpu')
-                m.dist.zero_inflated_poisson(gate = 0.3, rate=2.0, sample=True)
-        
-            #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatedpoisson
+        #### Args:
+        - *gate* (jnp.ndarray): The probability of observing a zero.
 
-            #### References:
-            * https://en.wikipedia.org/wiki/Zero-inflated_model "Zero-inflated model"
-            * https://www.statisticshowto.com/zero-inflated-poisson-distribution "Zero-Inflated Poisson distribution - Statistics How To"
+        - *rate* (jnp.ndarray): The rate parameter of the underlying Poisson distribution.
+
+        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+        #### Returns:
+            BI ZeroInflatedPoisson distribution object (when `sample=False`).
+            JAX array of samples drawn from the ZeroInflatedPoisson distribution (when `sample=True`).
+            The raw BI distribution object (when `create_obj=True`).
+
+        #### Example Usage:
+            from BI import bi
+            m = bi('cpu')
+            m.dist.zero_inflated_poisson(gate = 0.3, rate=2.0, sample=True)
+
+        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatedpoisson
+
+        #### References:
+        * https://en.wikipedia.org/wiki/Zero-inflated_model "Zero-inflated model"
+        * https://www.statisticshowto.com/zero-inflated-poisson-distribution "Zero-Inflated Poisson distribution - Statistics How To"
         """
 
-           
-        d = numpyro.distributions.discrete.ZeroInflatedPoisson(gate=gate, rate=rate, validate_args=validate_args)
+        d = numpyro.distributions.discrete.ZeroInflatedPoisson(
+            gate=gate, rate=rate, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6483,12 +7593,24 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def zero_sum_normal(self,scale, event_shape, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def zero_sum_normal(
+        self,
+        scale,
+        event_shape,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Zero Sum Normal 
         A **zero-sum normal**  is a variant of a multivariate normal in which one (or more) linear constraint(s) force certain components to **sum to zero**. In practice, it’s used to model vectors of random effects (e.g. in hierarchical models) where the effects are constrained to sum to zero (to avoid overparameterization or enforce identifiability).
         
@@ -6540,17 +7662,18 @@ class UnifiedDist:
         https://www.pymc.io/projects/docs/en/latest/api/distributions/generated/pymc.ZeroSumNormal.html
         """
 
-           
-        d = numpyro.distributions.continuous.ZeroSumNormal(scale=scale, event_shape=event_shape, validate_args=validate_args)
+        d = numpyro.distributions.continuous.ZeroSumNormal(
+            scale=scale, event_shape=event_shape, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6563,12 +7686,24 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def bernoulli(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def bernoulli(
+        self,
+        probs=None,
+        logits=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Bernoulli
         
         The Bernoulli distribution models a single trial with two possible outcomes: success or failureIt models a single trial with exactly two possible outcomes:
@@ -6641,17 +7776,18 @@ class UnifiedDist:
         [2]: https://stats.libretexts.org/Courses/Saint_Mary%27s_College_Notre_Dame/MATH_345__-_Probability_%28Kuter%29/3%3A_Discrete_Random_Variables/3.3%3A_Bernoulli_and_Binomial_Distributions "3.3: Bernoulli and Binomial Distributions - Statistics LibreTexts"
         """
 
-           
-        d = numpyro.distributions.discrete.Bernoulli(probs=probs, logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.discrete.Bernoulli(
+            probs=probs, logits=logits, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6664,25 +7800,38 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def binomial(self,total_count=1, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def binomial(
+        self,
+        total_count=1,
+        probs=None,
+        logits=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Binomial
-        
+
         The Binomial distribution models the number of successes in a sequence of independent Bernoulli trials. It represents the probability of obtaining exactly *k* successes in *n* trials, where each trial has a probability *p* of success. It assumes:
 
-            1. Each trial has exactly two possible outcomes (success or failure). 
+            1. Each trial has exactly two possible outcomes (success or failure).
             2. The probability of success $p is constant across trials.
             3. Trials are independent.
-        
+
         We denote:
         $$
         X \sim \mathrm{Binomial}(n, p).
         $$
-        
+
 
         ## Probability Mass Function (PMF)
 
@@ -6692,44 +7841,44 @@ class UnifiedDist:
         \Pr(X = k) = \binom{n}{k} ; p^k ; (1 - p)^{,n - k},
         $$
 
-        where $\binom{n}{k} = \frac{n!}{k!(n-k)!}$. 
+        where $\binom{n}{k} = \frac{n!}{k!(n-k)!}$.
 
-        This formula counts the number of ways to choose which $k$ out of $n$ trials are the successes (the binomial coefficient) and then multiplies by the probability of each such configuration $p^k (1-p)^{n-k}$. 
+        This formula counts the number of ways to choose which $k$ out of $n$ trials are the successes (the binomial coefficient) and then multiplies by the probability of each such configuration $p^k (1-p)^{n-k}$.
 
 
         #### Args:
         - *total_count* (int): The number of trials *n*.
-        
+
         - *probs* (jnp.ndarray, optional): The probability of success *p* for each trial. Must be between 0 and 1.
-            
+
         - *logits* (jnp.ndarray, optional): The log-odds of success for each trial.  `probs = jax.nn.sigmoid(logits)`.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             Binomial distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Binomial distribution (for direct sampling) when `sample=True`.
             The raw BI distribution object (for advanced use cases) when `create_obj=True`.
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.binomial(total_count=10, probs=0.5, sample=True)
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#binomial
 
         #### References:
@@ -6737,17 +7886,21 @@ class UnifiedDist:
         [2]: https://www.itl.nist.gov/div898/handbook/eda/section3/eda366i.htm "1.3.6.6.18. Binomial Distribution - Information Technology Laboratory"
         """
 
-           
-        d = numpyro.distributions.discrete.Binomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.discrete.Binomial(
+            total_count=total_count,
+            probs=probs,
+            logits=logits,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6760,91 +7913,104 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def categorical(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def categorical(
+        self,
+        probs=None,
+        logits=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Categorical distribution.
-        
-        The Categorical distribution, also known as the multinomial distribution,
-        describes the probability of $K$ different outcomes with probabilities ${p_1, p_2, \dots, p_K}$.There’s no inherent ordering required among the categories.
 
-            - The probabilities satisfy (p_i \ge 0) for all (i) and $ \sum_{i=1}^K p_i = 1$ . 
-            - It’s essentially the distribution of a single draw from a discrete set of categories. 
-            - It generalises the Bernoulli distribution (which is the special case $K=2$).
+          The Categorical distribution, also known as the multinomial distribution,
+          describes the probability of $K$ different outcomes with probabilities ${p_1, p_2, \dots, p_K}$.There’s no inherent ordering required among the categories.
 
-        It is commonly used to model discrete choices or classifications.
-        
-        If $X$ is a categorical random variable taking values in ${1, 2, \dots, K}$ with probabilities $p_1, \dots, p_K$, then:
+              - The probabilities satisfy (p_i \ge 0) for all (i) and $ \sum_{i=1}^K p_i = 1$ .
+              - It’s essentially the distribution of a single draw from a discrete set of categories.
+              - It generalises the Bernoulli distribution (which is the special case $K=2$).
 
-        $$
-        \Pr(X = i) = p_i, \quad i = 1,\dots, K.
-        $$
+          It is commonly used to model discrete choices or classifications.
 
-        where $p_k$ is the probability of outcome $k$, and the sum is over all possible outcomes.
-        
-        #### Args:
-        - *probs* (jnp.ndarray): A 1D array of probabilities for each category. Must sum to 1.
+          If $X$ is a categorical random variable taking values in ${1, 2, \dots, K}$ with probabilities $p_1, \dots, p_K$, then:
 
-        -  *logits* (jnp.ndarray): A 1D array of unnormalized log probabilities for each category.
+          $$
+          \Pr(X = i) = p_i, \quad i = 1,\dots, K.
+          $$
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
-                    (model building), this is used with `.expand(shape)` to set the
-                    distribution's batch shape. When `sample=True` (direct sampling),
-                    this is used as `sample_shape` to draw a raw JAX array of the
-                    given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event
-                    dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution
-                    object instead of creating a sample site. This is essential for
-                    building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          where $p_k$ is the probability of outcome $k$, and the sum is over all possible outcomes.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
+          #### Args:
+          - *probs* (jnp.ndarray): A 1D array of probabilities for each category. Must sum to 1.
 
-      - When `sample=False`: A BI Categorical distribution object (for model building).
+          -  *logits* (jnp.ndarray): A 1D array of unnormalized log probabilities for each category.
 
-      - When `sample=True`: A JAX array of samples drawn from the Categorical distribution (for direct sampling).
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False`
+                      (model building), this is used with `.expand(shape)` to set the
+                      distribution's batch shape. When `sample=True` (direct sampling),
+                      this is used as `sample_shape` to draw a raw JAX array of the
+                      given shape.
 
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.categorical(probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#categorical
+          - *event* (int): The number of batch dimensions to reinterpret as event
+                      dimensions (used in model building).
 
-        #### References:
-        * https://en.wikipedia.org/wiki/Categorical_distribution"Categorical distribution"
-        * https://distribution-explorer.github.io/discrete/categorical.html"Categorical distribution — Probability Distribution Explorer documentation"
-        * https://static.hlt.bme.hu/semantics/external/pages/n-gram/en.wikipedia.org/wiki/Categorical_distribution.html"Categorical distribution - Wikipedia"
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution
+                      object instead of creating a sample site. This is essential for
+                      building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+
+        - When `sample=False`: A BI Categorical distribution object (for model building).
+
+        - When `sample=True`: A JAX array of samples drawn from the Categorical distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.categorical(probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#categorical
+
+          #### References:
+          * https://en.wikipedia.org/wiki/Categorical_distribution"Categorical distribution"
+          * https://distribution-explorer.github.io/discrete/categorical.html"Categorical distribution — Probability Distribution Explorer documentation"
+          * https://static.hlt.bme.hu/semantics/external/pages/n-gram/en.wikipedia.org/wiki/Categorical_distribution.html"Categorical distribution - Wikipedia"
         """
 
-           
-        d = numpyro.distributions.discrete.Categorical(probs=probs, logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.discrete.Categorical(
+            probs=probs, logits=logits, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6857,17 +8023,29 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def geometric(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def geometric(
+        self,
+        probs=None,
+        logits=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Geometric distribution.
-        
+
         The Geometric distribution models the number of independent Bernoulli trials needed to obtain the first success (or equivalently the number of failures before the first success). Each trial has the same probability of success $p$, and trials are independent.
 
-        * $X$ = number of trials until the first success (so support $1,2,3,\dots$). 
+        * $X$ = number of trials until the first success (so support $1,2,3,\dots$).
 
         $$
         P(X = k) = (1 - p)^{,k-1} ; p,\quad k = 1,2,\dots
@@ -6877,33 +8055,33 @@ class UnifiedDist:
         - *probs* (jnp.ndarray, optional): Probability of success on each trial. Must be between 0 and 1.
 
         - *logits* (jnp.ndarray, optional): Log-odds of success on each trial.  `probs = jax.nn.sigmoid(logits)`.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             - When `sample=False`: A BI Geometric distribution object (for model building).
             - When `sample=True`: A JAX array of samples drawn from the Geometric distribution (for direct sampling).
             - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.geometric(probs=0.5, sample=True)
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#geometric
 
         #### References:
@@ -6912,17 +8090,18 @@ class UnifiedDist:
         * https://distribution-explorer.github.io/discrete/geometric.html "Geometric distribution — Probability Distribution Explorer documentation"
         """
 
-           
-        d = numpyro.distributions.discrete.Geometric(probs=probs, logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.discrete.Geometric(
+            probs=probs, logits=logits, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -6935,97 +8114,112 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def mixture(self,mixing_distribution, component_distributions, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=0,  shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def mixture(
+        self,
+        mixing_distribution,
+        component_distributions,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=0,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### A marginalized finite mixture of component distributions.
-        
-        A **marginalised finite mixture of component distributions** refers to a probability model in which you have a finite number $K$ of component distributions (e.g., normals, Poissons, etc.), each weighted by a mixing probability from a Categorical distribution. We **marginalise out** the latent assignment variable (i.e., you don’t explicitly model which component each data point came from). The resulting
-        distribution can be either a `mixture_general` (when component distributions
-        are a list) or a `mixture_same_Family` (when component distributions are a single
-        distribution).
-        
-        Suppose you have:
 
-        * Mixing weights $\pi_1, \dots, \pi_K$, with $\pi_j \ge 0$ and $\sum_{j=1}^K \pi_j = 1$.
-        * Component distributions (densities or PMFs) $f_j(x \mid \theta_j)$, for $j = 1,\dots,K$.
+          A **marginalised finite mixture of component distributions** refers to a probability model in which you have a finite number $K$ of component distributions (e.g., normals, Poissons, etc.), each weighted by a mixing probability from a Categorical distribution. We **marginalise out** the latent assignment variable (i.e., you don’t explicitly model which component each data point came from). The resulting
+          distribution can be either a `mixture_general` (when component distributions
+          are a list) or a `mixture_same_Family` (when component distributions are a single
+          distribution).
 
-        Then the marginalised mixture distribution for an observed $X$ is:
+          Suppose you have:
 
-        $$
-        p(X = x) = \sum_{j=1}^K \pi_j ; f_j(x \mid \theta_j).
-        $
+          * Mixing weights $\pi_1, \dots, \pi_K$, with $\pi_j \ge 0$ and $\sum_{j=1}^K \pi_j = 1$.
+          * Component distributions (densities or PMFs) $f_j(x \mid \theta_j)$, for $j = 1,\dots,K$.
 
-        This is exactly the mixture density/PMF you get when you marginalise the latent component‑assignment variable $Z \in {1,\dots,K}$ out of the joint distribution:
+          Then the marginalised mixture distribution for an observed $X$ is:
 
-        $$
-        p(x) = \sum_{z=1}^K p(z = j); p(x \mid z = j) = \sum_{j=1}^K \pi_j ; f_j(x \mid \theta_j).
-        $$
+          $$
+          p(X = x) = \sum_{j=1}^K \pi_j ; f_j(x \mid \theta_j).
+          $
 
-        
-        #### Args:
+          This is exactly the mixture density/PMF you get when you marginalise the latent component‑assignment variable $Z \in {1,\dots,K}$ out of the joint distribution:
 
-        - *mixing_distribution* (BI.distribution): The distribution used to determine the mixing weights.
+          $$
+          p(x) = \sum_{z=1}^K p(z = j); p(x \mid z = j) = \sum_{j=1}^K \pi_j ; f_j(x \mid \theta_j).
+          $$
 
-        - *component_distributions* (list[BI.distribution]): The list of component distributions.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-         - *event* (int): The number of batch dimensions to reinterpret as event  dimensions (used in model building).
-        
-         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          #### Args:
 
-         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
+          - *mixing_distribution* (BI.distribution): The distribution used to determine the mixing weights.
 
-      - When `sample=False`: A BI Mixture distribution object (for model
-                building).
-        
-      - When `sample=True`: A JAX array of samples drawn from the Mixture
-                distribution (for direct sampling).
-        
-      - When `create_obj=True`: The raw BI distribution object (for advanced
-                use cases).
-        
-        #### Example Usage:
-            from jax import random
-            import BI as pyro
-            m = pyro.distributions.Mixture(
-                pyro.distributions.Categorical(torch.ones(2)),
-                [pyro.distributions.Normal(0, 1), pyro.distributions.Normal(2, 1)]
-            )
-            samples = m.sample(sample_shape=(10,))
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#mixture
+          - *component_distributions* (list[BI.distribution]): The list of component distributions.
 
-        #### References:
-        * https://en.wikipedia.org/wiki/Mixture_distribution "Mixture distribution"
-        * https://pymc3-testing.readthedocs.io/en/rtd-docs/notebooks/marginalized_gaussian_mixture_model.html "Marginalized Gaussian Mixture Model — PyMC3 3.1rc3 documentation"
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+           - *event* (int): The number of batch dimensions to reinterpret as event  dimensions (used in model building).
+
+           - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+           - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+           - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+           - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+           - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+           - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+
+        - When `sample=False`: A BI Mixture distribution object (for model
+                  building).
+
+        - When `sample=True`: A JAX array of samples drawn from the Mixture
+                  distribution (for direct sampling).
+
+        - When `create_obj=True`: The raw BI distribution object (for advanced
+                  use cases).
+
+          #### Example Usage:
+              from jax import random
+              import BI as pyro
+              m = pyro.distributions.Mixture(
+                  pyro.distributions.Categorical(torch.ones(2)),
+                  [pyro.distributions.Normal(0, 1), pyro.distributions.Normal(2, 1)]
+              )
+              samples = m.sample(sample_shape=(10,))
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#mixture
+
+          #### References:
+          * https://en.wikipedia.org/wiki/Mixture_distribution "Mixture distribution"
+          * https://pymc3-testing.readthedocs.io/en/rtd-docs/notebooks/marginalized_gaussian_mixture_model.html "Marginalized Gaussian Mixture Model — PyMC3 3.1rc3 documentation"
         """
 
-           
-        d = numpyro.distributions.mixtures.Mixture(mixing_distribution=mixing_distribution, component_distributions=component_distributions, validate_args=validate_args)
+        d = numpyro.distributions.mixtures.Mixture(
+            mixing_distribution=mixing_distribution,
+            component_distributions=component_distributions,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -7038,87 +8232,106 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multinomial(self,total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def multinomial(
+        self,
+        total_count=1,
+        probs=None,
+        logits=None,
+        total_count_max=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Multinomial
-        
-        The multinomial distribution is a discrete probability distribution that generalizes the Binomial distribution to the case of **more than two possible outcomes per trial**. Specifically:
 
-        * You perform a fixed number $n$ of independent trials. 
-        * On each trial there are $k$ possible outcomes, labeled (1,2,\dots,k).
-        * The probability of outcome $i$ on any trial is (p_i), where (p_1 + p_2 + \cdots + p_k = 1). 
-        * Let $X_i$ be the number of trials (out of $n$) that produced outcome $i$. Then the vector $\mathbf X = (X_1, \dots, X_k)$ follows a multinomial distribution. 
+          The multinomial distribution is a discrete probability distribution that generalizes the Binomial distribution to the case of **more than two possible outcomes per trial**. Specifically:
 
-        It reduces to the binomial when (k=2). 
+          * You perform a fixed number $n$ of independent trials.
+          * On each trial there are $k$ possible outcomes, labeled (1,2,\dots,k).
+          * The probability of outcome $i$ on any trial is (p_i), where (p_1 + p_2 + \cdots + p_k = 1).
+          * Let $X_i$ be the number of trials (out of $n$) that produced outcome $i$. Then the vector $\mathbf X = (X_1, \dots, X_k)$ follows a multinomial distribution.
 
-        PMF (Probability Mass Function): 
-        
-        For $\mathbf x = (x_1,\dots,x_k)$ with each $x_i \ge 0$ integer and $\sum_{i=1}^k x_i = n$,
-        $$
-        \Pr(X_1 = x_1, \dots, X_k = x_k)
-        = \frac{n!}{x_1!,x_2!\cdots x_k!}
-        ; p_1^{,x_1}; p_2^{,x_2} \cdots p_k^{,x_k}.
-        $
-        If $\sum_i x_i \neq n$, the probability is 0. 
+          It reduces to the binomial when (k=2).
 
-        #### Args:
-        - *total_count* (int or jnp.ndarray): The number of trials.
-        
-        - *probs* (jnp.ndarray, optional): Event probabilities. Must sum to 1.
-        
-        - *logits* (jnp.ndarray, optional): Event log probabilities.
-        
-        - *total_count_max (int, optional): An optional integer providing an upper bound on `total_count`. This is used for performance optimization with `lax.scan` when `total_count` is a dynamic JAX tracer, helping to avoid recompilation.
+          PMF (Probability Mass Function):
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          For $\mathbf x = (x_1,\dots,x_k)$ with each $x_i \ge 0$ integer and $\sum_{i=1}^k x_i = n$,
+          $$
+          \Pr(X_1 = x_1, \dots, X_k = x_k)
+          = \frac{n!}{x_1!,x_2!\cdots x_k!}
+          ; p_1^{,x_1}; p_2^{,x_2} \cdots p_k^{,x_k}.
+          $
+          If $\sum_i x_i \neq n$, the probability is 0.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI Multinomial distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the Multinomial distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.multinomial(total_count=10, probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#multinomial
+          #### Args:
+          - *total_count* (int or jnp.ndarray): The number of trials.
 
-        #### References:
-        * https://online.stat.psu.edu/stat504/book/export/html/667 "2.3 - The Multinomial Distribution - STAT ONLINE"
-        * https://en.wikipedia.org/wiki/Multinomial_distribution "Multinomial distribution"
-        * https://faculty.washington.edu/yenchic/20A_stat512/Lec7_Multinomial.pdf "[PDF] Lecture 7: Multinomial distribution"
+          - *probs* (jnp.ndarray, optional): Event probabilities. Must sum to 1.
+
+          - *logits* (jnp.ndarray, optional): Event log probabilities.
+
+          - *total_count_max (int, optional): An optional integer providing an upper bound on `total_count`. This is used for performance optimization with `lax.scan` when `total_count` is a dynamic JAX tracer, helping to avoid recompilation.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations.
+
+          - *create_obj* (bool, optional): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI Multinomial distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the Multinomial distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.multinomial(total_count=10, probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#multinomial
+
+          #### References:
+          * https://online.stat.psu.edu/stat504/book/export/html/667 "2.3 - The Multinomial Distribution - STAT ONLINE"
+          * https://en.wikipedia.org/wiki/Multinomial_distribution "Multinomial distribution"
+          * https://faculty.washington.edu/yenchic/20A_stat512/Lec7_Multinomial.pdf "[PDF] Lecture 7: Multinomial distribution"
         """
 
-           
-        d = numpyro.distributions.discrete.Multinomial(total_count=total_count, probs=probs, logits=logits, total_count_max=total_count_max, validate_args=validate_args)
+        d = numpyro.distributions.discrete.Multinomial(
+            total_count=total_count,
+            probs=probs,
+            logits=logits,
+            total_count_max=total_count_max,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -7131,18 +8344,31 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def relaxed_bernoulli(self,temperature, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def relaxed_bernoulli(
+        self,
+        temperature,
+        probs=None,
+        logits=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Relaxed Bernoulli
 
-        r"""### Relaxed Bernoulli 
-        
-        The Relaxed Bernoulli is a continuous distribution on the interval $(0,1)$ that smoothly approximates the discrete Bernoulli distribution (which has support ${0,1}$). It was introduced to allow for *differentiable* sampling of approximate binary random variables, which is useful in variational inference and other gradient‐based optimization settings. 
+        The Relaxed Bernoulli is a continuous distribution on the interval $(0,1)$ that smoothly approximates the discrete Bernoulli distribution (which has support ${0,1}$). It was introduced to allow for *differentiable* sampling of approximate binary random variables, which is useful in variational inference and other gradient‐based optimization settings.
 
         The probability density function (PDF) is defined as:
-        
+
         * It has a *temperature* parameter $\tau > 0$ controlling the smoothness: as $\tau \to 0$, the distribution concentrates near ${0, 1}$ (thus approximating the discrete Bernoulli).
         * For larger $\tau$, the sample becomes more “soft” and less binary, e.g., converging toward 0.5 for very high $\tau$.
         * It is parameterised by a probability $p$ (or equivalently logits $\ell = \log\frac{p}{1-p}$).
@@ -7160,53 +8386,57 @@ class UnifiedDist:
         - *temperature* (jnp.ndarray): The temperature parameter. Must be greater than 0.
 
         - *probs* (jnp.ndarray, optional): The probability of success. Must be in the interval `[0, 1]`. Only one of `probs` or `logits` can be specified.
-            
+
         - *logits* (jnp.ndarray, optional): The log-odds of success. Must be in the interval `[-inf, inf]`. Only one of `probs` or `logits` can be specified.
 
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI RelaxedBernoulli distribution object (for model building) when `sample=False`.
             A JAX array of samples drawn from the RelaxedBernoulli distribution (for direct sampling) when `sample=True`.
             The raw BI distribution object (for advanced use cases) when `create_obj=True`.
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.relaxed_bernoulli(temperature=1.0, probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#relaxedbernoulli
 
         #### References
         [1]: https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/RelaxedBernoulli "tfp.distributions.RelaxedBernoulli | TensorFlow Probability"
-        [2]: https://rstudio.github.io/tfprobability/reference/tfd_relaxed_bernoulli.html "RelaxedBernoulli distribution with temperature and logits ..."   
+        [2]: https://rstudio.github.io/tfprobability/reference/tfd_relaxed_bernoulli.html "RelaxedBernoulli distribution with temperature and logits ..."
         """
 
-           
-        d = numpyro.distributions.continuous.RelaxedBernoulli(temperature=temperature, probs=probs, logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.continuous.RelaxedBernoulli(
+            temperature=temperature,
+            probs=probs,
+            logits=logits,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -7219,57 +8449,71 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def truncated_cauchy(self,loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def truncated_cauchy(
+        self,
+        loc=0.0,
+        scale=1.0,
+        low=None,
+        high=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Truncated Cauchy
-        
+
         The Cauchy distribution, also known as the Lorentz distribution, is a continuous probability distribution that appears frequently in various areas of mathematics and physics. It is characterized by its heavy tails, which extend to infinity. The truncated version limits the support of the Cauchy distribution to a specified interval.
-        
+
         Let the base Cauchy have parameters $\mu$ (location) and $\gamma > 0$ (scale). Let the truncation bounds be $a$ (`low`) and $b$ (`high`) (with $a < b$). Then the PDF of the truncated Cauchy at $x \in [a,b]$ is:
         $$
         f_{T}(x) = \frac{1}{\pi,\gamma};\frac{1}{1 + \bigl(\tfrac{x - \mu}{\gamma}\bigr)^2} ;\Bigg/ ; \left[F_{\mathrm{Cauchy}}!\left(\tfrac{b - \mu}{\gamma}\right) - F_{\mathrm{Cauchy}}!\left(\tfrac{a - \mu}{\gamma}\right)\right],
         $$
-        and (f_{T}(x)=0) for (x < a) or (x > b). 
+        and (f_{T}(x)=0) for (x < a) or (x > b).
 
         Here $F_{\mathrm{Cauchy}}$ is the standard Cauchy CDF $with parameters $\mu,\gamma)$.
-        
+
         #### Args:
         - *loc* (float): Location parameter of the Cauchy distribution.
-        
+
         - *scale* (float): Scale parameter of the Cauchy distribution.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI TruncatedCauchy distribution object (for model building) when `sample=False`.
-        
+
             JAX array of samples drawn from the TruncatedCauchy distribution (for direct sampling) when `sample=True`.
-        
+
             The raw BI distribution object (for advanced use cases) when `create_obj=True`.
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.truncated_cauchy(loc=0.0, scale=1.0, sample=True)
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncatedcauchy
 
         #### References:
@@ -7278,17 +8522,18 @@ class UnifiedDist:
         [3]: https://rstudio.github.io/tfprobability/reference/tfd_truncated_cauchy.html "The Truncated Cauchy distribution. — tfd_truncated_cauchy"
         """
 
-           
-        d = numpyro.distributions.truncated.TruncatedCauchy(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args)
+        d = numpyro.distributions.truncated.TruncatedCauchy(
+            loc=loc, scale=scale, low=low, high=high, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -7301,81 +8546,95 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def truncated_distribution(self,base_dist, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def truncated_distribution(
+        self,
+        base_dist,
+        low=None,
+        high=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Truncated
 
-        r"""### Truncated 
-        
-        Samples from a Truncated Distribution.
-        
-        A **truncated distribution** arises when you take a random variable $X$ that originally has some distribution (with PDF $f_X(x)$ and CDF $F_X(x)$) and you restrict attention only to those values of $X$ that are *above* a given truncation point $a$. In other words you only observe $X$ when $X > a$. All the “mass” below (or equal to) $a$ is **excluded** (not just unobserved, but removed from the sample/analysis).
-        This differs from *censoring*, where values below a threshold might be known (for example “< a”), but here they are entirely excluded from the domain. 
-        Left truncation is common in many applied fields — for instance:
+          Samples from a Truncated Distribution.
 
-        * In survival analysis: subjects whose event time happens before the study start are not included.
-        * In insurance or losses: only losses above a deductible (threshold) are recorded, so the loss distribution is left-truncated at that deductible. 
-        * In industrial/life-data: items used before data collection start, so only those with lifetime > some lower bound are observed. 
+          A **truncated distribution** arises when you take a random variable $X$ that originally has some distribution (with PDF $f_X(x)$ and CDF $F_X(x)$) and you restrict attention only to those values of $X$ that are *above* a given truncation point $a$. In other words you only observe $X$ when $X > a$. All the “mass” below (or equal to) $a$ is **excluded** (not just unobserved, but removed from the sample/analysis).
+          This differs from *censoring*, where values below a threshold might be known (for example “< a”), but here they are entirely excluded from the domain.
+          Left truncation is common in many applied fields — for instance:
 
-        Let (X) be a random variable with PDF. Choose truncation points $a < X \le b$. Then  the truncated distribution (Y = X \mid (a < X \le b)) has:      
-        $$
-        f_Y(y) = \frac{f_X(y)}{F_X(b) - F_X(a)}, \quad \text{for } a < y \le b,
-        $$
-        and (0) outside that interval. 
-        * The lower bound (a) can be (-\infty) (so only an upper truncation), and the upper bound (b) can be (+\infty) (so only a lower truncation). ([Statistics How To][2])
-        * If both bounds are finite (i.e., doubly truncated), that is a valid and often‐used scenario. 
+          * In survival analysis: subjects whose event time happens before the study start are not included.
+          * In insurance or losses: only losses above a deductible (threshold) are recorded, so the loss distribution is left-truncated at that deductible.
+          * In industrial/life-data: items used before data collection start, so only those with lifetime > some lower bound are observed.
 
-        #### Args:
-        - *base_dist*: The base distribution to be truncated. This should be a univariate distribution. Currently, only the following distributions are supported: Cauchy, Laplace, Logistic, Normal, and StudentT.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          Let (X) be a random variable with PDF. Choose truncation points $a < X \le b$. Then  the truncated distribution (Y = X \mid (a < X \le b)) has:
+          $$
+          f_Y(y) = \frac{f_X(y)}{F_X(b) - F_X(a)}, \quad \text{for } a < y \le b,
+          $$
+          and (0) outside that interval.
+          * The lower bound (a) can be (-\infty) (so only an upper truncation), and the upper bound (b) can be (+\infty) (so only a lower truncation). ([Statistics How To][2])
+          * If both bounds are finite (i.e., doubly truncated), that is a valid and often‐used scenario.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI TruncatedDistribution distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the TruncatedDistribution distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.truncated_distribution(base_dist = m.dist.normal(0,1, create_obj = True), high=1, low = 0, sample=True)
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncateddistribution
+          #### Args:
+          - *base_dist*: The base distribution to be truncated. This should be a univariate distribution. Currently, only the following distributions are supported: Cauchy, Laplace, Logistic, Normal, and StudentT.
 
-        #### References: 
-        [1]: https://en.wikipedia.org/wiki/Truncated_distribution "Truncated distribution"
-        [2]: https://pages.stern.nyu.edu/~wgreene/Text/Edition8/PDF/M19_GREE1366_08_SE_C19.pdf "19"
-        [3]: https://search.r-project.org/CRAN/refmans/LaplacesDemon/html/dist.Truncated.html "R: Truncated Distributions"
-        [4]: https://dspace.cuni.cz/bitstream/handle/20.500.11956/127921/130308341.pdf?isAllowed=y&sequence=1&utm_source.com "Truncated data thesis"
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI TruncatedDistribution distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the TruncatedDistribution distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.truncated_distribution(base_dist = m.dist.normal(0,1, create_obj = True), high=1, low = 0, sample=True)
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncateddistribution
+
+          #### References:
+          [1]: https://en.wikipedia.org/wiki/Truncated_distribution "Truncated distribution"
+          [2]: https://pages.stern.nyu.edu/~wgreene/Text/Edition8/PDF/M19_GREE1366_08_SE_C19.pdf "19"
+          [3]: https://search.r-project.org/CRAN/refmans/LaplacesDemon/html/dist.Truncated.html "R: Truncated Distributions"
+          [4]: https://dspace.cuni.cz/bitstream/handle/20.500.11956/127921/130308341.pdf?isAllowed=y&sequence=1&utm_source.com "Truncated data thesis"
         """
 
-           
-        d = numpyro.distributions.truncated.TruncatedDistribution(base_dist=base_dist, low=low, high=high, validate_args=validate_args)
+        d = numpyro.distributions.truncated.TruncatedDistribution(
+            base_dist=base_dist, low=low, high=high, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -7388,16 +8647,30 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def truncated_normal(self,loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def truncated_normal(
+        self,
+        loc=0.0,
+        scale=1.0,
+        low=None,
+        high=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Truncated Normal
 
-        r"""### Truncated Normal 
-        
         A truncated normal distribution is derived from a normal (Gaussian) random variable by restricting (truncating) its domain to an interval $[a, b]$ (which could be one‐sided, e.g., (a) only or (b) only). It is defined by its location (`loc`), scale
-        (`scale`), lower bound  $a$ (`low`), and upper bound $b$ (`high`). In effect: if $X \sim \mathcal N(\mu, \sigma^2)$, then the truncated version $Y = X | (a \le X \le b)$ has the same “shape” but only supports values in $[a,b]$. This is used when you know that values outside a range are impossible or not observed (e.g., measurement limits, natural bounds). 
+        (`scale`), lower bound  $a$ (`low`), and upper bound $b$ (`high`). In effect: if $X \sim \mathcal N(\mu, \sigma^2)$, then the truncated version $Y = X | (a \le X \le b)$ has the same “shape” but only supports values in $[a,b]$. This is used when you know that values outside a range are impossible or not observed (e.g., measurement limits, natural bounds).
 
         Let $X \sim \mathcal N(\mu, \sigma^2)$. Define truncation bounds $a < b$ (could be $a = -\infty$ or $b = +\infty$ for one‐sided truncation). Then for $y \in [a,b]$,
 
@@ -7407,44 +8680,44 @@ class UnifiedDist:
 
         where:
 
-        * $\varphi(z)$ is the standard normal PDF, $\varphi(z) = \frac1{\sqrt{2\pi}} e^{-z^2/2}$. 
+        * $\varphi(z)$ is the standard normal PDF, $\varphi(z) = \frac1{\sqrt{2\pi}} e^{-z^2/2}$.
         * $\Phi(z)$ is the standard normal CDF.
         * The denominator $ \Phi\bigl(\tfrac{b - \mu}{\sigma}\bigr) - \Phi\bigl(\tfrac{a - \mu}{\sigma}\bigr) $ normalises the density so the total probability over ([a,b]) is 1.
 
         For values (y < a) or (y > b), (f_Y(y) = 0).
-        
+
         #### Args:
         - *loc* (float): The location parameter of the normal distribution.
 
         - *sample* (float): The scale parameter of the normal distribution.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI TruncatedNormal distribution object (for model building).
             JAX array of samples drawn from the TruncatedNormal distribution (for
             direct sampling).
             The raw BI distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.truncated_normal(loc=0.0, scale=1.0, sample=True)
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncatednormal_lowercase
 
         #### References:
@@ -7455,17 +8728,18 @@ class UnifiedDist:
         [5]: https://stats.stackexchange.com/questions/525894/understanding-the-pdf-of-a-truncated-normal-distribution "Understanding the pdf of a truncated normal distribution"
         """
 
-           
-        d = numpyro.distributions.truncated.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args)
+        d = numpyro.distributions.truncated.TruncatedNormal(
+            loc=loc, scale=scale, low=low, high=high, validate_args=validate_args
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -7478,81 +8752,98 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def zero_inflated_distribution(self,base_dist, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def zero_inflated_distribution(
+        self,
+        base_dist,
+        gate=None,
+        gate_logits=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Generic Zero Inflated
-        
-         A Zero-Inflated distribution combines a base distribution with a Bernoulli distribution to model data with an excess of zero values. It assumes that each observation is either drawn from the base distribution or is a zero with probability determined by the Bernoulli distribution (the "gate"). A **zero-inflated distribution** arises when you take a random variable $X$ that originally has some distribution (with PMF $f_X(x)$ ) *and* you add extra mass at zero. In other words you only observe $X$ when $X \ge 0$ (if count) and you assume there are more zeros than what the original distribution predicts — so you mix in a point-mass at zero. A zero-inflated model assumes two processes: a “structural zero” process with probability $\pi$, and another process (the base count/distribution) with probability $1 - \pi$, which itself may generate zeros *or* non-zeros. 
 
-        - When / Why use it: 
-            * **Data collection constraints**: You can only observe values in a process when some condition is met; others are automatically zero (for example, when the event cannot happen for some units).
-            * **Mixtures of processes**: Some observations are “structural zeros” (no risk) and others follow a regular count process (with risk).
-            * **Overdispersion & excess zeros**: If you try a standard count distribution (Poisson, Negative Binomial) and you observe many more zeros than predicted (given the non-zero counts), a zero-inflated alternative may fit better. 
+           A Zero-Inflated distribution combines a base distribution with a Bernoulli distribution to model data with an excess of zero values. It assumes that each observation is either drawn from the base distribution or is a zero with probability determined by the Bernoulli distribution (the "gate"). A **zero-inflated distribution** arises when you take a random variable $X$ that originally has some distribution (with PMF $f_X(x)$ ) *and* you add extra mass at zero. In other words you only observe $X$ when $X \ge 0$ (if count) and you assume there are more zeros than what the original distribution predicts — so you mix in a point-mass at zero. A zero-inflated model assumes two processes: a “structural zero” process with probability $\pi$, and another process (the base count/distribution) with probability $1 - \pi$, which itself may generate zeros *or* non-zeros.
 
-        * The general PMF form is (for discrete count models):
-        $$
-        P(X=0) = \pi + (1 - \pi),P_{\text{base}}(0),
-        \quad
-        P(X=k) = (1 - \pi),P_{\text{base}}(k), ; k > 0.
-        $$     
+          - When / Why use it:
+              * **Data collection constraints**: You can only observe values in a process when some condition is met; others are automatically zero (for example, when the event cannot happen for some units).
+              * **Mixtures of processes**: Some observations are “structural zeros” (no risk) and others follow a regular count process (with risk).
+              * **Overdispersion & excess zeros**: If you try a standard count distribution (Poisson, Negative Binomial) and you observe many more zeros than predicted (given the non-zero counts), a zero-inflated alternative may fit better.
 
-        #### Args:
-        - *base_dist* (Distribution): The base distribution to be zero-inflated (e.g., Poisson,     NegativeBinomial).
+          * The general PMF form is (for discrete count models):
+          $$
+          P(X=0) = \pi + (1 - \pi),P_{\text{base}}(0),
+          \quad
+          P(X=k) = (1 - \pi),P_{\text{base}}(k), ; k > 0.
+          $$
 
-        - *gate* (jnp.ndarray, optional): Probability of extra zeros (between 0 and 1).
+          #### Args:
+          - *base_dist* (Distribution): The base distribution to be zero-inflated (e.g., Poisson,     NegativeBinomial).
 
-        - *gate_logits* (jnp.ndarray, optional): Log-odds of extra zeros.
+          - *gate* (jnp.ndarray, optional): Probability of extra zeros (between 0 and 1).
 
-        - *validate_args* (bool, optional): Whether to validate parameter values. Defaults to None.
+          - *gate_logits* (jnp.ndarray, optional): Log-odds of extra zeros.
 
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          - *validate_args* (bool, optional): Whether to validate parameter values. Defaults to None.
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI ZeroInflatedDistribution distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the ZeroInflatedDistribution distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.zero_inflated_distribution(base_dist=m.dist.poisson(rate=5, create_obj = True), gate = 0.3, sample=True)
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflateddistribution
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-        #### References:
-        [1]: https://en.wikipedia.org/wiki/Zero-inflated_model "Zero-inflated model"
-        [2]: https://larmarange.github.io/guide-R/analyses_avancees/modeles-zero-inflated.html "48 Modèles de comptage zero-inflated et hurdle – guide-R"
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI ZeroInflatedDistribution distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the ZeroInflatedDistribution distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.zero_inflated_distribution(base_dist=m.dist.poisson(rate=5, create_obj = True), gate = 0.3, sample=True)
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflateddistribution
+
+          #### References:
+          [1]: https://en.wikipedia.org/wiki/Zero-inflated_model "Zero-inflated model"
+          [2]: https://larmarange.github.io/guide-R/analyses_avancees/modeles-zero-inflated.html "48 Modèles de comptage zero-inflated et hurdle – guide-R"
         """
 
-           
-        d = numpyro.distributions.discrete.ZeroInflatedDistribution(base_dist=base_dist, gate=gate, gate_logits=gate_logits, validate_args=validate_args)
+        d = numpyro.distributions.discrete.ZeroInflatedDistribution(
+            base_dist=base_dist,
+            gate=gate,
+            gate_logits=gate_logits,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -7565,88 +8856,107 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def zero_inflated_negative_binomial2(self,mean, concentration, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
-
+    def zero_inflated_negative_binomial2(
+        self,
+        mean,
+        concentration,
+        gate=None,
+        gate_logits=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
         r"""### Zero-Inflated Negative Binomial
-        A Zero-Inflated Negative Binomial distribution is used for count data that exhibit **both** (a) over-dispersion relative to a Poisson (i.e., variance > mean) *and* (b) an excess of zero counts beyond what a standard Negative Binomial would predict. 
-        It assumes two latent processes:
+          A Zero-Inflated Negative Binomial distribution is used for count data that exhibit **both** (a) over-dispersion relative to a Poisson (i.e., variance > mean) *and* (b) an excess of zero counts beyond what a standard Negative Binomial would predict.
+          It assumes two latent processes:
 
-        1. With probability $ \pi $ (sometimes denoted $\psi$ or “zero-inflation probability”) you are in a “structural zero” state → you observe a zero.
-        2. With probability $1 - \pi$, you come from a regular Negative Binomial distribution (with parameters e.g. mean $ \mu $ and dispersion parameter $ \alpha $ or size/r parameter) and then you might observe zero or a positive count. 
+          1. With probability $ \pi $ (sometimes denoted $\psi$ or “zero-inflation probability”) you are in a “structural zero” state → you observe a zero.
+          2. With probability $1 - \pi$, you come from a regular Negative Binomial distribution (with parameters e.g. mean $ \mu $ and dispersion parameter $ \alpha $ or size/r parameter) and then you might observe zero or a positive count.
 
-        Thus the model is a mixture of a point‐mass at zero + a Negative Binomial for counts.
-        
-        This distribution combines a Negative Binomial distribution with a binary gate variable. Observations are either drawn from the Negative Binomial distribution with probability (1 - gate) or are treated as zero with probability 'gate'. This models data with excess zeros compared to what a standard Negative Binomial distribution would predict.
-        
-        Let $X$ denote the count random variable, support $ {0,1,2,\dots} $. Denote:
+          Thus the model is a mixture of a point‐mass at zero + a Negative Binomial for counts.
 
-        * $\pi$ = probability of being in the “always zero” (structural zero) process, with $ 0 \le \pi \le 1$.
-        * The count process is NB with parameters: mean $\mu>0$ and dispersion/shape parameter $\alpha>0$ (or equivalently size parameter (r)).
-        Then:
+          This distribution combines a Negative Binomial distribution with a binary gate variable. Observations are either drawn from the Negative Binomial distribution with probability (1 - gate) or are treated as zero with probability 'gate'. This models data with excess zeros compared to what a standard Negative Binomial distribution would predict.
 
-        $$
-        P(X = 0) = \pi ;+; (1 - \pi); P_{\text{NB}}(0;\mu,\alpha),
-        $$
-        $$
-        P(X = k) = (1 - \pi); P_{\text{NB}}(k;\mu,\alpha), \quad k = 1,2,3,\dots
-        $$
+          Let $X$ denote the count random variable, support $ {0,1,2,\dots} $. Denote:
 
-        Here $P_{\text{NB}}(k;\mu,\alpha)$ is the PMF of the negative binomial distribution for count $k$. 
-        
-        #### Args:
-        - *mean* (jnp.ndarray or float): The mean of the Negative Binomial 2 distribution.
+          * $\pi$ = probability of being in the “always zero” (structural zero) process, with $ 0 \le \pi \le 1$.
+          * The count process is NB with parameters: mean $\mu>0$ and dispersion/shape parameter $\alpha>0$ (or equivalently size parameter (r)).
+          Then:
 
-        - *concentration* (jnp.ndarray or float): The concentration parameter of the Negative Binomial 2 distribution.
-        
-        - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
-        - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
-        - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
-        - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
-        - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+          $$
+          P(X = 0) = \pi ;+; (1 - \pi); P_{\text{NB}}(0;\mu,\alpha),
+          $$
+          $$
+          P(X = k) = (1 - \pi); P_{\text{NB}}(k;\mu,\alpha), \quad k = 1,2,3,\dots
+          $$
 
-        - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
-        - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
-        #### Returns:
-      - When `sample=False`: A BI ZeroInflatedNegativeBinomial2 distribution object (for model building).
-      - When `sample=True`: A JAX array of samples drawn from the ZeroInflatedNegativeBinomial2 distribution (for direct sampling).
-      - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
-        
-        #### Example Usage:
-            from BI import bi
-            m = bi('cpu')
-            m.dist.zero_inflated_negative_binomial2(mean=2.0, concentration=3.0, gate = 0.3, sample=True)
-        
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatednegativebinomial2
+          Here $P_{\text{NB}}(k;\mu,\alpha)$ is the PMF of the negative binomial distribution for count $k$.
 
-        #### References:
-        [1]: https://www.ewadirect.com/proceedings/tns/article/view/27624 "Social Networks Count Data: Negative Binomial Distributions and Extensions Versus Poisson and Bernoulli Models"
-        [2]: https://pmc.ncbi.nlm.nih.gov/articles/PMC7880198/ "Bayesian Zero-Inflated Negative Binomial Regression Based on Pólya-Gamma Mixtures - PMC"
-        [3]: https://search.r-project.org/CRAN/refmans/emdbook/html/dzinbinom.html "R: Zero-inflated negative binomial distribution"
+          #### Args:
+          - *mean* (jnp.ndarray or float): The mean of the Negative Binomial 2 distribution.
+
+          - *concentration* (jnp.ndarray or float): The concentration parameter of the Negative Binomial 2 distribution.
+
+          - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
+
+          - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
+
+          - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
+
+          - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
+
+          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
+
+          - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
+
+          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
+
+          - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+          #### Returns:
+        - When `sample=False`: A BI ZeroInflatedNegativeBinomial2 distribution object (for model building).
+        - When `sample=True`: A JAX array of samples drawn from the ZeroInflatedNegativeBinomial2 distribution (for direct sampling).
+        - When `create_obj=True`: The raw BI distribution object (for advanced use cases).
+
+          #### Example Usage:
+              from BI import bi
+              m = bi('cpu')
+              m.dist.zero_inflated_negative_binomial2(mean=2.0, concentration=3.0, gate = 0.3, sample=True)
+
+          #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatednegativebinomial2
+
+          #### References:
+          [1]: https://www.ewadirect.com/proceedings/tns/article/view/27624 "Social Networks Count Data: Negative Binomial Distributions and Extensions Versus Poisson and Bernoulli Models"
+          [2]: https://pmc.ncbi.nlm.nih.gov/articles/PMC7880198/ "Bayesian Zero-Inflated Negative Binomial Regression Based on Pólya-Gamma Mixtures - PMC"
+          [3]: https://search.r-project.org/CRAN/refmans/emdbook/html/dzinbinom.html "R: Zero-inflated negative binomial distribution"
         """
 
-           
-        d = numpyro.distributions.conjugate.ZeroInflatedNegativeBinomial2(mean=mean, concentration=concentration, gate=gate, gate_logits=gate_logits, validate_args=validate_args)
+        d = numpyro.distributions.conjugate.ZeroInflatedNegativeBinomial2(
+            mean=mean,
+            concentration=concentration,
+            gate=gate,
+            gate_logits=gate_logits,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -7659,54 +8969,67 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def negative_binomial(self,total_count, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
-        
+    def negative_binomial(
+        self,
+        total_count,
+        probs=None,
+        logits=None,
+        validate_args=None,
+        name="x",
+        obs=None,
+        mask=None,
+        sample=False,
+        seed=None,
+        shape=(),
+        event=0,
+        create_obj=False,
+        to_jax=True,
+    ):
+        r"""### Negative Binomial
 
-        r"""### Negative Binomial 
-        
-        The Negative Binomial distribution models the number of failures (or the total number of trials) in a sequence of independent Bernoulli trials with success probability (p), until a specified number `total_count` (r) of successes is achieved. 
+        The Negative Binomial distribution models the number of failures (or the total number of trials) in a sequence of independent Bernoulli trials with success probability (p), until a specified number `total_count` (r) of successes is achieved.
         It is often used as a count-data model when the variance exceeds the mean (“overdispersion”) relative to a Poisson.
-        
-        PMF (Probability Mass Function): 
+
+        PMF (Probability Mass Function):
         Given (X) = number of failures before the (r)th success (so (X = 0,1,2,\dots)), with (r) successes fixed, success probability (p), failure probability (q = 1 - p):
 
         $$
         \Pr(X = k) ;=; \binom{k + r - 1}{k} ; p^r ; q^k, \quad k = 0,1,2,\dots
         $$
 
-                
+
         #### Args:
         - *total_count* (jnp.ndarray): The total number of events.
-        
+
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
-        
+
         - *event* (int): The number of batch dimensions to reinterpret as event dimensions (used in model building).
-        
+
         - *mask* (jnp.ndarray, bool): Optional boolean array to mask observations.
-        
+
         - *create_obj* (bool): If True, returns the raw BI distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`.
-                
+
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BI model context. If `False`, it will create a `BI.sample` site within a model. Defaults to `False`.
-            
+
         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BI's inference engine. Defaults to 0.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
-    
+
         - *name* (str, optional): The name of the sample site in a BI model. This is used to uniquely identify the random variable. Defaults to 'x'.
-            
+
         #### Returns:
             BI NegativeBinomial distribution object (for model building).
             JAX array of samples drawn from the NegativeBinomial distribution (for direct sampling).
             The raw BI distribution object (for advanced use cases).
-        
+
         #### Example Usage:
             from BI import bi
             m = bi('cpu')
             m.dist.negative_binomial(total_count=5.0,probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
-        
+
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomial
 
         #### References:
@@ -7714,17 +9037,21 @@ class UnifiedDist:
         * https://www.statology.org/negative-binomial-distribution/
         """
 
-           
-        d = numpyro.distributions.conjugate.NegativeBinomial(total_count=total_count, probs=probs, logits=logits, validate_args=validate_args)
+        d = numpyro.distributions.conjugate.NegativeBinomial(
+            total_count=total_count,
+            probs=probs,
+            logits=logits,
+            validate_args=validate_args,
+        )
         if sample:
             seed = self.normalize_seed(seed)
             seed_key = random.PRNGKey(seed)
             samples = d.sample(seed_key, sample_shape=shape)
-        
+
             # Apply mask if provided
             if mask is not None:
-                samples = jnp.where(mask, samples, jnp.nan)  
-        
+                samples = jnp.where(mask, samples, jnp.nan)
+
             if to_jax:
                 return samples
             else:
@@ -7737,7 +9064,5 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = {'obs_mask': mask} if    mask is not None else None
-                return numpyro.sample(name, d,  obs=obs, infer=infer_dict)
-
-
+                infer_dict = {"obs_mask": mask} if mask is not None else None
+                return numpyro.sample(name, d, obs=obs, infer=infer_dict)

@@ -33,13 +33,13 @@ class dpmm:
         self.__name__ = 'dpmm' 
         self.parent = parent
 
-    def __call__(self, data, T=10, method='marginal', alpha=None):
+    def __call__(self, data, T=10, method='marginal', alpha=None, empirical_bayes=False):
         """
         Makes the class instance callable. 
         Redirects the call to self.model().
         """
 
-        return self.model(data, T=T, method=method, alpha=alpha)
+        return self.model(data, T=T, method=method, alpha=alpha, empirical_bayes=empirical_bayes)
     
     @staticmethod   
     def mix_weights(beta):
@@ -58,7 +58,7 @@ class dpmm:
         padded_cumprod = jnp.pad(beta1m_cumprod, (1, 0), constant_values=1.0)
         return padded_beta * padded_cumprod
 
-    def dpmm_latent(self,data, T=10,  alpha = None):
+    def dpmm_latent(self,data, T=10,  alpha = None, empirical_bayes=False):
         """
         Latent Variable formulation: Explicitly samples 'z'.
         Requires a sampler that supports discrete variables (e.g., MixedHMC or DiscreteHMCGibbs).
@@ -66,24 +66,44 @@ class dpmm:
         print("⚠️This function is still in development. Use it with caution.⚠️")
         N, D = data.shape  # Number of features
         data_mean = jnp.mean(data, axis=0)
-        data_std = jnp.std(data, axis=0)*2
+        
+        if empirical_bayes:
+            # Data-driven prior scaling
+            data_std = jnp.std(data, axis=0)
+            data_var = jnp.var(data, axis=0)
+            cov_scale = jnp.diag(jnp.maximum(data_var, 1e-4))
+            sigma_base = data_std
+        else:
+            data_std = jnp.std(data, axis=0)*2
+            cov_scale = data_std*jnp.eye(D)
+            sigma_base = 1.0
 
         # 1) stick-breaking weights
 
         if alpha is None:
-            alpha = dist.gamma(1.0, 10.0,name='alpha')
+            if empirical_bayes:
+                alpha = 1.0 / T # Sklearn style sparsity
+            else:
+                alpha = dist.gamma(1.0, 10.0,name='alpha')
 
         with numpyro.plate("beta_plate", T - 1):
-            beta = numpyro.sample('beta', Dist.Beta(1, alpha))
+            if isinstance(alpha, float):
+                beta = numpyro.sample('beta', Dist.Beta(1, alpha))
+            else:
+                beta = numpyro.sample('beta', Dist.Beta(1, alpha))
 
         w = numpyro.deterministic("w",dpmm.mix_weights(beta))
 
 
         # 2) component parameters
         with numpyro.plate("components", T):
-            mu = dist.multivariate_normal(loc=data_mean, covariance_matrix=data_std*jnp.eye(D),name='mu')# shape (T, D)     
+            mu = dist.multivariate_normal(loc=data_mean, covariance_matrix=cov_scale,name='mu')# shape (T, D)     
 
-            sigma = dist.log_normal(0.0, 1.0,shape=(D,),event=1,name='sigma')# shape (T, D)
+            if empirical_bayes:
+                sigma = dist.half_normal(sigma_base, shape=(D,), event=1, name='sigma')
+            else:
+                sigma = dist.log_normal(0.0, sigma_base, shape=(D,), event=1, name='sigma')# shape (T, D)
+                
             Lcorr = dist.lkj_cholesky(dimension=D, concentration=1.0,name='Lcorr')# shape (T, D, D)
 
             scale_tril = sigma[..., None] * Lcorr  # shape (T, D, D)
@@ -99,25 +119,48 @@ class dpmm:
                 obs=data
             )  
 
-    def dpmm_marginal(self,data, T=10,  alpha = None):
+    def dpmm_marginal(self,data, T=10,  alpha = None, empirical_bayes=False):
         """
         Marginalized formulation: Integrates out 'z'.
         Standard formulation for NUTS/HMC samplers.
         """
+        print("⚠️This function is still in development. Use it with caution.⚠️")
 
         D = data.shape[1]
+        
+        if empirical_bayes:
+            data_std = jnp.std(data, axis=0)
+            data_var = jnp.var(data, axis=0)
+            cov_scale = jnp.diag(jnp.maximum(data_var, 1e-4))
+            sigma_base = data_std
+        else:
+            cov_scale = 5.0 * jnp.eye(D)
+            sigma_base = 1.0
+
         # 1) stick-breaking weights
         if alpha is None:
-            alpha = dist.gamma(1.0, 15.0,name='alpha')
+            if empirical_bayes:
+                alpha = 1.0 / T
+            else:
+                alpha = dist.gamma(1.0, 15.0,name='alpha')
 
-        beta = dist.beta(1, alpha,name='beta',shape=(T-1,))
+        if isinstance(alpha, float):
+            beta = dist.beta(1.0, alpha, name='beta', shape=(T-1,))
+        else:
+            beta = dist.beta(1, alpha,name='beta',shape=(T-1,))
+            
         w = numpyro.deterministic("w",dpmm.mix_weights(beta))
 
         # 2) component parameters
         data_mean = jnp.mean(data, axis=0)
         with numpyro.plate("components", T):
-            mu = dist.multivariate_normal(loc=data_mean, covariance_matrix=5.0*jnp.eye(D),name='mu')# shape (T, D)        
-            sigma = dist.half_cauchy(1,shape=(D,),event=1,name='sigma')# shape (T, D)
+            mu = dist.multivariate_normal(loc=data_mean, covariance_matrix=cov_scale,name='mu')# shape (T, D)        
+            
+            if empirical_bayes:
+                sigma = dist.half_normal(sigma_base, shape=(D,), event=1, name='sigma')
+            else:
+                sigma = dist.half_cauchy(sigma_base, shape=(D,),event=1,name='sigma')# shape (T, D)
+                
             Lcorr = dist.lkj_cholesky(dimension=D, concentration=1.0,name='Lcorr')# shape (T, D, D)
 
             scale_tril = sigma[..., None] * Lcorr  # shape (T, D, D)
@@ -130,7 +173,7 @@ class dpmm:
             obs=data   
         )
 
-    def model(self,data, T=10, method='marginal', alpha = None):
+    def model(self,data, T=10, method='marginal', alpha = None, empirical_bayes=False):
         """
         Wrapper function for DPMM.
 
@@ -139,11 +182,12 @@ class dpmm:
             T: Truncation level (max number of clusters)
             method: 'marginal' (default because it is faster, for NUTS) or 'latent' (explicit z, requires MixedHMC/Gibbs)
             alpha: Stick-breaking parameter (default: None)
+            empirical_bayes: If True, scales priors based on the dataset to match SkLearn behaviour.
         """
         if method == 'marginal':
-            return self.dpmm_marginal(data, T, alpha = alpha)
+            return self.dpmm_marginal(data, T, alpha = alpha, empirical_bayes=empirical_bayes)
         elif method == 'latent':
-            return self.dpmm_latent(data, T, alpha = alpha)
+            return self.dpmm_latent(data, T, alpha = alpha, empirical_bayes=empirical_bayes)
         else:
             raise ValueError("Method must be 'marginal' or 'latent'")
 

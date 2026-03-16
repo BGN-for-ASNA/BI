@@ -1,0 +1,834 @@
+---
+title: "Appendix 2: Benchmark and posteriros"
+author: "Sebastian Sosa"
+date: "2025-12-18"
+output: html_document
+---
+
+# 1. Dependencies
+```{r setup, include=FALSE}
+#devtools::install_github('https://github.com/ctross/STRAND.git')
+#devtools::install_github('https://github.com/BGN-for-ASNA/BIR')
+library(BayesianInference)
+library(reticulate)
+library(posterior)
+library(STRAND)
+library(ggplot2)
+library(ggrepel)
+library(jsonlite)
+library(tidyr)
+library(dplyr)
+set.seed(1)
+m = importBI() # Import BI object
+jnp = reticulate::import('jax.numpy') # import jax.numpy
+```
+
+# 2. Utilities functions
+## Functions for posterior comparison
+```{r setup, include=FALSE}
+to_r = function(array){np = reticulate::import("numpy"); reticulate::py_to_r(np$array(array))}
+```
+
+```{r setup, include=FALSE}
+plot_benchmark <- function(cpu, gpu){
+  colnames(gpu) = c("N", "BI_gpu")
+  all = merge(cpu, gpu, by = 'N')
+  
+  time_to_seconds <- function(time_str) {
+    # Remove the negative sign and split into components
+    is_negative <- grepl("^-", time_str)
+    time_str <- gsub("^-", "", time_str)
+    parts <- strsplit(time_str, ":")[[1]]
+    hours <- as.numeric(parts[1])
+    mins <- as.numeric(parts[2])
+    secs <- as.numeric(parts[3])
+    total_seconds <- hours * 3600 + mins * 60 + secs
+    if (is_negative) total_seconds <- -total_seconds
+    return(total_seconds)
+  }
+  all$STAN <- sapply(all$stan, time_to_seconds)
+  all["BI CPU"] <- sapply(all$BI, time_to_seconds)
+  all["BI GPU"]<- all$BI_gpu
+  
+  backend = c('STAN', 'BI CPU', 'BI GPU')
+  res = NULL
+  for(a in 1:length(backend)){
+    res = rbind(
+      res,
+      data.frame("N" = all$N, "Backend" = backend[a], "Time" = 
+                   abs(all[,colnames(all) %in% backend[a]])
+      )
+    )
+  }
+  
+  
+  first_pts <- res %>%
+    group_by(Backend) %>%
+    slice_min(N, n = 1)
+  
+  last_pts <- res %>%
+    group_by(Backend) %>%
+    slice_max(N, n = 1)
+  
+  
+  p <- ggplot(res, aes(N, Time, color = Backend, group = Backend)) +
+    geom_line(linewidth = 1.5, linetype = 'dashed') +
+    geom_point(size = 4) +
+    
+    # labels at first N (show log10(Time))
+    geom_text_repel(
+      data = first_pts,
+      aes(label = round(log10(Time), 2)),  # log scale for text
+      nudge_x = -20,
+      direction = "y",
+      hjust = 1,
+      show.legend = FALSE
+    ) +
+    
+    # labels at last N (show log10(Time))
+    geom_text_repel(
+      data = last_pts,
+      aes(label = round(log10(Time), 2)),  # log scale for text
+      nudge_x = 20,
+      direction = "y",
+      hjust = 0,
+      show.legend = FALSE
+    ) +
+    
+    scale_color_manual(
+      values = c(
+        "STAN"   = "#D55E00",
+        "BI GPU" = "#2500D6",
+        "BI CPU" = "#02D600"
+      )
+    ) +
+    
+    # log10 scale for Y-axis
+    scale_y_log10(
+      name = "log10(Time in seconds)",    # change Y-axis label
+      breaks = scales::trans_breaks("log10", function(x) 10^x),
+      labels = scales::trans_format("log10", scales::math_format(10^.x))
+    ) +
+    
+    labs(
+      x = "Number of nodes",
+      color = "Backend"
+    ) +
+    
+    theme_minimal(base_size = 13) +
+    theme(   
+      axis.title.x = element_text(size = 18, face = "bold"),
+      axis.title.y = element_text(size = 18, face = "bold"),
+      axis.text.x = element_text(size = 16),
+      axis.text.y = element_text(size = 16),
+      legend.position = "top",
+      legend.title = element_text(size = 16),
+      legend.text  = element_text(size = 16)
+      
+    )
+  
+  return(p)
+  
+}
+```
+
+```{r setup, include=FALSE}
+posteriors_comparison <- function(m, res_stan){
+  samps = m$posteriors
+  sr_sigma = to_r(samps$sr_sigma)
+  sr_L = to_r(samps$sr_L)
+  sr_raw = aperm(to_r(samps$sr_raw), perm = c(1, 3, 2))
+  dr_L = to_r(samps$dr_L)
+  dr_raw = NULL
+  dr_sigma = matrix(to_r(samps$dr_sigma), ncol = 1)
+  
+  
+  B = list()
+  count = 1
+  for(i in 1:length(names(samps))){
+    if(grepl("b_", names(samps)[i])){
+      B[[count]] = to_r(samps[[i]])
+      count = count + 1 
+    }
+  }
+  
+  BI_samples = list(block_parameters = B, focal_target_sd = sr_sigma, 
+                    focal_target_L = sr_L, focal_target_random_effects = sr_raw, 
+                    dyadic_sd = dr_sigma, dyadic_L = dr_L, dyadic_random_effects = dr_raw, 
+                    error_sd = NULL,
+                    focal_effects = to_r(m$posteriors$sender_effects),
+                    target_effects = to_r(m$posteriors$receiver_effects),
+                    dyadic_coeffs = to_r(m$posteriors$dyad_effects))
+  names(BI_samples)
+  
+  res = list()
+  for(a in 1:length(BI_samples)){
+    if(is.null( BI_samples[[a]])){next}
+    if(names(BI_samples)[a] == "focal_target_random_effects"){next}
+    if(is.null(dim(BI_samples[[a]]))){
+      for(b in 1:length(BI_samples[[a]])){
+        BI_mean = apply(BI_samples[[a]][[b]], 2, mean)
+        BI_std = apply(BI_samples[[a]][[b]], 2, sd)
+        
+        STAN_mean = apply(res_stan$samples$srm_model_samples[[a]][[b]], 2, mean)
+        STAN_std = apply(res_stan$samples$srm_model_samples[[a]][[b]], 2, sd)
+        
+        name = paste0(names(BI_samples)[a],'_',b)
+        names = NULL
+        for(c in 1:length(BI_mean)){
+          names = c(names, paste0(names(BI_samples)[a],'_',b,'_',c))
+        }
+        
+        df = data.frame(BI_mean, 
+                        BI_std, 
+                        STAN_mean, 
+                        STAN_std, 
+                        var = names)
+        res[[name]] = df
+      }
+    }else{
+      BI_mean = apply(BI_samples[[a]], 2, mean)
+      BI_std = apply(BI_samples[[a]], 2, sd)
+      
+      STAN_mean = apply(res_stan$samples$srm_model_samples[[a]], 2, mean)
+      STAN_std = apply(res_stan$samples$srm_model_samples[[a]], 2, sd)
+      
+      names = NULL
+      for(b in 1:length(BI_mean)){
+        names = c(names, paste0(names(BI_samples)[a],'_',b))
+      }
+      
+      df = data.frame(BI_mean, BI_std, STAN_mean, STAN_std, var = names)
+      res[[names(BI_samples)[a]]] = df
+    }
+  }
+  
+  library(tidyr)
+  library(dplyr)
+  combined_df <- bind_rows(res)
+  long_df <- combined_df %>%
+    pivot_longer(
+      cols = c(BI_mean, STAN_mean, BI_std, STAN_std),
+      names_to = c("metric", ".value"),
+      names_pattern = "(.*)_(.*)"
+    ) %>%
+    mutate(group = paste0(var, "_", var))
+  
+  library(ggplot2)
+  
+  # Create the plot
+  ggplot(long_df, aes(x = mean, y = var, group = metric, color = metric)) +
+    geom_point(
+      size = 3,
+      position = position_nudge(y = ifelse(long_df$metric == "STAN", 0.2, 0))
+    ) +
+    geom_linerange(
+      aes(xmin = mean - std, xmax = mean + std),
+      position = position_nudge(y = ifelse(long_df$metric == "STAN", 0.2, 0)),
+      linewidth = 1
+    ) +
+    scale_y_discrete(
+      labels = c(
+        "block_parameters_1_1" = "Any", 
+        "block_parameters_2_1" = "Group 1-1", 
+        "block_parameters_2_2" = "Group 1-2", 
+        "block_parameters_2_3" = "Group 1-3", 
+        "target_effects_1"= "Receiver_mass_Effect",
+        "target_effects_2"= "Receiver_age_Effect",
+        "target_effects_3"= "Receiver_love_Effect",
+        "target_effects_4"= "Receiver_fire_Effect",
+        "focal_effects_1"= "Sender_Mass_Effect",
+        "focal_effects_2"= "Sender_Age_Effect",
+        "focal_effects_3"= "Sender_love_Effect",
+        "focal_effects_4"= "Sender_fire_Effect",
+        "focal_target_sd_1" = "Nodes_random_Effect_sd1",
+        "focal_target_sd_2" = "Nodes_random_Effect_sd2",
+        "dyadic_coeffs_1" = "Dyads_Kinship_Effect",
+        "dyadic_coeffs_2" = "Dyads_Dominance_Effect",
+        "dyadic_coeffs_3" = "Dyads_Interaction_Effect",
+        "focal_target_L_1" = "Nodes_random_Effect_Chol1",
+        "focal_target_L_2" = "Nodes_random_Effect_Chol2",
+        "dyadic_L_1" = "Dyads_random_Effect_Chol1",
+        "dyadic_L_2" = "Dyads_random_Effect_Chol2",
+        "dyadic_sd_1" = "Dyads_Effect_sd"
+      )
+    ) +
+    theme_minimal()
+  
+  return(list(BI_samples,res_stan$samples$srm_model_samples))
+}
+```
+
+```{r setup, include=FALSE}
+difftime_to_hms <- function(x, assume_units = NULL, round_seconds = TRUE) {
+  # x : difftime, numeric, or character like "Time difference of -15.16133 mins"
+  # assume_units : one of c("secs","mins","hours","days","weeks") when x is numeric
+  # round_seconds : whether to round seconds to nearest integer
+  
+  # helper to compute string from total seconds
+  format_from_secs <- function(total_secs) {
+    sign_str <- ifelse(total_secs < 0, "-", "")
+    sec <- abs(total_secs)
+    sec <- if (round_seconds) round(sec) else floor(sec)
+    h <- sec %/% 3600
+    m <- (sec %% 3600) %/% 60
+    s <- sec %% 60
+    sprintf("%s%02d:%02d:%02d", sign_str, h, m, s)
+  }
+  
+  # obtain seconds_total as numeric
+  if (inherits(x, "difftime")) {
+    seconds_total <- as.numeric(x, units = "secs")
+    return(format_from_secs(seconds_total))
+  }
+  
+  if (is.numeric(x)) {
+    if (is.null(assume_units)) {
+      stop("Numeric input requires 'assume_units' (one of 'secs','mins','hours','days','weeks').")
+    }
+    units <- match.arg(assume_units, c("secs","mins","hours","days","weeks"))
+    factor <- c(secs = 1, mins = 60, hours = 3600, days = 86400, weeks = 604800)[units]
+    seconds_total <- x * factor
+    return(format_from_secs(seconds_total))
+  }
+  
+  if (is.character(x)) {
+    # try parse patterns like "Time difference of -15.16133 mins" or " -2.241148 hours"
+    # capture number and unit (optional)
+    m <- regmatches(x, regexec("([-+]?[0-9]*\\.?[0-9]+)\\s*([a-zA-Z]+)?", x))[[1]]
+    if (length(m) >= 2) {
+      num <- as.numeric(m[2])
+      unit <- ifelse(length(m) >= 3 && nzchar(m[3]), tolower(m[3]), "secs")
+      # normalize common unit forms
+      unit <- sub("^min(s)?$", "mins", unit)
+      unit <- sub("^sec(s)?$", "secs", unit)
+      unit <- sub("^hr(s)?$|^h$", "hours", unit)
+      unit <- sub("^hour(s)?$", "hours", unit)
+      unit <- sub("^day(s)?$", "days", unit)
+      unit <- sub("^week(s)?$", "weeks", unit)
+      if (! unit %in% c("secs","mins","hours","days","weeks")) {
+        # try singular like 'min' or plural 'mins' already handled; fallback assume secs
+        unit <- "secs"
+      }
+      factor <- c(secs = 1, mins = 60, hours = 3600, days = 86400, weeks = 604800)[unit]
+      seconds_total <- num * factor
+      return(format_from_secs(seconds_total))
+    } else {
+      stop("Could not parse numeric value from the character input.")
+    }
+  }
+  
+  stop("Unsupported input type. Provide a difftime, numeric (plus assume_units), or a character string.")
+}
+```
+
+```{r setup, include=FALSE}
+time_to_seconds <- function(time_str) {
+  # Remove the negative sign and split into components
+  is_negative <- grepl("^-", time_str)
+  time_str <- gsub("^-", "", time_str)
+  parts <- strsplit(time_str, ":")[[1]]
+  hours <- as.numeric(parts[1])
+  mins <- as.numeric(parts[2])
+  secs <- as.numeric(parts[3])
+  total_seconds <- hours * 3600 + mins * 60 + secs
+  if (is_negative) total_seconds <- -total_seconds
+  return(total_seconds)
+}
+```
+
+## Main function
+```{r setup, include=FALSE}
+run_benchmark <- function(N_id = 50, new = TRUE, fileName = 'Benchmarks.txt'){
+  # Make data ---------------
+  # Covariates
+  Kinship = standardize_strand(rlkjcorr( 1 , N_id , eta=1.5 ))
+  Dominant = matrix(rbern(N_id*N_id), 0.2, nrow=N_id, ncol=N_id)
+  Mass = rbern(N_id, 0.4)
+  Age = rnorm(N_id, 0, 1)
+  Love = rbern(N_id, 0.4)
+  Fire = rbern(N_id, 0.6)
+  
+  # Organize into list
+  dyadic_preds = array(NA,c(N_id,N_id,3))
+  
+  dyadic_preds[,,1] = Kinship
+  dyadic_preds[,,2] = Dominant
+  dyadic_preds[,,3] = Kinship*Dominant
+  
+  # Set effect sizes
+  sr_mu = c(0,0)  
+  sr_sigma = c(2.2, 1.7) 
+  sr_rho = -0.7
+  dr_mu = 0 
+  dr_sigma = 3.5
+  dr_rho= 0.8
+  sr_effects_1 = c(2, 1.5)
+  sr_effects_2 = c(-1.4, 1.0)
+  sr_effects_3 = c(1.4, -1.3)
+  sr_effects_4 = c(-0.9, 0)
+  dr_effects_1 = c(1.5, -1.9, 2.4)
+  
+  # Block structure
+  group_probs_block_size = c(0.25, c(0.25, 0.25)*(1-0.25))
+  
+  B_1 = matrix(-8,nrow=1,ncol=1)
+  B_2 = matrix(rnorm(9,0,3),nrow=3,ncol=3)
+  B_3 = matrix(rnorm(4,0,3),nrow=2,ncol=2)
+  
+  diag(B_2) = diag(B_2) + 3.5
+  diag(B_3) = diag(B_3) + 3.5
+  
+  B = list(B_1, B_2) #, B_3)
+  
+  groups_1 = rep("Any",N_id) 
+  groups_2 = sample( c("Red","White","Blue") , size=N_id , replace=TRUE , prob=group_probs_block_size )
+  groups_3 = sample( c("Strange", "Charm") , size=N_id , replace=TRUE , prob=c(0.5,0.5) )
+  
+  groups = data.frame(Intercept=as.numeric(factor(groups_1)), Merica=as.numeric(factor(groups_2)))
+  groups_f = data.frame(Intercept=factor(groups_1), Merica=factor(groups_2))
+  individual = data.frame(Mass = Mass, Age = Age, Love = Love, Fire = Fire)
+  
+  #################################################### Simulate SBM + SRM network
+  G = simulate_sbm_plus_srm_network(N_id = N_id, 
+                                    B = B, 
+                                    V = 2,
+                                    groups=groups,                  
+                                    sr_mu = sr_mu,  
+                                    sr_sigma = sr_sigma, 
+                                    sr_rho = sr_rho,
+                                    dr_mu = dr_mu,  
+                                    dr_sigma = dr_sigma, 
+                                    dr_rho = dr_rho,
+                                    error_sigma = 1.0,
+                                    outcome_mode="bernoulli", 
+                                    link_mode="logit",                 
+                                    individual_predictors = individual,
+                                    dyadic_predictors = dyadic_preds,
+                                    individual_effects = cbind(sr_effects_1, sr_effects_2, sr_effects_3, sr_effects_4),
+                                    dyadic_effects = dr_effects_1
+  )      
+  
+  
+  ################################################################################################ Fit STRAND
+  # Create the STRAND data object
+  # Add row and colnames
+  name_vec = paste("Individual", 1:N_id)
+  rownames(G$network) = colnames(G$network) = name_vec
+  rownames(G$samps) = colnames(G$samps) = name_vec
+  rownames(Kinship) = colnames(Kinship) = name_vec
+  rownames(Dominant) = colnames(Dominant) = name_vec
+  rownames(groups_f) = name_vec
+  rownames(individual) = name_vec
+  
+  model_dat = make_strand_data(outcome=list(Association = G$network),  
+                               block_covariates=groups_f, 
+                               individual_covariates=individual, 
+                               dyadic_covariates=list(Kinship=Kinship, Dominant=Dominant),  
+                               outcome_mode="bernoulli", 
+                               link_mode="logit",
+                               exposure=list(Association = G$samps)
+  )
+  
+  
+  
+  tmp = model_dat
+  attributes(tmp)$class = 'list'
+  json <- toJSON(tmp, pretty = TRUE, auto_unbox = TRUE)
+  write(json, file = paste0('sim_',N_id,'.json'))
+  
+  # STAN fit -------------
+  fit_stan = fit_block_plus_social_relations_model(
+    data=model_dat,
+    block_regression = ~ Merica,
+    focal_regression = ~ Mass + Age + Love + Fire,
+    target_regression = ~ Mass + Age + Love + Fire,
+    dyad_regression = ~ Kinship*Dominant,
+    return_predicted_network=TRUE,
+    mode="mcmc",
+    mcmc_parameters = list(
+      chains = 1,
+      iter_warmup = 1000 ,
+      iter_sampling = 1000 ,
+      max_treedepth = 12 ,
+      refresh = 1,
+      adapt_delta = 0.96)
+  )
+  
+  res_stan = summarize_strand_results(fit_stan)
+  format(object.size(res_stan), units = "Mb")
+  fit_stan[[6]]
+  
+  
+  # BI fit---------------
+  jnp = reticulate::import('jax.numpy')
+  m = importBI()
+  any = jnp$array(model_dat$block_predictors$Intercept -1)
+  merica = jnp$array(as.integer(model_dat$block_predictors$Merica)) -1
+  Kinship = jnp$array(model_dat$dyadic_predictors$Kinship)
+  Dominant = jnp$array(model_dat$dyadic_predictors$Dominant)
+  interaction = jnp$array(Kinship*Dominant)
+  
+  dyadic_predictors = jnp$stack(
+    list(
+      m$net$mat_to_edgl(Kinship), 
+      m$net$mat_to_edgl(Dominant), 
+      m$net$mat_to_edgl(interaction)
+    )
+  )$transpose(list(1L,2L,0L))
+  
+  individual_predictors = jnp$array(model_dat$individual_predictors)
+  N_id = as.integer(model_dat$N_id)
+  jnp$unique(any, return_index = T)
+  merica_grp = as.integer(length(unique(model_dat$block_predictors$Merica)))
+  merica_N_by_grp = jnp$array(as.vector(table(model_dat$block_predictors$Merica)))
+  names(model_dat)
+  
+  m$data_on_model = list(
+    network = m$net$mat_to_edgl(model_dat$outcomes[,,1]),
+    any = any,
+    merica = merica,
+    merica_N_by_grp = merica_N_by_grp,
+    individual_predictors = individual_predictors,
+    dyadic_predictors =dyadic_predictors
+  )
+  
+  
+  model = function(network, any, merica, individual_predictors, dyadic_predictors,
+                   merica_N_by_grp){
+    
+    B_intercept = m$net$block_model(any, 1L, N_id, name = 'Intercept')
+    B_merica = m$net$block_model(merica, 3L, merica_N_by_grp, name ='Merica')
+    
+    sr = m$net$sender_receiver(individual_predictors, individual_predictors)
+    dr = m$net$dyadic_effect(dyadic_predictors)
+    
+    bi.dist.bernoulli(logits = B_intercept + B_merica +  sr + dr, obs = network)
+  }
+  
+  
+  to_r = function(array){np = reticulate::import("numpy"); reticulate::py_to_r(np$array(array))}
+  BI_start_time = Sys.time()
+  m$fit(model = model, num_warmup = 1000L, num_samples = 1000L)
+  BI_end_time = Sys.time()
+  
+  # Save Time of computation---------------
+  
+  if(new == TRUE){
+    write(c('N;stan;Numpyro;BI;'), fileName, append = FALSE)
+    write(paste(N_id, difftime_to_hms(fit_stan[[6]]),  difftime_to_hms(BI_start_time - BI_end_time),'', sep = ";"), fileName, append = TRUE)
+  }else{
+    write(paste(N_id, difftime_to_hms(fit_stan[[6]]), difftime_to_hms(BI_start_time - BI_end_time),'', sep = ";"), fileName, append = TRUE)
+  }
+  print("STAN--------------")
+  print(fit_stan[[6]])
+  
+  print("BI--------------")
+  print(BI_start_time - BI_end_time)
+  
+  # Save Estimations---------------
+  POSTERIROS = posteriors_comparison(m, res_stan)
+  BI_post = POSTERIROS[[1]]
+  STAN_post = POSTERIROS[[2]]
+  attributes(BI_post)$class = 'list'
+  attributes(STAN_post)$class = 'list'
+  json1 <- toJSON(BI_post, pretty = TRUE, auto_unbox = TRUE)
+  json2 <- toJSON(STAN_post, pretty = TRUE, auto_unbox = TRUE)
+  write(json1, file = paste0('post_BI_',N_id,'.json'))
+  write(json2, file = paste0('post_STAN_',N_id,'.json'))
+}
+```
+
+# 3. Run benchmark on CPU
+Time fo computation between the different backends will be saved in 'Benchmarks.txt'.
+Additionally, it also save for each test the simulated data in a json file to use the same data for the gpu computation.
+Finally, it also save for each test the posterior distributions in 'paste0('post_BI_',N_id,'.json')' where N_id is the number of nodes in the network.
+```{r setup, include=FALSE}
+test = c(50, 100, 200, 400)
+for(i in 1:length(test)){
+  print(paste(i, '-----------------------------------------------------'))
+  if(i == 1){
+    run_benchmark(N_id = test[i], new = T)
+  }else{
+    run_benchmark(N_id = test[i], new = F)
+  }
+}
+```
+
+# 4. Run benchmark on GPU
+## Dependencies
+```{python}
+from BI import bi, jnp
+from datetime import datetime
+import json
+import json
+import numpy as np
+m = bi('cpu')
+```
+
+## Utilities functions
+### Import simulated data
+```{python}
+with open('sim_50.json', 'r', encoding='utf-8') as file:
+    d1 = json.load(file)
+with open('sim_100.json', 'r', encoding='utf-8') as file:
+    d2 = json.load(file)
+with open('/sim_200.json', 'r', encoding='utf-8') as file:
+    d3 = json.load(file)
+with open('sim_400.json', 'r', encoding='utf-8') as file:
+    d4 = json.load(file)
+```
+
+### Converted data to numpy arrays
+```{python}
+def convert_arrays_to_lists(obj):
+    if isinstance(obj, dict):
+        return {k: convert_arrays_to_lists(v) for k, v in obj.items()}
+    elif isinstance(obj, (np.ndarray, np.generic)) or hasattr(obj, 'tolist'):
+        return obj.tolist()
+    elif isinstance(obj, list):
+        return [convert_arrays_to_lists(item) for item in obj]
+    else:
+        return obj
+```
+
+### Convert BI posteriors to the same format as STAN
+```{python}
+def convert_data(d):
+    merica = jnp.array([item['Merica'] for item in d['block_predictors']])
+    merica_N_by_grp = jnp.unique(merica, return_counts=True)[1]
+
+    # Extract values for each feature and store them as columns
+    features = ['Mass', 'Age', 'Love', 'Fire']
+    values = [[item[feature] for item in d['individual_predictors']] for feature in features]
+
+    # Convert to a 2D JAX array (transpose to get rows as individuals)
+    individual_predictors = jnp.array(values).T  # Transpose to get shape (n_individuals, n_features)
+    Kinship = m.net.mat_to_edgl(jnp.array(d['dyadic_predictors']['Kinship']))
+    Dominant = m.net.mat_to_edgl(jnp.array(d['dyadic_predictors']['Dominant']))
+    Intearaction = Kinship*Dominant 
+
+    data = dict(
+    	N_id = d['N_id'],
+    	any = jnp.ones((d['N_id'],)),
+        merica = merica,
+        merica_N_by_grp = merica_N_by_grp,
+        individual_predictors = individual_predictors,
+        network = m.net.mat_to_edgl(jnp.array(d['outcomes'])[:,:,0]),
+        dyadic_predictors = jnp.stack([Kinship, Dominant, Intearaction]).transpose(1,2,0)   
+    )
+
+    return data
+```
+
+
+### Model
+```{python}
+def model(any, merica, individual_predictors, dyadic_predictors,network,
+	     N_id, merica_N_by_grp):
+    B_intercept = m.net.block_model(any, 1, N_id, name = 'Intercept')
+    B_merica = m.net.block_model(merica, 3, merica_N_by_grp, name ='Merica')
+    
+    sr = m.net.sender_receiver(individual_predictors, individual_predictors)
+    dr = m.net.dyadic_effect(dyadic_predictors)
+    
+    m.dist.bernoulli(logits = B_intercept + B_merica +  sr + dr, obs = network)
+```
+
+### Main function
+```{python}
+def main(d):
+    data = convert_data(d)
+    print(f'N = {data['N_id']}')
+    m = bi('gpu')
+    m.data_on_model = data
+    start = datetime.now()
+    m.fit(model)
+    end = datetime.now()
+    delta = end - start
+    total_seconds = delta.total_seconds()
+
+    line = f"{data['N_id']};{total_seconds}\n"    
+    with open("time_results.txt", "a") as file:
+        file.write(line)
+
+    # Save to JSON
+    serializable_dict = convert_arrays_to_lists(tmp.posteriors)    
+    with open(f"posteriors_{data['N_id']}_GPU.json", "w") as json_file:
+        json.dump(serializable_dict, json_file, indent=4)
+    return m
+```
+
+
+## Run benchmark
+Time fo computation will be saved in 'time_results.txt'.
+Additionally, it also save for each test the posterior distributions in file 'posteriors_{data['N_id']}.json' where N_id is the number of nodes in the network.
+```{python}
+D = [d1,d2,d3,d4]
+for i in range(len(D)):
+    main(D[i])
+```
+
+
+# 5. Plot Benchmarks
+```{r}
+cpu = read.csv("Benchmarks2.txt", sep = ";")
+gpu = read.csv("time_results.txt", sep = ";", header = FALSE)
+p = plot_benchmark(cpu, gpu)
+ggsave("Benchmark_plot.png", plot = p, width = 8.27, height = 11.69,units = "in", dpi = 300)
+```
+
+# 6. Plot posteriors
+```{r}
+posteriors_comparison <- function(BI_samples, res_stan){
+  res = list()
+  for(a in 1:length(BI_samples)){
+    if(is.null( BI_samples[[a]])){next}
+    if(names(BI_samples)[a] == "dyadic_random_effects"){next}
+    if(names(BI_samples)[a] == "error_sd"){next}
+    if(names(BI_samples)[a] == "focal_target_random_effects"){next}
+    
+    if(is.null(dim(BI_samples[[a]]))){
+      for(b in 1:length(BI_samples[[a]])){
+        if(names(BI_samples)[a] == "block_parameters" & b == 2){
+          BI_mean =  as.vector(apply(BI_samples[[a]][[b]], c(2, 3), mean)) # by rows
+          BI_std = as.vector(apply(BI_samples[[a]][[b]], c(2, 3), sd))
+          
+          STAN_mean = as.vector(apply(res_stan[[a]][[b]], c(2, 3), mean))
+          STAN_std =  as.vector(apply(res_stan[[a]][[b]], c(2, 3), sd))
+        }else{
+          if(names(BI_samples)[a] == "block_parameters" & b == 1){
+            BI_samples[[a]][[b]] = unlist(BI_samples[[a]][[b]])
+            BI_mean = mean(BI_samples[[a]][[b]])
+            BI_std = sd(BI_samples[[a]][[b]])
+          }else{
+            BI_mean = apply(BI_samples[[a]][[b]], 2, mean)
+            BI_std = apply(BI_samples[[a]][[b]], 2, sd)
+          }
+          
+          STAN_mean = apply(res_stan[[a]][[b]], 2, mean)
+          STAN_std = apply(res_stan[[a]][[b]], 2, sd)
+        }
+        
+        
+        
+        name = paste0(names(BI_samples)[a],'_',b)
+        names = NULL
+        for(c in 1:length(BI_mean)){
+          names = c(names, paste0(names(BI_samples)[a],'_',b,'_',c))
+        }
+        
+        df = data.frame(BI_mean, 
+                        BI_std, 
+                        STAN_mean, 
+                        STAN_std, 
+                        var = names)
+        res[[name]] = df
+      }
+    }else{
+      BI_mean = apply(BI_samples[[a]], 2, mean)
+      BI_std = apply(BI_samples[[a]], 2, sd)
+      BI_ess <- apply(res_stan[[a]], MARGIN = 2, FUN = posterior::ess_bulk)
+      
+      STAN_mean = apply(res_stan[[a]], 2, mean)
+      STAN_std = apply(res_stan[[a]], 2, sd)
+      STAN_ess <- apply(res_stan[[a]], MARGIN = 2, FUN = posterior::ess_bulk)
+      
+      names = NULL
+      for(b in 1:length(BI_mean)){
+        names = c(names, paste0(names(BI_samples)[a],'_',b))
+      }
+      
+      df = data.frame(BI_mean, BI_std, BI_ess, STAN_mean, STAN_std, STAN_ess, var = names)
+      res[[names(BI_samples)[a]]] = df
+    }
+  }
+  
+  combined_df <- bind_rows(res)
+  long_df <- combined_df %>%
+    pivot_longer(
+      cols = c(BI_mean, STAN_mean, BI_std, STAN_std, BI_ess, STAN_ess),
+      names_to = c("Backend", ".value"),
+      names_pattern = "(.*)_(.*)"
+    ) %>%
+    mutate(group = paste0(var, "_", var))
+  
+  # Create the plot
+  p = ggplot(long_df, aes(x = mean, y = var, group = Backend, color = Backend)) +
+    geom_point(
+      size = 4,
+      position = position_nudge(y = ifelse(long_df$Backend == "STAN", 0.2, 0))
+    ) +
+    geom_linerange(
+      aes(xmin = mean - std, xmax = mean + std),
+      position = position_nudge(y = ifelse(long_df$Backend == "STAN", 0.2, 0)),
+      linewidth = 1.5
+    ) +
+    scale_y_discrete(
+      labels = c(
+        "block_parameters_1_1" = "Block_intercept", 
+        "block_parameters_2_1" = "Block_Merica 1-1", 
+        "block_parameters_2_2" = "Block_Merica 2-1",   
+        "block_parameters_2_3" = "Block_Merica 3-1", 
+        "block_parameters_2_4" = "Block_Merica 1-2",
+        "block_parameters_2_5" = "Block_Merica 2-2", 
+        "block_parameters_2_6" = "Block_Merica 3-2", 
+        "block_parameters_2_7" = "Block_Merica 1-3",
+        "block_parameters_2_8" = "Block_Merica 2-3", 
+        "block_parameters_2_9" = "Block_Merica 3-3", 
+        "target_effects_1"= "Receiver_mass_Effect",
+        "target_effects_2"= "Receiver_age_Effect",
+        "target_effects_3"= "Receiver_love_Effect",
+        "target_effects_4"= "Receiver_fire_Effect",
+        "focal_effects_1"= "Sender_Mass_Effect",
+        "focal_effects_2"= "Sender_Age_Effect",
+        "focal_effects_3"= "Sender_love_Effect",
+        "focal_effects_4"= "Sender_fire_Effect",
+        "focal_target_sd_1" = "Nodes_random_Effect_sd1",
+        "focal_target_sd_2" = "Nodes_random_Effect_sd2",
+        "dyadic_coeffs_1" = "Dyads_Kinship_Effect",
+        "dyadic_coeffs_2" = "Dyads_Dominance_Effect",
+        "dyadic_coeffs_3" = "Dyads_Interaction_Effect",
+        "focal_target_L_1" = "Nodes_random_Effect_Chol1",
+        "focal_target_L_2" = "Nodes_random_Effect_Chol2",
+        "dyadic_L_1" = "Dyads_random_Effect_Chol1",
+        "dyadic_L_2" = "Dyads_random_Effect_Chol2",
+        "dyadic_sd_1" = "Dyads_Effect_sd"
+      )
+    ) +
+    theme_minimal()+
+    theme(   
+      axis.title.x = element_text(size = 18, face = "bold"),
+      axis.title.y = element_text(size = 18, face = "bold"),
+      axis.text.x = element_text(size = 16),
+      axis.text.y = element_text(size = 16),
+      legend.position = "top",
+      legend.title = element_text(size = 16),
+      legend.text  = element_text(size = 16)
+      
+    )+
+    labs(
+      y = "SRM parameters",
+      x = "Posteriors",
+      color = "Backend"
+    )
+
+  return(p)
+}
+
+```
+
+```{r setup, include=FALSE}
+BI_post = fromJSON("post_BI_100.json")
+STAN_post = fromJSON("post_STAN_100.json")
+r = posteriors_comparison(BI_post,STAN_post)
+ggsave(
+  "Posteriors_plot.png",
+  plot = r,
+  width = 8.27,
+  height = 11.69,
+  units = "in",
+  dpi = 300
+)
+```
+

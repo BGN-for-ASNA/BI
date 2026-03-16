@@ -136,6 +136,14 @@ class bnn(activation):
         return result
 
     def layer_compound_symmetry(self, block_size, sample= True, name='', seed = None):
+        """
+        Build a Compound Symmetry covariance block.
+
+        All variables share a common variance (sigma^2) and correlation (rho).
+        C = sigma^2 * [(1 - rho) I + rho 11^T]
+
+        Returns a (size, size) SPD matrix.
+        """
         print("⚠️This function is still in development. Use it with caution. ⚠️")
         # Store the block size.
         self.b = block_size
@@ -171,6 +179,13 @@ class bnn(activation):
         return comp_sym +  diag * jnp.eye(self.b)
  
     def layer_diagonal(self, block_size, sample= True, name='', seed = None):
+        """
+        Build a Diagonal covariance block.
+
+        Variables are assumed independent; only individual variances are learned.
+
+        Returns a (size, size) SPD diagonal matrix.
+        """
         print("⚠️This function is still in development. Use it with caution. ⚠️")
         # Store the block size.
         self.b = block_size

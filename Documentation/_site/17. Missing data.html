@@ -108,6 +108,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -137,7 +140,11 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
+<<<<<<< HEAD
       if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+=======
+      if (mathElements[i].tagName == "SPAN") {
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -602,15 +609,28 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a></li>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a>
+  <ul class="collapse">
+  <li><a href="#missingness-mechanisms" id="toc-missingness-mechanisms" class="nav-link" data-scroll-target="#missingness-mechanisms">Missingness Mechanisms</a></li>
+  </ul></li>
   <li><a href="#considerations" id="toc-considerations" class="nav-link" data-scroll-target="#considerations">Considerations</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a>
+  <ul class="collapse">
+  <li><a href="#simple-missing-imputation" id="toc-simple-missing-imputation" class="nav-link" data-scroll-target="#simple-missing-imputation">1. Simple Missing Imputation</a></li>
+  <li><a href="#partially-known-parameters-covariance" id="toc-partially-known-parameters-covariance" class="nav-link" data-scroll-target="#partially-known-parameters-covariance">2. Partially Known Parameters (Covariance)</a></li>
+  <li><a href="#sliced-missing-data-time-series" id="toc-sliced-missing-data-time-series" class="nav-link" data-scroll-target="#sliced-missing-data-time-series">3. Sliced Missing Data (Time Series)</a></li>
+  <li><a href="#censored-data-via-survival-analysis-nmar" id="toc-censored-data-via-survival-analysis-nmar" class="nav-link" data-scroll-target="#censored-data-via-survival-analysis-nmar">4. Censored Data via Survival Analysis (NMAR)</a></li>
+  </ul></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a>
   <ul class="collapse">
   <li><a href="#bayesian-formulation" id="toc-bayesian-formulation" class="nav-link" data-scroll-target="#bayesian-formulation"><em>Bayesian Formulation</em></a></li>
+<<<<<<< HEAD
+=======
+  <li><a href="#marginalization" id="toc-marginalization" class="nav-link" data-scroll-target="#marginalization"><em>Marginalization</em></a></li>
+  <li><a href="#constraints" id="toc-constraints" class="nav-link" data-scroll-target="#constraints"><em>Constraints</em></a></li>
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
   </ul></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">Reference(s)</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="17.-Missing-data.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
     </div>
@@ -647,29 +667,95 @@ window.Quarto = {
 
 <section id="general-principles" class="level2">
 <h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
+<<<<<<< HEAD
 <p>In many real-world datasets, some observations or parameters may be missing or partially known. In a standard frequentist approach, these missing values are often dropped, leading to biased estimates and a loss of information.</p>
 <p>In the Bayesian framework, <strong>missing data are simply treated as unknown parameters to be estimated within the model itself</strong>. The entire joint distribution is evaluated, allowing the model to smoothly “impute” the missing values based on the observed data and prior relationships.</p>
+=======
+<p>In many real-world datasets, some observations or parameters may be missing or partially known. In a standard frequentist approach, these missing values are often dropped—a practice known as <em>complete case analysis</em>. While sometimes justifiable, ignoring missing data frequently leads to biased estimates and a loss of valuable information <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
+<p>In the Bayesian framework, <strong>missing data are simply treated as unknown parameters to be estimated within the model itself</strong>. The generative model fundamentally does not distinguish between unobserved parameters (e.g., regression coefficients) and unobserved data. The entire joint distribution is evaluated, allowing the model to smoothly “impute” the missing values based on the observed data and prior structural relationships <span class="citation" data-cites="stan_missing_data">Stan Development Team (<a href="#ref-stan_missing_data" role="doc-biblioref">2024</a>)</span>.</p>
+<p>Conceptually, the probability model (likelihood) designed for the measurement constraint serves as the prior distribution for the unobserved data.</p>
+<section id="missingness-mechanisms" class="level3">
+<h3 class="anchored" data-anchor-id="missingness-mechanisms">Missingness Mechanisms</h3>
+<p>From a causal inference perspective, the strategy for handling missing data hinges on the underlying mechanism causing the missingness <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>. Imagine evaluating an animal’s true lifespan or waiting time until adoption (<span class="math inline">H</span>) based on some underlying trait like coat color or species (<span class="math inline">S</span>). However, a missingness process (<span class="math inline">D</span>)—such as a sensor failing, a researcher ending the study, or the trailing event occurring unobserved—might result in an incomplete, partially observed record (<span class="math inline">H^*</span>):</p>
+<ol type="1">
+<li><strong>Missing Completely At Random (MCAR)</strong>: <em>Random sensor failure.</em> The missingness (<span class="math inline">D</span>) is entirely independent of the animal’s traits (<span class="math inline">S</span>) or its true lifespan (<span class="math inline">H</span>).
+<ul>
+<li><strong>Strategy</strong>: Dropping incomplete cases (complete case analysis) is okay and generally unbiased, but it results in a loss of statistical efficiency.</li>
+</ul></li>
+<li><strong>Missing At Random (MAR)</strong>: <em>Missingness conditional on traits.</em> The missingness (<span class="math inline">D</span>) is systematically related to other observed variables, such as the animal’s species or behavior (<span class="math inline">S</span>) affecting the likelihood of consistent tracking.
+<ul>
+<li><strong>Strategy</strong>: Statistical inference can be rescued by correctly conditioning on the structural causes of the missingness (e.g., <span class="math inline">S</span>) to close backdoor estimation paths.</li>
+</ul></li>
+<li><strong>Not Missing At Random (NMAR)</strong>: <em>Missingness caused by the outcome itself.</em> The probability of missingness (<span class="math inline">D</span>) is directly caused by the unobserved value itself (<span class="math inline">H</span>) (e.g., animals that wait the longest to be adopted outlast the study duration and are therefore missing/right-censored).
+<ul>
+<li><strong>Strategy</strong>: Usually hopeless unless we can explicitly model the missingness mechanism (the censoring process), such as right-censored waiting times in survival analysis.</li>
+</ul></li>
+</ol>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    classDef unobserved fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
+
+    subgraph MCAR ["1. MCAR: Random sensor failure"]
+        direction TD
+        S1[S] --&gt; H1(("H")):::unobserved
+        D1[D] --&gt; H_star1["H*"]
+        H1 --&gt; H_star1
+    end
+    
+    subgraph MAR ["2. MAR: Missingness conditional on traits"]
+        direction TD
+        S2[S] --&gt; H2(("H")):::unobserved
+        S2 --&gt; D2[D]
+        D2 --&gt; H_star2["H*"]
+        H2 --&gt; H_star2
+    end
+    
+    subgraph NMAR ["3. NMAR: Missingness caused by the outcome"]
+        direction TD
+        S3[S] --&gt; H3(("H")):::unobserved
+        H3 --&gt; D3[D]
+        D3 --&gt; H_star3["H*"]
+        H3 --&gt; H_star3
+    end
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 </section>
 <section id="considerations" class="level2">
 <h2 class="anchored" data-anchor-id="considerations">Considerations</h2>
-<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Caution
+Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul>
+<<<<<<< HEAD
 <li><strong>Parameters vs.&nbsp;Data</strong>: In generative models, there is minimal mathematical distinction between “unobserved parameters” (like regression weights) and “unobserved data” (like missing survey responses). Both are simply unknowns governed by probability distributions.</li>
+=======
+<li><strong>Parameters vs.&nbsp;Data</strong>: In generative models, there is no philosophical distinction between “unobserved parameters” and “unobserved data”. Both are simply unknowns governed by probability distributions. The likelihood of an observed data point behaves identically to the prior for an unobserved one.</li>
+<li><strong>Imputation vs.&nbsp;Marginalization</strong>: Bayesian Inference offers two primary computational strategies. <strong>Imputation</strong> treats each missing value as a parameter, yielding full posterior distributions for the unknowns; it is highly flexible and transparent but computationally intensive. <strong>Marginalization</strong> mathematically integrates over the unknowns, which is often faster but can be analytically opaque or numerically unstable for certain density functions.</li>
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 <li><strong>JAX Arrays are Immutable</strong>: <code>BayesInference</code> uses JAX in the backend. JAX arrays do not support direct heterogeneous assignments (e.g., <code>y[ii_mis] = y_mis</code>). When splicing missing data into a larger array, you must use <code>.at[...].set(...)</code> operations.</li>
 <li><strong>Partial Knowledge</strong>: Sometimes covariance or correlation matrices are only partially known. Instead of discarding the known parts, we only sample the unknown cells uniformly within mathematically valid positive-definite bounds and reconstruct the matrix deterministically.</li>
 </ul>
 </div>
 </div>
 </section>
+<<<<<<< HEAD
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
 <p>Below are three typical missing data patterns translated into the <strong>BayesInference (BI)</strong> framework: 1. <strong>Simple Missing Imputation</strong>: Treating missing observations as a vector of latent variables. 2. <strong>Partially Known Parameters</strong>: Reconstructing a covariance matrix from known variances and an unknown covariance. 3. <strong>Sliced Missing Data</strong>: Inserting missing time-series steps cleanly into an array using JAX <code>at</code>.</p>
@@ -683,6 +769,24 @@ Caution
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Simple Missing Data Imputation ---------------------------</span></span>
+=======
+<section id="examples" class="level2">
+<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<p>Below are four typical missing data patterns translated into the <strong>BayesInference (BI)</strong> framework. Each example demonstrates a specific strategy discussed in the <a href="#general-principles">General Principles</a> and <a href="#considerations">Considerations</a> sections.</p>
+<section id="simple-missing-imputation" class="level3">
+<h3 class="anchored" data-anchor-id="simple-missing-imputation">1. Simple Missing Imputation</h3>
+<p>This example demonstrates the core concept of <strong>Imputation</strong> vs.&nbsp;<strong>Marginalization</strong> (from <em>Considerations</em>). Missing observations are modeled as latent variables. Because we treat unobserved data as parameters (as per <em>Parameters vs.&nbsp;Data</em>), the likelihood of the observed points serves as the prior for the missing points. This can be viewed as an MCAR or MAR strategy where we explicitly estimate the missing values.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Julia</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> missing_data_model(y_obs, N_mis):</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">10</span>, name<span class="op">=</span><span class="st">"mu"</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.half_normal(<span class="dv">10</span>, name<span class="op">=</span><span class="st">"sigma"</span>)</span>
@@ -692,6 +796,7 @@ Caution
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        y_mis <span class="op">=</span> m.dist.normal(mu, sigma, name<span class="op">=</span><span class="st">"y_mis"</span>)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        </span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood for OBSERVED data</span></span>
+<<<<<<< HEAD
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(mu, sigma, obs<span class="op">=</span>y_obs)</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Partially Known Parameters (Covariance) -------------------</span></span>
@@ -786,11 +891,35 @@ Caution
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+=======
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(mu, sigma, obs<span class="op">=</span>y_obs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">importBI</span>(<span class="at">platform =</span> <span class="st">"cpu"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">&lt;-</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">"jax.numpy"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>missing_data_model <span class="ot">&lt;-</span> <span class="cf">function</span>(y_obs, N_mis) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>, <span class="at">name=</span><span class="st">"mu"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    sigma <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">half_normal</span>(<span class="dv">10</span>, <span class="at">name=</span><span class="st">"sigma"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Treat missing data block as latent parameters</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    tmp <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">plate</span>(<span class="st">"missing_obs"</span>, N_mis)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    y_mis <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(mu, sigma, <span class="at">name=</span><span class="st">"y_mis"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood for OBSERVED data</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(mu, sigma, <span class="at">obs=</span>y_obs)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">PythonCall</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>jnp <span class="op">=</span> <span class="fu">pyimport</span>(<span class="st">"jax.numpy"</span>)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<<<<<<< HEAD
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Simple Missing Data Imputation ---------------------------</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">missing_data_model</span>(y_obs, N_mis)</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">10</span>, name<span class="op">=</span><span class="st">"mu"</span>)</span>
@@ -835,9 +964,255 @@ Caution
 <span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">100</span>, obs<span class="op">=</span>y_full[<span class="fl">0</span>])</span>
 <span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(y_full[<span class="fl">0</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span><span class="fl">1</span>], sigma, obs<span class="op">=</span>y_full[<span class="fl">1</span><span class="op">:</span><span class="kw">end</span>])</span>
 <span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+=======
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">missing_data_model</span>(y_obs, N_mis)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">10</span>, name<span class="op">=</span><span class="st">"mu"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.<span class="fu">half_normal</span>(<span class="fl">10</span>, name<span class="op">=</span><span class="st">"sigma"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Treat missing data block as latent parameters</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    tmp <span class="op">=</span> m.dist.<span class="fu">plate</span>(<span class="st">"missing_obs"</span>, N_mis)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(mu, sigma, name<span class="op">=</span><span class="st">"y_mis"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Note: In Python, `with plate:` is used. For Julia, follow the macro constraints or vectorized shape arguments as supported.</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood for OBSERVED data</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(mu, sigma, obs<span class="op">=</span>y_obs)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 </div>
 </div>
 </div>
+</section>
+<section id="partially-known-parameters-covariance" class="level3">
+<h3 class="anchored" data-anchor-id="partially-known-parameters-covariance">2. Partially Known Parameters (Covariance)</h3>
+<p>This example illustrates how to handle <strong>Partial Knowledge</strong> (from <em>Considerations</em>). We have observed variances but an unobserved covariance. Rather than discarding the known variances, we deterministically assemble the covariance matrix by sampling the unknown covariance within mathematically valid positive-definite bounds.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false">Julia</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> partially_known_model(y, var1, var2):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Determine bounds based on positive-definite requirements</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    max_cov <span class="op">=</span> jnp.sqrt(var1 <span class="op">*</span> var2)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    min_cov <span class="op">=</span> <span class="op">-</span>max_cov</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">5</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name<span class="op">=</span><span class="st">"mu"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sample the unknown covariance within valid bounds</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> m.dist.uniform(min_cov, max_cov, name<span class="op">=</span><span class="st">"cov"</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Deterministically assemble the partially known matrix</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="op">=</span> jnp.array([</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        [var1, cov],</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        [cov,  var2]</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fit the Likelihood</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    m.dist.multivariatenormal(loc<span class="op">=</span>mu, covariance_matrix<span class="op">=</span>Sigma, obs<span class="op">=</span>y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>partially_known_model <span class="ot">&lt;-</span> <span class="cf">function</span>(y, var1, var2) {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Determine bounds based on positive-definite requirements</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    max_cov <span class="ot">&lt;-</span> jnp<span class="sc">$</span><span class="fu">sqrt</span>(var1 <span class="sc">*</span> var2)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    min_cov <span class="ot">&lt;-</span> <span class="sc">-</span>max_cov</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">2</span>L), <span class="at">name=</span><span class="st">"mu"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sample the unknown covariance within valid bounds</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    cov <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">uniform</span>(min_cov, max_cov, <span class="at">name=</span><span class="st">"cov"</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Deterministically assemble the partially known matrix</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> jnp<span class="sc">$</span><span class="fu">array</span>(<span class="fu">list</span>(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list</span>(var1, cov),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list</span>(cov,  var2)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fit the Likelihood</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">multivariatenormal</span>(<span class="at">loc=</span>mu, <span class="at">covariance_matrix=</span>Sigma, <span class="at">obs=</span>y)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
+<div class="sourceCode" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">partially_known_model</span>(y, var1, var2)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    max_cov <span class="op">=</span> jnp.<span class="fu">sqrt</span>(var1 <span class="op">*</span> var2)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    min_cov <span class="op">=</span> <span class="op">-</span>max_cov</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">5</span>, shape<span class="op">=</span>(<span class="fl">2</span>,), name<span class="op">=</span><span class="st">"mu"</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    cov <span class="op">=</span> m.dist.<span class="fu">uniform</span>(min_cov, max_cov, name<span class="op">=</span><span class="st">"cov"</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assemble the matrix row-by-row</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    row1 <span class="op">=</span> jnp.<span class="fu">stack</span>([var1, cov])</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    row2 <span class="op">=</span> jnp.<span class="fu">stack</span>([cov, var2])</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="op">=</span> jnp.<span class="fu">stack</span>([row1, row2])</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fit the Likelihood</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">multivariatenormal</span>(loc<span class="op">=</span>mu, covariance_matrix<span class="op">=</span>Sigma, obs<span class="op">=</span>y)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="sliced-missing-data-time-series" class="level3">
+<h3 class="anchored" data-anchor-id="sliced-missing-data-time-series">3. Sliced Missing Data (Time Series)</h3>
+<p>This example highlights the technical implementation detail of <strong>JAX Arrays are Immutable</strong> (from <em>Considerations</em>). When missing data points are sprinkled within a time series, we cannot mutate arrays in-place. We must use <code>.at[...].set(...)</code> to cleanly insert the imputed latent variables into the full array before evaluating the state-space likelihood.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false">Julia</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sliced_missing_model(y_obs, ii_obs, N_mis, ii_mis, N_total):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.gamma(<span class="dv">1</span>, <span class="dv">1</span>, name<span class="op">=</span><span class="st">"sigma"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Missing points are parameters</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    y_mis <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">10</span>, shape<span class="op">=</span>(N_mis,), name<span class="op">=</span><span class="st">"y_mis"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assemble full array without in-place mutation using JAX .at</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    y_full <span class="op">=</span> jnp.zeros(N_total)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    y_full <span class="op">=</span> y_full.at[ii_obs].<span class="bu">set</span>(y_obs)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    y_full <span class="op">=</span> y_full.at[ii_mis].<span class="bu">set</span>(y_mis)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># State-Space Time Series Likelihood: y[t] ~ normal(y[t-1], sigma)</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(<span class="dv">0</span>, <span class="dv">100</span>, obs<span class="op">=</span>y_full[<span class="dv">0</span>])</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(y_full[:<span class="op">-</span><span class="dv">1</span>], sigma, obs<span class="op">=</span>y_full[<span class="dv">1</span>:])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>sliced_missing_model <span class="ot">&lt;-</span> <span class="cf">function</span>(y_obs, ii_obs, N_mis, ii_mis, N_total) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    sigma <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">gamma</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">"sigma"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Missing points are parameters</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    y_mis <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>, <span class="at">shape=</span><span class="fu">c</span>(N_mis), <span class="at">name=</span><span class="st">"y_mis"</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assemble full array without in-place mutation using JAX .at</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    y_full <span class="ot">&lt;-</span> jnp<span class="sc">$</span><span class="fu">zeros</span>(N_total)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    y_full <span class="ot">&lt;-</span> y_full<span class="sc">$</span>at[ii_obs]<span class="sc">$</span><span class="fu">set</span>(y_obs)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    y_full <span class="ot">&lt;-</span> y_full<span class="sc">$</span>at[ii_mis]<span class="sc">$</span><span class="fu">set</span>(y_mis)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># State-Space Time Series Likelihood</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="at">obs=</span>y_full[<span class="dv">0</span>L])</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(y_full[<span class="dv">0</span>L<span class="sc">:</span>(N_total<span class="dv">-2</span>L)], sigma, <span class="at">obs=</span>y_full[<span class="dv">1</span>L<span class="sc">:</span>(N_total<span class="dv">-1</span>L)])</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
+<div class="sourceCode" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">sliced_missing_model</span>(y_obs, ii_obs, N_mis, ii_mis, N_total)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.<span class="fu">gamma</span>(<span class="fl">1</span>, <span class="fl">1</span>, name<span class="op">=</span><span class="st">"sigma"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    y_mis <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">10</span>, shape<span class="op">=</span>(N_mis,), name<span class="op">=</span><span class="st">"y_mis"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assemble full array using JAX immutable setters</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    y_full <span class="op">=</span> jnp.<span class="fu">zeros</span>(N_total)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    y_full <span class="op">=</span> y_full.at[ii_obs].<span class="fu">set</span>(y_obs)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    y_full <span class="op">=</span> y_full.at[ii_mis].<span class="fu">set</span>(y_mis)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">100</span>, obs<span class="op">=</span>y_full[<span class="fl">0</span>])</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(y_full[<span class="fl">0</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span><span class="fl">1</span>], sigma, obs<span class="op">=</span>y_full[<span class="fl">1</span><span class="op">:</span><span class="kw">end</span>])</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="censored-data-via-survival-analysis-nmar" class="level3">
+<h3 class="anchored" data-anchor-id="censored-data-via-survival-analysis-nmar">4. Censored Data via Survival Analysis (NMAR)</h3>
+<p>This example corresponds closely to the <strong>Not Missing At Random (NMAR)</strong> mechanism (from <em>Missingness Mechanisms</em> in <em>General Principles</em>). The waiting times are right-censored—the probability of missingness is caused by the outcome itself outlasting the observation window. Instead of explicitly imputing values for each missing observation, survival analysis intrinsically leverages <strong>Marginalization</strong> (from <em>Considerations</em>), utilizing a survival object to correctly evaluate the probability of the censored event without dropping the partial knowledge.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-3" role="tab" aria-controls="tabset-4-3" aria-selected="false">Julia</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Explicitly modeling the probability of an event being censored</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mastectomy_survival_model():</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load survival dataset with censored values</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    data_path <span class="op">=</span> m.load.mastectomy(only_path<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    m.data(data_path, sep<span class="op">=</span><span class="st">','</span>) </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Clean data flags</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    m.df.metastasized <span class="op">=</span> (m.df.metastasized <span class="op">==</span> <span class="st">"yes"</span>).astype(np.int64)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    m.df.event <span class="op">=</span> jnp.array(m.df.event.values, dtype<span class="op">=</span>jnp.int32)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Automatically construct the censored survival objects</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    m.models.survival.surv_object(time<span class="op">=</span><span class="st">'time'</span>, event<span class="op">=</span><span class="st">'event'</span>, cov<span class="op">=</span><span class="st">'metastasized'</span>, interval_length<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot censoring (the missingness mechanism)</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    m.models.survival.plot_censoring(cov<span class="op">=</span><span class="st">'metastasized'</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> model(intervals, death, metastasized, exposure):</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        lambda0 <span class="op">=</span> m.dist.gamma(<span class="fl">0.01</span>, <span class="fl">0.01</span>, shape<span class="op">=</span>intervals.shape, name<span class="op">=</span><span class="st">'lambda0'</span>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        beta <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="dv">1000</span>, shape<span class="op">=</span>(<span class="dv">1</span>,), name<span class="op">=</span><span class="st">'beta'</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Hazard rate based on covariates</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>        lambda_ <span class="op">=</span> m.models.survival.hazard_rate(cov<span class="op">=</span>metastasized, beta<span class="op">=</span>beta, lambda0<span class="op">=</span>lambda0)</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>        mu <span class="op">=</span> exposure <span class="op">*</span> lambda_</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Poisson likelihood accounts for observed events over the exposure timeframe</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> m.dist.poisson(mu <span class="op">+</span> jnp.finfo(mu.dtype).tiny, obs<span class="op">=</span>death)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    m.fit(model, progress_bar<span class="op">=</span><span class="va">False</span>) </span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    m.models.survival.plot_surv()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>mastectomy_survival_model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load survival dataset with censored values</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    data_path <span class="ot">&lt;-</span> m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">mastectomy</span>(<span class="at">only_path=</span><span class="cn">TRUE</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span><span class="fu">data</span>(data_path, <span class="at">sep=</span><span class="st">','</span>) </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Clean data flags</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span>df<span class="sc">$</span>metastasized <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(m<span class="sc">$</span>df<span class="sc">$</span>metastasized <span class="sc">==</span> <span class="st">"yes"</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span>df<span class="sc">$</span>event <span class="ot">&lt;-</span> jnp<span class="sc">$</span><span class="fu">array</span>(<span class="fu">as.integer</span>(m<span class="sc">$</span>df<span class="sc">$</span>event))</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Automatically construct the censored survival objects</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span>models<span class="sc">$</span>survival<span class="sc">$</span><span class="fu">surv_object</span>(<span class="at">time=</span><span class="st">'time'</span>, <span class="at">event=</span><span class="st">'event'</span>, <span class="at">cov=</span><span class="st">'metastasized'</span>, <span class="at">interval_length=</span><span class="dv">3</span>L)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot censoring (the missingness mechanism)</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span>models<span class="sc">$</span>survival<span class="sc">$</span><span class="fu">plot_censoring</span>(<span class="at">cov=</span><span class="st">'metastasized'</span>)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    model <span class="ot">&lt;-</span> <span class="cf">function</span>(intervals, death, metastasized, exposure) {</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        lambda0 <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">gamma</span>(<span class="fl">0.01</span>, <span class="fl">0.01</span>, <span class="at">shape=</span>intervals<span class="sc">$</span>shape, <span class="at">name=</span><span class="st">'lambda0'</span>)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        beta <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1000</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>L), <span class="at">name=</span><span class="st">'beta'</span>)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Hazard rate based on covariates</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>        lambda_ <span class="ot">&lt;-</span> m<span class="sc">$</span>models<span class="sc">$</span>survival<span class="sc">$</span><span class="fu">hazard_rate</span>(<span class="at">cov=</span>metastasized, <span class="at">beta=</span>beta, <span class="at">lambda0=</span>lambda0)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>        mu <span class="ot">&lt;-</span> exposure <span class="sc">*</span> lambda_</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Poisson likelihood accounts for observed events over the exposure timeframe</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>        tiny <span class="ot">&lt;-</span> jnp<span class="sc">$</span><span class="fu">finfo</span>(mu<span class="sc">$</span>dtype)<span class="sc">$</span>tiny</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>        y <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">poisson</span>(mu <span class="sc">+</span> tiny, <span class="at">obs=</span>death)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span><span class="fu">fit</span>(model, <span class="at">progress_bar=</span><span class="cn">FALSE</span>) </span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    m<span class="sc">$</span>models.survival<span class="sc">$</span><span class="fu">plot_surv</span>()</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-4-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-3-tab">
+<div class="sourceCode" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">mastectomy_survival_model</span>()</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load survival dataset with censored values</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    data_path <span class="op">=</span> m.load.<span class="fu">mastectomy</span>(only_path<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    m.<span class="fu">data</span>(data_path, sep<span class="op">=</span><span class="st">","</span>) </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Clean data flags</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Note: Using Python pandas interop for column modification</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> m.df</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    df.metastasized <span class="op">=</span> (df.metastasized <span class="op">.==</span> <span class="st">"yes"</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    df.event <span class="op">=</span> jnp.<span class="fu">array</span>(df.event.values, dtype<span class="op">=</span>jnp.int32)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Automatically construct the censored survival objects</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    m.models.survival.<span class="fu">surv_object</span>(time<span class="op">=</span><span class="st">"time"</span>, event<span class="op">=</span><span class="st">"event"</span>, cov<span class="op">=</span><span class="st">"metastasized"</span>, interval_length<span class="op">=</span><span class="fl">3</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot censoring (the missingness mechanism)</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    m.models.survival.<span class="fu">plot_censoring</span>(cov<span class="op">=</span><span class="st">"metastasized"</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(intervals, death, metastasized, exposure)</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        lambda0 <span class="op">=</span> m.dist.<span class="fu">gamma</span>(<span class="fl">0.01</span>, <span class="fl">0.01</span>, shape<span class="op">=</span>intervals.shape, name<span class="op">=</span><span class="st">"lambda0"</span>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        beta <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1000</span>, shape<span class="op">=</span>(<span class="fl">1</span>,), name<span class="op">=</span><span class="st">"beta"</span>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Hazard rate based on covariates</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        lambda_ <span class="op">=</span> m.models.survival.<span class="fu">hazard_rate</span>(cov<span class="op">=</span>metastasized, beta<span class="op">=</span>beta, lambda0<span class="op">=</span>lambda0)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>        mu <span class="op">=</span> exposure <span class="op">*</span> lambda_</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Poisson likelihood accounts for observed events over the exposure timeframe</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        tiny <span class="op">=</span> jnp.<span class="fu">finfo</span>(mu.dtype).tiny</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> m.dist.<span class="fu">poisson</span>(mu <span class="op">+</span> tiny, obs<span class="op">=</span>death)</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    m.<span class="fu">fit</span>(model, progress_bar<span class="op">=</span><span class="cn">false</span>) </span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    m.models.survival.<span class="fu">plot_surv</span>()</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="mathematical-details" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h2>
@@ -847,7 +1222,20 @@ Caution
 <p>For a simple Gaussian imputation, the joint posterior of the parameters <span class="math inline">(\mu, \sigma)</span> and the missing data <span class="math inline">Y_{\text{mis}}</span> is proportional to: <span class="math display">
 P(\mu, \sigma, Y_{\text{mis}} | Y_{\text{obs}}) \propto P(Y_{\text{obs}} | \mu, \sigma) \, P(Y_{\text{mis}} | \mu, \sigma) \, P(\mu, \sigma)
 </span></p>
+<<<<<<< HEAD
 <p>Because both <span class="math inline">Y_{\text{obs}}</span> and <span class="math inline">Y_{\text{mis}}</span> are generated from the identical normal distribution <span class="math inline">\text{Normal}(\mu, \sigma)</span>, the sampler naturally infers values for <span class="math inline">Y_{\text{mis}}</span> that are highly plausible given the parameters <span class="math inline">\mu, \sigma</span> fitted to <span class="math inline">Y_{\text{obs}}</span>.</p>
+=======
+<p>Because both <span class="math inline">Y_{\text{obs}}</span> and <span class="math inline">Y_{\text{mis}}</span> are generated from the identical normal distribution <span class="math inline">\text{Normal}(\mu, \sigma)</span>, the sampler naturally infers values for <span class="math inline">Y_{\text{mis}}</span> that are highly plausible given the parameters <span class="math inline">\mu, \sigma</span> fitted to <span class="math inline">Y_{\text{obs}}</span>. Conceptually, the likelihood function <span class="math inline">P(Y_{\text{mis}} | \mu, \sigma)</span> acts as the structural prior for the missing observations <span class="math inline">Y_{\text{mis}}</span>. By sampling <span class="math inline">Y_{\text{mis}}</span> during execution, we perform <strong>Bayesian Imputation</strong>, averaging over the uncertainty of the missing values.</p>
+</section>
+<section id="marginalization" class="level3">
+<h3 class="anchored" data-anchor-id="marginalization"><em>Marginalization</em></h3>
+<p>Alternatively, <strong>Marginalization</strong> analytically integrates out the missing values, removing the need to estimate thousands of imputed parameters. For unobserved variables, the likelihood of the observed dataset is evaluated by integrating over all possible values of the missing data: <span class="math display">
+P(Y_{\text{obs}} | \mu, \sigma) = \int P(Y_{\text{obs}}, Y_{\text{mis}} | \mu, \sigma) \, dY_{\text{mis}}
+</span> While marginalization is computationally more expedient by shrinking the parameter space, it can be analytically challenging and numerically unstable for models with extreme density tails. In models where missingness limits are known, such as right-censored survival data, marginalization relies on tools like the Complementary Cumulative Distribution Function (CCDF) to calculate the remaining cumulative probability beyond the censoring threshold.</p>
+</section>
+<section id="constraints" class="level3">
+<h3 class="anchored" data-anchor-id="constraints"><em>Constraints</em></h3>
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 <p>For partially known covariance matrices, the reconstructed parameter <span class="math inline">\Sigma</span> is mathematically bound by the positive-definite limits of a <span class="math inline">2 \times 2</span> matrix, leading to: <span class="math display">
 \det(\Sigma) &gt; 0 \implies \text{var}_1 \text{var}_2 - \text{cov}^2 &gt; 0 \implies |\text{cov}| &lt; \sqrt{\text{var}_1 \text{var}_2}
 </span></p>
@@ -866,6 +1254,7 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
+<<<<<<< HEAD
 <li><strong>Missing Completely At Random (MCAR) vs Not Missing At Random (NMAR)</strong>: The structural examples shown above effectively operate under the assumption that the probability of data being missing is independent of the value itself (MCAR or MAR). If the missingness mechanism depends on the missing value itself (NMAR)—e.g., people with low income refusing to report their income—a secondary likelihood must explicitly model the probability of the data being missing (<code>is_missing ~ Bernoulli(p)</code>).</li>
 </ul>
 </div>
@@ -876,11 +1265,30 @@ Note
 <ol type="1">
 <li><a href="https://mc-stan.org/docs/stan-users-guide/missing-data.html">Stan User’s Guide: Missing Data</a></li>
 </ol>
+=======
+<li><strong>Missing Completely At Random (MCAR) vs Not Missing At Random (NMAR)</strong>: The structural examples shown above effectively operate under the assumption that the probability of data being missing is independent of the value itself (MCAR or MAR). If the missingness mechanism depends on the missing value itself (NMAR)—e.g., people with low income refusing to report their income, or right-censored animal adoption waiting durations—a secondary likelihood must explicitly model the probability of the data being missing or censored to prevent inferential bias.</li>
+<li><strong>Censored Data</strong>: Censoring is a special form of missingness where partial information is retained (e.g., an observation is known to exceed a specific threshold, <span class="math inline">D &gt; D_{\text{censor}}</span>). By explicitly truncating the imputation prior or utilizing the CCDF, the generative model extracts information from the censored record without distorting rate estimates.</li>
+</ul>
+</div>
+</div>
+
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 
 
 </section>
 
+<<<<<<< HEAD
 </main> <!-- /main -->
+=======
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mcelreath2018statistical" class="csl-entry" role="listitem">
+McElreath, Richard. 2018. <em><span class="nocase">Statistical Rethinking: A Bayesian course with examples in R and Stan</span></em>. Chapman; Hall/CRC.
+</div>
+<div id="ref-stan_missing_data" class="csl-entry" role="listitem">
+Stan Development Team. 2024. <em>Stan User’s Guide: Missing Data</em>. <a href="https://mc-stan.org/docs/stan-users-guide/missing-data.html">https://mc-stan.org/docs/stan-users-guide/missing-data.html</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+>>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 
 <script src="https://unpkg.com/tippy.js@6"></script>
