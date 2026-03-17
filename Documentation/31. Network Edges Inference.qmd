@@ -347,35 +347,6 @@ m = bi(platform='cpu')
 m.data_on_model = {'data': data_list_jax} 
 
 def bi_model_duration(data):
-    # Edge weights (proportion scale mapping)
-    edge_weight = m.dist.normal(data['prior_edge_mu'], data['prior_edge_sigma'], 
-                                shape=(data['num_edges'],), name="edge_weight")
-    
-    # Additional absolute rate parameter strictly positive (Half-Normal equivalent constraint logic)
-    rate_param = m.dist.normal(0.0, data['prior_rate_sigma'], 
-                               shape=(data['num_edges'],), name="rate")
-    rate_positive = m.jnp.abs(rate_param) 
-    
-    dyad_ids_0 = data['dyad_ids'] - 1
-    predictor = edge_weight[dyad_ids_0]
-    
-    if data['num_fixed'] > 0:
-        beta_fixed = m.dist.normal(data['prior_fixed_mu'], data['prior_fixed_sigma'], 
-                                   shape=(data['num_fixed'],), name="beta_fixed")
-        predictor = predictor + m.jnp.dot(data['design_fixed'], beta_fixed)
-
-    # Convert to expected total scale fraction
-    p = m.jax.scipy.special.expit(predictor)
-    
-    # Build linked parameters
-    lambda_exp = rate_positive[dyad_ids_0] / p
-    lambda_pois = rate_positive * data['divisor']
-    
-    # Joint likelihood inference
-=======
-m.data_on_model = {'data': data} 
-
-def bi_model_duration(data):
 
     # 1. Edge weights prior with partial pooling : Set the baseline (Intercept)
     edge_sigma = m.dist.half_normal(2.0, name="edge_sigma")
@@ -408,7 +379,6 @@ def bi_model_duration(data):
     lambda_pois = rate_positive * data['divisor']
     
     # 5. Joint likelihood inference
->>>>>>> 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b
     m.dist.exponential(lambda_exp, obs=data['event'], name="event")
     m.dist.poisson(lambda_pois, obs=data['event_count'], name="event_count")
 
@@ -419,7 +389,6 @@ m.summary()
 ## R
 
 ```r
-<<<<<<< HEAD
 library(BayesianInference)
 m <- importBI(platform = "cpu")
 jnp <- reticulate::import("jax.numpy")

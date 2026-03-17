@@ -486,6 +486,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./14. Nested varying effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Nested Varying Effects</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./15. Gaussian processes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Gaussian Processes</span></a>
   </div>
@@ -534,12 +540,6 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./31. Network Edges Inference.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧Network Edges Inference🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
@@ -565,13 +565,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./29. BNN for classification.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 BNN for Classification 🚧</span></a>
+ <span class="menu-text">BNN for Classification</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./30. BNN for multiclass classification.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 BNN for Multiclass Classification 🚧</span></a>
+ <span class="menu-text">BNN for Multiclass Classification</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -680,105 +680,158 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div id="df65cf61" class="cell" data-execution_count="1">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data ------------------------------------------------</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>population <span class="op">=</span> m.dist.normal(<span class="dv">0</span>,<span class="dv">1</span>, shape <span class="op">=</span> (<span class="dv">100</span>,), sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>cid <span class="op">=</span> m.dist.binomial(<span class="dv">1</span>, <span class="fl">0.5</span>, shape <span class="op">=</span> (<span class="dv">100</span>,), sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>hours <span class="op">=</span> m.dist.uniform(<span class="dv">1</span>, <span class="dv">10</span>, shape<span class="op">=</span>(<span class="dv">100</span>,), sample<span class="op">=</span><span class="va">True</span>) </span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> m.dist.normal(<span class="dv">3</span>, <span class="fl">0.5</span>, shape<span class="op">=</span> (<span class="dv">2</span>,), name<span class="op">=</span><span class="st">'a'</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.2</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name<span class="op">=</span><span class="st">'b'</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> hours <span class="op">*</span> jnp.exp(a[cid] <span class="op">+</span> b[cid]<span class="op">*</span>population)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>total_tools <span class="op">=</span> m.dist.poisson(l,  sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data ------------------------------------------------</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Using numpy for simulation to easily set the true values</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>population <span class="op">=</span> np.random.normal(<span class="dv">0</span>, <span class="dv">1</span>, size<span class="op">=</span>N)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>cid <span class="op">=</span> np.random.binomial(<span class="dv">1</span>, <span class="fl">0.5</span>, size<span class="op">=</span>N)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>hours <span class="op">=</span> np.random.uniform(<span class="dv">1</span>, <span class="dv">10</span>, size<span class="op">=</span>N)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Model data ------------------------------------------------</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model_offset(cid, population, hours, total_tools):</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">3</span>, <span class="fl">0.5</span>, shape<span class="op">=</span> (<span class="dv">2</span>,), name<span class="op">=</span><span class="st">'a'</span>)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.2</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name<span class="op">=</span><span class="st">'b'</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> hours <span class="op">*</span> jnp.exp(a[cid] <span class="op">+</span> b[cid]<span class="op">*</span>population)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(l, obs<span class="op">=</span>total_tools)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(cid<span class="op">=</span>cid, population<span class="op">=</span>population, hours<span class="op">=</span>hours, total_tools<span class="op">=</span>total_tools)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>true_a <span class="op">=</span> np.array([<span class="fl">2.5</span>, <span class="fl">3.5</span>])</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>true_b <span class="op">=</span> np.array([<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.2</span>])</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> hours <span class="op">*</span> np.exp(true_a[cid] <span class="op">+</span> true_b[cid] <span class="op">*</span> population)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>total_tools <span class="op">=</span> np.random.poisson(l)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"True a: </span><span class="sc">{</span>true_a<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"True b: </span><span class="sc">{</span>true_b<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>m.fit(model_offset, progress_bar<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Model data ------------------------------------------------</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model_offset(cid, population, hours, total_tools):</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">3</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name<span class="op">=</span><span class="st">'a'</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.normal(<span class="dv">0</span>, <span class="fl">0.2</span>, shape<span class="op">=</span>(<span class="dv">2</span>,), name<span class="op">=</span><span class="st">'b'</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> hours <span class="op">*</span> jnp.exp(a[cid] <span class="op">+</span> b[cid]<span class="op">*</span>population)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(l, obs<span class="op">=</span>total_tools)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(cid<span class="op">=</span>cid, population<span class="op">=</span>population, hours<span class="op">=</span>hours, total_tools<span class="op">=</span>total_tools)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>m.fit(model_offset, progress_bar<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>summ <span class="op">=</span> m.summary()</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Summary results:"</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(summ[[<span class="st">'mean'</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>jax.local_device_count 16
+True a: [2.5 3.5]
+True b: [-0.1  0.2]</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Summary results:
+      mean
+a[0]  2.49
+a[1]  3.49
+b[0] -0.10
+b[1]  0.19</code></pre>
+</div>
+</div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'jax.numpy'</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data ------------------------------------------------</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>population <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">100</span>), <span class="at">sample =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>cid <span class="ot">=</span> <span class="fu">bi.dist.binomial</span>(<span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.5</span>), <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">100</span>),<span class="at">sample =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>hours <span class="ot">=</span> <span class="fu">bi.dist.uniform</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">100</span>), <span class="at">sample=</span><span class="cn">TRUE</span>) </span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>a <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">3</span>, <span class="fl">0.5</span>, <span class="at">shape=</span> (<span class="dv">2</span>), <span class="at">name=</span><span class="st">'a'</span>, <span class="at">sample =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>b <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">shape=</span>(<span class="dv">2</span>), <span class="at">name=</span><span class="st">'b'</span>, <span class="at">sample =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>l <span class="ot">=</span> hours <span class="sc">*</span> jnp<span class="sc">$</span><span class="fu">exp</span>(a[cid] <span class="sc">+</span> b[cid]<span class="sc">*</span>population)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>total_tools <span class="ot">=</span> <span class="fu">bi.dist.poisson</span>(l,  <span class="at">sample =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(cid, population, hours, total_tools_offset){</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">3</span>, <span class="fl">0.5</span>, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">2</span>))</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">name=</span><span class="st">'beta'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">2</span>))</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">=</span> hours <span class="sc">*</span> jnp<span class="sc">$</span><span class="fu">exp</span>(alpha[cid] <span class="sc">+</span> beta[cid]<span class="sc">*</span>population)</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bi.dist.poisson</span>(l, <span class="at">obs=</span>total_tools)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model <span class="ot">=</span> <span class="fu">list</span>()</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>total_tools <span class="ot">=</span> total_tools</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>population <span class="ot">=</span> population</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>cid <span class="ot">=</span> cid</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model<span class="sc">$</span>hours <span class="ot">=</span> hours</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'jax.numpy'</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data ------------------------------------------------</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>N <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>population <span class="ot">=</span> <span class="fu">rnorm</span>(N, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>cid <span class="ot">=</span> <span class="fu">rbinom</span>(N, <span class="dv">1</span>, <span class="fl">0.5</span>) <span class="sc">+</span> <span class="dv">1</span> <span class="co"># R indices are 1-based</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>hours <span class="ot">=</span> <span class="fu">runif</span>(N, <span class="dv">1</span>, <span class="dv">10</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>true_a <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">2.5</span>, <span class="fl">3.5</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>true_b <span class="ot">=</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>, <span class="fl">0.2</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>l <span class="ot">=</span> hours <span class="sc">*</span> <span class="fu">exp</span>(true_a[cid] <span class="sc">+</span> true_b[cid] <span class="sc">*</span> population)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>total_tools <span class="ot">=</span> <span class="fu">rpois</span>(N, l)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"True a:"</span>, <span class="fu">paste</span>(true_a, <span class="at">collapse=</span><span class="st">" "</span>)))</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"True b:"</span>, <span class="fu">paste</span>(true_b, <span class="at">collapse=</span><span class="st">" "</span>)))</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(cid, population, hours, total_tools){</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">3</span>, <span class="fl">0.5</span>, <span class="at">name=</span><span class="st">'a'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">2</span>))</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">name=</span><span class="st">'b'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">2</span>))</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  l <span class="ot">=</span> hours <span class="sc">*</span> jnp<span class="sc">$</span><span class="fu">exp</span>(a[cid] <span class="sc">+</span> b[cid]<span class="sc">*</span>population)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bi.dist.poisson</span>(l, <span class="at">obs=</span>total_tools)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">cid =</span> <span class="fu">as.integer</span>(cid <span class="sc">-</span> <span class="dv">1</span>), <span class="co"># Back to 0-based for JAX/BI if needed, check BI convention</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">population =</span> population,</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">hours =</span> hours,</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">total_tools =</span> total_tools</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model, <span class="at">progress_bar=</span><span class="cn">FALSE</span>)</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data ------------------------------------------------</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>population <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, shape <span class="op">=</span> (<span class="fl">100</span>,), sample <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>cid <span class="op">=</span> m.dist.<span class="fu">binomial</span>(<span class="fl">1</span>, <span class="fl">0.5</span>, shape <span class="op">=</span> (<span class="fl">100</span>,), sample <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>hours <span class="op">=</span> m.dist.<span class="fu">uniform</span>(<span class="fl">1</span>, <span class="fl">10</span>, shape<span class="op">=</span>(<span class="fl">100</span>,), sample<span class="op">=</span><span class="cn">true</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">3</span>, <span class="fl">0.5</span>, shape<span class="op">=</span> (<span class="fl">2</span>,), name<span class="op">=</span><span class="st">"a"</span>, sample <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.2</span>, shape<span class="op">=</span>(<span class="fl">2</span>,), name<span class="op">=</span><span class="st">"b"</span>, sample <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> hours <span class="op">*</span> jnp.<span class="fu">exp</span>(a[cid] <span class="op">+</span> b[cid]<span class="op">*</span>population)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>total_tools <span class="op">=</span> m.dist.<span class="fu">poisson</span>(l,  sample <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(cid, population, hours, total_tools)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">3</span>, <span class="fl">0.5</span>, shape<span class="op">=</span> (<span class="fl">2</span>,), name<span class="op">=</span><span class="st">"a"</span>)</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.2</span>, shape<span class="op">=</span>(<span class="fl">2</span>,), name<span class="op">=</span><span class="st">"b"</span>)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> hours <span class="op">*</span> jnp.<span class="fu">exp</span>(a[cid] <span class="op">+</span> b[cid]<span class="op">*</span>population)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">poisson</span>(l, obs<span class="op">=</span>total_tools)</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Pass data to model</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="fu">Dict</span>(<span class="st">"cid"</span> <span class="op">=&gt;</span> cid, <span class="st">"population"</span> <span class="op">=&gt;</span> population, <span class="st">"hours"</span> <span class="op">=&gt;</span> hours, <span class="st">"total_tools"</span> <span class="op">=&gt;</span> total_tools)</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Random</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Distributions</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data ------------------------------------------------</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">Random</span>.<span class="fu">seed!</span>(<span class="fl">42</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="fl">100</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>population <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Normal</span>(<span class="fl">0</span>, <span class="fl">1</span>), N)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>cid <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Binomial</span>(<span class="fl">1</span>, <span class="fl">0.5</span>), N) <span class="op">.+</span> <span class="fl">1</span> <span class="co"># Julia indices are 1-based</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>hours <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Uniform</span>(<span class="fl">1</span>, <span class="fl">10</span>), N)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>true_a <span class="op">=</span> [<span class="fl">2.5</span>, <span class="fl">3.5</span>]</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>true_b <span class="op">=</span> [<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.2</span>]</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> hours <span class="op">.*</span> <span class="fu">exp</span>.(true_a[cid] <span class="op">.+</span> true_b[cid] <span class="op">.*</span> population)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>total_tools <span class="op">=</span> [<span class="fu">rand</span>(<span class="fu">Poisson</span>(λ)) for λ <span class="kw">in</span> l]</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"True a: "</span>, true_a)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"True b: "</span>, true_b)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(cid, population, hours, total_tools)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">3</span>, <span class="fl">0.5</span>, shape<span class="op">=</span> (<span class="fl">2</span>,), name<span class="op">=</span><span class="st">"a"</span>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.2</span>, shape<span class="op">=</span>(<span class="fl">2</span>,), name<span class="op">=</span><span class="st">"b"</span>)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> hours <span class="op">.*</span> <span class="fu">exp</span>.(a[cid] <span class="op">.+</span> b[cid] <span class="op">.*</span> population)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">poisson</span>(l, obs<span class="op">=</span>total_tools)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Pass data to model</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="fu">Dict</span>(</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cid"</span> <span class="op">=&gt;</span> cid <span class="op">.-</span> <span class="fl">1</span>, <span class="co"># Back to 0-based for JAX/BI if needed</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"population"</span> <span class="op">=&gt;</span> population, </span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hours"</span> <span class="op">=&gt;</span> hours, </span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"total_tools"</span> <span class="op">=&gt;</span> total_tools</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model, progress_bar<span class="op">=</span><span class="cn">false</span>)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -2003,6 +2056,36 @@ tippy('#SG-MCMC', {
   <span style='color: white;'>
 
 A class of algorithms designed to scale Markov Chain Monte Carlo methods to large datasets. It approximates the gradient of the log-posterior using mini-batches (subsets) of data rather than the full dataset. To ensure convergence to the true posterior distribution despite the noise introduced by subsampling, these methods (such as Stochastic Gradient Langevin Dynamics) introduce specific noise injection and step-size schedules.
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
+
+
+tippy('#Activation', {
+
+      content: `
+
+  <span style='color: white;'>
+
+An activation function is a nonlinear transformation applied to the pre-activation output of a neuron in a neural network. It enables the network to learn nonlinear relationships between inputs and outputs. Common activation functions include ReLU, tanh, and sigmoid, Softmax, GELU, Swish.
 
   </span>
 
