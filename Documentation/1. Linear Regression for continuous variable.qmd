@@ -64,7 +64,7 @@ def model(weight, height):
     m.dist.normal(a + b * weight , s, obs = height) 
 
 # Run mcmc ------------------------------------------------
-m.fit(model)  # Optimize model parameters through MCMC sampling
+m.fit(model, progress_bar=False)  # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary() # Get posterior distributions

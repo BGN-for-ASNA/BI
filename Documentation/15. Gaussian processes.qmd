@@ -63,7 +63,7 @@ def model(Dmat, population, society, total_tools):
     m.dist.poisson(lambda_, obs=total_tools)
 
 # Run sampler ------------------------------------------------
-m.fit(model) 
+m.fit(model, progress_bar=False) 
 m.summary()
 ```
 

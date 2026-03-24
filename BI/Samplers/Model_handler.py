@@ -4,6 +4,7 @@ tfb = tfp.bijectors
 import jax.numpy as jnp
 import inspect
 import re
+import ast
 
 
 class model_handler():
@@ -56,15 +57,37 @@ class model_handler():
             variables[key] = distribution
         self.model_info = variables
 
+    def find_obs_in_model(self, model):
+        """
+        Extract observed argument names from `obs` in calls in `model`.
+        """
+        source_code = inspect.getsource(model)
+        tree = ast.parse(source_code)
+        obs_values = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                for keyword in node.keywords:
+                    if keyword.arg == 'obs':
+                        value = ast.unparse(keyword.value)
+                        obs_values.append(value)
+
+        return obs_values
+
     # You need to pass the name of the observed variable to this function
-    def initialise(self, infos, init_params, obs_name=None):
+    def initialise(self, infos, init_params, obs_names=None):
+        if obs_names is None:
+            obs_names = []
+        if isinstance(obs_names, str):
+            obs_names = [obs_names]
+
         init_params2 = []
         bijectors = []
         i = 0 # This now correctly tracks the index for init_params
 
         for key in infos.keys():
-            # --- NEW: Check if this is the observed variable ---
-            if key == obs_name:
+            # --- NEW: Check if this is one of the observed variables ---
+            if key in obs_names:
                 print(f"INFO: Skipping bijector for observed variable '{key}'.")
                 continue  # Skip to the next key in the loop
             # --- END NEW ---

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -79,7 +79,7 @@ div.csl-indent {
 }</style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -90,16 +90,17 @@ div.csl-indent {
 <link href="./11. Zero inflated.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-9f30c2c2d2429ed22c1cf9f617479b3b.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-5cc8395b10573f07cfedf58f7a45f761.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-785e6f9f9cefe4638bba3361deac6afc.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-1edfd1f1af7245e47382b957f0945ed9.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-136e5ee928d61b38b2f9fcf6b29f4f4b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -127,9 +128,12 @@ div.csl-indent {
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -159,7 +163,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -360,7 +364,7 @@ window.Quarto = {
 <span class="menu-text">Get started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./0. Introduction.qmd"> 
+    <a class="nav-link active" href="./0.Introduction.html" aria-current="page"> 
 <span class="menu-text">Models</span></a>
   </li>  
   <li class="nav-item">
@@ -461,7 +465,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./8. Poisson mode with offset.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 Poisson Model with an Offset</span></a>
+ <span class="menu-text">Poisson Model with an Offset</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -485,7 +489,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 Dirichlet Model</span></a>
+ <span class="menu-text">🚧 Dirichlet Model 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -520,8 +524,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./17. Missing data (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Handling Missing Data (WIP)</span></a>
+  <a href="./17. Missing data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Handling Missing Data</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -556,6 +560,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./31. Network Edges Inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧Network Edges Inference🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
@@ -568,26 +578,44 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./26. Network Based Diffusion analysis (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Network-Based Diffusion Analysis</span></a>
+  <a href="./26. Network-Based Diffusion Analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧Network-Based Diffusion Analysis🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Bayesian Neural Networks 🚧</span></a>
+ <span class="menu-text">Bayesian Neural Networks (BNN)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29. BNN for classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧 BNN for Classification 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30. BNN for multiclass classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧 BNN for Multiclass Classification 🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31. Network Edges Inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧Network Edges Inference🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./12. Survival analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Survival Analysis 🚧</span></a>
+ <span class="menu-text">🚧 Survival Analysis 🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18. Latent variable (wip).html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Latent Variable Models 🚧</span></a>
+ <span class="menu-text">🚧 Latent Variable Models 🚧</span></a>
   </div>
 </li>
     </ul>
@@ -669,13 +697,13 @@ Note
 <h2 class="anchored" data-anchor-id="example">Example</h2>
 <p>Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consists of a dependent variable representing individuals’ survival (<em>surv</em>) and an independent categorical variable (<em>tank</em>), which indicates the tank where the individual was born, with a total of 48 tanks. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python (Raw)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Julia</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Python (Raw)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false" href="">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="ca1f4a33" class="cell" data-execution_count="1">
+<div id="ba2e34d2" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
@@ -697,23 +725,22 @@ Note
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    m.dist.binomial(total_count <span class="op">=</span> density, logits <span class="op">=</span> p, obs<span class="op">=</span>surv)</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>m.fit(model, progress_bar<span class="op">=</span><span class="va">False</span>) </span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 32</code></pre>
+<pre><code>jax.local_device_count 16</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;08:02,  2.07it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:  22%|██▏       | 222/1000 [00:00&lt;00:01, 505.55it/s, 15 steps of size 4.65e-01. acc. prob=0.78]warmup:  50%|████▉     | 499/1000 [00:00&lt;00:00, 1061.86it/s, 7 steps of size 2.27e-01. acc. prob=0.79]sample:  76%|███████▋  | 763/1000 [00:00&lt;00:00, 1470.40it/s, 15 steps of size 4.21e-01. acc. prob=0.90]sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1147.33it/s, 7 steps of size 4.21e-01. acc. prob=0.89]
-arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
+<pre><code>arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -730,603 +757,603 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">a_bar</td>
+<th data-quarto-table-cell-role="th">a_bar</th>
 <td>1.35</td>
-<td>0.27</td>
-<td>0.95</td>
-<td>1.79</td>
+<td>0.26</td>
+<td>0.89</td>
+<td>1.70</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>467.13</td>
-<td>297.56</td>
+<td>564.25</td>
+<td>338.59</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">alpha[0]</td>
+<th data-quarto-table-cell-role="th">alpha[0]</th>
 <td>2.13</td>
 <td>0.85</td>
-<td>0.69</td>
-<td>3.34</td>
-<td>0.04</td>
-<td>0.04</td>
-<td>514.75</td>
-<td>388.20</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[1]</td>
-<td>3.09</td>
-<td>1.09</td>
-<td>1.30</td>
-<td>4.47</td>
-<td>0.05</td>
-<td>0.05</td>
-<td>565.53</td>
-<td>436.09</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[2]</td>
-<td>0.99</td>
-<td>0.68</td>
-<td>0.06</td>
-<td>2.14</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>676.80</td>
-<td>327.00</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[3]</td>
-<td>3.12</td>
-<td>1.10</td>
-<td>1.27</td>
-<td>4.66</td>
-<td>0.05</td>
-<td>0.06</td>
-<td>594.03</td>
-<td>428.01</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[4]</td>
-<td>2.15</td>
-<td>0.89</td>
-<td>0.82</td>
-<td>3.57</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>726.38</td>
-<td>463.33</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[5]</td>
-<td>2.19</td>
-<td>0.91</td>
-<td>0.87</td>
-<td>3.66</td>
-<td>0.04</td>
-<td>0.05</td>
-<td>771.96</td>
-<td>371.60</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[6]</td>
-<td>3.12</td>
-<td>1.07</td>
-<td>1.57</td>
-<td>4.72</td>
-<td>0.05</td>
-<td>0.04</td>
-<td>520.47</td>
-<td>347.62</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[7]</td>
-<td>2.14</td>
-<td>0.87</td>
-<td>0.73</td>
-<td>3.38</td>
-<td>0.03</td>
-<td>0.05</td>
-<td>1221.40</td>
-<td>424.56</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[8]</td>
-<td>-0.16</td>
-<td>0.62</td>
-<td>-1.02</td>
-<td>0.94</td>
-<td>0.02</td>
-<td>0.04</td>
-<td>811.97</td>
-<td>219.25</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[9]</td>
-<td>2.10</td>
-<td>0.86</td>
-<td>0.67</td>
-<td>3.33</td>
-<td>0.04</td>
-<td>0.04</td>
-<td>513.47</td>
-<td>370.85</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[10]</td>
-<td>0.99</td>
-<td>0.69</td>
-<td>-0.13</td>
-<td>2.03</td>
-<td>0.02</td>
-<td>0.03</td>
-<td>927.72</td>
-<td>411.04</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[11]</td>
-<td>0.62</td>
-<td>0.65</td>
-<td>-0.49</td>
-<td>1.61</td>
-<td>0.03</td>
-<td>0.03</td>
-<td>561.63</td>
-<td>290.42</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[12]</td>
-<td>1.05</td>
-<td>0.72</td>
-<td>-0.12</td>
-<td>2.05</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>708.09</td>
-<td>317.39</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[13]</td>
-<td>0.18</td>
-<td>0.62</td>
-<td>-0.83</td>
-<td>1.18</td>
-<td>0.02</td>
-<td>0.03</td>
-<td>680.04</td>
-<td>406.36</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[14]</td>
-<td>2.16</td>
-<td>0.84</td>
-<td>0.69</td>
-<td>3.32</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>843.95</td>
-<td>375.45</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[15]</td>
-<td>2.15</td>
-<td>0.91</td>
-<td>0.80</td>
-<td>3.65</td>
-<td>0.04</td>
-<td>0.04</td>
-<td>499.23</td>
-<td>283.02</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[16]</td>
-<td>2.91</td>
-<td>0.79</td>
-<td>1.42</td>
-<td>3.86</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>716.71</td>
-<td>353.12</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[17]</td>
-<td>2.40</td>
-<td>0.67</td>
-<td>1.30</td>
-<td>3.38</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>727.24</td>
-<td>247.66</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[18]</td>
-<td>2.03</td>
-<td>0.60</td>
-<td>1.10</td>
-<td>2.91</td>
-<td>0.03</td>
-<td>0.03</td>
-<td>642.62</td>
-<td>326.17</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[19]</td>
-<td>3.75</td>
-<td>0.95</td>
-<td>2.17</td>
-<td>5.10</td>
-<td>0.04</td>
-<td>0.04</td>
-<td>582.43</td>
-<td>361.94</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[20]</td>
-<td>2.35</td>
-<td>0.61</td>
-<td>1.41</td>
-<td>3.24</td>
-<td>0.02</td>
-<td>0.03</td>
-<td>824.43</td>
-<td>261.58</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[21]</td>
-<td>2.36</td>
 <td>0.66</td>
-<td>1.34</td>
-<td>3.37</td>
-<td>0.02</td>
+<td>3.34</td>
 <td>0.03</td>
-<td>761.56</td>
-<td>320.99</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[22]</td>
-<td>2.40</td>
-<td>0.62</td>
-<td>1.37</td>
-<td>3.31</td>
-<td>0.03</td>
-<td>0.03</td>
-<td>573.35</td>
-<td>352.38</td>
+<td>0.05</td>
+<td>730.35</td>
+<td>388.84</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[23]</td>
-<td>1.70</td>
-<td>0.53</td>
-<td>0.93</td>
-<td>2.56</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>839.61</td>
-<td>423.04</td>
+<th data-quarto-table-cell-role="th">alpha[1]</th>
+<td>3.10</td>
+<td>1.15</td>
+<td>1.48</td>
+<td>5.14</td>
+<td>0.05</td>
+<td>0.06</td>
+<td>655.99</td>
+<td>301.89</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">alpha[24]</td>
-<td>-1.03</td>
-<td>0.45</td>
-<td>-1.69</td>
-<td>-0.33</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>731.40</td>
-<td>365.09</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[25]</td>
-<td>0.16</td>
-<td>0.42</td>
-<td>-0.48</td>
-<td>0.83</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>651.44</td>
-<td>369.19</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[26]</td>
-<td>-1.41</td>
-<td>0.45</td>
-<td>-2.15</td>
-<td>-0.71</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>597.70</td>
-<td>314.86</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[27]</td>
-<td>-0.48</td>
-<td>0.42</td>
-<td>-1.08</td>
-<td>0.19</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>537.11</td>
-<td>388.83</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[28]</td>
-<td>0.16</td>
-<td>0.40</td>
-<td>-0.61</td>
-<td>0.67</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>431.36</td>
-<td>392.36</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[29]</td>
-<td>1.46</td>
-<td>0.48</td>
-<td>0.75</td>
-<td>2.27</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>755.76</td>
-<td>404.80</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[30]</td>
-<td>-0.62</td>
-<td>0.43</td>
-<td>-1.18</td>
-<td>0.20</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>706.26</td>
-<td>394.05</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[31]</td>
-<td>-0.30</td>
-<td>0.43</td>
-<td>-0.90</td>
-<td>0.41</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>692.89</td>
-<td>408.34</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[32]</td>
-<td>3.20</td>
-<td>0.76</td>
-<td>2.04</td>
-<td>4.48</td>
-<td>0.03</td>
-<td>0.03</td>
-<td>563.22</td>
-<td>379.37</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[33]</td>
-<td>2.70</td>
-<td>0.64</td>
-<td>1.83</td>
-<td>3.88</td>
-<td>0.02</td>
-<td>0.03</td>
-<td>758.59</td>
-<td>428.71</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[34]</td>
-<td>2.74</td>
+<th data-quarto-table-cell-role="th">alpha[2]</th>
+<td>1.00</td>
 <td>0.65</td>
-<td>1.65</td>
-<td>3.71</td>
+<td>-0.13</td>
+<td>1.91</td>
 <td>0.03</td>
+<td>0.04</td>
+<td>694.61</td>
+<td>266.47</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[3]</th>
+<td>3.10</td>
+<td>1.11</td>
+<td>1.27</td>
+<td>4.75</td>
+<td>0.04</td>
+<td>0.05</td>
+<td>681.98</td>
+<td>459.64</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[4]</th>
+<td>2.13</td>
+<td>0.87</td>
+<td>0.76</td>
+<td>3.54</td>
 <td>0.03</td>
-<td>545.98</td>
+<td>0.04</td>
+<td>814.73</td>
+<td>287.30</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[5]</th>
+<td>2.17</td>
+<td>0.90</td>
+<td>0.90</td>
+<td>3.75</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>913.11</td>
 <td>387.72</td>
 <td>NaN</td>
 </tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[6]</th>
+<td>3.13</td>
+<td>1.18</td>
+<td>1.33</td>
+<td>4.81</td>
+<td>0.04</td>
+<td>0.06</td>
+<td>976.79</td>
+<td>350.36</td>
+<td>NaN</td>
+</tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[35]</td>
-<td>2.06</td>
-<td>0.49</td>
-<td>1.36</td>
-<td>2.94</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>721.44</td>
-<td>392.52</td>
+<th data-quarto-table-cell-role="th">alpha[7]</th>
+<td>2.08</td>
+<td>0.84</td>
+<td>0.66</td>
+<td>3.38</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>699.96</td>
+<td>415.35</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">alpha[36]</td>
-<td>2.09</td>
-<td>0.57</td>
-<td>1.25</td>
-<td>2.95</td>
+<th data-quarto-table-cell-role="th">alpha[8]</th>
+<td>-0.18</td>
+<td>0.62</td>
+<td>-1.16</td>
+<td>0.86</td>
 <td>0.02</td>
 <td>0.03</td>
-<td>732.34</td>
-<td>371.66</td>
+<td>1187.50</td>
+<td>414.15</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[37]</td>
-<td>3.89</td>
+<th data-quarto-table-cell-role="th">alpha[9]</th>
+<td>2.13</td>
+<td>0.83</td>
+<td>0.79</td>
+<td>3.37</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>915.68</td>
+<td>400.79</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[10]</th>
+<td>1.06</td>
+<td>0.70</td>
+<td>-0.07</td>
+<td>2.09</td>
+<td>0.02</td>
+<td>0.04</td>
+<td>1111.43</td>
+<td>354.40</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[11]</th>
+<td>0.63</td>
+<td>0.61</td>
+<td>-0.17</td>
+<td>1.79</td>
+<td>0.02</td>
+<td>0.04</td>
+<td>1349.49</td>
+<td>235.85</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[12]</th>
+<td>1.03</td>
+<td>0.67</td>
+<td>0.05</td>
+<td>2.06</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>1010.95</td>
+<td>374.38</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[13]</th>
+<td>0.19</td>
+<td>0.63</td>
+<td>-0.74</td>
+<td>1.18</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>1282.09</td>
+<td>378.30</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[14]</th>
+<td>2.08</td>
+<td>0.79</td>
+<td>0.91</td>
+<td>3.42</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>775.04</td>
+<td>428.36</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[15]</th>
+<td>2.20</td>
 <td>0.95</td>
-<td>2.29</td>
-<td>5.11</td>
+<td>0.76</td>
+<td>3.66</td>
+<td>0.03</td>
+<td>0.05</td>
+<td>966.11</td>
+<td>317.10</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[16]</th>
+<td>2.90</td>
+<td>0.75</td>
+<td>1.75</td>
+<td>4.03</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>525.66</td>
+<td>356.68</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[17]</th>
+<td>2.38</td>
+<td>0.68</td>
+<td>1.28</td>
+<td>3.34</td>
+<td>0.02</td>
+<td>0.04</td>
+<td>887.37</td>
+<td>438.95</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[18]</th>
+<td>1.99</td>
+<td>0.59</td>
+<td>1.02</td>
+<td>2.87</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>945.38</td>
+<td>399.84</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[19]</th>
+<td>3.70</td>
+<td>1.00</td>
+<td>2.15</td>
+<td>5.07</td>
+<td>0.04</td>
+<td>0.06</td>
+<td>630.24</td>
+<td>333.30</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[20]</th>
+<td>2.39</td>
+<td>0.68</td>
+<td>1.21</td>
+<td>3.36</td>
+<td>0.02</td>
+<td>0.04</td>
+<td>1349.49</td>
+<td>395.34</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[21]</th>
+<td>2.37</td>
+<td>0.62</td>
+<td>1.25</td>
+<td>3.13</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>651.25</td>
+<td>398.37</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[22]</th>
+<td>2.39</td>
+<td>0.69</td>
+<td>1.35</td>
+<td>3.38</td>
 <td>0.04</td>
 <td>0.05</td>
-<td>508.53</td>
-<td>294.22</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[38]</td>
-<td>2.70</td>
-<td>0.70</td>
-<td>1.66</td>
-<td>3.76</td>
-<td>0.03</td>
-<td>0.05</td>
-<td>696.43</td>
-<td>275.91</td>
+<td>480.75</td>
+<td>217.58</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[39]</td>
-<td>2.38</td>
-<td>0.54</td>
-<td>1.46</td>
-<td>3.19</td>
+<th data-quarto-table-cell-role="th">alpha[23]</th>
+<td>1.72</td>
+<td>0.52</td>
+<td>0.96</td>
+<td>2.51</td>
 <td>0.02</td>
 <td>0.03</td>
-<td>588.18</td>
-<td>352.03</td>
+<td>720.70</td>
+<td>350.35</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">alpha[40]</td>
-<td>-1.77</td>
-<td>0.47</td>
-<td>-2.50</td>
-<td>-1.03</td>
+<th data-quarto-table-cell-role="th">alpha[24]</th>
+<td>-1.01</td>
+<td>0.44</td>
+<td>-1.65</td>
+<td>-0.26</td>
+<td>0.01</td>
 <td>0.02</td>
-<td>0.02</td>
-<td>965.46</td>
-<td>269.98</td>
+<td>1180.04</td>
+<td>384.56</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[41]</td>
-<td>-0.59</td>
-<td>0.31</td>
-<td>-1.09</td>
-<td>-0.13</td>
-<td>0.01</td>
-<td>0.01</td>
-<td>729.57</td>
-<td>401.86</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">alpha[42]</td>
-<td>-0.44</td>
-<td>0.37</td>
-<td>-1.04</td>
+<th data-quarto-table-cell-role="th">alpha[25]</th>
 <td>0.16</td>
+<td>0.43</td>
+<td>-0.47</td>
+<td>0.80</td>
 <td>0.01</td>
-<td>0.02</td>
-<td>744.12</td>
-<td>373.34</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[43]</td>
-<td>-0.33</td>
-<td>0.36</td>
-<td>-0.90</td>
-<td>0.23</td>
-<td>0.01</td>
-<td>0.02</td>
-<td>818.64</td>
-<td>313.40</td>
+<td>0.03</td>
+<td>873.65</td>
+<td>311.15</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">alpha[44]</td>
-<td>0.57</td>
-<td>0.34</td>
-<td>0.07</td>
-<td>1.09</td>
+<th data-quarto-table-cell-role="th">alpha[26]</th>
+<td>-1.42</td>
+<td>0.47</td>
+<td>-2.10</td>
+<td>-0.73</td>
 <td>0.02</td>
-<td>0.01</td>
-<td>487.25</td>
-<td>426.63</td>
+<td>0.02</td>
+<td>566.02</td>
+<td>331.67</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[45]</td>
-<td>-0.58</td>
-<td>0.38</td>
-<td>-1.25</td>
-<td>-0.04</td>
+<th data-quarto-table-cell-role="th">alpha[27]</th>
+<td>-0.46</td>
+<td>0.41</td>
+<td>-1.15</td>
+<td>0.15</td>
 <td>0.01</td>
 <td>0.02</td>
-<td>1084.06</td>
-<td>421.32</td>
+<td>882.61</td>
+<td>351.95</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">alpha[46]</td>
-<td>2.06</td>
+<th data-quarto-table-cell-role="th">alpha[28]</th>
+<td>0.16</td>
+<td>0.40</td>
+<td>-0.54</td>
+<td>0.73</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>1050.94</td>
+<td>426.59</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[29]</th>
+<td>1.47</td>
+<td>0.48</td>
+<td>0.77</td>
+<td>2.30</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>714.47</td>
+<td>262.01</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[30]</th>
+<td>-0.65</td>
+<td>0.42</td>
+<td>-1.31</td>
+<td>-0.00</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>776.40</td>
+<td>308.70</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[31]</th>
+<td>-0.32</td>
 <td>0.46</td>
-<td>1.34</td>
-<td>2.75</td>
+<td>-1.08</td>
+<td>0.36</td>
 <td>0.02</td>
 <td>0.02</td>
-<td>569.86</td>
-<td>389.45</td>
+<td>750.45</td>
+<td>241.77</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[32]</th>
+<td>3.20</td>
+<td>0.77</td>
+<td>1.85</td>
+<td>4.27</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>686.90</td>
+<td>393.66</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">alpha[47]</td>
+<th data-quarto-table-cell-role="th">alpha[33]</th>
+<td>2.76</td>
+<td>0.65</td>
+<td>1.81</td>
+<td>3.83</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>728.70</td>
+<td>297.36</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[34]</th>
+<td>2.74</td>
+<td>0.63</td>
+<td>1.60</td>
+<td>3.61</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>603.85</td>
+<td>329.39</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[35]</th>
+<td>2.03</td>
+<td>0.47</td>
+<td>1.35</td>
+<td>2.78</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>1020.01</td>
+<td>308.03</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[36]</th>
+<td>2.10</td>
+<td>0.61</td>
+<td>1.12</td>
+<td>2.99</td>
+<td>0.02</td>
+<td>0.04</td>
+<td>854.41</td>
+<td>223.93</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[37]</th>
+<td>3.90</td>
+<td>1.02</td>
+<td>2.40</td>
+<td>5.36</td>
+<td>0.04</td>
+<td>0.06</td>
+<td>690.88</td>
+<td>349.13</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[38]</th>
+<td>2.65</td>
+<td>0.67</td>
+<td>1.68</td>
+<td>3.69</td>
+<td>0.02</td>
+<td>0.04</td>
+<td>1090.67</td>
+<td>361.35</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[39]</th>
+<td>2.36</td>
+<td>0.54</td>
+<td>1.53</td>
+<td>3.21</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>894.05</td>
+<td>285.24</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[40]</th>
+<td>-1.81</td>
+<td>0.47</td>
+<td>-2.52</td>
+<td>-1.08</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>759.46</td>
+<td>292.99</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[41]</th>
+<td>-0.58</td>
+<td>0.30</td>
+<td>-1.08</td>
+<td>-0.12</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>876.39</td>
+<td>397.51</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[42]</th>
+<td>-0.46</td>
+<td>0.35</td>
+<td>-1.02</td>
+<td>0.09</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>1137.78</td>
+<td>361.77</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[43]</th>
+<td>-0.33</td>
+<td>0.34</td>
+<td>-0.87</td>
+<td>0.24</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>1063.67</td>
+<td>385.58</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[44]</th>
+<td>0.59</td>
+<td>0.35</td>
+<td>-0.09</td>
+<td>1.03</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>899.04</td>
+<td>267.04</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[45]</th>
+<td>-0.57</td>
+<td>0.34</td>
+<td>-1.07</td>
+<td>-0.03</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>814.06</td>
+<td>412.44</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">alpha[46]</th>
+<td>2.08</td>
+<td>0.49</td>
+<td>1.36</td>
+<td>2.85</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>648.69</td>
+<td>383.19</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">alpha[47]</th>
 <td>0.02</td>
 <td>0.35</td>
-<td>-0.50</td>
-<td>0.61</td>
+<td>-0.54</td>
+<td>0.55</td>
 <td>0.01</td>
 <td>0.02</td>
-<td>710.85</td>
-<td>353.56</td>
+<td>1182.62</td>
+<td>309.94</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">sigma</td>
-<td>1.62</td>
+<th data-quarto-table-cell-role="th">sigma</th>
+<td>1.61</td>
 <td>0.21</td>
-<td>1.30</td>
-<td>1.92</td>
+<td>1.29</td>
+<td>1.95</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>339.24</td>
-<td>267.98</td>
+<td>350.89</td>
+<td>309.94</td>
 <td>NaN</td>
 </tr>
 </tbody>
@@ -1337,10 +1364,10 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div id="86e7eb9b" class="cell" data-execution_count="2">
+<div id="9feb06e6" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
@@ -1360,23 +1387,22 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    m.dist.binomial(total_count <span class="op">=</span> density, logits <span class="op">=</span> alpha, obs<span class="op">=</span>surv)</span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>m.fit(model) </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>m.fit(model, progress_bar<span class="op">=</span><span class="va">False</span>) </span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostic ------------------------------------------------</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 32</code></pre>
+<pre><code>jax.local_device_count 16</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1000 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1000 [00:00&lt;07:27,  2.23it/s, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:  20%|█▉        | 196/1000 [00:00&lt;00:01, 473.55it/s, 15 steps of size 5.67e-01. acc. prob=0.78]warmup:  47%|████▋     | 466/1000 [00:00&lt;00:00, 1044.43it/s, 15 steps of size 5.59e-01. acc. prob=0.79]sample:  75%|███████▍  | 746/1000 [00:00&lt;00:00, 1515.14it/s, 7 steps of size 4.53e-01. acc. prob=0.88] sample: 100%|██████████| 1000/1000 [00:00&lt;00:00, 1193.10it/s, 7 steps of size 4.53e-01. acc. prob=0.88]
-arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
+<pre><code>arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape: (chains=2, draws=4)</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1393,603 +1419,603 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">global_intercept_tank</td>
+<th data-quarto-table-cell-role="th">global_intercept_tank</th>
 <td>1.36</td>
-<td>0.26</td>
-<td>0.94</td>
-<td>1.77</td>
+<td>0.25</td>
+<td>1.01</td>
+<td>1.79</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>563.88</td>
-<td>182.64</td>
+<td>620.41</td>
+<td>275.72</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[0]</td>
-<td>2.10</td>
+<th data-quarto-table-cell-role="th">intercept_tank[0]</th>
+<td>2.12</td>
 <td>0.86</td>
-<td>0.72</td>
-<td>3.38</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>811.23</td>
-<td>369.49</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[1]</td>
-<td>3.04</td>
-<td>1.11</td>
-<td>1.31</td>
-<td>4.69</td>
-<td>0.05</td>
-<td>0.06</td>
-<td>592.21</td>
-<td>290.26</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[2]</td>
-<td>1.00</td>
-<td>0.65</td>
-<td>-0.06</td>
-<td>2.06</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>647.60</td>
-<td>343.02</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[3]</td>
-<td>3.06</td>
-<td>1.10</td>
-<td>1.16</td>
-<td>4.67</td>
-<td>0.05</td>
-<td>0.07</td>
-<td>547.75</td>
-<td>178.68</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[4]</td>
-<td>2.14</td>
-<td>0.89</td>
-<td>0.80</td>
-<td>3.44</td>
-<td>0.03</td>
-<td>0.05</td>
-<td>953.17</td>
-<td>307.45</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[5]</td>
-<td>2.15</td>
-<td>0.89</td>
-<td>0.91</td>
-<td>3.72</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>850.84</td>
-<td>421.61</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[6]</td>
-<td>3.13</td>
-<td>1.11</td>
-<td>1.40</td>
-<td>4.93</td>
-<td>0.06</td>
-<td>0.06</td>
-<td>455.95</td>
-<td>282.69</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[7]</td>
-<td>2.18</td>
-<td>0.89</td>
-<td>1.00</td>
-<td>3.73</td>
-<td>0.04</td>
-<td>0.04</td>
-<td>504.63</td>
-<td>338.18</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[8]</td>
-<td>-0.16</td>
-<td>0.62</td>
-<td>-1.02</td>
-<td>0.89</td>
-<td>0.02</td>
-<td>0.03</td>
-<td>602.28</td>
-<td>387.08</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[9]</td>
-<td>2.15</td>
-<td>0.92</td>
-<td>0.81</td>
-<td>3.47</td>
-<td>0.04</td>
-<td>0.06</td>
-<td>588.68</td>
-<td>335.17</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[10]</td>
-<td>1.00</td>
 <td>0.70</td>
-<td>0.03</td>
-<td>2.17</td>
+<td>3.42</td>
 <td>0.02</td>
 <td>0.04</td>
-<td>921.27</td>
-<td>305.21</td>
+<td>1276.73</td>
+<td>458.18</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[11]</td>
-<td>0.58</td>
-<td>0.61</td>
-<td>-0.31</td>
-<td>1.64</td>
-<td>0.02</td>
-<td>0.03</td>
-<td>718.11</td>
-<td>320.40</td>
+<th data-quarto-table-cell-role="th">intercept_tank[1]</th>
+<td>3.04</td>
+<td>1.09</td>
+<td>1.25</td>
+<td>4.58</td>
+<td>0.04</td>
+<td>0.05</td>
+<td>702.22</td>
+<td>318.03</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[12]</td>
+<th data-quarto-table-cell-role="th">intercept_tank[2]</th>
+<td>1.02</td>
+<td>0.67</td>
+<td>-0.08</td>
+<td>2.01</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>538.35</td>
+<td>277.39</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[3]</th>
+<td>3.09</td>
+<td>1.07</td>
+<td>1.23</td>
+<td>4.65</td>
+<td>0.05</td>
+<td>0.08</td>
+<td>571.61</td>
+<td>129.66</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[4]</th>
+<td>2.17</td>
+<td>0.92</td>
+<td>0.72</td>
+<td>3.43</td>
+<td>0.03</td>
+<td>0.05</td>
+<td>796.95</td>
+<td>375.45</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[5]</th>
+<td>2.16</td>
+<td>0.94</td>
+<td>0.55</td>
+<td>3.36</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>1120.05</td>
+<td>391.66</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[6]</th>
+<td>3.16</td>
+<td>1.18</td>
+<td>1.14</td>
+<td>4.83</td>
+<td>0.05</td>
+<td>0.05</td>
+<td>749.99</td>
+<td>347.74</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[7]</th>
+<td>2.19</td>
+<td>0.83</td>
+<td>0.77</td>
+<td>3.39</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>635.94</td>
+<td>374.11</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[8]</th>
+<td>-0.16</td>
+<td>0.63</td>
+<td>-1.16</td>
+<td>0.83</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>778.55</td>
+<td>310.04</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[9]</th>
+<td>2.15</td>
+<td>0.89</td>
+<td>0.82</td>
+<td>3.48</td>
+<td>0.03</td>
+<td>0.05</td>
+<td>729.89</td>
+<td>404.60</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[10]</th>
+<td>1.01</td>
+<td>0.67</td>
+<td>-0.05</td>
+<td>2.01</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>1013.21</td>
+<td>374.38</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[11]</th>
+<td>0.60</td>
+<td>0.59</td>
+<td>-0.31</td>
+<td>1.51</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>777.91</td>
+<td>370.90</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[12]</th>
 <td>1.07</td>
 <td>0.69</td>
-<td>-0.06</td>
+<td>-0.09</td>
 <td>2.08</td>
 <td>0.03</td>
 <td>0.03</td>
-<td>511.78</td>
-<td>369.19</td>
+<td>530.90</td>
+<td>350.88</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[13]</td>
-<td>0.20</td>
+<th data-quarto-table-cell-role="th">intercept_tank[13]</th>
+<td>0.21</td>
 <td>0.60</td>
 <td>-0.69</td>
 <td>1.20</td>
 <td>0.02</td>
 <td>0.02</td>
-<td>646.21</td>
-<td>339.77</td>
+<td>658.52</td>
+<td>379.13</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[14]</td>
+<th data-quarto-table-cell-role="th">intercept_tank[14]</th>
 <td>2.12</td>
-<td>0.83</td>
-<td>0.90</td>
-<td>3.52</td>
+<td>0.84</td>
+<td>0.87</td>
+<td>3.55</td>
 <td>0.04</td>
 <td>0.04</td>
-<td>563.92</td>
-<td>353.53</td>
+<td>657.79</td>
+<td>316.15</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[15]</td>
-<td>2.15</td>
-<td>0.91</td>
-<td>0.69</td>
-<td>3.50</td>
+<th data-quarto-table-cell-role="th">intercept_tank[15]</th>
+<td>2.16</td>
+<td>0.93</td>
+<td>0.61</td>
+<td>3.46</td>
 <td>0.04</td>
-<td>0.05</td>
-<td>565.23</td>
-<td>355.31</td>
+<td>0.04</td>
+<td>703.85</td>
+<td>396.93</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[16]</td>
-<td>2.87</td>
-<td>0.76</td>
-<td>1.74</td>
-<td>4.10</td>
+<th data-quarto-table-cell-role="th">intercept_tank[16]</th>
+<td>2.88</td>
+<td>0.75</td>
+<td>1.83</td>
+<td>4.12</td>
+<td>0.02</td>
 <td>0.03</td>
-<td>0.03</td>
-<td>918.26</td>
-<td>411.31</td>
+<td>1267.81</td>
+<td>441.85</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[17]</td>
-<td>2.42</td>
-<td>0.68</td>
-<td>1.36</td>
-<td>3.40</td>
+<th data-quarto-table-cell-role="th">intercept_tank[17]</th>
+<td>2.43</td>
+<td>0.70</td>
+<td>1.34</td>
+<td>3.43</td>
 <td>0.03</td>
-<td>0.05</td>
-<td>642.69</td>
-<td>209.59</td>
+<td>0.04</td>
+<td>694.89</td>
+<td>299.02</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[18]</td>
+<th data-quarto-table-cell-role="th">intercept_tank[18]</th>
 <td>2.03</td>
 <td>0.60</td>
-<td>0.95</td>
-<td>2.83</td>
-<td>0.03</td>
+<td>1.10</td>
+<td>2.98</td>
 <td>0.02</td>
-<td>460.37</td>
-<td>346.04</td>
+<td>0.03</td>
+<td>605.06</td>
+<td>385.78</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[19]</td>
-<td>3.73</td>
-<td>1.04</td>
-<td>2.02</td>
-<td>5.18</td>
+<th data-quarto-table-cell-role="th">intercept_tank[19]</th>
+<td>3.75</td>
+<td>1.00</td>
+<td>2.11</td>
+<td>5.19</td>
 <td>0.05</td>
 <td>0.05</td>
-<td>587.35</td>
-<td>381.98</td>
+<td>515.72</td>
+<td>283.10</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[20]</td>
+<th data-quarto-table-cell-role="th">intercept_tank[20]</th>
 <td>2.38</td>
 <td>0.64</td>
-<td>1.47</td>
-<td>3.46</td>
+<td>1.36</td>
+<td>3.32</td>
+<td>0.02</td>
 <td>0.03</td>
-<td>0.03</td>
-<td>592.59</td>
-<td>386.77</td>
+<td>744.28</td>
+<td>444.44</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[21]</td>
-<td>2.39</td>
-<td>0.69</td>
-<td>1.30</td>
+<th data-quarto-table-cell-role="th">intercept_tank[21]</th>
+<td>2.40</td>
+<td>0.67</td>
+<td>1.34</td>
 <td>3.37</td>
+<td>0.02</td>
 <td>0.03</td>
-<td>0.03</td>
-<td>622.27</td>
-<td>322.91</td>
+<td>785.41</td>
+<td>351.27</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[22]</td>
-<td>2.42</td>
+<th data-quarto-table-cell-role="th">intercept_tank[22]</th>
+<td>2.44</td>
 <td>0.65</td>
-<td>1.26</td>
-<td>3.35</td>
+<td>1.46</td>
+<td>3.53</td>
 <td>0.03</td>
 <td>0.04</td>
-<td>435.39</td>
-<td>247.89</td>
+<td>407.01</td>
+<td>277.01</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[23]</td>
-<td>1.69</td>
+<th data-quarto-table-cell-role="th">intercept_tank[23]</th>
+<td>1.68</td>
 <td>0.53</td>
-<td>0.88</td>
-<td>2.48</td>
+<td>0.84</td>
+<td>2.42</td>
 <td>0.02</td>
 <td>0.03</td>
-<td>676.05</td>
-<td>393.95</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[24]</td>
-<td>-1.00</td>
-<td>0.48</td>
-<td>-1.69</td>
-<td>-0.26</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>792.69</td>
-<td>344.82</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[25]</td>
-<td>0.14</td>
-<td>0.40</td>
-<td>-0.44</td>
-<td>0.81</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>570.16</td>
-<td>385.30</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[26]</td>
-<td>-1.42</td>
-<td>0.48</td>
-<td>-2.04</td>
-<td>-0.54</td>
-<td>0.02</td>
-<td>0.03</td>
-<td>699.69</td>
-<td>349.23</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[27]</td>
-<td>-0.50</td>
-<td>0.42</td>
-<td>-1.12</td>
-<td>0.17</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>482.27</td>
-<td>381.98</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[28]</td>
-<td>0.15</td>
-<td>0.39</td>
-<td>-0.39</td>
-<td>0.82</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>655.74</td>
-<td>295.17</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[29]</td>
-<td>1.44</td>
-<td>0.48</td>
-<td>0.66</td>
-<td>2.19</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>491.85</td>
-<td>336.45</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[30]</td>
-<td>-0.62</td>
-<td>0.42</td>
-<td>-1.24</td>
-<td>0.11</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>601.10</td>
+<td>746.42</td>
 <td>369.15</td>
 <td>NaN</td>
 </tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[31]</td>
-<td>-0.28</td>
-<td>0.44</td>
-<td>-0.96</td>
-<td>0.37</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>587.55</td>
-<td>285.26</td>
-<td>NaN</td>
-</tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[32]</td>
-<td>3.18</td>
-<td>0.72</td>
-<td>2.05</td>
-<td>4.19</td>
+<th data-quarto-table-cell-role="th">intercept_tank[24]</th>
+<td>-1.00</td>
+<td>0.46</td>
+<td>-1.69</td>
+<td>-0.32</td>
+<td>0.01</td>
 <td>0.03</td>
-<td>0.03</td>
-<td>481.03</td>
-<td>336.93</td>
+<td>1333.08</td>
+<td>340.50</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[33]</td>
-<td>2.67</td>
-<td>0.62</td>
-<td>1.57</td>
-<td>3.49</td>
+<th data-quarto-table-cell-role="th">intercept_tank[25]</th>
+<td>0.14</td>
+<td>0.42</td>
+<td>-0.45</td>
+<td>0.80</td>
 <td>0.02</td>
-<td>0.03</td>
-<td>735.44</td>
-<td>289.00</td>
+<td>0.02</td>
+<td>469.56</td>
+<td>263.95</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[34]</td>
-<td>2.75</td>
-<td>0.62</td>
-<td>1.76</td>
-<td>3.73</td>
-<td>0.03</td>
-<td>0.03</td>
-<td>388.61</td>
-<td>347.85</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[35]</td>
-<td>2.06</td>
-<td>0.47</td>
-<td>1.27</td>
-<td>2.80</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>840.45</td>
-<td>343.02</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[36]</td>
-<td>2.09</td>
-<td>0.53</td>
-<td>1.32</td>
-<td>2.91</td>
-<td>0.02</td>
-<td>0.02</td>
-<td>756.53</td>
-<td>393.66</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[37]</td>
-<td>3.90</td>
-<td>0.95</td>
-<td>2.47</td>
-<td>5.27</td>
-<td>0.05</td>
-<td>0.04</td>
-<td>336.15</td>
-<td>304.76</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[38]</td>
-<td>2.70</td>
-<td>0.67</td>
-<td>1.72</td>
-<td>3.72</td>
-<td>0.03</td>
-<td>0.04</td>
-<td>665.74</td>
-<td>311.83</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[39]</td>
-<td>2.34</td>
-<td>0.53</td>
-<td>1.45</td>
-<td>3.15</td>
-<td>0.02</td>
-<td>0.03</td>
-<td>738.32</td>
-<td>281.88</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[40]</td>
-<td>-1.78</td>
+<th data-quarto-table-cell-role="th">intercept_tank[26]</th>
+<td>-1.43</td>
 <td>0.45</td>
-<td>-2.48</td>
-<td>-1.06</td>
-<td>0.01</td>
+<td>-2.26</td>
+<td>-0.79</td>
 <td>0.02</td>
-<td>913.76</td>
-<td>357.43</td>
+<td>0.02</td>
+<td>743.69</td>
+<td>330.67</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[41]</td>
-<td>-0.58</td>
-<td>0.34</td>
-<td>-1.14</td>
-<td>-0.07</td>
-<td>0.01</td>
-<td>0.01</td>
-<td>730.83</td>
-<td>425.09</td>
+<th data-quarto-table-cell-role="th">intercept_tank[27]</th>
+<td>-0.50</td>
+<td>0.42</td>
+<td>-1.11</td>
+<td>0.17</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>522.37</td>
+<td>408.13</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[42]</td>
-<td>-0.44</td>
+<th data-quarto-table-cell-role="th">intercept_tank[28]</th>
+<td>0.14</td>
 <td>0.39</td>
-<td>-1.03</td>
-<td>0.21</td>
-<td>0.01</td>
+<td>-0.45</td>
+<td>0.77</td>
 <td>0.02</td>
-<td>693.24</td>
+<td>0.01</td>
+<td>493.48</td>
+<td>408.34</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[29]</th>
+<td>1.46</td>
+<td>0.47</td>
+<td>0.77</td>
+<td>2.28</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>922.33</td>
 <td>438.47</td>
 <td>NaN</td>
 </tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[43]</td>
-<td>-0.33</td>
-<td>0.34</td>
-<td>-0.86</td>
-<td>0.20</td>
-<td>0.01</td>
-<td>0.02</td>
-<td>549.94</td>
-<td>352.19</td>
-<td>NaN</td>
-</tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[44]</td>
-<td>0.58</td>
-<td>0.33</td>
-<td>0.06</td>
-<td>1.09</td>
-<td>0.01</td>
-<td>0.01</td>
-<td>653.17</td>
-<td>339.77</td>
+<th data-quarto-table-cell-role="th">intercept_tank[30]</th>
+<td>-0.61</td>
+<td>0.41</td>
+<td>-1.25</td>
+<td>0.07</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>624.33</td>
+<td>383.19</td>
 <td>NaN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[45]</td>
-<td>-0.59</td>
-<td>0.38</td>
-<td>-1.24</td>
-<td>-0.02</td>
+<th data-quarto-table-cell-role="th">intercept_tank[31]</th>
+<td>-0.29</td>
+<td>0.43</td>
+<td>-0.93</td>
+<td>0.36</td>
 <td>0.02</td>
 <td>0.02</td>
-<td>620.34</td>
-<td>294.19</td>
+<td>612.92</td>
+<td>284.69</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">intercept_tank[46]</td>
-<td>2.03</td>
-<td>0.48</td>
-<td>1.30</td>
-<td>2.77</td>
+<th data-quarto-table-cell-role="th">intercept_tank[32]</th>
+<td>3.20</td>
+<td>0.75</td>
+<td>1.91</td>
+<td>4.22</td>
+<td>0.03</td>
+<td>0.03</td>
+<td>817.49</td>
+<td>436.23</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[33]</th>
+<td>2.68</td>
+<td>0.64</td>
+<td>1.62</td>
+<td>3.53</td>
 <td>0.02</td>
 <td>0.03</td>
-<td>657.69</td>
-<td>351.35</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">intercept_tank[47]</td>
-<td>0.01</td>
-<td>0.33</td>
-<td>-0.52</td>
-<td>0.54</td>
-<td>0.01</td>
-<td>0.01</td>
-<td>735.81</td>
-<td>303.89</td>
+<td>821.94</td>
+<td>302.75</td>
 <td>NaN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">sd_tank</td>
-<td>1.61</td>
+<th data-quarto-table-cell-role="th">intercept_tank[34]</th>
+<td>2.76</td>
+<td>0.66</td>
+<td>1.80</td>
+<td>3.82</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>566.74</td>
+<td>241.81</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[35]</th>
+<td>2.06</td>
+<td>0.49</td>
+<td>1.31</td>
+<td>2.89</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>692.56</td>
+<td>326.52</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[36]</th>
+<td>2.09</td>
+<td>0.52</td>
+<td>1.27</td>
+<td>2.82</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>779.08</td>
+<td>324.32</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[37]</th>
+<td>3.91</td>
+<td>0.97</td>
+<td>2.37</td>
+<td>5.31</td>
+<td>0.05</td>
+<td>0.05</td>
+<td>389.50</td>
+<td>280.09</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[38]</th>
+<td>2.70</td>
+<td>0.63</td>
+<td>1.68</td>
+<td>3.55</td>
+<td>0.03</td>
+<td>0.04</td>
+<td>613.09</td>
+<td>286.93</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[39]</th>
+<td>2.33</td>
+<td>0.54</td>
+<td>1.41</td>
+<td>3.11</td>
+<td>0.02</td>
+<td>0.04</td>
+<td>571.55</td>
+<td>284.69</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[40]</th>
+<td>-1.79</td>
+<td>0.48</td>
+<td>-2.53</td>
+<td>-0.98</td>
+<td>0.02</td>
+<td>0.03</td>
+<td>848.52</td>
+<td>301.85</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[41]</th>
+<td>-0.58</td>
+<td>0.34</td>
+<td>-1.09</td>
+<td>-0.05</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>1084.11</td>
+<td>287.09</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[42]</th>
+<td>-0.45</td>
+<td>0.39</td>
+<td>-1.04</td>
+<td>0.18</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>777.83</td>
+<td>462.07</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[43]</th>
+<td>-0.34</td>
+<td>0.35</td>
+<td>-0.84</td>
+<td>0.26</td>
+<td>0.02</td>
+<td>0.02</td>
+<td>464.72</td>
+<td>375.45</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[44]</th>
+<td>0.58</td>
+<td>0.34</td>
+<td>-0.02</td>
+<td>1.07</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>1221.81</td>
+<td>342.24</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[45]</th>
+<td>-0.58</td>
+<td>0.37</td>
+<td>-1.22</td>
+<td>-0.03</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>870.39</td>
+<td>351.95</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">intercept_tank[46]</th>
+<td>2.03</td>
+<td>0.48</td>
+<td>1.29</td>
+<td>2.78</td>
+<td>0.02</td>
+<td>0.05</td>
+<td>576.23</td>
+<td>373.47</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">intercept_tank[47]</th>
+<td>0.00</td>
+<td>0.33</td>
+<td>-0.54</td>
+<td>0.47</td>
+<td>0.01</td>
+<td>0.02</td>
+<td>628.40</td>
+<td>298.81</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">sd_tank</th>
+<td>1.62</td>
 <td>0.20</td>
-<td>1.28</td>
-<td>1.92</td>
+<td>1.31</td>
+<td>1.96</td>
 <td>0.01</td>
 <td>0.01</td>
-<td>223.71</td>
-<td>348.72</td>
+<td>344.67</td>
+<td>401.93</td>
 <td>NaN</td>
 </tr>
 </tbody>
@@ -2000,7 +2026,7 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 </div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
@@ -2029,10 +2055,10 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
 <span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
-<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
@@ -2053,7 +2079,7 @@ arviz - WARNING - Shape validation failed: input_shape: (1, 500), minimum_shape:
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
 <span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary ------------------------------------------------</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>() <span class="co"># Get posterior distributions</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -2124,486 +2150,1175 @@ McElreath, Richard. 2018. <em><span class="nocase">Statistical Rethinking: A Bay
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
+
 <script src="https://unpkg.com/tippy.js@6"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
 <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
+
+
 <script>
+
 function convertMarkdownToHTML(markdown) {
+
   const options = {
+
     breaks: true,
+
     gfm: true,
+
   };
+
   const htmlContent = marked.parse(markdown, options);
+
   return htmlContent;
+
 }
 
+
+
 tippy('#Elasticity', {
+
   content: convertMarkdownToHTML('The elasticity of the response variable with respect to the exposure is the percent change in the response with respect to a percent change in the exposure. For example, an elasticity of 1.0 means that doubling the exposure time will double the response'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
+
 
 
 tippy('#Uncertainty', {
+
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#priorKnowledge', {
+
   content: convertMarkdownToHTML('When data are sparse or noisy, incorporating prior knowledge through the prior distribution can improve the model’s performance. This is especially useful in fields where previous research or expert opinion is available.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#Flexibility', {
+
   content: convertMarkdownToHTML('Bayesian approaches naturally extend to complex settings such as hierarchical models, models with latent variables, or situations with missing data. Their ability to blend different sources of information makes them ideal for modern, data-rich applications.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#PPCs', {
+
   content: convertMarkdownToHTML('PPCs involve generating *dummy data* (or simulated observations) from the posterior predictive distribution and comparing these simulated datasets with the actual observed data.By comparing summary statistics (e.g., means, variances) or visualizations (e.g., histograms, scatter plots) between \( y^{\text{rep}} \) and the observed data, we can assess if our model is capable of reproducing key features of the data.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#HPDI', {
+
   content: convertMarkdownToHTML('HPDI is a metric that describe the distribution of a parameter. The Highest Posterior Density Interval is the narrowest interval that contains a specified proportion (e.g., 95%) of the posterior probability. HPDIs are especially useful when the posterior distribution is skewed or multimodal as it help in understanding the uncertainty of parameter estimates and in communicating the degree of uncertainty in predictions.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#convDiag', {
+
   content: convertMarkdownToHTML('Convergence diagnostics are statistical tools and methods used to assess whether a Markov Chain Monte Carlo (MCMC) algorithm has sufficiently explored the target posterior distribution in Bayesian analysis. They help ensure that the chain has stabilized and that samples are reliable for inference.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#ESS', {
+
   content: convertMarkdownToHTML('ESS estimates how many independent samples our MCMC chain is equivalent to. Low ESS values indicate that samples are highly correlated, which might affect the reliability of posterior summaries.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#Rhat', {
+
   content: convertMarkdownToHTML('Rhat compares the variance between multiple chains to the variance within each chain. Values close to 1 (typically below 1.1) indicate good convergence.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
 
+
+
   tippy('#TP', {
+
     content: convertMarkdownToHTML('Trace plots are graphical tools used in MCMC diagnostics to visualize the sampled values of a parameter over iterations. They help assess the convergence and mixing behavior of the Markov chain.'),
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
   });
+
+
 
   tippy('#AutoCor', {
+
     content: convertMarkdownToHTML('Autocorrelation plots visualize the correlation between samples in an MCMC chain as a function of the lag (distance between samples). They help assess how dependent the samples are and whether the chain is mixing efficiently.'),
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
   });
 
+
+
   tippy('#DesPlot', {
+
     content: convertMarkdownToHTML('Density plots visualize the estimated posterior distribution of a parameter based on MCMC samples. They provide a smoothed representation of the distribution, helping assess central tendency, spread, and shape.'),
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
   });
+
+
+
+
 
 
 
 tippy('#DP', {
+
   content: convertMarkdownToHTML('A dependent variable  is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#IP', {
+
   content: convertMarkdownToHTML('An independent variable is the variable that is manipulated or controlled in an analysis to observe its effect on a dependent variable. It represents the input or cause in a cause-and-effect relationship and is often denoted as X in statistical models.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#lk', {
+
   content: convertMarkdownToHTML('Likelihood is a statistical concept representing the probability of observing a given set of data, assuming specific values of the *parameters* in a model.It is not the same as probability; instead, it measures how well a model with certain parameters explains the observed data.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#pdist', {
+
   content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilities are assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variable takes finite or infinite values.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#intercept ', {
+
   content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as α in linear models.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
 
+
+
 tippy('#slope ', {
+
   content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
+
 
 
 tippy('#prior', {
+
   content: convertMarkdownToHTML('Priors are distributions that represent the value of the parameter before conditioning it on the data.'),
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#BT', {
+
   content: '<span style="color: white;">Bayes\' Theorem describes how to update the probability of a hypothesis given new evidence. It states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use ofBayesian updating to improve the accuracy of the model.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
 
+
+
 tippy('#BUpdating', {
+
     content: '<span style="color: white;">Bayesian updating is the iterative process of refining beliefs by applying Bayes\' Theorem as new data becomes available.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
   });
 
 
 
+
+
+
+
 tippy('#overdispersion', {
+
   content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#linkF', {
+
     content: '<span style="color: white;">The link function is a key component of the generalized linear model (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges. For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link (used in logistic regression), the coefficients relate to the log - odds of the outcome.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#simplex', {
+
   content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
   
+
 tippy('#triptych', {
+
     content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
     
+
 tippy('#hyperP', {
+
   content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#cov', {
+
     content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#centerRF', {
+
   content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#NodeF', {
+
     content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF', {
+
     content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#senderF', {
+
     content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#receiverF', {
+
     content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#DyadicF2', {
+
     content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#expoB', {
+
     content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#censoB', {
+
     content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
 
 tippy('#assor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
 
+
+
 tippy('#disassor', {
+
     content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
+
     allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
 });
+
+
+
 
 
 tippy('#chol', {
+
   content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#uncertainty', {
+
   content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#posterior', {
+
   content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#scaled', {
+
   content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#grandMean', {
+
   content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their mean levels. </span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#ohe', {
+
   content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#indices', {
+
   content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
+
   allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
 });
+
+
 
 tippy('#softmax', {
+
   content: `
+
   <span style='color: white;'>
+
     takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
+
     then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
+
     The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
+
     <strong>Formula:</strong><br>
+
     $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
+
   </span>
+
   `,  allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
   onShow(instance) {
+
     MathJax.typesetPromise([instance.reference]).then(() => {
+
       // Optional: if you want to do something after the typesetting
+
     });
+
   },
+
 });
+
+
 
 tippy('#kernel', {
+
   content: `
+
   <span style='color: white;'>
+
     A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
+
     in a higher-dimensional feature space without explicitly transforming them. 
+
     The kernel function allows for non-linear relationships by mapping input space to feature space, 
+
     where linear techniques can then be applied. 
+
     Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
+
   </span>
+
   `,  allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
   onShow(instance) {
+
     MathJax.typesetPromise([instance.reference]).then(() => {
+
       // Optional: if you want to do something after the typesetting
+
     });
+
   },
+
 });
+
+
 
 tippy('#kernelMean0', {
+
   content: `
+
   <span style='color: white;'>
+
     GP mean is usually set to zero as by setting the mean to zero, 
+
     we center the distribution around the origin. 
+
     This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
+
     can be thought of as deviations from this mean.
+
   </span>
+
   `,  allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
   onShow(instance) {
+
     MathJax.typesetPromise([instance.reference]).then(() => {
+
       // Optional: if you want to do something after the typesetting
+
     });
+
   },
+
 });
+
+
 
 tippy('#signAmbiguity', {
+
   content: `
+
   <span style='color: white;'>
+
     PCA identifies directions (principal components) that capture the maximum variance in the data. However, the orientation of these components is not unique; both a vector and its negation represent the same principal direction. This means that if 𝑤 is a principal component, −𝑤 is equally valid.
+
   </span>
+
   `,  allowHTML: true,
+
   interactive: true,
+
   delay: 100,
+
   onShow(instance) {
+
     MathJax.typesetPromise([instance.reference]).then(() => {
+
       // Optional: if you want to do something after the typesetting
+
     });
+
   },
+
 });
+
+
 
 tippy('#MatCov', {
+
   content: `
+
   <span style='color: white;'>
+
     A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
+
   </span>
+
   `, allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
     onShow(instance) {
+
       MathJax.typesetPromise([instance.reference]).then(() => {
+
         // Optional: if you want to do something after the typesetting
+
       });
+
     },
+
 });
+
+
 
 tippy('#RFcentered', {
+
   content: `
+
   <span style='color: white;'>
+
     The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
+
   </span>
+
   `, allowHTML: true,
+
     interactive: true,
+
     delay: 100,
+
     onShow(instance) {
+
       MathJax.typesetPromise([instance.reference]).then(() => {
+
         // Optional: if you want to do something after the typesetting
+
       });
+
     },
+
 });
 
+
+
 tippy('#LKJcorr', {
+
       content: `
+
   <span style='color: white;'>
+
     The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
+
   </span>
+
   `, allowHTML: true,
+
       interactive: true,
+
       delay: 100,
+
       onShow(instance) {
+
         MathJax.typesetPromise([instance.reference]).then(() => {
+
           // Optional: if you want to do something after the typesetting
+
         });
+
       },
+
     });
+
+
 
 tippy('#unsupervised', {
+
       content: `
+
   <span style='color: white;'>
+
     An unsupervised algorithm is a method that processes unlabeled data to automatically uncover patterns, groupings, or structures without predefined output targets.
+
   </span>
+
   `, allowHTML: true,
+
       interactive: true,
+
       delay: 100,
+
       onShow(instance) {
+
         MathJax.typesetPromise([instance.reference]).then(() => {
+
           // Optional: if you want to do something after the typesetting
+
         });
+
       },
+
     });
 
+
+
 tippy('#stickProcess', {
+
       content: `
+
   <span style='color: white;'>
+
 The stick-breaking process is a way to generate a random distribution by imagining a unit-length stick that gets broken into pieces one step at a time. At each step, a random fraction of whatever stick remains is snapped off to form a new weight, and the rest is left for future breaks. Each weight is paired with a randomly chosen parameter value. Repeating this indefinitely yields a distribution made of infinitely many weighted parameter, where earlier pieces tend to be larger and later ones smaller.
 
   </span>
+
   `, allowHTML: true,
+
       interactive: true,
+
       delay: 100,
+
       onShow(instance) {
+
         MathJax.typesetPromise([instance.reference]).then(() => {
+
           // Optional: if you want to do something after the typesetting
+
         });
+
       },
+
     });
 
 
+
+tippy('#Neurons', {
+
+      content: `
+
+  <span style='color: white;'>
+
+ In a neural network, a neuron (or node) is a fundamental computational unit. It receives inputs, applies a weighted sum and an activation function to these inputs, and produces an output. It's analogous to a biological neuron, processing and transmitting signals.
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
+
+
+tippy('#Layers', {
+
+      content: `
+
+  <span style='color: white;'>
+
+Layers are groups of neurons organized in a 2D array. Each layer processes the output from the previous layer and passes its output to the next. Common layer types include input layers, hidden layers (where the main computation occurs), and output layers (which produce the final predictions).
+
+</span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
+
+
+
+
+tippy('#Dropout', {
+
+      content: `
+
+  <span style='color: white;'>
+
+ Dropout is a regularization technique where, during training, a random subset of neurons (and their connections) are temporarily ignored or "dropped out" for each training iteration. This prevents neurons from co-adapting too much and encourages the network to learn more robust features, thus reducing overfitting.
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
+
+
+tippy('#L2', {
+
+      content: `
+
+  <span style='color: white;'>
+
+L2 regularization (also known as weight decay) is a technique to prevent overfitting by adding a penalty term to the loss function. This penalty is proportional to the sum of the squares of the network's weights. It encourages the model to use smaller weights, leading to a simpler and more generalized model.
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
+
+
+
+
+tippy('#Overfitting', {
+
+      content: `
+
+  <span style='color: white;'>
+
+Overfitting occurs when a machine learning model learns the training data too well, including its noise and random fluctuations. As a result, the model performs very poorly on new, unseen data because it has failed to generalize the underlying patterns.
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
+
+
+tippy('#VI', {
+
+      content: `
+
+  <span style='color: white;'>
+
+An optimization-based method for approximating complex, intractable posterior distributions. Instead of sampling (as in MCMC), VI posits a parameterized family of simpler distributions (e.g., Gaussians) and optimizes their parameters to minimize the Kullback-Leibler (KL) divergence between the approximation and the true posterior. This effectively converts an integration problem into an optimization problem
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
+    
+
+tippy('#SG-MCMC', {
+
+      content: `
+
+  <span style='color: white;'>
+
+A class of algorithms designed to scale Markov Chain Monte Carlo methods to large datasets. It approximates the gradient of the log-posterior using mini-batches (subsets) of data rather than the full dataset. To ensure convergence to the true posterior distribution despite the noise introduced by subsampling, these methods (such as Stochastic Gradient Langevin Dynamics) introduce specific noise injection and step-size schedules.
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
 </script>
+
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
@@ -2668,13 +3383,14 @@ The stick-breaking process is a way to generate a random distribution by imagini
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

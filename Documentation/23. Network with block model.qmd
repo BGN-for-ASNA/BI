@@ -90,7 +90,7 @@ def model(network, dyadic_predictors, focal_individual_predictors, target_indivi
     dr = m.net.dyadic_effect(dyadic_predictors, d_sd=2.5) # Diadic effect intercept only 
     m.dist.bernoulli(logits = B_intercept + B_category + sr + dr, obs=network)
 
-m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1)
+m.fit(model, progress_bar=False)
 m.summary()
 ```
 

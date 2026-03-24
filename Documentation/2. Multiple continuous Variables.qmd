@@ -49,7 +49,7 @@ def model(height, weight, age):
     m.dist.normal(alpha + beta1 * weight + beta2 * age, sigma, obs = height)
 
 # Run MCMC ------------------------------------------------
-m.fit(model) # Optimize model parameters through MCMC sampling
+m.fit(model, progress_bar=False) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary()
