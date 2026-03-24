@@ -125,9 +125,9 @@ class bi(manip):
             forward_mode_differentiation=False,
             regularize_mass_matrix=True,
             
-            num_warmup = 500,
-            num_samples = 500,
-            num_chains=1,
+            num_warmup = 1000,
+            num_samples = 1000,
+            num_chains=4,
             thinning=1,
             postprocess_fn=None,
             chain_method="parallel",
@@ -252,8 +252,8 @@ class bi(manip):
             self.get_history()
 
         elif self.backend == 'tfp':
-            print("⚠️This function is still in development. Use it with caution. ⚠️")
-            from BI.Utils.tfp_dists import UnifiedDist as tfp_dists
+            print("[WARNING] This function is still in development. Use it with caution. [WARNING]")
+            from BI.Distributions.tfp_dists import UnifiedDist as tfp_dists
             from BI.Samplers.mcmc_tfp import mcmc as mcmc_tfp
             from BI.Samplers.Model_handler import model_handler 
 
@@ -262,13 +262,9 @@ class bi(manip):
             self.sampler.model = self.model
 
 
-            self.sampler.run(model = self.model, obs = obs) 
+            self.sampler.run(seed = jax.random.PRNGKey(seed), model = self.model, **self.data_on_model) 
             self.diag = diag(sampler = self.sampler)
-            trace = {}
-            var_names= list(self.sampler.model_info.keys())
-            for name, samp in zip(var_names, self.sampler.posterior):
-                trace[name] = samp
-            self.posteriors = trace
+            self.posteriors = self.sampler.get_samples()
             self.get_history()
 
         if self.model_name == 'pca':
@@ -349,8 +345,6 @@ class bi(manip):
 
         self.run_model_name = self.model_name
         self.model_name = None
-
-    
     # Random number generator ----------------------------------------------------------------
     
     def randint(self, low, high, shape):
@@ -366,8 +360,6 @@ class bi(manip):
             Array of random integers.
         """        
         return pyrand.randint(low, high, shape)
-
-
 
     # Get posteriors ----------------------------------------------------------------------------
     def summary(self, round_to=2, kind="all", hdi_prob=0.89, *args, **kwargs): 

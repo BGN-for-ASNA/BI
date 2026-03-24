@@ -51,7 +51,7 @@ def model(tank, surv, density):
     m.dist.binomial(total_count = density, logits = p, obs=surv)
 
 # Run sampler ------------------------------------------------
-m.fit(model) 
+m.fit(model, progress_bar=False) 
 
 # Diagnostic ------------------------------------------------
 m.summary()
@@ -79,7 +79,7 @@ def model(tank, surv, density):
     m.dist.binomial(total_count = density, logits = alpha, obs=surv)
 
 # Run sampler ------------------------------------------------
-m.fit(model) 
+m.fit(model, progress_bar=False) 
 
 # Diagnostic ------------------------------------------------
 m.summary()

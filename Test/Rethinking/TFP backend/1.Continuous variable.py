@@ -1,0 +1,111 @@
+from Utils import *
+from BI import bi
+import pandas as pd
+import os
+import numpy as np
+import jax.numpy as jnp
+import jax
+
+model_name = "1.Continuous variable"
+
+print(f'Running BI for {model_name}')
+m = bi(platform='cpu', backend='tfp')
+
+# import data ------------------------------------------------
+data_path = m.load.howell1(only_path = True)
+m.data(data_path, sep=';') 
+m.df = m.df[m.df.age > 18]
+m.scale(['weight'])
+
+# define model ------------------------------------------------
+def model_bi(weight, height):
+    a = yield m.dist.normal(178, 20)
+    b = yield m.dist.log_normal(0, 1)  
+    s = yield m.dist.uniform(0, 50)   
+    y = yield m.dist.normal(a+b*weight, s, shape = (1,), obs = height)
+
+
+# Run sampler ------------------------------------------------
+m.fit(model_bi) 
+m.summary()
+
+print('Running Stan')
+stan_code = """
+data{
+  int<lower=0> N;
+  vector[N] height;
+  vector[N] weight;
+}
+parameters{
+  real a;
+  real<lower=0> b;
+  real<lower=0,upper=50> s;
+}
+model{
+  vector[N] mu;
+  s ~ uniform( 0 , 50 );
+  b ~ lognormal( 0 , 1 );
+  a ~ normal( 178 , 20 );
+  for ( i in 1:N ) {
+    mu[i] = a + b* weight[i] ;
+  }
+  height ~ normal( mu , s );  
+}
+"""
+data = {
+  'N': len(m.df),
+  'height': m.df.height.values,
+  'weight': m.df.weight.values,
+}
+
+stan_df = build_stan_model(stan_code, data = data, chains=4)
+
+print('Posterior distributions comparison')
+plot_comparaison(m, stan_df, model_name=model_name)
+
+print('Running Parameters recovery')
+def model_rec(weight, height):    
+    a = yield m.dist.normal( 178, 20)   
+    b = yield m.dist.log_normal(0, 1)
+    s = yield m.dist.uniform( 0, 50)
+    yield m.dist.normal(a + b * weight , s, obs=height)
+
+def simulate_height(weight, a, b, s):    
+    weight_scaled = (weight - weight.mean())/weight.std()
+    height = m.dist.normal( a + b * weight_scaled , s, sample = True)
+    return weight_scaled, height
+
+def estimate(weight, a, b, s):
+    weight_scaled, height = simulate_height(weight, a, b, s)
+    m_rec = bi(print_devices_found=False, backend='tfp')
+    m_rec.df = pd.DataFrame({"weight": weight_scaled, "height": height})
+    m_rec.data_to_model(['weight', 'height'])
+    m_rec.fit(model_rec, num_samples=500, progress_bar=False) 
+    sum_df = m_rec.summary()
+    return sum_df.iloc[:,0]
+
+def param_recovery(weight_data, a_sims, b_sims, s_sims, nsim):
+    results = []
+    for i in range(nsim):
+        estimations = estimate(weight_data[i,:], a_sims[i,:], b_sims[i,:], s_sims[i,:])
+        for param in ['a', 'b', 's']:
+            true_val = a_sims[i,0] if param == 'a' else (b_sims[i,0] if param == 'b' else s_sims[i,0])
+            results.append({
+                'sim': i,
+                'parameter': param,
+                'simulated': true_val,
+                'estimations': estimations[param]
+            })
+    
+    df_res = pd.DataFrame(results)
+    plot_recovery(df_res, model_name=model_name)
+    return df_res
+
+N = 100
+nsim = int(os.getenv('BI_NSIM', 100))
+a_sims = np.random.normal(178, 20, size=(nsim, 1))
+b_sims = np.random.lognormal(0, 1, size=(nsim, 1))
+s_sims = np.random.uniform(0, 50, size=(nsim, 1))
+weight_data = np.random.normal(80, 30, size=(nsim, N))
+
+res = param_recovery(weight_data, a_sims, b_sims, s_sims, nsim = nsim)

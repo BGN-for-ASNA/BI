@@ -43,7 +43,7 @@ def model(pulled_left):
     m.dist.binomial(total_count = 1, logits=alpha, obs=pulled_left)
 
 # Run sampler ------------------------------------------------
-m.fit(model, num_samples=500)
+m.fit(model, progress_bar=False)
 
 # Diagnostic ------------------------------------------------
 m.summary()

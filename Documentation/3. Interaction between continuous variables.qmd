@@ -54,7 +54,7 @@ def model(blooms,shade, water):
     m.dist.normal(mu, sigma, obs=blooms)
 
 # Run mcmc ------------------------------------------------
-m.fit(model) # Optimize model parameters through MCMC sampling
+m.fit(model, progress_bar=False) # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
 m.summary()

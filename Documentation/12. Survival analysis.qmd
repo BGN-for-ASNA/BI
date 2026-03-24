@@ -77,7 +77,7 @@ def model(intervals, death, metastasized, exposure):
     y = m.dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
 
 # Run mcmc ------------------------------------------------
-m.fit(model, num_samples=500) 
+m.fit(model, progress_bar=False) 
 
 # Summary ------------------------------------------------
 print(m.summary())
