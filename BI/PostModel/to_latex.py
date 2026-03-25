@@ -1,7 +1,11 @@
 import ast
 import re
 import inspect
-from IPython.display import display, Latex
+try:
+    from IPython.display import display, Latex
+except ImportError:
+    display = print
+    Latex = str
 
 # Greek symbols mapping
 greek_symbols = {

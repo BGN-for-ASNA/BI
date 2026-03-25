@@ -112,7 +112,7 @@ def param_recovery(gid, applications, a_sims, phi_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = 100
+nsim_test = int(os.getenv('BI_NSIM', 100))
 a_sims = np.random.normal(0, 1.5, size=(nsim_test, 2))
 phi_sims = np.random.exponential(1.0, size=(nsim_test, 1))
 

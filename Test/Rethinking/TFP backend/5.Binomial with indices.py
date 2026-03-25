@@ -121,4 +121,4 @@ a_sims = np.random.normal(0, 1, size=(nsim_test, 7))
 bp_sims = np.random.normal(0, 1, size=(nsim_test, 1))
 bpc_sims = np.random.normal(0, 1, size=(nsim_test, 1))
 
-recovery_results = param_recovery(df.actor.values, df.prosoc_left.values, df.condition.values, a_sims, bp_sims,
+recovery_results = param_recovery(df.actor.values, df.prosoc_left.values, df.condition.values, a_sims, bp_sims, bpc_sims, nsim=nsim_test)

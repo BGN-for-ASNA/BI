@@ -54,7 +54,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -62,6 +62,24 @@ class UnifiedDist:
         else:
             return final_dist
 
+
+    @staticmethod
+    def asymmetric_laplace(loc, scale, asymmetry, validate_args=False, allow_nan_stats=True, name='AsymmetricLaplace', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        """
+        Wrapper for the tfd.AsymmetricLaplace distribution.
+        """
+        dist = tfd.AsymmetricLaplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        if sample:
+            prng_key = jax.random.PRNGKey(seed)
+            return dist.sample(sample_shape=shape, seed=prng_key)
+        if obs is not None:
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
+        else:
+             final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
+        if wrap:
+            return root(final_dist)
+        else:
+            return final_dist
 
     @staticmethod
     def autoregressive(distribution_fn, sample0=None, num_steps=None, validate_args=False, allow_nan_stats=True, name='Autoregressive', shape=(), sample=False, seed=0, obs=None, wrap=True):
@@ -90,7 +108,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -122,7 +140,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -154,7 +172,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -186,7 +204,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -222,7 +240,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -232,7 +250,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def bernoulli(logits=None, probs=None, dtype=jax.numpy.int32, validate_args=False, allow_nan_stats=True, name='Bernoulli', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def bernoulli(logits=None, probs=None, dtype=jax.numpy.int32, validate_args=False, allow_nan_stats=True, name='Bernoulli', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Bernoulli distribution.
         
@@ -258,7 +276,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -268,7 +286,15 @@ class UnifiedDist:
 
 
     @staticmethod
-    def beta(concentration1, concentration0, validate_args=False, allow_nan_stats=True, force_probs_to_zero_outside_support=False, name='Beta', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def bernoulli_logits(logits, dtype=jax.numpy.int32, validate_args=False, allow_nan_stats=True, name='BernoulliLogits', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        return UnifiedDist.bernoulli(logits=logits, dtype=dtype, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap, create_obj=create_obj)
+
+    @staticmethod
+    def bernoulli_probs(probs, dtype=jax.numpy.int32, validate_args=False, allow_nan_stats=True, name='BernoulliProbs', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        return UnifiedDist.bernoulli(probs=probs, dtype=dtype, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap, create_obj=create_obj)
+
+    @staticmethod
+    def beta(concentration1, concentration0, validate_args=False, allow_nan_stats=True, force_probs_to_zero_outside_support=False, name='Beta', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Beta distribution.
         
@@ -289,12 +315,15 @@ class UnifiedDist:
                                If False, return a Root distribution object. Defaults to False.
                 seed (int): The PRNG seed for sampling. Defaults to 0.
         """
+        # Ensure concentrations are positive
+        concentration1 = jnp.where(concentration1 <= 0, 1e-6, concentration1)
+        concentration0 = jnp.where(concentration0 <= 0, 1e-6, concentration0)
         dist = tfd.Beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args, allow_nan_stats=allow_nan_stats, force_probs_to_zero_outside_support=force_probs_to_zero_outside_support, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -303,10 +332,6 @@ class UnifiedDist:
             return final_dist
 
 
-    @staticmethod
-    def beta_binomial(total_count, concentration1, concentration0, validate_args=False, allow_nan_stats=True, name='BetaBinomial', shape=(), sample=False, seed=0, obs=None, wrap=True):
-        """
-        Wrapper for the tfd.BetaBinomial distribution.
     @staticmethod
     def beta_binomial(total_count, concentration1, concentration0, validate_args=False, allow_nan_stats=True, name='BetaBinomial', shape=(), sample=False, seed=0, obs=None, wrap=True):
         """
@@ -314,12 +339,15 @@ class UnifiedDist:
         """
         # Ensure total_count is float if concentrations are float to avoid dtype mismatch in JAX
         total_count = jax.numpy.array(total_count, dtype=jax.numpy.result_type(concentration1, concentration0))
+        # Ensure concentrations are positive
+        concentration1 = jnp.where(concentration1 <= 0, 1e-6, concentration1)
+        concentration0 = jnp.where(concentration0 <= 0, 1e-6, concentration0)
         dist = tfd.BetaBinomial(total_count=total_count, concentration1=concentration1, concentration0=concentration0, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -328,11 +356,11 @@ class UnifiedDist:
             return final_dist
 
     @staticmethod
-    def zero_inflated_poisson(p, rate, validate_args=False, allow_nan_stats=True, name='ZeroInflatedPoisson', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def zero_inflated_poisson(gate, rate, validate_args=False, allow_nan_stats=True, name='ZeroInflatedPoisson', shape=(), sample=False, seed=0, obs=None, wrap=True):
         """
         Wrapper for a Zero-Inflated Poisson distribution.
         """
-        probs = jax.numpy.stack([p, 1.0 - p], axis=-1)
+        probs = jax.numpy.stack([gate, 1.0 - gate], axis=-1)
         dist = tfd.MixtureSameFamily(
             mixture_distribution=tfd.Categorical(probs=probs),
             components_distribution=tfd.Poisson(rate=jax.numpy.stack([jax.numpy.zeros_like(rate), rate], axis=-1))
@@ -341,7 +369,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -378,7 +406,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -388,7 +416,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def binomial(total_count, logits=None, probs=None, validate_args=False, allow_nan_stats=True, name=None, shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def binomial(total_count, logits=None, probs=None, validate_args=False, allow_nan_stats=True, name=None, shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Binomial distribution.
         
@@ -414,7 +442,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -446,7 +474,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -456,7 +484,15 @@ class UnifiedDist:
 
 
     @staticmethod
-    def categorical(logits=None, probs=None, dtype=jax.numpy.int32, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='Categorical', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def binomial_logits(total_count, logits, validate_args=False, allow_nan_stats=True, name='BinomialLogits', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        return UnifiedDist.binomial(total_count=total_count, logits=logits, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap, create_obj=create_obj)
+
+    @staticmethod
+    def binomial_probs(total_count, probs, validate_args=False, allow_nan_stats=True, name='BinomialProbs', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        return UnifiedDist.binomial(total_count=total_count, probs=probs, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap, create_obj=create_obj)
+
+    @staticmethod
+    def categorical(logits=None, probs=None, dtype=jax.numpy.int32, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='Categorical', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Categorical distribution.
         
@@ -483,7 +519,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -493,7 +529,15 @@ class UnifiedDist:
 
 
     @staticmethod
-    def cauchy(loc, scale, validate_args=False, allow_nan_stats=True, name='Cauchy', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def categorical_logits(logits, dtype=jax.numpy.int32, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='CategoricalLogits', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        return UnifiedDist.categorical(logits=logits, dtype=dtype, force_probs_to_zero_outside_support=force_probs_to_zero_outside_support, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap, create_obj=create_obj)
+
+    @staticmethod
+    def categorical_probs(probs, dtype=jax.numpy.int32, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='CategoricalProbs', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        return UnifiedDist.categorical(probs=probs, dtype=dtype, force_probs_to_zero_outside_support=force_probs_to_zero_outside_support, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap, create_obj=create_obj)
+
+    @staticmethod
+    def cauchy(loc, scale, validate_args=False, allow_nan_stats=True, name='Cauchy', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Cauchy distribution.
         
@@ -518,7 +562,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -552,7 +596,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -562,7 +606,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def chi2(df, validate_args=False, allow_nan_stats=True, name='Chi2', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def chi2(df, validate_args=False, allow_nan_stats=True, name='Chi2', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Chi2 distribution.
         
@@ -586,7 +630,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -594,6 +638,24 @@ class UnifiedDist:
         else:
             return final_dist
 
+
+    @staticmethod
+    def delta(loc, atol=None, rtol=None, validate_args=False, allow_nan_stats=True, name='Deterministic', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        """
+        Wrapper for the tfd.Deterministic distribution (delta).
+        """
+        dist = tfd.Deterministic(loc=loc, atol=atol, rtol=rtol, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        if sample:
+            prng_key = jax.random.PRNGKey(seed)
+            return dist.sample(sample_shape=shape, seed=prng_key)
+        if obs is not None:
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
+        else:
+             final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
+        if wrap:
+            return root(final_dist)
+        else:
+            return final_dist
 
     @staticmethod
     def cholesky_l_k_j(dimension, concentration, validate_args=False, allow_nan_stats=True, name='CholeskyLKJ', shape=(), sample=False, seed=0, obs=None, wrap=True):
@@ -621,7 +683,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -657,7 +719,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -692,7 +754,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -700,6 +762,13 @@ class UnifiedDist:
         else:
             return final_dist
 
+
+    @staticmethod
+    def delta(v, atol=None, rtol=None, validate_args=False, allow_nan_stats=True, name='Delta', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        """
+        Wrapper for the tfd.Deterministic distribution (aliased as Delta).
+        """
+        return UnifiedDist.deterministic(loc=v, atol=atol, rtol=rtol, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap)
 
     @staticmethod
     def deterministic(loc, atol=None, rtol=None, validate_args=False, allow_nan_stats=True, name='Deterministic', shape=(), sample=False, seed=0, obs=None, wrap=True):
@@ -728,7 +797,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -738,7 +807,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def dirichlet(concentration, validate_args=False, allow_nan_stats=True, force_probs_to_zero_outside_support=False, name='Dirichlet', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def dirichlet(concentration, validate_args=False, allow_nan_stats=True, force_probs_to_zero_outside_support=False, name='Dirichlet', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Dirichlet distribution.
         
@@ -758,12 +827,14 @@ class UnifiedDist:
                                If False, return a Root distribution object. Defaults to False.
                 seed (int): The PRNG seed for sampling. Defaults to 0.
         """
+        # Ensure concentrations are positive
+        concentration = jnp.where(concentration <= 0, 1e-6, concentration)
         dist = tfd.Dirichlet(concentration=concentration, validate_args=validate_args, allow_nan_stats=allow_nan_stats, force_probs_to_zero_outside_support=force_probs_to_zero_outside_support, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -773,7 +844,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def dirichlet_multinomial(total_count, concentration, validate_args=False, allow_nan_stats=True, name='DirichletMultinomial', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def dirichlet_multinomial(total_count, concentration, validate_args=False, allow_nan_stats=True, name='DirichletMultinomial', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.DirichletMultinomial distribution.
         
@@ -798,7 +869,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -835,7 +906,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -870,7 +941,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -905,7 +976,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -941,7 +1012,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -977,7 +1048,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1013,7 +1084,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1023,7 +1094,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def exponential(rate, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='Exponential', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def exponential(rate, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='Exponential', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Exponential distribution.
         
@@ -1048,7 +1119,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1084,7 +1155,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1122,7 +1193,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1158,7 +1229,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1168,7 +1239,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def gamma(concentration, rate=None, log_rate=None, validate_args=False, allow_nan_stats=True, force_probs_to_zero_outside_support=False, name='Gamma', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def gamma(concentration, rate=None, log_rate=None, validate_args=False, allow_nan_stats=True, force_probs_to_zero_outside_support=False, name='Gamma', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Gamma distribution.
         
@@ -1190,12 +1261,16 @@ class UnifiedDist:
                                If False, return a Root distribution object. Defaults to False.
                 seed (int): The PRNG seed for sampling. Defaults to 0.
         """
+        # Ensure concentration and rate are positive
+        concentration = jnp.where(concentration <= 0, 1e-6, concentration)
+        if rate is not None:
+            rate = jnp.where(rate <= 0, 1e-6, rate)
         dist = tfd.Gamma(concentration=concentration, rate=rate, log_rate=log_rate, validate_args=validate_args, allow_nan_stats=allow_nan_stats, force_probs_to_zero_outside_support=force_probs_to_zero_outside_support, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1231,7 +1306,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1273,7 +1348,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1317,7 +1392,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1353,7 +1428,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1389,7 +1464,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1425,7 +1500,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1435,7 +1510,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def geometric(logits=None, probs=None, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='Geometric', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def geometric(logits=None, probs=None, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='Geometric', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Geometric distribution.
         
@@ -1461,7 +1536,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1471,7 +1546,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def gumbel(loc, scale, validate_args=False, allow_nan_stats=True, name='Gumbel', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def gumbel(loc, scale, validate_args=False, allow_nan_stats=True, name='Gumbel', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Gumbel distribution.
         
@@ -1496,7 +1571,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1506,7 +1581,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def half_cauchy(loc, scale, validate_args=False, allow_nan_stats=True, name='HalfCauchy', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def half_cauchy(scale, loc=0.0, validate_args=False, allow_nan_stats=True, name='HalfCauchy', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.HalfCauchy distribution.
         
@@ -1531,7 +1606,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1541,7 +1616,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def half_normal(scale, validate_args=False, allow_nan_stats=True, name='HalfNormal', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def half_normal(scale, validate_args=False, allow_nan_stats=True, name='HalfNormal', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.HalfNormal distribution.
         
@@ -1565,7 +1640,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1575,7 +1650,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def half_student_t(df, loc, scale, validate_args=False, allow_nan_stats=True, name='HalfStudentT', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def half_student_t(df, loc, scale, validate_args=False, allow_nan_stats=True, name='HalfStudentT', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.HalfStudentT distribution.
         
@@ -1601,7 +1676,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1641,7 +1716,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1651,7 +1726,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def horseshoe(scale, validate_args=False, allow_nan_stats=True, name='Horseshoe', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def horseshoe(scale, validate_args=False, allow_nan_stats=True, name='Horseshoe', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Horseshoe distribution.
         
@@ -1675,7 +1750,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1707,7 +1782,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1739,7 +1814,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1749,7 +1824,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def inverse_gamma(concentration, scale=None, validate_args=False, allow_nan_stats=True, name='InverseGamma', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def inverse_gamma(concentration, scale=None, rate=None, validate_args=False, allow_nan_stats=True, name='InverseGamma', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.InverseGamma distribution.
         
@@ -1758,7 +1833,7 @@ class UnifiedDist:
         
             Original TFP Arguments:
                 concentration: Default = <class 'inspect._empty'>
-                scale: Default = None
+                scale: Default = None (or rate)
                 validate_args: Default = False
                 allow_nan_stats: Default = True
                 name: Default = InverseGamma
@@ -1769,12 +1844,18 @@ class UnifiedDist:
                                If False, return a Root distribution object. Defaults to False.
                 seed (int): The PRNG seed for sampling. Defaults to 0.
         """
+        if scale is None and rate is not None:
+            scale = rate
+        # Ensure concentration and scale are positive
+        concentration = jnp.where(concentration <= 0, 1e-6, concentration)
+        if scale is not None:
+            scale = jnp.where(scale <= 0, 1e-6, scale)
         dist = tfd.InverseGamma(concentration=concentration, scale=scale, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1809,7 +1890,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1846,7 +1927,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1883,7 +1964,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1920,7 +2001,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1957,7 +2038,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -1989,7 +2070,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2021,7 +2102,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2053,7 +2134,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2085,7 +2166,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2120,7 +2201,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2156,7 +2237,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2193,7 +2274,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2229,7 +2310,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2239,7 +2320,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def laplace(loc, scale, validate_args=False, allow_nan_stats=True, name='Laplace', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def laplace(loc, scale, validate_args=False, allow_nan_stats=True, name='Laplace', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Laplace distribution.
         
@@ -2264,7 +2345,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2306,7 +2387,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2341,7 +2422,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2351,7 +2432,29 @@ class UnifiedDist:
 
 
     @staticmethod
-    def log_normal(loc, scale, validate_args=False, allow_nan_stats=True, name='LogNormal', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def log_normal(loc, scale, validate_args=False, allow_nan_stats=True, name='LogNormal', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        """
+        Wrapper for the tfd.LogNormal distribution.
+        
+            This method can either return a distribution object for use in a
+            probabilistic model or directly return samples.
+        
+            Original TFP Arguments:
+                loc: Default = <class 'inspect._empty'>
+                scale: Default = <class 'inspect._empty'>
+                validate_args: Default = False
+                allow_nan_stats: Default = True
+                name: Default = LogNormal
+        
+            Wrapper Arguments:
+                shape (tuple): The shape of the sample. Defaults to ().
+                sample (bool): If True, draw samples from the distribution. 
+                               If False, return a Root distribution object. Defaults to False.
+                seed (int): The PRNG seed for sampling. Defaults to 0.
+        """
+        # Ensure scale is positive
+        scale = jnp.where(scale <= 0, 1e-6, scale)
+        dist = tfd.LogNormal(loc=loc, scale=scale, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         """
         Wrapper for the tfd.LogNormal distribution.
         
@@ -2376,7 +2479,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2411,7 +2514,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2449,7 +2552,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2485,7 +2588,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2517,7 +2620,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2553,7 +2656,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2590,7 +2693,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2622,7 +2725,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2632,29 +2735,16 @@ class UnifiedDist:
 
 
     @staticmethod
-    def mixture_same_family(shape=(), sample=False, seed=0, obs=None, wrap=True, *args, **kwargs):
+    def mixture_same_family(mixture_distribution, components_distribution, validate_args=False, allow_nan_stats=True, name='MixtureSameFamily', shape=(), sample=False, seed=0, obs=None, wrap=True):
         """
         Wrapper for the tfd.MixtureSameFamily distribution.
-        
-            This method can either return a distribution object for use in a
-            probabilistic model or directly return samples.
-        
-            Original TFP Arguments:
-                args: Default = <class 'inspect._empty'>
-                kwargs: Default = <class 'inspect._empty'>
-        
-            Wrapper Arguments:
-                shape (tuple): The shape of the sample. Defaults to ().
-                sample (bool): If True, draw samples from the distribution. 
-                               If False, return a Root distribution object. Defaults to False.
-                seed (int): The PRNG seed for sampling. Defaults to 0.
         """
-        dist = tfd.MixtureSameFamily(*args, **kwargs)
+        dist = tfd.MixtureSameFamily(mixture_distribution=mixture_distribution, components_distribution=components_distribution, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2689,7 +2779,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2702,36 +2792,27 @@ class UnifiedDist:
     def multinomial(total_count, logits=None, probs=None, validate_args=False, allow_nan_stats=True, name='Multinomial', shape=(), sample=False, seed=0, obs=None, wrap=True):
         """
         Wrapper for the tfd.Multinomial distribution.
-        
-            This method can either return a distribution object for use in a
-            probabilistic model or directly return samples.
-        
-            Original TFP Arguments:
-                total_count: Default = <class 'inspect._empty'>
-                logits: Default = None
-                probs: Default = None
-                validate_args: Default = False
-                allow_nan_stats: Default = True
-                name: Default = Multinomial
-        
-            Wrapper Arguments:
-                shape (tuple): The shape of the sample. Defaults to ().
-                sample (bool): If True, draw samples from the distribution. 
-                               If False, return a Root distribution object. Defaults to False.
-                seed (int): The PRNG seed for sampling. Defaults to 0.
         """
         dist = tfd.Multinomial(total_count=total_count, logits=logits, probs=probs, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
             return root(final_dist)
         else:
             return final_dist
+
+    @staticmethod
+    def multinomial_logits(total_count, logits, validate_args=False, allow_nan_stats=True, name='MultinomialLogits', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        return UnifiedDist.multinomial(total_count=total_count, logits=logits, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap)
+
+    @staticmethod
+    def multinomial_probs(total_count, probs, validate_args=False, allow_nan_stats=True, name='MultinomialProbs', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        return UnifiedDist.multinomial(total_count=total_count, probs=probs, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap)
 
 
     @staticmethod
@@ -2761,7 +2842,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2798,7 +2879,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2834,7 +2915,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2844,7 +2925,33 @@ class UnifiedDist:
 
 
     @staticmethod
-    def multivariate_normal_full_covariance(loc=None, covariance_matrix=None, validate_args=False, allow_nan_stats=True, name='MultivariateNormalFullCovariance', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def multivariate_normal(loc, scale_tril=None, covariance_matrix=None, precision_matrix=None, scale_diag=None, scale_identity_multiplier=None, validate_args=False, allow_nan_stats=True, name='MultivariateNormal', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
+        """
+        Generic wrapper for Multivariate Normal.
+        Defaults to Full Covariance if scale_tril/covariance_matrix is provided, 
+        or Diag if scale_diag is provided.
+        """
+        if scale_tril is not None:
+             dist = tfd.MultivariateNormalTriL(loc=loc, scale_tril=scale_tril, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        elif scale_diag is not None:
+             dist = tfd.MultivariateNormalDiag(loc=loc, scale_diag=scale_diag, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        else:
+             dist = tfd.MultivariateNormalFullCovariance(loc=loc, covariance_matrix=covariance_matrix, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        
+        if sample:
+            prng_key = jax.random.PRNGKey(seed)
+            return dist.sample(sample_shape=shape, seed=prng_key)
+        if obs is not None:
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
+        else:
+             final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
+        if wrap:
+            return root(final_dist)
+        else:
+            return final_dist
+
+    @staticmethod
+    def multivariate_normal_full_covariance(loc=None, covariance_matrix=None, validate_args=False, allow_nan_stats=True, name='MultivariateNormalFullCovariance', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.MultivariateNormalFullCovariance distribution.
         
@@ -2869,7 +2976,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2905,7 +3012,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2941,7 +3048,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2977,7 +3084,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -2990,37 +3097,27 @@ class UnifiedDist:
     def negative_binomial(total_count, logits=None, probs=None, validate_args=False, allow_nan_stats=True, require_integer_total_count=True, name='NegativeBinomial', shape=(), sample=False, seed=0, obs=None, wrap=True):
         """
         Wrapper for the tfd.NegativeBinomial distribution.
-        
-            This method can either return a distribution object for use in a
-            probabilistic model or directly return samples.
-        
-            Original TFP Arguments:
-                total_count: Default = <class 'inspect._empty'>
-                logits: Default = None
-                probs: Default = None
-                validate_args: Default = False
-                allow_nan_stats: Default = True
-                require_integer_total_count: Default = True
-                name: Default = NegativeBinomial
-        
-            Wrapper Arguments:
-                shape (tuple): The shape of the sample. Defaults to ().
-                sample (bool): If True, draw samples from the distribution. 
-                               If False, return a Root distribution object. Defaults to False.
-                seed (int): The PRNG seed for sampling. Defaults to 0.
         """
         dist = tfd.NegativeBinomial(total_count=total_count, logits=logits, probs=probs, validate_args=validate_args, allow_nan_stats=allow_nan_stats, require_integer_total_count=require_integer_total_count, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
             return root(final_dist)
         else:
             return final_dist
+
+    @staticmethod
+    def negative_binomial_logits(total_count, logits, validate_args=False, allow_nan_stats=True, name='NegativeBinomialLogits', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        return UnifiedDist.negative_binomial(total_count=total_count, logits=logits, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap)
+        
+    @staticmethod
+    def negative_binomial_probs(total_count, probs, validate_args=False, allow_nan_stats=True, name='NegativeBinomialProbs', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        return UnifiedDist.negative_binomial(total_count=total_count, probs=probs, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap)
 
 
     @staticmethod
@@ -3049,7 +3146,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3059,7 +3156,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def normal(loc, scale, validate_args=False, allow_nan_stats=True, name='Normal', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def normal(loc, scale, validate_args=False, allow_nan_stats=True, name='Normal', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Normal distribution.
         
@@ -3084,7 +3181,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3121,7 +3218,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3157,7 +3254,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3167,7 +3264,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def ordered_logistic(cutpoints, loc, dtype=jax.numpy.int32, validate_args=False, allow_nan_stats=True, name='OrderedLogistic', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def ordered_logistic(cutpoints, loc=None, predictor=None, dtype=jax.numpy.int32, validate_args=False, allow_nan_stats=True, name='OrderedLogistic', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.OrderedLogistic distribution.
         
@@ -3176,7 +3273,7 @@ class UnifiedDist:
         
             Original TFP Arguments:
                 cutpoints: Default = <class 'inspect._empty'>
-                loc: Default = <class 'inspect._empty'>
+                loc: Default = <class 'inspect._empty'> (or predictor)
                 dtype: Default = jax.numpy.int32
                 validate_args: Default = False
                 allow_nan_stats: Default = True
@@ -3188,12 +3285,14 @@ class UnifiedDist:
                                If False, return a Root distribution object. Defaults to False.
                 seed (int): The PRNG seed for sampling. Defaults to 0.
         """
+        if loc is None and predictor is not None:
+            loc = predictor
         dist = tfd.OrderedLogistic(cutpoints=cutpoints, loc=loc, dtype=dtype, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3230,7 +3329,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3240,32 +3339,20 @@ class UnifiedDist:
 
 
     @staticmethod
-    def pareto(concentration, scale=1.0, validate_args=False, allow_nan_stats=True, name='Pareto', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def pareto(concentration=None, scale=1.0, alpha=None, validate_args=False, allow_nan_stats=True, name='Pareto', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Pareto distribution.
-        
-            This method can either return a distribution object for use in a
-            probabilistic model or directly return samples.
-        
-            Original TFP Arguments:
-                concentration: Default = <class 'inspect._empty'>
-                scale: Default = 1.0
-                validate_args: Default = False
-                allow_nan_stats: Default = True
-                name: Default = Pareto
-        
-            Wrapper Arguments:
-                shape (tuple): The shape of the sample. Defaults to ().
-                sample (bool): If True, draw samples from the distribution. 
-                               If False, return a Root distribution object. Defaults to False.
-                seed (int): The PRNG seed for sampling. Defaults to 0.
         """
+        if concentration is None and alpha is not None:
+             concentration = alpha
+        if concentration is None:
+             concentration = 1.0 # Default fallback
         dist = tfd.Pareto(concentration=concentration, scale=scale, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3300,7 +3387,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3310,7 +3397,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def poisson(rate=None, log_rate=None, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='Poisson', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def poisson(rate=None, log_rate=None, force_probs_to_zero_outside_support=False, validate_args=False, allow_nan_stats=True, name='Poisson', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Poisson distribution.
         
@@ -3336,7 +3423,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3373,7 +3460,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3408,7 +3495,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3444,7 +3531,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3476,7 +3563,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3508,7 +3595,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3544,7 +3631,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3580,7 +3667,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3611,7 +3698,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3643,7 +3730,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3678,7 +3765,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3716,7 +3803,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3754,7 +3841,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3790,7 +3877,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3826,7 +3913,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3836,7 +3923,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def student_t(df, loc, scale, validate_args=False, allow_nan_stats=True, name='StudentT', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def student_t(df, loc, scale, validate_args=False, allow_nan_stats=True, name='StudentT', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.StudentT distribution.
         
@@ -3862,7 +3949,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3904,7 +3991,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3950,7 +4037,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -3982,7 +4069,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4018,7 +4105,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4028,7 +4115,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def truncated_cauchy(loc, scale, low, high, validate_args=False, allow_nan_stats=True, name='TruncatedCauchy', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def truncated_cauchy(loc, scale, low=-jnp.inf, high=jnp.inf, validate_args=False, allow_nan_stats=True, name='TruncatedCauchy', shape=(), sample=False, seed=0, obs=None, wrap=True):
         """
         Wrapper for the tfd.TruncatedCauchy distribution.
         
@@ -4050,12 +4137,16 @@ class UnifiedDist:
                                If False, return a Root distribution object. Defaults to False.
                 seed (int): The PRNG seed for sampling. Defaults to 0.
         """
-        dist = tfd.TruncatedCauchy(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        try:
+             dist = tfd.TruncatedCauchy(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        except AttributeError:
+             # Fallback if tfd.TruncatedCauchy is missing from substrate
+             dist = tfd.TruncatedDistribution(tfd.Cauchy(loc=loc, scale=scale), low=low, high=high, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4065,7 +4156,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def truncated_normal(loc, scale, low, high, validate_args=False, allow_nan_stats=True, name='TruncatedNormal', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def truncated_normal(loc, scale, low=-jnp.inf, high=jnp.inf, validate_args=False, allow_nan_stats=True, name='TruncatedNormal', shape=(), sample=False, seed=0, obs=None, wrap=True):
         """
         Wrapper for the tfd.TruncatedNormal distribution.
         
@@ -4087,12 +4178,16 @@ class UnifiedDist:
                                If False, return a Root distribution object. Defaults to False.
                 seed (int): The PRNG seed for sampling. Defaults to 0.
         """
-        dist = tfd.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        try:
+             dist = tfd.TruncatedNormal(loc=loc, scale=scale, low=low, high=high, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        except AttributeError:
+             # Fallback if tfd.TruncatedNormal is missing from substrate
+             dist = tfd.TruncatedDistribution(tfd.Normal(loc=loc, scale=scale), low=low, high=high, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4128,7 +4223,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4165,7 +4260,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4175,7 +4270,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def uniform(low=0.0, high=1.0, validate_args=False, allow_nan_stats=True, name='Uniform', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def uniform(low=0.0, high=1.0, validate_args=False, allow_nan_stats=True, name='Uniform', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Uniform distribution.
         
@@ -4200,7 +4295,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4244,7 +4339,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4280,7 +4375,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4290,7 +4385,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def von_mises(loc, concentration, validate_args=False, allow_nan_stats=True, name='VonMises', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def von_mises(loc, concentration, validate_args=False, allow_nan_stats=True, name='VonMises', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.VonMises distribution.
         
@@ -4315,7 +4410,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4350,7 +4445,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4360,7 +4455,7 @@ class UnifiedDist:
 
 
     @staticmethod
-    def weibull(concentration, scale, validate_args=False, allow_nan_stats=True, name='Weibull', shape=(), sample=False, seed=0, obs=None, wrap=True):
+    def weibull(concentration, scale, validate_args=False, allow_nan_stats=True, name='Weibull', shape=(), sample=False, seed=0, obs=None, wrap=True, create_obj=False):
         """
         Wrapper for the tfd.Weibull distribution.
         
@@ -4385,7 +4480,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4421,7 +4516,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4457,7 +4552,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4491,7 +4586,7 @@ class UnifiedDist:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:
@@ -4504,31 +4599,126 @@ class UnifiedDist:
     def zipf(power, dtype=jax.numpy.int32, force_probs_to_zero_outside_support=False, sample_maximum_iterations=100, validate_args=False, allow_nan_stats=False, name='Zipf', shape=(), sample=False, seed=0, obs=None, wrap=True):
         """
         Wrapper for the tfd.Zipf distribution.
-        
-            This method can either return a distribution object for use in a
-            probabilistic model or directly return samples.
-        
-            Original TFP Arguments:
-                power: Default = <class 'inspect._empty'>
-                dtype: Default = jax.numpy.int32
-                force_probs_to_zero_outside_support: Default = False
-                sample_maximum_iterations: Default = 100
-                validate_args: Default = False
-                allow_nan_stats: Default = False
-                name: Default = Zipf
-        
-            Wrapper Arguments:
-                shape (tuple): The shape of the sample. Defaults to ().
-                sample (bool): If True, draw samples from the distribution. 
-                               If False, return a Root distribution object. Defaults to False.
-                seed (int): The PRNG seed for sampling. Defaults to 0.
         """
         dist = tfd.Zipf(power=power, dtype=dtype, force_probs_to_zero_outside_support=force_probs_to_zero_outside_support, sample_maximum_iterations=sample_maximum_iterations, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
         if sample:
             prng_key = jax.random.PRNGKey(seed)
             return dist.sample(sample_shape=shape, seed=prng_key)
         if obs is not None:
-             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(shape))
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
+        else:
+             final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
+        if wrap:
+            return root(final_dist)
+        else:
+            return final_dist
+
+    @staticmethod
+    def gamma_poisson(concentration, rate=None, scale=None, validate_args=False, allow_nan_stats=True, name='GammaPoisson', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        """
+        Alias for NegativeBinomial (often used in rethinking).
+        """
+        if rate is None and scale is not None:
+            rate = 1.0 / scale
+        return UnifiedDist.negative_binomial(total_count=concentration, probs=None, logits=None, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap)
+
+    @staticmethod
+    def gaussian_random_walk(scale, num_steps, loc=0., validate_args=False, allow_nan_stats=True, name='GaussianRandomWalk', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        """
+        Wrapper for a Gaussian Random Walk.
+        """
+        # TFP implementation using TransformedDistribution and CumulativeSum
+        from tensorflow_probability.python.bijectors import cumulative_sum as tfb_cumsum
+        base_dist = tfd.Sample(tfd.Normal(loc=loc * 0., scale=scale), sample_shape=(num_steps,))
+        dist = tfd.TransformedDistribution(distribution=base_dist, bijector=tfb_cumsum.CumulativeSum(), name=name)
+        # Shift by loc if needed (loc is usually the starting point)
+        if loc != 0.:
+            from tensorflow_probability.python.bijectors import shift as tfb_shift
+            dist = tfd.TransformedDistribution(distribution=dist, bijector=tfb_shift.Shift(loc), name=name)
+            
+        if sample:
+            prng_key = jax.random.PRNGKey(seed)
+            return dist.sample(sample_shape=shape, seed=prng_key)
+        if obs is not None:
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
+        else:
+             final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
+        if wrap:
+            return root(final_dist)
+        else:
+            return final_dist
+
+    @staticmethod
+    def discrete_uniform(low, high, validate_args=False, allow_nan_stats=True, name='DiscreteUniform', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        """
+        Approximation of Discrete Uniform using tfd.Uniform (continuous).
+        """
+        dist = tfd.Uniform(low=low, high=high + 1.0, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        if sample:
+            prng_key = jax.random.PRNGKey(seed)
+            return jnp.floor(dist.sample(sample_shape=shape, seed=prng_key)).astype(jnp.int32)
+        if obs is not None:
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
+        else:
+             final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
+        if wrap:
+            return root(final_dist)
+        else:
+            return final_dist
+
+    @staticmethod
+    def unit(validate_args=False, allow_nan_stats=True, name='Unit', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        """
+        Deterministic distribution at 1.0.
+        """
+        return UnifiedDist.deterministic(loc=1.0, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap)
+
+    @staticmethod
+    def beta_proportion(mean, concentration, validate_args=False, allow_nan_stats=True, name='BetaProportion', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        """
+        Beta distribution parameterized by mean and concentration.
+        """
+        concentration1 = mean * concentration
+        concentration0 = (1.0 - mean) * concentration
+        return UnifiedDist.beta(concentration1=concentration1, concentration0=concentration0, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap)
+
+    @staticmethod
+    def asymmetric_laplace_quantile(loc, scale, quantile, validate_args=False, allow_nan_stats=True, name='AsymmetricLaplaceQuantile', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        """
+        Asymmetric Laplace distribution parameterized by quantile.
+        """
+        asymmetry = jnp.sqrt(quantile / (1.0 - quantile))
+        return UnifiedDist.asymmetric_laplace(loc=loc, scale=scale, asymmetry=asymmetry, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name, shape=shape, sample=sample, seed=seed, obs=obs, wrap=wrap)
+
+    @staticmethod
+    def wishart(df, scale_tril, validate_args=False, allow_nan_stats=True, name='Wishart', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        """
+        Wrapper for tfd.WishartTriL.
+        """
+        dist = tfd.WishartTriL(df=df, scale_tril=scale_tril, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        if sample:
+            prng_key = jax.random.PRNGKey(seed)
+            return dist.sample(sample_shape=shape, seed=prng_key)
+        if obs is not None:
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
+        else:
+             final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
+        if wrap:
+            return root(final_dist)
+        else:
+            return final_dist
+
+    @staticmethod
+    def truncated_distribution(distribution, low=None, high=None, validate_args=False, allow_nan_stats=True, name='TruncatedDistribution', shape=(), sample=False, seed=0, obs=None, wrap=True):
+        """
+        Wrapper for tfd.TruncatedDistribution.
+        """
+        dist = tfd.TruncatedDistribution(distribution=distribution, low=low, high=high, validate_args=validate_args, allow_nan_stats=allow_nan_stats, name=name)
+        if sample:
+            prng_key = jax.random.PRNGKey(seed)
+            return dist.sample(sample_shape=shape, seed=prng_key)
+        if obs is not None:
+             final_dist = tfd.Independent(dist, reinterpreted_batch_ndims=len(jnp.shape(obs)))
         else:
              final_dist = tfd.Sample(dist, sample_shape=shape) if shape else dist
         if wrap:

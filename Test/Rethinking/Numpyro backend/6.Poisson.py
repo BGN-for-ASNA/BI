@@ -64,7 +64,13 @@ print("Fitting Stan model...")
 df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 
 # 3. Output Comparison ---------------------------------------
-plot_comparaison(m, df_stan, model_name=model_name)
+param_map = {
+    'a[0]': 'a[1]',
+    'a[1]': 'a[2]',
+    'b[0]': 'b[1]',
+    'b[1]': 'b[2]'
+}
+plot_comparaison(m, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(cid, population, a_true, b_true):
@@ -104,6 +110,6 @@ nsim_test = int(os.environ.get("BI_NSIM", 100))
 a_sims = np.random.normal(3, 0.5, size=(nsim_test, 2))
 b_sims = np.random.normal(0, 0.2, size=(nsim_test, 2))
 
-cid_extended = np.tile(df.cid.values, 5)
-pop_extended = np.tile(df.population_scaled.values, 5)
+cid_extended = np.tile(df.cid.values, 20)
+pop_extended = np.tile(df.population_scaled.values, 20)
 recovery_results = param_recovery(cid_extended, pop_extended, a_sims, b_sims, nsim=nsim_test)

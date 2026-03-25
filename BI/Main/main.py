@@ -262,7 +262,15 @@ class bi(manip):
             self.sampler.model = self.model
 
 
-            self.sampler.run(seed = jax.random.PRNGKey(seed), model = self.model, **self.data_on_model) 
+            # Pass the fit parameters to the TFP sampler
+            self.sampler.run(
+                seed=jax.random.PRNGKey(seed),
+                model=self.model,
+                n_chains=num_chains,
+                num_results=num_samples,
+                num_burnin_steps=num_warmup,
+                **self.data_on_model
+            ) 
             self.diag = diag(sampler = self.sampler)
             self.posteriors = self.sampler.get_samples()
             self.get_history()

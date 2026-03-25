@@ -5,6 +5,7 @@ import jax.numpy as jnp
 import inspect
 import re
 import ast
+import textwrap
 
 
 class model_handler():
@@ -36,7 +37,7 @@ class model_handler():
     
 
     def get_model_distributions(self, model):
-        source_code = inspect.getsource(model)
+        source_code = textwrap.dedent(inspect.getsource(model))
         lines = source_code.split('\n')
         variables = {}
         for line in lines:
@@ -61,7 +62,7 @@ class model_handler():
         """
         Extract observed argument names from `obs` in calls in `model`.
         """
-        source_code = inspect.getsource(model)
+        source_code = textwrap.dedent(inspect.getsource(model))
         tree = ast.parse(source_code)
         obs_values = []
 

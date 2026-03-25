@@ -56,10 +56,10 @@ stan_df = build_stan_model(stan_code, data = data, chains=4)
 
 print('Posterior distributions comparison')
 param_map = {
-    'a_1': 'a[1]',
-    'a_2': 'a[2]',
-    'a_3': 'a[3]',
-    'a_4': 'a[4]',
+    'a[0]': 'a[1]',
+    'a[1]': 'a[2]',
+    'a[2]': 'a[3]',
+    'a[3]': 'a[4]',
     's': 's'
 }
 plot_comparaison(m, stan_df, param_map=param_map, model_name=model_name)
@@ -93,21 +93,21 @@ def param_recovery(index_clade, a_sim, s_sim, nsim):
             results.append({
                 'sim': i,
                 'parameter': f'a[{j}]',
-                'simulated': a_sim[i,j],
-                'estimations': estimations[f'a[{j}]']
+                'simulated': float(a_sim[i,j]),
+                'estimations': float(estimations[f'a[{j}]'])
             })
         results.append({
             'sim': i,
             'parameter': 's',
-            'simulated': s_sim[i],
-            'estimations': estimations['s']
+            'simulated': float(s_sim[i]),
+            'estimations': float(estimations['s'])
         })
 
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)    
     return df_res
 
-N = 29
+N = 100
 nsim = int(os.environ.get("BI_NSIM", 100)) 
 a_sim = np.random.normal(0, 0.5, size=(nsim, 4))
 s_sim = np.random.exponential(1, size=(nsim,))

@@ -80,8 +80,8 @@ df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 
 # 3. Output Comparison ---------------------------------------
 param_map = {
-    'a_1': 'a[1]',
-    'a_2': 'a[2]',
+    'a[0]': 'a[1]',
+    'a[1]': 'a[2]',
     'b': 'b'
 }
 plot_comparaison(m, df_stan, param_map=param_map, model_name=model_name)
@@ -117,9 +117,9 @@ def param_recovery(unique_income, a_sims, b_sims, nsim):
     results = []
     for i in range(nsim):
         est = estimate(unique_income, a_sims[i], b_sims[i])
-        results.append({'sim': i, 'parameter': 'a[0]', 'simulated': a_sims[i,0], 'estimations': est['a[0]']})
-        results.append({'sim': i, 'parameter': 'a[1]', 'simulated': a_sims[i,1], 'estimations': est['a[1]']})
-        results.append({'sim': i, 'parameter': 'b', 'simulated': b_sims[i], 'estimations': est['b']})
+        results.append({'sim': i, 'parameter': 'a[0]', 'simulated': float(a_sims[i,0]), 'estimations': float(est['a[0]'])})
+        results.append({'sim': i, 'parameter': 'a[1]', 'simulated': float(a_sims[i,1]), 'estimations': float(est['a[1]'])})
+        results.append({'sim': i, 'parameter': 'b', 'simulated': float(b_sims[i]), 'estimations': float(est['b'])})
             
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)

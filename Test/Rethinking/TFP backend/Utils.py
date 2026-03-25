@@ -19,8 +19,12 @@ def prepare_bi_data(m):
         # If we have a chain dimension, we flatten it for the comparison plots
         if array.ndim >= 2:
             # Check if this looks like (chains, draws, ...)
-            # In BI, num_chains is stored in m.num_chains
-            if hasattr(m, 'num_chains') and array.shape[0] == m.num_chains:
+            # We assume it has a chain dimension if it came from TFP and has 2+ dims,
+            # OR if the first dim matches num_chains.
+            is_tfp = (hasattr(m, 'backend') and m.backend == 'tfp')
+            num_chains = getattr(m, 'num_chains', 1)
+            
+            if is_tfp or array.shape[0] == num_chains:
                 # Flatten chains and draws into a single samples dimension
                 new_shape = (-1,) + array.shape[2:]
                 array = array.reshape(new_shape)

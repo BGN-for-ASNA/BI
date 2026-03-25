@@ -19,17 +19,18 @@ def prepare_bi_data(m):
         if array.ndim > 1 and array.ndim < 3:
             # Create a DataFrame from the array and add a column for each parameter
             param_df = pd.DataFrame(array)
-            # Rename columns to include the parameter name
-            param_df.columns = [f"{key}_{j+1}" for j in range(array.shape[1])]
+            # Rename columns to include the parameter name with standard indexing [0], [1], etc.
+            param_df.columns = [f"{key}[{j}]" for j in range(array.shape[1])]
             all_params.append(param_df)
     
         elif array.ndim >= 3:# we have a matrix
             array_shape = array.shape
-            row = array_shape[1]
-            col = array_shape[2]
-            for a in range(col):
-                for b in range(row):
-                    all_params.append(pd.DataFrame({key + '_' + str(a) +  '_' + str(b): array[:,a,b]}))
+            # Assuming shape is (num_samples, dim1, dim2)
+            dim1 = array_shape[1]
+            dim2 = array_shape[2]
+            for a in range(dim1):
+                for b in range(dim2):
+                    all_params.append(pd.DataFrame({f"{key}[{a}][{b}]": array[:,a,b]}))
         else:
             # If it's a 1D array, create a single column DataFrame
             all_params.append(pd.DataFrame({key: array}))
