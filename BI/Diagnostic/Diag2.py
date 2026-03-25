@@ -408,16 +408,34 @@ class diagWIP():
     # --- Plotting Functions  plotly dependent---
     
     def summary(self, round_to=2, hdi_prob=0.89):
-        # This already uses numpy, so it's fine
+        import numpy as np
+        import arviz as az
+        import pandas as pd
+        
         summary_stats = {}
         for var_name, samples in self.posterior_samples.items():
-            all_chain_samples = samples.flatten()
-            mean = np.mean(all_chain_samples)
-            median = np.median(all_chain_samples)
-            std = np.std(all_chain_samples)
-            hdi = az.hdi(np.array(all_chain_samples), hdi_prob=hdi_prob) # az.hdi is just a numpy func
-            summary_stats[var_name] = {'mean': mean, 'median': median, 'std': std,
-                f'hdi_{hdi_prob*100}%_lower': hdi[0], f'hdi_{hdi_prob*100}%_upper': hdi[1]}
+            param_shape = samples.shape[2:]
+            if not param_shape:
+                all_chain_samples = samples.flatten()
+                mean = np.mean(all_chain_samples)
+                median = np.median(all_chain_samples)
+                std = np.std(all_chain_samples)
+                hdi = az.hdi(np.array(all_chain_samples), hdi_prob=hdi_prob)
+                summary_stats[var_name] = {'mean': mean, 'median': median, 'std': std,
+                    f'hdi_{hdi_prob*100}%_lower': hdi[0], f'hdi_{hdi_prob*100}%_upper': hdi[1]}
+            else:
+                for idx in np.ndindex(param_shape):
+                    idx_str = "[" + ", ".join(map(str, idx)) + "]"
+                    full_name = f"{var_name}{idx_str}"
+                    element_samples = samples[(slice(None), slice(None)) + idx]
+                    all_chain_samples = element_samples.flatten()
+                    mean = np.mean(all_chain_samples)
+                    median = np.median(all_chain_samples)
+                    std = np.std(all_chain_samples)
+                    hdi = az.hdi(np.array(all_chain_samples), hdi_prob=hdi_prob)
+                    summary_stats[full_name] = {'mean': mean, 'median': median, 'std': std,
+                        f'hdi_{hdi_prob*100}%_lower': hdi[0], f'hdi_{hdi_prob*100}%_upper': hdi[1]}
+                        
         self.tab_summary = pd.DataFrame(summary_stats).T.round(round_to)
         return self.tab_summary
     
@@ -426,14 +444,31 @@ class diagWIP():
         go=importer.get_module("go")
         
         if var_names is None: var_names = self.priors_name
-        n_vars = len(var_names)
-        df = pd.DataFrame({k: self.posterior_samples[k].flatten() for k in var_names})
+        
+        # Expand multi-dimensional variables
+        expanded_vars = []
+        expanded_samples = {}
+        for var in var_names:
+            samples = self.posterior_samples[var]
+            param_shape = samples.shape[2:]
+            if not param_shape:
+                expanded_vars.append(var)
+                expanded_samples[var] = samples.flatten()
+            else:
+                for idx in np.ndindex(param_shape):
+                    idx_str = "[" + ", ".join(map(str, idx)) + "]"
+                    full_name = f"{var}{idx_str}"
+                    expanded_vars.append(full_name)
+                    expanded_samples[full_name] = samples[(slice(None), slice(None)) + idx].flatten()
+        
+        n_vars = len(expanded_vars)
+        df = pd.DataFrame(expanded_samples)
         plot_df = df.sample(n=max_points, random_state=42) if len(df) > max_points else df
         fig = make_subplots(rows=n_vars, cols=n_vars, horizontal_spacing=0.03, vertical_spacing=0.03)
 
         for i in range(n_vars):
             for j in range(n_vars):
-                var1, var2 = var_names[i], var_names[j]
+                var1, var2 = expanded_vars[i], expanded_vars[j]
                 if i == j:
                     fig.add_trace(go.Histogram(x=df[var1], name=f'Hist {var1}', 
                                                marker_color='#440154'), row=i+1, col=j+1)
@@ -451,10 +486,9 @@ class diagWIP():
             height=250 * n_vars, width=250 * n_vars, showlegend=False, plot_bgcolor='white')
         
         for i in range(n_vars):
-             fig.update_yaxes(title_text=var_names[i], row=i+1, col=1, showline=True, linewidth=1, linecolor='black', mirror=True)
+             fig.update_yaxes(title_text=expanded_vars[i], row=i+1, col=1, showline=True, linewidth=1, linecolor='black', mirror=True)
         for j in range(n_vars):
-             fig.update_xaxes(title_text=var_names[j], row=n_vars, col=j+1, showline=True, linewidth=1, linecolor='black', mirror=True)
-
+             fig.update_xaxes(title_text=expanded_vars[j], row=n_vars, col=j+1, showline=True, linewidth=1, linecolor='black', mirror=True)
 
         return fig
     
@@ -464,15 +498,30 @@ class diagWIP():
         if var_names is None:
             var_names = self.priors_name
 
-        # --- THIS IS THE CORRECTED LINE ---
-        # Create an interleaved list of subplot titles
-        subplot_titles = [f'{var} {suffix}' for var in var_names for suffix in ['Trace', 'Posterior Distribution']]
+        # Expand multi-dimensional variables
+        flattened_vars = []
+        for var in var_names:
+            samples = self.posterior_samples[var]
+            param_shape = samples.shape[2:]
+            if not param_shape:
+                flattened_vars.append((var, var))
+            else:
+                for idx in np.ndindex(param_shape):
+                    idx_str = "[" + ", ".join(map(str, idx)) + "]"
+                    full_name = f"{var}{idx_str}"
+                    flattened_vars.append((full_name, var, idx))
 
-        fig = make_subplots(rows=len(var_names), cols=2, 
+        subplot_titles = [f'{var_label} {suffix}' for (var_label, _, *_) in flattened_vars for suffix in ['Trace', 'Posterior']]
+
+        fig = make_subplots(rows=len(flattened_vars), cols=2, 
                             subplot_titles=subplot_titles)
 
-        for i, var in enumerate(var_names):
-            samples_per_chain = self.posterior_samples[var]
+        for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
+            if not idx_info:
+                samples_per_chain = self.posterior_samples[orig_var]
+            else:
+                idx = idx_info[0]
+                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
 
             # Trace plot (column 1)
             for chain_idx in range(self.num_chains):
@@ -487,7 +536,7 @@ class diagWIP():
             # Histogram (column 2)
             for chain_idx in range(self.num_chains):
                 color = self.colors[chain_idx % len(self.colors)]
-                fig.add_trace(go.Histogram(x=self.posterior_samples[var][chain_idx], 
+                fig.add_trace(go.Histogram(x=samples_per_chain[chain_idx], 
                                            name=f'Chain {chain_idx}',
                                            legendgroup=f'chain{chain_idx}',
                                            marker_color=color,
@@ -496,7 +545,7 @@ class diagWIP():
                                            nbinsx=50), 
                               row=i+1, col=2)
 
-        fig.update_layout(height=300*len(var_names), 
+        fig.update_layout(height=300*len(flattened_vars), 
                           title_text="Trace and Posterior Plots",
                           barmode='overlay')
 
@@ -504,18 +553,37 @@ class diagWIP():
 
     def posterior(self, var_names=None, figsize=(800, 400), hdi_prob=0.94):
         go = importer.get_module("go")
-        import numpy  
+        import numpy as np
         
         if var_names is None:
             var_names = self.priors_name
             
-        fig = make_subplots(rows=1, cols=len(var_names), subplot_titles=var_names)
+        # Expand multi-dimensional variables
+        flattened_vars = []
+        for var in var_names:
+            samples = self.posterior_samples[var]
+            param_shape = samples.shape[2:]
+            if not param_shape:
+                flattened_vars.append((var, var))
+            else:
+                for idx in np.ndindex(param_shape):
+                    idx_str = "[" + ", ".join(map(str, idx)) + "]"
+                    full_name = f"{var}{idx_str}"
+                    flattened_vars.append((full_name, var, idx))
+
+        fig = make_subplots(rows=1, cols=len(flattened_vars), subplot_titles=[v[0] for v in flattened_vars])
         
-        for i, var in enumerate(var_names):
+        for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
+            if not idx_info:
+                samples_per_chain = self.posterior_samples[orig_var]
+            else:
+                idx = idx_info[0]
+                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
+
             # Plot the histograms for each chain first
             for chain_idx in range(self.num_chains):
                 color = self.colors[chain_idx % len(self.colors)]
-                fig.add_trace(go.Histogram(x=self.posterior_samples[var][chain_idx], 
+                fig.add_trace(go.Histogram(x=samples_per_chain[chain_idx], 
                                            name=f'Chain {chain_idx}',
                                            legendgroup=f'chain{chain_idx}',
                                            marker_color=color,
@@ -524,15 +592,13 @@ class diagWIP():
                                            nbinsx=50), 
                               row=1, col=i+1)
             
-            # --- New section for adding vertical lines ---
-            
             # Combine all chains to get overall posterior summary statistics
-            all_samples = self.posterior_samples[var].flatten()
+            all_samples = samples_per_chain.flatten()
             
             # Calculate mean
             mean_val = np.mean(all_samples)
             
-            # Calculate HDI using percentiles (Equal-Tailed Interval approximation)
+            # Calculate HDI using percentiles
             tail_prob = (1 - hdi_prob) / 2
             hdi_lower, hdi_upper = np.percentile(all_samples, [tail_prob * 100, (1 - tail_prob) * 100])
 
@@ -548,10 +614,10 @@ class diagWIP():
             fig.add_vline(x=hdi_upper, line_dash="dot", line_color="firebrick", 
                           annotation_text=f"", annotation_position="top right",
                           row=1, col=i+1)
-            # --- End of new section ---
 
         fig.update_layout(title_text="Posterior Distributions (Overlaid Chains)", 
-                          width=figsize[0], height=figsize[1], barmode='overlay')
+                          width=figsize[0] if len(flattened_vars) < 4 else figsize[0] * len(flattened_vars) // 3, 
+                          height=figsize[1], barmode='overlay')
 
         return fig
     
@@ -559,10 +625,30 @@ class diagWIP():
         go=importer.get_module("go")
         if var_names is None:
             var_names = self.priors_name
-        fig = make_subplots(rows=len(var_names), cols=1, subplot_titles=[f"Autocorrelation of {var}" for var in var_names])
-        for i, var in enumerate(var_names):
+
+        # Expand multi-dimensional variables
+        flattened_vars = []
+        for var in var_names:
+            samples = self.posterior_samples[var]
+            param_shape = samples.shape[2:]
+            if not param_shape:
+                flattened_vars.append((var, var))
+            else:
+                for idx in np.ndindex(param_shape):
+                    idx_str = "[" + ", ".join(map(str, idx)) + "]"
+                    full_name = f"{var}{idx_str}"
+                    flattened_vars.append((full_name, var, idx))
+
+        fig = make_subplots(rows=len(flattened_vars), cols=1, subplot_titles=[f"Autocorrelation of {v[0]}" for v in flattened_vars])
+        for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
+            if not idx_info:
+                samples_per_chain = self.posterior_samples[orig_var]
+            else:
+                idx = idx_info[0]
+                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
+
             for chain_idx in range(self.num_chains):
-                samples = self.posterior_samples[var][chain_idx]
+                samples = samples_per_chain[chain_idx]
                 autocorr = [1.0] + [np.corrcoef(samples[:-t], samples[t:])[0, 1] for t in range(1, 40)]
                 color = self.colors[chain_idx % len(self.colors)]
                 fig.add_trace(go.Bar(y=autocorr, name=f'Chain {chain_idx}', 
@@ -570,7 +656,7 @@ class diagWIP():
                                      marker_color=color,
                                      showlegend=(i==0)), 
                               row=i+1, col=1)
-        fig.update_layout(height=250*len(var_names), title_text="Autocorrelation Plots by Chain", barmode='group')
+        fig.update_layout(height=250*len(flattened_vars), title_text="Autocorrelation Plots by Chain", barmode='group')
 
         return fig
 
@@ -580,37 +666,49 @@ class diagWIP():
         import arviz as az
         import plotly.express as px
 
-
         if var_names is None:
             var_names = self.priors_name
             
+        # Expand multi-dimensional variables
+        flattened_vars = []
+        for var in var_names:
+            samples = self.posterior_samples[var]
+            param_shape = samples.shape[2:]
+            if not param_shape:
+                flattened_vars.append((var, var))
+            else:
+                for idx in np.ndindex(param_shape):
+                    idx_str = "[" + ", ".join(map(str, idx)) + "]"
+                    full_name = f"{var}{idx_str}"
+                    flattened_vars.append((full_name, var, idx))
+
         fig = go.Figure()
-        
-        # Use a qualitative color sequence for distinct colors
         colors = px.colors.qualitative.Plotly
         
-        # --- Loop through each variable to draw its distribution and error bar ---
-        for i, var in enumerate(var_names):
+        for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
             color = colors[i % len(colors)]
-            all_samples = self.posterior_samples[var].flatten()
+            if not idx_info:
+                samples_per_chain = self.posterior_samples[orig_var]
+            else:
+                idx = idx_info[0]
+                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
+
+            all_samples = samples_per_chain.flatten()
             
-            # --- 1. Add the horizontal violin trace for the distribution shape ---
             fig.add_trace(go.Violin(
                 x=all_samples,
-                y=[var],
-                name=var,
-                legendgroup=var,
+                y=[f" {var_label} "], # Extra spaces to avoid naming conflicts with violin group
+                name=var_label,
+                legendgroup=var_label,
                 orientation='h',
                 side='both',
                 points=False,
-                # Use a robust styling with a light, semi-transparent fill
                 fillcolor=color,
                 opacity=0.4,
-                line_width=0, # Remove the outline for a softer "cloud" look
-                spanmode='hard' # Ensures the violin covers the full range of data
+                line_width=0,
+                spanmode='hard'
             ))
 
-            # --- 2. Calculate stats and add the mean/HDI marker on top ---
             mean_val = np.mean(all_samples)
             hdi = az.hdi(np.array(all_samples), hdi_prob=hdi_prob)
             hdi_lower, hdi_upper = hdi[0], hdi[1]
@@ -620,10 +718,10 @@ class diagWIP():
 
             fig.add_trace(go.Scatter(
                 x=[mean_val], 
-                y=[var],
+                y=[f" {var_label} "],
                 mode='markers',
-                legendgroup=var,
-                name=var, # Assign name for hover info
+                legendgroup=var_label,
+                name=var_label,
                 marker=dict(color=color, size=8),
                 error_x=dict(
                     type='data', 
@@ -631,23 +729,20 @@ class diagWIP():
                     array=[error_upper], 
                     arrayminus=[error_lower],
                     width=4,
-                    color=color # Explicitly color the error bar
+                    color=color
                 ),
-                # Hide this from the legend; the violin trace already created an entry
                 showlegend=False 
             ))
         
         fig.add_vline(x=0, line_dash="dash", line_color="black", 
               annotation_text="", annotation_position="top right")
-        # --- 3. Update the overall layout ---
         fig.update_layout(
             title_text=f'Forest Plot (Posterior Distributions and {hdi_prob*100:.1f}% HDI)',
             xaxis_title="Parameter Value",
             yaxis_title="Parameter",
-            violingap=0.1, # Add a small gap between plots
+            violingap=0.1,
             plot_bgcolor='white'
         )
-        # Reverse y-axis so the first variable appears at the top
         fig.update_yaxes(autorange="reversed")
 
         return fig
@@ -658,13 +753,33 @@ class diagWIP():
         go=importer.get_module("go")
         if var_names is None:
             var_names = self.priors_name
-        fig = make_subplots(rows=len(var_names), cols=1, subplot_titles=[f"Density of {var}" for var in var_names])
-        for i, var in enumerate(var_names):
+
+        # Expand multi-dimensional variables
+        flattened_vars = []
+        for var in var_names:
+            samples = self.posterior_samples[var]
+            param_shape = samples.shape[2:]
+            if not param_shape:
+                flattened_vars.append((var, var))
+            else:
+                for idx in np.ndindex(param_shape):
+                    idx_str = "[" + ", ".join(map(str, idx)) + "]"
+                    full_name = f"{var}{idx_str}"
+                    flattened_vars.append((full_name, var, idx))
+
+        fig = make_subplots(rows=len(flattened_vars), cols=1, subplot_titles=[f"Density of {v[0]}" for v in flattened_vars])
+        for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
+            if not idx_info:
+                samples_per_chain = self.posterior_samples[orig_var]
+            else:
+                idx = idx_info[0]
+                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
+
             for chain_idx in range(self.num_chains):
                 color = self.colors[chain_idx % len(self.colors)]
                 rgb_color = pcolors.hex_to_rgb(color)
                 fill_color = f'rgba({rgb_color[0]},{rgb_color[1]},{rgb_color[2]},{shade})'
-                chain_samples = self.posterior_samples[var][chain_idx]
+                chain_samples = samples_per_chain[chain_idx]
                 with sns.plotting_context(rc={"figure.figsize": (1, 1)}):
                     kde_plot = sns.kdeplot(chain_samples)
                     kde = kde_plot.get_lines()[0].get_data()
@@ -673,7 +788,7 @@ class diagWIP():
                                          name=f'Chain {chain_idx}', legendgroup=f'chain{chain_idx}',
                                          showlegend=(i==0), fillcolor=fill_color, line_color=color),
                               row=i+1, col=1)
-        fig.update_layout(height=300*len(var_names), title_text="Density Plots (Overlaid Chains)")
+        fig.update_layout(height=300*len(flattened_vars), title_text="Density Plots (Overlaid Chains)")
 
         return fig
 

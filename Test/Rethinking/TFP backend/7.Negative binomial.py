@@ -104,7 +104,7 @@ def param_recovery(log_days, monastery, a_sims, b_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = 100
+nsim_test = int(os.getenv('BI_NSIM', 100))
 a_sims = np.random.normal(0, 1, nsim_test)
 b_sims = np.random.normal(0, 1, nsim_test)
 

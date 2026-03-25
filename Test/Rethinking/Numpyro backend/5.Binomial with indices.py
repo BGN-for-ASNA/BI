@@ -73,8 +73,8 @@ df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 
 # 3. Output Comparison ---------------------------------------
 param_map = {
-    'a_1': 'a[1]', 'a_2': 'a[2]', 'a_3': 'a[3]', 'a_4': 'a[4]',
-    'a_5': 'a[5]', 'a_6': 'a[6]', 'a_7': 'a[7]',
+    'a[0]': 'a[1]', 'a[1]': 'a[2]', 'a[2]': 'a[3]', 'a[3]': 'a[4]',
+    'a[4]': 'a[5]', 'a[5]': 'a[6]', 'a[6]': 'a[7]',
     'bp': 'bp', 'bpc': 'bpc'
 }
 plot_comparaison(m, df_stan, param_map=param_map, model_name=model_name)

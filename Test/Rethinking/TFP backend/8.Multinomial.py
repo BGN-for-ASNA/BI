@@ -126,7 +126,7 @@ def param_recovery(unique_income, a_sims, b_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = 100 
+nsim_test = int(os.getenv('BI_NSIM', 100)) 
 a_sims = np.random.normal(0, 1, size=(nsim_test, 2))
 b_sims = np.abs(np.random.normal(0, 0.5, size=(nsim_test, 1)))
 
