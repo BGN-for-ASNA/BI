@@ -2,6 +2,7 @@ from BI.Models.surv import survival
 from BI.NBDA.NBDA import NBDA
 from BI.Models.GMM import *
 from BI.Models.DPMM import dpmm
+from BI.Models.BNNC import bnnc
 from BI.Models.PCA import *
 
 
@@ -16,6 +17,7 @@ class models():
         pass
         self.gmm = gmm
         self.dpmm = dpmm(parent)
+        self.bnnc = bnnc(parent)
         self.pca =  pca
         self.nbda = NBDA.model
         self.survival = survival(parent)
@@ -23,6 +25,7 @@ class models():
         self.available = {
             "gmm": self.gmm,
             "dpmm": self.dpmm,
+            "bnnc": self.bnnc,
             "nbda": self.nbda,
             "pca": self.pca,
             "survival": self.survival

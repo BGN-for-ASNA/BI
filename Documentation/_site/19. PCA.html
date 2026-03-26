@@ -483,7 +483,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 Dirichlet Model 🚧</span></a>
+ <span class="menu-text">Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -502,6 +502,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Varying Slopes Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14. Nested varying effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Nested Varying Effects</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -554,12 +560,6 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./31. Network Edges Inference.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧Network Edges Inference🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
@@ -572,12 +572,6 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./26. Network-Based Diffusion Analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧Network-Based Diffusion Analysis🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Bayesian Neural Networks (BNN)</span></a>
   </div>
@@ -585,13 +579,19 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./29. BNN for classification.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 BNN for Classification 🚧</span></a>
+ <span class="menu-text">BNN for Classification</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./30. BNN for multiclass classification.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 BNN for Multiclass Classification 🚧</span></a>
+ <span class="menu-text">BNN for Multiclass Classification</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26. Network-Based Diffusion Analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧Network-Based Diffusion Analysis🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -2304,6 +2304,36 @@ tippy('#SG-MCMC', {
   <span style='color: white;'>
 
 A class of algorithms designed to scale Markov Chain Monte Carlo methods to large datasets. It approximates the gradient of the log-posterior using mini-batches (subsets) of data rather than the full dataset. To ensure convergence to the true posterior distribution despite the noise introduced by subsampling, these methods (such as Stochastic Gradient Langevin Dynamics) introduce specific noise injection and step-size schedules.
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
+
+
+tippy('#Activation', {
+
+      content: `
+
+  <span style='color: white;'>
+
+An activation function is a nonlinear transformation applied to the pre-activation output of a neuron in a neural network. It enables the network to learn nonlinear relationships between inputs and outputs. Common activation functions include ReLU, tanh, and sigmoid, Softmax, GELU, Swish.
 
   </span>
 

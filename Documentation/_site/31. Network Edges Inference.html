@@ -86,8 +86,8 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./24. Network control for data collection biases.html" rel="next">
-<link href="./23. Network with block model.html" rel="prev">
+<link href="./12. Survival analysis.html" rel="next">
+<link href="./26. Network-Based Diffusion Analysis.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -483,7 +483,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 Dirichlet Model 🚧</span></a>
+ <span class="menu-text">Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -560,12 +560,6 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./31. Network Edges Inference.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">🚧Network Edges Inference🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
@@ -574,12 +568,6 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="./25. Network Metrics.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Network Metrics</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./26. Network-Based Diffusion Analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧Network-Based Diffusion Analysis🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -602,7 +590,13 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./31. Network Edges Inference.html" class="sidebar-item-text sidebar-link">
+  <a href="./26. Network-Based Diffusion Analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧Network-Based Diffusion Analysis🚧</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31. Network Edges Inference.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">🚧Network Edges Inference🚧</span></a>
   </div>
 </li>
@@ -628,29 +622,14 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">## General Principles</a>
-  <ul class="collapse">
-  <li><a href="#general-principles-1" id="toc-general-principles-1" class="nav-link" data-scroll-target="#general-principles-1">General Principles</a></li>
-  <li><a href="#head" id="toc-head" class="nav-link" data-scroll-target="#head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a>
+  <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a>
   <ul class="collapse">
   <li><a href="#binary-data-model" id="toc-binary-data-model" class="nav-link" data-scroll-target="#binary-data-model">Binary Data Model</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#general-principles-2" id="toc-general-principles-2" class="nav-link" data-scroll-target="#general-principles-2">#### General Principles</a>
-  <ul class="collapse">
-  <li><a href="#binary-data-model-1" id="toc-binary-data-model-1" class="nav-link" data-scroll-target="#binary-data-model-1">Binary Data Model</a>
-  <ul class="collapse">
-  <li><a href="#general-principles-3" id="toc-general-principles-3" class="nav-link" data-scroll-target="#general-principles-3">General Principles</a></li>
-  </ul></li>
-  <li><a href="#r" id="toc-r" class="nav-link" data-scroll-target="#r">R</a></li>
-  <li><a href="#julia" id="toc-julia" class="nav-link" data-scroll-target="#julia">Julia</a>
-  <ul class="collapse">
+  <li><a href="#general-principles-2" id="toc-general-principles-2" class="nav-link" data-scroll-target="#general-principles-2">General Principles</a></li>
+  <li><a href="#example-with-simulated-data" id="toc-example-with-simulated-data" class="nav-link" data-scroll-target="#example-with-simulated-data">Example with simulated data</a></li>
   <li><a href="#count-data-model" id="toc-count-data-model" class="nav-link" data-scroll-target="#count-data-model">Count Data Model</a></li>
   <li><a href="#duration-data-model" id="toc-duration-data-model" class="nav-link" data-scroll-target="#duration-data-model">Duration Data Model</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#head-1" id="toc-head-1" class="nav-link" data-scroll-target="#head-1">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</a>
-  <ul class="collapse">
+  <li><a href="#mathematical-details-2" id="toc-mathematical-details-2" class="nav-link" data-scroll-target="#mathematical-details-2">Mathematical Details</a></li>
   <li><a href="#notes-3" id="toc-notes-3" class="nav-link" data-scroll-target="#notes-3">Notes</a></li>
   </ul></li>
   </ul>
@@ -689,61 +668,22 @@ window.Quarto = {
 </header>
 
 
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
-<p>This document provides a unified framework for performing Bayesian inference of social networks based on observational data, implementing the BISoN framework methodologies <span class="citation" data-cites="BISoN">Hart et al. (<a href="#ref-BISoN" role="doc-biblioref">2023</a>)</span>. Real-world social network connections (edges) are often inferred from observational data where uniform sampling over all pairs is not always possible. This framework enables modeling edge weights with uncertainty by decomposing aggregated observations into the generative sampling processes.</p>
-<p>Below, we detail the implementation of various edge weight models for different types of observational data using the Bayesian Inference (<strong>BI</strong>) package via Python, R, and Julia.</p>
-<section id="general-principles" class="level1">
-<h1>## General Principles</h1>
-<section id="general-principles-1" class="level2">
-<h2 class="anchored" data-anchor-id="general-principles-1">General Principles</h2>
+<section id="general-principles" class="level2">
+<h2 class="anchored" data-anchor-id="general-principles">General Principles</h2>
 <p>This document implements the BISoN framework methodologies <span class="citation" data-cites="BISoN">Hart et al. (<a href="#ref-BISoN" role="doc-biblioref">2023</a>)</span> that enables modeling edge weights with uncertainty by decomposing aggregated observations into the generative sampling processes. Below, we detail the implementation of various edge weight models for different types of observational data using the Bayesian Inference (<strong>BI</strong>) package via Python, R, and Julia.</p>
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<p>20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b The fundamental principle behind the Network Edges Inference models is to capture uncertainty in edge weights by modeling the data collection process directly, rather than relying on point estimates (e.g., Simple Ratio Index). By decomposing the data into distinct observation periods, these models can inherently capture the uncertainty generated by sampling effort and allow for observation-level effects (such as variable visibility) to be controlled.</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
+<p>The fundamental principle behind the Network Edges Inference models is to capture uncertainty in edge weights by modeling the data collection process directly, rather than relying on point estimates (e.g., Simple Ratio Index). By decomposing the data into distinct observation periods, these models can inherently capture the uncertainty generated by sampling effort and allow for observation-level effects (such as variable visibility) to be controlled.</p>
 <p>Three main types of observational data are supported: 1. <strong>Binary data</strong>: Presence/absence of social events in fixed sampling periods. 2. <strong>Count data</strong>: Number of social events per sampling period. 3. <strong>Duration data</strong>: Amount of time spent engaged in social events within a sampling period.</p>
-</section>
-<section id="head" class="level2">
-<h2 class="anchored" data-anchor-id="head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</h2>
 <section id="binary-data-model" class="level3">
 <h3 class="anchored" data-anchor-id="binary-data-model">Binary Data Model</h3>
-</section>
-</section>
-</section>
-<section id="general-principles-2" class="level1">
-<h1>#### General Principles</h1>
+<section id="general-principles-1" class="level4">
+<h4 class="anchored" data-anchor-id="general-principles-1">General Principles</h4>
 <p>For each models types <span class="citation" data-cites="BISoN">Hart et al. (<a href="#ref-BISoN" role="doc-biblioref">2023</a>)</span> provided the possibility to account for: 1. <strong>Directionality</strong>: Directional or non-directional edge weights can be modeled. 2. <strong>Fixed effects</strong>: Additional variables accounting for fixed effects (e.g., location or age difference) can be added to the predictor iteratively. 3. <strong>Random effects</strong>: Additional variables accounting for nodal random effects (e.g., location or age difference) can be added to the predictor iteratively. 4. <strong>Partial pooling</strong> : Additional variables accounting for dyads random effects (e.g., goup belonging) can be added to the predictor iteratively. 5. <strong>Zero-inflation</strong>: Additional variables accounting for random effects (e.g., location or age difference) can be added to the predictor iteratively.</p>
 <hr>
-<section id="binary-data-model-1" class="level2">
-<h2 class="anchored" data-anchor-id="binary-data-model-1">Binary Data Model</h2>
-<section id="general-principles-3" class="level3">
-<h3 class="anchored" data-anchor-id="general-principles-3">General Principles</h3>
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<p>20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b The binary data model is used when the presence or absence of a social event for each dyad is recorded in each sampling period. The edge weight represents the probability of (or proportion of time) engaging in a social event in a fixed period of time.</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
+</section>
+</section>
+<section id="general-principles-2" class="level3">
+<h3 class="anchored" data-anchor-id="general-principles-2">General Principles</h3>
+<p>The binary data model is used when the presence or absence of a social event for each dyad is recorded in each sampling period. The edge weight represents the probability of (or proportion of time) engaging in a social event in a fixed period of time.</p>
 <section id="considerations" class="level4">
 <h4 class="anchored" data-anchor-id="considerations">Considerations</h4>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -763,27 +703,20 @@ Note
 </ul>
 </div>
 </div>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD #### Example with simulated data ======= ### Example with simulated data Simulated data can be generated with <strong>bisonR</strong> function <code>simulate_bison_model</code>. For all example we will account the presence of all possible features: 1 fixed nodal predictors, 1 random nodal predictors, presence of subgroups, partial_pooling and zero inflated model. This will allow you to adapt the model by removing parts of the model based on your data.</p>
+</section>
+</section>
+<section id="example-with-simulated-data" class="level3">
+<h3 class="anchored" data-anchor-id="example-with-simulated-data">Example with simulated data</h3>
+<p>Simulated data can be generated with <strong>bisonR</strong> function <code>simulate_bison_model</code>. For all example we will account the presence of all possible features: 1 fixed nodal predictors, 1 random nodal predictors, presence of subgroups, partial_pooling and zero inflated model. This will allow you to adapt the model by removing parts of the model based on your data.</p>
 <p>To be compatible with <code>data</code> used in the model <code>data</code> must contain and be zero-based indexed (i.e.&nbsp;dyad_idsID, num_random_groups need to start at 0): 1. <em>num_rows</em> : Number of observations for the total period of time. 2. <em>event</em> : For binary model whether event occur (1) or not (0). 3. <em>duration</em> : Duration for each observations. 4. <em>dyad_ids</em> : ID for each possible combinations of dyad. 5. <em>num_edges</em>: For binary model this is equivalent of <em>num_rows</em>. 6. <em>num_fixed</em>: Number of fixed nodal predictors. 7. <em>num_random</em>: Number of random nodal predictors. 8. <em>num_random_groups</em> : Number of subgroups. 9. <em>random_group_index</em> : Subgroups ID. 10. <em>design_fixed</em>: Design matrix (N, P) for nodal predictors, where N is the number of individuals and P the number of predictors. 11. <em>design_random</em>: Design matrix for nodal random effects. 12. <em>partial_pooling</em>: Indicator (0 or 1) for enabling/disabling partial pooling of edge weights. 13. <em>zero_inflated</em>: Indicator (0 or 1) for enabling/disabling zero-inflation.</p>
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<p>20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b ::: {.panel-tabset group=“language”} ## Python</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Julia</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span> HEAD</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> {<span class="st">'data'</span>: data_list_jax} <span class="co"># Must contain 'prior_edge_mu', 'num_edges', 'dyad_ids', 'divisor', 'event', etc.</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bi_model_binary(data):</span>
@@ -811,11 +744,8 @@ Note
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>m.fit(bi_model_binary)</span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-</section>
-</section>
-<section id="r" class="level2">
-<h2 class="anchored" data-anchor-id="r">R</h2>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">importBI</span>(<span class="at">platform =</span> <span class="st">"cpu"</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">&lt;-</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">"jax.numpy"</span>)</span>
@@ -847,9 +777,8 @@ Note
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(bi_model_binary)</span>
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="julia" class="level2">
-<h2 class="anchored" data-anchor-id="julia">Julia</h2>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
@@ -877,7 +806,9 @@ Note
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(bi_model_binary)</span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>:::</p>
+</div>
+</div>
+</div>
 <section id="mathematical-details" class="level4">
 <h4 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h4>
 <p>For binary data, the mathematical process applies a Binomial likelihood assuming multiple Bernoulli trials: <span class="math display">
@@ -903,10 +834,11 @@ Note
 </div>
 <hr>
 </section>
+</section>
 <section id="count-data-model" class="level3">
 <h3 class="anchored" data-anchor-id="count-data-model">Count Data Model</h3>
-<section id="general-principles-4" class="level4">
-<h4 class="anchored" data-anchor-id="general-principles-4">General Principles</h4>
+<section id="general-principles-3" class="level4">
+<h4 class="anchored" data-anchor-id="general-principles-3">General Principles</h4>
 <p>The count data model interprets instances where the exact <em>number of events</em> for each dyad is recorded in each sampling period. Under this formulation, the model outputs a rate of occurrence of social events per unit of time instead of a bounded probability.</p>
 </section>
 <section id="considerations-1" class="level4">
@@ -928,12 +860,12 @@ Note
 </div>
 </div>
 </section>
-<section id="example-with-simulated-data" class="level4">
-<h4 class="anchored" data-anchor-id="example-with-simulated-data">Example with simulated data</h4>
+<section id="example-with-simulated-data-1" class="level4">
+<h4 class="anchored" data-anchor-id="example-with-simulated-data-1">Example with simulated data</h4>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Julia</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false" href="">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
@@ -961,7 +893,7 @@ Note
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>m.fit(bi_model_count)</span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">importBI</span>(<span class="at">platform =</span> <span class="st">"cpu"</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">&lt;-</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">"jax.numpy"</span>)</span>
@@ -989,7 +921,7 @@ Note
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(bi_model_count)</span>
 <span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
@@ -1047,8 +979,8 @@ Note
 </section>
 <section id="duration-data-model" class="level3">
 <h3 class="anchored" data-anchor-id="duration-data-model">Duration Data Model</h3>
-<section id="general-principles-5" class="level4">
-<h4 class="anchored" data-anchor-id="general-principles-5">General Principles</h4>
+<section id="general-principles-4" class="level4">
+<h4 class="anchored" data-anchor-id="general-principles-4">General Principles</h4>
 <p>The duration model simultaneously handles two data metrics: the <em>duration</em> of social events and the <em>frequency</em> with which they occur. It treats total engaged time mathematically using a composition approach tracking exponential duration periods bounded across a baseline Poisson event initiation rate.</p>
 </section>
 <section id="considerations-2" class="level4">
@@ -1070,12 +1002,12 @@ Note
 </div>
 </div>
 </section>
-<section id="example-with-simulated-data-1" class="level4">
-<h4 class="anchored" data-anchor-id="example-with-simulated-data-1">Example with simulated data</h4>
+<section id="example-with-simulated-data-2" class="level4">
+<h4 class="anchored" data-anchor-id="example-with-simulated-data-2">Example with simulated data</h4>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false" href="">Julia</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false" href="">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
-<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
@@ -1120,171 +1052,119 @@ Note
 <span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>m.fit(bi_model_duration)</span>
 <span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">importBI</span>(<span class="at">platform =</span> <span class="st">"cpu"</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">&lt;-</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">"jax.numpy"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>jax_scipy <span class="ot">&lt;-</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">"jax.scipy.special"</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">data =</span> data_list_jax)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>bi_model_duration <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  edge_weight <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(data<span class="sc">$</span>prior_edge_mu, data<span class="sc">$</span>prior_edge_sigma, </span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                               <span class="at">shape=</span><span class="fu">tuple</span>(data<span class="sc">$</span>num_edges), <span class="at">name=</span><span class="st">"edge_weight"</span>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  rate_param <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="fl">0.0</span>, data<span class="sc">$</span>prior_rate_sigma, </span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                              <span class="at">shape=</span><span class="fu">tuple</span>(data<span class="sc">$</span>num_edges), <span class="at">name=</span><span class="st">"rate"</span>)</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  rate_positive <span class="ot">&lt;-</span> jnp<span class="sc">$</span><span class="fu">abs</span>(rate_param)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  dyad_ids_0 <span class="ot">&lt;-</span> data<span class="sc">$</span>dyad_ids <span class="sc">-</span> <span class="dv">1</span>L</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  predictor <span class="ot">&lt;-</span> edge_weight[dyad_ids_0]</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (data<span class="sc">$</span>num_fixed <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    beta_fixed <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(data<span class="sc">$</span>prior_fixed_mu, data<span class="sc">$</span>prior_fixed_sigma, </span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>                                <span class="at">shape=</span><span class="fu">tuple</span>(data<span class="sc">$</span>num_fixed), <span class="at">name=</span><span class="st">"beta_fixed"</span>)</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    predictor <span class="ot">&lt;-</span> predictor <span class="sc">+</span> jnp<span class="sc">$</span><span class="fu">dot</span>(data<span class="sc">$</span>design_fixed, beta_fixed)</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> jax_scipy<span class="sc">$</span><span class="fu">expit</span>(predictor)</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="sc">==</span><span class="er">=====</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">importBI</span>(<span class="at">platform =</span> <span class="st">"cpu"</span>)</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"jax.numpy"</span>)</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">data =</span> data)</span>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">importBI</span>(<span class="at">platform =</span> <span class="st">"cpu"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"jax.numpy"</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">data =</span> data_list_jax)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>bi_model_duration <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Edge weights prior with partial pooling : Set the baseline (Intercept)</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  edge_sigma <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">half_normal</span>(<span class="fl">2.0</span>, <span class="at">name =</span> <span class="st">"edge_sigma"</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  edge_weight <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="fl">0.0</span>, edge_sigma, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_edges), <span class="at">name =</span> <span class="st">"edge_weight"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Additional absolute rate parameter strictly positive</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  rate_positive <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">half_normal</span>(<span class="fl">1.0</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_edges), <span class="at">name =</span> <span class="st">"rate"</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  dyad_ids_0 <span class="ot">&lt;-</span> data<span class="sc">$</span>dyad_ids <span class="sc">-</span> <span class="dv">1</span>L</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Build predictor</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  predictor <span class="ot">&lt;-</span> edge_weight[dyad_ids_0]</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Fixed nodal factor(s)</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  beta_fixed <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_fixed), <span class="at">name =</span> <span class="st">"beta_fixed"</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  predictor <span class="ot">&lt;-</span> predictor <span class="sc">+</span> jnp<span class="sc">$</span><span class="fu">dot</span>(data<span class="sc">$</span>design_fixed, beta_fixed)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Random nodal effect(s)</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  random_group_mu <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_random_groups), <span class="at">name =</span> <span class="st">"random_group_mu"</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  random_group_sigma <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">half_normal</span>(<span class="fl">1.0</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_random_groups), <span class="at">name =</span> <span class="st">"random_group_sigma"</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  group_idx_0 <span class="ot">&lt;-</span> data<span class="sc">$</span>random_group_index <span class="sc">-</span> <span class="dv">1</span>L</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  beta_random <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(random_group_mu[group_idx_0], random_group_sigma[group_idx_0], <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_random), <span class="at">name =</span> <span class="st">"beta_random"</span>)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  predictor <span class="ot">&lt;-</span> predictor <span class="sc">+</span> jnp<span class="sc">$</span><span class="fu">dot</span>(data<span class="sc">$</span>design_random, beta_random)</span>
 <span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>bi_model_duration <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Edge weights prior with partial pooling : Set the baseline (Intercept)</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  edge_sigma <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">half_normal</span>(<span class="fl">2.0</span>, <span class="at">name =</span> <span class="st">"edge_sigma"</span>)</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  edge_weight <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="fl">0.0</span>, edge_sigma, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_edges), <span class="at">name =</span> <span class="st">"edge_weight"</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 4. Link function</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> m<span class="sc">$</span><span class="fu">link.inv_logit</span>(predictor)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  lambda_exp <span class="ot">&lt;-</span> rate_positive[dyad_ids_0] <span class="sc">/</span> p</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  lambda_pois <span class="ot">&lt;-</span> rate_positive <span class="sc">*</span> data<span class="sc">$</span>divisor</span>
 <span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Additional absolute rate parameter strictly positive</span></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>  rate_positive <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">half_normal</span>(<span class="fl">1.0</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_edges), <span class="at">name =</span> <span class="st">"rate"</span>)</span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>  dyad_ids_0 <span class="ot">&lt;-</span> data<span class="sc">$</span>dyad_ids <span class="sc">-</span> <span class="dv">1</span>L</span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Build predictor</span></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  predictor <span class="ot">&lt;-</span> edge_weight[dyad_ids_0]</span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Fixed nodal factor(s)</span></span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>  beta_fixed <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_fixed), <span class="at">name =</span> <span class="st">"beta_fixed"</span>)</span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>  predictor <span class="ot">&lt;-</span> predictor <span class="sc">+</span> jnp<span class="sc">$</span><span class="fu">dot</span>(data<span class="sc">$</span>design_fixed, beta_fixed)</span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Random nodal effect(s)</span></span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>  random_group_mu <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_random_groups), <span class="at">name =</span> <span class="st">"random_group_mu"</span>)</span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>  random_group_sigma <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">half_normal</span>(<span class="fl">1.0</span>, <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_random_groups), <span class="at">name =</span> <span class="st">"random_group_sigma"</span>)</span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>  group_idx_0 <span class="ot">&lt;-</span> data<span class="sc">$</span>random_group_index <span class="sc">-</span> <span class="dv">1</span>L</span>
-<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>  beta_random <span class="ot">&lt;-</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(random_group_mu[group_idx_0], random_group_sigma[group_idx_0], <span class="at">shape =</span> <span class="fu">tuple</span>(data<span class="sc">$</span>num_random), <span class="at">name =</span> <span class="st">"beta_random"</span>)</span>
-<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>  predictor <span class="ot">&lt;-</span> predictor <span class="sc">+</span> jnp<span class="sc">$</span><span class="fu">dot</span>(data<span class="sc">$</span>design_random, beta_random)</span>
-<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 4. Link function</span></span>
-<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> m<span class="sc">$</span><span class="fu">link.inv_logit</span>(predictor)</span>
-<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span><span class="er">&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="dv">20</span>c35a832b7f5f82f2011e8aad8fe0f1e2851c1b</span>
-<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>  lambda_exp <span class="ot">&lt;-</span> rate_positive[dyad_ids_0] <span class="sc">/</span> p</span>
-<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>  lambda_pois <span class="ot">&lt;-</span> rate_positive <span class="sc">*</span> data<span class="sc">$</span>divisor</span>
-<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a><span class="sc">&lt;</span><span class="er">&lt;&lt;&lt;&lt;&lt;&lt;</span> HEAD</span>
-<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(lambda_exp, <span class="at">obs=</span>data<span class="sc">$</span>event, <span class="at">name=</span><span class="st">"event"</span>)</span>
-<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">poisson</span>(lambda_pois, <span class="at">obs=</span>data<span class="sc">$</span>event_count, <span class="at">name=</span><span class="st">"event_count"</span>)</span>
-<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a><span class="sc">==</span><span class="er">=====</span></span>
-<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 5. Joint likelihood inference</span></span>
-<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(lambda_exp, <span class="at">obs =</span> data<span class="sc">$</span>event, <span class="at">name =</span> <span class="st">"event"</span>)</span>
-<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">poisson</span>(lambda_pois, <span class="at">obs =</span> data<span class="sc">$</span>event_count, <span class="at">name =</span> <span class="st">"event_count"</span>)</span>
-<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span><span class="er">&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="dv">20</span>c35a832b7f5f82f2011e8aad8fe0f1e2851c1b</span>
-<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(bi_model_duration)</span>
-<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 5. Joint likelihood inference</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(lambda_exp, <span class="at">obs =</span> data<span class="sc">$</span>event, <span class="at">name =</span> <span class="st">"event"</span>)</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">poisson</span>(lambda_pois, <span class="at">obs =</span> data<span class="sc">$</span>event_count, <span class="at">name =</span> <span class="st">"event_count"</span>)</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(bi_model_duration)</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
+<div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span> HEAD</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="fu">Dict</span>(<span class="st">"data"</span> <span class="op">=&gt;</span> data_list_jax)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>jnp <span class="op">=</span> m.jax.numpy</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">bi_model_duration</span>(data)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    edge_weight <span class="op">=</span> m.dist.<span class="fu">normal</span>(data[<span class="st">"prior_edge_mu"</span>], data[<span class="st">"prior_edge_sigma"</span>], </span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                                shape<span class="op">=</span>(data[<span class="st">"num_edges"</span>],), name<span class="op">=</span><span class="st">"edge_weight"</span>)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    rate_param <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0.0</span>, data[<span class="st">"prior_rate_sigma"</span>], </span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                               shape<span class="op">=</span>(data[<span class="st">"num_edges"</span>],), name<span class="op">=</span><span class="st">"rate"</span>)</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    rate_positive <span class="op">=</span> jnp.<span class="fu">abs</span>(rate_param)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="fu">Dict</span>(<span class="st">"data"</span> <span class="op">=&gt;</span> data_list_jax)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">bi_model_duration</span>(data)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Edge weights prior with partial pooling : Set the baseline (Intercept)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    edge_sigma <span class="op">=</span> m.dist.<span class="fu">half_normal</span>(<span class="fl">2.0</span>, name<span class="op">=</span><span class="st">"edge_sigma"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    edge_weight <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0.0</span>, edge_sigma, shape<span class="op">=</span>(data[<span class="st">"num_edges"</span>],), name<span class="op">=</span><span class="st">"edge_weight"</span>)</span>
 <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    dyad_ids_0 <span class="op">=</span> data[<span class="st">"dyad_ids"</span>] <span class="op">.-</span> <span class="fl">1</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    predictor <span class="op">=</span> edge_weight[dyad_ids_0]</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Additional absolute rate parameter strictly positive</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    rate_positive <span class="op">=</span> m.dist.<span class="fu">half_normal</span>(<span class="fl">1.0</span>, shape<span class="op">=</span>(data[<span class="st">"num_edges"</span>],), name<span class="op">=</span><span class="st">"rate"</span>)</span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> data[<span class="st">"num_fixed"</span>] <span class="op">&gt;</span> <span class="fl">0</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        beta_fixed <span class="op">=</span> m.dist.<span class="fu">normal</span>(data[<span class="st">"prior_fixed_mu"</span>], data[<span class="st">"prior_fixed_sigma"</span>], </span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>                                   shape<span class="op">=</span>(data[<span class="st">"num_fixed"</span>],), name<span class="op">=</span><span class="st">"beta_fixed"</span>)</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        predictor <span class="op">=</span> predictor <span class="op">.+</span> jnp.<span class="fu">dot</span>(data[<span class="st">"design_fixed"</span>], beta_fixed)</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> jax.scipy.special.<span class="fu">expit</span>(predictor)</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="op">=======</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>jnp <span class="op">=</span> m.jax.numpy</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="fu">Dict</span>(<span class="st">"data"</span> <span class="op">=&gt;</span> data)</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">bi_model_duration</span>(data)</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Edge weights prior with partial pooling : Set the baseline (Intercept)</span></span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    edge_sigma <span class="op">=</span> m.dist.<span class="fu">half_normal</span>(<span class="fl">2.0</span>, name<span class="op">=</span><span class="st">"edge_sigma"</span>)</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    edge_weight <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0.0</span>, edge_sigma, shape<span class="op">=</span>(data[<span class="st">"num_edges"</span>],), name<span class="op">=</span><span class="st">"edge_weight"</span>)</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Additional absolute rate parameter strictly positive</span></span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    rate_positive <span class="op">=</span> m.dist.<span class="fu">half_normal</span>(<span class="fl">1.0</span>, shape<span class="op">=</span>(data[<span class="st">"num_edges"</span>],), name<span class="op">=</span><span class="st">"rate"</span>)</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    dyad_ids_0 <span class="op">=</span> data[<span class="st">"dyad_ids"</span>] <span class="op">.-</span> <span class="fl">1</span></span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Build predictor</span></span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    predictor <span class="op">=</span> edge_weight[dyad_ids_0]</span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Fixed nodal factor(s)</span></span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    beta_fixed <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0.0</span>, <span class="fl">1.0</span>, shape<span class="op">=</span>(data[<span class="st">"num_fixed"</span>],), name<span class="op">=</span><span class="st">"beta_fixed"</span>)</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    predictor <span class="op">=</span> predictor <span class="op">.+</span> jnp.<span class="fu">dot</span>(data[<span class="st">"design_fixed"</span>], beta_fixed)</span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. Random nodal effect(s)</span></span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>    random_group_mu <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0.0</span>, <span class="fl">1.0</span>, shape<span class="op">=</span>(data[<span class="st">"num_random_groups"</span>],), name<span class="op">=</span><span class="st">"random_group_mu"</span>)</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>    random_group_sigma <span class="op">=</span> m.dist.<span class="fu">half_normal</span>(<span class="fl">1.0</span>, shape<span class="op">=</span>(data[<span class="st">"num_random_groups"</span>],), name<span class="op">=</span><span class="st">"random_group_sigma"</span>)</span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>    group_idx_0 <span class="op">=</span> data[<span class="st">"random_group_index"</span>] <span class="op">.-</span> <span class="fl">1</span></span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>    beta_random <span class="op">=</span> m.dist.<span class="fu">normal</span>(random_group_mu[group_idx_0], random_group_sigma[group_idx_0], shape<span class="op">=</span>(data[<span class="st">"num_random"</span>],), name<span class="op">=</span><span class="st">"beta_random"</span>)</span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    predictor <span class="op">=</span> predictor <span class="op">.+</span> jnp.<span class="fu">dot</span>(data[<span class="st">"design_random"</span>], beta_random)</span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. Link function</span></span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> m.link.<span class="fu">inv_logit</span>(predictor)</span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="fl">20</span>c35a832b7f5f82f2011e8aad8fe0f1e2851c1b</span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>    lambda_exp <span class="op">=</span> rate_positive[dyad_ids_0] <span class="op">./</span> p</span>
-<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>    lambda_pois <span class="op">=</span> rate_positive <span class="op">.*</span> data[<span class="st">"divisor"</span>]</span>
-<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span> HEAD</span>
-<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a><span class="op">=======</span></span>
-<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 5. Joint likelihood inference</span></span>
-<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span> <span class="fl">20</span>c35a832b7f5f82f2011e8aad8fe0f1e2851c1b</span>
-<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">exponential</span>(lambda_exp, obs<span class="op">=</span>data[<span class="st">"event"</span>], name<span class="op">=</span><span class="st">"event"</span>)</span>
-<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">poisson</span>(lambda_pois, obs<span class="op">=</span>data[<span class="st">"event_count"</span>], name<span class="op">=</span><span class="st">"event_count"</span>)</span>
-<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(bi_model_duration)</span>
-<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    dyad_ids_0 <span class="op">=</span> data[<span class="st">"dyad_ids"</span>] <span class="op">.-</span> <span class="fl">1</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">## Build predictor</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    predictor <span class="op">=</span> edge_weight[dyad_ids_0]</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Fixed nodal factor(s)</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    beta_fixed <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0.0</span>, <span class="fl">1.0</span>, shape<span class="op">=</span>(data[<span class="st">"num_fixed"</span>],), name<span class="op">=</span><span class="st">"beta_fixed"</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    predictor <span class="op">=</span> predictor <span class="op">.+</span> jnp.<span class="fu">dot</span>(data[<span class="st">"design_fixed"</span>], beta_fixed)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. Random nodal effect(s)</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    random_group_mu <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0.0</span>, <span class="fl">1.0</span>, shape<span class="op">=</span>(data[<span class="st">"num_random_groups"</span>],), name<span class="op">=</span><span class="st">"random_group_mu"</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    random_group_sigma <span class="op">=</span> m.dist.<span class="fu">half_normal</span>(<span class="fl">1.0</span>, shape<span class="op">=</span>(data[<span class="st">"num_random_groups"</span>],), name<span class="op">=</span><span class="st">"random_group_sigma"</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    group_idx_0 <span class="op">=</span> data[<span class="st">"random_group_index"</span>] <span class="op">.-</span> <span class="fl">1</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    beta_random <span class="op">=</span> m.dist.<span class="fu">normal</span>(random_group_mu[group_idx_0], random_group_sigma[group_idx_0], shape<span class="op">=</span>(data[<span class="st">"num_random"</span>],), name<span class="op">=</span><span class="st">"beta_random"</span>)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    predictor <span class="op">=</span> predictor <span class="op">.+</span> jnp.<span class="fu">dot</span>(data[<span class="st">"design_random"</span>], beta_random)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. Link function</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> m.link.<span class="fu">inv_logit</span>(predictor)</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    lambda_exp <span class="op">=</span> rate_positive[dyad_ids_0] <span class="op">./</span> p</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">#lambda_pois = rate_positive .* data["divisor"]</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">exponential</span>(lambda_exp, obs<span class="op">=</span>data[<span class="st">"event"</span>], name<span class="op">=</span><span class="st">"event"</span>)</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    <span class="co">#m.dist.poisson(lambda_pois, obs=data["event_count"], name="event_count")</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(bi_model_duration)</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD #### Mathematical Details ======= ### Mathematical Details &gt;&gt;&gt;&gt;&gt;&gt;&gt; 20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b The mean behavior time <span class="math inline">\mu_{ij}</span> can be recovered from the estimated proportion scale models representing expected duration lengths per sequence generated by overarching absolute rates <span class="math inline">\lambda_{ij}</span>. <span class="math display">
+</section>
+</section>
+<section id="mathematical-details-2" class="level3">
+<h3 class="anchored" data-anchor-id="mathematical-details-2">Mathematical Details</h3>
+<p>The mean behavior time <span class="math inline">\mu_{ij}</span> can be recovered from the estimated proportion scale models representing expected duration lengths per sequence generated by overarching absolute rates <span class="math inline">\lambda_{ij}</span>. <span class="math display">
 X_{ij}^{(n)} \sim \text{Exponential}(\lambda_{ij} / t_{ij}^{(n)})
 </span> <span class="math display">
 K_{ij} \sim \text{Poisson}(\lambda_{ij} D_{ij})
 </span> The proportion is generated matching logistic mapping inputs: <span class="math display">
 \text{logit}(t_{ij}^{(n)}) = \omega_{ij} + \dots
 </span> And recovered as expected proportion values.</p>
-</section>
 <section id="notes-2" class="level4">
 <h4 class="anchored" data-anchor-id="notes-2">Notes</h4>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1302,10 +1182,6 @@ Note
 </div>
 </section>
 </section>
-</section>
-</section>
-<section id="head-1" class="level1">
-<h1>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</h1>
 <section id="notes-3" class="level3">
 <h3 class="anchored" data-anchor-id="notes-3">Notes</h3>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1319,52 +1195,8 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <p>Varying effects for nodes ad dyads could be build using Multi Variate Normal distribution to account for Node-Level and/or dyadic Correlated Effects.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="im">as</span>.numeric(data$num_random) <span class="op">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract group ID from design_random matrix</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assumes design_random is a one-hot matrix (N_obs, N_groups)</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    group_ids_0 <span class="op">&lt;-</span> jnp$argmax(data$design_random, axis <span class="op">=</span> <span class="dv">1L</span>)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="im">as</span>.numeric(data$num_random) <span class="op">==</span> <span class="dv">1L</span>) {</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>      varying_intercepts <span class="op">&lt;-</span> m$effects$varying_intercept(</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        N_groups <span class="op">=</span> <span class="im">as</span>.integer(data$num_random_groups),</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        group_id <span class="op">=</span> group_ids_0,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        a_bar <span class="op">=</span> m$dist$normal(<span class="fl">0.0</span>, <span class="fl">1.0</span>, shape <span class="op">=</span> <span class="bu">tuple</span>(<span class="dv">1L</span>), name <span class="op">=</span> <span class="st">"random_group_mu_new"</span>),</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        sigma <span class="op">=</span> m$dist$exponential(<span class="fl">1.0</span>, shape <span class="op">=</span> <span class="bu">tuple</span>(<span class="dv">1L</span>), name <span class="op">=</span> <span class="st">"random_group_sigma_new"</span>),</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        group_name <span class="op">=</span> <span class="st">"node_id"</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      predictor <span class="op">&lt;-</span> predictor <span class="op">+</span> varying_intercepts</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Use varying_effects if we have more than 1 effect (intercept + slopes)</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>      out <span class="op">&lt;-</span> m$effects$varying_effects(</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        N_vars <span class="op">=</span> <span class="im">as</span>.integer(data$num_random) <span class="op">-</span> <span class="dv">1L</span>,</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        N_group <span class="op">=</span> <span class="im">as</span>.integer(data$num_random_groups),</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        group_id <span class="op">=</span> group_ids_0,</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        group_name <span class="op">=</span> <span class="st">"node_id"</span>,</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        alpha_bar <span class="op">=</span> m$dist$normal(<span class="fl">0.0</span>, <span class="fl">1.0</span>, shape <span class="op">=</span> <span class="bu">tuple</span>(<span class="dv">1L</span>), name <span class="op">=</span> <span class="st">"random_group_mu_new"</span>),</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        sd_intercept <span class="op">=</span> m$dist$exponential(<span class="fl">1.0</span>, shape <span class="op">=</span> <span class="bu">tuple</span>(<span class="dv">1L</span>), name <span class="op">=</span> <span class="st">"random_group_sigma_new"</span>)</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>      predictor <span class="op">&lt;-</span> predictor <span class="op">+</span> out[[<span class="dv">1</span>]]</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>      <span class="co"># If slopes are present, they are in out[[2]], but bisonR standard model used here</span></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>      <span class="co"># usually doesn't have slopes in design_random yet in this simple way</span></span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<blockquote class="blockquote">
-<p>20c35a832b7f5f82f2011e8aad8fe0f1e2851c1b</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
 
 
 
@@ -2991,13 +2823,13 @@ An activation function is a nonlinear transformation applied to the pre-activati
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./23. Network with block model.html" class="pagination-link" aria-label="Stochastic Block Models">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Stochastic Block Models</span>
+      <a href="./26. Network-Based Diffusion Analysis.html" class="pagination-link" aria-label="🚧Network-Based Diffusion Analysis🚧">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">🚧Network-Based Diffusion Analysis🚧</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./24. Network control for data collection biases.html" class="pagination-link" aria-label="Controlling for Network Biases">
-        <span class="nav-page-text">Controlling for Network Biases</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./12. Survival analysis.html" class="pagination-link" aria-label="🚧 Survival Analysis 🚧">
+        <span class="nav-page-text">🚧 Survival Analysis 🚧</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
