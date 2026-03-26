@@ -1781,6 +1781,36 @@ A class of algorithms designed to scale Markov Chain Monte Carlo methods to larg
 
     });
 
+
+
+tippy('#Activation', {
+
+      content: `
+
+  <span style='color: white;'>
+
+An activation function is a nonlinear transformation applied to the pre-activation output of a neuron in a neural network. It enables the network to learn nonlinear relationships between inputs and outputs. Common activation functions include ReLU, tanh, and sigmoid, Softmax, GELU, Swish.
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

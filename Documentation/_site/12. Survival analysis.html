@@ -67,7 +67,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./18. Latent variable (wip).html" rel="next">
-<link href="./30. BNN for multiclass classification.html" rel="prev">
+<link href="./31. Network Edges Inference.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -420,7 +420,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./10. Dirichlet model.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 Dirichlet Model 🚧</span></a>
+ <span class="menu-text">Dirichlet Model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -439,6 +439,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./14. Varying slopes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Varying Slopes Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14. Nested varying effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Nested Varying Effects</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -491,12 +497,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./31. Network Edges Inference.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧Network Edges Inference🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./24. Network control for data collection biases.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Controlling for Network Biases</span></a>
   </div>
@@ -509,12 +509,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./26. Network-Based Diffusion Analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧Network-Based Diffusion Analysis🚧</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./27. BNN.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Bayesian Neural Networks (BNN)</span></a>
   </div>
@@ -522,13 +516,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./29. BNN for classification.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 BNN for Classification 🚧</span></a>
+ <span class="menu-text">BNN for Classification</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./30. BNN for multiclass classification.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">🚧 BNN for Multiclass Classification 🚧</span></a>
+ <span class="menu-text">BNN for Multiclass Classification</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26. Network-Based Diffusion Analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">🚧Network-Based Diffusion Analysis🚧</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -1925,6 +1925,36 @@ A class of algorithms designed to scale Markov Chain Monte Carlo methods to larg
 
     });
 
+
+
+tippy('#Activation', {
+
+      content: `
+
+  <span style='color: white;'>
+
+An activation function is a nonlinear transformation applied to the pre-activation output of a neuron in a neural network. It enables the network to learn nonlinear relationships between inputs and outputs. Common activation functions include ReLU, tanh, and sigmoid, Softmax, GELU, Swish.
+
+  </span>
+
+  `, allowHTML: true,
+
+      interactive: true,
+
+      delay: 100,
+
+      onShow(instance) {
+
+        MathJax.typesetPromise([instance.reference]).then(() => {
+
+          // Optional: if you want to do something after the typesetting
+
+        });
+
+      },
+
+    });
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">
@@ -2342,8 +2372,8 @@ A class of algorithms designed to scale Markov Chain Monte Carlo methods to larg
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./30. BNN for multiclass classification.html" class="pagination-link" aria-label="🚧 BNN for Multiclass Classification 🚧">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">🚧 BNN for Multiclass Classification 🚧</span>
+      <a href="./31. Network Edges Inference.html" class="pagination-link" aria-label="🚧Network Edges Inference🚧">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">🚧Network Edges Inference🚧</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
