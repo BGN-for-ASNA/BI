@@ -62,7 +62,7 @@ def model(network, dyadic_predictors, focal_individual_predictors, target_indivi
     N_id = focal_individual_predictors.shape[0]
     B_intercept = m.net.block_model(jnp.full((N_id,), 0), 1, jnp.ones(1)*N_id, name="B_intercept")
     B_category = m.net.block_model(category, N_grp, jnp.array(N_by_grp), name="B_category")
-    sr = m.net.sender_receiver(focal_individual_predictors, target_individual_predictors, s_mu=0.4, r_mu=-0.4)
+    sr = m.net.sender_receiver(focal_individual_predictors, target_individual_predictors, s_mu=0.1, r_mu=0.01)
     dr = m.net.dyadic_effect(dyadic_predictors, d_sd=2.5) 
     m.dist.bernoulli(logits=B_intercept + B_category + sr + dr, obs=network)
 
@@ -268,6 +268,12 @@ try:
             all_res.append(extract_stats(stan2_mapped, k, 'STAN2'))
 
     df = pd.concat(all_res)
+    
+    # Print comparison for all parameters to log
+    print("\n--- All Parameter Means Comparison ---")
+    pivot_df = df.pivot(index='var', columns='Backend', values='mean')
+    print(pivot_df)
+    sys.stdout.flush()
 
     # Column-Major labels (matches Stan's indexing)
     labels = {

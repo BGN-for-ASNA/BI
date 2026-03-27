@@ -232,3 +232,18 @@ class activation:
         - jnp.ndarray: The identical input array.
         """
         return x
+
+    @staticmethod
+    def exp(x: jnp.ndarray) -> jnp.ndarray:
+        """
+        Computes the exponential activation function.
+
+        f(x) = exp(x). Output is always positive.
+
+        Parameters:
+        - x (jnp.ndarray): The input array.
+
+        Returns:
+        - jnp.ndarray: The array with exponential applied element-wise.
+        """
+        return jnp.exp(x)

@@ -4,7 +4,7 @@ def set_deallocate():
     os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"]="false"
     os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"]="platform"
     
-def setup_device(platform='cpu', cores=None, deallocate = False, print_devices_found = True):
+def setup_device(platform='cpu', cores=None, gpu_index=None,deallocate = False, print_devices_found = True):
     """## Configures JAX for distributed computation.
 
     This function sets up the JAX computing environment by specifying the hardware 
@@ -23,6 +23,9 @@ def setup_device(platform='cpu', cores=None, deallocate = False, print_devices_f
     - *cores:* int, optional
         Number of CPU cores to allocate for computation. If None, all available CPU 
         cores will be used. Only applicable when platform is 'cpu'.
+        
+    - *gpu_index:* int, optional
+        The index of the GPU to use (e.g., 0 or 1). Only applicable when platform is 'gpu'.
         
     - *deallocate:* bool, optional
         Whether to deallocate any existing devices before setting up new configuration.
@@ -45,6 +48,10 @@ def setup_device(platform='cpu', cores=None, deallocate = False, print_devices_f
      ### Returns
      *None*
     """
+    if platform == 'gpu' and gpu_index is not None:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_index)
+        print(f"Setting CUDA_VISIBLE_DEVICES to: {gpu_index}")
+
     if cores is None:
         cores = os.cpu_count()
     if deallocate:

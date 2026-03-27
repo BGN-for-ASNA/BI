@@ -1,5 +1,5 @@
 ---
-title: "🚧 Survival Analysis 🚧"
+title: "Survival Analysis"
 description: "Analyzing time-to-event data, focusing on the duration until an event of interest occurs."
 categories: [Survival Analysis, Time-to-Event]
 image: "Figures/12.png"
@@ -94,62 +94,64 @@ m.models.survival.plot_surv()
 :::
 
 ## Mathematical Details
-![](travaux-routiers.png){fig-align="center"}
-<!---
-The model is defined as follows:
+
+### *Bayesian formulation*
+
+The BI survival model uses a **piecewise-constant hazard** (Poisson counting-process) approach. The continuous follow-up time is divided into $K$ fixed intervals of length $\Delta$. Each subject $i$ in interval $k$ contributes:
 
 $$
-S_{[i,t]} \sim \text{Bernoulli}(\lambda_{[i,t]}) |_{S_{[i,t-1]}=1}
-$$
-$$
-\lambda_{[i,t]} = \text{inv_logit}(\alpha_{[t]} + \beta_{[t]} X_{[i]} )
-$$
-
-
-$$
-N_i(t) \sim \text{Poisson}(\lambda_i(t) Y_i(t))
+N_{ik} \sim \text{Poisson}\!\left(\mu_{ik}\right)
 $$
 
 $$
-\lambda_i(t) = \lambda_{0}(t)\exp(\beta X_i)
-$$
-
-
-$$
-\lambda_{0} \sim \text{Gamma}(0.01, 0.01)
+\mu_{ik} = \lambda_{ik} \cdot e_{ik}
 $$
 
 $$
-\beta \sim \text{Normal}(0, 1000)
+\lambda_{ik} = \lambda_0^{(k)} \exp\!\left(\beta X_i\right)
 $$
 
+$$
+\lambda_0^{(k)} \sim \text{Gamma}(0.01,\; 0.01)
+$$
 
+$$
+\beta \sim \text{Normal}(0,\; 1000)
+$$
 
+Where:
 
--   Where:
-    -   $N_i(t)$ is the counting process for subject $i$, which counts the number of observed events up to time $t$. For survival analysis, this is typically 0 or 1.
+-   $N_{ik}$ is the number of events (0 or 1) recorded for subject $i$ in interval $k$.
 
-    *   **$Y_i(t)$ is the at-risk indicator**, taking a value of 1 if subject *i* is under observation and has not yet experienced an event just prior to time *t*, and 0 otherwise. This indicator is the mechanism that handles censoring:
-        *   If a subject is **censored** at time $t'$, their at-risk indicator $Y_i(t)$ remains 1 up to $t'$, signifying they were at risk during this period.
-        *   At the moment of censoring $t'$, no event is recorded (the counting process $N_i(t)$ does not increment).
-        *   For all subsequent times $t > t'$, the indicator $Y_i(t)$ switches to 0, effectively removing the individual from the risk set for any future calculations.
+-   $e_{ik}$ is the **exposure** (time at risk) for subject $i$ in interval $k$. It equals $\Delta$ if the subject is fully observed in the interval, a fractional value if the subject exits (via event or censoring) mid-interval, and 0 if the subject has already left the risk set. This term is the mechanism that handles censoring: once a subject is censored or experiences the event, their exposure drops to 0 in all subsequent intervals.
 
-    -   $\lambda_i(t)$ is the hazard rate for subject $i$ at time $t$.
+-   $\mu_{ik} = \lambda_{ik} \cdot e_{ik}$ is the expected number of events, i.e., the hazard rate scaled by time at risk.
 
-    -   $\lambda_{0}(t)$ is the baseline hazard rate function at time $t$. A key assumption is that this baseline hazard is the same for all subjects.
+-   $\lambda_{ik}$ is the hazard rate for subject $i$ in interval $k$, decomposed into a **baseline hazard** $\lambda_0^{(k)}$ and a covariate-specific multiplicative shift.
 
-    -   $X_i$ is the covariates for subject $i$.
+-   $\lambda_0^{(k)}$ is the **baseline hazard** in interval $k$, constant within each interval but free to vary across intervals. This gives the model non-parametric flexibility over time. A Gamma$(0.01, 0.01)$ prior places minimal information on the baseline hazard.
 
-    -   $\beta$ is the regression coefficients. 
+-   $X_i$ is the vector of covariates for subject $i$.
 
--   **Priors:**
-    -   We assign prior distributions to the unknown parameters. The regression coefficients $\beta$ are given a Normal prior.
+-   $\beta$ is the vector of regression coefficients. The coefficient $\exp(\beta)$ gives the **hazard ratio**: the multiplicative change in hazard for a unit increase in the corresponding covariate. A wide Normal$(0, 1000)$ prior reflects minimal prior knowledge.
 
-    -   The baseline hazard $\lambda_0(t)$ is also treated as an unknown parameter and is often modeled non-parametrically, for instance, using a gamma process or as a piecewise constant function, where priors are placed on the hazard level in each time interval.
+### *Survival and hazard functions*
 
+From the posterior samples of $\lambda_0^{(k)}$ and $\beta$, two key quantities can be derived:
 
-The key assumption of this model is that the hazard ratios are constant over time. Censoring is typically handled in the likelihood function used for estimation, not by multiplying the hazard function by a factor. The data for each subject $i$ is represented by a tuple $(t_i, \delta_i, X_i)$, where $t_i$ is the observed time (either event or censoring time), $\delta_i$ is an event indicator (1 if the event was observed, 0 if censored), and $X_i$ is the vector of covariates.
---->
+**Cumulative hazard** up to interval $K$:
+
+$$
+\Lambda_i(t_K) = \sum_{k=1}^{K} \lambda_0^{(k)} \exp\!\left(\beta X_i\right) \Delta_k
+$$
+
+**Survival function**:
+
+$$
+S_i(t_K) = \exp\!\left(-\Lambda_i(t_K)\right)
+$$
+
+Where $\Delta_k$ is the width of interval $k$.
 ## Reference(s)
 https://en.wikipedia.org/wiki/Proportional_hazards_model
 https://www.mathworks.com/help/stats/cox-proportional-hazard-regression.html
