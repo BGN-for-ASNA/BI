@@ -292,5 +292,6 @@ class Neteffect(array_manip):
         # N_group is  a static value known at compile time.
         base_rate = jnp.tile(0.01, (N_group, N_group))
         base_rate = base_rate.at[jnp.diag_indices_from(base_rate)].set(0.1)
-        mu_ij = base_rate / jnp.sqrt(jnp.outer(N_by_group*0.5 , N_by_group*0.5))
+        group_size_mat = jnp.outer(N_by_group, jnp.ones_like(N_by_group)) * 0.5 + jnp.outer(jnp.ones_like(N_by_group), N_by_group) * 0.5
+        mu_ij = base_rate / jnp.sqrt(group_size_mat)
         return mu_ij

@@ -31,6 +31,7 @@ class bnn(activation):
 
             # Specialty functions
             "softplus": self.softplus,
+            "exp": self.exp,
         }
 
     def available_activations(self):
@@ -50,7 +51,7 @@ class bnn(activation):
         - activation (str): The name of the activation function to use after this layer ('relu', 'tanh', 'sigmoid', 'softmax').  
         """
         print("⚠️This function is still in development. Use it with caution. ⚠️")
-        if bias:
+        if bias is not False:
             prod = jnp.matmul(X, dist) + bias
         else:
             prod = jnp.matmul(X, dist) 
@@ -62,7 +63,7 @@ class bnn(activation):
             try:
                 activation_func = getattr(self, activation)
             except AttributeError:
-                raise ValueError(f"Unknown activation function: '{activation_name}'")    
+                raise ValueError(f"Unknown activation function: '{activation}'")    
             return activation_func(prod)
 
     def layer_attention(self, b_kv, b_q, d_model=32,  sample=True, name = '', seed = None):
