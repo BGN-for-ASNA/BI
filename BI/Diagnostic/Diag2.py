@@ -407,20 +407,34 @@ class diagWIP():
     
     # --- Plotting Functions  plotly dependent---
     
-    def summary(self, round_to=2, hdi_prob=0.89):
+    def summary(self, round_to=2, hdi_prob=0.89, var_names=None, exclude_vars=None):
         import numpy as np
         import arviz as az
         import pandas as pd
         
         summary_stats = {}
-        for var_name, samples in self.posterior_samples.items():
+        vars_to_process = list(self.posterior_samples.keys())
+
+        # --- FIX 2: Add variable filtering ---
+        if var_names is not None:
+            # Ensure it's a list (handles single strings passed from R)
+            if isinstance(var_names, str): var_names = [var_names]
+            vars_to_process = [v for v in vars_to_process if v in var_names]
+            
+        if exclude_vars is not None:
+            if isinstance(exclude_vars, str): exclude_vars = [exclude_vars]
+            vars_to_process =[v for v in vars_to_process if v not in exclude_vars]
+
+        for var_name in vars_to_process:
+            samples = self.posterior_samples[var_name]
             param_shape = samples.shape[2:]
+            
             if not param_shape:
                 all_chain_samples = samples.flatten()
                 mean = np.mean(all_chain_samples)
                 median = np.median(all_chain_samples)
                 std = np.std(all_chain_samples)
-                hdi = az.hdi(np.array(all_chain_samples), hdi_prob=hdi_prob)
+                hdi = az.hdi(all_chain_samples, hdi_prob=hdi_prob)
                 summary_stats[var_name] = {'mean': mean, 'median': median, 'std': std,
                     f'hdi_{hdi_prob*100}%_lower': hdi[0], f'hdi_{hdi_prob*100}%_upper': hdi[1]}
             else:
@@ -429,15 +443,16 @@ class diagWIP():
                     full_name = f"{var_name}{idx_str}"
                     element_samples = samples[(slice(None), slice(None)) + idx]
                     all_chain_samples = element_samples.flatten()
+                    
                     mean = np.mean(all_chain_samples)
                     median = np.median(all_chain_samples)
                     std = np.std(all_chain_samples)
-                    hdi = az.hdi(np.array(all_chain_samples), hdi_prob=hdi_prob)
+                    hdi = az.hdi(all_chain_samples, hdi_prob=hdi_prob)
+                    
                     summary_stats[full_name] = {'mean': mean, 'median': median, 'std': std,
                         f'hdi_{hdi_prob*100}%_lower': hdi[0], f'hdi_{hdi_prob*100}%_upper': hdi[1]}
                         
         self.tab_summary = pd.DataFrame(summary_stats).T.round(round_to)
-        return self.tab_summary
     
     def pair(self, var_names=None, colorscale="Viridis", max_points=1000, 
              point_color='rgba(40, 150, 200, 0.4)'):
