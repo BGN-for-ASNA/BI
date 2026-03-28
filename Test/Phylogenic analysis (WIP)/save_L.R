@@ -1,0 +1,5 @@
+library(ape)
+phylo <- read.nexus("phylo.nex")
+A <- vcv.phylo(phylo)
+L <- t(chol(A))
+write.csv(L, "L_repeat.csv", row.names=FALSE)

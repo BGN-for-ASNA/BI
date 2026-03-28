@@ -170,7 +170,6 @@ class bi(manip):
         else:
             self.data_on_model = obs
 
-
         if model is None:
             if self.nbdaModel == False:
                 print( "Argument model can't be None")
