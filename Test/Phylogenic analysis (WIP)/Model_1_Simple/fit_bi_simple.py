@@ -1,3 +1,4 @@
+# %%
 import pandas as pd
 import numpy as np
 import jax
@@ -5,7 +6,6 @@ import jax.numpy as jnp
 from BI import bi
 
 # Enable float64 for numerical parity
-jax.config.update("jax_enable_x64", True)
 m = bi("cpu")
 
 # Load data
@@ -16,7 +16,9 @@ data_simple["cofactor_centered"] = data_simple["cofactor"] - mean_cofactor
 # Map species factors to indices
 L_df = pd.read_csv("L_simple.csv")
 L = L_df.values
-data_simple["phylo_idx"] = pd.Categorical(data_simple["phylo"], categories=L_df.columns).codes
+data_simple["phylo_idx"] = pd.Categorical(
+    data_simple["phylo"], categories=L_df.columns
+).codes
 
 # Prepare data for BI
 m.data_on_model = {
@@ -26,18 +28,17 @@ m.data_on_model = {
     "A_cholesky": jnp.array(L, dtype=jnp.float64),
 }
 
+
 def model(phen, cofactor, phylo_idx, A_cholesky):
     # Priors - Aligned with brms student_t(3, 0, 20)
     intercept = m.dist.normal(0, 50, name="Intercept")
     b_cofactor = m.dist.normal(0, 10, name="b_cofactor")
 
     sd_phylo = m.dist.left_truncated_distribution(
-        m.dist.student_t(3, 0, 20, create_obj=True),
-        low=0.0, name="sd_phylo"
+        m.dist.student_t(3, 0, 20, create_obj=True), low=0.0, name="sd_phylo"
     )
     sigma = m.dist.left_truncated_distribution(
-        m.dist.student_t(3, 0, 20, create_obj=True),
-        low=0.0, name="sigma"
+        m.dist.student_t(3, 0, 20, create_obj=True), low=0.0, name="sigma"
     )
 
     # Phylogenetic effects
@@ -49,6 +50,7 @@ def model(phen, cofactor, phylo_idx, A_cholesky):
 
     # Likelihood
     m.dist.normal(mu, sigma, name="obs", obs=phen)
+
 
 # Fit model
 print("Fitting BI Simple Model...")
@@ -63,3 +65,5 @@ params = ["b_Intercept", "b_cofactor", "sd_phylo", "sigma"]
 post_df = pd.DataFrame({k: np.array(post[k]).flatten() for k in params})
 post_df.to_csv("bi_post_simple.csv", index=False)
 print("Results saved to bi_post_simple.csv")
+
+# %%
