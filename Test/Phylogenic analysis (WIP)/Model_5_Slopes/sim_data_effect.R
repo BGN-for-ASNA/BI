@@ -35,7 +35,9 @@ b1 <- 1.2 # Population Slope
 sigma <- 1.0 # Error SD
 
 x <- rnorm(N_species, mean = 5, sd = 2) # Continuous predictor
-mu <- (b0 + u_intercept) + (b1 + u_slope) * x
+# Center x for simulation to decouple intercept and slope
+x_centered <- x - mean(x)
+mu <- (b0 + u_intercept) + (b1 + u_slope) * x_centered
 y <- rnorm(N_species, mean = mu, sd = sigma)
 
 data_slopes <- data.frame(

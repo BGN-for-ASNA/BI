@@ -5,32 +5,32 @@ library(ape)
 # 1. Load data and fit brms benchmark
 cat("Loading data and fitting brms benchmark (Model 6)...\n")
 data_slopes <- read.table("data_slopes.txt", header = TRUE)
+# Center x for modeling
+data_slopes$x <- data_slopes$x - mean(data_slopes$x)
+
 phylo <- read.nexus("phylo_slopes.nex")
 A <- vcv.phylo(phylo)
+A <- A / max(A) # Standardize A
 
-if (!file.exists("model_slopes.rds")) {
-  # Formula matches simulation: y ~ x + (1 + x | gr(phylo, cov = A))
-  model_slopes <- brm(
-    y ~ x + (1 + x | gr(phylo, cov = A)),
-    data = data_slopes,
-    data2 = list(A = A),
-    family = gaussian(),
-    prior = c(
-      prior(normal(0, 10), class = Intercept),
-      prior(normal(0, 10), class = b),
-      prior(student_t(3, 0, 10), class = sd),
-      prior(lkj(2), class = cor)
-    ),
-    chains = 2, cores = 1, iter = 2000, warmup = 1000,
-    backend = "cmdstanr",
-    control = list(adapt_delta = 0.95),
-    refresh = 0
-  )
-  saveRDS(model_slopes, "model_slopes.rds")
-} else {
-  cat("Loading existing brms model from model_slopes.rds\n")
-  model_slopes <- readRDS("model_slopes.rds")
-}
+
+model_slopes <- brm(
+  y ~ x + (1 + x | gr(phylo, cov = A)),
+  data = data_slopes,
+  data2 = list(A = A),
+  family = gaussian(),
+  prior = c(
+    prior(normal(0, 10), class = Intercept),
+    prior(normal(0, 10), class = b),
+    prior(student_t(3, 0, 10), class = sd),
+    prior(lkj(2), class = cor)
+  ),
+  chains = 2, cores = 1, iter = 3000, warmup = 1000,
+  backend = "cmdstanr",
+  control = list(adapt_delta = 0.99),
+  refresh = 0
+)
+saveRDS(model_slopes, "model_slopes.rds")
+
 # %%
 # 2. Check BI results
 if (file.exists("bi_post_slopes.csv")) {

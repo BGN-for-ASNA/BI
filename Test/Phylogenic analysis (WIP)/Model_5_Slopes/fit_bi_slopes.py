@@ -1,8 +1,9 @@
 # %%
-import os
+import jax
+
+jax.config.update("jax_enable_x64", True)
 import pandas as pd
 import numpy as np
-import jax
 import jax.numpy as jnp
 from BI import bi
 
@@ -26,7 +27,9 @@ data_slopes["phylo_idx"] = data_slopes["phylo"].map(species_to_idx)
 # Prepare data for BI
 m.data_on_model = {
     "y": jnp.array(data_slopes["y"].values, dtype=jnp.float64),
-    "x": jnp.array(data_slopes["x"].values, dtype=jnp.float64),
+    "x": jnp.array(
+        (data_slopes["x"] - data_slopes["x"].mean()).values, dtype=jnp.float64
+    ),
     "phylo_idx": jnp.array(data_slopes["phylo_idx"].values, dtype=jnp.int32),
     "A_cholesky": jnp.array(L_A, dtype=jnp.float64),
 }
@@ -76,7 +79,7 @@ def model(y, x, phylo_idx, A_cholesky):
 
 # Fit model
 print("Fitting BI Model 6 (Varying Slopes)...")
-m.fit(model, num_samples=1000, num_warmup=1000, num_chains=2)
+m.fit(model, num_samples=2000, num_warmup=2000, num_chains=2)
 
 # Summary
 print(m.summary())
