@@ -3,21 +3,24 @@ library(ape)
 
 # 1. Load data and fit brms
 phylo <- read.nexus("phylo.nex")
-data_fisher <- read.table("data_effect.txt", header = TRUE)
+data_fisher <- read.table(
+  "https://paul-buerkner.github.io/data/data_effect.txt",
+  header = TRUE
+)
 data_fisher$obs <- 1:nrow(data_fisher)
 data_fisher$se <- sqrt(1 / (data_fisher$N - 3))
 A <- vcv.phylo(phylo)
 
 cat("\nFitting brms meta-analysis model...\n")
 model_meta <- brm(
-  Zr | se(se) ~ 1 + (1|gr(phylo, cov = A)) + (1|obs),
+  Zr | se(se) ~ 1 + (1 | gr(phylo, cov = A)) + (1 | obs),
   data = data_fisher, family = gaussian(),
   data2 = list(A = A),
   prior = c(
     prior(normal(0, 10), "Intercept"),
     prior(student_t(3, 0, 10), "sd")
   ),
-  chains = 2, cores = 2, iter = 4000, warmup = 2000,
+  chains = 2, cores = 2, iter = 4000, warmup = 1000,
   refresh = 0
 )
 
@@ -62,15 +65,17 @@ plot_density <- function(param_name, brms_samples, bi_samples, file_name) {
   svg(paste0("plots/", file_name, ".svg"), width = 6, height = 4)
   brms_samples <- as.numeric(as.vector(brms_samples))
   bi_samples <- as.numeric(bi_samples)
-  
+
   d_brms <- density(brms_samples)
   d_bi <- density(bi_samples)
-  
+
   xlim <- range(c(d_brms$x, d_bi$x))
   ylim <- range(c(d_brms$y, d_bi$y))
-  
-  plot(d_brms, col = "red", lwd = 2, main = paste("Density: ", param_name), 
-       xlim = xlim, ylim = ylim, xlab = "Value", ylab = "Density")
+
+  plot(d_brms,
+    col = "red", lwd = 2, main = paste("Density: ", param_name),
+    xlim = xlim, ylim = ylim, xlab = "Value", ylab = "Density"
+  )
   lines(d_bi, col = "blue", lwd = 2, lty = 2)
   legend("topright", legend = c("brms", "BI"), col = c("red", "blue"), lwd = 2, lty = c(1, 2))
   dev.off()

@@ -1,3 +1,4 @@
+# %%
 import pandas as pd
 import numpy as np
 import jax
@@ -17,7 +18,9 @@ data_pois["cofactor_centered"] = data_pois["cofactor"] - mean_cofactor
 # Map species factors to indices
 L_df = pd.read_csv("L_pois.csv")
 L = L_df.values
-data_pois["phylo_idx"] = pd.Categorical(data_pois["phylo"], categories=L_df.columns).codes
+data_pois["phylo_idx"] = pd.Categorical(
+    data_pois["phylo"], categories=L_df.columns
+).codes
 
 # Prepare data for BI
 m.data_on_model = {
@@ -28,18 +31,17 @@ m.data_on_model = {
     "A_cholesky": jnp.array(L, dtype=jnp.float64),
 }
 
+
 def model(phen, cofactor, phylo_idx, obs_idx, A_cholesky):
     # Priors - Aligned with brms
     intercept = m.dist.student_t(3, 0.3, 2.6, name="Intercept")
     b_cofactor = m.dist.normal(0, 10, name="b_cofactor")
 
     sd_phylo = m.dist.left_truncated_distribution(
-        m.dist.student_t(3, 0, 2.6, create_obj=True),
-        low=0.0, name="sd_phylo"
+        m.dist.student_t(3, 0, 2.6, create_obj=True), low=0.0, name="sd_phylo"
     )
     sd_obs = m.dist.left_truncated_distribution(
-        m.dist.student_t(3, 0, 2.6, create_obj=True),
-        low=0.0, name="sd_obs"
+        m.dist.student_t(3, 0, 2.6, create_obj=True), low=0.0, name="sd_obs"
     )
 
     # Phylogenetic effects
@@ -56,6 +58,7 @@ def model(phen, cofactor, phylo_idx, obs_idx, A_cholesky):
     # Likelihood
     m.dist.poisson(jnp.exp(mu), name="obs", obs=phen)
 
+
 # Fit model
 print("Fitting BI Poisson Model...")
 m.fit(model, num_samples=2000, num_warmup=1000, num_chains=2)
@@ -69,3 +72,5 @@ params = ["b_Intercept", "b_cofactor", "sd_phylo", "sd_obs"]
 post_df = pd.DataFrame({k: np.array(post[k]).flatten() for k in params})
 post_df.to_csv("bi_post_pois.csv", index=False)
 print("Results saved to bi_post_pois.csv")
+
+# %%
