@@ -3,7 +3,8 @@ title: "Poisson Model"
 description: "Modeling count data, such as the number of events occurring in a fixed interval of time or space."
 categories: [Regression, Count Data, GLM]
 image: "Figures/7.png"
-order: 8
+order: 7
+reading-time: true
 ---
 
 
@@ -15,7 +16,7 @@ This is a special shape of the binomial distribution; it is useful because it mo
 
 ## Considerations
 ::: callout-caution
-- We have the same considerations as for [Regression for a continuous variable](1.&#32;Linear&#32;Regression&#32;for&#32;continuous&#32;variable.qmd).
+- We have the same considerations as for [Regression for a continuous variable](1. Linear Regression for continuous variable.qmd).
 
 - We have the second [<span style="color:#0D6EFD">link function 🛈</span>]{#linkF}: _log_. The _log_ link ensures that _λ_ is always positive.
 
@@ -23,7 +24,7 @@ This is a special shape of the binomial distribution; it is useful because it mo
 
 - To invert the log link function and linearly model the relationship between the predictor variables and the log of the mean rate parameter, we can apply the $exponential$ function (see comment in code).
 
-- A key assumption of the $Poisson$ distribution is that the mean and variance of the count variable are equal. If the variance is greater than the mean, a condition known as overdispersion, a [Gamma-Poisson model](8.&#32;Gamma-Poisson.qmd) might be more appropriate.
+- A key assumption of the $Poisson$ distribution is that the mean and variance of the count variable are equal. If the variance is greater than the mean, a condition known as overdispersion, a [Gamma-Poisson model](9. Gamma-Poisson.qmd) might be more appropriate.
 
 
 :::
@@ -163,12 +164,13 @@ Where:
 ## Notes
 ::: callout-note
 
-- We can apply multiple variables similarly to [chapter 2](2.&#32;Multiple&#32;continuous&#32;variables.qmd).
+- We can apply multiple variables similarly to [chapter 2](2. Multiple continuous variables.qmd).
 
-- We can apply interaction terms similarly to [chapter 3](3.&#32;Interaction&#32;between&#32;continuous&#32;variables.qmd).
+- We can apply interaction terms similarly to [chapter 3](3. Interaction between continuous variables.qmd).
 
-- We can apply categorical variables similarly to [chapter 4](4.&#32;Categorical&#32;variable.qmd).
+- We can apply categorical variables similarly to [chapter 4](4. Categorical variable.qmd).
 
+:::
 
 ## Reference(s)
 ::: {#refs}

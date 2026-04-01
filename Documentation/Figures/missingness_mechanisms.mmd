@@ -1,0 +1,25 @@
+flowchart LR
+    classDef unobserved fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
+
+    subgraph MCAR ["1. MCAR: Random sensor failure"]
+        direction TD
+        S1[S] --> H1(("H")):::unobserved
+        D1[D] --> H_star1["H*"]
+        H1 --> H_star1
+    end
+    
+    subgraph MAR ["2. MAR: Missingness conditional on traits"]
+        direction TD
+        S2[S] --> H2(("H")):::unobserved
+        S2 --> D2[D]
+        D2 --> H_star2["H*"]
+        H2 --> H_star2
+    end
+    
+    subgraph NMAR ["3. NMAR: Missingness caused by the outcome"]
+        direction TD
+        S3[S] --> H3(("H")):::unobserved
+        H3 --> D3[D]
+        D3 --> H_star3["H*"]
+        H3 --> H_star3
+    end

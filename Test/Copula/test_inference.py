@@ -1,3 +1,4 @@
+# %%
 import jax.numpy as jnp
 from jax import random
 from scipy import stats
@@ -6,8 +7,9 @@ import numpyro.distributions as dist
 import numpyro.distributions.constraints as constraints
 from BI import bi
 
-m = bi('cpu')
+m = bi("cpu")
 seed = 123
+
 
 class BetaPoissonMarginal(dist.Distribution):
     support = constraints.real_vector
@@ -31,13 +33,14 @@ class BetaPoissonMarginal(dist.Distribution):
         cdf1 = dist.Beta(self.alpha, self.beta).cdf(v1)
         cdf2 = dist.Poisson(self.lam).cdf(v2)
         return jnp.stack([cdf1, cdf2], axis=-1)
-        
+
     def icdf(self, u):
         u1 = np.asarray(u[..., 0])
         u2 = np.asarray(u[..., 1])
         x_b = stats.beta.ppf(u1, a=np.asarray(self.alpha), b=np.asarray(self.beta))
         x_p = stats.poisson.ppf(u2, mu=np.asarray(self.lam))
         return jnp.array(np.stack([x_b, x_p], axis=-1))
+
 
 # Generate data
 n = 500
@@ -49,31 +52,35 @@ samples_bi = m.dist.gaussian_copula(
     correlation_cholesky=Sigma_chol,
     sample=True,
     shape=(n,),
-    seed=seed
+    seed=seed,
 )
 x_b1 = samples_bi[:, 0]
 x_b2 = samples_bi[:, 1]
 
+
 def model(x_b1, x_b2):
     # Priors for marginal distributions
-    alpha = m.dist.exponential(0.1, name='alpha', sample=True)
-    beta = m.dist.exponential(0.1, name='beta', sample=True)
-    lam = m.dist.exponential(0.1, name='lam', sample=True)
-    
+    alpha = m.dist.exponential(0.1, name="alpha", sample=True)
+    beta = m.dist.exponential(0.1, name="beta", sample=True)
+    lam = m.dist.exponential(0.1, name="lam", sample=True)
+
     # Prior for correlation
-    rho = m.dist.lkj_cholesky(2, 2.0, name='rho', sample=True)
-    
+    rho = m.dist.lkj_cholesky(2, 2.0, name="rho", sample=True)
+
     obs_data = jnp.stack([x_b1, x_b2], axis=-1)
-    
+
     m.dist.gaussian_copula(
         marginal_dist=BetaPoissonMarginal(alpha, beta, lam),
         correlation_cholesky=rho,
         obs=obs_data,
-        name='obs'
+        name="obs",
     )
 
-m.data_on_model = {'x_b1': x_b1, 'x_b2': x_b2}
+
+m.data_on_model = {"x_b1": x_b1, "x_b2": x_b2}
 m.fit(model, num_samples=300, num_warmup=100, num_chains=1, progress_bar=False)
 
 m.summary()
 
+
+# %%

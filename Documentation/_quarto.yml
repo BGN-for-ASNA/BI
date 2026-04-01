@@ -36,46 +36,81 @@ website:
         href:  https://github.com/BGN-for-ASNA/BI
 
   sidebar:
-    #- border: true 
-    - title: "Models"
-      collapse-level: 1
-      contents:      
-        - 0.Introduction.qmd
-        - 1. Linear Regression for continuous variable.qmd
-        - 2. Multiple continuous Variables.qmd
-        - 3. Interaction between continuous variables.qmd
-        - 4. Categorical variable.qmd
-        - 5. Binomial model.qmd
-        - 6. Beta binomial model.qmd
-        - 7. Poisson model.qmd
-        - 8. Poisson mode with offset.qmd
-        - 9. Gamma-Poisson.qmd
-        - 10. Categorical model.qmd
-        - 11. Multinomial model.qmd
-        - 12. Dirichlet model.qmd
-        - 13. Zero inflated.qmd
-        - 14. Survival analysis.qmd
-        - 15. Varying intercepts.qmd
-        - 16. Varying slopes.qmd
-        - 17. Nested varying effects.qmd
-        - 18. Gaussian processes.qmd
-        - 19. Measuring error.qmd
-        - 20. Missing data.qmd
-        - 21. Latent variable.qmd
-        - 22. PCA.qmd
-        - 23. GMM.qmd
-        - 24. DPMM.qmd
-        - 25. Network model.qmd
-        - 26. Network with block model.qmd
-        - 27. Network control for data collection biases.qmd
-        - 28. Network Edges Inference.qmd
-        - 29. Network Metrics.qmd 
-        - 30. Network-Based Diffusion Analysis.qmd  
-        - 31. EWA.qmd     
-        - 32. BNN.qmd
-        - 33. BNN for classification.qmd
-        - 34. BNN for multiclass classification.qmd
-        - 35. BNNC unsupervised.qmd
+    - title: "Bayesian Inference (BI)"
+      style: "floating" # Keeps sidebar pinned
+      collapse-level: 1 # Starts with everything expanded or easy to toggle
+      contents:
+        - section: "Foundations"
+          contents:
+            - 0.Introduction.qmd
+
+        - section: "Linear Models"
+          collapse-level: 2
+          contents:
+            - 1. Linear Regression for continuous variable.qmd
+            - 2. Multiple continuous variables.qmd
+            - 3. Interaction between continuous variables.qmd
+            - 4. Categorical variable.qmd
+
+        - section: "Generalized Linear Models"
+          collapse-level: 2
+          contents:
+            - 5. Binomial model.qmd
+            - 6. Beta binomial model.qmd
+            - 7. Poisson model.qmd
+            - 8. Poisson mode with offset.qmd
+            - 9. Gamma-Poisson.qmd
+            - 10. Categorical model.qmd
+            - 11. Multinomial model.qmd
+            - 12. Dirichlet model.qmd
+            - 13. Zero inflated.qmd
+            - 14. Survival analysis.qmd
+
+        - title: "Multilevel & Varying Effects"
+          collapse-level: 2
+          contents:
+            - 15. Varying intercepts.qmd
+            - 16. Varying slopes.qmd
+            - 17. Nested varying effects.qmd
+            - 18. Phylogenetic analysis.qmd
+            - 19. Gaussian processes.qmd
+            - 18. Phylogenetic analysis.qmd
+
+        - title: "Measurement"
+          collapse-level: 2
+          contents:
+            - 20. Measuring error.qmd
+            - 21. Missing data.qmd
+
+        - section: "Latent Variables & Clusters"
+          collapse-level: 2
+          contents:
+            - 22. Latent variable.qmd
+            - 23. PCA.qmd
+            - 24. GMM.qmd
+            - 25. DPMM.qmd
+
+        - section: "Networks models"
+          collapse-level: 2
+          contents:
+            - 26. Network model.qmd
+            - 27. Network with block model.qmd
+            - 28. Network control for data collection biases.qmd
+            - 29. Network Edges Inference.qmd
+            - 30. Network Metrics.qmd
+            
+        - section: "Social transmission"
+          collapse-level: 2
+          contents:
+          - 31. Network-Based Diffusion Analysis.qmd
+          - 32. EWA.qmd 
+
+        - section: "Behavioral & Neural"
+          collapse-level: 2
+          contents:            
+            - 33. BNN.qmd
+            - 34. BNN for classification.qmd
+            - 35. BNN for multiclass classification.qmd
 
     - id: api
       title: "API Reference"
@@ -122,7 +157,9 @@ format:
     code-fold: show
     code-overflow: wrap
     code-tools: false
-    include-after-body: [tooltip-scripts.html]
+    include-after-body: 
+      - tooltip-scripts.html
+      - disable-codefold.html
 
   pdf:
     pdf-engine: xelatex

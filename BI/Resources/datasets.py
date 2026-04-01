@@ -559,5 +559,67 @@ class load:
             return data
         
 
+    # Phylogenetic Datasets -------------------------------------------------------------------
+
+    def phylo_simple(self, frame=True, only_path=False):
+        """Load simulated data for the Simple Phylogenetic Model (Gaussian)."""
+        description = "Simulated dataset with phenotype 'y', covariate 'x', and species identity 'phylo'."
+        return self._load_csv("phylo_data_simple.csv", description, frame=frame, only_path=only_path)
+
+    def phylo_L_simple(self, frame=True, only_path=False):
+        """Load the Cholesky factor of the kinship matrix for the Simple Phylogenetic Model."""
+        filepath = self.data_dir / "phylo_L_simple.csv"
+        if only_path: return str(filepath)
+        df = pd.read_csv(filepath)
+        return df if frame else Bunch(data=jnp.array(df.values), columns=df.columns.tolist())
+
+    def phylo_poisson(self, frame=True, only_path=False):
+        """Load simulated data for the Phylogenetic Poisson Model."""
+        description = "Simulated count dataset with phenotype 'y', covariate 'x', and species 'phylo'."
+        return self._load_csv("phylo_data_poisson.csv", description, frame=frame, only_path=only_path)
+
+    def phylo_L_poisson(self, frame=True, only_path=False):
+        """Load the Cholesky factor of the kinship matrix for the Poisson model."""
+        filepath = self.data_dir / "phylo_L_poisson.csv"
+        if only_path: return str(filepath)
+        df = pd.read_csv(filepath)
+        return df if frame else Bunch(data=jnp.array(df.values), columns=df.columns.tolist())
+
+    def phylo_repeated(self, frame=True, only_path=False):
+        """Load simulated data for the Repeated Measurements Phylogenetic Model."""
+        description = "Dataset with multiple observations per species for variance partitioning."
+        return self._load_csv("phylo_data_repeated.csv", description, frame=frame, only_path=only_path)
+
+    def phylo_L_repeated(self, frame=True, only_path=False):
+        """Load the Cholesky factor of the kinship matrix for the Repeated measurements model."""
+        filepath = self.data_dir / "phylo_L_repeated.csv"
+        if only_path: return str(filepath)
+        df = pd.read_csv(filepath)
+        return df if frame else Bunch(data=jnp.array(df.values), columns=df.columns.tolist())
+
+    def phylo_meta(self, frame=True, only_path=False):
+        """Load data for a Phylogenetic Meta-analysis."""
+        description = "Dataset with Fisher's Z effect sizes ('y'), standard errors ('se'), and species."
+        return self._load_csv("phylo_data_meta.csv", description, frame=frame, only_path=only_path)
+
+    def phylo_L_meta(self, frame=True, only_path=False):
+        """Load the Cholesky factor of the kinship matrix for Meta-analysis."""
+        filepath = self.data_dir / "phylo_L_meta.csv"
+        if only_path: return str(filepath)
+        df = pd.read_csv(filepath)
+        return df if frame else Bunch(data=jnp.array(df.values), columns=df.columns.tolist())
+
+    def phylo_slopes(self, frame=True, only_path=False):
+        """Load data for the Phylogenetic Varying Slopes Model."""
+        description = "Dataset for modeling evolutionary shifts in trait correlations."
+        return self._load_csv("phylo_data_slopes.csv", description, frame=frame, only_path=only_path)
+
+    def phylo_L_slopes(self, frame=True, only_path=False):
+        """Load the Cholesky factor of the kinship matrix for the Varying Slopes model."""
+        filepath = self.data_dir / "phylo_L_slopes.csv"
+        if only_path: return str(filepath)
+        df = pd.read_csv(filepath)
+        return df if frame else Bunch(data=jnp.array(df.values), columns=df.columns.tolist())
+
 
         

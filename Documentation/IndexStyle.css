@@ -1,28 +1,73 @@
+/* ==========================================
+   1. HIDE TITLE & FOLDING LOGIC
+   ========================================== */
 
+/* Permanently hide the "Categories" title */
+.quarto-listing-category-title {
+    display: none !important;
+}
 
-
-body:not(.gallery-in-view) .quarto-listing-category-title,
+/* Fold and hide the category list by default (when not in gallery) */
 body:not(.gallery-in-view) .quarto-listing-category {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(20px);
-    /* Optional: slide-up effect */
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+
+    transition: all 0.4s ease-out;
 }
 
-/* When the body gets the 'gallery-in-view' class, reveal them. */
-body.gallery-in-view .quarto-listing-category-title,
+/* Unfold and show the category list when gallery is in view */
 body.gallery-in-view .quarto-listing-category {
-    opacity: 1;
-    visibility: visible;
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-height: 2000px !important; 
     transform: translateY(0);
+    transition: all 0.5s ease-in;
+    
+    /* Your custom border color */
+    border-left: 1px solid rgb(42, 161, 152) !important; 
+    
+    /* 1. FIX VERTICAL GAP */
+    margin-top: -2.5rem !important;  /* Pulls it up further to touch the TOC line */
+    padding-top: 2rem !important;    /* Pushes the text back down safely */
+    
+    /* 2. FIX HORIZONTAL ALIGNMENT */
+    margin-left: 0.4rem !important; /* Nudges the line to the right to match Quarto's default TOC inset */
+        /* ENTRY ANIMATION: Smoothly unroll height and fade in, snap transform back */
+    transition: max-height 0.6s ease-out, 
+                padding-top 0.4s ease-out, 
+                opacity 0.5s ease-out, 
+                transform 0.4s ease-out, 
+                visibility 0s linear 0s !important;
 }
 
-.categories-hidden .quarto-listing-categories {
-  display: none;
+
+
+/* ==========================================
+   2. LEVEL 3 INDENTATION & STYLING
+   ========================================== */
+
+/* Indent the individual categories to look like Level 3 */
+.quarto-listing-category .category {
+    padding-left: 1.5rem !important; /* Pushes text to the right of the line */
+    font-size: 0.875rem !important; /* Matches standard Quarto TOC size */
+    opacity: 0.75;
+    margin-bottom: 0.4rem;
+    cursor: pointer;
+    display: block; 
+    transition: opacity 0.2s ease, color 0.2s ease;
 }
 
-
+/* Add hover and active effect to match standard TOC links */
+.quarto-listing-category .category:hover,
+.quarto-listing-category .category.active {
+    opacity: 1;
+    color: var(--bs-primary) !important; 
+}
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -132,8 +177,6 @@ body.quarto-dark .showcase-panel {
 body.quarto-dark .features-panel {
     background-color: #2a2a2a;
 }
-
-
 
 
 /* --- General Content Styling for Panels --- */

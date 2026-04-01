@@ -4,13 +4,16 @@ format:
   html:
     css: IndexStyle.css
     page-layout: full
+    toc: true
+    toc-location: right
     
+
 # We keep the listing definition here for the gallery section
 listing:
   categories: true
   contents: 
     - "1. Linear Regression for continuous variable.qmd"
-    - "2. Multiple continuous Variables.qmd"
+    - "2. Multiple continuous variables.qmd"
     - "3. Interaction between continuous variables.qmd"
     - "4. Categorical variable.qmd"
     - "5. Binomial model.qmd"
@@ -26,24 +29,26 @@ listing:
     - "15. Varying intercepts.qmd"
     - "16. Varying slopes.qmd"
     - "17. Nested varying effects.qmd"
-    - "18. Gaussian processes.qmd"
-    - "19. Measuring error.qmd"
-    - "20. Missing data.qmd"
-    - "21. Latent variable.qmd"
-    - "22. PCA.qmd"
-    - "23. GMM.qmd"
-    - "24. DPMM.qmd"
-    - "25. Network model.qmd"
-    - "26. Network with block model.qmd" 
-    - "27. Network control for data collection biases.qmd"
-    - "28. Network Edges Inference.qmd"
-    - "29. Network Metrics.qmd"
-    - "30. Network-Based Diffusion Analysis.qmd"
-    - "31. EWA.qmd"
-    - "32. BNN.qmd"
-    - "33. BNN for classification.qmd"
-    - "34. BNN for multiclass classification.qmd"
-    - "35. BNNC unsupervised.qmd"
+    - "18. Phylogenetic analysis.qmd"
+    - "19. Gaussian processes.qmd"
+    - "20. Measuring error.qmd"
+    - "21. Missing data.qmd"
+    - "22. Latent variable.qmd"
+    - "23. PCA.qmd"
+    - "24. GMM.qmd"
+    - "25. DPMM.qmd"
+    - "26. Network model.qmd"
+    - "27. Network with block model.qmd"
+    - "28. Network control for data collection biases.qmd"
+    - "29. Network Edges Inference.qmd"
+    - "30. Network Metrics.qmd"
+    - "31. Network-Based Diffusion Analysis.qmd"
+    - "32. EWA.qmd"
+    - "33. BNN.qmd"
+    - "34. BNN for classification.qmd"
+    - "35. BNN for multiclass classification.qmd"
+    - "36. BNNC unsupervised.qmd"
+
   type: grid
   grid-columns: 3
   sort: "order asc"
@@ -52,9 +57,9 @@ listing:
   image-height: "250"
 ---
 
-# <span class="text-primary">Welcome to Bayesian Inference (BI)</span>
-
 ::: {.panel .welcome-panel}
+
+# <span class="text-primary">Welcome to Bayesian Inference (BI)</span>
 
 ## An open-source library for Python, R and Julia
 
@@ -74,8 +79,7 @@ listing:
   </ul>
 
 <h3>
-
-  <button class="btn btn-lg btn-primary" type="button" href="/start/Installation.html" >Get Started</button>
+  <a class="btn-get-started" href="start/Installation.html">Get Started</a>
 </h3>
 </div>
 
@@ -91,7 +95,7 @@ listing:
 ### Compare the Syntax
 
 
-::: {.panel-tabset group="language"}
+::: {.panel-tabset}
 ### Python Syntax
 ```python
 def model(height, weight):
@@ -142,7 +146,7 @@ end
 <div class="container">
 ## A Unified, Scalable, and Accessible Framework
 
-::: {.panel-tabset group="language"}
+::: {.panel-tabset}
 ### Pipeline
 ```python
 from BI import bi
@@ -240,6 +244,36 @@ m.dist.normal( 0, 1, name = 'a', shape=(100,2, 4), sample = True, to_jax = False
 :::
 
 
-# <span class="text-primary" id="#gallery">Gallery</span>
+# <span class="text-primary" id="gallery">Gallery</span>
 
 
+<!-- JS to detect when the gallery is on screen -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Quarto automatically wraps the grid in a div with class 'quarto-listing'
+  const gallerySection = document.querySelector(".quarto-listing");
+  
+  if (!gallerySection) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        // Toggle the class on the body based on visibility
+        if (entry.isIntersecting) {
+          document.body.classList.add("gallery-in-view");
+        } else {
+          document.body.classList.remove("gallery-in-view");
+        }
+      });
+    },
+    { 
+      // Fire as soon as 1 pixel of the gallery is visible
+      threshold: 0,
+      // Optional: expand the hit area slightly so it opens just before scrolling hits it
+      rootMargin: "50px 0px 50px 0px" 
+    }
+  );
+
+  observer.observe(gallerySection);
+});
+</script>

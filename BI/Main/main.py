@@ -1,12 +1,11 @@
-
 import inspect
 import ast
 
-#import jax.random as random
-#import jax.numpy as jnp
-#from jax import vmap
-#from jax import jit
-import jax 
+# import jax.random as random
+# import jax.numpy as jnp
+# from jax import vmap
+# from jax import jit
+import jax
 
 
 from numpyro.infer import Predictive
@@ -22,8 +21,8 @@ from BI.SetDevice.set import setup_device
 from BI.Data.manip import manip
 from BI.Resources.datasets import load
 
-from BI.Utils.Gaussian  import gaussian 
-from BI.Utils.Effects import effects 
+from BI.Utils.Gaussian import gaussian
+from BI.Utils.Effects import effects
 from BI.Utils.link import link
 
 from BI.Diagnostic.Diag2 import diagWIP as diag
@@ -36,15 +35,25 @@ from BI.Models.surv import survival
 from BI.Models.GMM import *
 from BI.Models.DPMM import *
 from BI.ML.ml import ml
-from BI.BNN.bnn import bnn 
-
+from BI.BNN.bnn import bnn
 
 
 class bi(manip):
-    def __init__(self, platform='cpu', cores=None, rand_seed = True, deallocate = False, print_devices_found = True, backend='numpyro', loss=None, optim=None, guide=None):
+    def __init__(
+        self,
+        platform="cpu",
+        cores=None,
+        rand_seed=True,
+        deallocate=False,
+        print_devices_found=True,
+        backend="numpyro",
+        loss=None,
+        optim=None,
+        guide=None,
+    ):
         """
         Initialize the BI class with platform, cores, deallocate, print_devices_found, and backend parameters.
-        
+
         Args:
             platform (str, optional): Platform to use. Defaults to 'cpu'.
             cores (int, optional): Number of cores. Defaults to None.
@@ -53,16 +62,16 @@ class bi(manip):
             backend (str, optional): Backend to use. Defaults to 'numpyro'.
         """
         manip.__init__(self)
-        setup_device(platform, cores, deallocate, print_devices_found) 
-        
-        self.seed = rand_seed           
+        setup_device(platform, cores, deallocate, print_devices_found)
+
+        self.seed = rand_seed
         self.data_on_model = None
         self.priors_name = None
         self.tab_summary = None
-        
+
         self.nbdaModel = False
         self.obs_args = None
-        self.model2 = None 
+        self.model2 = None
         self.trace = None
         self.history = {}
         self.backend = backend
@@ -76,9 +85,8 @@ class bi(manip):
         self.link = link
 
         self.dpmm = dpmm
-        self.gmm = gmm    
+        self.gmm = gmm
         self.NBDA = NBDA
-
 
         self.models = models(self)
 
@@ -86,57 +94,61 @@ class bi(manip):
         self.run_model_name = None
 
         self.net = net()
-        self.ml= ml()   
-        self.bnn= bnn()  
+        self.ml = ml()
+        self.bnn = bnn()
 
         self.load = load()
 
-        if backend == 'numpyro':
+        if backend == "numpyro":
             from BI.Distributions.np_dists import UnifiedDist as np_dists
-            self.dist=np_dists(rand_seed = self.seed)
+
+            self.dist = np_dists(rand_seed=self.seed)
             jax.config.update("jax_enable_x64", True)
 
-        elif backend == 'tfp':
-            from BI.Distributions.tfp_dists import UnifiedDist as tfp_dists  
-            from BI.Samplers.mcmc_tfp import mcmc as mcmc_tfp          
-            self.dist=tfp_dists 
+        elif backend == "tfp":
+            from BI.Distributions.tfp_dists import UnifiedDist as tfp_dists
+            from BI.Samplers.mcmc_tfp import mcmc as mcmc_tfp
+
+            self.dist = tfp_dists
             self.sampler = mcmc_tfp()
             jax.config.update("jax_enable_x64", False)
 
     def latex(self):
         from BI.PostModel.to_latex import to_latex
+
         return to_latex(self.model)
 
-    def fit(self, 
-            model = None, 
-            obs=None,
-            potential_fn=None,
-            kinetic_fn=None,
-            step_size=1.0,
-            inverse_mass_matrix=None,
-            adapt_step_size=True,
-            adapt_mass_matrix=True,
-            dense_mass=False,
-            target_accept_prob=0.8,
-            trajectory_length=None,
-            max_tree_depth=10,
-            init_strategy= numpyro.infer.init_to_uniform,
-            find_heuristic_step_size=False,
-            forward_mode_differentiation=False,
-            regularize_mass_matrix=True,
-            
-            num_warmup = 1000,
-            num_samples = 1000,
-            num_chains=4,
-            thinning=1,
-            postprocess_fn=None,
-            chain_method="parallel",
-            progress_bar=True,
-            jit_model_args=False,
-            seed = 0):
+    def fit(
+        self,
+        model=None,
+        obs=None,
+        potential_fn=None,
+        kinetic_fn=None,
+        step_size=1.0,
+        inverse_mass_matrix=None,
+        adapt_step_size=True,
+        adapt_mass_matrix=True,
+        dense_mass=False,
+        target_accept_prob=0.8,
+        trajectory_length=None,
+        max_tree_depth=10,
+        init_strategy=numpyro.infer.init_to_uniform,
+        find_heuristic_step_size=False,
+        forward_mode_differentiation=False,
+        regularize_mass_matrix=True,
+        num_warmup=1000,
+        num_samples=1000,
+        num_chains=4,
+        thinning=1,
+        postprocess_fn=None,
+        chain_method="parallel",
+        progress_bar=True,
+        jit_model_args=False,
+        seed=0,
+    ):
         """
         Fit the model using the specified backend and parameters.
-        
+
         Args:
             model: Model to fit.
             obs: Observed data.
@@ -172,11 +184,11 @@ class bi(manip):
 
         if model is None:
             if self.nbdaModel == False:
-                print( "Argument model can't be None")
-                
+                print("Argument model can't be None")
+
             else:
                 self.model = self.nbda.model
-                self.model_name = 'NBDA' 
+                self.model_name = "NBDA"
         else:
             self.model = model
             if isinstance(model, functools.partial):
@@ -186,39 +198,43 @@ class bi(manip):
                     self.model_name = model.__name__
 
         if self.nbdaModel == False:
-            if self.data_on_model is None :
-                if self.backend == 'numpyro':
+            if self.data_on_model is None:
+                if self.backend == "numpyro":
                     self.data_on_model = self.pd_to_jax(self.model)
                 else:
-                    self.data_on_model = self.pd_to_jax(self.model, bit = "32")
+                    self.data_on_model = self.pd_to_jax(self.model, bit="32")
 
-        if self.model_name == 'gmm':
-            if 'initial_means' not in self.data_on_model:
-                self.ml.KMEANS(self.data_on_model['data'], n_clusters=self.data_on_model['K'])
-                self.data_on_model['initial_means'] = self.ml.results['centroids']
+        if self.model_name == "gmm":
+            if "initial_means" not in self.data_on_model:
+                self.ml.KMEANS(
+                    self.data_on_model["data"], n_clusters=self.data_on_model["K"]
+                )
+                self.data_on_model["initial_means"] = self.ml.results["centroids"]
 
-        if self.model_name == 'pca':
+        if self.model_name == "pca":
             self.model = model.get_model(model.type)
             tmp = self.data_on_model.keys()
 
-            if 'X' not in tmp:
-                return print('X is required')
+            if "X" not in tmp:
+                return print("X is required")
             else:
-                self.data_on_model['X']=self.data_on_model['X'].T
-            if 'data_dim' not in tmp:
-                self.data_on_model['data_dim'] = self.data_on_model['X'].shape[0]
-            if 'latent_dim' not in tmp:
-                self.data_on_model['latent_dim'] = self.data_on_model['X'].shape[0]
-            if 'num_data_points' not in tmp:
-                self.data_on_model['num_data_points'] = self.data_on_model['X'].shape[1]
+                self.data_on_model["X"] = self.data_on_model["X"].T
+            if "data_dim" not in tmp:
+                self.data_on_model["data_dim"] = self.data_on_model["X"].shape[0]
+            if "latent_dim" not in tmp:
+                self.data_on_model["latent_dim"] = self.data_on_model["X"].shape[0]
+            if "num_data_points" not in tmp:
+                self.data_on_model["num_data_points"] = self.data_on_model["X"].shape[1]
             # Init pca class with data
-            self.models.pca=self.models.pca(
-                X = self.data_on_model['X'], 
-                latent_dim = self.data_on_model['latent_dim'],
-                type = model.type)  
+            self.models.pca = self.models.pca(
+                X=self.data_on_model["X"],
+                latent_dim=self.data_on_model["latent_dim"],
+                type=model.type,
+            )
 
-        if self.backend == 'numpyro':
+        if self.backend == "numpyro":
             from BI.Samplers.mcmc_numpyro import mcmc_numpyro
+
             self.sampler = mcmc_numpyro(
                 model=self.model,
                 potential_fn=potential_fn,
@@ -235,31 +251,32 @@ class bi(manip):
                 find_heuristic_step_size=find_heuristic_step_size,
                 forward_mode_differentiation=forward_mode_differentiation,
                 regularize_mass_matrix=regularize_mass_matrix,
-                num_warmup = num_warmup,
-                num_samples = num_samples,
+                num_warmup=num_warmup,
+                num_samples=num_samples,
                 num_chains=num_chains,
                 thinning=thinning,
                 postprocess_fn=postprocess_fn,
                 chain_method=chain_method,
                 progress_bar=progress_bar,
-                jit_model_args=jit_model_args
-                )
-                        
+                jit_model_args=jit_model_args,
+            )
+
             self.sampler.run(jax.random.PRNGKey(seed), **self.data_on_model)
             self.posteriors = self.sampler.get_samples()
-            self.diag = diag(sampler = self.sampler)
+            self.diag = diag(sampler=self.sampler)
             self.get_history()
 
-        elif self.backend == 'tfp':
-            print("[WARNING] This function is still in development. Use it with caution. [WARNING]")
+        elif self.backend == "tfp":
+            print(
+                "[WARNING] This function is still in development. Use it with caution. [WARNING]"
+            )
             from BI.Distributions.tfp_dists import UnifiedDist as tfp_dists
             from BI.Samplers.mcmc_tfp import mcmc as mcmc_tfp
-            from BI.Samplers.Model_handler import model_handler 
+            from BI.Samplers.Model_handler import model_handler
 
-            #self.mcmc= mcmc_tfp() 
+            # self.mcmc= mcmc_tfp()
             self.sampler.data_on_model = self.data_on_model
             self.sampler.model = self.model
-
 
             # Pass the fit parameters to the TFP sampler
             self.sampler.run(
@@ -268,25 +285,27 @@ class bi(manip):
                 n_chains=num_chains,
                 num_results=num_samples,
                 num_burnin_steps=num_warmup,
-                **self.data_on_model
-            ) 
-            self.diag = diag(sampler = self.sampler)
+                **self.data_on_model,
+            )
+            self.diag = diag(sampler=self.sampler)
             self.posteriors = self.sampler.get_samples()
             self.get_history()
 
-        if self.model_name == 'pca':
+        if self.model_name == "pca":
             self.models.pca.posterior = self.posteriors
             self.models.pca.get_attributes(self.models.pca.X.T)
 
-    def svi(self, 
-            model = None, 
-            guide = None,
-            optim = None,
-            loss = None,
-            num_steps = 1000,
-            num_samples = 1000,
-            seed = 0,
-            **kwargs):
+    def svi(
+        self,
+        model=None,
+        guide=None,
+        optim=None,
+        loss=None,
+        num_steps=1000,
+        num_samples=1000,
+        seed=0,
+        **kwargs,
+    ):
         """
         Fit the model using SVI (Stochastic Variational Inference).
         """
@@ -300,103 +319,125 @@ class bi(manip):
                 if self.model_name is None:
                     self.model_name = model.__name__
 
-        if self.data_on_model is None :
+        if self.data_on_model is None:
             self.data_on_model = self.pd_to_jax(self.model)
 
         if optim is None:
             optim = self.optim
             if optim is None:
                 import numpyro
+
                 optim = numpyro.optim.Adam(step_size=1e-3)
-        
+
         if loss is None:
             loss = self.loss
             if loss is None:
                 from numpyro.infer import Trace_ELBO
+
                 loss = Trace_ELBO(num_particles=10)
 
         if guide is None:
             guide = self.guide
             if guide is None:
                 from numpyro.infer.autoguide import AutoDiagonalNormal
+
                 guide = AutoDiagonalNormal(self.model)
         elif isinstance(guide, str):
             from numpyro.infer import autoguide
+
             guides = {
-                'diagonal': autoguide.AutoDiagonalNormal,
-                'multivariate': autoguide.AutoMultivariateNormal,
-                'laplace': autoguide.AutoLaplaceApproximation,
-                'delta': autoguide.AutoDelta,
-                'normal': autoguide.AutoNormal,
-                'low_rank': autoguide.AutoLowRankMultivariateNormal
+                "diagonal": autoguide.AutoDiagonalNormal,
+                "multivariate": autoguide.AutoMultivariateNormal,
+                "laplace": autoguide.AutoLaplaceApproximation,
+                "delta": autoguide.AutoDelta,
+                "normal": autoguide.AutoNormal,
+                "low_rank": autoguide.AutoLowRankMultivariateNormal,
             }
             if guide.lower() in guides:
                 guide = guides[guide.lower()](self.model)
             else:
-                raise ValueError(f"Unknown autoguide: {guide}. Available options: {list(guides.keys())}")
+                raise ValueError(
+                    f"Unknown autoguide: {guide}. Available options: {list(guides.keys())}"
+                )
 
-        if self.backend == 'numpyro':
+        if self.backend == "numpyro":
             from BI.Samplers.SVI.svi_numpyro import svi_numpyro
+
             self.sampler = svi_numpyro(
                 model=self.model,
                 guide=guide,
                 optim=optim,
                 loss=loss,
-                **kwargs
+                num_steps=num_steps,
+                num_samples=num_samples,
+                **kwargs,
             )
-            
-            self.sampler.run(jax.random.PRNGKey(seed), num_steps=num_steps, **self.data_on_model)
-            self.posteriors = self.sampler.get_samples(num_samples=num_samples, seed=seed)
-            self.diag = diag(sampler = self.sampler)
+
+            self.sampler.run(
+                jax.random.PRNGKey(seed),
+                **self.data_on_model,
+            )
+            self.posteriors = self.sampler.get_samples(
+                seed=seed,
+            )
+            self.diag = diag(sampler=self.sampler)
             self.get_history()
 
         self.run_model_name = self.model_name
         self.model_name = None
+
     # Random number generator ----------------------------------------------------------------
-    
+
     def randint(self, low, high, shape):
         """
         Generate random integers in the given range.
-        
+
         Args:
             low: Lowest possible value.
             high: Highest possible value.
             shape: Shape of the output array.
-        
+
         Returns:
             Array of random integers.
-        """        
+        """
         return pyrand.randint(low, high, shape)
 
     # Get posteriors ----------------------------------------------------------------------------
-    def summary(self, round_to=2, kind="all", hdi_prob=0.89, *args, **kwargs): 
+    def summary(self, round_to=2, kind="all", hdi_prob=0.89, *args, **kwargs):
         """
         Generate a summary of the posterior distribution.
-        
+
         Args:
             round_to: Number of decimal places to round.
             kind: Type of summary statistics.
             hdi_prob: Probability for HDI interval.
             *args: Additional arguments.
             **kwargs: Additional keyword arguments.
-        
+
         Returns:
             Summary statistics.
-        """        
+        """
         if self.trace is None:
             self.diag.to_az(backend=self.backend)
-        self.tab_summary = az.summary(self.diag.trace , round_to=round_to, kind=kind, hdi_prob=hdi_prob, *args, **kwargs)
-        return self.tab_summary 
+        self.tab_summary = az.summary(
+            self.diag.trace,
+            round_to=round_to,
+            kind=kind,
+            hdi_prob=hdi_prob,
+            *args,
+            **kwargs,
+        )
+        return self.tab_summary
 
     def get_posterior_means(self):
         """
         Get the posterior means of the variables.
-        
+
         Returns:
             Dictionary of variable names and their posterior means.
-        """        
+        """
         d = self.summary()
-        posterior_means = d['mean'].values
+        posterior_means = d["mean"].values
         posterior_names = d.index.tolist()
         return {var: mean for var, mean in zip(posterior_names, posterior_means)}
 
@@ -404,7 +445,7 @@ class bi(manip):
     def visit_call(self, node, obs_args):
         """
         Parse a function call node to find `lk` calls with `obs` arguments and add those argument names to the `obs_args` list.
-        
+
         Args:
             node: AST node to parse.
             obs_args: List to store observed argument names.
@@ -421,10 +462,10 @@ class bi(manip):
     def find_obs_in_model(self, model_func):
         """
         Extract observed argument names from `obs` in `lk` calls in `model_func`.
-        
+
         Args:
             model_func: Model function to analyze.
-        
+
         Returns:
             List of observed argument values.
         """
@@ -439,7 +480,7 @@ class bi(manip):
         for node in ast.walk(tree):
             if isinstance(node, ast.Call):
                 for keyword in node.keywords:
-                    if keyword.arg == 'obs':
+                    if keyword.arg == "obs":
                         # Extract the value passed to 'obs'
                         value = ast.unparse(keyword.value)
                         obs_values.append(value)
@@ -451,10 +492,10 @@ class bi(manip):
     def build_model_with_Y_None(self, model):
         """
         Modify the original model function to make the observed arguments optional.
-        
+
         Args:
             model: Model function to modify.
-        
+
         Returns:
             Modified model function with optional observed arguments.
         """
@@ -465,9 +506,14 @@ class bi(manip):
         parameters = []
         for name, param in sig.parameters.items():
             if name in obs:
-                parameters.append(inspect.Parameter(name, inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None))
+                parameters.append(
+                    inspect.Parameter(
+                        name, inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None
+                    )
+                )
             else:
                 parameters.append(param)
+
         def model_with_None(*args, **kwargs):
             # Default values for obs arguments if not passed
             for obs_name in obs:
@@ -475,33 +521,34 @@ class bi(manip):
                     kwargs[obs_name] = None
             # Call the original model function with the modified arguments
             return model(*args, **kwargs)
+
         # Update the signature of the new model
         model_with_None.__signature__ = sig.replace(parameters=parameters)
         self.model2 = model_with_None
         return model_with_None
 
-    def sample(self,  data = None, remove_obs = True, posterior = True,  samples = 1,  seed = 0):
+    def sample(self, data=None, remove_obs=True, posterior=True, samples=1, seed=0):
         """
         Sample from the model.
-        
+
         Args:
             data: Data to use for sampling. Defaults to None.
             remove_obs: Whether to remove observed data. Defaults to True.
             posterior: Whether to use posterior. Defaults to True.
             samples: Number of samples. Defaults to 1.
             seed: Random seed. Defaults to 0.
-        
+
         Returns:
             Samples from the model.
         """
         rng_key = jax.random.PRNGKey(int(seed))
         self.build_model_with_Y_None(self.model)
-  
+
         if data is None:
-            data = self.data_on_model.copy() 
-        
+            data = self.data_on_model.copy()
+
         if remove_obs:
-            for intem in self.obs_args:            
+            for intem in self.obs_args:
                 del data[intem]
 
         if posterior == False:
@@ -509,63 +556,65 @@ class bi(manip):
         else:
             posterior = self.sampler.get_samples()
 
-        predictive = Predictive(self.model2, posterior_samples=posterior, num_samples=samples)
+        predictive = Predictive(
+            self.model2, posterior_samples=posterior, num_samples=samples
+        )
         return predictive(rng_key, **data)
-    
+
     # Log probability ----------------------------------------------------------------------------
-    def log_prob(self, model, seed = 0, **kwargs):
+    def log_prob(self, model, seed=0, **kwargs):
         """
         Compute the log probability of a model.
-        
+
         Args:
             model: Model to compute log probability for.
             seed: Random seed. Defaults to 0.
             **kwargs: Additional keyword arguments.
-        
+
         Returns:
             Tuple containing init_params, potential_fn, constrain_fn, and model_trace.
         """
         # getting log porbability
         rng_key = jax.random.PRNGKey(int(seed))
-        init_params, potential_fn, constrain_fn, model_trace = numpyro.infer.util.initialize_model(rng_key, model, 
-        model_args=(kwargs))
-        print('init_params:  ', init_params)
-        print('constrain_fn: ', constrain_fn(init_params.z))
-        print('potential_fn: ', -potential_fn(init_params.z)) #log prob
-        print('grad:         ', jax.grad(potential_fn)(init_params.z))
-        return init_params, potential_fn, constrain_fn, model_trace 
+        init_params, potential_fn, constrain_fn, model_trace = (
+            numpyro.infer.util.initialize_model(rng_key, model, model_args=(kwargs))
+        )
+        print("init_params:  ", init_params)
+        print("constrain_fn: ", constrain_fn(init_params.z))
+        print("potential_fn: ", -potential_fn(init_params.z))  # log prob
+        print("grad:         ", jax.grad(potential_fn)(init_params.z))
+        return init_params, potential_fn, constrain_fn, model_trace
 
     def get_history(self):
         """
         Get the history of the model fit.
-        
+
         Returns:
             Dictionary containing model, model_name, data, sampler, and posteriors.
-        """        
+        """
         self.history = {
-            'model': self.model,
-            'model_name': self.run_model_name,  
-            'data': self.data_on_model,
-            'sampler': self.sampler,
-            'posteriors': self.posteriors,
+            "model": self.model,
+            "model_name": self.run_model_name,
+            "data": self.data_on_model,
+            "sampler": self.sampler,
+            "posteriors": self.posteriors,
         }
 
     def plot(self, X, y=None, figsize=(10, 6), **kwargs):
         """
         Plot the model results.
-        
+
         Args:
             X: Data to plot.
             y: Target variable. Defaults to None.
             figsize: Figure size. Defaults to (10, 6).
             **kwargs: Additional keyword arguments.
-        """        
-        if self.run_model_name == 'gmm':
-            plot_gmm(X, sampler= self.sampler,figsize=figsize)
+        """
+        if self.run_model_name == "gmm":
+            plot_gmm(X, sampler=self.sampler, figsize=figsize)
 
-        elif self.run_model_name == 'dpmm':
-            self.models.dpmm.plot(X, sampler= self.sampler,figsize=figsize)
+        elif self.run_model_name == "dpmm":
+            self.models.dpmm.plot(X, sampler=self.sampler, figsize=figsize)
 
-        elif self.run_model_name == 'pca':
+        elif self.run_model_name == "pca":
             self.models.pca.plot()
-
