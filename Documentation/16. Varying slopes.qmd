@@ -3,7 +3,8 @@ title: "Varying Slopes Models"
 description: "Extending mixed-effects models by allowing the relationship (slope) to vary across different groups."
 categories: [Hierarchical Models, Regression]
 image: "Figures/14.png"
-order: 17
+order: 16
+reading-time: true
 ---
 
 ## General Principles
@@ -16,7 +17,7 @@ This approach is useful when we expect the relationship between predictors and t
 ## Considerations
 
 ::: callout-note
--   We have the same considerations as for [12. Varying intercepts](13.%20Varying%20intercepts.qmd).
+-   We have the same considerations as for [Varying intercepts](15.%20Varying%20intercepts.qmd).
 
 -   The idea is pretty similar to categorical models, where a slope is specified for each category. However, here, we also estimate relationships between different groups. This leads to a different mathematical approach, as to model these relationships between groups, we model a [<span style="color:#0D6EFD">matrix of covariance 🛈</span>]{#MatCov}.
 
@@ -300,7 +301,7 @@ $$
 
 ### *Multivariate Model with One Random Slope for Each Variable*
 
-We can apply a multivariate model similarly to [Chapter 2](2.%20Multiple%20continuous%20variable.qmd). In this case, we apply the same principle, but with a covariance matrix with a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ observations in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
+We can apply a multivariate model similarly to [Chapter 2](2.%20Multiple%20continuous%20variables.qmd). In this case, we apply the same principle, but with a covariance matrix with a dimension equal to the number of varying slopes we define. For example, if we want to generate random slopes for $i$ observations in a model with two independent variables $X_1$ and $X_2$, we can define the formula as follows:
 
 $$
 Y_{i}  \sim \text{Normal}(\mu_i , \sigma) 

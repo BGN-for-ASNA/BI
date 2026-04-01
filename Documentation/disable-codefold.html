@@ -1,4 +1,16 @@
 <script>
-    // Disable Quarto code folding scripts globally
+  document.addEventListener("DOMContentLoaded", function() {
+    // Set the global if Quarto respects it
     window.quartoDisableCodeFolding = true;
-  </script>
+    
+    // Manually hide any fold buttons that might have been rendered
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .quarto-code-tools-menu, 
+      .quarto-code-collapse-toggle { 
+        display: none !important; 
+      }
+    `;
+    document.head.appendChild(style);
+  });
+</script>

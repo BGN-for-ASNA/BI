@@ -1,6 +1,6 @@
-# setup.py
-from tqdm.auto import tqdm as tqdm_auto
-import numpyro.util
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+os.environ["JAX_PLATFORM_NAME"] = "cpu"
 
 import sys
 sys.path.append("../BI")

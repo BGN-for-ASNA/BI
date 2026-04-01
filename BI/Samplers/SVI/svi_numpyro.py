@@ -3,13 +3,14 @@ from numpyro.infer import SVI, Trace_ELBO, Predictive
 import jax
 
 class SVI_BI:
-    def __init__(self, model, guide, optim, loss=Trace_ELBO(), **kwargs):
+    def __init__(self, model, guide, optim, loss=Trace_ELBO(), num_steps=1000, num_samples=1000, **kwargs):
         self.svi = SVI(model, guide, optim, loss, **kwargs)
         self.model = model
         self.guide = guide
         self.result = None
         self.num_chains = 1
-        self.num_samples = 1000
+        self.num_samples = num_samples
+        self.num_steps = num_steps
         self.thinning = 1
         self.num_warmup = 0
         self.sampler = self
@@ -17,7 +18,9 @@ class SVI_BI:
         self._kwargs = {}
         self.losses = None
 
-    def run(self, rng_key, num_steps=1000, *args, **kwargs):
+    def run(self, rng_key, num_steps=None, *args, **kwargs):
+        if num_steps is None:
+            num_steps = self.num_steps
         self.last_kwargs = kwargs
         self._args = args
         self._kwargs = kwargs
@@ -64,5 +67,5 @@ class SVI_BI:
     def get_extra_fields(self, group_by_chain=False, **kwargs):
         return {}
 
-def svi_numpyro(model, guide, optim, loss=Trace_ELBO(), **kwargs):
-    return SVI_BI(model, guide, optim, loss, **kwargs)
+def svi_numpyro(model, guide, optim, loss=Trace_ELBO(), num_steps=1000, num_samples=1000, **kwargs):
+    return SVI_BI(model, guide, optim, loss, num_steps=num_steps, num_samples=num_samples, **kwargs)
