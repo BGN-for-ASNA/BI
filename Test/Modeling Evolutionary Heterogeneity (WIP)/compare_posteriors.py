@@ -91,12 +91,31 @@ plt.tight_layout()
 plt.savefig("Model_1_Spatial_Heterogeneity/density_gamma.png")
 
 # Model 2
-fig2, axes2 = plt.subplots(1, 2, figsize=(12, 5))
-sns.kdeplot(bi_ucln_df['mu_c'], ax=axes2[0], label='BI', fill=True, color='dodgerblue')
-sns.kdeplot(beast_df['mu_c'], ax=axes2[0], label='BEAST2', fill=True, color='orange', alpha=0.5)
-sns.kdeplot(bi_ucln_df['sigma_c'], ax=axes2[1], label='BI', fill=True, color='dodgerblue')
-sns.kdeplot(beast_df['sigma_c'], ax=axes2[1], label='BEAST2', fill=True, color='orange', alpha=0.5)
-axes2[0].set_title('Mu_c (log-mean)'); axes2[1].set_title('Sigma_c (stdev)')
+fig2, axes2 = plt.subplots(2, 2, figsize=(12, 10))
+fig2.suptitle("Model 2: Temporal + Spatial Heterogeneity (UCLN+Gamma)", fontsize=14)
+
+# Kappa
+sns.kdeplot(bi_ucln_df['kappa'], ax=axes2[0, 0], label='BI', fill=True, color='dodgerblue')
+sns.kdeplot(beast_df['kappa'], ax=axes2[0, 0], label='BEAST2', fill=True, color='orange', alpha=0.5)
+axes2[0,0].set_title('Kappa')
+
+# Alpha
+sns.kdeplot(bi_ucln_df['alpha'], ax=axes2[0, 1], label='BI', fill=True, color='dodgerblue')
+sns.kdeplot(beast_df['alpha'], ax=axes2[0, 1], label='BEAST2', fill=True, color='orange', alpha=0.5)
+axes2[0,1].set_title('Alpha (Gamma Shape)')
+
+# Mu_c
+sns.kdeplot(bi_ucln_df['mu_c'], ax=axes2[1, 0], label='BI', fill=True, color='dodgerblue')
+sns.kdeplot(beast_df['mu_c'], ax=axes2[1, 0], label='BEAST2', fill=True, color='orange', alpha=0.5)
+axes2[1,0].set_title('Mu_c (UCLN log-mean)')
+
+# Sigma_c
+sns.kdeplot(bi_ucln_df['sigma_c'], ax=axes2[1, 1], label='BI', fill=True, color='dodgerblue')
+sns.kdeplot(beast_df['sigma_c'], ax=axes2[1, 1], label='BEAST2', fill=True, color='orange', alpha=0.5)
+axes2[1,1].set_title('Sigma_c (UCLN stdev)')
+
+for ax in axes2.flatten():
+    ax.legend()
 plt.tight_layout()
 plt.savefig("Model_2_Temporal_Heterogeneity/density_ucln.png")
 
