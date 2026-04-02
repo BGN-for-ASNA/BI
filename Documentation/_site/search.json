@@ -806,85 +806,85 @@
   {
     "objectID": "33. BNN.html",
     "href": "33. BNN.html",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "BNN for Regression",
     "section": "",
     "text": "To model complex, non-linear relationships between variables, we can utilize various approaches, including splines, polynomials, Gaussian processes, and neural networks. Here, we focus on the Bayesian Neural Network (BNN). Think of a neural network as a highly flexible function composed of interconnected layers of neurons 🛈. Each connection possesses a weight, and each neuron has a bias. These weights and biases act as a vast set of adjustable knobs. In a standard neural network, the goal is to find the single best setting for these knobs to map inputs to outputs. Conversely, a BNN learns distributions over its weights and biases rather than single optimal values. This allows the model to capture not only the patterns in the data but also its own uncertainty regarding those patterns.\nTo construct a BNN, we must define:\n\nA Network Architecture: This specifies the structural design—the number of layers, the number of neurons per layer 🛈, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the arrangement of our “knobs.”\nPriors for Arrays of Weights and Biases: In simple models like linear regression, we define a prior for each individual parameter (e.g., the slope \\beta). However, neural networks often contain thousands or millions of parameters, making it impractical to define a unique prior for each one. Instead, we define priors that act as templates for entire arrays of parameters. For instance, we might specify that all weights in a given layer are drawn from the same Normal(0, 1) distribution. This allows us to efficiently quantify our beliefs about the entire set of network parameters.\nAn Output Distribution (Likelihood): This defines the probability of the observed data given the network’s predictions. For continuous variables (regression), this is typically a Normal distribution with a variance term \\sigma, which quantifies the noise of the data around the model’s predictions.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks (BNN)",
+      "BNN for Regression"
     ]
   },
   {
     "objectID": "33. BNN.html#general-principles",
     "href": "33. BNN.html#general-principles",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "BNN for Regression",
     "section": "",
     "text": "To model complex, non-linear relationships between variables, we can utilize various approaches, including splines, polynomials, Gaussian processes, and neural networks. Here, we focus on the Bayesian Neural Network (BNN). Think of a neural network as a highly flexible function composed of interconnected layers of neurons 🛈. Each connection possesses a weight, and each neuron has a bias. These weights and biases act as a vast set of adjustable knobs. In a standard neural network, the goal is to find the single best setting for these knobs to map inputs to outputs. Conversely, a BNN learns distributions over its weights and biases rather than single optimal values. This allows the model to capture not only the patterns in the data but also its own uncertainty regarding those patterns.\nTo construct a BNN, we must define:\n\nA Network Architecture: This specifies the structural design—the number of layers, the number of neurons per layer 🛈, and the activation functions (e.g., ReLU, tanh) that introduce non-linearity. This defines the arrangement of our “knobs.”\nPriors for Arrays of Weights and Biases: In simple models like linear regression, we define a prior for each individual parameter (e.g., the slope \\beta). However, neural networks often contain thousands or millions of parameters, making it impractical to define a unique prior for each one. Instead, we define priors that act as templates for entire arrays of parameters. For instance, we might specify that all weights in a given layer are drawn from the same Normal(0, 1) distribution. This allows us to efficiently quantify our beliefs about the entire set of network parameters.\nAn Output Distribution (Likelihood): This defines the probability of the observed data given the network’s predictions. For continuous variables (regression), this is typically a Normal distribution with a variance term \\sigma, which quantifies the noise of the data around the model’s predictions.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks (BNN)",
+      "BNN for Regression"
     ]
   },
   {
     "objectID": "33. BNN.html#considerations",
     "href": "33. BNN.html#considerations",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "BNN for Regression",
     "section": "Considerations",
     "text": "Considerations\n\n\n\n\n\n\nCaution\n\n\n\n\nUncertainty: Like all Bayesian models, BNNs explicitly account for model parameter uncertainty 🛈. Here, the parameters are the network’s weights (W) and biases (b). We quantify uncertainty through their posterior distribution 🛈. Consequently, we must declare prior distributions 🛈 for all weights and biases, as well as for the output variance \\sigma.\nInterpretation: Unlike in a linear regression where the coefficient \\beta has a direct interpretation (e.g., the change in Y given a unit increase in X), the individual weights and biases in a BNN are not directly interpretable. A single weight’s influence is entangled with thousands of others through non-linear functions. Therefore, BNNs should be viewed as powerful predictive tools rather than explanatory ones. They excel at learning complex topologies and quantifying predictive uncertainty, but if the goal is to isolate the effect of a specific variable, a simpler model is often more appropriate.\nPrior distributions: are built following these considerations:\n\nAs the data is typically scaled 🛈 (see introduction), we can use a standard Normal distribution (mean 0, standard deviation 1) as a weakly-informative prior for all weights and biases. This acts as a form of regularization.\nSince the output variance \\sigma must be positive, we can use a positively-defined distribution, such as the Exponential or Half-Normal.\n\nBNNs can be used for both regression and classification. The final layer’s activation and the chosen likelihood distribution depend on the task. For binary classification, a sigmoid activation is paired with a Bernoulli likelihood, which requires a link function 🛈 (logit) to connect the linear output of the network to the probability space [0, 1]. For regression, the identity activation is often used with a Gaussian likelihood.\nComputational Scalability: Strictly applying Bayes’ theorem to update the posterior distribution becomes computationally intractable for very large neural networks. Calculating the model evidence (the denominator in Bayes’ rule) requires integrating over a parameter space that may contain millions of dimensions. Furthermore, the posterior landscape in deep networks is often highly non-convex and multimodal. Consequently, sampling algorithms (such as MCMC) may suffer from poor mixing or become “stuck” in local modes, failing to explore the full posterior. In such high-dimensional scenarios, practitioners often must rely on approximate methods, such as Variational Inference 🛈 or Stochastic Gradient MCMC 🛈, to ensure convergence.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks (BNN)",
+      "BNN for Regression"
     ]
   },
   {
     "objectID": "33. BNN.html#example",
     "href": "33. BNN.html#example",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "BNN for Regression",
     "section": "Example",
-    "text": "Example\nBelow is an example code snippet demonstrating a Bayesian Neural Network for regression using the Bayesian Inference (BI) package. Simulated data consist of two continuous variables (Y and X), and the goal is to predict X from Y using a non-linear model.\n\nPythonR\n\n\n\n\nCode\nfrom BI import bi\nimport json\nimport jax.numpy as jnp\nimport matplotlib.pyplot as plt\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Import Data & Data Manipulation ------------------------------------------------\n\nwith open('BNN.json', 'r', encoding='utf-8') as file:\n    # Load the JSON data into a Python dictionary\n    data = json.load(file)\n# X is already scaled\nX = jnp.array(data['X']) # Note X shape = (N,2) where first column is the intercept and second column is the predictor\nY = jnp.array(data['Y']) # Note Y shape = (N,1) where N is the number of observations\n\nm.data_on_model = dict(X = X, Y = Y)\n# Define model ------------------------------------------------\ndef model(X, Y,  D_H=5, D_Y=1):  \n    N, D_X = X.shape\n    \n    # First hidden layer: Transforms input to N × D_H (hidden units)\n    w1 = m.bnn.layer_linear(\n        X, \n        dist=m.dist.normal(\n            0, 1,  name='w1',shape=(D_X,D_H)\n            ),\n        activation='tanh'\n        )\n\n    # sample final layer of weights and neural network output\n    # Final layer (z3) computes linear combination of second hidden layer\n    w2 = m.bnn.layer_linear(\n        X=w1, \n        dist=m.dist.normal(0, 1,  name='w2',shape=(D_H,D_Y))\n        )\n\n    sigma = m.dist.exponential(1, name='sigma')\n\n    m.dist.normal(w2, sigma, obs=Y,name='Y')\n\n# Run mcmc ------------------------------------------------\nm.fit(model, progress_bar=False)   # Approximate posterior distributions for weights, biases, and sigma\n\n# Predictions from the model ------------------------------------------------\npred = m.sample(samples = 500)['Y']\npred = pred[..., 0]\nmean_prediction = jnp.mean(pred, axis=0)\npercentiles = jnp.percentile(pred, jnp.array([5.0, 95.0]), axis=0)\n# make plots\nfig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)\n# plot training data\nax.plot(X[:, 1], Y[:, 0], \"kx\")\n# plot 90% confidence level of predictions\nax.fill_between(\n    X[:, 1], percentiles[0, :], percentiles[1, :], color=\"lightblue\"\n)\n# plot mean prediction\nax.plot(X[:, 1], mean_prediction, \"blue\", ls=\"solid\", lw=2.0)\nax.set(xlabel=\"X\", ylabel=\"Y\", title=\"Mean predictions with 90% CI\")\n\n\njax.local_device_count 32\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n\n\n/home/sosa/work/BI/BI/Main/main.py:559: UserWarning:\n\nSample's batch dimension size 4000 is different from the provided 500 num_samples argument. Defaulting to 4000.\n\n\n\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n\n\n[Text(0.5, 0, 'X'),\n Text(0, 0.5, 'Y'),\n Text(0.5, 1.0, 'Mean predictions with 90% CI')]\n\n\n\n\n\n\n\n\n\n\n\nlibrary(BayesianInference)\nm=importBI(platform='cpu')\n\n# Load csv file\n# Import data ------------------------------------------------\npath = normalizePath(paste(system.file(package = \"BayesianInference\"),\"/data/BNN.json\", sep = ''))\ndata &lt;- fromJSON(path)\nm$data_on_model = list()\nm$data_on_model$X = jnp$array(data$X)\nm$data_on_model$Y = jnp$array(data$Y)\n\n# Define model ------------------------------------------------\nmodel &lt;- function(X, Y, D_X = 2, D_H=5L, D_Y=1L){\n\n  w1 &lt;- m$bnn$layer_linear(X, dist=bi.dist.normal(0, 1,  name='w1',shape=c(D_X,D_H)), activation='tanh')\n  \n  w2 &lt;- m$bnn$layer_linear(\n    w1, \n    dist=bi.dist.normal(0, 1,  name='w2',shape=c(D_H,D_Y)),\n    activation='tanh'\n  )\n  \n  # Prior for the output standard deviation\n  s = bi.dist.exponential(1, name = 's')\n  \n  # Likelihood\n  bi.dist.normal(w2, s, obs = Y)\n}\n\n# Run mcmc ------------------------------------------------\nm$fit(model) # Approximate posterior distributions",
+    "text": "Example\nBelow is an example code snippet demonstrating a Bayesian Neural Network for regression using the Bayesian Inference (BI) package. Simulated data consist of two continuous variables (Y and X), and the goal is to predict X from Y using a non-linear model.\n\nPythonR\n\n\n\n\nCode\nfrom BI import bi\nimport json\nimport jax.numpy as jnp\nimport matplotlib.pyplot as plt\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Import Data & Data Manipulation ------------------------------------------------\n\nwith open('BNN.json', 'r', encoding='utf-8') as file:\n    # Load the JSON data into a Python dictionary\n    data = json.load(file)\n# X is already scaled\nX = jnp.array(data['X']) # Note X shape = (N,2) where first column is the intercept and second column is the predictor\nY = jnp.array(data['Y']) # Note Y shape = (N,1) where N is the number of observations\n\nm.data_on_model = dict(X = X, Y = Y)\n# Define model ------------------------------------------------\ndef model(X, Y,  D_H=5, D_Y=1):  \n    N, D_X = X.shape\n    \n    # First hidden layer: Transforms input to N × D_H (hidden units)\n    w1 = m.bnn.layer_linear(\n        X, \n        dist=m.dist.normal(\n            0, 1,  name='w1',shape=(D_X,D_H)\n            ),\n        activation='tanh'\n        )\n\n    # sample final layer of weights and neural network output\n    # Final layer (z3) computes linear combination of second hidden layer\n    w2 = m.bnn.layer_linear(\n        X=w1, \n        dist=m.dist.normal(0, 1,  name='w2',shape=(D_H,D_Y))\n        )\n\n    sigma = m.dist.exponential(1, name='sigma')\n\n    m.dist.normal(w2, sigma, obs=Y,name='Y')\n\n# Run mcmc ------------------------------------------------\nm.fit(model, progress_bar=False)   # Approximate posterior distributions for weights, biases, and sigma\n\n# Predictions from the model ------------------------------------------------\npred = m.sample(samples = 500)['Y']\npred = pred[..., 0]\nmean_prediction = jnp.mean(pred, axis=0)\npercentiles = jnp.percentile(pred, jnp.array([5.0, 95.0]), axis=0)\n# make plots\nfig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)\n# plot training data\nax.plot(X[:, 1], Y[:, 0], \"kx\")\n# plot 90% confidence level of predictions\nax.fill_between(\n    X[:, 1], percentiles[0, :], percentiles[1, :], color=\"lightblue\"\n)\n# plot mean prediction\nax.plot(X[:, 1], mean_prediction, \"blue\", ls=\"solid\", lw=2.0)\nax.set(xlabel=\"X\", ylabel=\"Y\", title=\"Mean predictions with 90% CI\")\n\n\nE0402 09:12:16.287133  545492 cuda_dnn.cc:523] Loaded runtime CuDNN library: 9.1.0 but source was compiled with: 9.8.0.  CuDNN library needs to have matching major version and equal or higher minor version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.\nE0402 09:12:16.288982  545492 cuda_dnn.cc:523] Loaded runtime CuDNN library: 9.1.0 but source was compiled with: 9.8.0.  CuDNN library needs to have matching major version and equal or higher minor version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.\n\n\njax.local_device_count 32\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n\n\n/home/sosa/work/BI/BI/Main/main.py:559: UserWarning:\n\nSample's batch dimension size 4000 is different from the provided 500 num_samples argument. Defaulting to 4000.\n\n\n\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n\n\n[Text(0.5, 0, 'X'),\n Text(0, 0.5, 'Y'),\n Text(0.5, 1.0, 'Mean predictions with 90% CI')]\n\n\n\n\n\n\n\n\n\n\n\nlibrary(BayesianInference)\nm=importBI(platform='cpu')\n\n# Load csv file\n# Import data ------------------------------------------------\npath = normalizePath(paste(system.file(package = \"BayesianInference\"),\"/data/BNN.json\", sep = ''))\ndata &lt;- fromJSON(path)\nm$data_on_model = list()\nm$data_on_model$X = jnp$array(data$X)\nm$data_on_model$Y = jnp$array(data$Y)\n\n# Define model ------------------------------------------------\nmodel &lt;- function(X, Y, D_X = 2, D_H=5L, D_Y=1L){\n\n  w1 &lt;- m$bnn$layer_linear(X, dist=bi.dist.normal(0, 1,  name='w1',shape=c(D_X,D_H)), activation='tanh')\n  \n  w2 &lt;- m$bnn$layer_linear(\n    w1, \n    dist=bi.dist.normal(0, 1,  name='w2',shape=c(D_H,D_Y)),\n    activation='tanh'\n  )\n  \n  # Prior for the output standard deviation\n  s = bi.dist.exponential(1, name = 's')\n  \n  # Likelihood\n  bi.dist.normal(w2, s, obs = Y)\n}\n\n# Run mcmc ------------------------------------------------\nm$fit(model) # Approximate posterior distributions",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks (BNN)",
+      "BNN for Regression"
     ]
   },
   {
     "objectID": "33. BNN.html#mathematical-details",
     "href": "33. BNN.html#mathematical-details",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "BNN for Regression",
     "section": "Mathematical Details",
     "text": "Mathematical Details\nIn the Bayesian formulation, we place priors 🛈 on all weights and biases and define a likelihood for the output. For a regression task with a K-hidden-layer BNN with J neurons per hidden layer and a D_X-vector of predictors and a D_Y-vector of outcomes we can run the model as below. For simplicity we consider a single hidden layer (as in the code example) with a hyperbolic tangent (\\tanh) activation function 🛈, mapped to a linear output layer. Because the input matrix X incorporates the intercept as its first column, the bias term is implicitly included in the layer’s weights:\n\n\\begin{aligned}\nY_i &\\sim \\text{Normal}(\\mu_i, \\sigma) \\\\\nH_i & = \\tanh(X_i W_1) \\\\\n\\mu_i & = H_i W_2 \\\\\nW_1 & \\sim \\text{Normal}(0, 1) \\\\\nW_2 & \\sim \\text{Normal}(0, 1) \\\\\n\\sigma & \\sim \\text{Exponential}(1) \\\\\n\\end{aligned}\n\nwhere:\n\nY_i is the observed outcome for the i-th observation.\n\\mu_i is the predicted mean output of the neural network for the i-th observation.\n\\sigma is the observation noise standard deviation.\nX_i is the input row vector for the i-th observation, containing the intercept and the predictor variable. It has length D_X = 2.\nH_i is the hidden layer representation vector for the i-th observation. It has length D_H = 5.\nW_1 is the weight matrix of the first hidden layer, with a shape of D_X \\times D_H (i.e., 2 \\times 5).\nW_2 is the final layer weight matrix used to compute the linear combination of the hidden layer, with a shape of D_H \\times D_Y (i.e., 5 \\times 1).\nAll elements within the weight matrices W_1 and W_2 are assigned independent standard Normal priors.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks (BNN)",
+      "BNN for Regression"
     ]
   },
   {
     "objectID": "33. BNN.html#notes",
     "href": "33. BNN.html#notes",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "BNN for Regression",
     "section": "Notes",
     "text": "Notes\n\n\n\n\n\n\nNote\n\n\n\n\nThe primary difference between a Frequentist and Bayesian neural network lies in how parameters are treated. In the frequentist approach, weights and biases are point estimates found by minimizing a loss function (e.g., via gradient descent). Techniques like Dropout 🛈or L2 regularization 🛈 are often used to prevent overfitting 🛈, which can be interpreted as approximations to a Bayesian treatment. In contrast, the Bayesian formulation does not seek a single best set of weights. Instead, it uses methods like MCMC or Variational Inference to approximate the entire posterior distribution for every weight and bias. This provides a principled and direct way to quantify model uncertainty.\nWhile present an example of non-linear regression, the Bayesian Neural Network can be used for linear regressions as well (keeping in mind that interpretation of the weights are impossible).",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks (BNN)",
+      "BNN for Regression"
     ]
   },
   {
     "objectID": "33. BNN.html#references",
     "href": "33. BNN.html#references",
-    "title": "Bayesian Neural Networks (BNN)",
+    "title": "BNN for Regression",
     "section": "Reference(s)",
     "text": "Reference(s)\nPhan, Pradhan, and Jankowiak (2019) Bayesian Neural Networks Bayesian Neural Networks Numpyro Bayesian Neural Networks with Pyro",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
-      "Bayesian Neural Networks (BNN)"
+      "Bayesian Neural Networks (BNN)",
+      "BNN for Regression"
     ]
   },
   {
@@ -2297,7 +2297,7 @@
     "text": "Building upon the Binary Classification BNN, the BNN Multiclass Classification model can handle dependent variables with K &gt; 2 discrete categories.\nInstead of the final layer returning a single output, the final layer in a multiclass BNN returns a K-dimensional vector of scores (logits) for each observation. To transform these continuous scores into valid probabilities that sum to 1 across all K classes, we apply the softmax activation function. Finally, the categorized predictions are evaluated using a Categorical likelihood.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Multiclass Classification"
     ]
   },
@@ -2309,7 +2309,7 @@
     "text": "Building upon the Binary Classification BNN, the BNN Multiclass Classification model can handle dependent variables with K &gt; 2 discrete categories.\nInstead of the final layer returning a single output, the final layer in a multiclass BNN returns a K-dimensional vector of scores (logits) for each observation. To transform these continuous scores into valid probabilities that sum to 1 across all K classes, we apply the softmax activation function. Finally, the categorized predictions are evaluated using a Categorical likelihood.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Multiclass Classification"
     ]
   },
@@ -2321,7 +2321,7 @@
     "text": "Considerations\n\n\n\n\n\n\nNote\n\n\n\n\nOutput Layer Dimensions: While binary classification network predictions can be compressed to a single output logit per observation, multiclass networks MUST output exactly K dimensions in their final layer, matching the number of target classes.\nThe Softmax Simplex: Applying the softmax function across the final layer’s logits guarantees that the resulting outputs form a probability simplex 🛈. This is biologically similar to independent Poisson rates strictly normalizing to fixed categorical ratios.\nLikelihood Function: After calculating the probabilities with softmax, we use a Categorical distribution as the final likelihood, matching the integer index of the observed category.\nImproved Calibration: Multiclass BNNs greatly reduce out-of-distribution overconfidence. Standard deep learning cross-entropy models will often assign &gt;99% probability to an unseen class purely due to the exponential nature of softmax. In a BNN, exploring the posterior width of the parameters yields “flat” unconfident probability profiles over K classes when the input is outside the training distribution.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Multiclass Classification"
     ]
   },
@@ -2333,7 +2333,7 @@
     "text": "Example\nBelow is an example code snippet demonstrating a Bayesian Neural Network for multiclass classification using the Bayesian Inference (BI) package. This example generates a synthetic K=3 cluster dataset.\n\nPythonJulia\n\n\n\n\nCode\nfrom BI import bi\nimport jax.numpy as jnp\nimport jax\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Generate Synthetic Data ------------------------------------\n# 3 classes based on a random normal distribution split\nkey = jax.random.PRNGKey(42)\nX = jax.random.normal(key, (300, 2))\n# Rule: Q1=Class 0, Q2/Q3=Class 1, Q4=Class 2\nY = jnp.where(X[:, 0] &gt; 0, jnp.where(X[:, 1] &gt; 0, 0, 1), 2)\n\nm.data_on_model = dict(X=X, Y=Y)\n\n# Define model ------------------------------------------------\ndef model(X, Y, D_H1=5, K=3):\n    N, D_X = X.shape\n    \n    # First hidden layer: 2 input features -&gt; 5 hidden units\n    w1 = m.bnn.layer_linear(\n        X, \n        dist=m.dist.normal(0, 1, name='w1_weight', shape=(D_X, D_H1)),\n        activation='tanh'\n    )\n    \n    # Final output layer: 5 hidden units -&gt; K output units\n    # Note: No activation is applied automatically inside the layer function here\n    w2 = m.bnn.layer_linear(\n        w1,\n        dist=m.dist.normal(0, 1, name='w2_weight', shape=(D_H1, K))\n    )\n    \n    # Apply Softmax across the K dimension (axis=-1) to yield probabilities\n    p = jax.nn.softmax(w2, axis=-1)\n    \n    # Categorical Likelihood matching indices in Y\n    m.dist.categorical(probs=p, obs=Y)\n\n# Run mcmc ------------------------------------------------\nm.fit(model) # Approximate posterior distributions\n\n# Predictions from the model ------------------------------------------------\nimport matplotlib.pyplot as plt\n\n# Create a grid to evaluate the model\nn_grid = 50\nx0 = jnp.linspace(X[:, 0].min() - 0.5, X[:, 0].max() + 0.5, n_grid)\nx1 = jnp.linspace(X[:, 1].min() - 0.5, X[:, 1].max() + 0.5, n_grid)\nxx0, xx1 = jnp.meshgrid(x0, x1)\nX_grid = jnp.c_[xx0.ravel(), xx1.ravel()]\n\n# Swap data on model temporarily to predict on the grid\nm.data_on_model = dict(X=X_grid, Y=jnp.zeros(X_grid.shape[0], dtype=jnp.int32))\npred = m.sample(data = m.data_on_model)['x']\np_mean = jnp.mean(pred, axis=0)\n\n# Plotting the posterior predictive mean (categorical blending)\nfig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)\ncontour = ax.contourf(xx0, xx1, p_mean.reshape(n_grid, n_grid), cmap=\"viridis\", alpha=0.6)\nscatter = ax.scatter(X[:, 0], X[:, 1], c=Y, cmap=\"viridis\", edgecolors='k')\nax.set(title=\"Posterior Predictive Mean\", xlabel=\"Feature 1\", ylabel=\"Feature 2\")\nfig.colorbar(contour, ax=ax)\n\n\njax.local_device_count 32\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n\n\n/home/sosa/work/BI/BI/Main/main.py:559: UserWarning:\n\nSample's batch dimension size 4000 is different from the provided 1 num_samples argument. Defaulting to 4000.\n\n\n\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n\n\n\n\n\n\n\n\n\n\n\nusing BayesianInference\nusing PythonCall\n\n# Setup device------------------------------------------------\nm = importBI(platform=\"cpu\")\n\n# Generate Synthetic Data ------------------------------------\nnp = pyimport(\"numpy\")\njax_random = pyimport(\"jax.random\")\njnp = pyimport(\"jax.numpy\")\n\nkey = jax_random.PRNGKey(42)\nX = jax_random.normal(key, (300, 2))\n\n# Simple rule to partition into K=3 classes\nY = jnp.where(X[:, 0] &gt; 0, jnp.where(X[:, 1] &gt; 0, 0, 1), 2)\n\nm.data_on_model[\"X\"] = X\nm.data_on_model[\"Y\"] = Y\n\n# Define model ------------------------------------------------\n@BI function model(X, Y)\n    N, D_X = size(X)\n    D_H1 = 5\n    K = 3\n    \n    # First hidden layer\n    w1 = m.bnn.layer_linear(\n        X, \n        dist=m.dist.normal(0, 1, name=\"w1_weight\", shape=(D_X, D_H1)),\n        activation=\"tanh\"\n    )\n    \n    # Final output layer \n    w2 = m.bnn.layer_linear(\n        w1,\n        dist=m.dist.normal(0, 1, name=\"w2_weight\", shape=(D_H1, K))\n    )\n    \n    # Softmax conversion to probability simplex\n    p = jax.nn.softmax(w2, axis=-1)\n    \n    # Categorical Likelihood\n    m.dist.categorical(probs=p, obs=Y)\nend\n\n# Run mcmc ------------------------------------------------\nm.fit(model, num_samples=500, progress_bar=false)",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Multiclass Classification"
     ]
   },
@@ -2345,7 +2345,7 @@
     "text": "Mathematical Details\n\nBayesian Formulation\nFor a multiclass classification task spanning N observations and K mutually exclusive classes, we model the probability vector \\theta_i that the response Y_i \\in \\{0, 1, ..., K-1\\} falls into each respective class.\nUsing a single hidden layer with a hyperbolic tangent (\\tanh) activation function, the model is structured as:\n\n\\begin{aligned}\nY_i &\\sim \\text{Categorical}(\\theta_i) \\\\\n\\theta_i & = \\text{Softmax}(\\phi_i) \\\\\n\\phi_i & = H_i \\Theta_2 \\\\\nH_i & = \\tanh(X_i \\Theta_1) \\\\\n\\Theta_1 & \\sim \\text{Normal}(0, 1) \\\\\n\\Theta_2 & \\sim \\text{Normal}(0, 1) \\\\\n\\end{aligned}\n\nwhere:\n\nY_i is the observed class index for the i-th observation (Y_i \\in \\{0, 1, ..., K-1\\}).\n\\theta_i is the predicted probability vector for the i-th observation.\n\\phi_i are the K-dimensional logits.\nX_i is the input row vector for the i-th observation, with features length D_X = 2.\nH_i is the hidden layer representation vector for the i-th observation. It has length D_H = 5.\n\\Theta_1 is the weight matrix of the first hidden layer (2 \\times 5).\n\\Theta_2 is the final layer weight matrix mapping the hidden features to the logits for the K=3 classes (5 \\times 3).\nAll elements within the weight matrices \\Theta_1 and \\Theta_2 are assigned independent standard Normal priors.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Multiclass Classification"
     ]
   },
@@ -2357,7 +2357,7 @@
     "text": "Notes\n\n\n\n\n\n\nNote\n\n\n\n\nFor large outputs where K &gt; 100, computing the exact softmax normalization scalar (the denominator term combining all exponentiated logits) can become computationally expensive over thousands of MCMC posterior evaluations.\nNeural networks configured with a standard Cross-Entropy loss mapping to one-hot vectors conceptually perform exactly this sequence: dot product of final weights \\rightarrow Softmax \\rightarrow Categorical Likelihood.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Multiclass Classification"
     ]
   },
@@ -2369,7 +2369,7 @@
     "text": "Reference(s)\n\nPyData Berlin 2025: Introduction to Stochastic Variational Inference with NumPyro",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Multiclass Classification"
     ]
   },
@@ -3319,7 +3319,7 @@
     "text": "To model complex, non-linear boundaries between classes, we can extend the Bayesian Neural Network (BNN) architecture to classification tasks. While a regression BNN outputs a continuous value modeled with a Normal likelihood, a classification BNN outputs probabilities.\nFor binary classification, the final layer of the network condenses the hidden representations into a single output score. This score is then passed through a sigmoid activation (or used directly as the logits parameter) to map it to a probability between 0 and 1. We then use a Bernoulli or Binomial distribution to model the likelihood of the observed binary outcomes.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Classification"
     ]
   },
@@ -3331,7 +3331,7 @@
     "text": "To model complex, non-linear boundaries between classes, we can extend the Bayesian Neural Network (BNN) architecture to classification tasks. While a regression BNN outputs a continuous value modeled with a Normal likelihood, a classification BNN outputs probabilities.\nFor binary classification, the final layer of the network condenses the hidden representations into a single output score. This score is then passed through a sigmoid activation (or used directly as the logits parameter) to map it to a probability between 0 and 1. We then use a Bernoulli or Binomial distribution to model the likelihood of the observed binary outcomes.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Classification"
     ]
   },
@@ -3343,7 +3343,7 @@
     "text": "Considerations\n\n\n\n\n\n\nNote\n\n\n\n\nUncertainty in Classification: In standard neural networks, softmax or sigmoid outputs are often overconfident. By using a BNN, we obtain a posterior predictive distribution that reflects true uncertainty, leading to better-calibrated probabilities. Areas with little training data will appropriately show high uncertainty rather than confident misclassifications.\nActivation and Likelihood: For binary classification, we pair the linear output of the network’s final layer with a Binomial or Bernoulli likelihood. The final linear output acts as the logit input to the likelihood function, effectively applying a link function 🛈 to constrain outputs to [0, 1].\nPrior distributions: Similar to regression BNNs, we apply weakly-informative priors (like Normal(0, 1)) to the weights of each layer.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Classification"
     ]
   },
@@ -3355,7 +3355,7 @@
     "text": "Example\nBelow is an example code snippet demonstrating a Bayesian Neural Network for classification using the Bayesian Inference (BI) package. This example is inspired by stochastic variational inference tutorials and uses a synthetic nested moons dataset (typically generated via make_moons).\n\nPythonJulia\n\n\n\n\nCode\nfrom BI import bi\nimport jax.numpy as jnp\nfrom sklearn.datasets import make_moons\n\n# Setup device------------------------------------------------\nm = bi(platform='cpu')\n\n# Generate Synthetic Data ------------------------------------\n# Two interleaving half-moon shapes\nX, Y = make_moons(n_samples=500, noise=0.25, random_state=42)\n\n# Convert to JAX arrays\nX = jnp.array(X) \nY = jnp.array(Y) \n\nm.data_on_model = dict(X=X, Y=Y)\n\n# Define model ------------------------------------------------\ndef model(X, Y, D_H1=4, D_H2=3):  \n    N, D_X = X.shape\n    \n    # First hidden layer: 2 input features -&gt; 4 hidden units\n    w1 = m.bnn.layer_linear(\n        X, \n        dist=m.dist.normal(0, 1, name='w1', shape=(D_X, D_H1)),\n        activation='tanh'\n    )\n\n    # Second hidden layer: 4 hidden units -&gt; 3 hidden units\n    w2 = m.bnn.layer_linear(\n        X=w1, \n        dist=m.dist.normal(0, 1, name='w2', shape=(D_H1, D_H2)),\n        activation='tanh'\n    )\n\n    # Final output layer: 3 hidden units -&gt; 1 output\n    w3 = m.bnn.layer_linear(\n        X=w2, \n        dist=m.dist.normal(0, 1, name='w3', shape=(D_H2, 1))\n    )\n    \n    # Squeeze the final output to match Y's shape of (N,)\n    logits = w3.squeeze(-1)\n    \n    # Likelihood mapping the logits to binary outcomes\n    m.dist.binomial(total_count=1, logits=logits, obs=Y, name='Y')\n\n# Run mcmc ------------------------------------------------\nm.fit(model, progress_bar=False) # Approximate posterior distributions\n\n# Predictions from the model ------------------------------------------------\nimport matplotlib.pyplot as plt\n\n# Create a grid to evaluate the model\nn_grid = 50\nx0 = jnp.linspace(X[:, 0].min() - 0.5, X[:, 0].max() + 0.5, n_grid)\nx1 = jnp.linspace(X[:, 1].min() - 0.5, X[:, 1].max() + 0.5, n_grid)\nxx0, xx1 = jnp.meshgrid(x0, x1)\nX_grid = jnp.c_[xx0.ravel(), xx1.ravel()]\n\n# Swap data on model temporarily to predict on the grid\nm.data_on_model = dict(X=X_grid, Y=jnp.zeros(X_grid.shape[0]))\npred = m.sample(samples=500)['Y']\np_mean = jnp.mean(pred, axis=0)\n\n# Plotting the posterior predictive mean\nfig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)\ncontour = ax.contourf(xx0, xx1, p_mean.reshape(n_grid, n_grid), cmap=\"coolwarm\", alpha=0.6)\nscatter = ax.scatter(X[:, 0], X[:, 1], c=Y, cmap=\"coolwarm\", edgecolors='k')\nax.set(title=\"Posterior Predictive Mean\", xlabel=\"Feature 1\", ylabel=\"Feature 2\")\nfig.colorbar(contour, ax=ax)\n\n\njax.local_device_count 32\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n\n\n/home/sosa/work/BI/BI/Main/main.py:559: UserWarning:\n\nSample's batch dimension size 4000 is different from the provided 500 num_samples argument. Defaulting to 4000.\n\n\n\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n⚠️This function is still in development. Use it with caution. ⚠️\n\n\n\n\n\n\n\n\n\n\n\nusing BayesianInference\nusing PyCall\n\n# Setup device------------------------------------------------\nm = importBI(platform=\"cpu\")\n\n# Generate Synthetic Data using Python's scikit-learn ---------\nsk_datasets = pyimport(\"sklearn.datasets\")\nX = sk_datasets.make_moons(n_samples=500, noise=0.25, random_state=42)[1]\nY = sk_datasets.make_moons(n_samples=500, noise=0.25, random_state=42)[2]\n\nm.data_on_model[\"X\"] = X\nm.data_on_model[\"Y\"] = Y\n\n# Define model ------------------------------------------------\n@BI function model(X, Y)\n    N, D_X = size(X)\n    D_H1 = 4\n    D_H2 = 3\n    \n    # First hidden layer\n    w1 = m.bnn.layer_linear(\n        X, \n        dist=m.dist.normal(0, 1, name=\"w1\", shape=(D_X, D_H1)),\n        activation=\"tanh\"\n    )\n\n    # Second hidden layer\n    w2 = m.bnn.layer_linear(\n        w1, \n        dist=m.dist.normal(0, 1, name=\"w2\", shape=(D_H1, D_H2)),\n        activation=\"tanh\"\n    )\n\n    # Final output layer\n    w3 = m.bnn.layer_linear(\n        w2, \n        dist=m.dist.normal(0, 1, name=\"w3\", shape=(D_H2, 1))\n    )\n    \n    # Extract logits\n    logits = w3[:, 1]\n    \n    # Likelihood mapping the logits to binary outcomes\n    m.dist.binomial(total_count=1, logits=logits, obs=Y, name=\"Y\")\nend\n\n# Run mcmc ------------------------------------------------\nm.fit(model, num_samples=500, progress_bar=false)",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Classification"
     ]
   },
@@ -3367,7 +3367,7 @@
     "text": "Mathematical Details\nIn the Bayesian formulation, we place priors 🛈 on all weights and biases and define a likelihood for the output. For a classification task with a K-hidden-layer BNN with J neurons per hidden layer and a D_X-vector of predictors we can run the model as below. For the code example, we consider two hidden layers with a hyperbolic tangent (\\tanh) activation function 🛈, mapped to a logit output. Because the input matrix X incorporates the intercept as its first column, the bias term is implicitly included in the layer’s weights:\n\n\\begin{aligned}\nY_i &\\sim \\text{Binomial}(1, p_i) \\\\\n\\text{logit}(p_i) & = H_{i,2} W_3 \\\\\nH_{i,2} & = \\tanh(H_{i,1} W_2) \\\\\nH_{i,1} & = \\tanh(X_i W_1) \\\\\nW_1 & \\sim \\text{Normal}(0, 1) \\\\\nW_2 & \\sim \\text{Normal}(0, 1) \\\\\nW_3 & \\sim \\text{Normal}(0, 1) \\\\\n\\end{aligned}\n\nwhere:\n\nY_i is the observed binary outcome for the i-th observation.\np_i is the predicted probability of the outcome being 1 for the i-th observation.\nX_i is the input row vector for the i-th observation, containing the intercept and the predictor variables. It has length D_X = 2.\nH_{i,1} is the first hidden layer representation vector for the i-th observation. It has length D_{H1} = 4.\nH_{i,2} is the second hidden layer representation vector for the i-th observation. It has length D_{H2} = 3.\nW_1 is the weight matrix of the first hidden layer, with a shape of D_X \\times D_{H1} (i.e., 2 \\times 4).\nW_2 is the weight matrix of the second hidden layer, with a shape of D_{H1} \\times D_{H2} (i.e., 4 \\times 3).\nW_3 is the final layer weight matrix used to compute the logits, with a shape of D_{H2} \\times 1 (i.e., 3 \\times 1).\nAll elements within the weight matrices W_1, W_2, and W_3 are assigned independent standard Normal priors.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Classification"
     ]
   },
@@ -3379,7 +3379,7 @@
     "text": "Notes\n\n\n\n\n\n\nNote\n\n\n\n\nUsing m.dist.binomial(total_count=1) alongside logit inputs is equivalent to specifying a standard binary cross-entropy loss with a sigmoid activation function in deep learning frameworks.\nThe tutorial uses Stochastic Variational Inference (SVI) since exact MCMC approaches struggle with high-dimensional highly-correlated posterior spaces typical to neural networks. If you find MCMC chains not mixing during m.fit(), consider switching to an SVI backend or modifying priors to enforce further regularization.",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Classification"
     ]
   },
@@ -3391,7 +3391,7 @@
     "text": "Reference(s)\n\nPyData Berlin 2025: Introduction to Stochastic Variational Inference with NumPyro\nVariational Inference: Bayesian Neural Networks",
     "crumbs": [
       "Models",
-      "Behavioral & Neural",
+      "Bayesian Neural Networks (BNN)",
       "BNN for Classification"
     ]
   }

@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # Model 2
     generate_xtx("BI_vs_BEAST_comparison.csv", 
                  "Model_2_Temporal_Heterogeneity", 
-                 ['mu_c', 'sigma_c'], 
+                 ['kappa', 'alpha', 'mu_c', 'sigma_c'], 
                  "Temporal Heterogeneity (UCLN Revised)",
                  "density_ucln.png")
     
