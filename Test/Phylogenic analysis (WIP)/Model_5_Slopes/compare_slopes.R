@@ -62,7 +62,7 @@ if (file.exists("bi_post_slopes.csv")) {
   print(comparison)
   write.csv(comparison, "comparison_slopes.csv", row.names = FALSE)
 
-  cat("\n--- MODEL 6 COMPARISON ---\n", file = "log.txt", append = TRUE)
+  cat("\n--- MODEL 5 COMPARISON ---\n", file = "log.txt", append = TRUE)
   write.table(comparison, file = "log.txt", append = TRUE, row.names = FALSE, sep = "\t", quote = FALSE)
 
   # 3. Density Plots

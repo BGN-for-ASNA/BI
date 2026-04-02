@@ -42,7 +42,7 @@ def model(y, x, phylo_idx, A_cholesky):
 
     # Residual error
     sigma = m.dist.left_truncated_distribution(
-        m.dist.student_t(3, 0, 5.2, create_obj=True), low=0.0, name="sigma"
+        m.dist.student_t(3, 0, 2.5, create_obj=True), low=0.0, name="sigma"
     )
 
     # Group-level parameters
@@ -79,7 +79,7 @@ def model(y, x, phylo_idx, A_cholesky):
 
 # Fit model
 print("Fitting BI Model 6 (Varying Slopes)...")
-m.fit(model, num_samples=2000, num_warmup=2000, num_chains=2)
+m.fit(model, num_samples=3000, num_warmup=3000, num_chains=2)
 
 # Summary
 print(m.summary())
