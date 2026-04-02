@@ -2,7 +2,7 @@ library(ape)
 library(MASS)
 
 set.seed(1234)
-N_species <- 50
+N_species <- 100
 
 # 1. Simulate Tree
 tree <- rcoal(N_species)
