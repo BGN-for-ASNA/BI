@@ -1,0 +1,594 @@
+---
+title: "Hierarchical Models of Sequence Evolution: Spatial and Temporal Heterogeneity in Bayesian Inference"
+description: "Algorithmic and mathematical foundations of Bayesian phylogenetic inference, covering Felsenstein's pruning algorithm, relaxed molecular clocks, generative tree priors, and MCMC operators—with native BI implementations."
+categories: [Phylogenetics, MCMC, Bayesian Inference, Sequence Evolution]
+order: 99
+reading-time: true
+---
+
+
+## General Principles
+
+Bayesian phylogenetic inference constitutes one of the most computationally demanding applications of hierarchical probabilistic modeling. Unlike sequential workflows—where a tree topology is first estimated and subsequently dated—a fully Bayesian framework simultaneously estimates the tree topology ($\mathcal{T}$), the vector of node heights or divergence times ($\mathbf{t}$), the substitution and molecular clock parameters ($\theta$), and the hyperparameters of the tree-generative process ($\phi$). This joint treatment is the epistemological cornerstone of modern phylogenetic Bayesian analysis (as exemplified by software such as BEAST [@drummond2012bayesian]) and naturally propagates uncertainty across all inferred quantities.
+
+The framework integrates three principal generative model components:
+
+1.  **The Phylogenetic Likelihood Engine:** evaluates the probability of observed molecular sequences given a tree and an evolutionary rate model, using Felsenstein's Pruning Algorithm on a Continuous-Time Markov Chain (CTMC) parameterized by an instantaneous substitution rate matrix $\mathbf{Q}$.
+
+2.  **Generative Tree Priors:** rather than uninformative uniform priors on branch lengths, explicitly model the biological process that generated the clade—either a **Birth-Death process** for macroevolutionary species-level trees, or **Kingman's Coalescent** for population-level or epidemiological phylodynamic analyses.
+
+3.  **MCMC Proposal Operators:** Metropolis-Hastings algorithms navigate the discrete, hyper-dimensional space of tree topologies using specialized operators (Subtree Slide, Wilson-Balding, Narrow/Wide Exchange) alongside continuous scale operators for branch rates and times. Within BI, this architecture naturally maps to the framework's core design philosophy of joint posterior sampling via NUTS/HMC over continuous parameters, with the phylogenetic likelihood injected analytically via `numpyro.factor`. The two core models explored here are:
+
+-   **Model 1 (Spatial Heterogeneity — $+\Gamma$):** Models among-site rate variation (ASRV) using a discrete Gamma distribution over $K$ rate categories, capturing the non-uniform substitution rate across genomic positions.
+
+-   **Model 2 (Temporal Heterogeneity — UCLN):** Simultaneously applies the $+\Gamma$ model and an **Uncorrelated Log-Normal (UCLN)** relaxed molecular clock, treating each branch's evolutionary rate as an independent draw from a log-normal distribution. This removes the strict molecular clock assumption.
+
+### Considerations
+
+::: {.callout-important}
+### Prerequisite: The Two-Phase Analytical Pipeline
+
+The models in this chapter operate within **Phase 1** of comparative biology (*Phylogenetic Inference*), which differs fundamentally from Phase 2 (*Phylogenetic Comparative Methods*) covered in [Phylogenetic analysis](../../Documentation/18.%20Phylogenetic%20analysis.qmd). Phase 1 models the biochemical evolution of molecular sequences to jointly estimate topology and absolute divergence times (the chronogram). The resulting tree and branch lengths then serve as inputs to Phase 2 trait models. Misspecification of sequence evolution models in Phase 1 will systematically bias all downstream trait analyses.
+:::
+
+::: {.callout-tip}
+### HMC vs. Metropolis-Hastings for Phylogenetics
+
+Classical software (BEAST, MrBayes) relies on Metropolis-Hastings MCMC with discrete topological operators because HMC requires continuous, differentiable parameter spaces. Since tree *topologies* are discrete structures, they resist direct gradient-based inference. BI circumvents this by accepting a **fixed tree topology**—typically a maximum-likelihood or consensus tree—and performing NUTS/HMC inference exclusively over the continuous parameters: evolutionary rates, clock parameters, and branch rates. This yields dramatically superior mixing efficiency over continuous parameters while the topology is treated as observed data.
+:::
+::: {.callout-warning}
+### The Epistemological Trade-off
+Fixed vs. Joint TopologiesBy treating the topology as observed data, the inferential target fundamentally shifts. Rather than estimating the joint posterior $P(\theta, \mathcal{T} \mid D)$ as BEAST does, BI estimates the conditional posterior $P(\theta \mid D, \mathcal{T}_{\text{fixed}})$. While computationally brilliant, this imposes a strict "zero uncertainty" assumption on the evolutionary history. This can lead to statistical overconfidence (artificially narrow credible intervals) and parameter warping. A detailed mathematical breakdown of these limitations and mitigation strategies is provided in the Notes section.
+:::
+
+::: {.callout-note}
+### The Number of Possible Topologies
+
+For $N$ taxa, the number of distinct rooted, labeled topologies is $\frac{(2N-3)!}{2^{N-2}(N-2)!}$. For 20 taxa this exceeds $8 \times 10^{21}$—a combinatorial space that renders exhaustive enumeration computationally impossible, necessitating MCMC-based approximation or the adoption of a fixed topology.
+:::
+
+
+## Example 1: Spatial Heterogeneity — Discrete Gamma Rate Variation
+
+Among-site rate variation (ASRV) reflects the fact that different genomic positions evolve at heterogeneous rates due to differing functional constraints [@yang1994maximum]. The **discrete $+\Gamma$ model** partitions this heterogeneity into $K$ discrete rate categories, each representing the mean rate for an equal-probability quantile interval of a Gamma distribution with shape parameter $\alpha$. The phylogenetic likelihood is then computed as the mean over all $K$ rate-scaled likelihoods.
+
+The model uses real primate mitochondrial DNA (mtDNA) data encoded as tip partial likelihoods, with a fixed tree topology loaded via `get_tree_data()`. The HKY substitution model [@hasegawa1985dating] is parameterized by a transition/transversion bias $\kappa$ and fixed empirical base frequencies $\boldsymbol{\pi}$.
+
+::: {.panel-tabset group="language"}
+## Python
+
+```{python}
+#| eval: false
+import jax
+import jax.numpy as jnp
+import numpyro
+import numpy as np
+import pandas as pd
+from BI import bi
+from tree_data import get_tree_data
+
+m = bi(platform='cpu')
+
+# Load real primate mtDNA tip partial likelihoods: shape (N_taxa, L_sites, 4)
+leaf_likelihoods = jnp.load("primate_data.npy")[:, :100, :]
+N_taxa, L, _ = leaf_likelihoods.shape
+
+# Load fixed tree topology: left/right child indices and branch lengths
+left_children, right_children, branch_lengths = get_tree_data()
+N_internal = len(left_children)
+N_nodes = N_taxa + N_internal
+
+# Precomputed transition mask (A↔G: 0↔2, C↔T: 1↔3); constant outside JIT
+_IS_TRANSITION = jnp.array([
+    [0, 0, 1, 0],
+    [0, 0, 0, 1],
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+], dtype=jnp.float32)
+
+def get_hky_Q(kappa, pi):
+    """Vectorized HKY rate matrix: Q_off[x,y] = pi[y] * (kappa if ts, 1 if tv)."""
+    Q_off = (1.0 + (kappa - 1.0) * _IS_TRANSITION) * (1.0 - jnp.eye(4)) * pi[None, :]
+    return Q_off - jnp.diag(Q_off.sum(axis=1))
+
+def discrete_gamma_rates(alpha, K=4):
+    """K equal-frequency Gamma rate category means (Yang 1994, Wilson-Hilferty)."""
+    probs   = jnp.linspace(0, 1, K + 1)[1:-1]
+    z       = jax.scipy.stats.norm.ppf(probs)
+    a9      = 9.0 * alpha
+    Q_int   = jnp.maximum(1.0 - 1.0 / a9 + z / jnp.sqrt(a9), 0.0) ** 3
+    cdf_int = jax.scipy.special.gammainc(alpha + 1.0, alpha * Q_int)
+    cdf_all = jnp.concatenate([jnp.array([0.0]), cdf_int, jnp.array([1.0])])
+    return jnp.maximum(K * jnp.diff(cdf_all), 1e-6)
+
+m.data_on_model = {
+    "left": left_children,
+    "right": right_children,
+    "bl": branch_lengths,
+    "leaf_liks": leaf_likelihoods
+}
+
+def model(left, right, bl, leaf_liks):
+    # Priors
+    kappa = m.dist.half_normal(10.0, name="kappa")   # ts/tv ratio
+    alpha = m.dist.half_normal(5.0, name="alpha")    # Gamma shape
+
+    pi = jnp.array([0.3, 0.2, 0.1, 0.4])            # Empirical base frequencies
+    Q = get_hky_Q(kappa, pi)
+    rates = discrete_gamma_rates(alpha, K=4)
+
+    def calc_rate_lik(r):
+        """Felsenstein pruning for a single rate category r."""
+        Q_t = jnp.einsum('xy,n->nxy', Q, bl * r)
+        P_matrices = jax.vmap(jax.scipy.linalg.expm)(Q_t)
+
+        L_nodes = jnp.zeros((N_nodes, L, 4))
+        L_nodes = L_nodes.at[:N_taxa].set(leaf_liks)
+
+        def node_update(i, L_val):
+            idx = i - N_taxa
+            l_c, r_c = left[idx], right[idx]
+            L_l = jnp.einsum('xy,sy->sx', P_matrices[l_c], L_val[l_c])
+            L_r = jnp.einsum('xy,sy->sx', P_matrices[r_c], L_val[r_c])
+            return L_val.at[i].set(L_l * L_r)
+
+        final_L = jax.lax.fori_loop(N_taxa, N_nodes, node_update, L_nodes)
+        return jnp.dot(final_L[N_nodes - 1], pi)  # Root likelihood per site
+
+    # Marginalize over K rate categories
+    site_liks_by_rate = jax.vmap(calc_rate_lik)(rates)
+    log_lik = jnp.sum(jnp.log(jnp.maximum(jnp.mean(site_liks_by_rate, axis=0), 1e-30)))
+    numpyro.factor("phylo_lik", log_lik)
+
+m.fit(model, num_samples=500, num_warmup=500)
+```
+
+## R
+
+``` r
+library(BayesianInference)
+library(reticulate)  # for JAX access via R bindings
+m <- importBI(platform = "cpu")
+
+# Vectorized HKY rate matrix
+.IS_TRANSITION <- matrix(c(0,0,1,0, 0,0,0,1, 1,0,0,0, 0,1,0,0), nrow=4, byrow=TRUE)
+
+get_hky_Q <- function(kappa, pi) {
+    rates <- (1 + (kappa - 1) * .IS_TRANSITION) * (1 - diag(4))
+    Q_off <- rates * matrix(pi, nrow=4, ncol=4, byrow=TRUE)
+    Q_off - diag(rowSums(Q_off))
+}
+
+# Discrete Gamma rate categories (Yang 1994, Wilson-Hilferty)
+discrete_gamma_rates <- function(alpha, K = 4) {
+    probs   <- seq(0, 1, length.out = K + 1)[2:K]
+    z       <- qnorm(probs)
+    a9      <- 9 * alpha
+    Q_int   <- pmax(1 - 1/a9 + z/sqrt(a9), 0)^3
+    cdf_int <- pgamma(alpha * Q_int, shape = alpha + 1, rate = 1)
+    pmax(K * diff(c(0, cdf_int, 1)), 1e-6)
+}
+
+model <- function(left, right, bl, leaf_liks) {
+    kappa <- bi.dist.half_normal(10.0, name = "kappa")
+    alpha <- bi.dist.half_normal(5.0, name = "alpha")
+    pi    <- c(0.3, 0.2, 0.1, 0.4)
+    Q     <- get_hky_Q(kappa, pi)
+    rates <- discrete_gamma_rates(alpha, K = 4)
+
+    # Felsenstein pruning across K rate categories
+    site_liks_by_rate <- sapply(rates, function(r) {
+        # Analytic expm per branch: P_j = expm(Q * bl_j * r)
+        # ... (see mathematical details for full recursion)
+        compute_felsenstein_lik(Q, bl * r, left, right, leaf_liks, pi)
+    })
+    log_lik <- sum(log(pmax(rowMeans(site_liks_by_rate), 1e-30)))
+    bi.factor("phylo_lik", log_lik)
+}
+
+m$fit(model, num_samples = 500L, num_warmup = 500L)
+```
+
+## Julia
+
+``` julia
+using BayesianInference
+using LinearAlgebra
+
+m = importBI(platform = "cpu")
+
+# Vectorized HKY rate matrix
+const _IS_TRANSITION = Float32[0 0 1 0; 0 0 0 1; 1 0 0 0; 0 1 0 0]
+
+function get_hky_Q(kappa, pi)
+    Q_off = (1.0 .+ (kappa - 1.0) .* _IS_TRANSITION) .* (1.0 .- I(4)) .* pi'
+    Q_off - diagm(vec(sum(Q_off, dims=2)))
+end
+
+function discrete_gamma_rates(alpha; K=4)
+    probs   = collect(range(0, 1, length=K+2)[2:end-1])
+    z       = quantile.(Normal(), probs)
+    a9      = 9.0 * alpha
+    Q_int   = max.(1.0 .- 1.0 ./ a9 .+ z ./ sqrt(a9), 0.0) .^ 3
+    cdf_int = cdf.(Gamma(alpha + 1, 1), alpha .* Q_int)
+    max.(K .* diff([0.0; cdf_int; 1.0]), 1e-6)
+end
+
+@BI function model(left, right, bl, leaf_liks)
+    kappa = m.dist.half_normal(10.0, name = "kappa")
+    alpha = m.dist.half_normal(5.0, name = "alpha")
+    pi_f  = [0.3, 0.2, 0.1, 0.4]
+    Q     = get_hky_Q(kappa, pi_f)
+    rates = discrete_gamma_rates(alpha, K=4)
+
+    site_liks_by_rate = hcat([
+        felsenstein_pruning(Q, bl .* r, left, right, leaf_liks, pi_f)
+        for r in rates
+    ]...)
+    log_lik = sum(log.(max.(mean(site_liks_by_rate, dims=2), 1e-30)))
+    m.factor("phylo_lik", log_lik)
+end
+
+m.fit(model, num_samples=500, num_warmup=500)
+```
+:::
+
+### Mathematical Details
+
+The Discrete Gamma ($+\Gamma$) model augments the baseline phylogenetic likelihood with a finite mixture over $K$ rate categories. For $K = 4$ equal-frequency categories, each category mean rate $r_k$ is the mean of the Gamma distribution $\text{Gamma}(\alpha, \alpha)$ over the $k$-th quartile interval—ensuring the rates average to unity.
+
+**Instantaneous Rate Matrix (HKY):**
+
+$$Q_{xy} = \begin{cases} \kappa \pi_y & \text{if } x \to y \text{ is a transition} \\ \pi_y & \text{if } x \to y \text{ is a transversion} \\ -\sum_{z \neq x} Q_{xz} & \text{if } x = y \end{cases}$$
+
+**Branch Transition Probability Matrix:**
+
+$$\mathbf{P}(t_j, r_k) = e^{\mathbf{Q} \, t_j \, r_k}$$
+
+**Partial Likelihood Recursion (Felsenstein 1981):** For an internal node $v$ with left child $L$ and right child $R$:
+
+$$\ell_v(x) = \left(\sum_{y} P_{xy}(t_L, r_k)\, \ell_L(y)\right) \left(\sum_{z} P_{xz}(t_R, r_k)\, \ell_R(z)\right)$$
+
+**Site Likelihood (Marginalized over Rate Categories):**
+
+$$P(s_i \mid \mathcal{T}, \mathbf{t}, \theta) = \frac{1}{K} \sum_{k=1}^{K} \sum_{x} \pi_x\, \ell_{\text{root}}^{(k)}(x)$$
+
+**Log-Likelihood (Injected via** `numpyro.factor`**):**
+
+$$\log P(D \mid \mathcal{T}, \mathbf{t}, \theta) = \sum_{i=1}^{S} \log P(s_i \mid \mathcal{T}, \mathbf{t}, \theta)$$
+
+Where:
+
+-   $\pi_x$ denotes the stationary frequency of nucleotide state $x \in \{A, C, G, T\}$.
+-   $\kappa$ is the HKY transition/transversion rate bias parameter.
+-   $\alpha$ is the shape parameter of the Gamma distribution governing ASRV; smaller $\alpha$ implies greater rate heterogeneity.
+-   $r_k$ is the mean rate for the $k$-th Gamma category, computed via the Wilson-Hilferty approximation applied to the regularized incomplete Gamma function.
+-   $S$ is the total number of alignment sites (columns).
+-   $t_j$ is the fixed branch length (time) of branch $j$.
+
+
+## Example 2: Temporal Heterogeneity — Uncorrelated Log-Normal (UCLN) Relaxed Clock
+
+The strict molecular clock hypothesis ($c_j = c$ for all branches $j$) is frequently violated in empirical phylogenies due to differing generation times, metabolic rates, or selective environments across lineages [@drummond2006relaxed]. The **Uncorrelated Log-Normal (UCLN)** relaxed clock resolves this by treating each branch rate $c_j$ as an independent realization of a global log-normal distribution, simultaneously modeling spatial and temporal heterogeneity.
+
+::: {.panel-tabset group="language"}
+## Python
+
+```{python}
+#| eval: false
+import jax
+import jax.numpy as jnp
+import numpyro
+import numpy as np
+import pandas as pd
+from BI import bi
+from tree_data import get_tree_data
+
+m = bi(platform='cpu')
+
+leaf_likelihoods = jnp.load("primate_data.npy")[:, :100, :]
+N_taxa, L, _ = leaf_likelihoods.shape
+
+left_children, right_children, branch_lengths = get_tree_data()
+N_internal = len(left_children)
+N_nodes = N_taxa + N_internal
+
+_IS_TRANSITION = jnp.array([
+    [0, 0, 1, 0],
+    [0, 0, 0, 1],
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+], dtype=jnp.float32)
+
+def get_hky_Q(kappa, pi):
+    Q_off = (1.0 + (kappa - 1.0) * _IS_TRANSITION) * (1.0 - jnp.eye(4)) * pi[None, :]
+    return Q_off - jnp.diag(Q_off.sum(axis=1))
+
+def discrete_gamma_rates(alpha, K=4):
+    probs   = jnp.linspace(0, 1, K + 1)[1:-1]
+    z       = jax.scipy.stats.norm.ppf(probs)
+    a9      = 9.0 * alpha
+    Q_int   = jnp.maximum(1.0 - 1.0 / a9 + z / jnp.sqrt(a9), 0.0) ** 3
+    cdf_int = jax.scipy.special.gammainc(alpha + 1.0, alpha * Q_int)
+    cdf_all = jnp.concatenate([jnp.array([0.0]), cdf_int, jnp.array([1.0])])
+    return jnp.maximum(K * jnp.diff(cdf_all), 1e-6)
+
+m.data_on_model = {
+    "left": left_children,
+    "right": right_children,
+    "bl": branch_lengths,
+    "leaf_liks": leaf_likelihoods
+}
+
+def model(left, right, bl, leaf_liks):
+    # HKY substitution parameters
+    kappa = m.dist.half_normal(10.0, name="kappa")
+    alpha = m.dist.half_normal(5.0, name="alpha")
+    pi = jnp.array([0.3, 0.2, 0.1, 0.4])
+    Q = get_hky_Q(kappa, pi)
+
+    # UCLN relaxed clock: non-centered parameterization for efficient HMC
+    mu_c    = m.dist.normal(0.0, 1.0, name="mu_c")        # log mean branch rate
+    sigma_c = m.dist.half_normal(1.0, name="sigma_c")      # log SD of branch rates
+    z_c     = m.dist.normal(jnp.zeros(N_nodes), 1.0, name="z_c")
+    branch_rates = jnp.exp(mu_c + sigma_c * z_c)           # c_j ~ LogNormal(mu_c, sigma_c^2)
+
+    # Genetic distance per branch: d_j = c_j * t_j
+    effective_bl = bl * branch_rates
+
+    # Discrete Gamma site rates
+    K = 4
+    rates = discrete_gamma_rates(alpha, K)
+
+    def calc_rate_lik(r):
+        """Felsenstein pruning for site rate category r, with UCLN-scaled branches."""
+        Q_t = jnp.einsum('xy,n->nxy', Q, effective_bl * r)
+        P_matrices = jax.vmap(jax.scipy.linalg.expm)(Q_t)
+
+        L_nodes = jnp.zeros((N_nodes, L, 4))
+        L_nodes = L_nodes.at[:N_taxa].set(leaf_liks)
+
+        def node_update(i, L_val):
+            idx = i - N_taxa
+            l_c, r_c = left[idx], right[idx]
+            L_l = jnp.einsum('xy,sy->sx', P_matrices[l_c], L_val[l_c])
+            L_r = jnp.einsum('xy,sy->sx', P_matrices[r_c], L_val[r_c])
+            return L_val.at[i].set(L_l * L_r)
+
+        final_L = jax.lax.fori_loop(N_taxa, N_nodes, node_update, L_nodes)
+        return jnp.dot(final_L[N_nodes - 1], pi)
+
+    site_liks_by_rate = jax.vmap(calc_rate_lik)(rates)
+    log_lik = jnp.sum(jnp.log(jnp.maximum(jnp.mean(site_liks_by_rate, axis=0), 1e-30)))
+    numpyro.factor("phylo_lik", log_lik)
+
+m.fit(model, num_samples=500, num_warmup=500)
+```
+
+## R
+
+``` r
+library(BayesianInference)
+m <- importBI(platform = "cpu")
+
+model <- function(left, right, bl, leaf_liks) {
+    # Substitution parameters
+    kappa   <- bi.dist.half_normal(10.0, name = "kappa")
+    alpha   <- bi.dist.half_normal(5.0,  name = "alpha")
+    pi_f    <- c(0.3, 0.2, 0.1, 0.4)
+    Q       <- get_hky_Q(kappa, pi_f)
+
+    # UCLN relaxed clock (non-centered)
+    mu_c    <- bi.dist.normal(0.0, 1.0, name = "mu_c")
+    sigma_c <- bi.dist.half_normal(1.0,  name = "sigma_c")
+    z_c     <- bi.dist.normal(rep(0.0, N_nodes), 1.0, name = "z_c")
+    branch_rates <- exp(mu_c + sigma_c * z_c)
+
+    # Effective branch distances
+    eff_bl  <- bl * branch_rates
+    rates   <- discrete_gamma_rates(alpha, K = 4)
+
+    # Felsenstein pruning (averaged over K rate categories)
+    site_liks_by_rate <- sapply(rates, function(r)
+        compute_felsenstein_lik(Q, eff_bl * r, left, right, leaf_liks, pi_f))
+    log_lik <- sum(log(pmax(rowMeans(site_liks_by_rate), 1e-30)))
+    bi.factor("phylo_lik", log_lik)
+}
+
+m$fit(model, num_samples = 500L, num_warmup = 500L)
+```
+
+## Julia
+
+``` julia
+using BayesianInference
+m = importBI(platform = "cpu")
+
+@BI function model(left, right, bl, leaf_liks)
+    kappa   = m.dist.half_normal(10.0, name = "kappa")
+    alpha   = m.dist.half_normal(5.0,  name = "alpha")
+    pi_f    = [0.3, 0.2, 0.1, 0.4]
+    Q       = get_hky_Q(kappa, pi_f)
+
+    # UCLN relaxed clock (non-centered reparameterization)
+    mu_c    = m.dist.normal(0.0, 1.0, name = "mu_c")
+    sigma_c = m.dist.half_normal(1.0,  name = "sigma_c")
+    z_c     = m.dist.normal(zeros(N_nodes), 1.0, name = "z_c")
+    branch_rates = exp.(mu_c .+ sigma_c .* z_c)
+
+    eff_bl = bl .* branch_rates
+    rates  = discrete_gamma_rates(alpha, K=4)
+
+    site_liks_by_rate = hcat([
+        felsenstein_pruning(Q, eff_bl .* r, left, right, leaf_liks, pi_f)
+        for r in rates
+    ]...)
+    log_lik = sum(log.(max.(mean(site_liks_by_rate, dims=2), 1e-30)))
+    m.factor("phylo_lik", log_lik)
+end
+
+m.fit(model, num_samples=500, num_warmup=500)
+```
+:::
+
+### Mathematical Details
+
+The UCLN model introduces a global log-normal distribution over branch-specific rate multipliers. Combined with the $+\Gamma$ site-rate model, the total genetic distance traversed along branch $j$ at site-rate category $r_k$ is:
+
+$$d_{jk} = c_j \cdot t_j \cdot r_k$$
+
+**UCLN Branch Rate Prior:**
+
+$$c_j \sim \text{LogNormal}(\mu_c, \sigma_c^2)$$
+
+Equivalently, via a non-centered parameterization that is critical for efficient HMC/NUTS sampling:
+
+$$z_{c,j} \sim \text{Normal}(0, 1), \quad c_j = \exp(\mu_c + \sigma_c \cdot z_{c,j})$$
+
+**Hyperpriors on the Clock Distribution:**
+
+$$\mu_c \sim \text{Normal}(0, 1), \quad \sigma_c \sim \text{HalfNormal}(0, 1)$$
+
+**Joint Posterior (Continuous Parameters Only, Fixed Topology):**
+
+$$P(\kappa, \alpha, \mu_c, \sigma_c, \mathbf{z}_c \mid D, \mathcal{T}) \propto P(D \mid \mathcal{T}, \mathbf{t}, \kappa, \alpha, \mathbf{c}) \cdot P(\kappa) P(\alpha) P(\mu_c) P(\sigma_c) \prod_j P(z_{c,j})$$
+
+Where $\mathbf{t}$ are the fixed branch durations from the tree, and each $c_j = \exp(\mu_c + \sigma_c z_{c,j})$ is the branch-specific rate multiplier.
+
+**Effective Branch Lengths:** The product $d_j = c_j \cdot t_j$ represents the expected number of substitutions per site along branch $j$, integrating both the absolute time duration and the lineage-specific evolutionary tempo.
+
+**Coefficient of Variation of Branch Rates:**
+
+$$\text{CV}(c) = \sqrt{e^{\sigma_c^2} - 1}$$
+
+This quantity is a key diagnostic: $\text{CV} \approx 0$ implies near-strict clock behavior, while large $\text{CV}$ indicates substantial rate heterogeneity warranting the relaxed clock model. Posterior inference on $\sigma_c$ thus provides a formal test of the molecular clock assumption.
+
+
+## Mathematical Details
+
+### The Joint Posterior Distribution
+
+The full inferential target of Bayesian phylogenetic analysis is the joint posterior:
+
+$$P(\mathcal{T}, \mathbf{t}, \theta, \phi \mid D) = \frac{P(D \mid \mathcal{T}, \mathbf{t}, \theta)\; P(\mathcal{T}, \mathbf{t} \mid \phi)\; P(\theta)\; P(\phi)}{P(D)}$$
+
+Where the marginal likelihood $P(D) = \int P(D \mid \mathcal{T}, \mathbf{t}, \theta) P(\mathcal{T}, \mathbf{t} \mid \phi) P(\theta) P(\phi)\, d\mathcal{T}\, d\mathbf{t}\, d\theta\, d\phi$ is analytically intractable, necessitating MCMC-based approximation.
+
+### Generative Tree Priors
+
+A critical architectural distinction of BEAST-class analyses is the use of biologically-motivated generative priors on the tree $P(\mathcal{T}, \mathbf{t} \mid \phi)$, in contrast to uninformative uniform priors on branch lengths used in MrBayes or IQ-TREE.
+
+**Macroevolution — Constant-Rate Birth-Death Process:**
+
+$$P(\mathbf{t} \mid \lambda, \mu) = (N-1)!\; \lambda^{N-1} \prod_{i=2}^{N} e^{-(\lambda - \mu)(t_i - t_\text{root})} \frac{\left[1 - \frac{\mu}{\lambda}e^{-(\lambda-\mu)t_i}\right]^2}{1}^{-1}$$
+
+Where $\lambda$ is the speciation rate, $\mu$ the extinction rate, and $t_i$ are the interior node ages.
+
+**Microevolution/Phylodynamics — Kingman's Coalescent:**
+
+$$P(T_{[k]} \mid N_e) = \frac{\binom{k}{2}}{N_e} \exp\!\left(-\frac{\binom{k}{2}}{N_e} T_{[k]}\right)$$
+
+Where $T_{[k]}$ is the waiting time during which $k$ lineages coexist, and $N_e$ is the effective population size. The Bayesian Skyline Plot extends this by modeling $N_e(t)$ as a piecewise-constant function, treating the breakpoints as estimable parameters.
+
+### MCMC Proposal Operators
+
+For classical MCMC analyses over tree topology space (as in BEAST), Metropolis-Hastings acceptance proceeds as:
+
+$$\alpha = \min\!\left(1, \frac{P(S' \mid D)}{P(S \mid D)} \cdot \frac{q(S \mid S')}{q(S' \mid S)}\right)$$
+
+The Hastings ratio $q(S \mid S') / q(S' \mid S)$ corrects for any asymmetry in the proposal distribution. The five canonical operator types are:
+
+| Operator | Description | Parameter Space |
+|---|---|---|
+| **Scale** | Multiplies a node height by $e^{\delta u}$, $u \sim \text{Uniform}(-0.5, 0.5)$ | Continuous |
+| **Narrow Exchange** | Swaps a node with its "uncle" across a single internal node | Discrete topology |
+| **Wide Exchange** | Randomly swaps two subtrees across the full tree | Discrete topology |
+| **Subtree Slide** | Slides a node up/down a branch; changes topology if it crosses a speciation event | Mixed |
+| **Wilson-Balding** | SPR: detaches a subtree and reattaches to a new lineage with a new joint height | Mixed |
+
+
+### Example 3: Spatial Heterogeneity ($+\Gamma$) with Continuous Geometric Relaxation
+
+**Resolving the Fixed-Tree Variance Underestimation**
+
+The standard fixed-topology approach (Example 1) treats branch lengths as observed constants, conditioning inference on $P(\theta \mid D, \mathcal{T}_{\text{fixed}}, \mathbf{t}_{\text{fixed}})$. Because no uncertainty in the underlying tree geometry is propagated, the resulting HPD intervals for substitution parameters ($\kappa$, $\alpha$) are artificially narrow.
+
+**The HMC-Compatible Solution:**
+
+Example 3 resolves this by promoting branch lengths to latent, continuous random variables. Because branch lengths are strictly continuous, they are perfectly suited for HMC/NUTS. We apply a multiplicative log-normal prior centered at 1.0 to the Maximum Clade Credibility (MCC) point estimates:
+
+$$bl_{\text{scale}, j} \sim \text{LogNormal}(0, \sigma)$$
+$$bl_j = bl_{\text{init}, j} \times bl_{\text{scale}, j}$$
+
+By jointly sampling ($\kappa$, $\alpha$, $bl_{\text{scale}}$), the NUTS engine analytically marginalizes over branch-length uncertainty. This allows the model to naturally resolve the phylogenetic confounding between evolutionary rate and time, producing correctly widened, biologically realistic HPD intervals for the sequence parameters.
+
+::: {.callout-important}
+### Epistemological Boundary: Geometry vs. Topology
+
+While this approach perfectly marginalizes over **geometric uncertainty** (durations), it still conditions on a fixed **topological certainty** (connectivity). If the topology itself contains structural errors, the branch lengths and substitution parameters will still "warp" to compensate. HMC/NUTS remains restricted to continuous relaxation and cannot fix discrete topological errors.
+:::
+
+
+## Notes {#notes}
+
+::: callout-note
+
+### Architectural Equivalence: BI vs. BEAST
+
+The BI implementations developed in this chapter are architecturally equivalent to BEAST's continuous-parameter inference component, with key differences reflecting BI's HMC/NUTS-based design:
+
+**1. Non-Centered Parameterizations:** The UCLN model employs a non-centered reparameterization ($c_j = \exp(\mu_c + \sigma_c z_{c,j})$, with $z_{c,j} \sim \text{Normal}(0,1)$ as the sampled variable). This is essential for efficient NUTS sampling: the centered parameterization directly creates severe funnel-shaped posterior geometry that degrades HMC step acceptance rates.
+
+**2. Vectorized Pruning via** `jax.lax.fori_loop`**:** The Felsenstein post-order traversal is implemented using `jax.lax.fori_loop`, which preserves JAX's JIT-compilation while respecting the sequential data dependency of the node-update recursion. The outer loop over Gamma rate categories uses `jax.vmap` for full vectorization and GPU-accelerability.
+
+**3. The Likelihood Injection Pattern:** Because the phylogenetic likelihood is not a standard distributional form, it is manually computed and injected into the BI/NumPyro probabilistic program via `numpyro.factor("phylo_lik", log_lik)`. This pattern is general and supports any analytically computable log-likelihood contribution.
+:::
+
+::: callout-warning
+
+### Limitations of Fixed-Topology Inference
+
+The decision to fix the tree topology to enable gradient-based sampling introduces profound statistical and biological consequences that must be formally acknowledged in any analysis:
+
+**1. Statistical Overconfidence (The "Zero Uncertainty" Assumption):**
+By conditioning on $\mathcal{T}_{\text{fixed}}$, the model acts as if the evolutionary history is known with absolute certainty. Consequently, the model will systematically underestimate the variance of all continuous parameters. The 95% High Posterior Density (HPD) intervals for transition biases ($\kappa$), Gamma shapes ($\alpha$), and divergence times will be artificially narrow because they do not reflect the underlying topological ambiguity.
+
+**2. Parameter Warping (The Compensation Effect):**
+If the fixed topology contains structural errors (e.g., forcing a false sister-taxa grouping), the Felsenstein likelihood engine still seeks to maximize the probability of the sequence data. Because the tree cannot bend to fit the data, the continuous parameters must warp to compensate.  For instance, the UCLN branch-specific rates may artificially inflate to explain excess genetic substitutions that the incorrect topology cannot naturally accommodate, leading to biased estimates of the molecular clock variance ($\sigma_c$).
+
+**Mitigation Strategy via Posterior Pooling:**
+To harness the efficiency of NUTS while mitigating these biases, researchers can adopt a multiple-imputation-style strategy. Rather than running the HMC sampler on a single Maximum Likelihood tree, one can:
+
+1.  Generate a posterior distribution of trees (or 100 non-parametric bootstrap trees) using standard heuristic software (e.g., IQ-TREE).
+2.  Run the BI HMC model independently across a random sample of these fixed trees.
+3.  Pool the resulting posterior draws of the continuous parameters. This recovers the marginal variance lost by fixing a single topology, approximating the true joint posterior $P(\theta \mid D)$.
+    :::
+
+::: callout-tip
+
+### Extending to HMC-Compatible Topological Moves
+
+The primary limitation of HMC/NUTS for phylogenetics is the non-differentiability of tree topology space. Recent theoretical work proposes several strategies to resolve this:
+
+  - **Differential geometry on tree space (BHV space):** Representing trees as points in a polyhedral cone complex (Billera-Holmes-Vogtmann space) enables geodesic computation.
+  - **Continuous relaxations:** Parameterizing discrete tree structures via latent continuous variables (e.g., differentiable sorting networks).
+  - **Variational approaches:** Using normalizing flows with learned proposal distributions to efficiently explore tree posterior distributions without gradient computation.
+
+These frontiers position BI's GPU-accelerated HMC engine as a compelling platform for next-generation phylogenetic samplers.
+:::
+
+::: callout-tip
+### When is a Fixed Topology Mathematically Justified?
+
+Despite the epistemological trade-offs, treating the topology as fixed is not universally problematic. It represents the standard, highly accepted operating procedure under two primary conditions:
+
+**1. Phylogenomics and Genome-Scale Data:** When phylogenetic trees are inferred from massive modern datasets (e.g., thousands of Ultra-Conserved Elements, genome-wide SNPs, or whole transcriptomes), the statistical support for the overarching topology often converges on 100%. In these scenarios, topological uncertainty is genuinely negligible. The "zero uncertainty" assumption imposed by HMC thus perfectly aligns with empirical reality, making joint topological sampling an unnecessary expenditure of computational resources.
+
+**2. Computational Tractability in Complex Trait Modeling:** For highly complex Phase 2 comparative models—such as multivariate Ornstein-Uhlenbeck (OU) processes, state-dependent diversification models, or GPMMs with deep hierarchical nesting across hundreds of taxa—the joint estimation of both the tree topology and the trait parameters is mathematically and computationally intractable. In these cases, fixing the phylogeny (or pooling results over a small, curated set of posterior trees) is the only analytically viable path forward to test advanced macroevolutionary hypotheses.
+:::
+
+
+## Reference(s)
+
+::: {#refs}
+:::
