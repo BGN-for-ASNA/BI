@@ -1,8 +1,9 @@
 import os
+import numpyro
+numpyro.set_host_device_count(4)
 import sys
 import jax
 import jax.numpy as jnp
-import numpyro
 import numpy as np
 import pandas as pd
 from BI import bi
@@ -15,7 +16,7 @@ m = bi(platform='cpu')
 
 # Load Real Data
 # leaf_likelihoods shape: (N_taxa, L, 4)
-leaf_likelihoods = jnp.load("../primate_data.npy")[:, :100, :]
+leaf_likelihoods = jnp.load("../primate_data.npy")
 N_taxa, L, _ = leaf_likelihoods.shape
 
 # Load Tree
@@ -41,7 +42,9 @@ def get_hky_Q(kappa, pi):
     diag = -jnp.sum(Q, axis=1)
     for i in range(4):
         Q = Q.at[i,i].set(diag[i])
-    return Q
+    # Normalize Q so that mean rate is 1.0
+    mean_rate = -jnp.dot(pi, diag)
+    return Q / mean_rate
 
 def discrete_gamma_rates(alpha, K=4):
     # Probabilities for internal quantiles (e.g., 0.25, 0.5, 0.75 for K=4)
@@ -110,7 +113,7 @@ def model(left, right, bl, leaf_liks):
     numpyro.factor("phylo_lik", log_likelihood)
 
 print("Starting BI fit (Spatial Heterogeneity + Gamma) on Real Primate Data...")
-m.fit(model, num_samples=200, num_warmup=100)
+m.fit(model, num_samples=300, num_warmup=500, num_chains=4)
 
 post = m.posteriors
 if post is not None:
