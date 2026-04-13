@@ -3,21 +3,25 @@ import sys
 import jax
 import jax.numpy as jnp
 import numpyro
+numpyro.set_host_device_count(4)
 import numpy as np
 import pandas as pd
 from BI import bi
 
-# Add parent directory to path for tree_data.py
-sys.path.append('..')
-from tree_data import get_tree_data
+# Add scripts directory to path for tree_6.py
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+scripts_dir = os.path.join(base_dir, "scripts")
+sys.path.append(scripts_dir)
+from tree_6 import get_tree_data
 
 m = bi(platform='cpu')
 
-# Load Real Data
-leaf_likelihoods = jnp.load("../primate_data.npy")[:, :100, :]
+# Load Standardized Data (6 taxa, 768 sites)
+data_dir = os.path.join(base_dir, "data")
+leaf_likelihoods = jnp.load(os.path.join(data_dir, "primate_6_taxa_768_sites.npy"))
 N_taxa, L, _ = leaf_likelihoods.shape
 
-# Load Tree
+# Load Standardized Tree
 left_children, right_children, branch_lengths = get_tree_data()
 N_internal = len(left_children)
 N_nodes = N_taxa + N_internal
@@ -31,8 +35,13 @@ _IS_TRANSITION = jnp.array([
 ], dtype=jnp.float32)
 
 def get_hky_Q(kappa, pi):
+    # Transition: kappa * pi_j, Transversion: pi_j
     Q_off = (1.0 + (kappa - 1.0) * _IS_TRANSITION) * (1.0 - jnp.eye(4)) * pi[None, :]
-    return Q_off - jnp.diag(Q_off.sum(axis=1))
+    Q = Q_off - jnp.diag(Q_off.sum(axis=1))
+    # Normalize Q such that the average rate is 1.0 substitutions per unit time
+    # Average rate = -sum(pi_i * Q_ii)
+    avg_rate = -jnp.sum(pi * jnp.diag(Q))
+    return Q / avg_rate
 
 def discrete_gamma_rates(alpha, K=4):
     probs   = jnp.linspace(0, 1, K + 1)[1:-1]
@@ -51,9 +60,12 @@ m.data_on_model = {
 }
 
 def model(left, right, bl, leaf_liks):
-    kappa = m.dist.half_normal(10.0, name="kappa")
-    alpha = m.dist.half_normal(5.0, name="alpha")
-    pi = jnp.array([0.3, 0.2, 0.1, 0.4])
+    # Priors matched to BEAST 2 defaults:
+    kappa = m.dist.log_normal(1.0, 1.25, name="kappa")
+    alpha = m.dist.exponential(1.0, name="alpha")
+    
+    # Starting frequencies (from data or fixed for parity)
+    pi = jnp.array([0.3391, 0.2466, 0.1531, 0.2612]) 
     Q = get_hky_Q(kappa, pi)
     K = 4
     rates = discrete_gamma_rates(alpha, K)
@@ -77,8 +89,8 @@ def model(left, right, bl, leaf_liks):
     log_likelihood = jnp.sum(jnp.log(jnp.maximum(mean_site_liks, 1e-30)))
     numpyro.factor("phylo_lik", log_likelihood)
 
-print("Starting BI fit (Vectorized Spatial Heterogeneity) ...")
-m.fit(model, num_samples=200, num_warmup=100) # Fast run for comparison
+print("Starting BI fit (Parity aligned Model 1) ...")
+m.fit(model, num_samples=2000, num_warmup=1000)
 
 post = m.posteriors
 if post is not None:
@@ -86,5 +98,7 @@ if post is not None:
         'kappa': np.array(post['kappa']).flatten(),
         'alpha': np.array(post['alpha']).flatten()
     })
-    df.to_csv("bi_gamma_vec_post.csv", index=False)
-    print("Posteriors saved to bi_gamma_vec_post.csv")
+    output_dir = os.path.dirname(os.path.abspath(__file__))
+    output_path = os.path.join(output_dir, "bi_gamma_vec_post.csv")
+    df.to_csv(output_path, index=False)
+    print(f"Posteriors saved to {output_path}")

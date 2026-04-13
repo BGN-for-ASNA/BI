@@ -97,7 +97,26 @@ m.summary()
 
 ## R
 ```R
-![](travaux-routiers.png){fig-align="center"}
+model <- function(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors,category):
+    N_id = focal_individual_predictors$shape[0]
+
+    # Block ---------------------------------------
+    B_intercept = m$net$block_model(jnp$full((N_id,),0), 1, N_id, name = "B_intercept")
+    B_category = m$net$block_model(category, N_grp, N_by_grp, name = "B_category")
+
+    ## SR shape =  N individuals---------------------------------------
+    sr =  m$net$sender_receiver(
+      focal_individual_predictors,
+      target_individual_predictors, 
+      s_mu = 0.4, r_mu = -0.4
+    )
+
+    # Dyadic shape = N dyads--------------------------------------  
+    dr = m$net$dyadic_effect(dyadic_predictors, d_sd=2.5) # Diadic effect intercept only 
+    m$dist$bernoulli(logits = B_intercept + B_category + sr + dr, obs=network)
+
+m$fit(model, progress_bar=False)
+m$summary()
 ```
 
 ## Julia

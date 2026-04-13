@@ -8,6 +8,7 @@ Algorithmic Improvements (v3):
   4. SUBST-METRICS: Reporting total substitution length (sum(bl)).
 """
 
+import os
 import numpyro
 numpyro.set_host_device_count(4)
 import sys
@@ -17,7 +18,10 @@ import numpy as np
 import pandas as pd
 from BI import bi
 
-sys.path.append('..')
+# Add scripts directory to path for tree_data.py
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+scripts_dir = os.path.join(base_dir, "scripts")
+sys.path.append(scripts_dir)
 from tree_data import get_tree_data
 
 m = bi(platform='cpu')
@@ -96,12 +100,12 @@ def model(left, right, bl_init, leaf_liks):
 
 
 print("Starting BI fit (Model 3 v3 — Spatial +Gamma Alignment Fixed)...")
-m.fit(model, num_samples=300, num_warmup=500, num_chains=4)
+m.fit(model, num_samples=10, num_warmup=5, num_chains=1)
 
 post = m.posteriors
 if post is not None:
     bl_scales = np.array(post['bl_scale'])   # (samples, N_nodes)
-    bl_samples = np.array(bl_init)[None, :] * bl_scales
+    bl_samples = np.array(bl_init)[None, :] * bl_scale
     
     total_subst = np.sum(bl_samples, axis=1)
 
@@ -126,7 +130,8 @@ if post is not None:
         'TreeHeight':  heights,
         'TotalLength': total_subst
     })
-    df.to_csv("bi_gamma_blmarg_post.csv", index=False)
-    print("Posteriors saved to bi_gamma_blmarg_post.csv")
+    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bi_gamma_blmarg_post.csv")
+    df.to_csv(output_path, index=False)
+    print(f"Posteriors saved to {output_path}")
     for col in ['kappa', 'alpha', 'SubstHeight', 'SubstLength']:
         print(f"  {col}: {df[col].mean():.3f} (±{df[col].std():.3f})")
