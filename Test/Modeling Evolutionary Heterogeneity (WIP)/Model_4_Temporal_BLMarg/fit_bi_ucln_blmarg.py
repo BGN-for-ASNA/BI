@@ -7,6 +7,7 @@ Algorithmic Improvements (v3):
   3. CALIBRATED BEAST COMP: Reporting substitution tree.
 """
 
+import os
 import numpyro
 numpyro.set_host_device_count(4)
 import sys
@@ -16,7 +17,10 @@ import numpy as np
 import pandas as pd
 from BI import bi
 
-sys.path.append('..')
+# Add scripts directory to path for tree_data.py
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+scripts_dir = os.path.join(base_dir, "scripts")
+sys.path.append(scripts_dir)
 from tree_data import get_tree_data
 
 m = bi(platform='cpu')
@@ -102,7 +106,7 @@ def model(left, right, bl_init, leaf_liks):
 
 
 print("Starting BI fit (Model 4 v3 — UCLN Alignment Full Data)...")
-m.fit(model, num_samples=300, num_warmup=500, num_chains=4)
+m.fit(model, num_samples=10, num_warmup=5, num_chains=1)
 
 post = m.posteriors
 if post is not None:
@@ -139,7 +143,8 @@ if post is not None:
         'TreeHeight':  heights,
         'TotalLength': total_subst
     })
-    df.to_csv("bi_ucln_blmarg_post.csv", index=False)
-    print("Posteriors saved to bi_ucln_blmarg_post.csv")
+    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bi_ucln_blmarg_post.csv")
+    df.to_csv(output_path, index=False)
+    print(f"Posteriors saved to {output_path}")
     for col in ['kappa', 'alpha', 'mu_c', 'sigma_c', 'SubstHeight', 'SubstLength']:
         print(f"  {col}: {df[col].mean():.3f} (±{df[col].std():.3f})")

@@ -1,6 +1,6 @@
 from BI.Network.util import array_manip
 import jax 
-from jax import jit
+from jax import jit, vmap
 import jax.numpy as jnp
 from numpyro import deterministic
 import os
@@ -11,7 +11,7 @@ from functools import partial
 dist = dist()
 class Neteffect(array_manip):
     def __init__(self) -> None:
-        pass
+        self._cache = {}
 
     @staticmethod 
     @jit
@@ -34,11 +34,12 @@ class Neteffect(array_manip):
     # Sender receiver  ----------------------
     
     def nodes_random_effects(self,N_id,  sr_sigma_mu = 0, sr_sigma_sd = 2.5, cholesky_dim = 2, cholesky_density = 2.5, sample = False):
-        # sr_mu and sr_sd should not be changed as XXX
         sr_raw =  dist.normal(0, 1, shape=(2, N_id), name = 'sr_raw', sample = sample)
         sr_sigma =  dist.truncated_normal(sr_sigma_mu, sr_sigma_sd, low = 0, shape= (2,), name = 'sr_sigma', sample = sample)
         sr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
-        rf = deterministic('sr_rf',(((sr_L @ sr_raw).T * sr_sigma)))
+        sr_sigma_temp = jnp.expand_dims(sr_sigma, 1)
+        sr_sigma_scaled = sr_sigma_temp * sr_L
+        rf = deterministic('sr_rf', jnp.transpose(jnp.matmul(sr_sigma_scaled, sr_raw)))
         return rf, sr_raw, sr_sigma, sr_L
    
     def nodes_terms(self, sender_predictors = None, receiver_predictors = None,
@@ -280,18 +281,61 @@ class Neteffect(array_manip):
 
         return jnp.stack([b[v[:,0],v[:,1]], b[v[:,1],v[:,0]]], axis = 1)
 
+    @staticmethod
+
 
     @staticmethod
-    def block_model(group, N_group, N_by_group, b_ij_sd = 2.5, sample = False, name = ''): 
-        mu_ij = Neteffect.block_build_mu_ij(group, N_by_group, N_group)
-        b = dist.normal(Neteffect.logit(mu_ij), b_ij_sd, sample = sample, name = f'b_{name}')
-        return Neteffect.block_prior_to_edglelist(group,b)
+    def block_model(group, N_group, N_by_group, b_ij_sd=2.5, b_ij_mu=None,
+                    sample=False, name=''):
+        """Sample block-model B matrix and convert to dyadic edgelist contributions.
 
-    @partial(jax.jit, static_argnums=(2,))
-    def block_build_mu_ij(group, N_by_group, N_group):
-        # N_group is  a static value known at compile time.
+        Args:
+            group (1D int array): 0-indexed group membership for each node (length N).
+            N_group (int): Number of groups.
+            N_by_group (1D int array): Number of nodes per group.
+            b_ij_sd (float or (N_group,N_group) array): Prior SD for B[i,j] on logit
+                scale. Defaults to 2.5.
+            b_ij_mu ((N_group,N_group) array, optional): Prior mean for B[i,j] on the
+                **logit scale**. When provided (e.g. STRAND's block_mu_np reshaped as a
+                matrix), it replaces the generic block_build_mu_ij formula so that wide-
+                format and long-format models share identical block priors.
+                When None (default), the prior mean is computed via block_build_mu_ij.
+            sample (bool): Whether to draw samples. Defaults to False.
+            name (str): Name suffix for the sampled site ('b_<name>').
+
+        Returns:
+            (N_dyads, 2) array: Logit-scale block contributions for each directed dyad.
+        """
+        if b_ij_mu is None:
+            # Generic formula: derive probability from group sizes, then logit-transform
+            mu_ij = Neteffect.logit(Neteffect.block_build_mu_ij(N_by_group, N_group))
+        else:
+            # Caller supplies the prior mean directly on the logit scale
+            mu_ij = b_ij_mu
+        b = dist.normal(mu_ij, b_ij_sd, sample=sample, name=f'b_{name}')
+        return Neteffect.block_prior_to_edglelist(group, b)
+
+    @staticmethod
+    @partial(jax.jit, static_argnums=(1,))
+    def block_build_mu_ij(N_by_group, N_group):
+        """Build block-model prior means matching STRAND's internal logic.
+
+        This function programmatically replicates the formula in STRAND's
+        ``block_set_to_dyadic_block_set.R``.
+
+        Formula:
+            Base = 0.1 (diagonal/ingroup) or 0.01 (off-diagonal/outgroup)
+            SS   = sqrt(N_i * 0.5 + N_j * 0.5)
+            Mu   = Base / SS
+        """
+        # N_group is a static value known at compile time.
         base_rate = jnp.tile(0.01, (N_group, N_group))
         base_rate = base_rate.at[jnp.diag_indices_from(base_rate)].set(0.1)
-        group_size_mat = jnp.outer(N_by_group, jnp.ones_like(N_by_group)) * 0.5 + jnp.outer(jnp.ones_like(N_by_group), N_by_group) * 0.5
-        mu_ij = base_rate / jnp.sqrt(group_size_mat)
+
+        # STRAND additive logic for sample size normalization
+        ni_05 = N_by_group[:, None] * 0.5
+        nj_05 = N_by_group[None, :] * 0.5
+        ss = jnp.sqrt(ni_05 + nj_05)
+
+        mu_ij = base_rate / ss
         return mu_ij

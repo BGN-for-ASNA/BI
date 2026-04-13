@@ -10,7 +10,8 @@ class met:
     This class provides methods to compute clustering coefficients, eigenvector centrality, Dijkstra's algorithm for shortest paths, and other network metrics. 
     It leverages JAX's capabilities for efficient computation on large graphs.
     """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         init_betweenness = jnp.zeros((4,4))  
         met.betweenness(init_betweenness, 4)
     

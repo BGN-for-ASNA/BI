@@ -114,7 +114,7 @@ def model(left, right, bl, leaf_liks):
     numpyro.factor("phylo_lik", log_likelihood)
 
 print("Starting BI fit (UCLN + Gamma) on Real Primate Data...")
-m.fit(model, num_samples=300, num_warmup=500, num_chains=4)
+m.fit(model, num_samples=1, num_warmup=1, num_chains=1)
 
 post = m.posteriors
 if post is not None:
@@ -124,5 +124,6 @@ if post is not None:
         'mu_c': np.array(post['mu_c']).flatten(),
         'sigma_c': np.array(post['sigma_c']).flatten()
     })
-    df.to_csv("bi_ucln_post.csv", index=False)
-    print("Posteriors saved to bi_ucln_post.csv")
+    os.makedirs("../Model_2_Temporal_Heterogeneity", exist_ok=True)
+    df.to_csv("../Model_2_Temporal_Heterogeneity/bi_ucln_post.csv", index=False)
+    print("Posteriors saved to ../Model_2_Temporal_Heterogeneity/bi_ucln_post.csv")

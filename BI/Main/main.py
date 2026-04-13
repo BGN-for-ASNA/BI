@@ -15,6 +15,7 @@ import arviz as az
 
 import random as pyrand
 import functools
+import cloudpickle
 
 from BI.SetDevice.set import setup_device
 
@@ -469,21 +470,24 @@ class bi(manip):
         Returns:
             List of observed argument values.
         """
-        # Get the source code of the function
-        source_code = inspect.getsource(self.model)
-        # Parse the source code into an Abstract Syntax Tree
-        tree = ast.parse(source_code)
-        # List to hold the 'obs' values
         obs_values = []
+        try:
+            # Get the source code of the function
+            source_code = inspect.getsource(self.model)
+            # Parse the source code into an Abstract Syntax Tree
+            tree = ast.parse(source_code)
 
-        # Traverse the AST to find all function calls with 'obs' keyword argument
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call):
-                for keyword in node.keywords:
-                    if keyword.arg == "obs":
-                        # Extract the value passed to 'obs'
-                        value = ast.unparse(keyword.value)
-                        obs_values.append(value)
+            # Traverse the AST to find all function calls with 'obs' keyword argument
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Call):
+                    for keyword in node.keywords:
+                        if keyword.arg == "obs":
+                            # Extract the value passed to 'obs'
+                            value = ast.unparse(keyword.value)
+                            obs_values.append(value)
+        except (IndentationError, SyntaxError, OSError, TypeError) as e:
+            # Fallback for dynamic/reticulate functions where source cannot be inspected
+            pass
 
         self.obs_args = obs_values
         return obs_values
@@ -618,3 +622,44 @@ class bi(manip):
 
         elif self.run_model_name == "pca":
             self.models.pca.plot()
+
+    def save(self, path=None):
+        """
+        Save the BI object state to a file using cloudpickle.
+        Includes data_on_model, model, posteriors, and other attributes.
+
+        Args:
+            path (str, optional): File path to save the object. Defaults to '{model_name}_bi.pkl' or 'bi_model.pkl' in CWD.
+        """
+        if path is None:
+            path = f"{self.model_name}_bi.pkl" if self.model_name else "bi_model.pkl"
+
+        try:
+            with open(path, "wb") as f:
+                cloudpickle.dump(self, f)
+            print(f"BI object successfully saved to {path}")
+        except Exception as e:
+            print(f"Error saving BI object: {e}")
+
+    @staticmethod
+    def load(path=None):
+        """
+        Load a BI object state from a file using cloudpickle.
+
+        Args:
+            path (str, optional): File path to load the object from. Defaults to 'bi_model.pkl'.
+
+        Returns:
+            bi: The loaded BI instance.
+        """
+        if path is None:
+            path = "bi_model.pkl"
+
+        try:
+            with open(path, "rb") as f:
+                obj = cloudpickle.load(f)
+            print(f"BI object successfully loaded from {path}")
+            return obj
+        except Exception as e:
+            print(f"Error loading BI object: {e}")
+            return None
