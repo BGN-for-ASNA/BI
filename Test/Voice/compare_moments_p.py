@@ -1,0 +1,61 @@
+import pandas as pd
+import numpy as np
+import json
+import os
+import sys
+from scipy.stats import skew, kurtosis
+
+# Add BI to path
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..")))
+from BI import bi
+
+def main():
+    with open('stan_data.json', 'r') as f:
+        data = json.load(f)
+    Y_int = np.array(data['Y'], dtype=np.int32)
+    bi_data = {'N': data['N'], 'M': data['M'], 'J': data['J'], 'd': np.array(data['d']), 'Y': Y_int}
+    
+    stan_samples = pd.read_csv('stan_reference_samples.csv')
+    
+    m = bi('cpu')
+    def bi_model(**d):
+        L = m.dist.exponential(1.0, shape=(d['M'],), name='L')
+        p = m.dist.beta(2.0, 2.0, shape=(d['M'],), name='p')
+        rate = L[None, :] * d['d'][:, None]
+        gate = 1.0 - p[None, :]
+        m.dist.zero_inflated_poisson(gate=gate, rate=rate, obs=d['Y'], name='Y')
+
+    m.fit(bi_model, obs=bi_data, num_samples=1000, num_warmup=1000, num_chains=2, seed=42)
+    bi_post = m.posteriors
+    
+    print(f"{'Metric':<15} | {'Stan (p[1])':<15} | {'BI (p[0])':<15} | {'Diff':<15}")
+    print("-" * 65)
+    
+    s_p = stan_samples['p[2]'].values # Stan p[2] is the second element? Wait. 
+    # Stan model has vector[M] p. Headers are p[1...50].
+    # So f'p[{i+1}]' for i=1 is 'p[2]'.
+    # In BI, p[1] is the second element.
+    # User mentioned p[1]. I'll check both p[1] and p[2].
+    
+    for idx_bi in [0, 1]:  # Check both first and second elements
+        idx_stan = idx_bi + 1
+        s_vals = stan_samples[f'p[{idx_stan}]'].values
+        b_vals = bi_post['p'][:, idx_bi]
+        
+        metrics = [
+            ('Mean', np.mean),
+            ('SD', np.std),
+            ('Skew', skew),
+            ('Kurtosis', kurtosis),
+            ('Min', np.min),
+            ('Max', np.max)
+        ]
+        
+        print(f"\nComparing BI:p[{idx_bi}] vs Stan:p[{idx_stan}]")
+        for name, func in metrics:
+            s_m = func(s_vals)
+            b_m = func(b_vals)
+            print(f"{name:<15} | {s_m:15.4f} | {b_m:15.4f} | {s_m - b_m:15.4f}")
+
+if __name__ == "__main__":
+    main()

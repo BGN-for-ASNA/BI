@@ -1,0 +1,19 @@
+model {
+  mu <- X %*% b ## expected response
+  for (i in 1:n) { y[i] ~ dnorm(mu[i],tau) } ## response 
+  scale <- 1/tau ## convert tau to standard GLM scale
+  tau ~ dgamma(.05,.005) ## precision parameter prior 
+  ## Parametric effect priors CHECK tau=1/91^2 is appropriate!
+  for (i in 1:1) { b[i] ~ dnorm(0,0.00012) }
+  ## prior for s(x0)... 
+  K1 <- S1[1:9,1:9] * lambda[1]  + S1[1:9,10:18] * lambda[2]
+  b[2:10] ~ dmnorm(zero[2:10],K1) 
+  ## prior for s(x1)... 
+  K2 <- S2[1:9,1:9] * lambda[3]  + S2[1:9,10:18] * lambda[4]
+  b[11:19] ~ dmnorm(zero[11:19],K2) 
+  ## smoothing parameter priors CHECK...
+  for (i in 1:4) {
+    lambda[i] ~ dgamma(.05,.005)
+    rho[i] <- log(lambda[i])
+  }
+}

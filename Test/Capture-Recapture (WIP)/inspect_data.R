@@ -1,0 +1,11 @@
+library(readr)
+data_path <- "c:/Users/Sosa/Documents/BI/Test/Capture-Recapture/cr-in-stan/case-studies/data/fleayi-stan-data.rds"
+d <- read_rds(data_path)
+cat("Names:\n")
+print(names(d))
+cat("\nDimensions of y:\n")
+print(dim(d$y))
+cat("\nSummary of f:\n")
+print(summary(d$f))
+cat("\nSummary of l:\n")
+print(summary(d$l))
