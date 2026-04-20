@@ -1,0 +1,245 @@
+/**
+ * Compute correlations from lower triangular Cholesky factor
+ *
+ * @param O_L  Lower triangular Cholesky factor of correlation matrix
+ *
+ * @return     Correlations
+ */
+vector correlations(matrix O_L) {
+  int I = cols(O_L), R = choose(I, 2);
+  vector[R] rho;
+  matrix[I, I] O = multiply_lower_tri_self_transpose(O_L);
+  int idx = 1;
+  if (R) {
+    for (i in 1:I - 1) {
+      for (j in i + 1:I) {
+        rho[idx] = O[j, i];
+        idx += 1;
+      }
+    }
+  }
+  return rho;
+}
+
+/** 
+ * Produce Dirichlet log expectation vector for entry probabilities where:
+ *   beta[1:J] ~ dirichlet(kappa * alpha[1:J])
+ *   alpha[1] = exp(-h * sum(tau))
+ *   alpha[2:J] = (1 - alpha[1]) * tau / sum(tau)
+ *
+ * @param h        Mortality hazard rate (average or intercept)
+ * @param log_tau  Log of the survey intervals (scaled to have mean 1)
+ *
+ * @return  Simplex of expectations
+ */
+vector entry_log_shapes(real h, data vector log_tau) {
+  int Jm1 = size(log_tau), J = Jm1 + 1;
+  real log_Delta = sum(log_tau);
+  vector[J] log_alpha;
+  log_alpha[1] = -h * exp(log_Delta);
+  log_alpha[2:J] = log1m_exp(log_alpha[1]) + log_tau - log(Jm1);
+  return log_alpha;
+}
+
+/** 
+ * Get first and last survey of detection for detection history. Function is 
+ * overloaded for single survey and robust design.
+ *
+ * @param y  Detection history
+ *
+ * @return  First and last detection per individual
+ */
+array[,] int first_last(data array[,] int y) {
+  int I = size(y), J = size(y[1]);
+  array[I, 2] int f_l;
+  for (i in 1:I) {
+    for (j in 1:J) {
+      if (y[i, j]) {
+        f_l[i] = rep_array(j, 2);
+        break;
+      }
+    }
+    int JJ = J - f_l[i, 1];
+    if (JJ) {
+      array[JJ] int idx = linspaced_int_array(JJ, f_l[i, 1] + 1, J);
+      for (j in reverse(idx)) {
+        if (y[i, j]) {
+          f_l[i, 2] = j;
+          break;
+        }
+      }
+    }
+  }
+  return f_l;
+}
+array[,] int first_last(data array[,,] int y) {
+  int I = size(y), J = size(y[1]);
+  array[I, 2] int f_l;
+  for (i in 1:I) {
+    for (j in 1:J) {
+      if (max(y[i, j])) {
+        f_l[i] = rep_array(j, 2);
+        break;
+      }
+    }
+    int JJ = J - f_l[i, 1];
+    if (JJ) {
+      array[JJ] int idx = linspaced_int_array(JJ, f_l[i, 1] + 1, J);
+      for (j in reverse(idx)) {
+        if (max(y[i, j])) {
+          f_l[i, 2] = j;
+          break;
+        }
+      }
+    }
+  }
+  return f_l;
+}
+
+/** 
+ * Get secondary of first detection in survey of first detection for robust
+ * design Cormack-Jolly-Seber
+ *
+ * @param y  Detection history
+ * @param f  First survey detected
+ *
+ * @return  First secondary detected in first survey
+ */
+array[] int first_sec(data array[,,] int y, data array[] int f) {
+  int I = size(y), K = size(y[1, 1]);
+  array[I] int g = zeros_int_array(I);
+  for (i in 1:I) {
+    for (k in 1:K) {
+      if (y[i, f[i], k]) {
+        g[i] = k;
+        break;
+      }
+    }
+  }
+  return g;
+}
+
+/**
+ * Elementwise natural logarithm of the product of the elementwise 
+ * exponentiation of two matrices
+ *
+ * @param A  First matrix or (row-)vector
+ * @param B  Second matrix or (row-)vector
+ *
+ * @return   log(exp(A) * exp(B))
+ */
+matrix log_prod_exp(matrix A, matrix B) {
+  int I = rows(A);
+  int J = cols(A);
+  int K = cols(B);
+  matrix[J, I] A_tr = A';
+  matrix[I, K] C;
+  for (k in 1:K) {
+    for (i in 1:I) {
+      C[i, k] = log_sum_exp(A_tr[:, i] + B[:, k]);
+    }
+  }
+  return C;
+}
+vector log_prod_exp(matrix A, vector B) {
+  int I = rows(A);
+  int J = cols(A);
+  matrix[J, I] A_tr = A';
+  vector[I] C;
+  for (i in 1:I) {
+    C[i] = log_sum_exp(A_tr[:, i] + B);
+  }
+  return C;
+}
+row_vector log_prod_exp(row_vector A, matrix B) {
+  int K = cols(B);
+  vector[size(A)] A_tr = A';
+  row_vector[K] C;
+  for (k in 1:K) {
+    C[k] = log_sum_exp(A_tr + B[:, k]);
+  }
+  return C;
+}
+real log_prod_exp(row_vector A, vector B) {
+  return log_sum_exp(A' + B);
+}
+
+/** 
+ * Create transition rate matrix from mortality and transition rates
+ *
+ * @param h  Mortality rates per state
+ * @param q  Non-mortality transition rates between states
+ *
+ * @return   Transition rate matrix
+ */
+matrix rate_matrix(vector h, row_vector q) {
+  int S = size(h), Sm1 = S - 1, Sp1 = S + 1;
+  matrix[Sp1, Sp1] Q = rep_matrix(0, Sp1, Sp1);
+  row_vector[Sm1] q_s;
+  int idx = 1;
+  for (s in 1:S) {
+    q_s = segment(q, idx, Sm1);
+    Q[s, 1:s - 1] = head(q_s, s - 1);
+    Q[s, s] = -h[s] - sum(q_s);
+    Q[s, s + 1:S] = tail(q_s, S - s);
+    idx += Sm1;
+  }
+  Q[:S, Sp1] = h;
+  return Q;
+}
+
+/** 
+ * Create lower triangular row stochastic matrix from probabilities
+ *
+ * @param S  Number of dimensions
+ * @param u  Unconstrained probabilities
+ *
+ * @return   Lower triangular row stochastic matrix
+ */
+/*
+matrix triangular_row_stochastic_matrix_jacobian(int S, vector u) {
+  matrix[S, S] D = rep_matrix(0, S, S);
+  D[1, 1] = 1;
+  int idx = 1;
+  for (s in 2:S) {
+    int sm1 = s - 1;
+    D[s, :s] = simplex_jacobian(segment(u, idx, sm1))';
+    idx += sm1;
+  }
+  return D;
+}
+*/
+
+/** 
+ * Create lower triangular bidiagonal row stochastic matrix from probabilities
+ *
+ * @param delta  Probabilities
+ *
+ * @return   Lower triangular bidiagonal row stochastic matrix
+ */
+matrix triangular_bidiagonal_stochastic_matrix(vector delta) {
+  int S = size(delta) + 1;
+  matrix[S, S] E = rep_matrix(0, S, S);
+  E[1, 1] = 1;
+  for (s in 2:S) {
+    int sm1 = s - 1;
+    E[s, sm1:s] = [ 1 - delta[sm1], delta[sm1] ];
+  }
+  return E;
+}
+
+/** 
+ * Simplex constrain a zero-sum vector and increment Jacobian adjustment.
+ * Differs from simplex_jacobian() in that it does not first 
+ * sum_to_zero_constrain a free vector and returns the log simplex.
+ *
+ * @param u  Sum-to-zero vector
+ *
+ * @return   Log simplex with Jacobian adjustment
+ */
+vector sum_to_zero_log_simplex_jacobian(vector u) {
+  int J = size(u);
+  real r = log_sum_exp(u);
+  jacobian += sum(u) - J * r;
+  return u - r;
+}

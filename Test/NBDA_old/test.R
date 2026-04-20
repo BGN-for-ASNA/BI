@@ -1,0 +1,5 @@
+library(STbayes)
+dl <- import_user_STb(STbayes::event_data, STbayes::edge_list, network_type = 'undirected')
+cat('Z:', dim(dl$Z), '\n')
+cat('A:', dim(dl$A), '\n')
+cat('D:', dim(dl$D), '\n')
