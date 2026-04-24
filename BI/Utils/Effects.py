@@ -4,22 +4,28 @@ from jax import jit
 from jax import vmap
 import numpyro
 from BI.Distributions.np_dists import UnifiedDist as dist
+
 dist = dist()
+
+
 # Random factors related functions --------------------------------------------
 @jit
-def jax_LinearOperatorDiag(s, cov):    
+def jax_LinearOperatorDiag(s, cov):
     def multiply_with_s(a):
         return jnp.multiply(a, s)
+
     vectorized_multiply = vmap(multiply_with_s)
     return jnp.transpose(vectorized_multiply(cov))
 
+
 class effects:
     """Class for handling specific factor operations in JAX, including diagonal matrix multiplication and random factor centered generation."""
+
     def __init__(self) -> None:
         pass
 
-    @staticmethod 
-    @jit 
+    @staticmethod
+    @jit
     def diag_pre_multiply(v, m):
         """Dot product of a diagonal matrix with a matrix.
 
@@ -32,10 +38,10 @@ class effects:
         """
         return jnp.matmul(jnp.diag(v), m)
 
-    @staticmethod 
-    @jit    
+    @staticmethod
+    @jit
     def random_centered(sigma, cor_mat, offset_mat):
-        """Generate the centered matrix of random factors 
+        """Generate the centered matrix of random factors
 
         Args:☺
             sigma (vector): Prior, vector of length N
@@ -45,23 +51,23 @@ class effects:
         Returns:
             _type_: 2D array
         """
-        #return jnp.dot(factors.diag_pre_multiply(sigma, cor_mat), offset_mat).T
+        # return jnp.dot(factors.diag_pre_multiply(sigma, cor_mat), offset_mat).T
         return (effects.diag_pre_multiply(sigma, cor_mat) @ offset_mat).T
-    
-    @staticmethod 
+
+    @staticmethod
     def varying_effects(
-            N_vars,
-            N_group,
-            group_id,
-            group_name = 'age',
-            alpha_bar =  None,    
-            beta_bar =  None, 
-            sd_intercept =  None,       
-            sd_beta =  None,
-            corr = None,
-            centered = False,
-            sample=False
-        ):
+        N_vars,
+        N_group,
+        group_id,
+        group_name="age",
+        alpha_bar=None,
+        beta_bar=None,
+        sd_intercept=None,
+        sd_beta=None,
+        corr=None,
+        centered=False,
+        sample=False,
+    ):
         """
         Models a varying intercept and varying slope for a continuous predictor.
 
@@ -73,8 +79,12 @@ class effects:
             N_group (int): The total number of unique groups (e.g., 7 subjects).
             group_id (array): An array of integer indices for the group of each observation.
             group_name (str, optional): A descriptive name for the grouping factor.
-            alpha_bar (distribution, optional): The hyperprior for the mean of the intercepts.
-            beta_bar (distribution, optional): The hyperprior for the mean of the slopes.
+            alpha_bar (array or None): Mean for the intercept dimension. Pass jnp.zeros(1)
+                to produce zero-centered random effects when fixed effects are specified
+                externally. Defaults to None (samples global_intercept ~ N(0,1)).
+            beta_bar (array or None): Mean for the slope dimensions. Pass jnp.zeros(N_vars)
+                to produce zero-centered random effects. Defaults to None (samples
+                global_beta ~ N(0,1)).
             sd_intercept (distribution, optional): The hyperprior for the standard deviation of the intercepts.
             sd_beta (distribution, optional): The hyperprior for the standard deviation of the slopes.
             corr (distribution, optional): The prior for the correlation matrix.
@@ -84,64 +94,86 @@ class effects:
         Returns:
             tuple: A tuple containing two arrays:
                 - varying_intercepts (array): The intercept for each observation.
-                - varying_slopes (array): The slope for each observation.        
+                - varying_slopes (array): The slope for each observation.
         """
         # 1. Priors.
         if alpha_bar is None:
-            alpha_bar = dist.normal(0, 5, name='global_intercept', sample=sample, shape = (1,))
+            alpha_bar = dist.normal(
+                5, 2, name="global_intercept", sample=sample, shape=(1,)
+            )
 
         if beta_bar is None:
-            beta_bar = dist.normal(0, 5, name='global_beta', sample=sample, shape = (N_vars,))
+            beta_bar = dist.normal(
+                -1, 0.5, name="global_beta", sample=sample, shape=(N_vars,)
+            )
 
         # 2. Hyperpriors.
         if sd_intercept is None:
-            sd_intercept = dist.exponential(1, shape=(1,), name = f'{group_name}_sd_intercept', sample = sample)
+            sd_intercept = dist.exponential(
+                1, shape=(1,), name=f"{group_name}_sd_intercept", sample=sample
+            )
 
         if sd_beta is None:
-            sd_beta = dist.exponential(1, shape=(N_vars,), name = f'{group_name}_sd_beta', sample = sample)
+            sd_beta = dist.exponential(
+                1, shape=(N_vars,), name=f"{group_name}_sd_beta", sample=sample
+            )
 
         mu = jnp.concat([alpha_bar, beta_bar])
         sigma = jnp.concat([sd_intercept, sd_beta])
 
-
-        if centered == False:       
+        if centered == False:
             if corr is None:
-                L_corr = dist.lkj_cholesky(dimension =(N_vars + 1), concentration = 2, name = f'{group_name}_L_corr', sample = sample) 
+                L_corr = dist.lkj_cholesky(
+                    dimension=(N_vars + 1),
+                    concentration=2,
+                    name=f"{group_name}_L_corr",
+                    sample=sample,
+                )
+            else:
+                L_corr = corr  # use caller-supplied Cholesky factor directly
 
-            z = dist.normal(0, 1, name=f"{group_name}_z", shape=(N_vars + 1 , N_group), sample=sample)
+            z = dist.normal(
+                0, 1, name=f"{group_name}_z", shape=(N_vars + 1, N_group), sample=sample
+            )
 
             effects = (L_corr @ z).T * sigma + mu
 
             params_for_obs = effects[group_id]
             varying_intercepts = params_for_obs[:, 0]
             varying_slopes = params_for_obs[:, 1:]
+            if N_vars == 1:
+                varying_slopes = varying_slopes[:, 0]
             return varying_intercepts, varying_slopes
 
         else:
             if corr is None:
-                corr = dist.lkj(dimension = (N_vars + 1), concentration = 2, name = f'corr_{group_name}', sample = sample)
+                corr = dist.lkj(
+                    dimension=(N_vars + 1),
+                    concentration=2,
+                    name=f"corr_{group_name}",
+                    sample=sample,
+                )
             cov = jnp.diag(sigma) @ corr @ jnp.diag(sigma)
-            #cov = jnp.outer(sigma, sigma) * corr
-            group_params =  dist.multivariate_normal(
-                mu, 
-                cov, 
-                shape = (N_group,), 
-                name = f'{group_name}_mvn', 
-                sample = sample
-            )  
+            # cov = jnp.outer(sigma, sigma) * corr
+            group_params = dist.multivariate_normal(
+                mu, cov, shape=(N_group,), name=f"{group_name}_mvn", sample=sample
+            )
 
-            tmp =  group_params[group_id]
-            return tmp[:,0], tmp[:,1:] # intercept, slopes
-    
-    @staticmethod 
+            tmp = group_params[group_id]
+            varying_slopes = tmp[:, 1:]
+            if N_vars == 1:
+                varying_slopes = varying_slopes[:, 0]
+            return tmp[:, 0], varying_slopes
+
+    @staticmethod
     def varying_intercept_slope(
-        N_group, 
+        N_group,
         group,
-        global_intercept, 
+        global_intercept,
         global_slope,
-        group_name = 'group',
-        group_std =  None,
-        L_corr = None,
+        group_name="group",
+        group_std=None,
+        L_corr=None,
         sample=False,
     ):
         """
@@ -169,26 +201,26 @@ class effects:
         print("⚠️ This function is still in development. Use it with caution. ⚠️")
         # 1. Handle default hyperpriors.
         if group_std is None:
-            group_std = dist.exponential(1, shape=(2,),  name = f'{group_name}_std', sample = sample)
-            
+            group_std = dist.exponential(
+                1, shape=(2,), name=f"{group_name}_std", sample=sample
+            )
+
         if L_corr is None:
-            L_corr = dist.lkj_cholesky(2, 2, name = f'L_corr_{group_name}', sample = sample) #N_vars*N_vars
+            L_corr = dist.lkj_cholesky(
+                2, 2, name=f"L_corr_{group_name}", sample=sample
+            )  # N_vars*N_vars
 
         cov = jnp.outer(group_std, group_std) * L_corr
         mu = jnp.stack([global_intercept, global_slope])
-    
-        group_params =  dist.multivariate_normal(
-            mu, 
-            cov, 
-            shape = (N_group,), 
-            name = f'{group_name}_params', 
-            sample = sample
-        )    
-        varying_intercept, varying_slope= group_params[:, 0], group_params[:, 1]
+
+        group_params = dist.multivariate_normal(
+            mu, cov, shape=(N_group,), name=f"{group_name}_params", sample=sample
+        )
+        varying_intercept, varying_slope = group_params[:, 0], group_params[:, 1]
         varying_intercept = group_params[:, 0][group]
         varying_slope = group_params[:, 1][group]
-        return  varying_intercept, varying_slope
-    
+        return varying_intercept, varying_slope
+
     @staticmethod
     def varying_slope(
         category_idx,
@@ -197,8 +229,8 @@ class effects:
         num_groups,
         L_Rho=None,
         sigma=None,
-        group_name='group',
-        sample=False
+        group_name="group",
+        sample=False,
     ):
         """Generates hierarchical varying effects using a non-centered parameterization.
 
@@ -242,16 +274,26 @@ class effects:
         if L_Rho is None:
             # The LKJ Cholesky prior is a distribution over correlation matrices.
             # An eta > 1 (here, 2) encourages weaker correlations.
-            L_Rho = dist.lkj_cholesky(num_categories, 2, name=f"L_Rho_{group_name}", sample=sample)
+            L_Rho = dist.lkj_cholesky(
+                num_categories, 2, name=f"L_Rho_{group_name}", sample=sample
+            )
 
         if sigma is None:
             # The Exponential prior ensures the standard deviations are positive.
-            sigma = dist.exponential(1, name=f'sigma_{group_name}', shape=(num_categories,), sample=sample)
+            sigma = dist.exponential(
+                1, name=f"sigma_{group_name}", shape=(num_categories,), sample=sample
+            )
 
         # 2. Implement the non-centered parameterization for efficiency.
         # We sample uncorrelated standard normal values and then transform them.
         # This improves the geometry of the posterior for the sampler. [1, 2, 3, 4, 5]
-        z = dist.normal(0, 1, name=f"z_{group_name}", shape=(num_categories, num_groups), sample=sample)
+        z = dist.normal(
+            0,
+            1,
+            name=f"z_{group_name}",
+            shape=(num_categories, num_groups),
+            sample=sample,
+        )
 
         # 3. Transform the standard normal samples into correlated varying effects.
         # This operation combines the scale (sigma), correlation (L_Rho), and the
@@ -266,12 +308,7 @@ class effects:
 
     @staticmethod
     def varying_intercept(
-        N_groups,
-        group_id,
-        a_bar=None,
-        sigma=None,
-        group_name='group',
-        sample=False
+        N_groups, group_id, a_bar=None, sigma=None, group_name="group", sample=False
     ):
         """
         Varying intercepts model using a non-centered parameterization.
@@ -287,13 +324,21 @@ class effects:
         """
         # 1. Handle default hyperpriors.
         if a_bar is None:
-            a_bar = dist.normal(0., 1.5, name=f'global_intercept_{group_name}',sample=sample)
+            a_bar = dist.normal(
+                0.0, 1.5, name=f"global_intercept_{group_name}", sample=sample
+            )
         if sigma is None:
-            sigma = dist.exponential(1., name=f'sd_{group_name}',sample=sample)
+            sigma = dist.exponential(1.0, name=f"sd_{group_name}", sample=sample)
 
         # 2. Define the distribution for the group-level intercepts ('alpha')
         # There is one alpha for each unique group.
-        alpha = dist.normal(a_bar, sigma, shape=(N_groups,), name=f'intercept_{group_name}',sample=sample)
+        alpha = dist.normal(
+            a_bar,
+            sigma,
+            shape=(N_groups,),
+            name=f"intercept_{group_name}",
+            sample=sample,
+        )
 
         # 3. Return the specific intercept corresponding to the group of each observation
         return alpha[group_id]
@@ -304,7 +349,7 @@ class effects:
         group_idx,
         global_intercept_mean,
         global_slope_mean,
-        group_name='group',
+        group_name="group",
         sigma=None,
         L_Rho=None,
         sample=False,
@@ -331,12 +376,16 @@ class effects:
         print("⚠️ This function is still in development. Use it with caution. ⚠️")
         # 1. Handle default hyperpriors for scale (sigma) and correlation (L_Rho).
         if sigma is None:
-            sigma = dist.exponential(1, shape=(2,), name=f'{group_name}_sigma', sample=sample)
+            sigma = dist.exponential(
+                1, shape=(2,), name=f"{group_name}_sigma", sample=sample
+            )
         if L_Rho is None:
-            L_Rho = dist.lkj_cholesky(2, 2, name=f'L_Rho_{group_name}', sample=sample)
+            L_Rho = dist.lkj_cholesky(2, 2, name=f"L_Rho_{group_name}", sample=sample)
 
         # 2. Sample the uncorrelated, standard normal "offsets".
-        z = dist.normal(0, 1, name=f"z_{group_name}", shape=(2, N_groups), sample=sample)
+        z = dist.normal(
+            0, 1, name=f"z_{group_name}", shape=(2, N_groups), sample=sample
+        )
 
         # 3. Transform the offsets into correlated deviations from zero.
         effects = ((sigma[..., None] * L_Rho) @ z).T
@@ -361,20 +410,30 @@ class effects:
         num_groups,
         L_Rho=None,
         sigma=None,
-        group_name='group',
-        sample=False
+        group_name="group",
+        sample=False,
     ):
         """Generates hierarchical varying effects for CATEGORIES using a non-centered parameterization."""
 
         print("⚠️ This function is still in development. Use it with caution. ⚠️")
         # 1. Define default hyperpriors if not provided by the user.
         if L_Rho is None:
-            L_Rho = m.dist.lkj_cholesky(num_categories, 2, name=f"L_Rho_{group_name}", sample=sample)
+            L_Rho = m.dist.lkj_cholesky(
+                num_categories, 2, name=f"L_Rho_{group_name}", sample=sample
+            )
         if sigma is None:
-            sigma = m.dist.exponential(1, name=f'sigma_{group_name}', shape=(num_categories,), sample=sample)
+            sigma = m.dist.exponential(
+                1, name=f"sigma_{group_name}", shape=(num_categories,), sample=sample
+            )
 
         # 2. Sample uncorrelated standard normal values ("offsets").
-        z = m.dist.normal(0, 1, name=f"z_{group_name}", shape=(num_categories, num_groups), sample=sample)
+        z = m.dist.normal(
+            0,
+            1,
+            name=f"z_{group_name}",
+            shape=(num_categories, num_groups),
+            sample=sample,
+        )
 
         # 3. Transform the offsets into correlated varying effects.
         effects = ((sigma[..., None] * L_Rho) @ z).T
@@ -384,12 +443,7 @@ class effects:
 
     @staticmethod
     def varying_intercept_non_centered(
-        N_groups,
-        group_idx,
-        a_bar=None,
-        sigma=None,
-        group_name='group',
-        sample=False
+        N_groups, group_idx, a_bar=None, sigma=None, group_name="group", sample=False
     ):
         """
         Varying intercepts model using a NON-CENTERED parameterization.
@@ -406,16 +460,19 @@ class effects:
         print("⚠️ This function is still in development. Use it with caution. ⚠️")
         # 1. Handle default hyperpriors for the mean (a_bar) and scale (sigma).
         if a_bar is None:
-            a_bar = dist.normal(0., 1.5, name=f'global_intercept_{group_name}', sample=sample)
+            a_bar = dist.normal(
+                0.0, 1.5, name=f"global_intercept_{group_name}", sample=sample
+            )
         if sigma is None:
-            sigma = dist.exponential(1., name=f'sd_{group_name}', sample=sample)
+            sigma = dist.exponential(1.0, name=f"sd_{group_name}", sample=sample)
 
         # 2. Sample the standard normal "offsets", one for each unique group.
-        z = dist.normal(0., 1., name=f'z_intercept_{group_name}', shape=(N_groups,), sample=sample)
+        z = dist.normal(
+            0.0, 1.0, name=f"z_intercept_{group_name}", shape=(N_groups,), sample=sample
+        )
 
         # 3. Construct the intercepts by scaling and shifting the offsets.
         alpha = a_bar + z * sigma
 
         # 4. Return the specific intercept corresponding to the group of each observation.
         return alpha[group_idx]
-

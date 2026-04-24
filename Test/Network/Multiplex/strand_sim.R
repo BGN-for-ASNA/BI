@@ -123,7 +123,7 @@ fit_numpyro <- fit_multiplex_model(
   dyad_regression   = ~ Kinship + Dominance,
   mode="numpyro",
   mcmc_parameters=list(chains=1, parallel_chains=1, refresh=1, seed=42,
-                       iter_warmup=1000, iter_sampling=1000, init=0.25,
+                       iter_warmup=2000, iter_sampling=2000, init=0.25,
                        max_treedepth=12, adapt_delta=0.95, cores=4,
                        chain_method="vectorized"))
 
@@ -174,9 +174,17 @@ dr_bind_in1  <- dat2$numpyro_dr_bindings_in_1
 dr_bind_in2  <- dat2$numpyro_dr_bindings_in_2
 bandage_penalty <- if (!is.null(d$bandage_penalty)) d$bandage_penalty else 0.01
 
-# Save all arrays
-save(strand_np_samples,
-     long_focal_set, long_target_set, long_dyad_set, long_block_set,
+# Save STRAND posterior samples as .npy files (bypass reticulate serialization issues)
+np <- reticulate::import("numpy")
+sample_names <- names(strand_np_samples)
+cat("Saving STRAND posteriors:", paste(sample_names, collapse=", "), "\n")
+for (nm in sample_names) {
+  np$save(paste0("strand_post_", nm, ".npy"), strand_np_samples[[nm]])
+}
+cat("Saved", length(sample_names), "posterior arrays as .npy files\n")
+
+# Save all other arrays
+save(long_focal_set, long_target_set, long_dyad_set, long_block_set,
      block_mu, block_sigma, long_outcome, locs,
      dr_bind_out1, dr_bind_out2, dr_bind_in1, dr_bind_in2,
      bandage_penalty, N_id_d, N_lay,

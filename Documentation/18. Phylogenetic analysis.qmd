@@ -1,5 +1,5 @@
 ---
-title: "Phylogenetic analysis"
+title: "Phylogenetic Generalized Multilevel Models (PGMMs)"
 description: "Estimating evolutionary relationships and morphological evolution using Generalized Phylogenetic Multilevel Models (GPMMs)."
 categories: [Hierarchical Models, Regression]
 order: 18
@@ -11,7 +11,7 @@ image: 'Figures/27.png'
 
 ## General Principles
 
-Building upon the hierarchical frameworks introduced in [Varying intercepts](15.%20Varying%20intercepts.qmd) and [Varying slopes](16.%20Varying%20slopes.qmd), we extend varying effects to incorporate *phylogenetic structuring*. Unlike standard multilevel models that assume exchangeability among group levels, comparative biological data inherently violate the assumption of independent and identically distributed observations due to shared evolutionary descent. This tendency for closely related taxa to exhibit phenotypic similarities is quantified as phylogenetic signal. To rigorously control for this statistical non-independence, we employ **Generalized Phylogenetic Multilevel Models (GPMMs)** [@brms_phylogenetics]. 
+Building upon the hierarchical frameworks introduced in [Varying intercepts](15.%20Varying%20intercepts.qmd) and [Varying slopes](16.%20Varying%20slopes.qmd), we extend varying effects to incorporate *phylogenetic structuring*. Unlike standard multilevel models that assume exchangeability among group levels, comparative biological data inherently violate the assumption of independent and identically distributed observations due to shared evolutionary descent. This tendency for closely related taxa to exhibit phenotypic similarities is quantified as phylogenetic signal. To rigorously control for this statistical non-independence, we employ **Phylogenetic Generalized Multilevel Models (PGMMs)** [@brms_phylogenetics]. 
 
 In these architectures, species identity is specified as a structured varying effect—conceptually analogous to subject-level effects in longitudinal designs. However, rather than assuming independent intercepts, we parameterize the variance-covariance structure of this effect using a *phylogenetic variance-covariance* (VCV) matrix derived from the tree topology. This parameterization enables a precise partitioning of variance among the phylogenetic signal, fixed environmental or biological covariates, and residual (non-phylogenetic) variation.
 

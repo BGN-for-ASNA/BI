@@ -150,3 +150,17 @@ GENERAL SETUP & LAYOUT (No changes)
   padding: 1rem;
   margin: 0;
 }
+
+/* Sidebar Level 1 styling: Light Mode (Default) */
+.sidebar-item-section > .sidebar-item-container > .sidebar-item-text,
+.sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle {
+  color: #0D6EFD !important;
+}
+
+/* Sidebar Level 1 styling: Dark Mode Overrides */
+[data-bs-theme="dark"] .sidebar-item-section > .sidebar-item-container > .sidebar-item-text,
+[data-bs-theme="dark"] .sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle,
+body.quarto-dark .sidebar-item-section > .sidebar-item-container > .sidebar-item-text,
+body.quarto-dark .sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle {
+  color: #B58900 !important;
+}

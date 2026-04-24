@@ -3,8 +3,10 @@
 #### BI vs STRAND numpyro backend
 ##############################
 #%%
-import subprocess
 import os
+os.environ["JAX_PLATFORMS"] = "cpu"
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+import subprocess
 import sys
 import numpy as np
 import jax.numpy as jnp
@@ -96,6 +98,8 @@ for name, arr in [('focal', long_focal_np), ('target', long_target_np),
 # long_outcome target = (N_layers, N_dyads, 2)
 if long_outcome_np.shape[1] != N_dyads_expected:
     long_outcome_np = long_outcome_np.transpose(0, 2, 1)
+# strand_sim.R stores slot0=om[Var1,Var2] but STRAND convention is slot0=om[Var2,Var1] → swap
+long_outcome_np = long_outcome_np[:, :, [1, 0]]
 
 if locs_raw.dtype.names is not None:
     locs_2d = np.stack([locs_raw['Var2'], locs_raw['Var1']], axis=1)
@@ -103,9 +107,9 @@ else:
     locs_2d = locs_raw.T if locs_raw.shape[0] == 2 else locs_raw
 long_ids_int = jnp.array(locs_2d, dtype=jnp.int32) - 1
 
-long_focal_set  = jnp.array(long_focal_np[:, :, 1:])   # drop intercept col
-long_target_set = jnp.array(long_target_np[:, :, 1:])
-long_dyad_set   = jnp.array(long_dyad_np[:, :, 1:])
+long_focal_set  = jnp.array(long_focal_np)   # full design matrix (incl intercept col)
+long_target_set = jnp.array(long_target_np)
+long_dyad_set   = jnp.array(long_dyad_np)
 long_block_set  = jnp.array(long_block_np)
 long_outcome    = jnp.array(long_outcome_np)
 
@@ -120,6 +124,11 @@ N_var_block  = int(long_block_set.shape[2])
 block_mu_jnp    = jnp.array(block_mu_np)
 block_sigma_jnp = jnp.array(block_sigma_np)
 
+# STRAND zeros out intercept col (index 0) in focal/target/dyad effects
+A_F = jnp.array([0.] + [1.] * (N_var_focal - 1))
+A_T = jnp.array([0.] + [1.] * (N_var_target - 1))
+A_D = jnp.array([0.] + [1.] * (N_var_dyad - 1))
+
 bind_out1 = jnp.array(dr_bind_out1)
 bind_out2 = jnp.array(dr_bind_out2)
 bind_in1  = jnp.array(dr_bind_in1)
@@ -131,28 +140,22 @@ print(f"N_var_focal={N_var_focal}, N_var_target={N_var_target}, "
 print(f"outcome shape: {long_outcome.shape}")
 print(f"bandage bindings: {bind_out1.shape[0]} pairs, penalty={bandage_penalty}")
 
-# %% Step 3: Extract STRAND numpyro posterior samples from the loaded RData
-# strand_np_samples is a named list of arrays saved by strand_sim.R
-def _r_list_to_dict(r_list_name):
-    """Convert R named list of arrays to Python dict of numpy arrays."""
-    out = {}
-    r_list = ro.globalenv[r_list_name]
-    names = list(r_list.names)
-    with localconverter(ro.default_converter + numpy2ri.converter):
-        for nm in names:
-            try:
-                out[nm] = np.array(r_list.rx2(nm))
-            except Exception:
-                pass
-    return out
-
-strand_post = _r_list_to_dict('strand_np_samples')
+# %% Step 3: Load STRAND numpyro posterior samples from .npy files
+# strand_sim.R saves each param as strand_post_<name>.npy via numpy directly
+# (bypasses reticulate serialization issues when saving Python dicts to RData)
+import glob
+strand_post = {}
+npy_files = glob.glob(os.path.join(SCRIPT_DIR, 'strand_post_*.npy'))
+for f in npy_files:
+    nm = os.path.basename(f)[len('strand_post_'):-len('.npy')]
+    strand_post[nm] = np.load(f)
 print("STRAND numpyro params:", list(strand_post.keys()))
 
 # %% Step 4: BI multiplex model (mirrors numpyro_multiplex exactly)
 def model_multiplex_bi(outcome, long_focal_set, long_target_set, long_dyad_set,
                        long_block_set, long_ids_int,
                        block_mu, block_sigma,
+                       A_F, A_T, A_D,
                        bind_out1, bind_out2, bind_in1, bind_in2,
                        bandage_penalty,
                        N_id, N_dyads, N_layers,
@@ -161,29 +164,31 @@ def model_multiplex_bi(outcome, long_focal_set, long_target_set, long_dyad_set,
     m = bi()
 
     # Observation noise: (N_layers, 1, 1) matches numpyro_multiplex exactly
+    # prior_23: loc=0, scale=2.5 (STRAND default)
     error_sigma = m.dist.truncated_normal(
         loc=jnp.zeros((N_layers, 1, 1)),
-        scale=jnp.ones((N_layers, 1, 1)),
+        scale=jnp.full((N_layers, 1, 1), 2.5),
         low=0.,
         shape=(N_layers, 1, 1),
         name='error_sigma', sample=sample)
 
     # Fixed effects: (N_layers, N_var_*)
+    # prior_12/13/14: loc=0, scale=2.5 (STRAND default)
     focal_effects = m.dist.normal(
         loc=jnp.zeros((N_layers, N_var_focal)),
-        scale=jnp.ones((N_layers, N_var_focal)),
+        scale=jnp.full((N_layers, N_var_focal), 2.5),
         shape=(N_layers, N_var_focal),
         name='focal_effects', sample=sample)
 
     target_effects = m.dist.normal(
         loc=jnp.zeros((N_layers, N_var_target)),
-        scale=jnp.ones((N_layers, N_var_target)),
+        scale=jnp.full((N_layers, N_var_target), 2.5),
         shape=(N_layers, N_var_target),
         name='target_effects', sample=sample)
 
     dyad_effects = m.dist.normal(
         loc=jnp.zeros((N_layers, N_var_dyad)),
-        scale=jnp.ones((N_layers, N_var_dyad)),
+        scale=jnp.full((N_layers, N_var_dyad), 2.5),
         shape=(N_layers, N_var_dyad),
         name='dyad_effects', sample=sample)
 
@@ -194,10 +199,11 @@ def model_multiplex_bi(outcome, long_focal_set, long_target_set, long_dyad_set,
         name='block_effects', sample=sample)
 
     # Linear predictor: (N_layers, N_dyads, 2)
+    # A_F/A_T/A_D zero out intercept col (index 0) matching STRAND's masking
     mu = (
-        jnp.einsum('dxf,lf->ldx', long_focal_set,  focal_effects) +
-        jnp.einsum('dxf,lf->ldx', long_target_set, target_effects) +
-        jnp.einsum('dxf,lf->ldx', long_dyad_set,   dyad_effects) +
+        jnp.einsum('dxf,lf->ldx', long_focal_set,  focal_effects * A_F) +
+        jnp.einsum('dxf,lf->ldx', long_target_set, target_effects * A_T) +
+        jnp.einsum('dxf,lf->ldx', long_dyad_set,   dyad_effects * A_D) +
         jnp.einsum('dxf,lf->ldx', long_block_set,  block_effects)
     )
 
@@ -208,11 +214,13 @@ def model_multiplex_bi(outcome, long_focal_set, long_target_set, long_dyad_set,
         shape=(N_layers * 2, N_dyads),
         name='dr_raw', sample=sample)
 
-    dr_L = m.dist.lkj_cholesky(N_layers * 2, 1., name='dr_L', sample=sample)
+    # prior_18: LKJ concentration=2.5 (STRAND default)
+    dr_L = m.dist.lkj_cholesky(N_layers * 2, 2.5, name='dr_L', sample=sample)
 
+    # prior_16: loc=0, scale=2.5
     dr_sigma = m.dist.truncated_normal(
         loc=jnp.zeros(N_layers),
-        scale=jnp.ones(N_layers),
+        scale=jnp.full((N_layers,), 2.5),
         low=0.,
         shape=(N_layers,),
         name='dr_sigma', sample=sample)
@@ -229,11 +237,13 @@ def model_multiplex_bi(outcome, long_focal_set, long_target_set, long_dyad_set,
         shape=(N_layers * 2, N_id),
         name='sr_raw', sample=sample)
 
-    sr_L = m.dist.lkj_cholesky(N_layers * 2, 1., name='sr_L', sample=sample)
+    # prior_17: LKJ concentration=2.5 (STRAND default)
+    sr_L = m.dist.lkj_cholesky(N_layers * 2, 2.5, name='sr_L', sample=sample)
 
+    # prior_15: loc=0, scale=2.5
     sr_sigma = m.dist.truncated_normal(
         loc=jnp.zeros(N_layers * 2),
-        scale=jnp.ones(N_layers * 2),
+        scale=jnp.full((N_layers * 2,), 2.5),
         low=0.,
         shape=(N_layers * 2,),
         name='sr_sigma', sample=sample)
@@ -281,6 +291,9 @@ m_bi.data_on_model = dict(
     long_ids_int=long_ids_int,
     block_mu=block_mu_jnp,
     block_sigma=block_sigma_jnp,
+    A_F=A_F,
+    A_T=A_T,
+    A_D=A_D,
     bind_out1=bind_out1,
     bind_out2=bind_out2,
     bind_in1=bind_in1,
@@ -294,18 +307,26 @@ m_bi.data_on_model = dict(
     N_var_dyad=N_var_dyad,
     N_var_block=N_var_block,
 )
-m_bi.fit(model_multiplex_bi, num_samples=1000, num_warmup=1000, num_chains=1)
+m_bi.fit(model_multiplex_bi, num_samples=2000, num_warmup=2000, num_chains=1,
+         target_accept_prob=0.95, max_tree_depth=12,
+         init_strategy=numpyro.infer.init_to_uniform(radius=0.25))
 bi_post = m_bi.posteriors
 
 
 # %% Step 6: Density plot comparison utilities
 def _flatten(arr):
     arr = np.array(arr)
+    if not np.issubdtype(arr.dtype, np.number):
+        arr = arr.astype(np.float64)
     return arr.reshape(arr.shape[0], -1)
 
 def density_figure(strand_samples, bi_samples, param_name, out_dir):
-    s = _flatten(strand_samples)
-    b = _flatten(bi_samples)
+    try:
+        s = _flatten(strand_samples)
+        b = _flatten(bi_samples)
+    except Exception as e:
+        print(f'  Skipping {param_name}: flatten error: {e}')
+        return
     n = min(s.shape[1], b.shape[1])
     if n == 0:
         return
@@ -374,6 +395,7 @@ for pname in scalar_params:
     s = strand_post.get(pname)
     b = bi_post.get(pname)
     if s is not None and b is not None:
+        print(f'  Plotting {pname}: strand dtype={np.array(s).dtype}, bi dtype={np.array(b).dtype}')
         density_figure(s, b, pname, SCRIPT_DIR)
     else:
         print(f'  Skipping {pname}: strand={s is not None}, bi={b is not None}')

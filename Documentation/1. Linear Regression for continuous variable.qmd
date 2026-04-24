@@ -46,28 +46,29 @@ Below is an example code snippet demonstrating *Bayesian linear regression* usin
 from BI import bi
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bi(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
-from importlib.resources import files
-data_path = m.load.howell1(only_path = True)
-m.data(data_path, sep=';') 
-m.df = m.df[m.df.age > 18] # Subset data to adults
-m.scale(['weight']) # Normalize
+data_path = m.load.howell1(only_path=True)
+m.data(data_path, sep=";")
+m.df = m.df[m.df.age > 18]  # Subset data to adults
+m.scale(["weight"])  # Normalize
+
 
 # Define model ------------------------------------------------
-def model(weight, height):    
-    a = m.dist.normal(178, 20, name = 'a') 
-    b = m.dist.log_normal(0, 1, name = 'b') 
-    s = m.dist.uniform(0, 50, name = 's') 
-    m.dist.normal(a + b * weight , s, obs = height) 
+def model(weight, height):
+    a = m.dist.normal(178, 20, name="a")
+    b = m.dist.log_normal(0, 1, name="b")
+    s = m.dist.uniform(0, 50, name="s")
+    m.dist.normal(a + b * weight, s, obs=height)
+
 
 # Run mcmc ------------------------------------------------
 m.fit(model, progress_bar=False)  # Optimize model parameters through MCMC sampling
 
 # Summary ------------------------------------------------
-m.summary() # Get posterior distributions
+m.summary()  # Get posterior distributions
 ```
 
 ## R

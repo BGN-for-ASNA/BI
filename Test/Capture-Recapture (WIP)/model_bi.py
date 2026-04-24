@@ -11,31 +11,47 @@ import psutil
 
 def rate_matrix(h, q):
     """
-    Builds the transition rate matrix Q to match Stan util.stanfunctions.
-    h: [S] mortality hazard rates (index S is dead)
-    q: [S * (S-1)] transition rates among alive states
+    Vectorized construction of the (S+1)×(S+1) continuous-time rate matrix Q.
+    h: [S]        mortality hazard rates (state S+1 = dead, absorbing)
+    q: [S*(S-1)]  transition rates among alive states (diagonal excluded)
+
+    Strategy
+    --------
+    1. Reshape q to (S, S-1): each row holds the S-1 rates leaving state s.
+    2. Map compact column indices → full column indices via broadcast arithmetic
+       (no Python loops, fully JIT-friendly).
+    3. Zero the diagonal, then set it to -(row_sum + h_s).
+    4. Pad to (S+1, S+1): insert mortality column + absorbing dead row.
     """
-    S = h.shape[0]
-    Sm1 = S - 1
+    S   = h.shape[0]
     Sp1 = S + 1
+
+    q_mat = q.reshape(S, S - 1)          # (S, S-1)
+
+    # Broadcast index grids
+    c = jnp.arange(S)[None, :]           # (1, S)  – full column indices
+    r = jnp.arange(S)[:, None]           # (S, 1)  – row indices
+
+    # Map each full column k to its compact index in q_mat[s]:
+    #   k < s  →  compact index = k
+    #   k > s  →  compact index = k - 1
+    #   k == s →  diagonal (handled separately)
+    q_col = jnp.where(c < r, c, c - 1)  # (S, S)
+
+    # Gather transition rates; diagonal entries carry a garbage index (k-1==k),
+    # but are zeroed out in the next step.
+    Q_alive = q_mat[r, q_col]            # (S, S)
+    Q_alive = Q_alive * (1 - jnp.eye(S))  # zero the diagonal
+
+    # Diagonal = -(sum of off-diagonal row rates + mortality)
+    diag_vals = -(Q_alive.sum(axis=1) + h)   # (S,)
+    Q_alive = Q_alive.at[jnp.arange(S), jnp.arange(S)].set(diag_vals)
+
+    # Assemble full (S+1)×(S+1) matrix
     Q = jnp.zeros((Sp1, Sp1))
-    
-    # Fill transition rates between alive states
-    for s in range(S):
-        idx = s * Sm1
-        # Rates to other alive states
-        # Stan logic: Q[s, 1:s-1] = head(q_s, s-1), Q[s, s+1:S] = tail(q_s, S-s)
-        Q = Q.at[s, :s].set(q[idx : idx + s])
-        Q = Q.at[s, s+1:S].set(q[idx + s : idx + Sm1])
-        
-        # Rate to dead state
-        Q = Q.at[s, S].set(h[s])
-        
-        # Diagonal (negative sum of row)
-        row_sum = h[s] + jnp.sum(q[idx : idx + Sm1])
-        Q = Q.at[s, s].set(-row_sum)
-        
-    # Dead state (index S) is absorbing (row is all zeros)
+    Q = Q.at[:S, :S].set(Q_alive)   # alive-to-alive block
+    Q = Q.at[:S,  S].set(h)         # mortality column
+    # Dead row stays zero (absorbing state)
     return Q
 
 def forward_algorithm_vectorized(y, f, l, log_H, logit_p):

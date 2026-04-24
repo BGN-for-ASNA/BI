@@ -1,4 +1,5 @@
-from BI import bi, jnp
+from BI import bi
+import jax.numpy as jnp
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -11,18 +12,23 @@ m = bi()
 
 # Logging setup to capture results in log.txt
 import sys
+
+
 class Tee(object):
     def __init__(self, *files):
         self.files = files
+
     def write(self, obj):
         for f in self.files:
             f.write(obj)
             f.flush()
+
     def flush(self):
         for f in self.files:
             f.flush()
 
-f = open('log.txt', 'w', encoding='utf-8')
+
+f = open("log.txt", "w", encoding="utf-8")
 original_stdout = sys.stdout
 sys.stdout = Tee(sys.stdout, f)
 
@@ -35,11 +41,13 @@ y = jnp.array(iris.target)
 feature_names = iris.feature_names
 target_names = iris.target_names
 
+
 def scale_data(X):
     """Standardizes features by removing the mean and scaling to unit variance."""
     mean = jnp.mean(X, axis=0)
     std = jnp.std(X, axis=0)
     return (X - mean) / std, mean, std
+
 
 X_scaled, data_mean, data_std = scale_data(X_raw)
 
@@ -50,8 +58,8 @@ m.fit(m.models.pca(type="classic"), num_samples=500, num_warmup=500)
 
 # Extract results from BI
 bi_pca_results = m.models.pca.get_attributes(X=X_scaled)
-bi_components = bi_pca_results['components']
-bi_variance_ratio = bi_pca_results['explained_variance_ratio']
+bi_components = bi_pca_results["components"]
+bi_variance_ratio = bi_pca_results["explained_variance_ratio"]
 
 print("Fitting model with sklearn...")
 sklearn_pca = sklearn_PCA(n_components=X_scaled.shape[1])
@@ -67,10 +75,10 @@ print(f"Sklearn Variance Ratio: {sklearn_variance_ratio}")
 
 try:
     np.testing.assert_allclose(
-        bi_variance_ratio, 
-        sklearn_variance_ratio, 
-        atol=1e-2, 
-        err_msg="Explained variance ratio mismatch"
+        bi_variance_ratio,
+        sklearn_variance_ratio,
+        atol=1e-2,
+        err_msg="Explained variance ratio mismatch",
     )
     print("✅ Explained variance ratios match within tolerance.")
 except AssertionError as e:
@@ -81,6 +89,7 @@ except AssertionError as e:
 # BI components are already sign-corrected in BI.Models.PCA.set_deterministic_sign
 # Sklearn components might have different signs.
 
+
 def align_signs(comp_matrix):
     """Align signs of columns based on the max absolute value in each column."""
     for i in range(comp_matrix.shape[1]):
@@ -88,6 +97,7 @@ def align_signs(comp_matrix):
         if comp_matrix[max_abs_idx, i] < 0:
             comp_matrix[:, i] *= -1
     return comp_matrix
+
 
 sklearn_components_aligned = align_signs(sklearn_components.copy())
 bi_components_aligned = align_signs(np.array(bi_components))
@@ -97,10 +107,10 @@ print("\nSklearn Components (first 2 PCs):\n", sklearn_components_aligned[:, :2]
 
 try:
     np.testing.assert_allclose(
-        bi_components_aligned, 
-        sklearn_components_aligned, 
-        atol=0.5, 
-        err_msg="PCA components mismatch"
+        bi_components_aligned,
+        sklearn_components_aligned,
+        atol=0.5,
+        err_msg="PCA components mismatch",
     )
     print("✅ PCA components match within tolerance.")
 except AssertionError as e:
@@ -112,4 +122,3 @@ print("\nPCA unit test completed successfully.")
 sys.stdout = original_stdout
 f.close()
 print("Results captured in log.txt")
-
