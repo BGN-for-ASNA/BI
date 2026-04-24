@@ -310,51 +310,53 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="pca" class="level1">
 <h1>PCA</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m<span class="op">=</span>bi()</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'iris.csv'</span>, sep<span class="op">=</span><span class="st">','</span>) <span class="co"># Data is already scaled</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    X<span class="op">=</span>jnp.array(m.df.iloc[:,<span class="dv">0</span>:<span class="op">-</span><span class="dv">2</span>].values)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>m.fit(m.models.pca(<span class="bu">type</span><span class="op">=</span><span class="st">"classic"</span>), progress_bar<span class="op">=</span><span class="va">False</span>) <span class="co"># or robust, sparse, classic, sparse_robust_ard</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>m.models.pca.plot(</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    X<span class="op">=</span>m.df.iloc[:,<span class="dv">0</span>:<span class="op">-</span><span class="dv">2</span>].values,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>m.df.iloc[:,<span class="op">-</span><span class="dv">2</span>].values, </span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    feature_names<span class="op">=</span>m.df.columns[<span class="dv">0</span>:<span class="op">-</span><span class="dv">2</span>], </span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    target_names<span class="op">=</span>m.df.iloc[:,<span class="op">-</span><span class="dv">1</span>].unique(),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    color_var<span class="op">=</span>m.df.iloc[:,<span class="dv">0</span>].values,</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    shape_var<span class="op">=</span>m.df.iloc[:,<span class="op">-</span><span class="dv">2</span>].values</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m<span class="op">=</span>bi()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'iris.csv'</span>, sep<span class="op">=</span><span class="st">','</span>) <span class="co"># Data is already scaled</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    X<span class="op">=</span>jnp.array(m.df.iloc[:,<span class="dv">0</span>:<span class="op">-</span><span class="dv">2</span>].values)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>m.fit(m.models.pca(<span class="bu">type</span><span class="op">=</span><span class="st">"classic"</span>), progress_bar<span class="op">=</span><span class="va">False</span>) <span class="co"># or robust, sparse, classic, sparse_robust_ard</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.models.pca.plot(</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    X<span class="op">=</span>m.df.iloc[:,<span class="dv">0</span>:<span class="op">-</span><span class="dv">2</span>].values,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>m.df.iloc[:,<span class="op">-</span><span class="dv">2</span>].values, </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    feature_names<span class="op">=</span>m.df.columns[<span class="dv">0</span>:<span class="op">-</span><span class="dv">2</span>], </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    target_names<span class="op">=</span>m.df.iloc[:,<span class="op">-</span><span class="dv">1</span>].unique(),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    color_var<span class="op">=</span>m.df.iloc[:,<span class="dv">0</span>].values,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    shape_var<span class="op">=</span>m.df.iloc[:,<span class="op">-</span><span class="dv">2</span>].values</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="survival-analysis" class="level1">
 <h1>Survival analysis</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'mastectomy.csv'</span>, sep<span class="op">=</span><span class="st">','</span>).head()</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m.df.metastasized <span class="op">=</span> (m.df.metastasized.values <span class="op">==</span> <span class="st">"yes"</span>).astype(jnp.int64)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import time-steps and events</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m.models.survival.import_time_even(</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    m.df.time.values, </span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    m.df.event.values, interval_length<span class="op">=</span><span class="dv">3</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># To import time-fixed covariates</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>m.models.survival.import_covF(</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    m.df.metastasized.values, [<span class="st">'metastasized'</span>]</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>) </span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># To import time-varying covariates ⚠️ Experimental feature</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># m.models.survival.import_covV </span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>m.fit(m.models.survival.model, num_samples<span class="op">=</span><span class="dv">500</span>) </span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>m.summary()</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>m.models.survival.plot_surv( beta <span class="op">=</span> <span class="st">'Hazard_rate_metastasized'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m.data(<span class="st">'mastectomy.csv'</span>, sep<span class="op">=</span><span class="st">','</span>).head()</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m.df.metastasized <span class="op">=</span> (m.df.metastasized.values <span class="op">==</span> <span class="st">"yes"</span>).astype(jnp.int64)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import time-steps and events</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m.models.survival.import_time_even(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    m.df.time.values, </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    m.df.event.values, interval_length<span class="op">=</span><span class="dv">3</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># To import time-fixed covariates</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>m.models.survival.import_covF(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    m.df.metastasized.values, [<span class="st">'metastasized'</span>]</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>) </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># To import time-varying covariates ⚠️ Experimental feature</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># m.models.survival.import_covV </span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m.fit(m.models.survival.model, num_samples<span class="op">=</span><span class="dv">500</span>) </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>m.summary()</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m.models.survival.plot_surv( beta <span class="op">=</span> <span class="st">'Hazard_rate_metastasized'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="gaussian-mixture-models" class="level1">
 <h1>Gaussian Mixture Models</h1>
@@ -415,61 +417,62 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi, jnp</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data ------------------------------------------------</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">50</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>individual_predictor <span class="op">=</span> m.dist.normal(<span class="dv">0</span>,<span class="dv">1</span>, shape <span class="op">=</span> (N,<span class="dv">1</span>), sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>kinship <span class="op">=</span> m.dist.bernoulli(<span class="fl">0.3</span>, shape <span class="op">=</span> (N,N), sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>kinship <span class="op">=</span> kinship.at[jnp.diag_indices(N)].<span class="bu">set</span>(<span class="dv">0</span>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sim_network(kinship, individual_predictor):</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Intercept</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  alpha <span class="op">=</span> m.dist.normal(<span class="dv">0</span>,<span class="dv">1</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SR</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  sr <span class="op">=</span> m.net.sender_receiver(individual_predictor, individual_predictor, s_mu <span class="op">=</span> <span class="fl">0.4</span>, r_mu <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># D</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  DR <span class="op">=</span> m.net.dyadic_effect(kinship, d_sd<span class="op">=</span><span class="fl">2.5</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> m.dist.bernoulli(logits <span class="op">=</span> alpha <span class="op">+</span> sr <span class="op">+</span> DR, sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data ------------------------------------------------</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>individual_predictor <span class="op">=</span> m.dist.normal(<span class="dv">0</span>,<span class="dv">1</span>, shape <span class="op">=</span> (N,<span class="dv">1</span>), sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>kinship <span class="op">=</span> m.dist.bernoulli(<span class="fl">0.3</span>, shape <span class="op">=</span> (N,N), sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>kinship <span class="op">=</span> kinship.at[jnp.diag_indices(N)].<span class="bu">set</span>(<span class="dv">0</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sim_network(kinship, individual_predictor):</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Intercept</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  alpha <span class="op">=</span> m.dist.normal(<span class="dv">0</span>,<span class="dv">1</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># SR</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  sr <span class="op">=</span> m.net.sender_receiver(individual_predictor, individual_predictor, s_mu <span class="op">=</span> <span class="fl">0.4</span>, r_mu <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># D</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  DR <span class="op">=</span> m.net.dyadic_effect(kinship, d_sd<span class="op">=</span><span class="fl">2.5</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> m.dist.bernoulli(logits <span class="op">=</span> alpha <span class="op">+</span> sr <span class="op">+</span> DR, sample <span class="op">=</span> <span class="va">True</span>)</span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>network <span class="op">=</span> sim_network(m.net.mat_to_edgl(kinship), individual_predictor)</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Predictive model ------------------------------------------------</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    network <span class="op">=</span> network, </span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    dyadic_predictors <span class="op">=</span> m.net.mat_to_edgl(kinship),</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> individual_predictor,</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> individual_predictor</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>network <span class="op">=</span> sim_network(m.net.mat_to_edgl(kinship), individual_predictor)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Predictive model ------------------------------------------------</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    network <span class="op">=</span> network, </span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    dyadic_predictors <span class="op">=</span> m.net.mat_to_edgl(kinship),</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    focal_individual_predictors <span class="op">=</span> individual_predictor,</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    target_individual_predictors <span class="op">=</span> individual_predictor</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors):</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> network.shape[<span class="dv">0</span>]</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Block ---------------------------------------</span></span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal(<span class="dv">0</span>,<span class="dv">1</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">## SR shape =  N individuals---------------------------------------</span></span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>    sr <span class="op">=</span>  m.net.sender_receiver(</span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>      focal_individual_predictors,</span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>      target_individual_predictors,</span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>      s_mu <span class="op">=</span> <span class="fl">0.4</span>, r_mu <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span></span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic shape = N dyads--------------------------------------  </span></span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span> m.net.dyadic_effect(dyadic_predictors, d_sd<span class="op">=</span><span class="fl">2.5</span>) <span class="co"># Diadic effect intercept only </span></span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>    m.dist.bernoulli(logits <span class="op">=</span> alpha <span class="op">+</span> sr <span class="op">+</span> dr, obs<span class="op">=</span>network)</span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>m.fit(model, num_samples <span class="op">=</span> <span class="dv">500</span>, num_warmup <span class="op">=</span> <span class="dv">500</span>, num_chains <span class="op">=</span> <span class="dv">1</span>, thinning <span class="op">=</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors):</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    N_id <span class="op">=</span> network.shape[<span class="dv">0</span>]</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Block ---------------------------------------</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.normal(<span class="dv">0</span>,<span class="dv">1</span>, sample <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>    <span class="co">## SR shape =  N individuals---------------------------------------</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    sr <span class="op">=</span>  m.net.sender_receiver(</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>      focal_individual_predictors,</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>      target_individual_predictors,</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>      s_mu <span class="op">=</span> <span class="fl">0.4</span>, r_mu <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Dyadic shape = N dyads--------------------------------------  </span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    dr <span class="op">=</span> m.net.dyadic_effect(dyadic_predictors, d_sd<span class="op">=</span><span class="fl">2.5</span>) <span class="co"># Diadic effect intercept only </span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>    m.dist.bernoulli(logits <span class="op">=</span> alpha <span class="op">+</span> sr <span class="op">+</span> dr, obs<span class="op">=</span>network)</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>m.fit(model, num_samples <span class="op">=</span> <span class="dv">500</span>, num_warmup <span class="op">=</span> <span class="dv">500</span>, num_chains <span class="op">=</span> <span class="dv">1</span>, thinning <span class="op">=</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

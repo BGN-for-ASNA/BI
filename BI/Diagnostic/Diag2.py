@@ -12,6 +12,7 @@ import re
 from BI.Utils.ImportManager import LazyImporter
 import plotly.colors as pcolors
 from plotly.subplots import make_subplots
+
 importer = LazyImporter()
 importer.schedule_import("plotly.graph_objects", "go")
 importer.schedule_import("plotly.express", "px")
@@ -19,10 +20,12 @@ importer.schedule_import("plotly.figure_factory", "ff")
 importer.schedule_import("plotly.colors", "n_colors")
 importer.schedule_import("seaborn", "sns")
 importer.schedule_import("matplotlib.pyplot", "plt")
-class diagWIP():
+
+
+class diagWIP:
     """
-    The diag class serves as a comprehensive toolkit for diagnosing and visualizing the results of Bayesian models, 
-    particularly those fitted using MCMC samplers like NumPyro. It is built to provide interactive plotting 
+    The diag class serves as a comprehensive toolkit for diagnosing and visualizing the results of Bayesian models,
+    particularly those fitted using MCMC samplers like NumPyro. It is built to provide interactive plotting
     functionalities using Plotly and operates directly on a dictionary of posterior samples. Statistical
     diagnostics like R-hat and ESS are computed directly using JAX.
     """
@@ -48,38 +51,50 @@ class diagWIP():
 
     #
     #  Diagnostic with ARVIZ ----------------------------------------------------------------------------
-    def to_az(self, backend="numpyro", sample_stats_name=['target_log_prob','log_accept_ratio','has_divergence','energy']):
+    def to_az(
+        self,
+        backend="numpyro",
+        sample_stats_name=[
+            "target_log_prob",
+            "log_accept_ratio",
+            "has_divergence",
+            "energy",
+        ],
+    ):
         """Convert the sampler output to an arviz trace object.
-        
+
         This method prepares the trace for use with arviz diagnostic tools.
-        
+
         Returns:
             self.trace: The arviz trace object containing the diagnostic data
         """
         if backend == "numpyro":
-            if hasattr(self.sampler, 'svi'):
+            if hasattr(self.sampler, "svi"):
                 # Handle SVI wrapper
                 posterior_samples = self.sampler.get_samples(group_by_chain=True)
                 self.trace = az.from_dict(posterior=posterior_samples)
             else:
                 self.trace = az.from_numpyro(self.sampler)
-            self.priors_name = list(self.trace['posterior'].data_vars.keys())
+            self.priors_name = list(self.trace["posterior"].data_vars.keys())
             return self.trace
-        
+
         elif backend == "tfp":
-            var_names= list(self.sampler.model_info.keys())
-            sample_stats = {k:jnp.transpose(v) for k, v in zip(sample_stats_name, self.sampler.sample_stats)}
+            var_names = list(self.sampler.model_info.keys())
+            sample_stats = {
+                k: jnp.transpose(v)
+                for k, v in zip(sample_stats_name, self.sampler.sample_stats)
+            }
             trace = {}
-            #First dim is the number of chains
-            #Second dim is the number of sampling
-            #The rest is the shape of the object
+            # First dim is the number of chains
+            # Second dim is the number of sampling
+            # The rest is the shape of the object
             for name, samp in zip(var_names, self.sampler.posterior):
                 trace[name] = samp
-    
+
             self.trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
             self.priors_name = var_names
             return self.trace
-    
+
     # --- Statistical Diagnostics ---
 
     def loo(self, pointwise=None, var_name=None, reff=None, scale=None):
@@ -130,9 +145,11 @@ class diagWIP():
 
             The returned object has a custom print method that overrides pd.Series method.
         """
-        return az.loo(self.sampler, pointwise=pointwise, var_name=var_name, reff=reff, scale=scale)
-    
-    def WAIC(self,  pointwise=None, var_name=None, scale=None, dask_kwargs=None):
+        return az.loo(
+            self.sampler, pointwise=pointwise, var_name=var_name, reff=reff, scale=scale
+        )
+
+    def WAIC(self, pointwise=None, var_name=None, scale=None, dask_kwargs=None):
         """
         Compute the widely applicable information criterion.
 
@@ -176,17 +193,32 @@ class diagWIP():
 
             The returned object has a custom print method that overrides pd.Series method.
         """
-        return az.waic(self.sampler, pointwise=pointwise, var_name=var_name, scale=scale, dask_kwargs=dask_kwargs)
+        return az.waic(
+            self.sampler,
+            pointwise=pointwise,
+            var_name=var_name,
+            scale=scale,
+            dask_kwargs=dask_kwargs,
+        )
 
     @staticmethod
-    def compare(compare_dict, ic=None, method='stacking', b_samples=1000, alpha=1, seed=None, scale=None, var_name=None):
+    def compare(
+        compare_dict,
+        ic=None,
+        method="stacking",
+        b_samples=1000,
+        alpha=1,
+        seed=None,
+        scale=None,
+        var_name=None,
+    ):
         r"""Compare models based on  their expected log pointwise predictive density (ELPD).
 
         The ELPD is estimated either by Pareto smoothed importance sampling leave-one-out
         cross-validation (LOO) or using the widely applicable information criterion (WAIC).
         We recommend loo. Read more theory here - in a paper by some of the
         leading authorities on model comparison dx.doi.org/10.1111/1467-9868.00353
-    
+
         Parameters
         ----------
         compare_dict: dict of {str: InferenceData or ELPDData}
@@ -196,13 +228,13 @@ class diagWIP():
             ``rcParams["stats.information_criterion"]``.
         method: str, optional
             Method used to estimate the weights for each model. Available options are:
-    
+
             - 'stacking' : stacking of predictive distributions.
             - 'BB-pseudo-BMA' : pseudo-Bayesian Model averaging using Akaike-type
               weighting. The weights are stabilized using the Bayesian bootstrap.
             - 'pseudo-BMA': pseudo-Bayesian Model averaging using Akaike-type
               weighting, without Bootstrap stabilization (not recommended).
-    
+
             For more information read https://arxiv.org/abs/1704.02030
         b_samples: int, optional default = 1000
             Number of samples taken by the Bayesian bootstrap estimation.
@@ -218,17 +250,17 @@ class diagWIP():
             :mod:`numpy.random` state is used.
         scale: str, optional
             Output scale for IC. Available options are:
-    
+
             - `log` : (default) log-score (after Vehtari et al. (2017))
             - `negative_log` : -1 * (log-score)
             - `deviance` : -2 * (log-score)
-    
+
             A higher log-score (or a lower deviance) indicates a model with better predictive
             accuracy.
         var_name: str, optional
             If there is more than a single observed variable in the ``InferenceData``, which
             should be used as the basis for comparison.
-    
+
         Returns
         -------
         A DataFrame, ordered from best to worst model (measured by the ELPD).
@@ -261,7 +293,16 @@ class diagWIP():
             leave-one-out cross-validation and WAIC. Stat Comput 27, 1413–1432 (2017)
             see https://doi.org/10.1007/s11222-016-9696-4
         """
-        return az.compare(compare_dict = compare_dict, ic=ic, method='stacking', b_samples=b_samples, alpha=alpha, seed=seed, scale=None, var_name=var_name)
+        return az.compare(
+            compare_dict=compare_dict,
+            ic=ic,
+            method="stacking",
+            b_samples=b_samples,
+            alpha=alpha,
+            seed=seed,
+            scale=None,
+            var_name=var_name,
+        )
 
     @staticmethod
     def plot_compare(
@@ -356,43 +397,63 @@ class diagWIP():
 
 
         """
-        return az.plot_compare(comp_df, insample_dev=insample_dev, plot_standard_error=plot_standard_error, plot_ic_diff=plot_ic_diff, order_by_rank=order_by_rank, legend=legend, title=title, figsize=figsize, textsize=textsize, labeller=labeller, plot_kwargs=plot_kwargs, ax=ax, backend=backend, backend_kwargs=backend_kwargs, show=show)
+        return az.plot_compare(
+            comp_df,
+            insample_dev=insample_dev,
+            plot_standard_error=plot_standard_error,
+            plot_ic_diff=plot_ic_diff,
+            order_by_rank=order_by_rank,
+            legend=legend,
+            title=title,
+            figsize=figsize,
+            textsize=textsize,
+            labeller=labeller,
+            plot_kwargs=plot_kwargs,
+            ax=ax,
+            backend=backend,
+            backend_kwargs=backend_kwargs,
+            show=show,
+        )
 
     def rhat(self, *args, **kwargs):
         """Calculate R-hat statistics for convergence.
-        
+
         Args:
             *args, **kwargs: Additional arguments for arviz.rhat
-            
+
         Returns:
             rhat: R-hat values
-        """        
+        """
         self.rhat = az.rhat(self.trace, *args, **kwargs)
-        return self.rhat 
+        return self.rhat
 
     def ess(self, *args, **kwargs):
         """Calculate effective sample size (ESS).
-        
+
         Args:
             *args, **kwargs: Additional arguments for arviz.ess
-            
+
         Returns:
             ess: Effective sample sizes
-        """        
+        """
         self.ess = az.ess(self.trace, *args, **kwargs)
-        return self.ess 
+        return self.ess
 
     # --- Plotting Functions arviz dependent---
-    def plot_ess(self,):
+    def plot_ess(
+        self,
+    ):
         """Plot evolution of effective sample size across iterations.
-        
+
         Returns:
             fig: ESS evolution plot
-        """        
-        self.ess_plot = az.plot_ess(self.trace, var_names=self.priors_name, kind="evolution")
+        """
+        self.ess_plot = az.plot_ess(
+            self.trace, var_names=self.priors_name, kind="evolution"
+        )
 
     def rank(self, *args, **kwargs):
-        plt=importer.get_module("plt")
+        plt = importer.get_module("plt")
         """Create rank plots for MCMC chains.
         
         Args:
@@ -400,66 +461,95 @@ class diagWIP():
             
         Returns:
             fig: Rank plots
-        """        
-        rank, axes = plt.subplots(1, len( self.priors_name))
-        az.plot_rank(self.trace , var_names= self.priors_name, ax=axes, *args, **kwargs)
+        """
+        rank, axes = plt.subplots(1, len(self.priors_name))
+        az.plot_rank(self.trace, var_names=self.priors_name, ax=axes, *args, **kwargs)
         self.rank = rank
-    
+
     # --- Plotting Functions  plotly dependent---
-    
+
     def summary(self, round_to=2, hdi_prob=0.89, var_names=None, exclude_vars=None):
+        """Generate a summary table of posterior statistics.
+
+        Args:
+            round_to: Number of decimal places to round the statistics to
+            hdi_prob: Credible interval probability (e.g., 0.89 for 89% HDI)
+            var_names: List of variable names to include in the summary
+            exclude_vars: List of variable names to exclude from the summary
+
+        Returns:
+            summary_stats: Dictionary containing summary statistics
+        """
         import numpy as np
         import arviz as az
         import pandas as pd
-        
+
         summary_stats = {}
         vars_to_process = list(self.posterior_samples.keys())
 
         # --- FIX 2: Add variable filtering ---
         if var_names is not None:
             # Ensure it's a list (handles single strings passed from R)
-            if isinstance(var_names, str): var_names = [var_names]
+            if isinstance(var_names, str):
+                var_names = [var_names]
             vars_to_process = [v for v in vars_to_process if v in var_names]
-            
+
         if exclude_vars is not None:
-            if isinstance(exclude_vars, str): exclude_vars = [exclude_vars]
-            vars_to_process =[v for v in vars_to_process if v not in exclude_vars]
+            if isinstance(exclude_vars, str):
+                exclude_vars = [exclude_vars]
+            vars_to_process = [v for v in vars_to_process if v not in exclude_vars]
 
         for var_name in vars_to_process:
             samples = self.posterior_samples[var_name]
             param_shape = samples.shape[2:]
-            
+
             if not param_shape:
                 all_chain_samples = samples.flatten()
                 mean = np.mean(all_chain_samples)
                 median = np.median(all_chain_samples)
                 std = np.std(all_chain_samples)
                 hdi = az.hdi(all_chain_samples, hdi_prob=hdi_prob)
-                summary_stats[var_name] = {'mean': mean, 'median': median, 'std': std,
-                    f'hdi_{hdi_prob*100}%_lower': hdi[0], f'hdi_{hdi_prob*100}%_upper': hdi[1]}
+                summary_stats[var_name] = {
+                    "mean": mean,
+                    "median": median,
+                    "std": std,
+                    f"hdi_{hdi_prob*100}%_lower": hdi[0],
+                    f"hdi_{hdi_prob*100}%_upper": hdi[1],
+                }
             else:
                 for idx in np.ndindex(param_shape):
                     idx_str = "[" + ", ".join(map(str, idx)) + "]"
                     full_name = f"{var_name}{idx_str}"
                     element_samples = samples[(slice(None), slice(None)) + idx]
                     all_chain_samples = element_samples.flatten()
-                    
+
                     mean = np.mean(all_chain_samples)
                     median = np.median(all_chain_samples)
                     std = np.std(all_chain_samples)
                     hdi = az.hdi(all_chain_samples, hdi_prob=hdi_prob)
-                    
-                    summary_stats[full_name] = {'mean': mean, 'median': median, 'std': std,
-                        f'hdi_{hdi_prob*100}%_lower': hdi[0], f'hdi_{hdi_prob*100}%_upper': hdi[1]}
-                        
+
+                    summary_stats[full_name] = {
+                        "mean": mean,
+                        "median": median,
+                        "std": std,
+                        f"hdi_{hdi_prob*100}%_lower": hdi[0],
+                        f"hdi_{hdi_prob*100}%_upper": hdi[1],
+                    }
+
         self.tab_summary = pd.DataFrame(summary_stats).T.round(round_to)
-    
-    def pair(self, var_names=None, colorscale="Viridis", max_points=1000, 
-             point_color='rgba(40, 150, 200, 0.4)'):
-        go=importer.get_module("go")
-        
-        if var_names is None: var_names = self.priors_name
-        
+
+    def pair(
+        self,
+        var_names=None,
+        colorscale="Viridis",
+        max_points=1000,
+        point_color="rgba(40, 150, 200, 0.4)",
+    ):
+        go = importer.get_module("go")
+
+        if var_names is None:
+            var_names = self.priors_name
+
         # Expand multi-dimensional variables
         expanded_vars = []
         expanded_samples = {}
@@ -474,40 +564,99 @@ class diagWIP():
                     idx_str = "[" + ", ".join(map(str, idx)) + "]"
                     full_name = f"{var}{idx_str}"
                     expanded_vars.append(full_name)
-                    expanded_samples[full_name] = samples[(slice(None), slice(None)) + idx].flatten()
-        
+                    expanded_samples[full_name] = samples[
+                        (slice(None), slice(None)) + idx
+                    ].flatten()
+
         n_vars = len(expanded_vars)
         df = pd.DataFrame(expanded_samples)
-        plot_df = df.sample(n=max_points, random_state=42) if len(df) > max_points else df
-        fig = make_subplots(rows=n_vars, cols=n_vars, horizontal_spacing=0.03, vertical_spacing=0.03)
+        plot_df = (
+            df.sample(n=max_points, random_state=42) if len(df) > max_points else df
+        )
+        fig = make_subplots(
+            rows=n_vars, cols=n_vars, horizontal_spacing=0.03, vertical_spacing=0.03
+        )
 
         for i in range(n_vars):
             for j in range(n_vars):
                 var1, var2 = expanded_vars[i], expanded_vars[j]
                 if i == j:
-                    fig.add_trace(go.Histogram(x=df[var1], name=f'Hist {var1}', 
-                                               marker_color='#440154'), row=i+1, col=j+1)
+                    fig.add_trace(
+                        go.Histogram(
+                            x=df[var1], name=f"Hist {var1}", marker_color="#440154"
+                        ),
+                        row=i + 1,
+                        col=j + 1,
+                    )
                 elif i > j:
-                    fig.add_trace(go.Histogram2dContour(x=df[var2], y=df[var1], colorscale=colorscale,
-                        showscale=False, name='Density', contours=dict(coloring='lines'), line=dict(width=1)
-                    ), row=i+1, col=j+1)
-                    fig.add_trace(go.Scatter(x=plot_df[var2], y=plot_df[var1], mode='markers', name='Samples',
-                        marker=dict(size=3, color=point_color)), row=i+1, col=j+1)
+                    fig.add_trace(
+                        go.Histogram2dContour(
+                            x=df[var2],
+                            y=df[var1],
+                            colorscale=colorscale,
+                            showscale=False,
+                            name="Density",
+                            contours=dict(coloring="lines"),
+                            line=dict(width=1),
+                        ),
+                        row=i + 1,
+                        col=j + 1,
+                    )
+                    fig.add_trace(
+                        go.Scatter(
+                            x=plot_df[var2],
+                            y=plot_df[var1],
+                            mode="markers",
+                            name="Samples",
+                            marker=dict(size=3, color=point_color),
+                        ),
+                        row=i + 1,
+                        col=j + 1,
+                    )
                     median_x, median_y = df[var2].median(), df[var1].median()
-                    fig.add_trace(go.Scatter(x=[median_x], y=[median_y], mode='markers', name='Median',
-                        marker=dict(symbol='square', color='black', size=8)), row=i+1, col=j+1)
-        
-        fig.update_layout(title_text="Pair Plot: Histograms, Density, and Samples",
-            height=250 * n_vars, width=250 * n_vars, showlegend=False, plot_bgcolor='white')
-        
+                    fig.add_trace(
+                        go.Scatter(
+                            x=[median_x],
+                            y=[median_y],
+                            mode="markers",
+                            name="Median",
+                            marker=dict(symbol="square", color="black", size=8),
+                        ),
+                        row=i + 1,
+                        col=j + 1,
+                    )
+
+        fig.update_layout(
+            title_text="Pair Plot: Histograms, Density, and Samples",
+            height=250 * n_vars,
+            width=250 * n_vars,
+            showlegend=False,
+            plot_bgcolor="white",
+        )
+
         for i in range(n_vars):
-             fig.update_yaxes(title_text=expanded_vars[i], row=i+1, col=1, showline=True, linewidth=1, linecolor='black', mirror=True)
+            fig.update_yaxes(
+                title_text=expanded_vars[i],
+                row=i + 1,
+                col=1,
+                showline=True,
+                linewidth=1,
+                linecolor="black",
+                mirror=True,
+            )
         for j in range(n_vars):
-             fig.update_xaxes(title_text=expanded_vars[j], row=n_vars, col=j+1, showline=True, linewidth=1, linecolor='black', mirror=True)
+            fig.update_xaxes(
+                title_text=expanded_vars[j],
+                row=n_vars,
+                col=j + 1,
+                showline=True,
+                linewidth=1,
+                linecolor="black",
+                mirror=True,
+            )
 
         return fig
-    
- 
+
     def plot_trace(self, var_names=None):
         go = importer.get_module("go")
         if var_names is None:
@@ -526,53 +675,73 @@ class diagWIP():
                     full_name = f"{var}{idx_str}"
                     flattened_vars.append((full_name, var, idx))
 
-        subplot_titles = [f'{var_label} {suffix}' for (var_label, _, *_) in flattened_vars for suffix in ['Trace', 'Posterior']]
+        subplot_titles = [
+            f"{var_label} {suffix}"
+            for (var_label, _, *_) in flattened_vars
+            for suffix in ["Trace", "Posterior"]
+        ]
 
-        fig = make_subplots(rows=len(flattened_vars), cols=2, 
-                            subplot_titles=subplot_titles)
+        fig = make_subplots(
+            rows=len(flattened_vars), cols=2, subplot_titles=subplot_titles
+        )
 
         for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
             if not idx_info:
                 samples_per_chain = self.posterior_samples[orig_var]
             else:
                 idx = idx_info[0]
-                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
+                samples_per_chain = self.posterior_samples[orig_var][
+                    (slice(None), slice(None)) + idx
+                ]
 
             # Trace plot (column 1)
             for chain_idx in range(self.num_chains):
                 color = self.colors[chain_idx % len(self.colors)]
-                fig.add_trace(go.Scatter(y=samples_per_chain[chain_idx], mode='lines', 
-                                         name=f'Chain {chain_idx}', 
-                                         legendgroup=f'chain{chain_idx}',
-                                         line=dict(color=color), 
-                                         showlegend=(i==0)), 
-                              row=i+1, col=1)
+                fig.add_trace(
+                    go.Scatter(
+                        y=samples_per_chain[chain_idx],
+                        mode="lines",
+                        name=f"Chain {chain_idx}",
+                        legendgroup=f"chain{chain_idx}",
+                        line=dict(color=color),
+                        showlegend=(i == 0),
+                    ),
+                    row=i + 1,
+                    col=1,
+                )
 
             # Histogram (column 2)
             for chain_idx in range(self.num_chains):
                 color = self.colors[chain_idx % len(self.colors)]
-                fig.add_trace(go.Histogram(x=samples_per_chain[chain_idx], 
-                                           name=f'Chain {chain_idx}',
-                                           legendgroup=f'chain{chain_idx}',
-                                           marker_color=color,
-                                           showlegend=False, 
-                                           opacity=0.6,
-                                           nbinsx=50), 
-                              row=i+1, col=2)
+                fig.add_trace(
+                    go.Histogram(
+                        x=samples_per_chain[chain_idx],
+                        name=f"Chain {chain_idx}",
+                        legendgroup=f"chain{chain_idx}",
+                        marker_color=color,
+                        showlegend=False,
+                        opacity=0.6,
+                        nbinsx=50,
+                    ),
+                    row=i + 1,
+                    col=2,
+                )
 
-        fig.update_layout(height=300*len(flattened_vars), 
-                          title_text="Trace and Posterior Plots",
-                          barmode='overlay')
+        fig.update_layout(
+            height=300 * len(flattened_vars),
+            title_text="Trace and Posterior Plots",
+            barmode="overlay",
+        )
 
         return fig
 
     def posterior(self, var_names=None, figsize=(800, 400), hdi_prob=0.94):
         go = importer.get_module("go")
         import numpy as np
-        
+
         if var_names is None:
             var_names = self.priors_name
-            
+
         # Expand multi-dimensional variables
         flattened_vars = []
         for var in var_names:
@@ -586,58 +755,356 @@ class diagWIP():
                     full_name = f"{var}{idx_str}"
                     flattened_vars.append((full_name, var, idx))
 
-        fig = make_subplots(rows=1, cols=len(flattened_vars), subplot_titles=[v[0] for v in flattened_vars])
-        
+        fig = make_subplots(
+            rows=1,
+            cols=len(flattened_vars),
+            subplot_titles=[v[0] for v in flattened_vars],
+        )
+
         for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
             if not idx_info:
                 samples_per_chain = self.posterior_samples[orig_var]
             else:
                 idx = idx_info[0]
-                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
+                samples_per_chain = self.posterior_samples[orig_var][
+                    (slice(None), slice(None)) + idx
+                ]
 
             # Plot the histograms for each chain first
             for chain_idx in range(self.num_chains):
                 color = self.colors[chain_idx % len(self.colors)]
-                fig.add_trace(go.Histogram(x=samples_per_chain[chain_idx], 
-                                           name=f'Chain {chain_idx}',
-                                           legendgroup=f'chain{chain_idx}',
-                                           marker_color=color,
-                                           showlegend=(i==0),
-                                           opacity=0.6,
-                                           nbinsx=50), 
-                              row=1, col=i+1)
-            
+                fig.add_trace(
+                    go.Histogram(
+                        x=samples_per_chain[chain_idx],
+                        name=f"Chain {chain_idx}",
+                        legendgroup=f"chain{chain_idx}",
+                        marker_color=color,
+                        showlegend=(i == 0),
+                        opacity=0.6,
+                        nbinsx=50,
+                    ),
+                    row=1,
+                    col=i + 1,
+                )
+
             # Combine all chains to get overall posterior summary statistics
             all_samples = samples_per_chain.flatten()
-            
+
             # Calculate mean
             mean_val = np.mean(all_samples)
-            
+
             # Calculate HDI using percentiles
             tail_prob = (1 - hdi_prob) / 2
-            hdi_lower, hdi_upper = np.percentile(all_samples, [tail_prob * 100, (1 - tail_prob) * 100])
+            hdi_lower, hdi_upper = np.percentile(
+                all_samples, [tail_prob * 100, (1 - tail_prob) * 100]
+            )
 
             # Add vertical line for the mean
-            fig.add_vline(x=mean_val, line_dash="dash", line_color="black", 
-                          annotation_text="", annotation_position="top right",
-                          row=1, col=i+1)
+            fig.add_vline(
+                x=mean_val,
+                line_dash="dash",
+                line_color="black",
+                annotation_text="",
+                annotation_position="top right",
+                row=1,
+                col=i + 1,
+            )
 
             # Add vertical lines for the HDI
-            fig.add_vline(x=hdi_lower, line_dash="dot", line_color="firebrick", 
-                          annotation_text=f"", annotation_position="top left",
-                          row=1, col=i+1)
-            fig.add_vline(x=hdi_upper, line_dash="dot", line_color="firebrick", 
-                          annotation_text=f"", annotation_position="top right",
-                          row=1, col=i+1)
+            fig.add_vline(
+                x=hdi_lower,
+                line_dash="dot",
+                line_color="firebrick",
+                annotation_text=f"",
+                annotation_position="top left",
+                row=1,
+                col=i + 1,
+            )
+            fig.add_vline(
+                x=hdi_upper,
+                line_dash="dot",
+                line_color="firebrick",
+                annotation_text=f"",
+                annotation_position="top right",
+                row=1,
+                col=i + 1,
+            )
 
-        fig.update_layout(title_text="Posterior Distributions (Overlaid Chains)", 
-                          width=figsize[0] if len(flattened_vars) < 4 else figsize[0] * len(flattened_vars) // 3, 
-                          height=figsize[1], barmode='overlay')
+        fig.update_layout(
+            title_text="Posterior Distributions (Overlaid Chains)",
+            width=(
+                figsize[0]
+                if len(flattened_vars) < 4
+                else figsize[0] * len(flattened_vars) // 3
+            ),
+            height=figsize[1],
+            barmode="overlay",
+        )
 
         return fig
-    
+
+    def _rank_normalize(self, chains: np.ndarray) -> np.ndarray:
+        """Rank-normalize samples across all chains. chains: (C, S)."""
+        flat = chains.flatten()
+        ranks = stats.rankdata(flat)
+        z = stats.norm.ppf((ranks - 0.375) / (flat.size + 0.25))
+        return z.reshape(chains.shape)
+
+    def _split_chains(self, chains: np.ndarray) -> np.ndarray:
+        """Split each chain in half -> (2*C, S//2)."""
+        C, S = chains.shape
+        half = S // 2
+        return np.concatenate([chains[:, :half], chains[:, half : 2 * half]], axis=0)
+
+    def _rhat_manual(self, chains: np.ndarray) -> float:
+        """Rank-normalized split R-hat. chains: (C, S)."""
+        rn = self._rank_normalize(chains)
+        split = self._split_chains(rn)
+        m, n = split.shape
+        chain_means = split.mean(axis=1)
+        overall_mean = chain_means.mean()
+        B = n / (m - 1) * np.sum((chain_means - overall_mean) ** 2)
+        W = np.mean(np.var(split, axis=1, ddof=1))
+        if W == 0:
+            return np.nan
+        var_hat = (n - 1) / n * W + B / n
+        return float(np.sqrt(var_hat / W))
+
+    def _ess_bulk_manual(self, chains: np.ndarray) -> float:
+        """Rank-normalized split bulk ESS. chains: (C, S)."""
+        rn = self._rank_normalize(chains)
+        return self._ess_raw_manual(self._split_chains(rn))
+
+    def _ess_tail_manual(self, chains: np.ndarray, prob: float = 0.05) -> float:
+        """Tail ESS at prob and 1-prob quantiles (min of both)."""
+        q_lo = (chains < np.quantile(chains, prob)).astype(float)
+        q_hi = (chains < np.quantile(chains, 1 - prob)).astype(float)
+        return min(
+            self._ess_raw_manual(self._split_chains(q_lo)),
+            self._ess_raw_manual(self._split_chains(q_hi)),
+        )
+
+    def _ess_raw_manual(self, split: np.ndarray) -> float:
+        """ESS from split chains via autocorrelation. split: (M, N)."""
+        M, N = split.shape
+        total = M * N
+        # per-chain autocorrelations via FFT
+        acovs = []
+        for chain in split:
+            x = chain - chain.mean()
+            n = len(x)
+            f = np.fft.rfft(x, n=2 * n)
+            acov = np.fft.irfft(f * np.conj(f))[:n] / n
+            acovs.append(acov)
+        acovs = np.array(acovs)  # (M, N)
+        mean_acov = acovs.mean(axis=0)  # (N,)
+        var_hat = mean_acov[0]
+        if var_hat == 0:
+            return np.nan
+        # Geyer's initial positive sequence
+        rho = mean_acov / var_hat
+        ess_sum = 0.0
+        for t in range(1, N // 2):
+            pair = rho[2 * t - 1] + rho[2 * t]
+            if pair <= 0:
+                break
+            ess_sum += pair
+        tau = -1 + 2 * ess_sum
+        return float(total / max(1.0 + tau, 1.0))
+
+    def _ebfmi_manual(self, energy: np.ndarray) -> list:
+        """E-BFMI per chain. energy: (C, S). Returns list of floats."""
+        result = []
+        for chain in energy:
+            delta = np.diff(chain)
+            denom = np.var(chain, ddof=1)
+            result.append(float(np.var(delta, ddof=1) / denom) if denom > 0 else np.nan)
+        return result
+
+    def diagnose(
+        self,
+        max_treedepth: int = 10,
+        ebfmi_threshold: float = 0.3,
+        rhat_threshold: float = 1.01,
+        ess_threshold: float = 400.0,
+    ) -> str:
+        """
+        Run MCMC convergence diagnostics on a fitted BI model.
+
+        Parameters
+        ----------
+        max_treedepth : int
+            Maximum tree depth used during sampling (default 10, matching BI default).
+        ebfmi_threshold : float
+            E-BFMI values below this trigger a warning (default 0.3).
+        rhat_threshold : float
+            R-hat values above this trigger a warning (default 1.01).
+        ess_threshold : float
+            ESS values below this trigger a warning (default 400).
+
+        Returns
+        -------
+        str
+            Human-readable diagnostic report.
+        """
+        lines = []
+        problems = []
+        extra = self.sampler.get_extra_fields(group_by_chain=True)
+        num_chains = self.num_chains
+        posteriors_by_chain = self.posterior_samples
+
+        # ------------------------------------------------------------------
+        # 1. Treedepth
+        # ------------------------------------------------------------------
+        lines.append("Checking sampler transitions treedepth.")
+        if "num_steps" in extra and extra["num_steps"] is not None:
+            num_steps = np.array(extra["num_steps"])  # (C, S)
+            if num_steps.ndim == 1:
+                num_steps = num_steps.reshape(1, -1)
+            tree_depth = np.ceil(np.log2(num_steps + 1)).astype(int)
+            per_chain_max_treedepth = np.sum(tree_depth >= max_treedepth, axis=1).tolist()
+            saturated = sum(per_chain_max_treedepth)
+            chain_vals = " ".join(f"{v}" for v in per_chain_max_treedepth)
+            lines.append(f"$num_max_treedepth\n[1] {chain_vals}")
+            if saturated > 0:
+                msg = (
+                    f"{saturated} of {tree_depth.size} transitions hit the "
+                    f"maximum treedepth limit of {max_treedepth}. "
+                    "Increase max_tree_depth to improve sampling efficiency."
+                )
+                lines.append(msg)
+                problems.append(msg)
+            else:
+                lines.append("Treedepth satisfactory for all transitions.")
+        else:
+            lines.append("Treedepth: extra_fields not collected (unavailable).")
+        lines.append("")
+
+        # ------------------------------------------------------------------
+        # 2. Divergences
+        # ------------------------------------------------------------------
+        lines.append("Checking sampler transitions for divergences.")
+        if "diverging" in extra and extra["diverging"] is not None:
+            diverging = np.array(extra["diverging"])
+            if diverging.ndim == 1:
+                diverging = diverging.reshape(1, -1)
+            per_chain_div = np.sum(diverging, axis=1).tolist()
+            n_div = int(sum(per_chain_div))
+            chain_vals = " ".join(f"{int(v)}" for v in per_chain_div)
+            lines.append(f"$num_divergent\n[1] {chain_vals}")
+            if n_div > 0:
+                msg = (
+                    f"{n_div} divergent transition(s) found after warmup. "
+                    "Try increasing target_accept_prob or reparameterizing the model."
+                )
+                lines.append(msg)
+                problems.append(msg)
+            else:
+                lines.append("No divergent transitions found.")
+        else:
+            lines.append("Divergences: extra_fields not collected (unavailable).")
+        lines.append("")
+
+        # ------------------------------------------------------------------
+        # 3. E-BFMI
+        # ------------------------------------------------------------------
+        lines.append("Checking E-BFMI - sampler transitions HMC potential energy.")
+        if "energy" in extra and extra["energy"] is not None:
+            energy = np.array(extra["energy"])
+            if energy.ndim == 1:
+                energy = energy.reshape(1, -1)
+            ebfmi_vals = self._ebfmi_manual(energy)
+            chain_vals = " ".join(f"{v:.6f}" for v in ebfmi_vals)
+            lines.append(f"$ebfmi\n[1] {chain_vals}")
+            low_chains = [
+                i
+                for i, v in enumerate(ebfmi_vals)
+                if not np.isnan(v) and v < ebfmi_threshold
+            ]
+            if low_chains:
+                detail = ", ".join(
+                    f"chain {i}: E-BFMI={ebfmi_vals[i]:.3f}" for i in low_chains
+                )
+                msg = f"E-BFMI below threshold ({ebfmi_threshold}): {detail}."
+                lines.append(msg)
+                problems.append(msg)
+            else:
+                lines.append("E-BFMI satisfactory.")
+        else:
+            lines.append("E-BFMI: extra_fields not collected (unavailable).")
+        lines.append("")
+
+        # ------------------------------------------------------------------
+        # 4. ESS
+        # ------------------------------------------------------------------
+        lines.append("Checking rank-normalized split effective sample size.")
+        ess_problems = []
+        for param, samples in posteriors_by_chain.items():
+            arr = np.array(samples)
+            if arr.ndim == 1:
+                arr = arr.reshape(1, -1)
+            # flatten any extra dims into param indices
+            C, S = arr.shape[0], arr.shape[1]
+            extra_dims = arr.shape[2:]
+            flat = arr.reshape(C, S, -1) if extra_dims else arr.reshape(C, S, 1)
+            for idx in range(flat.shape[2]):
+                chains = flat[:, :, idx]
+                ess = self._ess_bulk_manual(chains)
+                label = f"{param}[{idx}]" if extra_dims else param
+                if not np.isnan(ess) and ess < ess_threshold:
+                    ess_problems.append(f"{label}: ESS={ess:.1f}")
+        if ess_problems:
+            msg = "Low ESS for: " + "; ".join(ess_problems) + "."
+            lines.append(msg)
+            problems.append(msg)
+        else:
+            lines.append(
+                "Rank-normalized split effective sample size satisfactory for all parameters."
+            )
+        lines.append("")
+
+        # ------------------------------------------------------------------
+        # 5. R-hat
+        # ------------------------------------------------------------------
+        lines.append("Checking rank-normalized split R-hat values.")
+        rhat_problems = []
+        for param, samples in posteriors_by_chain.items():
+            arr = np.array(samples)
+            if arr.ndim == 1:
+                arr = arr.reshape(1, -1)
+            C, S = arr.shape[0], arr.shape[1]
+            extra_dims = arr.shape[2:]
+            flat = arr.reshape(C, S, -1) if extra_dims else arr.reshape(C, S, 1)
+            for idx in range(flat.shape[2]):
+                chains = flat[:, :, idx]
+                rh = self._rhat_manual(chains)
+                label = f"{param}[{idx}]" if extra_dims else param
+                if not np.isnan(rh) and rh > rhat_threshold:
+                    rhat_problems.append(f"{label}: R-hat={rh:.4f}")
+        if rhat_problems:
+            msg = "High R-hat for: " + "; ".join(rhat_problems) + "."
+            lines.append(msg)
+            problems.append(msg)
+        else:
+            lines.append(
+                "Rank-normalized split R-hat values satisfactory for all parameters."
+            )
+        lines.append("")
+
+        # ------------------------------------------------------------------
+        # Summary
+        # ------------------------------------------------------------------
+        if problems:
+            lines.append(f"Processing complete, {len(problems)} problem(s) detected.")
+        else:
+            lines.append("Processing complete, no problems detected.")
+
+        report = "\n".join(lines)
+        # print(report) # Removed print to return report string only, or keep if user wants it printed
+        return report
+
     def autocor(self, var_names=None):
-        go=importer.get_module("go")
+        go = importer.get_module("go")
         if var_names is None:
             var_names = self.priors_name
 
@@ -654,24 +1121,42 @@ class diagWIP():
                     full_name = f"{var}{idx_str}"
                     flattened_vars.append((full_name, var, idx))
 
-        fig = make_subplots(rows=len(flattened_vars), cols=1, subplot_titles=[f"Autocorrelation of {v[0]}" for v in flattened_vars])
+        fig = make_subplots(
+            rows=len(flattened_vars),
+            cols=1,
+            subplot_titles=[f"Autocorrelation of {v[0]}" for v in flattened_vars],
+        )
         for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
             if not idx_info:
                 samples_per_chain = self.posterior_samples[orig_var]
             else:
                 idx = idx_info[0]
-                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
+                samples_per_chain = self.posterior_samples[orig_var][
+                    (slice(None), slice(None)) + idx
+                ]
 
             for chain_idx in range(self.num_chains):
                 samples = samples_per_chain[chain_idx]
-                autocorr = [1.0] + [np.corrcoef(samples[:-t], samples[t:])[0, 1] for t in range(1, 40)]
+                autocorr = [1.0] + [
+                    np.corrcoef(samples[:-t], samples[t:])[0, 1] for t in range(1, 40)
+                ]
                 color = self.colors[chain_idx % len(self.colors)]
-                fig.add_trace(go.Bar(y=autocorr, name=f'Chain {chain_idx}', 
-                                     legendgroup=f'chain{chain_idx}',
-                                     marker_color=color,
-                                     showlegend=(i==0)), 
-                              row=i+1, col=1)
-        fig.update_layout(height=250*len(flattened_vars), title_text="Autocorrelation Plots by Chain", barmode='group')
+                fig.add_trace(
+                    go.Bar(
+                        y=autocorr,
+                        name=f"Chain {chain_idx}",
+                        legendgroup=f"chain{chain_idx}",
+                        marker_color=color,
+                        showlegend=(i == 0),
+                    ),
+                    row=i + 1,
+                    col=1,
+                )
+        fig.update_layout(
+            height=250 * len(flattened_vars),
+            title_text="Autocorrelation Plots by Chain",
+            barmode="group",
+        )
 
         return fig
 
@@ -683,7 +1168,7 @@ class diagWIP():
 
         if var_names is None:
             var_names = self.priors_name
-            
+
         # Expand multi-dimensional variables
         flattened_vars = []
         for var in var_names:
@@ -699,30 +1184,36 @@ class diagWIP():
 
         fig = go.Figure()
         colors = px.colors.qualitative.Plotly
-        
+
         for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
             color = colors[i % len(colors)]
             if not idx_info:
                 samples_per_chain = self.posterior_samples[orig_var]
             else:
                 idx = idx_info[0]
-                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
+                samples_per_chain = self.posterior_samples[orig_var][
+                    (slice(None), slice(None)) + idx
+                ]
 
             all_samples = samples_per_chain.flatten()
-            
-            fig.add_trace(go.Violin(
-                x=all_samples,
-                y=[f" {var_label} "], # Extra spaces to avoid naming conflicts with violin group
-                name=var_label,
-                legendgroup=var_label,
-                orientation='h',
-                side='both',
-                points=False,
-                fillcolor=color,
-                opacity=0.4,
-                line_width=0,
-                spanmode='hard'
-            ))
+
+            fig.add_trace(
+                go.Violin(
+                    x=all_samples,
+                    y=[
+                        f" {var_label} "
+                    ],  # Extra spaces to avoid naming conflicts with violin group
+                    name=var_label,
+                    legendgroup=var_label,
+                    orientation="h",
+                    side="both",
+                    points=False,
+                    fillcolor=color,
+                    opacity=0.4,
+                    line_width=0,
+                    spanmode="hard",
+                )
+            )
 
             mean_val = np.mean(all_samples)
             hdi = az.hdi(np.array(all_samples), hdi_prob=hdi_prob)
@@ -731,41 +1222,48 @@ class diagWIP():
             error_upper = hdi_upper - mean_val
             error_lower = mean_val - hdi_lower
 
-            fig.add_trace(go.Scatter(
-                x=[mean_val], 
-                y=[f" {var_label} "],
-                mode='markers',
-                legendgroup=var_label,
-                name=var_label,
-                marker=dict(color=color, size=8),
-                error_x=dict(
-                    type='data', 
-                    symmetric=False, 
-                    array=[error_upper], 
-                    arrayminus=[error_lower],
-                    width=4,
-                    color=color
-                ),
-                showlegend=False 
-            ))
-        
-        fig.add_vline(x=0, line_dash="dash", line_color="black", 
-              annotation_text="", annotation_position="top right")
+            fig.add_trace(
+                go.Scatter(
+                    x=[mean_val],
+                    y=[f" {var_label} "],
+                    mode="markers",
+                    legendgroup=var_label,
+                    name=var_label,
+                    marker=dict(color=color, size=8),
+                    error_x=dict(
+                        type="data",
+                        symmetric=False,
+                        array=[error_upper],
+                        arrayminus=[error_lower],
+                        width=4,
+                        color=color,
+                    ),
+                    showlegend=False,
+                )
+            )
+
+        fig.add_vline(
+            x=0,
+            line_dash="dash",
+            line_color="black",
+            annotation_text="",
+            annotation_position="top right",
+        )
         fig.update_layout(
-            title_text=f'Forest Plot (Posterior Distributions and {hdi_prob*100:.1f}% HDI)',
+            title_text=f"Forest Plot (Posterior Distributions and {hdi_prob*100:.1f}% HDI)",
             xaxis_title="Parameter Value",
             yaxis_title="Parameter",
             violingap=0.1,
-            plot_bgcolor='white'
+            plot_bgcolor="white",
         )
         fig.update_yaxes(autorange="reversed")
 
         return fig
 
     def density(self, var_names=None, shade=0.4):
-        sns=importer.get_module("sns")
-        plt=importer.get_module("plt")
-        go=importer.get_module("go")
+        sns = importer.get_module("sns")
+        plt = importer.get_module("plt")
+        go = importer.get_module("go")
         if var_names is None:
             var_names = self.priors_name
 
@@ -782,28 +1280,50 @@ class diagWIP():
                     full_name = f"{var}{idx_str}"
                     flattened_vars.append((full_name, var, idx))
 
-        fig = make_subplots(rows=len(flattened_vars), cols=1, subplot_titles=[f"Density of {v[0]}" for v in flattened_vars])
+        fig = make_subplots(
+            rows=len(flattened_vars),
+            cols=1,
+            subplot_titles=[f"Density of {v[0]}" for v in flattened_vars],
+        )
         for i, (var_label, orig_var, *idx_info) in enumerate(flattened_vars):
             if not idx_info:
                 samples_per_chain = self.posterior_samples[orig_var]
             else:
                 idx = idx_info[0]
-                samples_per_chain = self.posterior_samples[orig_var][(slice(None), slice(None)) + idx]
+                samples_per_chain = self.posterior_samples[orig_var][
+                    (slice(None), slice(None)) + idx
+                ]
 
             for chain_idx in range(self.num_chains):
                 color = self.colors[chain_idx % len(self.colors)]
                 rgb_color = pcolors.hex_to_rgb(color)
-                fill_color = f'rgba({rgb_color[0]},{rgb_color[1]},{rgb_color[2]},{shade})'
+                fill_color = (
+                    f"rgba({rgb_color[0]},{rgb_color[1]},{rgb_color[2]},{shade})"
+                )
                 chain_samples = samples_per_chain[chain_idx]
                 with sns.plotting_context(rc={"figure.figsize": (1, 1)}):
                     kde_plot = sns.kdeplot(chain_samples)
                     kde = kde_plot.get_lines()[0].get_data()
                     plt.close()
-                fig.add_trace(go.Scatter(x=kde[0], y=kde[1], fill='tozeroy', mode='lines',
-                                         name=f'Chain {chain_idx}', legendgroup=f'chain{chain_idx}',
-                                         showlegend=(i==0), fillcolor=fill_color, line_color=color),
-                              row=i+1, col=1)
-        fig.update_layout(height=300*len(flattened_vars), title_text="Density Plots (Overlaid Chains)")
+                fig.add_trace(
+                    go.Scatter(
+                        x=kde[0],
+                        y=kde[1],
+                        fill="tozeroy",
+                        mode="lines",
+                        name=f"Chain {chain_idx}",
+                        legendgroup=f"chain{chain_idx}",
+                        showlegend=(i == 0),
+                        fillcolor=fill_color,
+                        line_color=color,
+                    ),
+                    row=i + 1,
+                    col=1,
+                )
+        fig.update_layout(
+            height=300 * len(flattened_vars),
+            title_text="Density Plots (Overlaid Chains)",
+        )
 
         return fig
 

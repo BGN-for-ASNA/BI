@@ -5,7 +5,8 @@ sidebar: start
 
 # PCA
 ``` python
-from BI import bi, jnp
+from BI import bi
+import jax.numpy as jnp
 
 m=bi()
 m.data('iris.csv', sep=',') # Data is already scaled
@@ -27,7 +28,8 @@ m.models.pca.plot(
 
 # Survival analysis
 ```python
-from BI import bi, jnp
+from BI import bi
+import jax.numpy as jnp
 
 m = bi()
 m.data('mastectomy.csv', sep=',').head()
@@ -119,7 +121,8 @@ m.plot(data,m.sampler)
 ## Python
 ```Python
 # Setup device------------------------------------------------
-from BI import bi, jnp
+from BI import bi
+import jax.numpy as jnp
 
 # Setup device------------------------------------------------
 m = bi(platform='cpu')

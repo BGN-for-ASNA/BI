@@ -262,7 +262,11 @@ class bi(manip):
                 jit_model_args=jit_model_args,
             )
 
-            self.sampler.run(jax.random.PRNGKey(seed), **self.data_on_model)
+            self.sampler.run(
+                jax.random.PRNGKey(seed),
+                extra_fields=('num_steps', 'energy', 'diverging', 'accept_prob'),
+                **self.data_on_model,
+            )
             self.posteriors = self.sampler.get_samples()
             self.diag = diag(sampler=self.sampler)
             self.get_history()
@@ -404,7 +408,16 @@ class bi(manip):
         return pyrand.randint(low, high, shape)
 
     # Get posteriors ----------------------------------------------------------------------------
-    def summary(self, round_to=2, kind="all", hdi_prob=0.89, *args, **kwargs):
+    def summary(
+        self,
+        round_to=2,
+        kind="all",
+        hdi_prob=0.89,
+        var_names=None,
+        exclude_vars=None,
+        *args,
+        **kwargs,
+    ):
         """
         Generate a summary of the posterior distribution.
 
@@ -412,6 +425,8 @@ class bi(manip):
             round_to: Number of decimal places to round.
             kind: Type of summary statistics.
             hdi_prob: Probability for HDI interval.
+            var_names: List of variable names to include in the summary.
+            exclude_vars: List of variable names to exclude from the summary.
             *args: Additional arguments.
             **kwargs: Additional keyword arguments.
 
@@ -428,6 +443,18 @@ class bi(manip):
             *args,
             **kwargs,
         )
+        if var_names is not None or exclude_vars is not None:
+            base_names = self.tab_summary.index.str.split("[").str[0]
+            vars_to_keep = base_names.unique().tolist()
+            if var_names is not None:
+                if isinstance(var_names, str):
+                    var_names = [var_names]
+                vars_to_keep = [v for v in vars_to_keep if v in var_names]
+            if exclude_vars is not None:
+                if isinstance(exclude_vars, str):
+                    exclude_vars = [exclude_vars]
+                vars_to_keep = [v for v in vars_to_keep if v not in exclude_vars]
+            self.tab_summary = self.tab_summary.loc[base_names.isin(vars_to_keep)]
         return self.tab_summary
 
     def get_posterior_means(self):
