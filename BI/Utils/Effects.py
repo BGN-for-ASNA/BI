@@ -476,3 +476,100 @@ class effects:
 
         # 4. Return the specific intercept corresponding to the group of each observation.
         return alpha[group_idx]
+
+    @staticmethod
+    def nested_varying_effects(
+        N_vars,
+        levels,
+        group_id,
+        centered=False,
+        sample=False,
+    ):
+        """
+        Nested varying effects model supporting arbitrary nesting depth and multiple variables.
+
+        Args:
+            N_vars (int): The total number of covariates for the model (e.g., 2 for intercept + 1 slope).
+            levels (list): A list of dicts, one for each level in the hierarchy (top to bottom).
+                Each dict configures one level with keys:
+                    - 'name' (str, required): Name of the grouping factor.
+                    - 'N_groups' (int, required): Number of units at this level.
+                    - 'parent_id' (array, required if not top level): Array mapping each unit to its parent's index. None for top level.
+                    - 'mu' (array, optional): Mean vector for the top level. Defaults to auto-sampled global means.
+                    - 'sigma' (distribution, optional): Priors for standard deviations. Defaults to Exponential(1).
+                    - 'L_corr' (distribution, optional): Priors for Cholesky factor of correlation matrix. Defaults to LKJCholesky(N_vars, 2).
+                    - 'corr' (distribution, optional): Priors for correlation matrix (used if centered=True). Defaults to LKJ(N_vars, 2).
+            group_id (array): Mapping from observations to the lowest level's group index.
+            centered (bool, optional): Whether to use centered parameterization. Defaults to False.
+            sample (bool, optional): Whether to sample from the posterior direct wrapper. Defaults to False.
+
+        Returns:
+            tuple: A tuple containing arrays (varying_intercepts, varying_slopes) for each observation.
+        """
+        # Top-level global mean
+        top_level = levels[0]
+        if 'mu' in top_level and top_level['mu'] is not None:
+            current_parent_effects = top_level['mu']
+        else:
+            # Generate default global mean
+            alpha_bar = dist.normal(5, 2, name="global_intercept", sample=sample, shape=(1,))
+            if N_vars > 1:
+                beta_bar = dist.normal(-1, 1, name="global_beta", sample=sample, shape=(N_vars - 1,))
+                current_parent_effects = jnp.concat([alpha_bar, beta_bar])
+            else:
+                current_parent_effects = alpha_bar
+
+        for i, level in enumerate(levels):
+            name = level['name']
+            N_group = level['N_groups']
+            parent_id = level.get('parent_id')
+
+            if 'sigma' in level and level['sigma'] is not None:
+                sigma = level['sigma']
+            else:
+                sigma = dist.exponential(1, shape=(N_vars,), name=f"sigma_{name}", sample=sample)
+
+            if centered:
+                if 'corr' in level and level['corr'] is not None:
+                    corr = level['corr']
+                else:
+                    corr = dist.lkj(dimension=N_vars, concentration=2, name=f"corr_{name}", sample=sample)
+                
+                cov = jnp.diag(sigma) @ corr @ jnp.diag(sigma)
+                
+                if i == 0:
+                    current_parent_effects = dist.multivariate_normal(
+                        current_parent_effects, cov, shape=(N_group,), name=f"{name}_effects", sample=sample
+                    )
+                else:
+                    mu = current_parent_effects[parent_id]
+                    current_parent_effects = dist.multivariate_normal(
+                        mu, cov, name=f"{name}_effects", sample=sample
+                    )
+            else:
+                if 'L_corr' in level and level['L_corr'] is not None:
+                    L_corr = level['L_corr']
+                else:
+                    L_corr = dist.lkj_cholesky(dimension=N_vars, concentration=2, name=f"L_corr_{name}", sample=sample)
+
+                z = dist.normal(0, 1, name=f"z_{name}", shape=(N_vars, N_group), sample=sample)
+                
+                effects_deviation = ((sigma[..., None] * L_corr) @ z).T
+                
+                if i == 0:
+                    current_parent_effects = current_parent_effects + effects_deviation
+                else:
+                    mu = current_parent_effects[parent_id]
+                    current_parent_effects = mu + effects_deviation
+
+        # Final level effects applied to observations
+        obs_effects = current_parent_effects[group_id]
+        
+        varying_intercepts = obs_effects[:, 0]
+        if N_vars == 1:
+            return varying_intercepts
+        varying_slopes = obs_effects[:, 1:]
+        if varying_slopes.shape[1] == 1:
+            varying_slopes = varying_slopes[:, 0]
+        return varying_intercepts, varying_slopes
+
