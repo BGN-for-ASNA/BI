@@ -419,6 +419,44 @@ class bi(manip):
     def summary(
         self,
         round_to=2,
+        hdi_prob=0.89,
+        include=None,
+        exclude=None,
+        var_names=None,
+        exclude_vars=None,
+        filter_regex=None,
+        group_by_chain=True,
+    ):
+        """JAX-based posterior summary (matches ArviZ output format).
+
+        Args:
+            round_to: Decimal places to round.
+            hdi_prob: HDI probability mass.
+            include: str or list — keep only these parameters.
+            exclude: str or list — remove these parameters.
+            var_names: Legacy alias for include.
+            exclude_vars: Legacy alias for exclude.
+            filter_regex: Regex applied to base parameter names.
+            group_by_chain: Use chain-structured posteriors (default True).
+        """
+        from BI.Diagnostic.jax_diagnostics import summary as _jax_summary
+        posteriors = (self.posteriors_by_chain if group_by_chain
+                      and hasattr(self, 'posteriors_by_chain')
+                      else self.posteriors)
+        self.tab_summary = _jax_summary(
+            posteriors,
+            round_to=round_to,
+            hdi_prob=hdi_prob,
+            include=include or var_names,
+            exclude=exclude or exclude_vars,
+            filter_regex=filter_regex,
+            group_by_chain=group_by_chain,
+        )
+        return self.tab_summary
+
+    def summary_old(
+        self,
+        round_to=2,
         kind="all",
         hdi_prob=0.89,
         var_names=None,
@@ -426,21 +464,7 @@ class bi(manip):
         *args,
         **kwargs,
     ):
-        """
-        Generate a summary of the posterior distribution.
-
-        Args:
-            round_to: Number of decimal places to round.
-            kind: Type of summary statistics.
-            hdi_prob: Probability for HDI interval.
-            var_names: List of variable names to include in the summary.
-            exclude_vars: List of variable names to exclude from the summary.
-            *args: Additional arguments.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            Summary statistics.
-        """
+        """ArviZ-based posterior summary (original implementation)."""
         if self.trace is None:
             self.diag.to_az(backend=self.backend)
         self.tab_summary = az.summary(
