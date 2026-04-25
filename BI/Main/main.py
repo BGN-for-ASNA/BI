@@ -69,6 +69,8 @@ class bi(manip):
         self.data_on_model = None
         self.priors_name = None
         self.tab_summary = None
+        self.posteriors_full = None
+        self.posteriors_by_chain_full = None
 
         self.nbdaModel = False
         self.obs_args = None
