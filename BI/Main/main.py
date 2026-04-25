@@ -274,6 +274,8 @@ class bi(manip):
             self.posteriors_full = dict(self.posteriors)
             self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
             self.diag = diag(sampler=self.sampler)
+            from BI.Diagnostic.patch_diag import bind_diag_to_model
+            bind_diag_to_model(self.diag, self)
             self.get_history()
 
         elif self.backend == "tfp":
@@ -302,6 +304,8 @@ class bi(manip):
             self.posteriors_by_chain = self.posteriors  # TFP always returns chain-structured
             self.posteriors_full = dict(self.posteriors)
             self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
+            from BI.Diagnostic.patch_diag import bind_diag_to_model
+            bind_diag_to_model(self.diag, self)
             self.get_history()
 
         if self.model_name == "pca":
@@ -440,6 +444,10 @@ class bi(manip):
             group_by_chain: Use chain-structured posteriors (default True).
         """
         from BI.Diagnostic.jax_diagnostics import summary as _jax_summary
+        _inc = include or var_names
+        _exc = exclude or exclude_vars
+        if _inc is not None or _exc is not None:
+            self.filter_posteriors(include=_inc, exclude=_exc)
         posteriors = (self.posteriors_by_chain if group_by_chain
                       and hasattr(self, 'posteriors_by_chain')
                       else self.posteriors)
@@ -447,8 +455,6 @@ class bi(manip):
             posteriors,
             round_to=round_to,
             hdi_prob=hdi_prob,
-            include=include or var_names,
-            exclude=exclude or exclude_vars,
             filter_regex=filter_regex,
             group_by_chain=group_by_chain,
         )
