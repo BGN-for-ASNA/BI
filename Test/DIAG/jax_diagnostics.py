@@ -334,6 +334,7 @@ def hdi(samples: jnp.ndarray, hdi_prob: float = 0.94) -> jnp.ndarray:
 
 def summary(posterior_samples: dict, round_to: int = 2, hdi_prob: float = 0.89,
             var_names=None, exclude_vars=None, filter_regex=None,
+            include=None, exclude=None,
             group_by_chain: bool = False):
     """Compute summary statistics matching az.summary() output format.
 
@@ -356,17 +357,13 @@ def summary(posterior_samples: dict, round_to: int = 2, hdi_prob: float = 0.89,
     import numpy as np
     import re as _re
 
+    # include/exclude take priority; var_names/exclude_vars are legacy aliases
+    _inc = include if include is not None else var_names
+    _exc = exclude if exclude is not None else exclude_vars
+    posterior_samples = filter_posterior_dict(posterior_samples,
+                                              include=_inc, exclude=_exc)
+
     vars_to_process = list(posterior_samples.keys())
-
-    if var_names is not None:
-        if isinstance(var_names, str):
-            var_names = [var_names]
-        vars_to_process = [v for v in vars_to_process if v in var_names]
-
-    if exclude_vars is not None:
-        if isinstance(exclude_vars, str):
-            exclude_vars = [exclude_vars]
-        vars_to_process = [v for v in vars_to_process if v not in exclude_vars]
 
     if filter_regex is not None:
         vars_to_process = [v for v in vars_to_process if _re.search(filter_regex, v)]
