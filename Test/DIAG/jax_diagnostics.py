@@ -11,6 +11,45 @@ from functools import partial
 
 
 # =============================================================================
+# Posterior dict filtering
+# =============================================================================
+
+def _base_name(name: str) -> str:
+    """Strip index suffix: 'var[0,1]' → 'var'."""
+    return name.split('[')[0]
+
+
+def filter_posterior_dict(posteriors: dict, include=None, exclude=None) -> dict:
+    """Filter a posterior samples dict by parameter base name.
+
+    Matching is on base name only: 'var' matches key 'var' (and covers all
+    'var[i,j,...]') but never matches 'var_1'. Index suffixes in filter names
+    are stripped, so 'var[0,0]' and 'var' are equivalent filters.
+
+    Args:
+        posteriors: Dict of {name: array}.
+        include: str or list of str — keep only these base names.
+        exclude: str or list of str — remove these base names.
+
+    Returns:
+        Filtered dict (shallow copy of matched entries).
+    """
+    def _as_set(arg):
+        if arg is None:
+            return None
+        if isinstance(arg, str):
+            arg = [arg]
+        return {_base_name(n) for n in arg}
+
+    inc = _as_set(include)
+    exc = _as_set(exclude)
+
+    keys = [k for k in posteriors
+            if (inc is None or k in inc) and (exc is None or k not in exc)]
+    return {k: posteriors[k] for k in keys}
+
+
+# =============================================================================
 # R-hat (Split R-hat, Vehtari et al. 2021)
 # =============================================================================
 
@@ -54,19 +93,22 @@ def _rhat_1d(chains: jnp.ndarray) -> jnp.ndarray:
     return rhat
 
 
-def rhat(posterior_samples: dict, var_names=None) -> dict:
+def rhat(posterior_samples: dict, var_names=None,
+         include=None, exclude=None) -> dict:
     """Compute R-hat for all parameters.
 
     Args:
-        posterior_samples: Dict of {name: array} where arrays have shape
-            (num_chains, num_samples, ...).
-        var_names: Optional list of variable names to compute. Defaults to all.
+        posterior_samples: Dict of {name: array}, shape (num_chains, num_samples, ...).
+        include: str or list — keep only these base names.
+        exclude: str or list — remove these base names.
+        var_names: legacy alias for include.
 
     Returns:
         Dict of {name: R-hat value(s)}.
     """
-    if var_names is None:
-        var_names = list(posterior_samples.keys())
+    posterior_samples = filter_posterior_dict(
+        posterior_samples, include=include or var_names, exclude=exclude)
+    var_names = list(posterior_samples.keys())
 
     results = {}
     for name in var_names:
@@ -92,119 +134,156 @@ def rhat(posterior_samples: dict, var_names=None) -> dict:
 
 @partial(jax.jit, static_argnames=('max_lag',))
 def _autocorr_1d(x: jnp.ndarray, max_lag: int = None) -> jnp.ndarray:
-    """Compute autocorrelation using FFT for a single 1D chain.
-
-    Args:
-        x: 1D array of samples.
-        max_lag: Maximum lag to compute. Defaults to len(x).
-
-    Returns:
-        Array of autocorrelation values.
-    """
+    """Compute autocorrelation using FFT for a single 1D chain."""
     n = x.shape[0]
     if max_lag is None:
         max_lag = n
-
-    # Center the data
     x_centered = x - jnp.mean(x)
-
-    # FFT-based autocorrelation (use numpy for the size calculation since n is a static shape)
     import numpy as _np
-    fft_size = 2 ** int(_np.ceil(_np.log2(2 * n - 1)))  # next power of 2
+    fft_size = 2 ** int(_np.ceil(_np.log2(2 * n - 1)))
     fft_x = jnp.fft.rfft(x_centered, n=fft_size)
     acf = jnp.fft.irfft(fft_x * jnp.conj(fft_x), n=fft_size)[:n]
-    acf = acf / acf[0]  # normalize
+    acf = acf / acf[0]
     return acf[:max_lag]
 
 
-def _ess_1d(chains: jnp.ndarray) -> float:
-    """Compute bulk ESS for a single parameter using split chains.
+def _autocov_np(ary):
+    """Autocovariance for 2D array (n_chain, n_draw) at all lags, matching ArviZ."""
+    import numpy as _np
+    ary = _np.asarray(ary, dtype=float)
+    n = ary.shape[1]
+    from scipy.fft import next_fast_len
+    m = next_fast_len(2 * n)
+    ary = ary - ary.mean(axis=1, keepdims=True)
+    fft_x = _np.fft.rfft(ary, n=m, axis=1)
+    fft_x *= _np.conj(fft_x)
+    acov = _np.fft.irfft(fft_x, n=m, axis=1)[:, :n]
+    acov /= n
+    return acov
 
-    Uses Geyer's initial positive sequence estimator on split chains,
-    matching ArviZ/Stan methodology.
+
+def _split_chains_np(ary):
+    """Split each chain in half and stack (ArviZ convention)."""
+    import numpy as _np
+    ary = _np.asarray(ary)
+    half = ary.shape[1] // 2
+    return _np.concatenate([ary[:, :half], ary[:, -half:]], axis=0)
+
+
+def _z_scale_np(ary):
+    """Rank-normalize array using Blom (1958) formula, matching ArviZ _z_scale."""
+    import numpy as _np
+    from scipy import stats as _stats
+    ary = _np.asarray(ary, dtype=float)
+    shape = ary.shape
+    flat = ary.flatten()
+    rank = _stats.rankdata(flat, method="average")
+    c = 3.0 / 8.0
+    n = len(rank)
+    rank = (rank - c) / (n - 2.0 * c + 1.0)
+    z = _stats.norm.ppf(rank)
+    return z.reshape(shape)
+
+
+def _ess_raw(ary):
+    """Core ESS on pre-split, pre-transformed chains.
+
+    Matches ArviZ _ess exactly: cross-chain pooled rho_hat, Geyer's initial
+    positive sequence + initial monotone sequence, tau lower bound.
 
     Args:
-        chains: Array of shape (num_chains, num_samples).
+        ary: (n_chain, n_draw) numpy array, already split and transformed.
 
     Returns:
-        Scalar ESS value.
+        Scalar ESS float.
     """
-    num_chains, num_samples = chains.shape
+    import numpy as _np
+    ary = _np.asarray(ary, dtype=float)
+    n_chain, n_draw = ary.shape
 
-    # Split chains
-    half = num_samples // 2
-    first_half = chains[:, :half]
-    second_half = chains[:, half:2 * half]
-    split_chains = jnp.concatenate([first_half, second_half], axis=0)
+    acov = _autocov_np(ary)
+    chain_mean = ary.mean(axis=1)
+    mean_var = _np.mean(acov[:, 0]) * n_draw / (n_draw - 1.0)
+    var_plus = mean_var * (n_draw - 1.0) / n_draw
+    if n_chain > 1:
+        var_plus += _np.var(chain_mean, ddof=1)
 
-    m = split_chains.shape[0]
-    n = half
+    rho_hat_t = _np.zeros(n_draw)
+    rho_hat_even = 1.0
+    rho_hat_t[0] = rho_hat_even
+    rho_hat_odd = 1.0 - (mean_var - _np.mean(acov[:, 1])) / var_plus
+    rho_hat_t[1] = rho_hat_odd
 
-    # Compute mean autocorrelation across all split chains
-    max_lag = n
-    acf_sum = jnp.zeros(max_lag)
-    for c in range(m):
-        acf_sum = acf_sum + _autocorr_1d(split_chains[c], max_lag=max_lag)
-    mean_acf = acf_sum / m
-
-    # Geyer's initial positive sequence: sum pairs Γ_m = ρ_{2m} + ρ_{2m+1}
-    # Start at m=0 (t=0) so Γ_0 = ρ_0 + ρ_1 = 1 + ρ_1 is included.
-    # IACT = -1 + 2 * sum_m Γ_m  (Geyer 1992)
-    tau = -1.0
-    t = 0
-    while t < max_lag - 1:
-        rho_pair = float(mean_acf[t] + mean_acf[t + 1])
-        if rho_pair < 0:
-            break
-        tau += rho_pair
+    # Geyer's initial positive sequence
+    t = 1
+    while t < (n_draw - 3) and (rho_hat_even + rho_hat_odd) > 0.0:
+        rho_hat_even = 1.0 - (mean_var - _np.mean(acov[:, t + 1])) / var_plus
+        rho_hat_odd = 1.0 - (mean_var - _np.mean(acov[:, t + 2])) / var_plus
+        if (rho_hat_even + rho_hat_odd) >= 0:
+            rho_hat_t[t + 1] = rho_hat_even
+            rho_hat_t[t + 2] = rho_hat_odd
         t += 2
 
-    tau = 2.0 * tau + 1.0  # integrated autocorrelation time
-    ess_val = m * n / max(tau, 1.0)
-    return max(1.0, ess_val)
+    max_t = t - 2
+    if rho_hat_even > 0:
+        rho_hat_t[max_t + 1] = rho_hat_even
+
+    # Geyer's initial monotone sequence
+    t = 1
+    while t <= max_t - 2:
+        if (rho_hat_t[t + 1] + rho_hat_t[t + 2]) > (rho_hat_t[t - 1] + rho_hat_t[t]):
+            rho_hat_t[t + 1] = (rho_hat_t[t - 1] + rho_hat_t[t]) / 2.0
+            rho_hat_t[t + 2] = rho_hat_t[t + 1]
+        t += 2
+
+    ess_total = float(n_chain * n_draw)
+    tau_hat = -1.0 + 2.0 * _np.sum(rho_hat_t[:max_t + 1]) + _np.sum(rho_hat_t[max_t + 1:max_t + 2])
+    tau_hat = max(tau_hat, 1.0 / _np.log10(ess_total))
+    return ess_total / tau_hat
 
 
-def _ess_tail_1d(chains: jnp.ndarray) -> float:
-    """Compute tail ESS as min(ESS(I(x <= q05)), ESS(I(x >= q95))).
-
-    Args:
-        chains: Array of shape (num_chains, num_samples).
-
-    Returns:
-        Scalar tail ESS value.
-    """
-    all_samples = chains.flatten()
-    q05 = jnp.percentile(all_samples, 5)
-    q95 = jnp.percentile(all_samples, 95)
-
-    # Indicator chains
-    lower_indicator = (chains <= q05).astype(jnp.float32)
-    upper_indicator = (chains >= q95).astype(jnp.float32)
-
-    ess_lower = _ess_1d(lower_indicator)
-    ess_upper = _ess_1d(upper_indicator)
-    return min(ess_lower, ess_upper)
+def _ess_1d(chains) -> float:
+    """Bulk ESS: split chains → rank-normalize → _ess_raw (matches ArviZ _ess_bulk)."""
+    import numpy as _np
+    chains = _np.asarray(chains, dtype=float)
+    split = _split_chains_np(chains)
+    z = _z_scale_np(split)
+    return float(_ess_raw(z))
 
 
-def ess(posterior_samples: dict, var_names=None, kind="bulk") -> dict:
+def _ess_tail_1d(chains) -> float:
+    """Tail ESS: min(ESS(I(x<=q05)), ESS(I(x<=q95))) (matches ArviZ _ess_tail)."""
+    import numpy as _np
+    chains = _np.asarray(chains, dtype=float)
+    flat = chains.flatten()
+    q05 = _np.percentile(flat, 5)
+    q95 = _np.percentile(flat, 95)
+    ess_low = _ess_raw(_split_chains_np((chains <= q05).astype(float)))
+    ess_high = _ess_raw(_split_chains_np((chains <= q95).astype(float)))
+    return float(min(ess_low, ess_high))
+
+
+def ess(posterior_samples: dict, var_names=None, kind="bulk",
+        include=None, exclude=None) -> dict:
     """Compute effective sample size for all parameters.
 
     Args:
-        posterior_samples: Dict of {name: array} with shape (chains, samples, ...).
-        var_names: Optional list of variable names. Defaults to all.
-        kind: "bulk" for bulk ESS, "tail" for tail ESS.
+        posterior_samples: Dict of {name: array}, shape (chains, samples, ...).
+        include: str or list — keep only these base names.
+        exclude: str or list — remove these base names.
+        var_names: legacy alias for include.
+        kind: "bulk" or "tail".
 
     Returns:
         Dict of {name: ESS value(s)}.
     """
-    if var_names is None:
-        var_names = list(posterior_samples.keys())
+    posterior_samples = filter_posterior_dict(
+        posterior_samples, include=include or var_names, exclude=exclude)
 
     ess_fn = _ess_1d if kind == "bulk" else _ess_tail_1d
 
     results = {}
-    for name in var_names:
-        samples = posterior_samples[name]
+    for name, samples in posterior_samples.items():
         if samples.ndim == 2:
             results[name] = ess_fn(samples)
         else:
@@ -371,26 +450,28 @@ def summary(posterior_samples: dict, round_to: int = 2, hdi_prob: float = 0.89,
 # MCSE (Monte Carlo Standard Error)
 # =============================================================================
 
-def mcse(posterior_samples: dict, var_names=None) -> dict:
+def mcse(posterior_samples: dict, var_names=None,
+         include=None, exclude=None) -> dict:
     """Compute Monte Carlo Standard Error for all parameters.
 
     MCSE = posterior_std / sqrt(ESS_bulk)
 
     Args:
-        posterior_samples: Dict of {name: array} with shape (chains, samples, ...).
-        var_names: Optional list of variable names. Defaults to all.
+        posterior_samples: Dict of {name: array}, shape (chains, samples, ...).
+        include: str or list — keep only these base names.
+        exclude: str or list — remove these base names.
+        var_names: legacy alias for include.
 
     Returns:
         Dict of {name: MCSE value(s)}.
     """
-    if var_names is None:
-        var_names = list(posterior_samples.keys())
+    posterior_samples = filter_posterior_dict(
+        posterior_samples, include=include or var_names, exclude=exclude)
 
-    ess_results = ess(posterior_samples, var_names=var_names, kind="bulk")
+    ess_results = ess(posterior_samples, kind="bulk")
 
     results = {}
-    for name in var_names:
-        samples = posterior_samples[name]
+    for name, samples in posterior_samples.items():
         std_val = float(jnp.std(samples.flatten()))
         ess_val = ess_results[name]
         if isinstance(ess_val, (int, float)):
