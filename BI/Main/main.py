@@ -268,6 +268,7 @@ class bi(manip):
                 **self.data_on_model,
             )
             self.posteriors = self.sampler.get_samples()
+            self.posteriors_by_chain = self.sampler.get_samples(group_by_chain=True)
             self.diag = diag(sampler=self.sampler)
             self.get_history()
 
@@ -294,6 +295,7 @@ class bi(manip):
             )
             self.diag = diag(sampler=self.sampler)
             self.posteriors = self.sampler.get_samples()
+            self.posteriors_by_chain = self.posteriors  # TFP always returns chain-structured
             self.get_history()
 
         if self.model_name == "pca":

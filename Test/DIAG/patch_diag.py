@@ -41,12 +41,14 @@ import jax_diagnostics as jd
 from jax_diagnostics import iter_expanded
 
 
-def _get_posteriors(m):
+def _get_posteriors(m, by_chain=False):
     """Extract the posterior-samples dict from `m`.
 
-    Tries `m.posteriors` first, falls back to `m.posterior_samples`,
-    otherwise raises a clear error.
+    by_chain=True: returns chain-structured (n_chains, n_draws, ...) when available.
+    by_chain=False: returns flat (n_draws, ...) samples.
     """
+    if by_chain and hasattr(m, 'posteriors_by_chain'):
+        return m.posteriors_by_chain
     if hasattr(m, 'posteriors'):
         return m.posteriors
     if hasattr(m, 'posterior_samples'):
@@ -84,20 +86,25 @@ def patch_diag_class(cls):
     # ------------------------------------------------------------------
     def summary_jax(self, m, round_to=2, hdi_prob=0.89,
                     var_names=None, exclude_vars=None, filter_regex=None):
+        has_chains = hasattr(m, 'posteriors_by_chain')
         self.tab_summary = jd.summary(
-            _get_posteriors(m), round_to=round_to, hdi_prob=hdi_prob,
+            _get_posteriors(m, by_chain=has_chains),
+            round_to=round_to, hdi_prob=hdi_prob,
             var_names=var_names, exclude_vars=exclude_vars,
-            filter_regex=filter_regex)
+            filter_regex=filter_regex,
+            group_by_chain=has_chains)
         return self.tab_summary
 
     def rhat_jax(self, m, var_names=None, exclude_vars=None, filter_regex=None):
-        return jd.rhat(_get_posteriors(m), var_names=var_names,
+        return jd.rhat(_get_posteriors(m, by_chain=True), var_names=var_names,
                        exclude_vars=exclude_vars, filter_regex=filter_regex)
 
     def ess_jax(self, m, var_names=None, exclude_vars=None, filter_regex=None,
                 kind="bulk"):
-        return jd.ess(_get_posteriors(m), var_names=var_names,
-                      exclude_vars=exclude_vars, filter_regex=filter_regex,
+        has_chains = hasattr(m, 'posteriors_by_chain')
+        return jd.ess(_get_posteriors(m, by_chain=has_chains),
+                      var_names=var_names, exclude_vars=exclude_vars,
+                      filter_regex=filter_regex,
                       kind=kind)
 
     def mcse_jax(self, m, var_names=None, exclude_vars=None, filter_regex=None):
