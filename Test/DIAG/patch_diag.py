@@ -85,31 +85,38 @@ def patch_diag_class(cls):
     # summary / rhat / ess / mcse
     # ------------------------------------------------------------------
     def summary_jax(self, m, round_to=2, hdi_prob=0.89,
-                    var_names=None, exclude_vars=None, filter_regex=None):
+                    include=None, exclude=None, filter_regex=None,
+                    var_names=None, exclude_vars=None):
         has_chains = hasattr(m, 'posteriors_by_chain')
         self.tab_summary = jd.summary(
             _get_posteriors(m, by_chain=has_chains),
             round_to=round_to, hdi_prob=hdi_prob,
-            var_names=var_names, exclude_vars=exclude_vars,
+            include=include or var_names,
+            exclude=exclude or exclude_vars,
             filter_regex=filter_regex,
             group_by_chain=has_chains)
         return self.tab_summary
 
-    def rhat_jax(self, m, var_names=None, exclude_vars=None, filter_regex=None):
-        return jd.rhat(_get_posteriors(m, by_chain=True), var_names=var_names,
-                       exclude_vars=exclude_vars, filter_regex=filter_regex)
+    def rhat_jax(self, m, include=None, exclude=None,
+                 var_names=None, exclude_vars=None):
+        return jd.rhat(_get_posteriors(m, by_chain=True),
+                       include=include or var_names,
+                       exclude=exclude or exclude_vars)
 
-    def ess_jax(self, m, var_names=None, exclude_vars=None, filter_regex=None,
-                kind="bulk"):
+    def ess_jax(self, m, include=None, exclude=None, kind="bulk",
+                var_names=None, exclude_vars=None):
         has_chains = hasattr(m, 'posteriors_by_chain')
         return jd.ess(_get_posteriors(m, by_chain=has_chains),
-                      var_names=var_names, exclude_vars=exclude_vars,
-                      filter_regex=filter_regex,
+                      include=include or var_names,
+                      exclude=exclude or exclude_vars,
                       kind=kind)
 
-    def mcse_jax(self, m, var_names=None, exclude_vars=None, filter_regex=None):
-        return jd.mcse(_get_posteriors(m), var_names=var_names,
-                       exclude_vars=exclude_vars, filter_regex=filter_regex)
+    def mcse_jax(self, m, include=None, exclude=None,
+                 var_names=None, exclude_vars=None):
+        has_chains = hasattr(m, 'posteriors_by_chain')
+        return jd.mcse(_get_posteriors(m, by_chain=has_chains),
+                       include=include or var_names,
+                       exclude=exclude or exclude_vars)
 
     # ------------------------------------------------------------------
     # Internal helper: expand+filter, yield (label, 1D samples)
