@@ -33,39 +33,16 @@ m.summary()
 m.summary_old()
 
 # %%
-# --- standalone JAX summary ---
-from jax_diagnostics import summary, rhat, ess, mcse, filter_posterior_dict
-
-summary(m.posteriors_by_chain, group_by_chain=True)
-
+# ---Filtering logic ---
+m.summary(exclude="s")
 # %%
-# --- include: only show a and s ---
-summary(m.posteriors_by_chain, group_by_chain=True, include=["a", "s"])
-
+# --- posterior change ---
+m.posteriors.keys()
 # %%
-# --- exclude: hide b ---
-summary(m.posteriors_by_chain, group_by_chain=True, exclude="b")
-
+# --- posterior change ---
+m.posteriors_full.keys()
 # %%
-# --- filter_posterior_dict utility ---
-# 'b' removed, 'b_other' would survive (base-name exact match)
-sub = filter_posterior_dict(m.posteriors_by_chain, exclude="b")
-print("after exclude b:", list(sub.keys()))
-
+m.diag.forest()
 # %%
-# --- m.filter_posteriors: modifies m.posteriors in-place, full preserved ---
-m.filter_posteriors(exclude="b")
-print("m.posteriors keys after filter:", list(m.posteriors.keys()))
-print("m.posteriors_full keys (unchanged):", list(m.posteriors_full.keys()))
-
+m.diag.density()
 # %%
-# --- reset by re-filtering from full ---
-m.filter_posteriors(include=["a", "s"])
-print("m.posteriors after include a,s:", list(m.posteriors.keys()))
-
-# %%
-# --- rhat / ess / mcse with include/exclude ---
-print(rhat(m.posteriors_by_chain, include=["a", "b"]))
-print(ess(m.posteriors_by_chain, include=["a"], kind="bulk"))
-print(ess(m.posteriors_by_chain, exclude="b", kind="tail"))
-print(mcse(m.posteriors_by_chain, include=["a", "s"]))
