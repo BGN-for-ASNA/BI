@@ -271,6 +271,8 @@ class bi(manip):
             )
             self.posteriors = self.sampler.get_samples()
             self.posteriors_by_chain = self.sampler.get_samples(group_by_chain=True)
+            self.posteriors_full = dict(self.posteriors)
+            self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
             self.diag = diag(sampler=self.sampler)
             self.get_history()
 
@@ -298,6 +300,8 @@ class bi(manip):
             self.diag = diag(sampler=self.sampler)
             self.posteriors = self.sampler.get_samples()
             self.posteriors_by_chain = self.posteriors  # TFP always returns chain-structured
+            self.posteriors_full = dict(self.posteriors)
+            self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
             self.get_history()
 
         if self.model_name == "pca":
@@ -460,6 +464,44 @@ class bi(manip):
                 vars_to_keep = [v for v in vars_to_keep if v not in exclude_vars]
             self.tab_summary = self.tab_summary.loc[base_names.isin(vars_to_keep)]
         return self.tab_summary
+
+    def filter_posteriors(self, include=None, exclude=None):
+        """Filter m.posteriors in-place by parameter base name.
+
+        Always filters from the original full posteriors (m.posteriors_full),
+        so repeated calls reset rather than stack.
+
+        Matching is exact on base name: exclude='var' removes 'var' (all its
+        elements) but never 'var_1'. Index suffixes are stripped from filter
+        names, so 'var[0,0]' and 'var' are equivalent.
+
+        Args:
+            include: str or list — keep only these parameters.
+            exclude: str or list — remove these parameters.
+        """
+        if self.posteriors_full is None:
+            raise RuntimeError("No posteriors found. Run fit() first.")
+
+        def _base(name):
+            return name.split('[')[0]
+
+        def _as_set(arg):
+            if arg is None:
+                return None
+            if isinstance(arg, str):
+                arg = [arg]
+            return {_base(n) for n in arg}
+
+        inc = _as_set(include)
+        exc = _as_set(exclude)
+
+        def _filter(d):
+            return {k: v for k, v in d.items()
+                    if (inc is None or k in inc) and (exc is None or k not in exc)}
+
+        self.posteriors = _filter(self.posteriors_full)
+        if self.posteriors_by_chain_full is not None:
+            self.posteriors_by_chain = _filter(self.posteriors_by_chain_full)
 
     def get_posterior_means(self):
         """
