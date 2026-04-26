@@ -488,179 +488,105 @@ def mcse(posterior_samples: dict, var_names=None,
 # Reference: Vehtari, Gelman, Gabry (2017). arxiv.org/abs/1507.02646
 # =============================================================================
 
-def _psis_smooth_tail(log_ratios_tail: jnp.ndarray) -> tuple:
-    """Fit a Generalized Pareto Distribution (GPD) to the upper tail of
-    importance ratios and replace the tail with order statistics from
-    the fitted GPD.
+def _gpdfit(ary):
+    """Fit GPD via empirical Bayes (Zhang & Stephens 2009), matching ArviZ exactly.
 
-    This is the core of PSIS: instead of using raw importance weights
-    (which can have infinite variance), we fit a GPD to the largest
-    weights and replace them with expected order statistics from that
-    distribution — stabilizing the estimate.
-
-    Args:
-        log_ratios_tail: Sorted log importance ratios for the tail
-            (the largest M values, where M ~ min(S/5, 3*sqrt(S))).
-
-    Returns:
-        (smoothed_log_ratios, pareto_k): The smoothed tail log-ratios
-            and the estimated Pareto shape parameter k.
-    """
-    M = log_ratios_tail.shape[0]
-    if M < 5:
-        # Too few tail samples to fit — return raw values with bad k
-        return log_ratios_tail, jnp.inf
-
-    # Shift so the minimum tail value is 0 (work with exceedances)
-    cutoff = log_ratios_tail[0]
-    exceedances = log_ratios_tail - cutoff
-
-    # Fit GPD via the Zhang & Stephens (2009) estimator
-    # This is the method used by ArviZ / loo / Stan
-    k_hat, sigma_hat = _fit_gpd(jnp.exp(exceedances))
-
-    if jnp.isfinite(k_hat):
-        # Compute expected order statistics of the fitted GPD
-        # p_i = (i - 0.5) / M for i = 1..M
-        p = (jnp.arange(0.5, M) / M)
-        # GPD quantile function: sigma/k * ((1-p)^(-k) - 1) when k != 0
-        #                        -sigma * log(1-p) when k == 0
-        smoothed = jnp.where(
-            jnp.abs(k_hat) > 1e-6,
-            sigma_hat / k_hat * ((1 - p) ** (-k_hat) - 1),
-            -sigma_hat * jnp.log(1 - p)
-        )
-        smoothed_log = jnp.log(smoothed + 1e-30) + cutoff
-        # Ensure the smoothed tail doesn't exceed the max observed
-        smoothed_log = jnp.minimum(smoothed_log, log_ratios_tail[-1])
-    else:
-        smoothed_log = log_ratios_tail
-        k_hat = jnp.inf
-
-    return smoothed_log, k_hat
-
-
-def _fit_gpd(x: jnp.ndarray) -> tuple:
-    """Fit Generalized Pareto Distribution using the empirical Bayes method
-    of Zhang & Stephens (2009), as implemented in the R `loo` package.
-
-    Args:
-        x: 1D array of positive exceedances (already exponentiated).
-
-    Returns:
-        (k, sigma): Shape and scale parameters of the GPD.
+    ary: sorted 1D positive array (tail exceedances above cutoff).
+    Returns (k, sigma).
     """
     import numpy as np
+    prior_bs = 3
+    prior_k = 10
+    n = len(ary)
+    m_est = 30 + int(n ** 0.5)
 
-    x = np.asarray(x, dtype=np.float64)
-    N = len(x)
-    if N < 5:
-        return jnp.inf, jnp.nan
+    b_ary = 1 - np.sqrt(m_est / (np.arange(1, m_est + 1, dtype=float) - 0.5))
+    b_ary /= prior_bs * ary[int(n / 4 + 0.5) - 1]
+    b_ary += 1 / ary[-1]
 
-    x_sorted = np.sort(x)
-    # Remove any zeros or negatives
-    x_sorted = x_sorted[x_sorted > 0]
-    N = len(x_sorted)
-    if N < 5:
-        return jnp.inf, jnp.nan
+    k_ary = np.log1p(-b_ary[:, None] * ary).mean(axis=1)
+    len_scale = n * (np.log(-(b_ary / k_ary)) - k_ary - 1)
+    weights = 1 / np.exp(len_scale - len_scale[:, None]).sum(axis=1)
 
-    # Zhang & Stephens (2009) prior on theta = 1/sigma
-    m = 20 + int(np.sqrt(N))  # number of grid points
-    x_mean = np.mean(x_sorted)
+    real_idxs = weights >= 10 * np.finfo(float).eps
+    if not np.all(real_idxs):
+        weights = weights[real_idxs]
+        b_ary = b_ary[real_idxs]
+    weights /= weights.sum()
 
-    # Grid of theta values (prior quartiles)
-    # theta_i = 1/x_{ceil(N*p_i)} where p_i spans from near 0 to near 1
-    prior = 3.0
-    b_vec = np.array([1.0 / x_sorted[int(np.ceil(N * (i + 0.5) / (m))) - 1]
-                       if int(np.ceil(N * (i + 0.5) / m)) <= N
-                       else 1.0 / x_sorted[-1]
-                       for i in range(m)])
-    # Clamp to [0, 2*mean based bound]
-    b_vec = np.clip(b_vec, 1e-10, 2.0 / max(x_mean, 1e-10))
+    b_post = np.sum(b_ary * weights)
+    k_post = np.log1p(-b_post * ary).mean()
+    sigma = -k_post / b_post
+    k_post = (n * k_post + prior_k * 0.5) / (n + prior_k)
+    return float(k_post), float(sigma)
 
-    # Log-likelihood profile for each theta
-    # For GPD with shape k and scale sigma, if we parametrize theta = (1+k)/sigma:
-    # The profile log-likelihood for theta is:
-    # l(theta) = N*(log(theta/(1+k)) - (1+1/k)*mean(log(1+k*x/sigma)))
-    # Using the moment-based approach:
-    k_vec = np.zeros(m)
-    sigma_vec = np.zeros(m)
-    log_lik = np.zeros(m)
 
-    for i in range(m):
-        theta = b_vec[i]
-        # k = mean(log(1 - theta*x)) with negative sign adjustments
-        temp = 1.0 - theta * x_sorted
-        temp = np.clip(temp, 1e-30, None)
-        k_est = np.mean(np.log(temp))
-        # sigma = -k/theta
-        k_vec[i] = -k_est
-        sigma_vec[i] = -k_est / max(theta, 1e-30)
-        # log-likelihood
-        if k_vec[i] > -0.5:
-            log_lik[i] = N * (np.log(theta) + k_est - 1.0)
+def _gpinv(probs, k, sigma):
+    """Inverse GPD quantile function, matching ArviZ."""
+    import numpy as np
+    x = np.full_like(probs, np.nan)
+    if sigma <= 0:
+        return x
+    ok = (probs > 0) & (probs < 1)
+    if np.all(ok):
+        if np.abs(k) < np.finfo(float).eps:
+            x = -np.log1p(-probs)
         else:
-            log_lik[i] = -np.inf
-
-    # Posterior weights (with uniform prior)
-    log_lik_max = np.max(log_lik)
-    weights = np.exp(log_lik - log_lik_max)
-    weights = weights / np.sum(weights)
-
-    # Posterior mean of k and sigma
-    k_hat = float(np.sum(weights * k_vec))
-    sigma_hat = float(np.sum(weights * sigma_vec))
-
-    return jnp.array(k_hat), jnp.array(sigma_hat)
+            x = np.expm1(-k * np.log1p(-probs)) / k
+        x *= sigma
+    else:
+        if np.abs(k) < np.finfo(float).eps:
+            x[ok] = -np.log1p(-probs[ok])
+        else:
+            x[ok] = np.expm1(-k * np.log1p(-probs[ok])) / k
+        x[ok] *= sigma
+    return x
 
 
 def _psis_weights(log_likelihood_i: jnp.ndarray) -> tuple:
-    """Compute PSIS-smoothed log weights for a single data point.
-
-    The importance ratios for LOO are r_s = 1/p(y_i | theta_s),
-    so log_ratios = -log_likelihood for that data point.
+    """PSIS-smoothed log weights for a single data point, matching ArviZ's _psislw.
 
     Args:
-        log_likelihood_i: Array of shape (S,) — log p(y_i | theta_s)
-            for all S posterior draws (chains already flattened).
+        log_likelihood_i: shape (S,) — log p(y_i | theta_s) for all draws.
 
     Returns:
-        (log_weights, pareto_k): Smoothed log importance weights
-            and the Pareto k diagnostic.
+        (log_weights_normalized, pareto_k)
     """
-    S = log_likelihood_i.shape[0]
+    import numpy as np
+    from scipy.special import logsumexp as _sp_logsumexp
 
-    # Log importance ratios (negate log-lik to get log(1/p(y|theta)))
-    log_ratios = -log_likelihood_i
+    x = -np.asarray(log_likelihood_i, dtype=np.float64)  # log importance ratios
+    S = len(x)
 
-    # Stabilize by subtracting max
-    log_ratios_max = jnp.max(log_ratios)
-    log_ratios_centered = log_ratios - log_ratios_max
+    max_x = np.max(x)
+    x -= max_x
 
-    # Determine tail cutoff: M = min(S/5, 3*sqrt(S))
-    M = int(min(S / 5, 3 * (S ** 0.5)))
-    M = max(M, 5)
+    cutoff_ind = -int(np.ceil(min(S / 5.0, 3 * S ** 0.5))) - 1
+    cutoffmin = np.log(np.finfo(float).tiny)
 
-    # Sort and identify the tail
-    sorted_indices = jnp.argsort(log_ratios_centered)
-    sorted_log_ratios = log_ratios_centered[sorted_indices]
+    x_sort_ind = np.argsort(x)
+    xcutoff = max(x[x_sort_ind[cutoff_ind]], cutoffmin)
+    expxcutoff = np.exp(xcutoff)
 
-    # Smooth only the upper tail (largest M values)
-    tail_start = S - M
-    tail = sorted_log_ratios[tail_start:]
-    smoothed_tail, pareto_k = _psis_smooth_tail(tail)
+    (tailinds,) = np.where(x > xcutoff)
+    x_tail = x[tailinds]
+    tail_len = len(x_tail)
 
-    # Reconstruct: keep body, replace tail
-    smoothed_sorted = jnp.concatenate([sorted_log_ratios[:tail_start], smoothed_tail])
+    k = np.inf
+    if tail_len > 4:
+        x_tail_si = np.argsort(x_tail)
+        x_tail_exc = np.exp(x_tail) - expxcutoff
+        k, sigma = _gpdfit(x_tail_exc[x_tail_si])
 
-    # Un-sort back to original order
-    unsorted_indices = jnp.argsort(sorted_indices)
-    log_weights = smoothed_sorted[unsorted_indices] + log_ratios_max
+        if np.isfinite(k):
+            sti = np.arange(0.5, tail_len) / tail_len
+            smoothed_tail = _gpinv(sti, k, sigma)
+            smoothed_tail = np.log(smoothed_tail + expxcutoff)
+            x[tailinds[x_tail_si]] = smoothed_tail
+            x[x > 0] = 0
 
-    # Normalize (in log space)
-    log_weights_normalized = log_weights - jax.scipy.special.logsumexp(log_weights)
-
-    return log_weights_normalized, pareto_k
+    x -= _sp_logsumexp(x)
+    return jnp.array(x), float(k)
 
 
 # =============================================================================
