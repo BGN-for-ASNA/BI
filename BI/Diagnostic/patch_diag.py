@@ -8,6 +8,9 @@ Two entry points:
 """
 import BI.Diagnostic.jax_diagnostics as jd
 from BI.Diagnostic.jax_diagnostics import iter_expanded, filter_posterior_dict
+import BI.Diagnostic.ppc as _ppc
+import BI.Diagnostic.sensitivity as _sens
+from BI.Diagnostic.regression_plot import plot_regression as _plot_regression
 import plotly.colors as pcolors
 
 _COLORS = pcolors.qualitative.Plotly
@@ -171,6 +174,116 @@ def _plot_density(m, include=None, exclude=None, filter_regex=None, shade=0.4, f
                                  name=name, showlegend=False, fillcolor=fill, line_color=color),
                       row=i+1, col=1)
     fig.update_layout(height=300*len(expanded), title_text="Density Plots")
+    return fig
+
+
+def _plot_rank(m, include=None, exclude=None, filter_regex=None, bins=20, filtered=True):
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+    import numpy as np
+    import scipy.stats as stats
+
+    posteriors_by_chain = _source(m, filtered=filtered, by_chain=True)
+    if not posteriors_by_chain:
+        posteriors_by_chain = _source(m, filtered=filtered, by_chain=False)
+
+    from BI.Diagnostic.jax_diagnostics import filter_posterior_dict
+    posteriors_by_chain = filter_posterior_dict(posteriors_by_chain, include=include, exclude=exclude)
+
+    # expand to (label, chains_2d) pairs
+    expanded = []
+    for key, arr in posteriors_by_chain.items():
+        arr = np.asarray(arr)
+        if arr.ndim == 1:
+            arr = arr[None, :]   # (1, S)
+        if arr.ndim == 2:
+            expanded.append((key, arr))
+        else:
+            C, S = arr.shape[0], arr.shape[1]
+            for idx in np.ndindex(arr.shape[2:]):
+                label = key + "[" + ",".join(map(str, idx)) + "]"
+                expanded.append((label, arr[(slice(None), slice(None)) + idx]))
+
+    if filter_regex:
+        import re
+        expanded = [(l, a) for l, a in expanded if re.search(filter_regex, l)]
+
+    if not expanded:
+        return go.Figure()
+
+    num_chains = expanded[0][1].shape[0]
+    colors = _COLORS
+
+    fig = make_subplots(rows=len(expanded), cols=1,
+                        subplot_titles=[f"Rank plot: {l}" for l, _ in expanded])
+
+    for i, (label, chains) in enumerate(expanded):
+        flat = chains.flatten()
+        ranks = stats.rankdata(flat).reshape(chains.shape)
+        for c in range(num_chains):
+            color = colors[c % len(colors)]
+            fig.add_trace(go.Histogram(
+                x=ranks[c], name=f"Chain {c}",
+                legendgroup=f"chain{c}", showlegend=(i == 0),
+                marker_color=color, opacity=0.6, nbinsx=bins,
+            ), row=i+1, col=1)
+
+    fig.update_layout(height=300*len(expanded), title_text="Rank Plots", barmode="overlay")
+    return fig
+
+
+def _plot_ess_evolution(m, include=None, exclude=None, filter_regex=None,
+                        steps=10, filtered=True):
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+    import numpy as np
+
+    posteriors_by_chain = _source(m, filtered=filtered, by_chain=True)
+    if not posteriors_by_chain:
+        posteriors_by_chain = _source(m, filtered=filtered, by_chain=False)
+
+    from BI.Diagnostic.jax_diagnostics import filter_posterior_dict, _ess_1d
+    posteriors_by_chain = filter_posterior_dict(posteriors_by_chain, include=include, exclude=exclude)
+
+    expanded = []
+    for key, arr in posteriors_by_chain.items():
+        arr = np.asarray(arr)
+        if arr.ndim == 1:
+            arr = arr[None, :]
+        if arr.ndim == 2:
+            expanded.append((key, arr))
+        else:
+            C, S = arr.shape[0], arr.shape[1]
+            for idx in np.ndindex(arr.shape[2:]):
+                label = key + "[" + ",".join(map(str, idx)) + "]"
+                expanded.append((label, arr[(slice(None), slice(None)) + idx]))
+
+    if filter_regex:
+        import re
+        expanded = [(l, a) for l, a in expanded if re.search(filter_regex, l)]
+
+    if not expanded:
+        return go.Figure()
+
+    S_total = expanded[0][1].shape[1]
+    fracs = np.linspace(1/steps, 1.0, steps)
+    ns = [max(4, int(f * S_total)) for f in fracs]
+
+    fig = make_subplots(rows=len(expanded), cols=1,
+                        subplot_titles=[f"ESS evolution: {l}" for l, _ in expanded])
+
+    for i, (label, chains) in enumerate(expanded):
+        color = _COLORS[i % len(_COLORS)]
+        ess_vals = []
+        for n in ns:
+            ess_vals.append(float(_ess_1d(chains[:, :n])))
+        fig.add_trace(go.Scatter(x=ns, y=ess_vals, mode="lines+markers",
+                                 name=label, line=dict(color=color), showlegend=False),
+                      row=i+1, col=1)
+        fig.update_xaxes(title_text="Samples", row=i+1, col=1)
+        fig.update_yaxes(title_text="ESS bulk", row=i+1, col=1)
+
+    fig.update_layout(height=300*len(expanded), title_text="ESS Evolution Plots")
     return fig
 
 
@@ -362,14 +475,177 @@ def bind_diag_to_model(diag_obj, m):
         print("\nForest Plot:");     diag_obj.forest(**kw).show()
         print("\nPair Plot:");       diag_obj.pair(**kw).show()
 
-    diag_obj.summary      = _summary
-    diag_obj.rhat         = _rhat
-    diag_obj.ess          = _ess
-    diag_obj.mcse         = _mcse
-    diag_obj.plot_trace   = lambda include=None, exclude=None, filtered=True, **kw: _plot_trace(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.posterior    = lambda include=None, exclude=None, filtered=True, **kw: _plot_posterior(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.autocor      = lambda include=None, exclude=None, filtered=True, **kw: _plot_autocor(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.forest       = lambda include=None, exclude=None, filtered=True, **kw: _plot_forest(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.density      = lambda include=None, exclude=None, filtered=True, **kw: _plot_density(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.pair         = lambda include=None, exclude=None, filtered=True, **kw: _plot_pair(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.model_checks = _model_checks
+    def _loo(log_likelihood=None, pointwise=False, scale="log"):
+        if log_likelihood is None:
+            if not hasattr(m, 'model') or m.model is None:
+                raise ValueError("No model stored on m. Pass log_likelihood= directly.")
+            log_likelihood = jd.compute_log_likelihood(
+                m.model, _source(m, filtered=False, by_chain=True), **m.data_on_model)
+        return jd.loo(log_likelihood, pointwise=pointwise, scale=scale)
+
+    def _waic(log_likelihood=None, pointwise=False, scale="log"):
+        if log_likelihood is None:
+            if not hasattr(m, 'model') or m.model is None:
+                raise ValueError("No model stored on m. Pass log_likelihood= directly.")
+            log_likelihood = jd.compute_log_likelihood(
+                m.model, _source(m, filtered=False, by_chain=True), **m.data_on_model)
+        return jd.waic(log_likelihood, pointwise=pointwise, scale=scale)
+
+    # ---- PPC helpers that auto-generate yrep from m ---------------------
+    def _get_yrep(seed=0):
+        return _ppc.get_yrep(m, seed=seed)
+
+    # ---- regression overlay ---------------------------------------------
+    def _plot_regression_bound(x_var, y_obs=None, n=20, link_inv=None,
+                               x_range=None, n_points=200, seed=42, **kw):
+        return _plot_regression(m, x_var, y_obs=y_obs, n=n, link_inv=link_inv,
+                                x_range=x_range, n_points=n_points, seed=seed, **kw)
+
+    # ---- PPC bindings (y + yrep) ----------------------------------------
+    def _ppc_density(y=None, yrep=None, n=50, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_density(y, yrep, n=n, **kw)
+
+    def _ppc_hist(y=None, yrep=None, n=8, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_hist(y, yrep, n=n, **kw)
+
+    def _ppc_boxplot(y=None, yrep=None, n=20, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_boxplot(y, yrep, n=n, **kw)
+
+    def _ppc_stat(y=None, yrep=None, stat="mean", **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_stat(y, yrep, stat=stat, **kw)
+
+    def _ppc_stat_2d(y=None, yrep=None, stat1="mean", stat2="sd", **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_stat_2d(y, yrep, stat1=stat1, stat2=stat2, **kw)
+
+    def _ppc_intervals(y=None, yrep=None, x=None, prob=0.5, prob_outer=0.9, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_intervals(y, yrep, x=x, prob=prob, prob_outer=prob_outer, **kw)
+
+    def _ppc_ribbon(y=None, yrep=None, x=None, prob=0.5, prob_outer=0.9, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_ribbon(y, yrep, x=x, prob=prob, prob_outer=prob_outer, **kw)
+
+    def _ppc_error_scatter(y=None, yrep=None, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_error_scatter(y, yrep, **kw)
+
+    def _ppc_error_hist(y=None, yrep=None, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_error_hist(y, yrep, **kw)
+
+    def _ppc_scatter(y=None, yrep=None, n_reps=9, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_scatter(y, yrep, n_reps=n_reps, **kw)
+
+    def _ppc_loo_pit(y=None, yrep=None, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_loo_pit(y, yrep, **kw)
+
+    def _ppc_loo_intervals(y=None, yrep=None, x=None, prob=0.9, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_loo_intervals(y, yrep, x=x, prob=prob, **kw)
+
+    def _ppc_rootogram(y=None, yrep=None, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_rootogram(y, yrep, **kw)
+
+    def _ppc_bars(y=None, yrep=None, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _ppc.ppc_bars(y, yrep, **kw)
+
+    # ---- sensitivity bindings -------------------------------------------
+    def _influence(log_likelihood=None, x=None, y=None, **kw):
+        return _sens.influence_plot(m=m, log_likelihood=log_likelihood,
+                                    x=x, y=y, **kw)
+
+    def _calibration(y=None, yrep=None, levels=None, **kw):
+        if yrep is None: yrep = _get_yrep()
+        if y is None and m.obs_args:
+            y = m.data_on_model.get(m.obs_args[0])
+        return _sens.calibration_plot(y, yrep, levels=levels, **kw)
+
+    def _divergence_energy(**kw):
+        return _sens.divergence_energy_plot(m, **kw)
+
+    def _multimodality(param_names=None, **kw):
+        return _sens.multimodality_check(m=m, param_names=param_names, **kw)
+
+    # ---- wire everything up --------------------------------------------
+    diag_obj.summary        = _summary
+    diag_obj.rhat           = _rhat
+    diag_obj.ess            = _ess
+    diag_obj.mcse           = _mcse
+    diag_obj.plot_trace     = lambda include=None, exclude=None, filtered=True, **kw: _plot_trace(m, include, exclude, filtered=filtered, **kw)
+    diag_obj.posterior      = lambda include=None, exclude=None, filtered=True, **kw: _plot_posterior(m, include, exclude, filtered=filtered, **kw)
+    diag_obj.autocor        = lambda include=None, exclude=None, filtered=True, **kw: _plot_autocor(m, include, exclude, filtered=filtered, **kw)
+    diag_obj.forest         = lambda include=None, exclude=None, filtered=True, **kw: _plot_forest(m, include, exclude, filtered=filtered, **kw)
+    diag_obj.density        = lambda include=None, exclude=None, filtered=True, **kw: _plot_density(m, include, exclude, filtered=filtered, **kw)
+    diag_obj.pair           = lambda include=None, exclude=None, filtered=True, **kw: _plot_pair(m, include, exclude, filtered=filtered, **kw)
+    diag_obj.rank           = lambda include=None, exclude=None, filtered=True, **kw: _plot_rank(m, include, exclude, filtered=filtered, **kw)
+    diag_obj.plot_ess       = lambda include=None, exclude=None, filtered=True, **kw: _plot_ess_evolution(m, include, exclude, filtered=filtered, **kw)
+    diag_obj.loo            = _loo
+    diag_obj.WAIC           = _waic
+    diag_obj.model_checks   = _model_checks
+    # regression
+    diag_obj.plot_regression = _plot_regression_bound
+    diag_obj.get_yrep        = _get_yrep
+    # PPC — distributions
+    diag_obj.ppc_density     = _ppc_density
+    diag_obj.ppc_hist        = _ppc_hist
+    diag_obj.ppc_boxplot     = _ppc_boxplot
+    # PPC — statistics
+    diag_obj.ppc_stat        = _ppc_stat
+    diag_obj.ppc_stat_2d     = _ppc_stat_2d
+    # PPC — intervals
+    diag_obj.ppc_intervals   = _ppc_intervals
+    diag_obj.ppc_ribbon      = _ppc_ribbon
+    # PPC — errors
+    diag_obj.ppc_error_scatter = _ppc_error_scatter
+    diag_obj.ppc_error_hist    = _ppc_error_hist
+    # PPC — scatter
+    diag_obj.ppc_scatter     = _ppc_scatter
+    # PPC — discrete
+    diag_obj.ppc_rootogram   = _ppc_rootogram
+    diag_obj.ppc_bars        = _ppc_bars
+    # PPC — LOO
+    diag_obj.ppc_loo_pit     = _ppc_loo_pit
+    diag_obj.ppc_loo_intervals = _ppc_loo_intervals
+    # sensitivity
+    diag_obj.influence       = _influence
+    diag_obj.calibration     = _calibration
+    diag_obj.divergence_energy = _divergence_energy
+    diag_obj.multimodality   = _multimodality
+    diag_obj.prior_sensitivity = staticmethod(_sens.prior_sensitivity_plot)
