@@ -621,5 +621,18 @@ class load:
         df = pd.read_csv(filepath)
         return df if frame else Bunch(data=jnp.array(df.values), columns=df.columns.tolist())
 
+    # Panama EWA -----------------------------------------------------------------------
 
-        
+    def panama_ewa(self, frame=True, only_path=False):
+        """Load the Panama EWA social learning dataset (Barrett et al.).
+
+        Capuchin monkey foraging data with 7 techniques across 14 days.
+        Columns include technique choice, payoffs, social cues (payoff bias,
+        kin, prestige, cohort, age-of-acquisition), bout index, individual id,
+        and centered age.
+        """
+        description = "Panama capuchin EWA social learning dataset (Barrett et al.)."
+        return self._load_csv("panama_ewa.csv", description, frame=frame, only_path=only_path)
+
+
+
