@@ -1,14 +1,12 @@
+# %%
 library(brms)
 library(ape)
 
 # 1. Load data and fit brms
-phylo <- read.nexus("phylo.nex")
-data_fisher <- read.table(
-  "https://paul-buerkner.github.io/data/data_effect.txt",
-  header = TRUE
-)
+phylo        <- read.nexus("phylo.nex")
+data_fisher  <- read.table("../data_effect.txt", header = TRUE)
 data_fisher$obs <- 1:nrow(data_fisher)
-data_fisher$se <- sqrt(1 / (data_fisher$N - 3))
+data_fisher$se  <- sqrt(1 / (data_fisher$N - 3))
 A <- vcv.phylo(phylo)
 
 cat("\nFitting brms meta-analysis model...\n")
@@ -24,22 +22,18 @@ model_meta <- brm(
   refresh = 0
 )
 
-# 2. Load BI results
-bi_post <- read.csv("bi_post_meta.csv")
+# 2. Load BI posteriors
+bi_post   <- read.csv("bi_post_meta.csv")
+post_brms <- as.data.frame(model_meta)
 
-# 3. Compare Results
+# 3. Compare posterior means -> log.txt
 cat("\n--- Comparison of Posterior Means (Meta-Analysis) ---\n")
-brms_sum <- summary(model_meta)
-brms_fixef <- brms_sum$fixed
-brms_sd_phylo <- brms_sum$random$phylo["sd(Intercept)", "Estimate"]
-brms_sd_obs <- brms_sum$random$obs["sd(Intercept)", "Estimate"]
-
 comparison <- data.frame(
   Parameter = c("Intercept", "sd_phylo", "sd_obs"),
   brms_Mean = c(
-    brms_fixef["Intercept", "Estimate"],
-    brms_sd_phylo,
-    brms_sd_obs
+    mean(post_brms$b_Intercept),
+    mean(post_brms$sd_phylo__Intercept),
+    mean(post_brms$sd_obs__Intercept)
   ),
   BI_Mean = c(
     mean(bi_post$Intercept),
@@ -47,40 +41,32 @@ comparison <- data.frame(
     mean(bi_post$sd_obs)
   )
 )
-
+comparison$Difference <- comparison$BI_Mean - comparison$brms_Mean
 print(comparison)
 write.csv(comparison, "comparison_meta.csv", row.names = FALSE)
-
-# Save to log.txt
 cat("\n--- META-ANALYSIS MODEL COMPARISON ---\n", file = "log.txt", append = TRUE)
-write.table(comparison, file = "log.txt", append = TRUE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(comparison, file = "log.txt", append = TRUE,
+            row.names = FALSE, sep = "\t", quote = FALSE)
 
-# 4. Density Plots
-cat("\nGenerating density plots...\n")
-dir.create("plots", showWarnings = FALSE)
-
-post_brms <- as.data.frame(model_meta)
-
-plot_density <- function(param_name, brms_samples, bi_samples, file_name) {
-  svg(paste0("plots/", file_name, ".svg"), width = 6, height = 4)
-  brms_samples <- as.numeric(as.vector(brms_samples))
-  bi_samples <- as.numeric(bi_samples)
-
-  d_brms <- density(brms_samples)
-  d_bi <- density(bi_samples)
-
-  xlim <- range(c(d_brms$x, d_bi$x))
-  ylim <- range(c(d_brms$y, d_bi$y))
-
-  plot(d_brms,
-    col = "red", lwd = 2, main = paste("Density: ", param_name),
-    xlim = xlim, ylim = ylim, xlab = "Value", ylab = "Density"
-  )
-  lines(d_bi, col = "blue", lwd = 2, lty = 2)
-  legend("topright", legend = c("brms", "BI"), col = c("red", "blue"), lwd = 2, lty = c(1, 2))
-  dev.off()
+# 4. Combined density panel (all parameters)
+cat("\nGenerating combined density comparison panel...\n")
+draw_density <- function(label, brms_s, bi_s) {
+  brms_s <- as.numeric(na.omit(as.vector(brms_s)))
+  bi_s   <- as.numeric(na.omit(bi_s))
+  d1 <- density(brms_s); d2 <- density(bi_s)
+  xlim <- range(c(d1$x, d2$x)); ylim <- range(c(d1$y, d2$y))
+  plot(d1, col = "red", lwd = 2, main = label,
+       xlim = xlim, ylim = ylim, xlab = "Value", ylab = "Density")
+  lines(d2, col = "blue", lwd = 2, lty = 2)
+  legend("topright", legend = c("brms", "BI"),
+         col = c("red", "blue"), lwd = 2, lty = c(1, 2), cex = 0.8)
 }
 
-plot_density("Intercept", post_brms$b_Intercept, bi_post$Intercept, "meta_intercept")
-plot_density("sd_phylo", post_brms$sd_phylo__Intercept, bi_post$sd_phylo, "meta_sd_phylo")
-plot_density("sd_obs", post_brms$sd_obs__Intercept, bi_post$sd_obs, "meta_sd_obs")
+png("density_comparison.png", width = 1800, height = 600, res = 120)
+par(mfrow = c(1, 3), mar = c(4, 4, 3, 1))
+draw_density("Intercept", post_brms$b_Intercept,         bi_post$Intercept)
+draw_density("sd_phylo",  post_brms$sd_phylo__Intercept, bi_post$sd_phylo)
+draw_density("sd_obs",    post_brms$sd_obs__Intercept,   bi_post$sd_obs)
+dev.off()
+cat("Panel saved to density_comparison.png\n")
+# %%

@@ -1,102 +1,71 @@
 # %%
 library(brms)
 library(ape)
-library(reticulate)
-library(BayesianInference)
-library(jsonlite)
 
 # 1. Load data and fit brms
-phylo <- read.nexus("phylo.nex")
+phylo     <- read.nexus("phylo.nex")
 data_pois <- read.table("data_pois.txt", header = TRUE)
 data_pois$obs <- 1:nrow(data_pois)
 A <- vcv.phylo(phylo)
-L <- t(chol(A))
 
 cat("\nFitting brms Poisson model...\n")
-if (file.exists("model_pois.rds")) {
-  model_pois <- readRDS("model_pois.rds")
-} else {
-  model_pois <- brm(
-    phen_pois ~ cofactor + (1 | gr(phylo, cov = A)) + (1 | obs),
-    data = data_pois, family = poisson("log"),
-    data2 = list(A = A),
-    chains = 2, cores = 2, iter = 4000, warmup = 2000,
-    control = list(adapt_delta = 0.95),
-    refresh = 0
+model_pois <- brm(
+  phen_pois ~ cofactor + (1 | gr(phylo, cov = A)) + (1 | obs),
+  data = data_pois, family = poisson("log"),
+  data2 = list(A = A),
+  chains = 2, cores = 2, iter = 4000, warmup = 2000,
+  control = list(adapt_delta = 0.95),
+  refresh = 0
+)
+
+# 2. Load BI posteriors
+bi_post   <- read.csv("bi_post_pois.csv")
+post_brms <- as.data.frame(model_pois)
+
+# 3. Compare posterior means -> log.txt
+cat("\n--- Comparison of Poisson Model Results ---\n")
+comparison <- data.frame(
+  Parameter = c("Intercept (uncentered)", "cofactor", "sd_phylo", "sd_obs"),
+  brms_Mean = c(
+    mean(post_brms$b_Intercept),
+    mean(post_brms$b_cofactor),
+    mean(post_brms$sd_phylo__Intercept),
+    mean(post_brms$sd_obs__Intercept)
+  ),
+  BI_Mean = c(
+    mean(bi_post$b_Intercept),
+    mean(bi_post$b_cofactor),
+    mean(bi_post$sd_phylo),
+    mean(bi_post$sd_obs)
   )
-  saveRDS(model_pois, "model_pois.rds")
+)
+comparison$Difference <- comparison$BI_Mean - comparison$brms_Mean
+print(comparison)
+write.csv(comparison, "comparison_pois.csv", row.names = FALSE)
+cat("\n--- POISSON MODEL COMPARISON ---\n", file = "log.txt", append = TRUE)
+write.table(comparison, file = "log.txt", append = TRUE,
+            row.names = FALSE, sep = "\t", quote = FALSE)
+
+# 4. Combined density panel (all parameters)
+cat("\nGenerating combined density comparison panel...\n")
+draw_density <- function(label, brms_s, bi_s) {
+  brms_s <- as.numeric(na.omit(as.vector(brms_s)))
+  bi_s   <- as.numeric(na.omit(bi_s))
+  d1 <- density(brms_s); d2 <- density(bi_s)
+  xlim <- range(c(d1$x, d2$x)); ylim <- range(c(d1$y, d2$y))
+  plot(d1, col = "red", lwd = 2, main = label,
+       xlim = xlim, ylim = ylim, xlab = "Value", ylab = "Density")
+  lines(d2, col = "blue", lwd = 2, lty = 2)
+  legend("topright", legend = c("brms", "BI"),
+         col = c("red", "blue"), lwd = 2, lty = c(1, 2), cex = 0.8)
 }
 
-# 2. Check BI results
-if (file.exists("bi_post_pois.csv")) {
-  bi_post <- read.csv("bi_post_pois.csv")
-  
-  cat("\n--- Comparison of Poisson Model Results ---\n")
-  brms_sum <- summary(model_pois)
-  brms_fixef <- brms_sum$fixed
-  brms_sd_phylo <- brms_sum$random$phylo["sd(Intercept)", "Estimate"]
-  brms_sd_obs <- brms_sum$random$obs["sd(Intercept)", "Estimate"]
-  
-  # BI summaries
-  bi_intercept_mean <- mean(bi_post$b_Intercept)
-  bi_cofactor_mean <- mean(bi_post$b_cofactor)
-  bi_sd_phylo_mean <- mean(bi_post$sd_phylo)
-  bi_sd_obs_mean <- mean(bi_post$sd_obs)
-  
-  comparison <- data.frame(
-    Parameter = c("Intercept (uncentered)", "cofactor", "sd_phylo", "sd_obs"),
-    brms_Mean = c(
-      brms_fixef["Intercept", "Estimate"],
-      brms_fixef["cofactor", "Estimate"],
-      brms_sd_phylo,
-      brms_sd_obs
-    ),
-    BI_Mean = c(
-      bi_intercept_mean,
-      bi_cofactor_mean,
-      bi_sd_phylo_mean,
-      bi_sd_obs_mean
-    )
-  )
-  
-  print(comparison)
-  write.csv(comparison, "comparison_pois.csv", row.names = FALSE)
-  
-  # Save to log.txt
-  cat("\n--- POISSON MODEL COMPARISON ---\n", file = "log.txt", append = TRUE)
-  write.table(comparison, file = "log.txt", append = TRUE, row.names = FALSE, sep = "\t", quote = FALSE)
-  
-  # 4. Density Plots
-  cat("\nGenerating density plots...\n")
-  dir.create("plots", showWarnings = FALSE)
-  
-  # Extract draws
-  post_brms <- as.data.frame(model_pois)
-  
-  plot_density <- function(param_name, brms_samples, bi_samples, file_name) {
-    svg(paste0("plots/", file_name, ".svg"), width = 6, height = 4)
-    brms_samples <- as.numeric(as.vector(brms_samples))
-    bi_samples <- as.numeric(bi_samples)
-  
-    d_brms <- density(brms_samples)
-    d_bi <- density(bi_samples)
-  
-    xlim <- range(c(d_brms$x, d_bi$x))
-    ylim <- range(c(d_brms$y, d_bi$y))
-  
-    plot(d_brms,
-      col = "red", lwd = 2, main = paste("Density Comparison:", param_name),
-      xlim = xlim, ylim = ylim, xlab = "Value", ylab = "Density"
-    )
-    lines(d_bi, col = "blue", lwd = 2, lty = 2)
-    legend("topright", legend = c("brms", "BI"), col = c("red", "blue"), lwd = 2, lty = c(1, 2))
-    dev.off()
-  }
-  
-  plot_density("Intercept (uncentered)", post_brms$b_Intercept, bi_post$b_Intercept, "pois_intercept")
-  plot_density("cofactor", post_brms$b_cofactor, bi_post$b_cofactor, "pois_cofactor")
-  plot_density("sd_phylo", post_brms$sd_phylo__Intercept, bi_post$sd_phylo, "pois_sd_phylo")
-  plot_density("sd_obs", post_brms$sd_obs__Intercept, bi_post$sd_obs, "pois_sd_obs")
-} else {
-  cat("BI posterior file not found. Run fit_bi_pois.py first.\n")
-}
+png("density_comparison.png", width = 1200, height = 800, res = 120)
+par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+draw_density("Intercept (uncentered)", post_brms$b_Intercept,         bi_post$b_Intercept)
+draw_density("cofactor",               post_brms$b_cofactor,          bi_post$b_cofactor)
+draw_density("sd_phylo",               post_brms$sd_phylo__Intercept, bi_post$sd_phylo)
+draw_density("sd_obs",                 post_brms$sd_obs__Intercept,   bi_post$sd_obs)
+dev.off()
+cat("Panel saved to density_comparison.png\n")
+# %%
