@@ -11,7 +11,8 @@ simulate_bison_model <- function(model_type, aggregated, location_effect = TRUE,
         df_sim <- data.frame(
             event = numeric(), node_1_id = numeric(),
             node_2_id = numeric(), age_diff = numeric(), age_1 = numeric(),
-            age_2 = numeric(), location = numeric(), duration = numeric()
+            age_2 = numeric(), location = numeric(), duration = numeric(),
+            event_count = integer()
         )
         df_true <- data.frame(
             node_1_id = numeric(), node_2_id = numeric(),
@@ -38,7 +39,7 @@ simulate_bison_model <- function(model_type, aggregated, location_effect = TRUE,
                             event = event,
                             node_1_id = i, node_2_id = j, age_diff = age_diff,
                             age_1 = ages[i], age_2 = ages[j], location = location_id,
-                            duration = 1
+                            duration = 1, event_count = 1L
                         )
                     }
                     if (model_type == "count") {
@@ -49,19 +50,21 @@ simulate_bison_model <- function(model_type, aggregated, location_effect = TRUE,
                             event = event,
                             node_1_id = i, node_2_id = j, age_diff = age_diff,
                             age_1 = ages[i], age_2 = ages[j], location = location_id,
-                            duration = duration
+                            duration = duration, event_count = 1L
                         )
                     }
                     if (model_type == "duration") {
                         duration_obs <- runif(1, 1, max_obs)
                         p <- plogis(predictor)
-                        lambda_exp <- 1.0 / p
-                        event <- rexp(1, rate = lambda_exp)
+                        # rate parameter (positive, prior ~ half-normal(1))
+                        rate <- abs(rnorm(1, 0, 1))
+                        # Interaction duration: exp(rate / p) per event
+                        event_dur <- rexp(1, rate = rate / p)
                         df_sim[nrow(df_sim) + 1, ] <- list(
-                            event = event,
+                            event = event_dur,
                             node_1_id = i, node_2_id = j, age_diff = age_diff,
                             age_1 = ages[i], age_2 = ages[j], location = location_id,
-                            duration = duration_obs
+                            duration = duration_obs, event_count = 1L
                         )
                     }
                 }
@@ -76,14 +79,20 @@ simulate_bison_model <- function(model_type, aggregated, location_effect = TRUE,
         }
     }
     if (aggregated) {
-        df_sim <- dplyr::summarise(
-            dplyr::group_by(
-                df_sim, node_1_id,
-                node_2_id
-            ),
-            event = sum(event), duration = sum(duration),
-            age_diff = mean(age_diff), age_1 = mean(age_1), age_2 = mean(age_2)
-        )
+        if (model_type == "duration") {
+            df_sim <- dplyr::summarise(
+                dplyr::group_by(df_sim, node_1_id, node_2_id),
+                event = sum(event), duration = sum(duration),
+                event_count = as.integer(sum(event_count)),
+                age_diff = mean(age_diff), age_1 = mean(age_1), age_2 = mean(age_2)
+            )
+        } else {
+            df_sim <- dplyr::summarise(
+                dplyr::group_by(df_sim, node_1_id, node_2_id),
+                event = sum(event), duration = sum(duration),
+                age_diff = mean(age_diff), age_1 = mean(age_1), age_2 = mean(age_2)
+            )
+        }
     }
     df_sim$node_1_id <- factor(df_sim$node_1_id, levels = 1:num_nodes)
     df_sim$node_2_id <- factor(df_sim$node_2_id, levels = 1:num_nodes)
