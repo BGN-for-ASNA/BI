@@ -10,21 +10,19 @@ bi_model_duration <- function(data) {
   predictor <- jnp$zeros(as.integer(data$num_rows))
 
   if (as.numeric(data$partial_pooling) == 0) {
-    edge_weight <- m$dist$normal(0.0, 2.0, shape = tuple(data$num_edges), name = "edge_weight")
+    edge_weight <- m$dist$normal(as.numeric(data$prior_edge_mu), as.numeric(data$prior_edge_sigma), shape = tuple(data$num_edges), name = "edge_weight")
   } else {
-    edge_sigma <- m$dist$half_normal(2.0, name = "edge_sigma")
-    edge_weight <- m$dist$normal(0.0, edge_sigma, shape = tuple(data$num_edges), name = "edge_weight")
+    edge_sigma <- m$dist$half_normal(as.numeric(data$prior_edge_sigma), name = "edge_sigma")
+    edge_weight <- m$dist$normal(as.numeric(data$prior_edge_mu), edge_sigma, shape = tuple(data$num_edges), name = "edge_weight")
   }
 
-  # Additional rate parameter for duration models
-  # Stan says normal(0, sigma) with lower=0. Half-normal.
-  rate_positive <- m$dist$half_normal(1.0, shape = tuple(data$num_edges), name = "rate")
+  rate_positive <- m$dist$half_normal(as.numeric(data$prior_rate_sigma), shape = tuple(data$num_edges), name = "rate")
 
   dyad_ids_0 <- data$dyad_ids - 1L
   predictor <- predictor + edge_weight[dyad_ids_0]
 
   if (as.numeric(data$num_fixed) > 0) {
-    beta_fixed <- m$dist$normal(0.0, 1.0, shape = tuple(data$num_fixed), name = "beta_fixed")
+    beta_fixed <- m$dist$normal(as.numeric(data$prior_fixed_mu), as.numeric(data$prior_fixed_sigma), shape = tuple(data$num_fixed), name = "beta_fixed")
     predictor <- predictor + jnp$dot(data$design_fixed, beta_fixed)
   }
 
@@ -40,9 +38,19 @@ bi_model_duration <- function(data) {
 
   p <- m$link$inv_logit(predictor)
 
+  edge_divisor <- jnp$zeros(as.integer(data$num_edges))$at[dyad_ids_0]$add(data$divisor)
+
   lambda_exp <- rate_positive[dyad_ids_0] / p
-  lambda_pois <- rate_positive * data$divisor
+
+  lambda_pois <- rate_positive * edge_divisor
 
   m$dist$exponential(lambda_exp, obs = data$event, name = "event")
-  m$dist$poisson(lambda_pois, obs = data$event_count, name = "event_count")
+
+  if (as.numeric(data$zero_inflated) == 1) {
+    zero_prob <- m$dist$beta(as.numeric(data$prior_zero_prob_alpha), as.numeric(data$prior_zero_prob_beta), shape = tuple(1L), name = "zero_prob")
+    base_dist <- m$dist$poisson(lambda_pois, create_obj = TRUE)
+    m$dist$zero_inflated_distribution(base_dist, gate = zero_prob[0L], obs = data$event_count, name = "event_count")
+  } else {
+    m$dist$poisson(lambda_pois, obs = data$event_count, name = "event_count")
+  }
 }

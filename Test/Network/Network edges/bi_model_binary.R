@@ -11,11 +11,10 @@ bi_model_binary <- function(data) {
   predictor <- jnp$zeros(as.integer(data$num_rows))
 
   if (as.numeric(data$partial_pooling) == 0) {
-    edge_weight <- m$dist$normal(0.0, 2.5, shape = tuple(data$num_edges), name = "edge_weight")
+    edge_weight <- m$dist$normal(as.numeric(data$prior_edge_mu), as.numeric(data$prior_edge_sigma), shape = tuple(data$num_edges), name = "edge_weight")
   } else {
-    # Half normal using truncated normal for edge_sigma
-    edge_sigma <- m$dist$half_normal(2.5, name = "edge_sigma")
-    edge_weight <- m$dist$normal(0.0, edge_sigma, shape = tuple(data$num_edges), name = "edge_weight")
+    edge_sigma <- m$dist$half_normal(as.numeric(data$prior_edge_sigma), name = "edge_sigma")
+    edge_weight <- m$dist$normal(as.numeric(data$prior_edge_mu), edge_sigma, shape = tuple(data$num_edges), name = "edge_weight")
   }
 
   # 0-based indexing for JAX
@@ -24,7 +23,7 @@ bi_model_binary <- function(data) {
 
 
   if (as.numeric(data$num_fixed) > 0) {
-    beta_fixed <- m$dist$normal(0.0, 2.5, shape = tuple(data$num_fixed), name = "beta_fixed")
+    beta_fixed <- m$dist$normal(as.numeric(data$prior_fixed_mu), as.numeric(data$prior_fixed_sigma), shape = tuple(data$num_fixed), name = "beta_fixed")
     predictor <- predictor + jnp$dot(data$design_fixed, beta_fixed)
   }
 
