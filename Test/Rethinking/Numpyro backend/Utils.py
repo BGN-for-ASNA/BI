@@ -129,16 +129,22 @@ def plot_recovery(results_df, model_name=None):
     num_params = len(results_df['parameter'].unique())
     num_cols = 3
     num_rows = (num_params + num_cols - 1) // num_cols
-    
+
     # Ensure numeric types for plotting
     results_df['simulated'] = pd.to_numeric(results_df['simulated'], errors='coerce')
     results_df['estimations'] = pd.to_numeric(results_df['estimations'], errors='coerce')
-    
+
     g = sns.FacetGrid(results_df, col="parameter", col_wrap=num_cols, height=4, sharey=False, sharex=False)
     g.map(sns.scatterplot, "simulated", "estimations")
     for ax in g.axes.flat:
         low, high = ax.get_xlim()
         ax.plot([low, high], [low, high], color='red', ls='--')
+        title = ax.get_title()
+        param = title.split(" = ")[-1] if " = " in title else title
+        sub = results_df[results_df['parameter'] == param].dropna(subset=['simulated', 'estimations'])
+        if len(sub) >= 2:
+            r2 = np.corrcoef(sub['simulated'], sub['estimations'])[0, 1] ** 2
+            ax.set_title(f"{title}\n$R^2={r2:.2f}$")
     
     if model_name:
         import os

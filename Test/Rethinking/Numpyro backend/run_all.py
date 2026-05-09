@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 # Get the python executable from the venv
-python_exe = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".venv", "Scripts", "python.exe"))
+python_exe = r"C:\Users\Sosa\Documents\.virtualenvs\BayesInference\Scripts\python.exe"
 
 models = [
     "1.Continuous variable.py",
@@ -28,7 +28,7 @@ if not os.path.exists("plots"):
 print(f"Starting execution of {len(models)} models...")
 
 env = os.environ.copy()
-env['BI_NSIM'] = '10'  # Default for quick testing
+env['BI_NSIM'] = os.environ.get('BI_NSIM', '10')
 
 log_file = "log.txt"
 with open(log_file, "w") as f_log:
