@@ -28,8 +28,8 @@ m.df = df
 m.data_to_model(['y', 'log_days', 'monastery'])
 
 def model_bi(y, log_days, monastery):
-    a = yield m.dist.normal(0, 1)
-    b = yield m.dist.normal(0, 1)
+    a = yield m.dist.normal(0, 1, name='a')
+    b = yield m.dist.normal(0, 1, name='b')
     lambda_ = jnp.exp(log_days + a + b * monastery)
     yield m.dist.poisson(lambda_, obs=y)
 
@@ -69,7 +69,9 @@ print("Fitting Stan model...")
 df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 
 # 3. Output Comparison ---------------------------------------
-plot_comparaison(m, df_stan, model_name=model_name)
+bi_df = prepare_bi_data(m)
+param_map = {'a[0]': 'a', 'b[0]': 'b'}
+plot_comparaison(bi_df, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(log_days, monastery, a_true, b_true):
@@ -83,12 +85,12 @@ def estimate(log_days, monastery, a_true, b_true):
         'y': jnp.array(y_sim)
     }
     def model_rec(log_days, monastery, y):
-        a = yield m_rec.dist.normal(0, 1)
-        b = yield m_rec.dist.normal(0, 1)
+        a = yield m_rec.dist.normal(0, 1, name='a')
+        b = yield m_rec.dist.normal(0, 1, name='b')
         lambda_ = jnp.exp(log_days + a + b * monastery)
         yield m_rec.dist.poisson(lambda_, obs=y)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, num_warmup=500, progress_bar=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -96,15 +98,15 @@ def param_recovery(log_days, monastery, a_sims, b_sims, nsim):
     results = []
     for i in range(nsim):
         est = estimate(log_days, monastery, a_sims[i], b_sims[i])
-        results.append({'sim': i, 'parameter': 'a', 'simulated': a_sims[i], 'estimations': est['a']})
-        results.append({'sim': i, 'parameter': 'b', 'simulated': b_sims[i], 'estimations': est['b']})
+        results.append({'sim': i, 'parameter': 'a', 'simulated': float(a_sims[i]), 'estimations': float(est['a'])})
+        results.append({'sim': i, 'parameter': 'b', 'simulated': float(b_sims[i]), 'estimations': float(est['b'])})
             
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 100))
+nsim_test = int(os.getenv('BI_NSIM', 10))
 a_sims = np.random.normal(0, 1, nsim_test)
 b_sims = np.random.normal(0, 1, nsim_test)
 

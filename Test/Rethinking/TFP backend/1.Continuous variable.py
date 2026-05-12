@@ -19,14 +19,14 @@ m.scale(['weight'])
 
 # define model ------------------------------------------------
 def model_bi(weight, height):
-    a = yield m.dist.normal(178, 20)
-    b = yield m.dist.log_normal(0, 1)  
-    s = yield m.dist.uniform(0, 50)   
+    a = yield m.dist.normal(178, 20, name='a')
+    b = yield m.dist.log_normal(0, 1, name='b')  
+    s = yield m.dist.uniform(0, 50, name='s')   
     y = yield m.dist.normal(a+b*weight, s, shape = (1,), obs = height)
 
 
 # Run sampler ------------------------------------------------
-m.fit(model_bi) 
+m.fit(model_bi, num_samples=1000, num_warmup=1000) 
 m.summary()
 
 print('Running Stan')
@@ -61,13 +61,14 @@ data = {
 stan_df = build_stan_model(stan_code, data = data, chains=4)
 
 print('Posterior distributions comparison')
-plot_comparaison(m, stan_df, model_name=model_name)
+param_map = {'a[0]': 'a', 'b[0]': 'b', 's[0]': 's'}
+plot_comparaison(m, stan_df, param_map=param_map, model_name=model_name)
 
 print('Running Parameters recovery')
 def model_rec(weight, height):    
-    a = yield m.dist.normal( 178, 20)   
-    b = yield m.dist.log_normal(0, 1)
-    s = yield m.dist.uniform( 0, 50)
+    a = yield m.dist.normal( 0, 1, name='a')   
+    b = yield m.dist.normal(0, 1, name='b')
+    s = yield m.dist.exponential( 1, name='s')
     yield m.dist.normal(a + b * weight , s, obs=height)
 
 def simulate_height(weight, a, b, s):    
@@ -80,7 +81,7 @@ def estimate(weight, a, b, s):
     m_rec = bi(print_devices_found=False, backend='tfp')
     m_rec.df = pd.DataFrame({"weight": weight_scaled, "height": height})
     m_rec.data_to_model(['weight', 'height'])
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False) 
+    m_rec.fit(model_rec, num_samples=500, num_warmup=500, progress_bar=False) 
     sum_df = m_rec.summary()
     return sum_df.iloc[:,0]
 
@@ -93,19 +94,19 @@ def param_recovery(weight_data, a_sims, b_sims, s_sims, nsim):
             results.append({
                 'sim': i,
                 'parameter': param,
-                'simulated': true_val,
-                'estimations': estimations[param]
+                'simulated': float(true_val),
+                'estimations': float(estimations[param])
             })
     
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)
     return df_res
 
-N = 100
-nsim = int(os.getenv('BI_NSIM', 100))
-a_sims = np.random.normal(178, 20, size=(nsim, 1))
-b_sims = np.random.lognormal(0, 1, size=(nsim, 1))
-s_sims = np.random.uniform(0, 50, size=(nsim, 1))
+N = 200
+nsim = int(os.getenv('BI_NSIM', 10))
+a_sims = np.random.normal(0, 1, size=(nsim, 1))
+b_sims = np.random.normal(0, 1, size=(nsim, 1))
+s_sims = np.random.exponential(1, size=(nsim, 1))
 weight_data = np.random.normal(80, 30, size=(nsim, N))
 
 res = param_recovery(weight_data, a_sims, b_sims, s_sims, nsim = nsim)

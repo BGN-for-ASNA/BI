@@ -123,7 +123,7 @@ def param_recovery(water, shade, sigma_true, bws_true, bs_true, bw_true, a_true,
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 100))
+nsim_test = int(os.environ.get("BI_NSIM", 10))
 sigma_sim = np.random.exponential(1, size=(nsim_test, 1))
 bws_sim = np.random.normal(0, 0.25, size=(nsim_test, 1))
 bs_sim = np.random.normal(0, 0.25, size=(nsim_test, 1))

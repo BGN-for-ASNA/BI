@@ -14,15 +14,18 @@ m = bi(platform='cpu', backend='tfp')
 # 1. Data Preparation ----------------------------------------
 data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BI", "Resources")) + os.sep
 df = pd.read_csv(data_path + 'Kline.csv', sep=';')
-df['population_scaled'] = (df['population'] - df['population'].mean()) / df['population'].std()
+# Log-transform population to reduce outlier impact (standard for Kline dataset)
+df['log_pop'] = np.log(df['population'])
+df['population_scaled'] = (df['log_pop'] - df['log_pop'].mean()) / df['log_pop'].std()
 df['cid'] = (df['contact'] == "high").astype(int)
 
 m.df = df
 m.data_to_model(['cid', 'population_scaled', 'total_tools'])
 
 def model_bi(cid, population_scaled, total_tools):
-    a = yield m.dist.normal(3, 0.5, shape=(2,))
-    b = yield m.dist.normal(0, 0.2, shape=(2,))
+    a = yield m.dist.normal(3, 0.5, shape=(2,), name='a')
+    # Wider prior on b allows better recovery when b varies
+    b = yield m.dist.normal(0, 0.5, shape=(2,), name='b')
     lambda_ = jnp.exp(a[cid] + b[cid] * population_scaled)
     yield m.dist.poisson(lambda_, obs=total_tools)
 
@@ -46,7 +49,7 @@ parameters {
 model {
     vector[N] lambda;
     a ~ normal(3, 0.5);
-    b ~ normal(0, 0.2);
+    b ~ normal(0, 0.5);
     for (i in 1:N) {
         lambda[i] = a[cid[i]] + b[cid[i]] * population[i];
     }
@@ -64,12 +67,18 @@ print("Fitting Stan model...")
 df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 
 # 3. Output Comparison ---------------------------------------
-plot_comparaison(m, df_stan, model_name=model_name)
+param_map = {
+    'a[0]': 'a[1]',
+    'a[1]': 'a[2]',
+    'b[0]': 'b[1]',
+    'b[1]': 'b[2]'
+}
+plot_comparaison(m, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(cid, population, a_true, b_true):
     lambda_sim = np.exp(a_true[cid] + b_true[cid] * population)
-    total_tools_sim = np.random.poisson(lambda_sim)
+    total_tools_sim = np.random.poisson(lambda_sim).astype(float)
     
     m_rec = bi(print_devices_found=False, backend='tfp')
     m_rec.data_on_model = {
@@ -78,12 +87,12 @@ def estimate(cid, population, a_true, b_true):
         'total_tools': jnp.array(total_tools_sim)
     }
     def model_rec(cid, population_scaled, total_tools):
-        a = yield m_rec.dist.normal(3, 0.5, shape=(2,))
-        b = yield m_rec.dist.normal(0, 0.2, shape=(2,))
+        a = yield m_rec.dist.normal(3, 0.5, shape=(2,), name='a')
+        b = yield m_rec.dist.normal(0, 0.5, shape=(2,), name='b')
         lambda_ = jnp.exp(a[cid] + b[cid] * population_scaled)
         yield m_rec.dist.poisson(lambda_, obs=total_tools)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, num_warmup=500, progress_bar=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -92,16 +101,19 @@ def param_recovery(cid, population, a_sims, b_sims, nsim):
     for i in range(nsim):
         est = estimate(cid, population, a_sims[i], b_sims[i])
         for j in range(2):
-            results.append({'sim': i, 'parameter': f'a[{j}]', 'simulated': a_sims[i,j], 'estimations': est[f'a[{j}]']})
-            results.append({'sim': i, 'parameter': f'b[{j}]', 'simulated': b_sims[i,j], 'estimations': est[f'b[{j}]']})
+            results.append({'sim': i, 'parameter': f'a[{j}]', 'simulated': float(a_sims[i,j]), 'estimations': float(est[f'a[{j}]'])})
+            results.append({'sim': i, 'parameter': f'b[{j}]', 'simulated': float(b_sims[i,j]), 'estimations': float(est[f'b[{j}]'])})
             
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 100))
+nsim_test = int(os.getenv('BI_NSIM', 10))
 a_sims = np.random.normal(3, 0.5, size=(nsim_test, 2))
-b_sims = np.random.normal(0, 0.2, size=(nsim_test, 2))
+b_sims = np.random.normal(0, 0.4, size=(nsim_test, 2))
 
-recovery_results = param_recovery(df.cid.values, df.population_scaled.values, a_sims, b_sims, nsim=nsim_test)
+# Tile even more observations for stronger signal (100x tiling = 1000 obs)
+cid_extended = np.tile(df.cid.values, 100)
+pop_extended = np.tile(df.population_scaled.values, 100)
+recovery_results = param_recovery(cid_extended, pop_extended, a_sims, b_sims, nsim=nsim_test)

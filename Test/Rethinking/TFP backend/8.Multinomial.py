@@ -12,33 +12,44 @@ print(f'Running BI for {model_name}')
 m = bi(platform='cpu', backend='tfp')
 
 # 1. Data Simulation ----------------------------------------
-N = 500
-income = np.array([1, 2, 5])
-score = 0.5 * income
-p_true = jax.nn.softmax(score)
-
+N = 1000
 np.random.seed(1)
-career = np.random.choice([0, 1, 2], size=N, p=np.array(p_true))
-df = pd.DataFrame({'career': career})
-unique_income = np.array([1, 2, 5])
+income_sim = np.random.uniform(1, 10, size=(N, 3))
+
+a_true_gen = np.array([0.5, -0.2]) # a3 is pivot 0
+b_true_gen = 0.4
+
+s1 = a_true_gen[0] + b_true_gen * income_sim[:, 0]
+s2 = a_true_gen[1] + b_true_gen * income_sim[:, 1]
+s3 = b_true_gen * income_sim[:, 2]
+scores = np.stack([s1, s2, s3], axis=1)
+p_true = jax.nn.softmax(scores, axis=1)
+
+career = []
+for p in p_true:
+    p = np.array(p).astype('float64')
+    p = p / np.sum(p)
+    career.append(np.random.choice([0, 1, 2], p=p))
+career = np.array(career)
+df = pd.DataFrame({
+    'career': career,
+    'inc0': income_sim[:, 0],
+    'inc1': income_sim[:, 1],
+    'inc2': income_sim[:, 2]
+})
 
 m.df = df
-m.data_on_model = {
-    'career': jnp.array(df.career.values),
-    'unique_income': jnp.array(unique_income).astype(jnp.int32)
-}
+m.data_to_model(['career', 'inc0', 'inc1', 'inc2'])
 
-def model_bi(career, unique_income):
-    a = yield m.dist.normal(0, 1, shape=(2,))
-    b = yield m.dist.half_normal(0.5, shape=(1,))
-    # Career 3 is pivot (0)
-    s1 = a[0] + b * unique_income[0]
-    s2 = a[1] + b * unique_income[1]
-    s3 = jnp.zeros(1)
+def model_bi(career, inc0, inc1, inc2):
+    a = yield m.dist.normal(0, 1, shape=(2,), name='a')
+    b = yield m.dist.half_normal(1.0, name='b')
     
-    # We want to concatenate them. Since s1, s2 are scalars from a[i] + b*x, but concatenated we need them to be a vector.
-    # a[0] is a scalar, b is shape (1,), unique_income[0] is scalar. So s1 is shape (1,)
-    p = jax.nn.softmax(jnp.concatenate([s1, s2, s3]))
+    s1 = a[0] + b * inc0
+    s2 = a[1] + b * inc1
+    s3 = b * inc2
+    
+    p = jax.nn.softmax(jnp.stack([s1, s2, s3], axis=1), axis=1)
     yield m.dist.categorical(probs=p, obs=career)
 
 print("Fitting BI model...")
@@ -50,29 +61,33 @@ print(m.summary())
 stan_code = """
 data {
     int N;
-    int K;
     array[N] int career;
-    vector[K] career_income;
+    vector[N] inc0;
+    vector[N] inc1;
+    vector[N] inc2;
 }
 parameters {
-    vector[K-1] a;
+    vector[2] a;
     real<lower=0> b;
 }
 model {
-    vector[K] s;
     a ~ normal(0, 1);
-    b ~ normal(0, 0.5);
-    s[1] = a[1] + b * career_income[1];
-    s[2] = a[2] + b * career_income[2];
-    s[3] = 0;
-    career ~ categorical_logit(s);
+    b ~ normal(0, 1);
+    for (n in 1:N) {
+        vector[3] s;
+        s[1] = a[1] + b * inc0[n];
+        s[2] = a[2] + b * inc1[n];
+        s[3] = b * inc2[n];
+        career[n] ~ categorical_logit(s);
+    }
 }
 """
 data_stan = {
     'N': N,
-    'K': 3,
     'career': (df.career.values + 1).astype(int).tolist(),
-    'career_income': unique_income.astype(float).tolist()
+    'inc0': df.inc0.values.tolist(),
+    'inc1': df.inc1.values.tolist(),
+    'inc2': df.inc2.values.tolist()
 }
 
 print("Fitting Stan model...")
@@ -80,54 +95,63 @@ df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 
 # 3. Output Comparison ---------------------------------------
 param_map = {
-    'a_1': 'a[1]',
-    'a_2': 'a[2]',
+    'a[0]': 'a[1]',
+    'a[1]': 'a[2]',
     'b': 'b'
 }
 plot_comparaison(m, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
-def estimate(unique_income, a_true, b_true):
-    # Ensure scalars for numpy array construction
-    s1 = float(a_true[0] + b_true * unique_income[0])
-    s2 = float(a_true[1] + b_true * unique_income[1])
-    s3 = 0.0
-    p = jax.nn.softmax(np.array([s1, s2, s3]))
-    career_sim = np.random.choice([0,1,2], size=500, p=p)
+def estimate(income_sim, a_true, b_true):
+    s1 = a_true[0] + b_true * income_sim[:, 0]
+    s2 = a_true[1] + b_true * income_sim[:, 1]
+    s3 = b_true * income_sim[:, 2]
+    scores = np.stack([s1, s2, s3], axis=1)
+    p = jax.nn.softmax(scores, axis=1)
+    career_sim = []
+    for pp in p:
+        pp = np.array(pp).astype('float64')
+        pp = pp / np.sum(pp)
+        career_sim.append(np.random.choice([0, 1, 2], p=pp))
+    career_sim = np.array(career_sim)
     
     m_rec = bi(print_devices_found=False, backend='tfp')
     m_rec.data_on_model = {
         'career': jnp.array(career_sim),
-        'unique_income': jnp.array(unique_income).astype(jnp.int32)
+        'inc0': jnp.array(income_sim[:, 0]),
+        'inc1': jnp.array(income_sim[:, 1]),
+        'inc2': jnp.array(income_sim[:, 2])
     }
-    def model_rec(career, unique_income):
-        a = yield m_rec.dist.normal(0, 1, shape=(2,))
-        b = yield m_rec.dist.half_normal(0.5, shape=(1,))
-        s1 = a[0] + b * unique_income[0]
-        s2 = a[1] + b * unique_income[1]
-        s3 = jnp.zeros(1)
-        p = jax.nn.softmax(jnp.concatenate([s1, s2, s3]))
+    def model_rec(career, inc0, inc1, inc2):
+        a = yield m_rec.dist.normal(0, 1, shape=(2,), name='a')
+        b = yield m_rec.dist.half_normal(1.0, name='b')
+        s1 = a[0] + b * inc0
+        s2 = a[1] + b * inc1
+        s3 = b * inc2
+        p = jax.nn.softmax(jnp.stack([s1, s2, s3], axis=1), axis=1)
         yield m_rec.dist.categorical(probs=p, obs=career)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, num_warmup=500, progress_bar=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
-def param_recovery(unique_income, a_sims, b_sims, nsim):
+def param_recovery(income_sim, a_sims, b_sims, nsim):
     results = []
     for i in range(nsim):
-        est = estimate(unique_income, a_sims[i], b_sims[i])
-        results.append({'sim': i, 'parameter': 'a[0]', 'simulated': a_sims[i,0], 'estimations': est['a[0]']})
-        results.append({'sim': i, 'parameter': 'a[1]', 'simulated': a_sims[i,1], 'estimations': est['a[1]']})
-        results.append({'sim': i, 'parameter': 'b', 'simulated': b_sims[i,0], 'estimations': est['b']})
+        est = estimate(income_sim, a_sims[i], b_sims[i])
+        results.append({'sim': i, 'parameter': 'a[0]', 'simulated': float(a_sims[i,0]), 'estimations': float(est['a[0]'])})
+        results.append({'sim': i, 'parameter': 'a[1]', 'simulated': float(a_sims[i,1]), 'estimations': float(est['a[1]'])})
+        results.append({'sim': i, 'parameter': 'b', 'simulated': float(b_sims[i, 0]), 'estimations': float(est['b'])})
             
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 100)) 
+nsim_test = int(os.getenv('BI_NSIM', 10)) 
 a_sims = np.random.normal(0, 1, size=(nsim_test, 2))
-b_sims = np.abs(np.random.normal(0, 0.5, size=(nsim_test, 1)))
+b_sims = np.abs(np.random.normal(0, 1.0, size=(nsim_test, 1)))
 
-recovery_results = param_recovery(unique_income, a_sims, b_sims, nsim=nsim_test)
+# Generate varied income for recovery test
+income_recovery = np.random.uniform(1, 10, size=(1000, 3))
+recovery_results = param_recovery(income_recovery, a_sims, b_sims, nsim=nsim_test)

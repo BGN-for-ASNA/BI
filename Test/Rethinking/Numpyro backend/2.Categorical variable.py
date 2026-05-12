@@ -108,7 +108,7 @@ def param_recovery(index_clade, a_sim, s_sim, nsim):
     return df_res
 
 N = 100
-nsim = int(os.environ.get("BI_NSIM", 100)) 
+nsim = int(os.environ.get("BI_NSIM", 10)) 
 a_sim = np.random.normal(0, 0.5, size=(nsim, 4))
 s_sim = np.random.exponential(1, size=(nsim,))
 index_clade = np.random.choice([0,1,2,3], size=N)

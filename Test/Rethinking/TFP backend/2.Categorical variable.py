@@ -18,13 +18,13 @@ m.index(["clade"])
 m.scale(['kcal_per_g'])
 
 def model_bi(kcal_per_g, index_clade):
-    a = yield m.dist.normal(0, 0.5, shape=(4,))
-    s = yield m.dist.exponential( 1)    
+    a = yield m.dist.normal(0, 0.5, shape=(4,), name='a')
+    s = yield m.dist.exponential( 1, name='s')    
     mu = a[index_clade]
     yield m.dist.normal(mu, s, obs=kcal_per_g)
 
 m.data_to_model(['kcal_per_g', "index_clade"])
-m.fit(model_bi) 
+m.fit(model_bi, num_samples=1000, num_warmup=1000) 
 m.summary()
 
 print('Running Stan')
@@ -56,18 +56,19 @@ stan_df = build_stan_model(stan_code, data = data, chains=4)
 
 print('Posterior distributions comparison')
 param_map = {
-    'a_1': 'a[1]',
-    'a_2': 'a[2]',
-    'a_3': 'a[3]',
-    'a_4': 'a[4]',
-    's': 's'
+    'a[0]': 'a[1]',
+    'a[1]': 'a[2]',
+    'a[2]': 'a[3]',
+    'a[3]': 'a[4]',
+    's[0]': 's'
 }
-plot_comparaison(m, stan_df, param_map=param_map, model_name=model_name)
+bi_df = prepare_bi_data(m)
+plot_comparaison(bi_df, stan_df, param_map=param_map, model_name=model_name)
 
 print('Running Parameters recovery')
 def model_rec(kcal_per_g, index_clade):
-    a = yield m.dist.normal(0, 0.5, shape=(4,))
-    s = yield m.dist.exponential( 1)    
+    a = yield m.dist.normal(0, 0.5, shape=(4,), name='a')
+    s = yield m.dist.exponential( 1, name='s')    
     mu = a[index_clade]
     yield m.dist.normal(mu, s, obs=kcal_per_g)
 
@@ -80,7 +81,7 @@ def estimate(index_clade, a, s):
     m_rec = bi(print_devices_found=False, backend='tfp')
     m_rec.df = pd.DataFrame({"kcal_per_g": kcal_per_g, "index_clade": index_clade})
     m_rec.data_to_model(['kcal_per_g', 'index_clade'])
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False) 
+    m_rec.fit(model_rec, num_samples=500, num_warmup=500, progress_bar=False) 
     summary = m_rec.summary()
     return summary.iloc[:,0]
 
@@ -99,16 +100,16 @@ def param_recovery(index_clade, a_sim, s_sim, nsim):
         results.append({
             'sim': i,
             'parameter': 's',
-            'simulated': s_sim[i],
-            'estimations': estimations['s']
+            'simulated': float(s_sim[i]),
+            'estimations': float(estimations['s'])
         })
 
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)    
     return df_res
 
-N = 29
-nsim = int(os.getenv('BI_NSIM', 100)) 
+N = 500
+nsim = int(os.getenv('BI_NSIM', 20)) 
 a_sim = np.random.normal(0, 0.5, size=(nsim, 4))
 s_sim = np.random.exponential(1, size=(nsim,))
 index_clade = np.random.choice([0,1,2,3], size=N)

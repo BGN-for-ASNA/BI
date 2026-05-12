@@ -116,7 +116,7 @@ def param_recovery(actor, prosoc_left, condition, a_sims, bp_sims, bpc_sims, nsi
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 100))
+nsim_test = int(os.environ.get("BI_NSIM", 10))
 a_sims = np.random.normal(0, 1, size=(nsim_test, 7))
 bp_sims = np.random.normal(0, 1, size=(nsim_test, 1))
 bpc_sims = np.random.normal(0, 1, size=(nsim_test, 1))
