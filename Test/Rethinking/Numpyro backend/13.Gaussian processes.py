@@ -1,4 +1,5 @@
-from Utils import*
+#%%
+from Utils import *
 from BI import bi
 import pandas as pd
 import os
@@ -10,150 +11,166 @@ import jax
 model_name = "13.Gaussian processes"
 
 print(f'Running BI for {model_name}')
-
-# 1. Data Simulation (Gaussian Process - Islands)
-N_islands = 10
-Dm = jnp.array([
-    [0, 0.48, 0.72, 3.59, 4.34, 4.38, 4.8, 5.25, 5.37, 5.86],
-    [0.48, 0, 0.32, 3.2, 3.96, 4, 4.41, 4.88, 5.01, 5.49],
-    [0.72, 0.32, 0, 2.9, 3.66, 3.7, 4.12, 4.6, 4.73, 5.23],
-    [3.59, 3.2, 2.9, 0, 1, 1.13, 1.5, 1.95, 2.22, 2.71],
-    [4.34, 3.96, 3.66, 1, 0, 0.22, 0.61, 1, 1.45, 1.93],
-    [4.38, 4, 3.7, 1.13, 0.22, 0, 0.4, 0.9, 1.25, 1.74],
-    [4.8, 4.41, 4.12, 1.5, 0.61, 0.4, 0, 0.51, 1.01, 1.49],
-    [5.25, 4.88, 4.6, 1.95, 1, 0.9, 0.51, 0, 0.61, 1.1],
-    [5.37, 5.01, 4.73, 2.22, 1.45, 1.25, 1.01, 0.61, 0, 0.49],
-    [5.86, 5.49, 5.23, 2.71, 1.93, 1.74, 1.49, 1.1, 0.49, 0]
-])
-
-# Known parameters
-f_true = 3.0
-a_true = 1.0
-b_true = 1.0
-g_true = 0.1
-P_vals = jnp.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) 
-
-m_sim = bi(platform='cpu')
-# Simulate k using GP kernel
-K_sim = a_true**2 * jnp.exp(-b_true**2 * Dm**2) + jnp.diag(jnp.repeat(g_true**2 + 1e-2, N_islands))
-k_sim = m_sim.dist.multivariate_normal(jnp.zeros(N_islands), K_sim, sample=True)
-
-lambda_sim = jnp.exp(f_true + k_sim) * P_vals
-D_sim = m_sim.dist.poisson(lambda_sim, sample=True)
-
-d = pd.DataFrame(dict(island=jnp.arange(N_islands), P=P_vals, D=D_sim))
-
-# 2. BI Model
+# Setup device------------------------------------------------
 m = bi(platform='cpu')
-m.data_on_model = dict(
-    P=P_vals.astype(jnp.float32),
-    D=D_sim.astype(jnp.int32),
-    Dm=Dm.astype(jnp.float32),
-    N=N_islands
-)
 
-def model_gp(P, D, Dm, N):
-    a = m.dist.exponential(1.0, name='a')
-    b = m.dist.exponential(1.0, name='b')
-    g = m.dist.exponential(1.0, name='g')
-    f = m.dist.normal(3.0, 1.0, name='f')
-    K = a**2 * jnp.exp(-b**2 * Dm**2) + jnp.diag(jnp.repeat(g**2 + 1e-2, N))
-    k = m.dist.multivariate_normal(jnp.zeros(N), K, name='k')
-    lambda_ = jnp.exp(f + k) * P
-    m.dist.poisson(lambda_, obs=D)
+# Import Data & Data Manipulation ------------------------------------------------
+# Import
+data_path = m.load.kline2(only_path=True)
+m.data(data_path, sep=';') 
 
+from importlib.resources import files
+data_path2 = files('BI.Resources') / 'islandsDistMatrix.csv'
+islandsDistMatrix = pd.read_csv(data_path2, index_col=0)
+
+m.data_to_model(['total_tools', 'population'])
+m.data_on_model["society"] = jnp.arange(0,10)# index observations
+m.data_on_model["Dmat"] = islandsDistMatrix.values # Distance matrix
+
+def model(Dmat, population, society, total_tools):
+    a = m.dist.exponential(1, name = 'a')
+    b = m.dist.exponential(1, name = 'b')
+    g = m.dist.exponential(1, name = 'g')
+
+    # non-centered Gaussian Process prior
+    etasq = m.dist.exponential(2, name = 'etasq')
+    rhosq = m.dist.exponential(0.5, name = 'rhosq')
+    SIGMA = etasq * jnp.exp(-rhosq * jnp.square(Dmat))
+    SIGMA = SIGMA.at[jnp.diag_indices(Dmat.shape[0])].add(0.01)
+    k = m.dist.multivariate_normal(0, SIGMA, name = 'k')
+
+    lambda_ = a * population**b / g * jnp.exp(k[society])
+
+    m.dist.poisson(lambda_, obs=total_tools)
+    
+#%%
+# Run sampler ------------------------------------------------
 print("Fitting BI model...")
-m.fit(model_gp, num_samples=1000, num_warmup=1000)
-bi_summary = m.summary()
+m.fit(model, num_samples=1000, num_warmup=1000)
 print("BI Summary:")
-print(bi_summary)
+m.summary()
 
-# 3. Stan Model
-stan_code = """
-data{
-    int N;
-    array[N] int D;
-    vector[N] P;
-    matrix[N,N] Dm;
-}
-parameters{
-    real f;
-    real<lower=0> a;
-    real<lower=0> b;
-    real<lower=0> g;
-    vector[N] k;
-}
-model{
-    matrix[N,N] K;
-    a ~ exponential( 1 );
-    b ~ exponential( 1 );
-    g ~ exponential( 1 );
-    f ~ normal( 3 , 1 );
-    for ( i in 1:(N-1) )
-        for ( j in (i+1):N ) {
-            K[i,j] = a^2 * exp( -b^2 * Dm[i,j]^2 );
-            K[j,i] = K[i,j];
-        }
-    for ( i in 1:N ) K[i,i] = a^2 + g^2 + 1e-2;
-    k ~ multi_normal( rep_vector(0,N) , K );
-    for ( i in 1:N ) {
-        D[i] ~ poisson( exp(f + k[i]) * P[i] );
+#%%
+# 3. Stan Model 
+
+stan_code = """ 
+functions{
+  matrix cov_GPL2(matrix x, real sq_alpha, real sq_rho, real delta) {
+    int N = dims(x)[1];
+    matrix[N, N] K;
+    for (i in 1:(N-1)) {
+      K[i, i] = sq_alpha + delta;
+      for (j in (i + 1):N) {
+        K[i, j] = sq_alpha * exp(-sq_rho * square(x[i,j]) );
+        K[j, i] = K[i, j];
+      }
     }
+    K[N, N] = sq_alpha + delta;
+    return K;
+  }
+}
+
+data{
+  array[10] int T;
+  array[10] int society;
+  array[10] int P;
+  matrix[10,10] Dmat;
+}
+
+parameters{
+ real<lower=0> a;
+ real<lower=0> b;
+ real<lower=0> etasq;
+ real<lower=0> g; 
+ real<lower=0> rhosq;
+ vector[10] k;
+}
+
+model{
+  vector[10] lambda;
+  matrix[10,10] SIGMA;
+  rhosq ~ exponential( 0.5 );
+  etasq ~ exponential( 2 );
+  a ~ exponential( 1 );
+  b ~ exponential( 1 );
+  g ~ exponential( 1 );
+
+  SIGMA = cov_GPL2(Dmat, etasq, rhosq, 0.01);
+  k ~ multi_normal( rep_vector(0,10) , SIGMA );
+  for ( i in 1:10 ) {
+    lambda[i] = (a * P[i]^b/g) * exp(k[society[i]]);
+  }
+  T ~ poisson( lambda );
 }
 """
-stan_data = {
-    'N': N_islands,
-    'D': D_sim.tolist(),
-    'P': P_vals.tolist(),
-    'Dm': Dm.tolist()
+data = {
+    'T' : m.df["total_tools"].values.astype(int),
+    'P' : m.df["population"].values.astype(int),
+    'society' : np.array(m.data_on_model['society']+1).astype(int),
+    'Dmat' : np.array(islandsDistMatrix)
 }
-stan_df = build_stan_model(stan_code, data=stan_data, chains=4)
 
+print("Fitting Stan model...")
+df_stan = build_stan_model(stan_code, data= data, chains=4)
+
+#%%
 # 4. Comparison
-param_map = {'a': 'a', 'b': 'b', 'g': 'g', 'f': 'f'}
-bi_samples = m.posteriors
-bi_df = pd.DataFrame({k: bi_samples[k] for k in param_map.keys()})
-plot_comparaison(bi_df, stan_df, param_map, model_name=model_name)
+param_map = {'a': 'a', 'b': 'b', 'g': 'g', 'etasq': 'etasq', 'rhosq': 'rhosq'}
+bi_df = prepare_bi_data(m)
+plot_comparaison(bi_df, df_stan, param_map, model_name=model_name)
 
+#%%
 # 5. Parameter Recovery Analysis
-def estimate_rec(Dm, P_vals, f_true, a_true, b_true, g_true):
-    N = len(P_vals)
-    K_sim = a_true**2 * jnp.exp(-b_true**2 * Dm**2) + jnp.diag(jnp.repeat(g_true**2 + 1e-2, N))
-    k_sim = np.random.multivariate_normal(np.zeros(N), K_sim)
-    lambda_sim = np.exp(f_true + k_sim) * P_vals
-    D_sim = np.random.poisson(lambda_sim)
+def estimate_rec(Dm_rec, P_rec, a_true, b_true, g_true, etasq_true, rhosq_true, society):
+    K_sim = etasq_true * jnp.exp(-rhosq_true * jnp.square(Dm_rec))
+    K_sim = K_sim.at[jnp.diag_indices(Dm_rec.shape[0])].add(0.01)
+    k_sim =  m.dist.multivariate_normal(0, K_sim, sample = True)
     
-    m_rec = bi(print_devices_found=False)
-    m_rec.data_on_model = {
-        'P': jnp.array(P_vals, dtype=jnp.float32),
-        'D': jnp.array(D_sim, dtype=jnp.int32),
-        'Dm': jnp.array(Dm, dtype=jnp.float32),
-        'N': N
+    # lambda_sim: a * P^b / g * exp(k)
+    lambda_sim = a_true * P_rec**b_true / g_true * jnp.exp(k_sim[society])
+    total_tools_sim = m.dist.poisson(lambda_sim, sample = True)
+    
+    m.data_on_model = {
+        'population': jnp.array(P_rec, dtype=jnp.float32),
+        'total_tools': total_tools_sim,
+        'Dmat': jnp.array(Dm_rec, dtype=jnp.float32),
+        'society': society
     }
-    def model_rec(P, D, Dm, N):
-        a = m_rec.dist.exponential(1.0, name='a')
-        b = m_rec.dist.exponential(1.0, name='b')
-        g = m_rec.dist.exponential(1.0, name='g')
-        f = m_rec.dist.normal(3.0, 1.0, name='f')
-        K = a**2 * jnp.exp(-b**2 * Dm**2) + jnp.diag(jnp.repeat(g**2 + 1e-2, N))
-        k = m_rec.dist.multivariate_normal(jnp.zeros(N), K, name='k')
-        lambda_ = jnp.exp(f + k) * P
-        m_rec.dist.poisson(lambda_, obs=D)
+    
+    def model_rec(Dmat, population, society, total_tools):
+        a = m.dist.exponential(1, name = 'a')
+        b = m.dist.exponential(1, name = 'b')
+        g = m.dist.exponential(1, name = 'g')
+
+        # non-centered Gaussian Process prior
+        etasq = m.dist.exponential(2, name = 'etasq')
+        rhosq = m.dist.exponential(0.5, name = 'rhosq')
+        SIGMA = etasq * jnp.exp(-rhosq * jnp.square(Dmat))
+        SIGMA = SIGMA.at[jnp.diag_indices(Dmat.shape[0])].add(0.01)
+        k = m.dist.multivariate_normal(0, SIGMA, name =  'k')
+
+        lambda_ = a * population**b / g * jnp.exp(k[society])
+        m.dist.poisson(lambda_, obs=total_tools)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
-    sum_df = m_rec.summary()
+    m.fit(model_rec, num_samples=1000, num_warmup=1000, progress_bar=False)
+    sum_df = m.summary()
     return sum_df.iloc[:, 0]
 
-def param_recovery(Dm, P_vals, f_sims, a_sims, b_sims, g_sims, nsim):
+def param_recovery(Dm, P_vals, a_sims, b_sims, g_sims, etasq_sims, rhosq_sims, society, nsim):
     results = []
-    # Use more data for recovery (duplicate islands to 30)
-    Dm_ext = np.tile(Dm, (3, 3))
-    P_ext = np.tile(P_vals, 3)
+    # Keep original 10 islands
+    Dm_rec = Dm
+    P_rec = P_vals
     
     for i in range(nsim):
-        est = estimate_rec(Dm_ext, P_ext, f_sims[i], a_sims[i], b_sims[i], g_sims[i])
-        for param in ['f', 'a', 'b']:
-            true_val = f_sims[i] if param == 'f' else (a_sims[i] if param == 'a' else b_sims[i])
+        est = estimate_rec(Dm_rec, P_rec, a_sims[i], b_sims[i], g_sims[i], etasq_sims[i], rhosq_sims[i], society)
+        for param in ['a', 'b', 'g', 'etasq', 'rhosq']:
+            if param == 'a': true_val = a_sims[i]
+            elif param == 'b': true_val = b_sims[i]
+            elif param == 'g': true_val = g_sims[i]
+            elif param == 'etasq': true_val = etasq_sims[i]
+            else: true_val = rhosq_sims[i]
+            
             results.append({
                 'sim': i,
                 'parameter': param,
@@ -165,11 +182,19 @@ def param_recovery(Dm, P_vals, f_sims, a_sims, b_sims, g_sims, nsim):
     plot_recovery(df_res, model_name=model_name)
     return df_res
 
-print("\nRunning Parameter Recovery (100 simulations)...")
-nsim = int(os.environ.get("BI_NSIM", 100))
-f_sims = np.random.normal(3.0, 0.5, size=(nsim,))
-a_sims = np.random.exponential(1.0, size=(nsim,))
-b_sims = np.random.exponential(1.0, size=(nsim,))
-g_sims = np.random.exponential(0.5, size=(nsim,))
+print("\nRunning Parameter Recovery...")
+nsim = int(os.environ.get("BI_NSIM", 5))
+a_sims = m.dist.exponential(1.0, sample=True, shape=(nsim,))
+b_sims = m.dist.exponential(1.0, sample=True, shape=(nsim,))
+g_sims = m.dist.exponential(1.0, sample=True, shape=(nsim,))
+etasq_sims = m.dist.exponential(2.0, sample=True, shape=(nsim,))
+rhosq_sims = m.dist.exponential(0.5, sample=True, shape=(nsim,))
 
-res = param_recovery(Dm, P_vals, f_sims, a_sims, b_sims, g_sims, nsim = nsim)
+Dm = m.data_on_model['Dmat']
+P_vals = m.data_on_model['population']
+society = m.data_on_model["society"]
+res = param_recovery(Dm, P_vals, a_sims, b_sims, g_sims, etasq_sims, rhosq_sims, society, nsim = nsim)
+
+
+
+# %%

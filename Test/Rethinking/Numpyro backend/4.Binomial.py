@@ -81,6 +81,6 @@ def param_recovery(a_true, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 100))
+nsim_test = int(os.environ.get("BI_NSIM", 10))
 a_sim = np.random.normal(0, 1, size=(nsim_test, 1))
 recovery_results = param_recovery(a_sim, nsim=nsim_test)

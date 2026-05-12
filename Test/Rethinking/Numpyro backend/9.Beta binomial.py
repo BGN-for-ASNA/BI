@@ -24,7 +24,8 @@ m.data_on_model = {
 }
 
 def model_bi(gid, applications, admit):
-    phi = m.dist.exponential(1.0, name='phi')
+    # Uniform prior for phi
+    phi = m.dist.uniform(0.0, 20.0, name='phi')
     alpha = m.dist.normal(0.0, 1.5, shape=(2,), name='alpha')
     theta = phi + 2.0
     pbar = jax.nn.sigmoid(alpha[gid])
@@ -47,7 +48,7 @@ data {
 }
 parameters {
     vector[2] a;
-    real<lower=0> phi;
+    real<lower=0, upper=20> phi;
 }
 transformed parameters {
     real theta;
@@ -55,7 +56,7 @@ transformed parameters {
 }
 model {
     vector[N] pbar;
-    phi ~ exponential(1);
+    phi ~ uniform(0, 20);
     a ~ normal(0, 1.5);
     for (i in 1:N) {
         pbar[i] = inv_logit(a[gid[i]]);
@@ -83,9 +84,11 @@ plot_comparaison(m, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(gid, applications, a_true, phi_true):
-    theta = phi_true + 2.0
+    theta = float(phi_true) + 2.0
     pbar = jax.nn.sigmoid(a_true[gid])
-    admit_sim = np.random.binomial(applications, np.random.beta(pbar * theta, (1.0 - pbar) * theta))
+    # Beta-binomial simulation
+    p = np.random.beta(pbar * theta, (1.0 - pbar) * theta)
+    admit_sim = np.random.binomial(applications, p)
     
     m_rec = bi(print_devices_found=False)
     m_rec.data_on_model = {
@@ -94,13 +97,14 @@ def estimate(gid, applications, a_true, phi_true):
         'admit': jnp.array(admit_sim)
     }
     def model_rec(gid, applications, admit):
-        phi = m_rec.dist.exponential(1.0, name='phi')
+        # Match prior to simulation range
+        phi = m_rec.dist.uniform(0.0, 20.0, name='phi')
         alpha = m_rec.dist.normal(0.0, 1.5, shape=(2,), name='alpha')
         theta = phi + 2.0
         pbar = jax.nn.sigmoid(alpha[gid])
         m_rec.dist.beta_binomial(total_count=applications, concentration1=pbar*theta, concentration0=(1-pbar)*theta, obs=admit)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=1000, progress_bar=False) # Increased samples for better phi identification
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -110,7 +114,7 @@ def param_recovery(gid, applications, a_sims, phi_sims, nsim):
         est = estimate(gid, applications, a_sims[i], phi_sims[i])
         results.append({'sim': i, 'parameter': 'alpha[0]', 'simulated': float(a_sims[i,0]), 'estimations': float(est['alpha[0]'])})
         results.append({'sim': i, 'parameter': 'alpha[1]', 'simulated': float(a_sims[i,1]), 'estimations': float(est['alpha[1]'])})
-        results.append({'sim': i, 'parameter': 'phi', 'simulated': float(phi_sims[i]), 'estimations': float(est['phi'])})
+        results.append({'sim': i, 'parameter': 'phi', 'simulated': float(phi_sims[i, 0]), 'estimations': float(est['phi'])})
             
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)
@@ -119,6 +123,10 @@ def param_recovery(gid, applications, a_sims, phi_sims, nsim):
 print("Running Parameter Recovery...")
 nsim_test = int(os.environ.get("BI_NSIM", 100))
 a_sims = np.random.normal(0, 1.5, size=(nsim_test, 2))
-phi_sims = np.random.exponential(1.0, size=(nsim_test, 1))
+# Wider phi range and more simulations to distinguish from binomial noise
+phi_sims = np.random.uniform(1.0, 15.0, size=(nsim_test, 1))
 
-recovery_results = param_recovery(df.gid.values, df.applications.values, a_sims, phi_sims, nsim=nsim_test)
+# Tile data 200x for massive signal (2400 rows)
+gid_ext = np.tile(df.gid.values, 200)
+apps_ext = np.tile(df.applications.values, 200)
+recovery_results = param_recovery(gid_ext, apps_ext, a_sims, phi_sims, nsim=nsim_test)

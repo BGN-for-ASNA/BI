@@ -3,6 +3,8 @@ library(BayesianInference)
 
 m <- importBI("cpu")
 
+jax <- import("jax")
+jax$config$update("jax_enable_x64", TRUE)
 jnp <- import("jax.numpy")
 jax_scipy <- import("jax.scipy.special")
 
@@ -28,8 +30,8 @@ bi_model_count <- function(data) {
   }
 
   if (as.numeric(data$num_random) > 0) {
-    random_group_mu <- m$dist$normal(0.0, 1.0, shape = tuple(data$num_random_groups), name = "random_group_mu")
-    random_group_sigma <- m$dist$half_normal(1.0, shape = tuple(data$num_random_groups), name = "random_group_sigma")
+    random_group_mu <- m$dist$normal(as.numeric(data$prior_random_mean_mu), as.numeric(data$prior_random_mean_sigma), shape = tuple(data$num_random_groups), name = "random_group_mu")
+    random_group_sigma <- m$dist$half_normal(as.numeric(data$prior_random_std_sigma), shape = tuple(data$num_random_groups), name = "random_group_sigma")
 
     group_idx_0 <- data$random_group_index - 1L
     beta_random <- m$dist$normal(random_group_mu[group_idx_0], random_group_sigma[group_idx_0], shape = tuple(data$num_random), name = "beta_random")
@@ -40,7 +42,7 @@ bi_model_count <- function(data) {
   rate <- jnp$exp(predictor) * data$divisor
 
   if (as.numeric(data$zero_inflated) == 1) {
-    zero_prob <- m$dist$beta(1.0, 1.0, shape = tuple(1L), name = "zero_prob")
+    zero_prob <- m$dist$beta(as.numeric(data$prior_zero_prob_alpha), as.numeric(data$prior_zero_prob_beta), shape = tuple(1L), name = "zero_prob")
     base_dist <- m$dist$poisson(rate, create_obj = TRUE)
     m$dist$zero_inflated_distribution(base_dist, gate = zero_prob[0L], obs = data$event, name = "event")
   } else {

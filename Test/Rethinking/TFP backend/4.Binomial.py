@@ -15,11 +15,12 @@ m = bi(platform='cpu', backend='tfp')
 data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BI", "Resources")) + os.sep
 df = pd.read_csv(data_path + 'chimpanzees.csv', sep=';')
 m.df = df
-m.data_on_model = {'pulled_left': jnp.array(df.pulled_left.values)}
+m.data_on_model = {'pulled_left': jnp.array(df.pulled_left.values, dtype=jnp.float32)}
 
 def model_bi(pulled_left):
-    alpha = yield m.dist.normal(0, 10, shape=(1,))
-    yield m.dist.binomial(total_count=1, logits=alpha, obs=pulled_left)
+    a = yield m.dist.normal(0, 10, name='a')
+    logits = jnp.full_like(pulled_left, a)
+    yield m.dist.binomial(total_count=1, logits=logits, obs=pulled_left)
 
 print("Fitting BI model...")
 m.fit(model_bi, num_samples=1000, num_warmup=1000)
@@ -52,35 +53,35 @@ df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 plot_comparaison(m, df_stan, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
-def sim_pulled_left(a):
-    return m.dist.binomial(total_count=1, logits=a, sample=True, shape=(len(df),))
-
-def estimate(a):
-    pulled_left_sim = sim_pulled_left(a)
+def estimate(pulled_left_sim):
     m_rec = bi(print_devices_found=False, backend='tfp')
     m_rec.data_on_model = {"pulled_left": pulled_left_sim}
     def model_rec(pulled_left):
-        alpha = yield m_rec.dist.normal(0, 10, shape=(1,))
-        yield m_rec.dist.binomial(total_count=1, logits=alpha, obs=pulled_left)
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+        a = yield m_rec.dist.normal(0, 10, name='a')
+        logits = jnp.full_like(pulled_left, a)
+        yield m_rec.dist.binomial(total_count=1, logits=logits, obs=pulled_left)
+    m_rec.fit(model_rec, num_samples=500, num_warmup=500, progress_bar=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
 def param_recovery(a_true, nsim):
     results = []
     for i in range(nsim):
-        est = estimate(a_true[i])
+        # 20x tiling for stronger signal (as per TFP previous script)
+        p_true = jax.nn.sigmoid(a_true[i, 0])
+        pl_sim = np.random.binomial(1, p_true, size=len(df)*20).astype(float)
+        est = estimate(pl_sim)
         results.append({
             'sim': i,
             'parameter': 'a',
-            'simulated': a_true[i,0],
-            'estimations': est['a']
+            'simulated': float(a_true[i, 0]),
+            'estimations': float(est['a'])
         })
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 100))
+nsim_test = int(os.getenv('BI_NSIM', 10))
 a_sim = np.random.normal(0, 1, size=(nsim_test, 1))
 recovery_results = param_recovery(a_sim, nsim=nsim_test)

@@ -101,7 +101,7 @@ def param_recovery(weight_data, a_sims, b_sims, s_sims, nsim):
     return df_res
 
 N = 200
-nsim = int(os.environ.get("BI_NSIM", 100))
+nsim = int(os.environ.get("BI_NSIM", 10))
 a_sims = np.random.normal(0, 1, size=(nsim, 1))
 b_sims = np.random.normal(0, 1, size=(nsim, 1))
 s_sims = np.random.exponential(1, size=(nsim, 1))

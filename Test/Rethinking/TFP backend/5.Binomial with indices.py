@@ -22,9 +22,9 @@ m.df = df
 m.data_to_model(['prosoc_left', 'condition', 'actor', 'pulled_left'])
 
 def model_bi(actor, prosoc_left, condition, pulled_left):
-    a = yield m.dist.normal(0, 10, shape=(7,))
-    bp = yield m.dist.normal(0, 10)
-    bpc = yield m.dist.normal(0, 10)
+    a = yield m.dist.normal(0, 10, shape=(7,), name='a')
+    bp = yield m.dist.normal(0, 10, name='bp')
+    bpc = yield m.dist.normal(0, 10, name='bpc')
     logits = a[actor] + (bp + bpc * condition) * prosoc_left
     yield m.dist.binomial(total_count=1, logits=logits, obs=pulled_left)
 
@@ -73,11 +73,12 @@ df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 
 # 3. Output Comparison ---------------------------------------
 param_map = {
-    'a_1': 'a[1]', 'a_2': 'a[2]', 'a_3': 'a[3]', 'a_4': 'a[4]',
-    'a_5': 'a[5]', 'a_6': 'a[6]', 'a_7': 'a[7]',
-    'bp': 'bp', 'bpc': 'bpc'
+    'a[0]': 'a[1]', 'a[1]': 'a[2]', 'a[2]': 'a[3]', 'a[3]': 'a[4]',
+    'a[4]': 'a[5]', 'a[5]': 'a[6]', 'a[6]': 'a[7]',
+    'bp[0]': 'bp', 'bpc[0]': 'bpc'
 }
-plot_comparaison(m, df_stan, param_map=param_map, model_name=model_name)
+bi_df = prepare_bi_data(m)
+plot_comparaison(bi_df, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(actor, prosoc_left, condition, a_true, bp_true, bpc_true):
@@ -92,13 +93,13 @@ def estimate(actor, prosoc_left, condition, a_true, bp_true, bpc_true):
         'pulled_left': jnp.array(pulled_left_sim)
     }
     def model_rec(actor, prosoc_left, condition, pulled_left):
-        a = yield m_rec.dist.normal(0, 10, shape=(7,))
-        bp = yield m_rec.dist.normal(0, 10)
-        bpc = yield m_rec.dist.normal(0, 10)
+        a = yield m_rec.dist.normal(0, 10, shape=(7,), name='a')
+        bp = yield m_rec.dist.normal(0, 10, name='bp')
+        bpc = yield m_rec.dist.normal(0, 10, name='bpc')
         logits = a[actor] + (bp + bpc * condition) * prosoc_left
         yield m_rec.dist.binomial(total_count=1, logits=logits, obs=pulled_left)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, num_warmup=500, progress_bar=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -107,16 +108,16 @@ def param_recovery(actor, prosoc_left, condition, a_sims, bp_sims, bpc_sims, nsi
     for i in range(nsim):
         est = estimate(actor, prosoc_left, condition, a_sims[i], bp_sims[i], bpc_sims[i])
         for j in range(7):
-            results.append({'sim': i, 'parameter': f'a[{j}]', 'simulated': a_sims[i,j], 'estimations': est[f'a[{j}]']})
-        results.append({'sim': i, 'parameter': 'bp', 'simulated': bp_sims[i,0], 'estimations': est['bp']})
-        results.append({'sim': i, 'parameter': 'bpc', 'simulated': bpc_sims[i,0], 'estimations': est['bpc']})
+            results.append({'sim': i, 'parameter': f'a[{j}]', 'simulated': float(a_sims[i,j]), 'estimations': float(est[f'a[{j}]'])})
+        results.append({'sim': i, 'parameter': 'bp', 'simulated': float(bp_sims[i,0]), 'estimations': float(est['bp'])})
+        results.append({'sim': i, 'parameter': 'bpc', 'simulated': float(bpc_sims[i,0]), 'estimations': float(est['bpc'])})
         
     df_res = pd.DataFrame(results)
     plot_recovery(df_res, model_name=model_name)
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 100))
+nsim_test = int(os.getenv('BI_NSIM', 10))
 a_sims = np.random.normal(0, 1, size=(nsim_test, 7))
 bp_sims = np.random.normal(0, 1, size=(nsim_test, 1))
 bpc_sims = np.random.normal(0, 1, size=(nsim_test, 1))

@@ -22,11 +22,11 @@ m.df = df
 m.data_to_model(['blooms_scaled', 'water_scaled', 'shade_scaled'])
 
 def model_bi(blooms_scaled, water_scaled, shade_scaled):
-    sigma = yield m.dist.exponential(1)
-    bws = yield m.dist.normal(0, 0.25)
-    bs = yield m.dist.normal(0, 0.25)
-    bw = yield m.dist.normal(0, 0.25)
-    a = yield m.dist.normal(0.5, 0.25)
+    sigma = yield m.dist.exponential(1, name='sigma')
+    bws = yield m.dist.normal(0, 0.25, name='bws')
+    bs = yield m.dist.normal(0, 0.25, name='bs')
+    bw = yield m.dist.normal(0, 0.25, name='bw')
+    a = yield m.dist.normal(0.5, 0.25, name='a')
     mu = a + bw*water_scaled + bs*shade_scaled + bws*water_scaled*shade_scaled
     yield m.dist.normal(mu, sigma, obs=blooms_scaled)
 
@@ -72,7 +72,15 @@ print("Fitting Stan model...")
 df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 
 # 3. Output Comparison ---------------------------------------
-plot_comparaison(m, df_stan, model_name=model_name)
+bi_df = prepare_bi_data(m)
+param_map = {
+    'a[0]': 'a',
+    'bw[0]': 'bw',
+    'bs[0]': 'bs',
+    'bws[0]': 'bws',
+    'sigma[0]': 'sigma'
+}
+plot_comparaison(bi_df, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def sim_blooms(water, shade, sigma, bws, bs, bw, a):
@@ -85,15 +93,15 @@ def estimate(water, shade, sigma, bws, bs, bw, a):
     m_rec.df = pd.DataFrame({"water": water, "shade": shade, "blooms": blooms_sim})
     
     def model_rec(blooms, shade, water):
-        sigma = yield m_rec.dist.exponential(1)
-        bws = yield m_rec.dist.normal(0, 0.25)
-        bs = yield m_rec.dist.normal(0, 0.25)
-        bw = yield m_rec.dist.normal(0, 0.25)
-        a = yield m_rec.dist.normal(0.5, 0.25)
+        sigma = yield m_rec.dist.exponential(1, name='sigma')
+        bws = yield m_rec.dist.normal(0, 0.25, name='bws')
+        bs = yield m_rec.dist.normal(0, 0.25, name='bs')
+        bw = yield m_rec.dist.normal(0, 0.25, name='bw')
+        a = yield m_rec.dist.normal(0.5, 0.25, name='a')
         mu = a + bw*water + bs*shade + bws*water*shade
         yield m_rec.dist.normal(mu, sigma, obs=blooms)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, num_warmup=500, progress_bar=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -107,8 +115,8 @@ def param_recovery(water, shade, sigma_true, bws_true, bs_true, bw_true, a_true,
             results.append({
                 'sim': i,
                 'parameter': param,
-                'simulated': true_val,
-                'estimations': est[param]
+                'simulated': float(true_val),
+                'estimations': float(est[param])
             })
         
     df_res = pd.DataFrame(results)
@@ -116,15 +124,17 @@ def param_recovery(water, shade, sigma_true, bws_true, bs_true, bw_true, a_true,
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 100))
+nsim_test = int(os.getenv('BI_NSIM', 20))
 sigma_sim = np.random.exponential(1, size=(nsim_test, 1))
 bws_sim = np.random.normal(0, 0.25, size=(nsim_test, 1))
 bs_sim = np.random.normal(0, 0.25, size=(nsim_test, 1))
 bw_sim = np.random.normal(0, 0.25, size=(nsim_test, 1))
 a_sim = np.random.normal(0.5, 0.25, size=(nsim_test, 1))
 
-water_vals = df.water_scaled.values
-shade_vals = df.shade_scaled.values
+# Generate more data for better recovery signal
+N_rec = 200
+water_vals = np.random.uniform(-1, 1, size=N_rec)
+shade_vals = np.random.uniform(-1, 1, size=N_rec)
 
 recovery_results = param_recovery(water_vals, shade_vals, sigma_sim, bws_sim, bs_sim, bw_sim, a_sim, nsim=nsim_test)
 

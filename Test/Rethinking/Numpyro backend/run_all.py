@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 # Get the python executable from the venv
-python_exe = r"C:\Users\Sosa\Documents\.virtualenvs\BayesInference\Scripts\python.exe"
+python_exe = sys.executable
 
 models = [
     "1.Continuous variable.py",
@@ -21,16 +21,20 @@ models = [
     "13.Gaussian processes.py"
 ]
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Ensure plots directory exists
-if not os.path.exists("plots"):
-    os.makedirs("plots")
+plots_dir = os.path.join(script_dir, "plots")
+if not os.path.exists(plots_dir):
+    os.makedirs(plots_dir)
 
 print(f"Starting execution of {len(models)} models...")
 
 env = os.environ.copy()
 env['BI_NSIM'] = os.environ.get('BI_NSIM', '10')
 
-log_file = "log.txt"
+log_file = os.path.join(script_dir, "log.txt")
+
 with open(log_file, "w") as f_log:
     f_log.write(f"Execution Log - {len(models)} models\n")
     f_log.write("="*50 + "\n")
@@ -41,8 +45,9 @@ with open(log_file, "w") as f_log:
         print(f"{'='*50}")
         
         try:
-            # Run the model script
-            result = subprocess.run([python_exe, model], env=env, capture_output=True, text=True, check=True)
+            # Run the model script from its own directory
+            model_path = os.path.join(script_dir, model)
+            result = subprocess.run([python_exe, model_path], env=env, capture_output=True, text=True, check=True, cwd=script_dir)
             print(f"Successfully completed {model}")
             f_log.write(f"[SUCCESS] {model}\n")
             f_log.flush()

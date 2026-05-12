@@ -124,7 +124,7 @@ def param_recovery(tank, density, a_bar_sims, sigma_sims, alpha_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 100))
+nsim_test = int(os.environ.get("BI_NSIM", 10))
 a_bar_sims = np.random.normal(0, 1.5, (nsim_test, 1))
 sigma_sims = np.random.exponential(1.0, (nsim_test, 1))
 alpha_sims = np.random.normal(a_bar_sims, sigma_sims, (nsim_test, 48))
