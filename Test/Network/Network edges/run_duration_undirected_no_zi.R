@@ -1,4 +1,4 @@
-setwd("C:/Users/Sosa/Documents/BI")
+setwd("/home/sebastian_sosa/BI")
 
 library(reticulate)
 library(BayesianInference)
@@ -17,6 +17,8 @@ assignInNamespace("simulate_bison_model", simulate_bison_model, ns = "bisonR")
 source(file.path(BASE, "bi_model_duration.R"))
 
 m   <- importBI("cpu")
+jax <- import("jax")
+jax$config$update("jax_enable_x64", TRUE)
 jnp <- import("jax.numpy")
 
 get_bi_draws <- function(raw_post) {
@@ -65,6 +67,35 @@ normalize_bi_names <- function(bi_draws, stan_draws) {
     }
   }
   out
+}
+
+apply_non_centered_transform <- function(bi_draws, bi_data) {
+  if (as.numeric(bi_data$partial_pooling) == 1) {
+    sig_key <- if ("edge_sigma" %in% names(bi_draws)) "edge_sigma"
+               else if ("edge_sigma[1]" %in% names(bi_draws)) "edge_sigma[1]"
+               else NULL
+    if (!is.null(sig_key)) {
+      sigma_s <- bi_draws[[sig_key]]
+      mu_val  <- as.numeric(bi_data$prior_edge_mu)
+      for (i in seq_len(as.integer(bi_data$num_edges))) {
+        k <- paste0("edge_weight[", i, "]")
+        if (k %in% names(bi_draws))
+          bi_draws[[k]] <- mu_val + sigma_s * bi_draws[[k]]
+      }
+    }
+  }
+  if (as.numeric(bi_data$num_random) > 0) {
+    grp_idx <- bi_data$random_group_index
+    for (r in seq_along(grp_idx)) {
+      g     <- grp_idx[r]
+      mu_k  <- paste0("random_group_mu[",    g, "]")
+      sig_k <- paste0("random_group_sigma[", g, "]")
+      br_k  <- paste0("beta_random[",        r, "]")
+      if (all(c(mu_k, sig_k, br_k) %in% names(bi_draws)))
+        bi_draws[[br_k]] <- bi_draws[[mu_k]] + bi_draws[[sig_k]] * bi_draws[[br_k]]
+    }
+  }
+  bi_draws
 }
 
 kl_divergence <- function(s, b, n_grid = 512) {
@@ -129,14 +160,28 @@ save_combination_log <- function(test_name, stan_draws, bi_draws, out_dir) {
                             ifelse(is.na(diff), NaN, diff),
                             ifelse(is.na(kl),   NaN, kl)))
   }
+  categories <- c("edge_weight", "edge_sigma", "beta_fixed", "beta_random",
+                  "random_group_mu", "random_group_sigma", "rate", "zero_prob")
+  rows <- c(rows, "", "Category-wise Mean KL(Stan||BI)")
+  for (cat_name in categories) {
+    cat_params <- grep(paste0("^", cat_name, "(\\[|$)"), all_params, value = TRUE)
+    cat_kls <- sapply(cat_params, function(p) {
+      s <- stan_draws[[p]]; b <- bi_draws[[p]]
+      if (!is.null(s) && !is.null(b) && length(s) > 1 && length(b) > 1)
+        kl_divergence(s, b) else NA
+    })
+    cat_kls <- cat_kls[!is.na(cat_kls)]
+    if (length(cat_kls) > 0)
+      rows <- c(rows, sprintf("Mean KL %-25s  %.6f", cat_name, mean(cat_kls)))
+  }
   cat(paste(rows, collapse = "\n"), "\n", file = log_path)
   cat("  Log:", log_path, "\n")
 }
 
-build_stan_data_duration <- function(df, formula, partial_pooling, zero_inflated) {
+build_stan_data_duration <- function(df, formula, directed, partial_pooling, zero_inflated) {
   ns  <- getNamespace("bisonR")
   gbd <- get("get_bison_model_data", envir = ns)
-  mi  <- gbd(formula = formula, observations = df, directed = FALSE, model_type = "count")
+  mi  <- gbd(formula = formula, observations = df, directed = directed, model_type = "count")
   md  <- mi$model_data
   ne  <- as.integer(md$num_edges); nr <- as.integer(md$num_rows)
   ec  <- integer(ne)
@@ -146,12 +191,13 @@ build_stan_data_duration <- function(df, formula, partial_pooling, zero_inflated
     num_rows=nr, num_edges=ne,
     num_fixed=as.integer(md$num_fixed), num_random=as.integer(md$num_random),
     num_random_groups=as.integer(md$num_random_groups),
-    event=pmax(1L, as.integer(round(as.numeric(md$event)))),
+    event=as.numeric(md$event),
     event_count=pmax(1L, ec), divisor=as.numeric(md$divisor),
     dyad_ids=as.integer(md$dyad_ids), dyad_ids_receiver=as.integer(md$dyad_ids),
     design_fixed=data.matrix(md$design_fixed), design_random=data.matrix(md$design_random),
     random_group_index=as.integer(md$random_group_index),
     partial_pooling=as.integer(partial_pooling), zero_inflated=as.integer(zero_inflated),
+    directed=as.integer(directed),
     sender_receiver=0L, priors_only=0L,
     prior_edge_mu=0.0, prior_edge_sigma=2.0, prior_fixed_mu=0.0, prior_fixed_sigma=1.0,
     prior_rate_sigma=1.0, prior_random_mean_mu=0.0, prior_random_mean_sigma=1.0,
@@ -162,15 +208,15 @@ build_stan_data_duration <- function(df, formula, partial_pooling, zero_inflated
 make_jax_data <- function(bi_data) {
   jd <- bi_data
   jd$dyad_ids    <- jnp$array(as.integer(bi_data$dyad_ids), dtype = jnp$int32)
-  jd$event <- jnp$array(as.numeric(bi_data$event), dtype = jnp$float32)
+  jd$event       <- jnp$array(as.numeric(bi_data$event),       dtype = jnp$float64)
   jd$event_count <- jnp$array(as.integer(bi_data$event_count), dtype = jnp$int32)
-  jd$divisor     <- jnp$array(as.numeric(bi_data$divisor),  dtype = jnp$float32)
+  jd$divisor     <- jnp$array(as.numeric(bi_data$divisor),     dtype = jnp$float64)
   if (as.numeric(bi_data$num_fixed) > 0)
-    jd$design_fixed <- jnp$array(as.matrix(bi_data$design_fixed), dtype = jnp$float32)
+    jd$design_fixed <- jnp$array(as.matrix(bi_data$design_fixed), dtype = jnp$float64)
   else
     jd$design_fixed <- jnp$zeros(as.integer(c(bi_data$num_rows, 0L)))
   if (as.numeric(bi_data$num_random) > 0) {
-    jd$design_random      <- jnp$array(as.matrix(bi_data$design_random), dtype = jnp$float32)
+    jd$design_random      <- jnp$array(as.matrix(bi_data$design_random), dtype = jnp$float64)
     jd$random_group_index <- jnp$array(as.integer(bi_data$random_group_index), dtype = jnp$int32)
   } else {
     jd$design_random      <- jnp$zeros(as.integer(c(bi_data$num_rows, 0L)))
@@ -179,12 +225,18 @@ make_jax_data <- function(bi_data) {
   jd
 }
 
-test_name <- "duration_full_undirected_zi"
+# ---- main ----
+ITER_WARMUP  <- 1000L
+ITER_SAMPLES <- 1000L
+NUM_CHAINS   <- 8L
+
+test_name <- "duration_full_undirected_no_zi"
 out_dir   <- file.path(RESULTS_DIR, test_name)
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 cat("\n=======================================================\n")
 cat("Running:", test_name, "\n")
+cat("  Stan + BI: warmup=", ITER_WARMUP, ", samples=", ITER_SAMPLES, ", chains=", NUM_CHAINS, "\n")
 cat("=======================================================\n")
 
 set.seed(42)
@@ -196,32 +248,100 @@ df <- sim$df_sim
 formula <- as.formula(
   "(event | duration) ~ dyad(node_1_id, node_2_id) + age_diff + (1 | node_1_id) + (1 | node_2_id)")
 
-stan_data_raw <- build_stan_data_duration(df, formula,
-                                          partial_pooling = TRUE, zero_inflated = TRUE)
+bi_data <- build_stan_data_duration(df, formula, directed = FALSE,
+                                    partial_pooling = TRUE, zero_inflated = FALSE)
+
+cat("  Prior values used by BI model:\n")
+cat("    prior_edge_mu          =", bi_data$prior_edge_mu, "\n")
+cat("    prior_edge_sigma       =", bi_data$prior_edge_sigma, "\n")
+cat("    prior_fixed_mu         =", bi_data$prior_fixed_mu, "\n")
+cat("    prior_fixed_sigma      =", bi_data$prior_fixed_sigma, "\n")
+cat("    prior_rate_sigma       =", bi_data$prior_rate_sigma, "\n")
+cat("    prior_random_mean_mu   =", bi_data$prior_random_mean_mu, "\n")
+cat("    prior_random_mean_sigma=", bi_data$prior_random_mean_sigma, "\n")
+cat("    prior_random_std_sigma =", bi_data$prior_random_std_sigma, "\n")
+
 dur_file  <- system.file("stan", "duration.stan", package = "bisonR")
 dur_model <- cmdstan_model(dur_file, compile = FALSE, stanc_options = list("O1"))
 dur_model$compile(dir = tempdir())
-fit_stan  <- tryCatch(
-  dur_model$sample(data = stan_data_raw, chains = 4,
-                   iter_sampling = 500, iter_warmup = 500, refresh = 0),
+
+cat("  Re-running Stan model (adapt_delta=0.999)...\n")
+t_stan_start <- proc.time()
+clean_stan_fit <- tryCatch(
+  dur_model$sample(data = bi_data, refresh = 0,
+    chains = NUM_CHAINS, parallel_chains = NUM_CHAINS,
+    iter_warmup = ITER_WARMUP, iter_sampling = ITER_SAMPLES,
+    adapt_delta = 0.999, step_size = 0.05, max_treedepth = 20),
   error = function(e) { cat("  Stan failed:", conditionMessage(e), "\n"); NULL })
-if (is.null(fit_stan)) stop("Stan failed")
+t_stan_elapsed <- (proc.time() - t_stan_start)[["elapsed"]]
+if (is.null(clean_stan_fit)) stop("Stan failed")
 
-param_names <- c("edge_weight", "edge_sigma", "beta_fixed", "beta_random",
-                 "random_group_mu", "random_group_sigma", "rate", "zero_prob")
-stan_draws  <- get_stan_draws(fit_stan, param_names)
+stan_params <- c("edge_weight", "edge_sigma", "beta_fixed", "beta_random",
+                 "random_group_mu", "random_group_sigma", "rate")
+stan_draws  <- get_stan_draws(clean_stan_fit, stan_params)
 
+# --- BI fit ---
 cat("  Fitting BI model...\n")
 bi_draws <- list()
+t_bi_start <- proc.time()
 tryCatch({
-  m$data_on_model <- list(data = make_jax_data(stan_data_raw))
-  m$fit(bi_model_duration, num_warmup = 500L, num_samples = 500L, num_chains = 4L)
-  bi_draws <- normalize_bi_names(get_bi_draws(m$posteriors), stan_draws)
-}, error = function(e) {
-  cat("  BI fit failed:", conditionMessage(e), "\n")
-  tryCatch(cat("  py_last_error:", py_last_error()$message, "\n"), error=function(e2) NULL)
-})
+  m$data_on_model <- list(data = make_jax_data(bi_data))
+  m$fit(bi_model_duration, num_warmup = ITER_WARMUP, num_samples = ITER_SAMPLES,
+        num_chains = NUM_CHAINS, target_accept_prob = 0.999)
+  raw_bi   <- get_bi_draws(m$posteriors)
+  bi_draws <- normalize_bi_names(apply_non_centered_transform(raw_bi, bi_data), stan_draws)
+}, error = function(e) cat("  BI fit failed:", conditionMessage(e), "\n"))
+t_bi_elapsed <- (proc.time() - t_bi_start)[["elapsed"]]
 
+# --- Save outputs ---
 save_multipanel_svg(test_name, stan_draws, bi_draws, out_dir)
 save_combination_log(test_name, stan_draws, bi_draws, out_dir)
-cat("  Completed:", test_name, "\n")
+
+# --- Summary KL stats ---
+cat("\n=== Summary KL stats ===\n")
+all_params <- intersect(names(stan_draws), names(bi_draws))
+kls <- sapply(all_params, function(p) {
+  s <- stan_draws[[p]]; b <- bi_draws[[p]]
+  if (length(s) > 1 && length(b) > 1) kl_divergence(s, b) else NA
+})
+kls <- kls[!is.na(kls)]
+cat(sprintf("  N params:  %d\n",   length(kls)))
+cat(sprintf("  Mean KL:   %.4f\n", mean(kls)))
+cat(sprintf("  Max KL:    %.4f\n", max(kls)))
+cat(sprintf("  KL > 0.10: %d\n",   sum(kls > 0.10)))
+cat(sprintf("  KL > 0.20: %d\n",   sum(kls > 0.20)))
+cat(sprintf("  KL > 0.50: %d\n",   sum(kls > 0.50)))
+
+for (cat_name in c("edge_weight", "edge_sigma", "beta_fixed", "beta_random",
+                   "random_group_mu", "random_group_sigma", "rate")) {
+  cat_kls <- kls[grep(paste0("^", cat_name, "(\\[|$)"), names(kls))]
+  if (length(cat_kls) > 0)
+    cat(sprintf("  %-20s mean=%.4f  max=%.4f\n", cat_name, mean(cat_kls), max(cat_kls)))
+}
+
+# --- Timing ---
+cat("\n=== Timing ===\n")
+cat(sprintf("  Stan: %6.1f s  (%4.1f min)\n", t_stan_elapsed, t_stan_elapsed / 60))
+cat(sprintf("  BI:   %6.1f s  (%4.1f min)\n", t_bi_elapsed,   t_bi_elapsed   / 60))
+cat(sprintf("  Stan/BI ratio: %.1fx\n", t_stan_elapsed / max(t_bi_elapsed, 0.1)))
+
+timing_csv <- file.path(RESULTS_DIR, "timing_summary.csv")
+timing_row  <- data.frame(
+  model       = test_name,
+  num_chains  = NUM_CHAINS,
+  iter_warmup = ITER_WARMUP,
+  iter_samples= ITER_SAMPLES,
+  stan_sec    = round(t_stan_elapsed, 1),
+  bi_sec      = round(t_bi_elapsed,   1),
+  stan_bi_ratio = round(t_stan_elapsed / max(t_bi_elapsed, 0.1), 1),
+  timestamp   = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
+  stringsAsFactors = FALSE
+)
+write.table(timing_row, timing_csv,
+  append = file.exists(timing_csv), sep = ",",
+  row.names = FALSE, col.names = !file.exists(timing_csv), quote = TRUE)
+
+# --- Cleanup Stan CSV output ---
+unlink(list.files(stan_out_dir, full.names = TRUE, pattern = "\\.csv$"))
+
+cat("\n  Completed:", test_name, "\n")
