@@ -213,7 +213,7 @@ class survival_old:
         death[self.patients, last_period] = self.event
 
         # Calculate exposure times for each interval
-        exposure = np.greater_equal.outer(self.time, interval_bounds[:-1]) * interval_length
+        exposure = np.greater_equal.outer(self.time, interval_bounds[:-1]).astype(float) * interval_length
         exposure[self.patients, last_period] = self.time - interval_bounds[last_period]
 
         self.interval_bounds = interval_bounds # Array of boundaries for discrete time intervals.
@@ -414,7 +414,7 @@ class survival():
         self.df = None
         self.oberved = None
         self.parent = parent
-        self.parent.model_name = 'pca' 
+        self.parent.model_name = 'survival' 
         #self.surv_object(time, event, interval_length)
 
 
@@ -465,13 +465,14 @@ class survival():
         self.interval_length = interval_length
         
         # Define interval bounds and calculate the number of intervals
-        interval_bounds = np.arange(0, self.time.max() + interval_length + 1, interval_length)
+        interval_bounds = np.arange(0, self.time.max() + interval_length + 0.01, interval_length)
         n_intervals = interval_bounds.size - 1
         intervals = np.arange(n_intervals)
         self.n_intervals = n_intervals
 
         # Determine the last interval each patient belongs to
-        last_period = np.floor((self.time - 0.01) / self.interval_length).astype(int)
+        last_period = np.floor((self.time - 1e-7) / self.interval_length).astype(int)
+        last_period = np.clip(last_period, 0, n_intervals - 1)
         self.last_period = last_period
 
         # Create a binary death matrix (n_patients x n_intervals)
@@ -479,7 +480,7 @@ class survival():
         death[self.patients, last_period] = self.event
 
         # Calculate exposure times for each interval
-        exposure = np.greater_equal.outer(self.time, interval_bounds[:-1]) * interval_length
+        exposure = np.greater_equal.outer(self.time, interval_bounds[:-1]).astype(float) * interval_length
         exposure[self.patients, last_period] = self.time - interval_bounds[last_period]
 
         self.interval_bounds = interval_bounds # Array of boundaries for discrete time intervals.
@@ -489,7 +490,7 @@ class survival():
         
         print("------------------------------------------------------------------------------")
         print(f'Survival concern {self.n_patients} individuals in {self.n_intervals} intervals.')
-        print(f'{self.n_patients - self.death.sum()} individuals experienced the event.')
+        print(f'{self.death.sum()} individuals experienced the event.')
 
         self.observed = jnp.ones((self.n_patients, self.n_intervals))
         self.build_data()
@@ -701,7 +702,8 @@ class survival():
     @staticmethod
     @jax.jit
     def calculate_hazard_rate_uni_cov(beta, cov, lambda0):
-        return jnp.outer(jnp.exp(beta * cov), lambda0)
+        cov_1d = cov.squeeze() if cov.ndim > 1 else cov
+        return jnp.exp(beta * cov_1d)[:, None] * lambda0[None, :]
     
     @staticmethod
     @jax.jit
@@ -719,22 +721,22 @@ class survival():
 
     def priors(self, sample = False):
         ## Base hazard distribution
-        lambda0 = dist.gamma(0.01, 0.01, shape= (self.n_intervals,), name = 'Baseline_rate', sample = sample)
+        lambda0 = self.parent.dist.gamma(0.01, 0.01, shape= (self.n_intervals,), name = 'Baseline_rate', sample = sample)
         
         if self.cov_all.ndim == 2:
             ## Covariate effect distribution
             if self.cov_all.shape[1] == 1:
-                beta = dist.normal(0, 1000, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[0]}', sample = sample)
+                beta = self.parent.dist.normal(0, 10, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[0]}', sample = sample)
             else:
                 beta = []
                 for i in range(self.cov_all.shape[1]):
-                    beta.append(dist.normal(0, 1000, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[i]}', sample = sample))
+                    beta.append(self.parent.dist.normal(0, 10, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[i]}', sample = sample))
                 beta = jnp.array(beta)
         elif self.cov_all.ndim == 3:
             ## Covariate effect distribution
             beta = []
             for i in range(self.cov_all.shape[2]):
-                beta.append(dist.normal(0, 1000, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[i]}', sample = sample))
+                beta.append(self.parent.dist.normal(0, 10, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[i]}', sample = sample))
             beta = jnp.array(beta)
 
         return lambda0, beta
@@ -743,15 +745,20 @@ class survival():
         # Parameters priors distributions-------------------------
         lambda0, beta = self.priors()
 
+        print("DEBUG - beta:", beta)
+        print("DEBUG - cov:", cov)
+
         ## Likelihood
         ### Compute hazard rate based on covariate effect
         lambda_ =  self.calculate_hazard_rate_uni_cov(beta, cov, lambda0)
+        print("DEBUG - lambda_:", lambda_)
 
         ### Compute exposure rates
         mu =  exposure * lambda_
+        print("DEBUG - mu:", mu)
 
         # Likelihood calculation
-        dist.poisson(rate = mu + jnp.finfo(mu.dtype).tiny, obs = death)
+        self.parent.dist.poisson(rate = mu + jnp.finfo(mu.dtype).tiny, obs = death)
 
     def model_multivariate(self, death, cov,exposure, censoring = None):
         # Parameters priors distributions-------------------------
@@ -765,7 +772,7 @@ class survival():
         mu =  exposure * lambda_
 
         # Likelihood calculation
-        dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
+        self.parent.dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
 
     def model_time_varying(self, death, cov,exposure, censoring = None):
         # Parameters priors distributions-------------------------
@@ -778,7 +785,7 @@ class survival():
         mu =  exposure * lambda_
 
         # Likelihood calculation
-        dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
+        self.parent.dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
     
     def model(self, death, cov,exposure, censoring = None):
         print("⚠️This function is still in development. Use it with caution. ⚠️")

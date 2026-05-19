@@ -326,7 +326,7 @@ class NBDA:
         else:
             self.names['covNV'].extend(names)
 
-        self.covNF_get_j.extend([get_cov_j]*self.covNV_j.shape[3])
+        self.covNV_get_j.extend([get_cov_j]*self.covNV_j.shape[3])
         self.locations['covNV_i'] = where
         self.locations['covNV_j'] = where
 
