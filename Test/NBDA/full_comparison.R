@@ -1,8 +1,11 @@
 # ============================================================
 # Full Comparison Script: STbayes vs BI R Models
-# Runs all 7 working models with 500 warmup + 500 samples
+# Runs all 8 working models with 500 warmup + 500 samples
 # Includes timing benchmarks per model
 # ============================================================
+
+bi_root <- normalizePath(file.path(getwd(), "../.."), mustWork = FALSE)
+if (!nzchar(Sys.getenv("PYTHONPATH"))) Sys.setenv(PYTHONPATH = bi_root)
 
 library(reticulate)
 library(BayesianInference)
@@ -90,7 +93,7 @@ build_data_list <- function() {
 }
 
 # ---- Master comparison function ----
-run_full_comparison <- function(model_name, bi_func) {
+run_full_comparison <- function(model_name, bi_func, stb_extra_args = list()) {
   cat("\n\n", strrep("=", 60), "\n")
   cat("  MODEL:", model_name, "\n")
   cat(strrep("=", 60), "\n")
@@ -119,7 +122,7 @@ run_full_comparison <- function(model_name, bi_func) {
   cat("\n[2] Fitting STbayes model (500 warmup + 500 samples, 2 chains)...\n")
   stb_time <- system.time({
     stan_code <- tryCatch(
-      generate_STb_model(dl$raw, gq = FALSE, est_acqTime = FALSE),
+      do.call(generate_STb_model, c(list(dl$raw, gq = FALSE, est_acqTime = FALSE), stb_extra_args)),
       error = function(e) { cat("  STbayes model gen failed:", conditionMessage(e), "\n"); NULL }
     )
     
@@ -178,7 +181,7 @@ run_full_comparison <- function(model_name, bi_func) {
 }
 
 # ============================================================
-#  Run all 7 working models
+#  Run all 8 working models
 # ============================================================
 results <- list()
 
@@ -186,6 +189,8 @@ results$cTADA        <- run_full_comparison("cTADA",        bi_model_cTADA)
 results$OADA         <- run_full_comparison("OADA",         bi_model_OADA)
 results$OADA_asocial <- run_full_comparison("OADA_Asocial", bi_model_OADA_asocial)
 results$ILV          <- run_full_comparison("ILV",          bi_model_ILV)
+results$veff         <- run_full_comparison("veff",         bi_model_veff,
+                          stb_extra_args = list(veff_params = c("lambda_0", "s_prime")))
 results$dynamic_tw   <- run_full_comparison("dynamic_tweights", bi_model_dynamic_networks_dynamic_tweights)
 results$complex_f    <- run_full_comparison("complex_f",    bi_model_complex_f)
 results$post_edges   <- run_full_comparison("posterior_edges", bi_model_posterior_edges)

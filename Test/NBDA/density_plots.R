@@ -5,6 +5,11 @@
 # Produces overlapping density plots for all parameters
 # of all models, saved to density_plots/
 # ============================================================
+# Editable install of BayesianInference uses a relative path hook — must set
+# PYTHONPATH to project root before Python initializes so 'BI' module resolves.
+bi_root <- normalizePath(file.path(getwd(), "../.."), mustWork = FALSE)
+if (!nzchar(Sys.getenv("PYTHONPATH"))) Sys.setenv(PYTHONPATH = bi_root)
+
 library(reticulate)
 library(BayesianInference)
 library(STbayes)
@@ -76,11 +81,9 @@ bi_draws_from_m <- function() {
   map_names <- c(
     "v_lambda0" = "log_lambda_0_mean",
     "v_sprime"  = "log_s_prime_mean",
-    "log_f_mean" = "log_f",
     "k_raw"      = "k_raw", # keep as is initially, will convert to k_shape
-    "sigma_lambda0" = "sigma_veff[1]",
-    "sigma_sprime"  = "sigma_veff[2]",
-    # dynamic and structural param name translations if needed
+    "sigma_lambda0" = "sigma_id[1]",
+    "sigma_sprime"  = "sigma_id[2]",
     "edge_weights" = "beta_ILV"
   )
   
@@ -127,6 +130,17 @@ bi_draws_from_m <- function() {
   renamed_out
 }
 
+# Symmetric KL divergence between two sample sets via KDE on shared grid
+kl_div <- function(x, y, n = 512) {
+  lo <- min(c(x, y)); hi <- max(c(x, y))
+  dp <- density(x, from = lo, to = hi, n = n)$y
+  dq <- density(y, from = lo, to = hi, n = n)$y
+  eps <- 1e-10
+  dp <- pmax(dp, eps); dq <- pmax(dq, eps)
+  dp <- dp / sum(dp);  dq <- dq / sum(dq)
+  (sum(dp * log(dp / dq)) + sum(dq * log(dq / dp))) / 2
+}
+
 # Extract STbayes raw draws for specific parameters via cmdstanr
 stb_draws <- function(stb_fit, params) {
   tryCatch({
@@ -134,7 +148,7 @@ stb_draws <- function(stb_fit, params) {
     cols <- colnames(d)
     out <- list()
     for (p in params) {
-      idx <- grep(paste0("^", p, "$"), cols)
+      idx <- which(cols == p)
       if (length(idx) > 0) out[[p]] <- as.numeric(d[, idx[1]])
     }
     out
@@ -195,20 +209,31 @@ build_data_list <- function() {
 inject_model_data <- function(dl, nm) {
   P <- dl$raw$P; K <- dl$raw$K; T_max <- max(dl$raw$T)
   
-  if (nm == "ILV" || nm == "complex_f") { # complex_f uses ILV in STbayes examples too
-     dl$raw$ILV_cont_ILV <- rnorm(P)
-     dl$raw$ILV_c <- 1
-     dl$jax$ILV_cont_ILV <- to_jax(dl$raw$ILV_cont_ILV)
-     
-     if (nm == "ILV") {
-       dl$raw$ILVi_names <- c("cont_ILV")
-       dl$raw$ILVs_names <- c("cont_ILV")
-       dl$raw$ILVm_names <- c("cont_ILV")
-       dl$raw$ILV_names <- c("cont_ILV")
-       dl$raw$ILV_datatypes <- list(cont_ILV = "continuous")
-       dl$raw$ILV_timevarying <- list(cont_ILV = FALSE)
-       dl$raw$ILV_n_levels <- list()
-     }
+  if (nm == "ILV" || nm == "complex_f") {
+    ilv_vals <- rnorm(P)
+    dl$jax$ILV_cont_ILV <- to_jax(ilv_vals)
+    # BI model uses ILV_bool_ILV for asocial and ILV_cat_ILV for multiplicative effects.
+    # Set both to the same ILV values so all three beta parameters see equivalent data
+    # as STbayes (which uses the same cont_ILV vector for ILVi, ILVs, and ILVm).
+    dl$jax$ILV_bool_ILV <- jnp$array(matrix(ilv_vals, ncol = 1L))
+    cat_mat <- matrix(0, nrow = P, ncol = 3L)
+    cat_mat[, 1] <- ilv_vals
+    dl$jax$ILV_cat_ILV <- jnp$array(cat_mat)
+
+    if (nm == "ILV") {
+      # ILV_c expects a data frame with an 'id' column matching event_data individual IDs
+      ids <- sort(unique(STbayes::event_data$id))
+      ilv_df <- data.frame(id = ids, cont_ILV = ilv_vals)
+      dl$raw <- import_user_STb(STbayes::event_data, STbayes::edge_list,
+                                 network_type = "undirected",
+                                 ILV_c = ilv_df,
+                                 ILVi = "cont_ILV",
+                                 ILVs = "cont_ILV",
+                                 ILVm = "cont_ILV")
+    } else {
+      dl$raw$ILV_cont_ILV <- ilv_vals
+      dl$raw$ILV_c <- 1L
+    }
   }
   
   if (nm == "dynamic_tweights") {
@@ -255,8 +280,8 @@ plot_densities <- function(model_name, bi_samp, stb_samp) {
   params_stb <- names(stb_samp)
   # Only plot scalar parameters, but explicitly allow sigma_veff[#] and beta_ILV[#] 
   # to capture random effect variances and categorical ILV elements.
-  scalar_bi  <- params_bi[!grepl("\\[", params_bi) | grepl("sigma_veff|beta_ILV", params_bi)]
-  scalar_stb <- params_stb[!grepl("\\[", params_stb) | grepl("sigma_veff|beta_ILV", params_stb)]
+  scalar_bi  <- params_bi[!grepl("\\[", params_bi) | grepl("sigma_id|beta_ILV", params_bi)]
+  scalar_stb <- params_stb[!grepl("\\[", params_stb) | grepl("sigma_id|beta_ILV", params_stb)]
 
   shared <- intersect(scalar_bi, scalar_stb)
   bi_only <- setdiff(scalar_bi, scalar_stb)
@@ -280,8 +305,10 @@ plot_densities <- function(model_name, bi_samp, stb_samp) {
     bi_v  <- if (!is.null(bi_samp[[p]])) bi_samp[[p]] else NULL
     stb_v <- if (!is.null(stb_samp[[p]])) stb_samp[[p]] else NULL
 
+    status <- if (p %in% shared) "" else if (p %in% bi_only) " [BI only]" else " [STb only]"
+
     xlim <- range(c(bi_v, stb_v), na.rm = TRUE)
-    xlim <- xlim + c(-1, 1) * diff(xlim) * 0.05  # 5% padding
+    xlim <- xlim + c(-1, 1) * diff(xlim) * 0.05
 
     ylim_max <- 0
     if (!is.null(bi_v) && length(bi_v) > 4)
@@ -291,7 +318,8 @@ plot_densities <- function(model_name, bi_samp, stb_samp) {
 
     plot(NULL, xlim = xlim, ylim = c(0, ylim_max * 1.1),
          xlab = p, ylab = "Density",
-         main = p, cex.main = 0.9, font.main = 1)
+         main = paste0(p, status), cex.main = 0.9, font.main = 1,
+         col.main = if (status == "") "black" else "gray40")
 
     if (!is.null(stb_v) && length(stb_v) > 4) {
       d <- density(stb_v)
@@ -302,6 +330,13 @@ plot_densities <- function(model_name, bi_samp, stb_samp) {
       d <- density(bi_v)
       polygon(d$x, d$y, col = adjustcolor("#F5A623", alpha.f = 0.5),
               border = "#F5A623", lwd = 1.5)
+    }
+
+    if (p %in% shared && !is.null(bi_v) && !is.null(stb_v) &&
+        length(bi_v) > 4 && length(stb_v) > 4) {
+      kl <- kl_div(stb_v, bi_v)
+      mtext(sprintf("sym-KL = %.4f", kl), side = 3, line = -1.5,
+            cex = 0.7, col = "gray40")
     }
 
     legend("topright", legend = c("STbayes", "BI"),
@@ -329,11 +364,11 @@ MODEL_CONFIG <- list(
                       stb_extra = c("beta_ILVi_cont_ILV","beta_ILVs_cont_ILV","beta_ILVm_cont_ILV")),
   veff         = list(bi = bi_model_veff,
                       stb_args=list(veff_params = c("lambda_0", "s_prime")),
-                      stb_extra = c("sigma_veff[1]","sigma_veff[2]")),
+                      stb_extra = c("sigma_id[1]","sigma_id[2]")),
   dynamic_tweights = list(bi = bi_model_dynamic_networks_dynamic_tweights,
                           stb_file="STAN_example_dynamic_networks_dynamic_tweights.stan",
                           stb_extra = c("k_shape")),
-  complex_f    = list(bi = bi_model_complex_f, stb_args=list(transmission_func="freqdep_f"), stb_extra = c("log_f")),
+  complex_f    = list(bi = bi_model_complex_f, stb_args=list(transmission_func="freqdep_f"), stb_extra = c("log_f_mean")),
   posterior_edges = list(bi = bi_model_posterior_edges, stb_file="STAN_example_posterior_edges.stan", stb_extra = c())
 )
 
@@ -358,8 +393,8 @@ for (nm in names(MODEL_CONFIG)) {
   # --- STbayes fit (matched model for comparison) ---
   stb_fit <- NULL
   if (!is.null(cfg$stb_file)) {
-    stan_file_path <- file.path("STbayes_repo", "inst", "extdata", cfg$stb_file)
-    if (file.exists(stan_file_path)) {
+    stan_file_path <- system.file("extdata", cfg$stb_file, package = "STbayes")
+    if (nzchar(stan_file_path) && file.exists(stan_file_path)) {
       cat("  Starting STbayes fitting from file", nm, "...\n")
       stb_fit <- tryCatch(
         suppressWarnings(fit_STb(model_dl$raw,
@@ -368,7 +403,7 @@ for (nm in names(MODEL_CONFIG)) {
         error = function(e) { cat("  STb fit failed:", e$message, "\n"); NULL }
       )
     } else {
-      cat("  STb Stan file missing:", stan_file_path, "\n")
+      cat("  STb Stan file not found in STbayes package:", cfg$stb_file, "\n")
     }
   } else {
     # Generate dynamically
@@ -388,9 +423,13 @@ for (nm in names(MODEL_CONFIG)) {
   }
 
   params_to_pull <- c(STB_PARAMS_COMMON, cfg$stb_extra)
-  # OADA models don't estimate lambda_0 because it mathematically cancels out of the partial likelihood
+  # OADA: lambda_0 cancels out of the partial likelihood
   if (grepl("OADA", nm)) {
     params_to_pull <- setdiff(params_to_pull, c("log_lambda_0_mean", "lambda_0"))
+  }
+  # veff: lambda_0 is individual-specific vector in STbayes (lambda_0[p]), no scalar equivalent
+  if (nm == "veff") {
+    params_to_pull <- setdiff(params_to_pull, "lambda_0")
   }
   if (nm == "OADA_asocial") {
     # It has neither lambda_0 nor s_prime because it's purely asocial and relative
