@@ -44,6 +44,7 @@ class bi(manip):
         self,
         platform="cpu",
         cores=None,
+        gpu_index=None,
         rand_seed=True,
         deallocate=False,
         print_devices_found=True,
@@ -53,17 +54,24 @@ class bi(manip):
         guide=None,
     ):
         """
-        Initialize the BI class with platform, cores, deallocate, print_devices_found, and backend parameters.
+        Initialize the BI class with platform, cores, gpu_index, deallocate, print_devices_found, and backend parameters.
 
         Args:
             platform (str, optional): Platform to use. Defaults to 'cpu'.
             cores (int, optional): Number of cores. Defaults to None.
+            gpu_index (int, optional): Index of the GPU to use. Defaults to None.
             deallocate (bool, optional): Whether to deallocate. Defaults to False.
             print_devices_found (bool, optional): Whether to print devices found. Defaults to True.
             backend (str, optional): Backend to use. Defaults to 'numpyro'.
         """
         manip.__init__(self)
-        setup_device(platform, cores, deallocate, print_devices_found)
+        setup_device(
+            platform=platform,
+            cores=cores,
+            gpu_index=gpu_index,
+            deallocate=deallocate,
+            print_devices_found=print_devices_found,
+        )
 
         self.seed = rand_seed
         self.data_on_model = None
