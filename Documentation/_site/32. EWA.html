@@ -571,12 +571,12 @@ window.Quarto = {
    
   <ul>
   <li><a href="#general-principles" id="toc-general-principles" class="nav-link active" data-scroll-target="#general-principles">General Principles</a></li>
-  <li><a href="#social-learning-combo" id="toc-social-learning-combo" class="nav-link" data-scroll-target="#social-learning-combo">1. Social Learning (Combo)</a>
+  <li><a href="#social-learning-ewa" id="toc-social-learning-ewa" class="nav-link" data-scroll-target="#social-learning-ewa">1. Social Learning (EWA)</a>
   <ul class="collapse">
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
   <li><a href="#mathematical-details" id="toc-mathematical-details" class="nav-link" data-scroll-target="#mathematical-details">Mathematical Details</a></li>
   </ul></li>
-  <li><a href="#social-learning-global-age" id="toc-social-learning-global-age" class="nav-link" data-scroll-target="#social-learning-global-age">2. Social Learning (Global Age)</a>
+  <li><a href="#social-learning-ewa-ilv" id="toc-social-learning-ewa-ilv" class="nav-link" data-scroll-target="#social-learning-ewa-ilv">2. Social Learning (EWA-ILV)</a>
   <ul class="collapse">
   <li><a href="#example-1" id="toc-example-1" class="nav-link" data-scroll-target="#example-1">Example</a></li>
   <li><a href="#mathematical-details-1" id="toc-mathematical-details-1" class="nav-link" data-scroll-target="#mathematical-details-1">Mathematical Details</a></li>
@@ -623,14 +623,14 @@ window.Quarto = {
 <p>The core idea is that individuals have a set of attractions <span class="math inline">A_{i,j,t}</span> for each technique <span class="math inline">j</span>. These attractions are updated over time, and the probability of choosing a technique is a mixture of asocial preferences (derived from attractions) and social influence.</p>
 <p>In this documentation, we present two primary variations of the EWA model adapted from <span class="citation" data-cites="Barrett2017">Barrett, McElreath, and Perry (<a href="#ref-Barrett2017" role="doc-biblioref">2017</a>)</span>:</p>
 <ol type="1">
-<li><p><strong>Social Learning (Combo)</strong>: A streamlined version focusing on the interplay between individual experience (asocial learning) and social frequency biased by payoffs. It uses a reduced parameter set (4 varying effects) to identify the core drivers of behavioral diffusion.</p></li>
-<li><p><strong>Social Learning (Global Age)</strong>: A comprehensive hierarchical model that evaluates multiple social biases (e.g., kinship, prestige, age similarity) and explicitly models how an individual’s age influences their learning rate (<span class="math inline">\phi</span>) and reliance on social cues (<span class="math inline">\gamma</span>).</p></li>
+<li><p><strong>Social Learning (EWA)</strong>: A streamlined version (Time Frequency Pay-off model) focusing on the interplay between individual experience (asocial learning) and social frequency biased by payoffs. It uses a reduced parameter set (4 varying effects) to identify the core drivers of behavioral diffusion.</p></li>
+<li><p><strong>Social Learning (EWA-ILV)</strong>: A comprehensive hierarchical model (Experience-Weighted Attraction with Individual Level Covariates) that evaluates multiple social biases (e.g., kinship, prestige, age similarity) and explicitly models how an individual’s age influences their learning rate (<span class="math inline">\phi</span>) and reliance on social cues (<span class="math inline">\gamma</span>).</p></li>
 </ol>
 <hr>
 </section>
-<section id="social-learning-combo" class="level2">
-<h2 class="anchored" data-anchor-id="social-learning-combo">1. Social Learning (Combo)</h2>
-<p>The “Combo” model is a basic version that includes asocial learning and pay-off biased social learning. It evaluates four varying effects: learning rate, social weight, conformity, and pay-off bias.</p>
+<section id="social-learning-ewa" class="level2">
+<h2 class="anchored" data-anchor-id="social-learning-ewa">1. Social Learning (EWA)</h2>
+<p>The “EWA” model is a basic version that includes asocial learning and pay-off biased social learning. It evaluates four varying effects: learning rate, social weight, conformity, and pay-off bias.</p>
 <section id="example" class="level3">
 <h3 class="anchored" data-anchor-id="example">Example</h3>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -644,7 +644,6 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><strong>Vectorization</strong>: The model uses <code>jax.lax.scan</code> for efficient sequential likelihood calculation over foraging bouts. This is critical for performance in JAX-based backends like BI.</li>
 <li><strong>Hierarchical Structure</strong>: Intercepts for learning rates and social influence vary by individual (<code>id</code>). <span class="citation" data-cites="Barrett2017">Barrett, McElreath, and Perry (<a href="#ref-Barrett2017" role="doc-biblioref">2017</a>)</span> use a Cholesky-factored multivariate normal prior to account for correlations between these effects.</li>
 <li><strong>Dtype Sensitivity</strong>: Ensure all data arrays are <code>float64</code> to match JAX’s 64-bit backend requirements for numerical stability.</li>
 </ul>
@@ -678,35 +677,36 @@ Note
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    fconf_arr <span class="op">=</span> jnp.exp(mu[<span class="dv">2</span>] <span class="op">+</span> a_id[<span class="bu">id</span>, <span class="dv">2</span>])             <span class="co"># Conformity</span></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    Bpay_arr  <span class="op">=</span> mu[<span class="dv">3</span>] <span class="op">+</span> a_id[<span class="bu">id</span>, <span class="dv">3</span>]                      <span class="co"># Pay-off bias</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Scan carry: (Attractions, Log-likelihood)</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Scan carry: Attractions</span></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step_fn(carry, x):</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        AC, ll <span class="op">=</span> carry</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        AC <span class="op">=</span> carry</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        (phi_i, gamma_i, fconf_i, Bpay_i, tech_i, id_i, bout_i, prev_y_i, s_i, ps_i) <span class="op">=</span> x</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Update attractions (EWA)</span></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        ac_new <span class="op">=</span> jnp.where(bout_i <span class="op">==</span> <span class="dv">1</span>, jnp.zeros(K), (<span class="fl">1.0</span> <span class="op">-</span> phi_i) <span class="op">*</span> AC[id_i] <span class="op">+</span> phi_i <span class="op">*</span> prev_y_i)</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        </span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Asocial choice probability</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        logPrA <span class="op">=</span> (lam <span class="op">*</span> ac_new)[tech_i] <span class="op">-</span> jax.nn.logsumexp(lam <span class="op">*</span> ac_new)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        prob_individual <span class="op">=</span> jax.nn.softmax(lam <span class="op">*</span> ac_new)</span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Social choice probability (Pay-off bias)</span></span>
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        lin_mod <span class="op">=</span> jnp.concatenate([jnp.ones(<span class="dv">1</span>), jnp.exp(Bpay_i <span class="op">*</span> ps_i[<span class="dv">1</span>:])]) <span class="op">*</span> jnp.power(s_i, fconf_i)</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>        PrS <span class="op">=</span> lin_mod[tech_i] <span class="op">/</span> jnp.<span class="bu">sum</span>(lin_mod)</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Mixture likelihood</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>        prob_mix <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">-</span> gamma_i) <span class="op">*</span> jnp.exp(logPrA) <span class="op">+</span> gamma_i <span class="op">*</span> PrS</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>        lik_i <span class="op">=</span> jnp.where(bout_i <span class="op">&gt;</span> <span class="dv">1</span>, jnp.log(prob_mix), logPrA)</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (AC.at[id_i].<span class="bu">set</span>(ac_new), ll <span class="op">+</span> lik_i), <span class="va">None</span></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    AC_init <span class="op">=</span> jnp.zeros((J, K))</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    xs <span class="op">=</span> (phi_arr, gamma_arr, fconf_arr, Bpay_arr, tech, <span class="bu">id</span>, bout, y_prev, s, ps)</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    (_, total_ll), _ <span class="op">=</span> jax.lax.scan(step_fn, (AC_init, <span class="fl">0.0</span>), xs)</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    m.dist.factor(<span class="st">"obs"</span>, total_ll)</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>m.fit(model)</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>        safe_denom <span class="op">=</span> jnp.where(jnp.<span class="bu">sum</span>(lin_mod) <span class="op">&gt;</span> <span class="dv">0</span>, jnp.<span class="bu">sum</span>(lin_mod), <span class="fl">1.0</span>)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>        prob_social <span class="op">=</span> lin_mod <span class="op">/</span> safe_denom</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Mixture probability</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>        prob_mix <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">-</span> gamma_i) <span class="op">*</span> prob_individual <span class="op">+</span> gamma_i <span class="op">*</span> prob_social</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>        prob_final <span class="op">=</span> jnp.where(bout_i <span class="op">&gt;</span> <span class="dv">1</span>, prob_mix, prob_individual)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> AC.at[id_i].<span class="bu">set</span>(ac_new), prob_final</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    AC_init <span class="op">=</span> jnp.zeros((J, K))</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    xs <span class="op">=</span> (phi_arr, gamma_arr, fconf_arr, Bpay_arr, tech, <span class="bu">id</span>, bout, y_prev, s, ps)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    _, probs_matrix <span class="op">=</span> jax.lax.scan(step_fn, AC_init, xs)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    m.dist.categorical(<span class="st">"obs"</span>, probs<span class="op">=</span>probs_matrix, obs<span class="op">=</span>tech)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>m.fit(model)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
@@ -747,22 +747,92 @@ Note
 </section>
 <section id="mathematical-details" class="level3">
 <h3 class="anchored" data-anchor-id="mathematical-details">Mathematical Details</h3>
-<p>The “Combo” model links individual learning rates and social frequency to behavioral choice.</p>
-<p><strong>Attraction Update</strong>: <span class="math display">
-A_{j,t+1} = (1 - \phi_j) A_{j,t} + \phi_j p_{j,t}
+<p>The “Experience-Weighted Attraction” (EWA) model links individual learning rates and social frequency to behavioral choice. Throughout this section, we use a consistent three-part index: <span class="math inline">i</span> denotes the individual, <span class="math inline">k \in \{1, \ldots, K\}</span> denotes the technique, and <span class="math inline">t</span> denotes the observation (time step).</p>
+<p><strong>1. Mixture Likelihood</strong></p>
+<p>At each observation, the probability of choosing a single technique from <span class="math inline">K</span> options is expressed through a <em>Categorical</em> likelihood: <span class="math display">
+Y_{[i,t]} \sim \text{Categorical}(\boldsymbol{\theta}_{[i,t]})
+</span> where:</p>
+<ul>
+<li><span class="math inline">Y_{[i,t]}</span> is the technique chosen by individual <span class="math inline">i</span> at time step <span class="math inline">t</span>.</li>
+<li><span class="math inline">\boldsymbol{\theta}_{[i,t]}</span> is a probability vector of length <span class="math inline">K</span> giving the probability of each technique for individual <span class="math inline">i</span> at time step <span class="math inline">t</span>.</li>
+</ul>
+<p>Unlike a standard Categorical model where <span class="math inline">\boldsymbol{\theta}</span> is fixed for a group of observations, here <span class="math inline">\boldsymbol{\theta}_{[i,t]}</span> is a <strong>different vector at every time step</strong> for every individual, because the attraction scores and social cues update sequentially.</p>
+<p>The probability that individual <span class="math inline">i</span> chooses technique <span class="math inline">k</span> at time <span class="math inline">t</span> decomposes as: <span class="math display">
+\theta_{[i,k,t]} = (1 - \gamma_i)\, I_{[i,k,t]} + \gamma_i\, S_{[i,k,t]}
+</span> <span class="math display">
+\gamma_i = \text{sigmoid}(\mu_2 + a_{id}[i,2])
 </span></p>
-<p><strong>Softmax Choice</strong>: <span class="math display">
-I_{j,t} = \text{Softmax}(\lambda \cdot A_{j,t})
+<p>Where:</p>
+<ul>
+<li><span class="math inline">I_{[i,k,t]}</span> is the asocial choice probability: derived from individual <span class="math inline">i</span>’s personal experience with technique <span class="math inline">k</span>.</li>
+<li><span class="math inline">S_{[i,k,t]}</span> is the social choice probability: derived from observing conspecifics use technique <span class="math inline">k</span>.</li>
+<li><span class="math inline">\gamma_i \in [0, 1]</span> is individual <span class="math inline">i</span>’s social learning weight: at <span class="math inline">0</span> the individual relies entirely on personal experience; at <span class="math inline">1</span> entirely on social information. It is derived from the hierarchical prior (see §2):</li>
+</ul>
+<p><strong>2. Asocial Component</strong> — <span class="math inline">I_{[i,k,t]}</span></p>
+<p>The asocial probability is a softmax over accumulated attraction scores — it converts raw attraction values into a proper probability distribution over techniques: <span class="math display">
+I_{[i,k,t]} = \frac{\exp(\lambda \cdot A_{[i,k,t]})}{\sum_{k'=1}^{K} \exp(\lambda \cdot A_{[i,k',t]})}
+</span> <span class="math display">
+\lambda \sim \text{Exponential}(1)
 </span></p>
-<p><strong>Social Probability</strong>: <span class="math display">
-S_{j,t} = \frac{N_{j,t}^f \exp(\beta_{\text{pay}} \cdot p_{j,t})}{\sum_k N_{k,t}^f \exp(\beta_{\text{pay}} \cdot p_{k,t})}
+<p>The numerator scores technique <span class="math inline">k</span> by the individual’s scaled attraction to it. The denominator sums this over all <span class="math inline">K</span> techniques (<span class="math inline">k' = 1,\ldots,K</span>), ensuring the probabilities sum to 1 and that each technique is evaluated relative to all alternatives.</p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">A_{[i,k,t]}</span> is the attraction score of individual <span class="math inline">i</span> for technique <span class="math inline">k</span> at time <span class="math inline">t</span>. It is a running exponentially weighted average of the personal payoffs individual <span class="math inline">i</span> has obtained from technique <span class="math inline">k</span> across past bouts. Larger values indicate a stronger learned payoff expectation.</li>
+<li><span class="math inline">A_{[i,k',t]}</span> in the denominator ranges over the attraction scores for all <span class="math inline">K</span> techniques, making choice proportional to each option’s scaled attraction relative to the full set.</li>
+<li><span class="math inline">\lambda &gt; 0</span> is the multinomial sensitivity (inverse temperature): higher values make choice more deterministic toward the highest-attraction option; <span class="math inline">\lambda \to 0</span> yields random choice. The Exponential(1) prior keeps <span class="math inline">\lambda</span> positive and places most mass near zero, expressing a prior expectation that choice is moderately stochastic. Larger values are possible but require evidence from the data.</li>
+</ul>
+<p><em>Attraction scores update between foraging bouts via the EWA rule:</em> <span class="math display">
+A_{[i,k,t+1]} = (1 - \phi_i)\, A_{[i,k,t]} + \phi_i\, p_{[i,k,t]}
 </span></p>
+<p><span class="math display">
+\phi_i = \text{sigmoid}(\mu_1 + a_{id}[i,1])
+</span></p>
+<p><span class="math display">
+\boldsymbol{\mu} \sim \mathcal{N}(\mathbf{0}_4,\, 1)
+</span> <span class="math display">
+\boldsymbol{\sigma} \sim \text{Exponential}(3)
+</span> <span class="math display">
+\mathbf{L}_\rho \sim \text{LKJCholesky}(4,\, \eta = 3)
+</span></p>
+<p><span class="math display">
+\mathbf{Z} \sim \mathcal{N}(\mathbf{0}_{4 \times J},\, 1)
+</span> <span class="math display">
+\mathbf{a}_{id} = \bigl(\mathbf{L}_\rho \cdot \operatorname{diag}(\boldsymbol{\sigma}) \cdot \mathbf{Z}\bigr)^\top
+</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">A_{[i,k,t]}</span> is the attraction score of individual <span class="math inline">i</span> for technique <span class="math inline">k</span> at time <span class="math inline">t</span>.</li>
+<li><span class="math inline">p_{[i,k,t]}</span> is the personal yield (payoff) individual <span class="math inline">i</span> obtained from technique <span class="math inline">k</span> at time <span class="math inline">t</span> — concretely, a measure of food-extraction efficiency (e.g.&nbsp;rate of fruit opening).</li>
+<li><span class="math inline">\phi_i \in [0, 1]</span> is individual <span class="math inline">i</span>’s attraction updating weight. Near <span class="math inline">1</span>: attractions closely track the most recent payoff. Near <span class="math inline">0</span>: strong memory of cumulative past experience. It is constructed from a multivariate hierarchical prior shared by all four individual-level learning parameters (<span class="math inline">\phi_i</span>, <span class="math inline">\gamma_i</span>, <span class="math inline">f_i</span>, <span class="math inline">\beta_{i}</span>)</li>
+<li><span class="math inline">\boldsymbol{\mu} \in \mathbb{R}^4</span> are population-level means</li>
+<li><span class="math inline">a_{id}[i, \cdot]</span> are individual-level correlated deviations reconstructed via non-centered parameterization</li>
+<li><span class="math inline">\boldsymbol{\sigma} \in \mathbb{R}^4_+</span> are the per-parameter standard deviations (shrinkage parameters)</li>
+<li><span class="math inline">\mathbf{L}_\rho</span> is the Cholesky factor of the <span class="math inline">4\times4</span> correlation matrix: the LKJ prior (<span class="math inline">\eta=3</span>) moderately shrinks correlations toward zero.</li>
+<li><span class="math inline">\mathbf{Z} \in \mathbb{R}^{J \times 4}</span> is a matrix of standard normal deviates (one row per individual).</li>
+</ul>
+<p><strong>3. Social Component</strong> — <span class="math inline">S_{[i,k,t]}</span></p>
+<p>The social probability combines payoff bias with frequency-dependent conformity: <span class="math display">
+S_{[i,k,t]} = \frac{N_{[i,k,t]}^{f_i}\, \exp(\beta_{i}\, \pi_{[i,k,t]})}{\sum_{k'=1}^{K} N_{[i,k',t]}^{f_i}\, \exp(\beta_{i}\, \pi_{[i,k',t]})}
+</span> <span class="math display">
+f_i = \exp(\mu_3 + a_{id}[i,3])
+</span> <span class="math display">
+\beta_{i} = \mu_4 + a_{id}[i,4]
+</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">N_{[i,k,t]}</span> is the <em>frequency-bias cue</em>: the number of times individual <span class="math inline">i</span> observed conspecifics performing technique <span class="math inline">k</span> at time <span class="math inline">t</span>.</li>
+<li><span class="math inline">f_i &gt; 0</span> is individual <span class="math inline">i</span>’s conformity exponent. <span class="math inline">f_i &gt; 1</span>: positive frequency-dependent bias (disproportionate copying of the most common technique); <span class="math inline">f_i = 1</span>: purely linear frequency weighting; <span class="math inline">f_i &lt; 1</span>: tendency to avoid the majority. The exponential link ensures <span class="math inline">f_i &gt; 0</span>; the prior <span class="math inline">\mu_3 \sim \mathcal{N}(0,1)</span> corresponds to <span class="math inline">f \approx 1</span> a priori.</li>
+<li><span class="math inline">N_{[i,k',t]}^{f_i}</span> in the denominator ranges over all <span class="math inline">K</span> techniques with the same conformity exponent <span class="math inline">f_i</span>, normalising the social probabilities.</li>
+<li><span class="math inline">\pi_{[i,k,t]}</span> is the payoff observed from social demonstrators using technique <span class="math inline">k</span> at time <span class="math inline">t</span>.</li>
+<li><span class="math inline">\beta_{i}</span> is individual <span class="math inline">i</span>’s payoff-bias coefficient: positive values mean the individual preferentially copies techniques demonstrated with higher payoff. It is on the unconstrained real scale; the prior <span class="math inline">\mu_4 \sim \mathcal{N}(0,1)</span> expresses prior uncertainty about the direction of payoff bias.</li>
+</ul>
+<p>The numerator scores technique <span class="math inline">k</span> by two multiplicative components: how often it was observed being used by conspecifics (<span class="math inline">N_{[i,k,t]}^{f_i}</span>, frequency bias) and how profitable it appeared in their hands (<span class="math inline">\exp(\beta_{i}\, \pi_{[i,k,t]})</span>, payoff bias). The denominator (<span class="math inline">k' = 1, \ldots, K</span>) sums these scores over all techniques to normalise to a probability. Together they implement the idea that individuals copy techniques that are simultaneously common <em>and</em> profitable.</p>
 <hr>
 </section>
 </section>
-<section id="social-learning-global-age" class="level2">
-<h2 class="anchored" data-anchor-id="social-learning-global-age">2. Social Learning (Global Age)</h2>
-<p>The “Global Age” model expands the Combo version by incorporating a wider array of social biases (kinship, prestige, age similarity, etc.) and modeling the linear influence of individual age on the learning parameters <span class="math inline">\phi</span> and <span class="math inline">\gamma</span>.</p>
+<section id="social-learning-ewa-ilv" class="level2">
+<h2 class="anchored" data-anchor-id="social-learning-ewa-ilv">2. Social Learning (EWA-ILV)</h2>
+<p>The “EWA-ILV” model expands the EWA version by incorporating a wider array of social biases (kinship, prestige, age similarity, etc.) and modeling the linear influence of individual age on the learning parameters <span class="math inline">\phi</span> and <span class="math inline">\gamma</span>.</p>
 <section id="example-1" class="level3">
 <h3 class="anchored" data-anchor-id="example-1">Example</h3>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
@@ -798,30 +868,38 @@ S_{j,t} = \frac{N_{j,t}^f \exp(\beta_{\text{pay}} \cdot p_{j,t})}{\sum_k N_{k,t}
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    B_coho    <span class="op">=</span> mu[<span class="dv">6</span>] <span class="op">+</span> a_id[<span class="bu">id</span>, <span class="dv">6</span>]</span>
 <span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    B_yob     <span class="op">=</span> mu[<span class="dv">7</span>] <span class="op">+</span> a_id[<span class="bu">id</span>, <span class="dv">7</span>]</span>
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step_fn(carry, x):</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        AC, ll <span class="op">=</span> carry</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        (phi_i, gamma_i, fconf_i, Bp, Bk, Bpr, Bc, By, t_i, id_i, b_i, py_i, s_i, ps_i, ks_i, pr_i, co_i, yo_i) <span class="op">=</span> x</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        ac_new <span class="op">=</span> jnp.where(b_i <span class="op">==</span> <span class="dv">1</span>, jnp.zeros(K), (<span class="fl">1.0</span> <span class="op">-</span> phi_i) <span class="op">*</span> AC[id_i] <span class="op">+</span> phi_i <span class="op">*</span> py_i)</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        logPrA <span class="op">=</span> (lam <span class="op">*</span> ac_new)[t_i] <span class="op">-</span> jax.nn.logsumexp(lam <span class="op">*</span> ac_new)</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Multi-cue social influence</span></span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        lin_rest <span class="op">=</span> jnp.exp(Bp <span class="op">*</span> ps_i[<span class="dv">1</span>:] <span class="op">+</span> Bk <span class="op">*</span> ks_i[<span class="dv">1</span>:] <span class="op">+</span> Bpr <span class="op">*</span> pr_i[<span class="dv">1</span>:] <span class="op">+</span> Bc <span class="op">*</span> co_i[<span class="dv">1</span>:] <span class="op">+</span> By <span class="op">*</span> yo_i[<span class="dv">1</span>:])</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        lin_mod <span class="op">=</span> jnp.concatenate([jnp.ones(<span class="dv">1</span>), lin_rest]) <span class="op">*</span> jnp.power(s_i, fconf_i)</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        PrS <span class="op">=</span> lin_mod[t_i] <span class="op">/</span> jnp.<span class="bu">sum</span>(lin_mod)</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        prob_mix <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">-</span> gamma_i) <span class="op">*</span> jnp.exp(logPrA) <span class="op">+</span> gamma_i <span class="op">*</span> PrS</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        lik_i <span class="op">=</span> jnp.where(b_i <span class="op">&gt;</span> <span class="dv">1</span>, jnp.log(prob_mix), logPrA)</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (AC.at[id_i].<span class="bu">set</span>(ac_new), ll <span class="op">+</span> lik_i), <span class="va">None</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Scan carry: Attractions</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step_fn(carry, x):</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        AC <span class="op">=</span> carry</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        (phi_i, gamma_i, fconf_i, Bp, Bk, Bpr, Bc, By, t_i, id_i, b_i, py_i, s_i, ps_i, ks_i, pr_i, co_i, yo_i) <span class="op">=</span> x</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        ac_new <span class="op">=</span> jnp.where(b_i <span class="op">==</span> <span class="dv">1</span>, jnp.zeros(K), (<span class="fl">1.0</span> <span class="op">-</span> phi_i) <span class="op">*</span> AC[id_i] <span class="op">+</span> phi_i <span class="op">*</span> py_i)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Asocial choice probability</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        prob_individual <span class="op">=</span> jax.nn.softmax(lam <span class="op">*</span> ac_new)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Multi-cue social influence</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        lin_rest <span class="op">=</span> jnp.exp(Bp <span class="op">*</span> ps_i[<span class="dv">1</span>:] <span class="op">+</span> Bk <span class="op">*</span> ks_i[<span class="dv">1</span>:] <span class="op">+</span> Bpr <span class="op">*</span> pr_i[<span class="dv">1</span>:] <span class="op">+</span> Bc <span class="op">*</span> co_i[<span class="dv">1</span>:] <span class="op">+</span> By <span class="op">*</span> yo_i[<span class="dv">1</span>:])</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        lin_mod <span class="op">=</span> jnp.concatenate([jnp.ones(<span class="dv">1</span>), lin_rest]) <span class="op">*</span> jnp.power(s_i, fconf_i)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        safe_denom <span class="op">=</span> jnp.where(jnp.<span class="bu">sum</span>(lin_mod) <span class="op">&gt;</span> <span class="dv">0</span>, jnp.<span class="bu">sum</span>(lin_mod), <span class="fl">1.0</span>)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        prob_social <span class="op">=</span> lin_mod <span class="op">/</span> safe_denom</span>
 <span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    AC_init <span class="op">=</span> jnp.zeros((J, K))</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    xs <span class="op">=</span> (phi_arr, gamma_arr, fconf_arr, B_pay, B_kin, B_pres, B_coho, B_yob,</span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>          tech, <span class="bu">id</span>, bout, y_prev, s, ps, ks, pr, co, yo)</span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    (_, total_ll), _ <span class="op">=</span> jax.lax.scan(step_fn, (AC_init, <span class="fl">0.0</span>), xs)</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    m.dist.factor(<span class="st">"obs"</span>, total_ll)</span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>m.fit(model)</span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Mixture probability</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        prob_mix <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">-</span> gamma_i) <span class="op">*</span> prob_individual <span class="op">+</span> gamma_i <span class="op">*</span> prob_social</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        has_social_info <span class="op">=</span> jnp.logical_and(b_i <span class="op">&gt;</span> <span class="dv">1</span>, jnp.<span class="bu">sum</span>(s_i) <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        prob_final <span class="op">=</span> jnp.where(has_social_info, prob_mix, prob_individual)</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> AC.at[id_i].<span class="bu">set</span>(ac_new), prob_final</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    AC_init <span class="op">=</span> jnp.zeros((J, K))</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    xs <span class="op">=</span> (phi_arr, gamma_arr, fconf_arr, B_pay, B_kin, B_pres, B_coho, B_yob,</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>          tech, <span class="bu">id</span>, bout, y_prev, s, ps, ks, pr, co, yo)</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    _, probs_matrix <span class="op">=</span> jax.lax.scan(step_fn, AC_init, xs)</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    m.dist.categorical(<span class="st">"obs"</span>, probs<span class="op">=</span>probs_matrix, obs<span class="op">=</span>tech)</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>m.fit(model)</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Equivalent R implementation with 8 effects and age slopes...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -834,16 +912,67 @@ S_{j,t} = \frac{N_{j,t}^f \exp(\beta_{\text{pay}} \cdot p_{j,t})}{\sum_k N_{k,t}
 </section>
 <section id="mathematical-details-1" class="level3">
 <h3 class="anchored" data-anchor-id="mathematical-details-1">Mathematical Details</h3>
-<p>The “Global Age” model incorporates the linear influence of individual traits on learning parameters.</p>
-<p><strong>Age-Dependent Parameters</strong>: <span class="math display">
-\text{logit}(\phi_j) = \alpha_{\phi, j} + \beta_{\phi} \cdot \text{age}_j
+<p>The “Experience-Weighted Attraction with Individual Level Covariates” (EWA-ILV) model extends the EWA model in two ways: it incorporates a wider array of social cues in the social learning component, and it allows an individual’s age to shift key learning parameters.</p>
+<p><strong>1. Mixture Likelihood</strong></p>
+<p>The observation likelihood has the same mixture form as the EWA model, using a three-part index: individual <span class="math inline">i</span>, technique <span class="math inline">k</span>, and time step <span class="math inline">t</span>: <span class="math display">
+\theta_{[i,k,t]} = (1 - \gamma_i)\, I_{[i,k,t]} + \gamma_i\, S_{[i,k,t]}
+</span></p>
+<p><strong>2. Social Component</strong> — <span class="math inline">S_{[i,k,t]}</span></p>
+<p>The social probability combines frequency-dependent conformity with a multi-cue log-linear model: <span class="math display">
+S_{[i,k,t]} = \frac{N_{[i,k,t]}^{f_i}\, \exp(B_{[i,k,t]})}{\sum_{k'=1}^{K} N_{[i,k',t]}^{f_i}\, \exp(B_{[i,k',t]})}
+</span> Where <span class="math inline">B_{[i,1,t]} = 0</span> by convention (technique 1 is the aliased baseline), and for <span class="math inline">k &gt; 1</span>: <span class="math display">
+B_{[i,k,t]} = \beta_{\text{pay},i}\, \pi_{[i,k,t]} + \beta_{\text{kin},i}\, \kappa_{[i,k,t]} + \beta_{\text{rank},i}\, \zeta_{[i,k,t]} + \beta_{\text{cohort},i}\, \eta_{[i,k,t]} + \beta_{\text{age},i}\, \alpha_{[i,k,t]}
+</span></p>
+<p><strong>3. Individual-Level Parameters, Age Effects, and Priors</strong></p>
+<p>All eight learning parameters are drawn from a correlated multivariate hierarchy. For each individual <span class="math inline">i</span>, the varying parameters and deviations are constructed as: <span class="math display">
+\phi_i = \text{sigmoid}\bigl(\mu_0 + a_{id}[i, 0] + \beta_{\phi} \cdot \text{age}_i\bigr)
 </span> <span class="math display">
-\text{logit}(\gamma_j) = \alpha_{\gamma, j} + \beta_{\gamma} \cdot \text{age}_j
+\gamma_i = \text{sigmoid}\bigl(\mu_1 + a_{id}[i, 1] + \beta_{\gamma} \cdot \text{age}_i\bigr)
+</span> <span class="math display">
+f_i = \exp(\mu_2 + a_{id}[i, 2])
+</span> <span class="math display">
+\beta_{\text{pay},i} = \mu_3 + a_{id}[i, 3]
+</span> <span class="math display">
+\beta_{\text{kin},i} = \mu_4 + a_{id}[i, 4]
+</span> <span class="math display">
+\beta_{\text{rank},i} = \mu_5 + a_{id}[i, 5]
+</span> <span class="math display">
+\beta_{\text{cohort},i} = \mu_6 + a_{id}[i, 6]
+</span> <span class="math display">
+\beta_{\text{age},i} = \mu_7 + a_{id}[i, 7]
+</span> <span class="math display">
+\mathbf{a}_{id} = (\mathbf{L}_{\rho} \operatorname{diag}(\boldsymbol{\sigma}) \, \mathbf{Z})^\top
+</span> <span class="math display">
+\boldsymbol{\mu} \sim \mathcal{N}(\mathbf{0}_8, 1)
+</span> <span class="math display">
+\boldsymbol{\sigma} \sim \text{Exponential}(\text{rate}=3)
+</span> <span class="math display">
+\mathbf{L}_{\rho} \sim \text{LKJCholesky}(8, \eta=3)
+</span> <span class="math display">
+\mathbf{Z} \sim \mathcal{N}(\mathbf{0}_{8 \times J}, 1)
+</span> <span class="math display">
+\beta_{\phi} \sim \mathcal{N}(0, 1), \quad \beta_{\gamma} \sim \mathcal{N}(0, 1)
+</span> <span class="math display">
+\lambda \sim \text{Exponential}(1)
 </span></p>
-<p><strong>Multi-Cue Social Component</strong>: <span class="math display">
-B_{j,t} = \sum_{k \in \{ \text{pay, kin, rank, sim, bias} \}} \beta_k \kappa_{k,j,t}
-</span></p>
-<p>The realized choice probability follows the same mixture rule as the Combo model but with expanded social cue integration.</p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">N_{[i,k,t]}</span> is the frequency cue: the number of times individual <span class="math inline">i</span> observed conspecifics performing technique <span class="math inline">k</span> at time <span class="math inline">t</span>.</li>
+<li><span class="math inline">f_i &gt; 0</span> is individual <span class="math inline">i</span>’s conformity exponent, constructed with the exponential link to guarantee positive values. The population prior mean <span class="math inline">\mu_2 \sim \mathcal{N}(0,1)</span> corresponds to <span class="math inline">f \approx 1</span> (linear frequency copying) a priori.</li>
+<li><span class="math inline">\pi_{[i,k,t]}</span> is the payoff observed from social demonstrators using technique <span class="math inline">k</span> at time <span class="math inline">t</span>. The prior <span class="math inline">\mu_3 \sim \mathcal{N}(0,1)</span> expresses uncertainty on payoff bias direction and magnitude.</li>
+<li><span class="math inline">\kappa_{[i,k,t]}</span> is the kin bias cue: whether the demonstrators using technique <span class="math inline">k</span> at time <span class="math inline">t</span> are matrilineal kin of individual <span class="math inline">i</span>. The coefficient <span class="math inline">\beta_{\text{kin},i}</span> models the kinship bias, with population prior mean <span class="math inline">\mu_4 \sim \mathcal{N}(0,1)</span>.</li>
+<li><span class="math inline">\zeta_{[i,k,t]}</span> is the rank/prestige cue: whether the demonstrators using technique <span class="math inline">k</span> at time <span class="math inline">t</span> are high-ranking (e.g., alpha) individuals. The coefficient <span class="math inline">\beta_{\text{rank},i}</span> models rank bias, with population prior mean <span class="math inline">\mu_5 \sim \mathcal{N}(0,1)</span>.</li>
+<li><span class="math inline">\eta_{[i,k,t]}</span> is the cohort cue: the age-similarity between individual <span class="math inline">i</span> and demonstrators using technique <span class="math inline">k</span> at time <span class="math inline">t</span>. The coefficient <span class="math inline">\beta_{\text{cohort},i}</span> models cohort bias, with population prior mean <span class="math inline">\mu_6 \sim \mathcal{N}(0,1)</span>.</li>
+<li><span class="math inline">\alpha_{[i,k,t]}</span> is the age-bias cue: a year-of-birth prestige bias towards older/more experienced demonstrators using technique <span class="math inline">k</span> at time <span class="math inline">t</span>. The coefficient <span class="math inline">\beta_{\text{age},i}</span> models age-based prestige bias, with population prior mean <span class="math inline">\mu_7 \sim \mathcal{N}(0,1)</span>.</li>
+<li><span class="math inline">\phi_i \in [0, 1]</span> and <span class="math inline">\gamma_i \in [0, 1]</span> are individual-level attraction-updating and social-learning weights, constructed with the logistic/sigmoid link.</li>
+<li><span class="math inline">\text{age}_i</span> is the centered age of individual <span class="math inline">i</span>.</li>
+<li><span class="math inline">\beta_{\phi}</span> and <span class="math inline">\beta_{\gamma}</span> are the population-level age slopes on the log-odds scale, determining how an individual’s age alters their attraction updating and social learning weight.</li>
+<li><span class="math inline">\mathbf{a}_{id} \in \mathbb{R}^{J \times 8}</span> is the matrix of individual-level deviations across the 8 varying parameters, reconstructed using the non-centered parameterization to optimize Hamiltonian Monte Carlo performance.</li>
+<li><span class="math inline">\mathbf{L}_{\rho} \in \mathbb{R}^{8 \times 8}</span> is the Cholesky factor of the correlation matrix, mapping correlations among all 8 parameters.</li>
+<li><span class="math inline">\boldsymbol{\sigma} \in \mathbb{R}^8_+</span> represents the standard deviations (shrinkage parameters) for each of the 8 parameters.</li>
+<li><span class="math inline">\mathbf{Z} \in \mathbb{R}^{8 \times J}</span> is a matrix of standard normal deviates.</li>
+<li><span class="math inline">\lambda &gt; 0</span> is the multinomial sensitivity parameter, governing choice deterministic behavior.</li>
+</ul>
 <hr>
 </section>
 </section>
@@ -860,7 +989,7 @@ Note
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li>The <code>Global Age</code> model is significantly more complex and requires larger sample sizes to resolve the correlations between varying effects.</li>
+<li>The <code>EWA-ILV</code> model is significantly more complex and requires larger sample sizes to resolve the correlations between varying effects.</li>
 <li>Cholesky decomposition of the correlation matrix is used for both models to ensure positive-definiteness.</li>
 </ul>
 </div>

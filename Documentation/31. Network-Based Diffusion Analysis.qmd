@@ -23,6 +23,67 @@ In principle NBDA can be consider as a survival analysis, so we have the same co
 
 ---
 
+## Data
+
+The examples below use the NBDA dataset bundled with the **BI** package (adapted from the STbayes package, @STBayes). It contains acquisition events for 50 individuals across 1 trial and their undirected social network.
+
+::: {.panel-tabset group="language"}
+## Python
+
+```python
+from BI import bi
+import pandas as pd
+
+m = bi(platform='cpu')
+
+events_path  = m.load.NBDA_events(only_path=True)
+network_path = m.load.NBDA_network(only_path=True)
+events  = pd.read_csv(events_path)   # columns: id, time, t_end, trial
+network = pd.read_csv(network_path)  # columns: focal, other, trial, assoc
+# Build data_list following the STbayes-compatible structure — see R example below
+```
+
+## R
+
+```r
+library(BayesianInference)
+library(STbayes)
+m <- importBI(platform = "cpu")
+jnp <- reticulate::import("jax.numpy")
+
+to_jax <- function(x) {
+    if (is.list(x) || typeof(x) == "closure" || is.character(x)) return(x)
+    jnp$array(x)
+}
+
+events_path  <- m$load$NBDA_events(only_path = TRUE)
+network_path <- m$load$NBDA_network(only_path = TRUE)
+
+data_list <- lapply(
+    import_user_STb(read.csv(events_path), read.csv(network_path),
+                    network_type = "undirected"),
+    to_jax
+)
+m$data_on_model <- list(data = data_list)
+```
+
+## Julia
+
+```julia
+using BayesianInference
+using DataFrames, CSV
+
+m = importBI(platform="cpu")
+
+events_path  = m.load.NBDA_events(only_path=true)
+network_path = m.load.NBDA_network(only_path=true)
+events  = CSV.read(events_path,  DataFrame)
+network = CSV.read(network_path, DataFrame)
+```
+:::
+
+---
+
 ### Continuous Time of Acquisition Data Analysis (cTADA)
 
 #### General Principles
@@ -43,33 +104,25 @@ The cTADA model is used when the exact continuous times of behavioural acquisiti
 from BI import bi
 
 m = bi(platform='cpu')
-
-# Load spatial diffusion data
-# data_list should be a dictionary matching the STbayes data list components
-m.data_on_model = {'data': data_list_jax} 
+m.data_on_model = {'data': data_list}
 
 def model_cTADA(data):
-    # Parameter prior distributions
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
     log_s_prime_mean = m.dist.normal(-4, 2, name="log_s_prime_mean")
-    
+
     lambda_0 = m.jnp.exp(log_lambda_0_mean)
     s_prime = m.jnp.exp(log_s_prime_mean)
-    
-    # Network Effect
+
     A_sum = m.jnp.sum(data['A'], axis=0)
     Z_exp = m.jnp.expand_dims(data['Z'], axis=-1)
     A_Z = m.jnp.squeeze(m.jnp.matmul(A_sum, Z_exp), axis=-1)
     soc_term = s_prime * A_Z
-    
-    # Total Hazard
+
     D_exp = m.jnp.expand_dims(data['D'], axis=-1)
     lambda_all = (lambda_0 + soc_term) * D_exp
-    
-    # Likelihood formulation (simplified representation for the accumulated unit distributions)
-    # Internally maps exact observed time steps against hazard survival masks
+
+    # Survival likelihood: accumulate negative hazard before event, log-hazard at event time
     # m.dist.unit(log_factor=total_log_lik, name="cTADA_lik")
-    pass
 
 m.fit(model_cTADA)
 m.summary()
@@ -80,9 +133,7 @@ m.summary()
 ```r
 library(BayesianInference)
 m <- importBI(platform = "cpu")
-
-# Assume data_list_jax is a list of JAX arrays converted from STbayes generated data
-m$data_on_model <- list(data = data_list_jax)
+m$data_on_model <- list(data = data_list)
 
 model_cTADA <- function(data) {
     log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")
@@ -113,7 +164,7 @@ m$summary()
 using BayesianInference
 
 m = importBI(platform="cpu")
-m.data_on_model = Dict("data" => data_list_jax)
+m.data_on_model = Dict("data" => data_list)
 
 @BI function model_cTADA(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
@@ -185,7 +236,7 @@ OADA is used when the precise times of acquisition are unknown, but the sequenti
 from BI import bi
 
 m = bi(platform='cpu')
-m.data_on_model = {'data': data_list_jax}
+m.data_on_model = {'data': data_list}
 
 def model_OADA(data):
     log_s_prime_mean = m.dist.normal(-4, 2, name="log_s_prime_mean")
@@ -196,10 +247,10 @@ def model_OADA(data):
     A_Z = m.jnp.squeeze(m.jnp.matmul(A_sum, Z_exp), axis=-1)
     
     net_effect_all = s_prime * A_Z
-    lambda_all = 1.0 + net_effect_all # 1.0 acts as baseline lambda_0
-    
-    # Calculate likelihood of i learning vs sum of all unlearned (j) candidates
-    pass
+    lambda_all = 1.0 + net_effect_all  # lambda_0 = 1.0 cancels in the ratio
+
+    # P(i learns next) = lambda_i / sum_j(lambda_j) over naive candidates
+    # m.dist.unit(log_factor=total_log_lik, name="OADA_lik")
 
 m.fit(model_OADA)
 m.summary()
@@ -210,7 +261,7 @@ m.summary()
 ```r
 library(BayesianInference)
 m <- importBI(platform = "cpu")
-m$data_on_model <- list(data = data_list_jax)
+m$data_on_model <- list(data = data_list)
 
 model_OADA <- function(data) {
     log_s_prime_mean <- m$dist$normal(-4, 2, name="log_s_prime_mean")
@@ -236,7 +287,7 @@ m$summary()
 using BayesianInference
 
 m = importBI(platform="cpu")
-m.data_on_model = Dict("data" => data_list_jax)
+m.data_on_model = Dict("data" => data_list)
 
 @BI function model_OADA(data)
     log_s_prime_mean = m.dist.normal(-4, 2, name="log_s_prime_mean")
@@ -292,29 +343,34 @@ The ILV model integrates continuous, boolean, or categorical traits observed on 
 from BI import bi
 
 m = bi(platform='cpu')
-m.data_on_model = {'data': data_list_jax}
+m.data_on_model = {'data': data_list}
 
 def model_ILV(data):
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
-    log_s_prime_mean = m.dist.normal(-4, 2, name="log_s_prime_mean")
-    
-    # Beta modifiers for ILVs
-    beta_cont = m.dist.normal(0, 1, name="beta_cont_ILV")
-    
+    log_s_prime_mean  = m.dist.normal(-4, 2, name="log_s_prime_mean")
+
+    # ILV beta coefficients (boolean→asocial, continuous→social, categorical→multiplicative)
+    beta_ILVi = m.dist.normal(0, 1, shape=(1,), name="beta_ILVi_bool_ILV")
+    beta_ILVs = m.dist.normal(0, 1, name="beta_ILVs_cont_ILV")
+    beta_ILVm = m.dist.normal(0, 1, shape=(3,), name="beta_ILVm_cat_ILV")
+
     lambda_0 = m.jnp.exp(log_lambda_0_mean)
-    s_prime = m.jnp.exp(log_s_prime_mean)
-    
-    cont_ILV_s = data['ILV_cont_ILV'] * beta_cont
-    
-    # Network Effect modified by individual qualities
+    s_prime  = m.jnp.exp(log_s_prime_mean)
+
+    bool_ILV_i = m.jnp.matmul(data['ILV_bool_ILV'], beta_ILVi)
+    cont_ILV_s = data['ILV_cont_ILV'] * beta_ILVs
+    cat_ILV_m  = m.jnp.matmul(data['ILV_cat_ILV'], beta_ILVm)
+
+    ind_term = m.jnp.exp(bool_ILV_i)
+
     A_sum = m.jnp.sum(data['A'], axis=0)
     Z_exp = m.jnp.expand_dims(data['Z'], axis=-1)
-    A_Z = m.jnp.squeeze(m.jnp.matmul(A_sum, Z_exp), axis=-1)
-    
+    A_Z   = m.jnp.squeeze(m.jnp.matmul(A_sum, Z_exp), axis=-1)
     soc_term = s_prime * A_Z * m.jnp.exp(cont_ILV_s)
-    
-    # Multiply final lambda by D_exp...
-    pass
+
+    D_exp      = m.jnp.expand_dims(data['D'], axis=-1)
+    lambda_all = m.jnp.exp(cat_ILV_m) * (lambda_0 * ind_term + soc_term) * D_exp
+    # m.dist.unit(log_factor=total_log_lik, name="ILV_lik")
 
 m.fit(model_ILV)
 m.summary()
@@ -325,24 +381,33 @@ m.summary()
 ```r
 library(BayesianInference)
 m <- importBI(platform = "cpu")
-m$data_on_model <- list(data = data_list_jax)
+m$data_on_model <- list(data = data_list)
 
 model_ILV <- function(data) {
     log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")
-    log_s_prime_mean <- m$dist$normal(-4, 2, name="log_s_prime_mean")
-    
-    beta_cont <- m$dist$normal(0, 1, name="beta_ILVs_cont_ILV")
-    
+    log_s_prime_mean  <- m$dist$normal(-4, 2, name="log_s_prime_mean")
+
+    beta_ILVi <- m$dist$normal(0, 1, shape=tuple(1L), name="beta_ILVi_bool_ILV")
+    beta_ILVs <- m$dist$normal(0, 1, name="beta_ILVs_cont_ILV")
+    beta_ILVm <- m$dist$normal(0, 1, shape=tuple(3L), name="beta_ILVm_cat_ILV")
+
     lambda_0 <- jnp$exp(log_lambda_0_mean)
-    s_prime <- jnp$exp(log_s_prime_mean)
-    cont_ILV_s <- data$ILV_cont_ILV * beta_cont
-    
+    s_prime  <- jnp$exp(log_s_prime_mean)
+
+    bool_ILV_i <- jnp$matmul(data$ILV_bool_ILV, beta_ILVi)
+    cont_ILV_s <- data$ILV_cont_ILV * beta_ILVs
+    cat_ILV_m  <- jnp$matmul(data$ILV_cat_ILV, beta_ILVm)
+
+    ind_term <- jnp$exp(bool_ILV_i)
+
     A_sum <- jnp$sum(data$A, axis=0L)
     Z_exp <- jnp$expand_dims(data$Z, axis=-1L)
-    A_Z <- jnp$squeeze(jnp$matmul(A_sum, Z_exp), axis=-1L)
-    
-    # Extrapolate social behavior based on evaluated traits
+    A_Z   <- jnp$squeeze(jnp$matmul(A_sum, Z_exp), axis=-1L)
     soc_term <- s_prime * A_Z * jnp$exp(cont_ILV_s)
+
+    D_exp      <- jnp$expand_dims(data$D, axis=-1L)
+    lambda_all <- jnp$exp(cat_ILV_m) * (lambda_0 * ind_term + soc_term) * D_exp
+    # m$dist$unit(log_factor=total_log_lik, name="ILV_lik")
 }
 
 m$fit(model_ILV)
@@ -355,24 +420,32 @@ m$summary()
 using BayesianInference
 
 m = importBI(platform="cpu")
-m.data_on_model = Dict("data" => data_list_jax)
+m.data_on_model = Dict("data" => data_list)
 
 @BI function model_ILV(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
-    log_s_prime_mean = m.dist.normal(-4, 2, name="log_s_prime_mean")
-    
-    beta_cont = m.dist.normal(0, 1, name="beta_ILVs_cont_ILV")
-    
+    log_s_prime_mean  = m.dist.normal(-4, 2, name="log_s_prime_mean")
+
+    beta_ILVi = m.dist.normal(0, 1, shape=(1,), name="beta_ILVi_bool_ILV")
+    beta_ILVs = m.dist.normal(0, 1, name="beta_ILVs_cont_ILV")
+    beta_ILVm = m.dist.normal(0, 1, shape=(3,), name="beta_ILVm_cat_ILV")
+
     lambda_0 = jnp.exp(log_lambda_0_mean)
-    s_prime = jnp.exp(log_s_prime_mean)
-    
-    cont_ILV_s = data["ILV_cont_ILV"] .* beta_cont
-    
+    s_prime  = jnp.exp(log_s_prime_mean)
+
+    bool_ILV_i = jnp.matmul(data["ILV_bool_ILV"], beta_ILVi)
+    cont_ILV_s = data["ILV_cont_ILV"] .* beta_ILVs
+    cat_ILV_m  = jnp.matmul(data["ILV_cat_ILV"], beta_ILVm)
+
+    ind_term = jnp.exp(bool_ILV_i)
+
     A_sum = jnp.sum(data["A"], axis=0)
     Z_exp = jnp.expand_dims(data["Z"], axis=-1)
-    A_Z = jnp.squeeze(jnp.matmul(A_sum, Z_exp), axis=-1)
-    
+    A_Z   = jnp.squeeze(jnp.matmul(A_sum, Z_exp), axis=-1)
     soc_term = s_prime .* A_Z .* jnp.exp(cont_ILV_s)
+
+    D_exp      = jnp.expand_dims(data["D"], axis=-1)
+    lambda_all = jnp.exp.(cat_ILV_m) .* (lambda_0 .* ind_term .+ soc_term) .* D_exp
 end
 
 m.fit(model_ILV)
@@ -421,7 +494,7 @@ Models containing varying (random) effects assign specific variance structures, 
 from BI import bi
 
 m = bi(platform='cpu')
-m.data_on_model = {'data': data_list_jax}
+m.data_on_model = {'data': data_list}
 
 def model_veff(data):
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
@@ -436,9 +509,17 @@ def model_veff(data):
     v_sprime = m.dist.normal(0.0, sigma_sprime, shape=(P,), name="v_sprime")
     v_lambda0 = m.dist.normal(0.0, sigma_lambda0, shape=(P,), name="v_lambda0")
     
-    s_prime = m.jnp.exp(log_s_prime_mean + v_sprime)
-    lambda_0 = m.jnp.exp(log_lambda_0_mean + v_lambda0)
-    pass
+    s_prime  = m.jnp.exp(log_s_prime_mean + v_sprime)   # shape (P,)
+    lambda_0 = m.jnp.exp(log_lambda_0_mean + v_lambda0) # shape (P,)
+
+    A_sum = m.jnp.sum(data['A'], axis=0)
+    Z_exp = m.jnp.expand_dims(data['Z'], axis=-1)
+    A_Z   = m.jnp.squeeze(m.jnp.matmul(A_sum, Z_exp), axis=-1)
+    soc_term = s_prime * A_Z  # per-individual s_prime broadcasts over (K, T_max, P)
+
+    D_exp      = m.jnp.expand_dims(data['D'], axis=-1)
+    lambda_all = (lambda_0 + soc_term) * D_exp
+    # m.dist.unit(log_factor=total_log_lik, name="veff_lik")
 
 m.fit(model_veff)
 m.summary()
@@ -449,7 +530,7 @@ m.summary()
 ```r
 library(BayesianInference)
 m <- importBI(platform = "cpu")
-m$data_on_model <- list(data = data_list_jax)
+m$data_on_model <- list(data = data_list)
 
 model_veff <- function(data) {
     log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")
@@ -464,10 +545,17 @@ model_veff <- function(data) {
     v_sprime <- m$dist$normal(0.0, sigma_sprime, shape=tuple(P), name="v_sprime")
     v_lambda0 <- m$dist$normal(0.0, sigma_lambda0, shape=tuple(P), name="v_lambda0")
     
-    s_prime <- jnp$exp(log_s_prime_mean + v_sprime)
-    lambda_0 <- jnp$exp(log_lambda_0_mean + v_lambda0)
-    
-    # Calculate social transmission across connections based on isolated varied profiles
+    s_prime  <- jnp$exp(log_s_prime_mean + v_sprime)   # shape (P,)
+    lambda_0 <- jnp$exp(log_lambda_0_mean + v_lambda0) # shape (P,)
+
+    A_sum <- jnp$sum(data$A, axis=0L)
+    Z_exp <- jnp$expand_dims(data$Z, axis=-1L)
+    A_Z   <- jnp$squeeze(jnp$matmul(A_sum, Z_exp), axis=-1L)
+    soc_term <- s_prime * A_Z
+
+    D_exp      <- jnp$expand_dims(data$D, axis=-1L)
+    lambda_all <- (lambda_0 + soc_term) * D_exp
+    # m$dist$unit(log_factor=total_log_lik, name="veff_lik")
 }
 
 m$fit(model_veff)
@@ -480,7 +568,7 @@ m$summary()
 using BayesianInference
 
 m = importBI(platform="cpu")
-m.data_on_model = Dict("data" => data_list_jax)
+m.data_on_model = Dict("data" => data_list)
 
 @BI function model_veff(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
@@ -494,8 +582,16 @@ m.data_on_model = Dict("data" => data_list_jax)
     v_sprime = m.dist.normal(0.0, sigma_sprime, shape=(P,), name="v_sprime")
     v_lambda0 = m.dist.normal(0.0, sigma_lambda0, shape=(P,), name="v_lambda0")
     
-    s_prime = jnp.exp.(log_s_prime_mean .+ v_sprime)
+    s_prime  = jnp.exp.(log_s_prime_mean .+ v_sprime)
     lambda_0 = jnp.exp.(log_lambda_0_mean .+ v_lambda0)
+
+    A_sum = jnp.sum(data["A"], axis=0)
+    Z_exp = jnp.expand_dims(data["Z"], axis=-1)
+    A_Z   = jnp.squeeze(jnp.matmul(A_sum, Z_exp), axis=-1)
+    soc_term = s_prime .* A_Z
+
+    D_exp      = jnp.expand_dims(data["D"], axis=-1)
+    lambda_all = (lambda_0 .+ soc_term) .* D_exp
 end
 
 m.fit(model_veff)
@@ -547,7 +643,7 @@ Traditional linear assumption states transmission increases uniformly with more 
 from BI import bi
 
 m = bi(platform='cpu')
-m.data_on_model = {'data': data_list_jax}
+m.data_on_model = {'data': data_list}
 
 def model_complex_f(data):
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
@@ -568,9 +664,12 @@ def model_complex_f(data):
     
     # Filter 0/0 exceptions
     frac = m.jnp.where((active + inactive) > 0, active_f / denom_f, 0.0)
-    net_effect = m.jnp.sum(frac, axis=0) # Aggregate scaled fraction arrays
+    net_effect = m.jnp.sum(frac, axis=0)
     soc_term = s_prime * net_effect
-    pass
+
+    D_exp      = m.jnp.expand_dims(data['D'], axis=-1)
+    lambda_all = (lambda_0 + soc_term) * D_exp
+    # m.dist.unit(log_factor=total_log_lik, name="complex_f_lik")
 
 m.fit(model_complex_f)
 m.summary()
@@ -581,24 +680,34 @@ m.summary()
 ```r
 library(BayesianInference)
 m <- importBI(platform = "cpu")
-m$data_on_model <- list(data = data_list_jax)
+m$data_on_model <- list(data = data_list)
 
 model_complex_f <- function(data) {
     log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")
-    log_s_prime_mean <- m$dist$normal(-4, 2, name="log_s_prime_mean")
-    log_f_mean <- m$dist$normal(0, 1, name="log_f_mean")
-    f <- jnp$exp(log_f_mean)
-    
-    # Matrix isolation determining active network segments
-    active <- jnp$squeeze(jnp$matmul(data$A, data$Z_exp), axis=-1L)
-    inactive <- jnp$squeeze(jnp$matmul(data$A, data$Zn_complement), axis=-1L)
-    
-    active_f <- jnp$power(active, f)
-    inactive_f <- jnp$power(inactive, f)
-    denom_f <- active_f + inactive_f
-    
-    frac <- jnp$where((active + inactive) > 0, active_f / denom_f, 0.0)
-    # ... Process resulting aggregated fractional hazard components ...
+    log_s_prime_mean  <- m$dist$normal(-4, 2, name="log_s_prime_mean")
+    log_f_mean        <- m$dist$normal(0, 1, name="log_f_mean")
+
+    lambda_0 <- jnp$exp(log_lambda_0_mean)
+    s_prime  <- jnp$exp(log_s_prime_mean)
+    f        <- jnp$exp(log_f_mean)
+
+    # Expand Z and Zn for matrix multiply against A (N_networks, K, T_max, P, P)
+    Z_exp  <- jnp$expand_dims(jnp$expand_dims(data$Z,  axis=-1L), axis=0L)
+    Zn_exp <- jnp$expand_dims(jnp$expand_dims(data$Zn, axis=-1L), axis=0L)
+
+    active   <- jnp$squeeze(jnp$matmul(data$A, Z_exp),          axis=-1L)
+    inactive <- jnp$squeeze(jnp$matmul(data$A, 1.0 - Zn_exp),   axis=-1L)
+
+    active_f <- jnp$power(active,   f)
+    denom_f  <- active_f + jnp$power(inactive, f)
+    frac     <- jnp$where((active + inactive) > 0, active_f / denom_f, 0.0)
+
+    net_effect <- jnp$sum(frac, axis=0L)
+    soc_term   <- s_prime * net_effect
+
+    D_exp      <- jnp$expand_dims(data$D, axis=-1L)
+    lambda_all <- (lambda_0 + soc_term) * D_exp
+    # m$dist$unit(log_factor=total_log_lik, name="complex_f_lik")
 }
 
 m$fit(model_complex_f)
@@ -611,7 +720,7 @@ m$summary()
 using BayesianInference
 
 m = importBI(platform="cpu")
-m.data_on_model = Dict("data" => data_list_jax)
+m.data_on_model = Dict("data" => data_list)
 
 @BI function model_complex_f(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
@@ -674,24 +783,35 @@ Some phenomena involve interactions bounded over fluctuating intervals, such as 
 from BI import bi
 
 m = bi(platform='cpu')
-m.data_on_model = {'data': data_list_jax}
+m.data_on_model = {'data': data_list}
 
 def model_dynamic_tweights(data):
-    k_raw = m.dist.normal(0, 3, name="k_raw")
-    k_shape = 2.0 * m.jax.nn.sigmoid(k_raw) - 1.0 # Bounds the k curve smoothly
-    
+    log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
+    log_s_prime_mean  = m.dist.normal(-4, 2, name="log_s_prime_mean")
+    k_raw   = m.dist.normal(0, 3, name="k_raw")
+    k_shape = 2.0 * m.jax.nn.sigmoid(k_raw) - 1.0
+
+    lambda_0 = m.jnp.exp(log_lambda_0_mean)
+    s_prime  = m.jnp.exp(log_s_prime_mean)
+
     def dini_func(x, k):
-        x_trans = 2.0 * x - 1.0
-        return ((x_trans - k * x_trans) / (k - 2.0 * k * m.jnp.abs(x_trans) + 1.0) + 1.0) / 2.0
-        
-    numer = m.jnp.squeeze(m.jnp.matmul(data['A'], data['Z']), axis=-1)
-    denom = numer + m.jnp.squeeze(m.jnp.matmul(data['A'], (1.0 - data['Zn'])), axis=-1)
-    
-    prop = m.jnp.where(denom > 0, numer / denom, 0.0)
+        x_t = 2.0 * x - 1.0
+        return ((x_t - k * x_t) / (k - 2.0 * k * m.jnp.abs(x_t) + 1.0) + 1.0) / 2.0
+
+    Z_exp  = m.jnp.expand_dims(m.jnp.expand_dims(data['Z'],  axis=-1), axis=0)
+    Zn_exp = m.jnp.expand_dims(m.jnp.expand_dims(data['Zn'], axis=-1), axis=0)
+
+    numer = m.jnp.squeeze(m.jnp.matmul(data['A'], Z_exp),        axis=-1)
+    denom = numer + m.jnp.squeeze(m.jnp.matmul(data['A'], 1.0 - Zn_exp), axis=-1)
+
+    prop             = m.jnp.where(denom > 0, numer / denom, 0.0)
     dini_transformed = dini_func(prop, k_shape)
-    
-    net_effect = m.jnp.sum(dini_transformed, axis=0) # Sum across dynamic time bounds
-    pass
+    net_effect       = m.jnp.sum(dini_transformed, axis=0)
+    soc_term         = s_prime * net_effect
+
+    D_exp      = m.jnp.expand_dims(data['D'], axis=-1)
+    lambda_all = (lambda_0 + soc_term) * D_exp
+    # m.dist.unit(log_factor=total_log_lik, name="dynamic_networks_tweights_lik")
 
 m.fit(model_dynamic_tweights)
 m.summary()
@@ -703,24 +823,36 @@ m.summary()
 library(BayesianInference)
 m <- importBI(platform = "cpu")
 jax_nn <- reticulate::import("jax.nn")
+m$data_on_model <- list(data = data_list)
 
 model_dynamic_tweights <- function(data) {
-    k_raw <- m$dist$normal(0, 3, name="k_raw")
+    log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")
+    log_s_prime_mean  <- m$dist$normal(-4, 2, name="log_s_prime_mean")
+    k_raw   <- m$dist$normal(0, 3, name="k_raw")
     k_shape <- 2.0 * jax_nn$sigmoid(k_raw) - 1.0
-    
+
+    lambda_0 <- jnp$exp(log_lambda_0_mean)
+    s_prime  <- jnp$exp(log_s_prime_mean)
+
     dini_func <- function(x, k) {
-        x_transformed <- 2.0 * x - 1.0
-        ((x_transformed - k * x_transformed) / (k - 2.0 * k * jnp$abs(x_transformed) + 1.0) + 1.0) / 2.0
+        x_t <- 2.0 * x - 1.0
+        ((x_t - k * x_t) / (k - 2.0 * k * jnp$abs(x_t) + 1.0) + 1.0) / 2.0
     }
-    
-    # Calculate proportion of communicating neighbors vs overall interacting group
-    numer <- jnp$squeeze(jnp$matmul(data$A, data$Z_exp), axis=-1L)
-    denom <- numer + jnp$squeeze(jnp$matmul(data$A, data$Zn_complement), axis=-1L)
-    
-    prop <- jnp$where(denom > 0, numer / denom, 0.0)
+
+    Z_exp  <- jnp$expand_dims(jnp$expand_dims(data$Z,  axis=-1L), axis=0L)
+    Zn_exp <- jnp$expand_dims(jnp$expand_dims(data$Zn, axis=-1L), axis=0L)
+
+    numer <- jnp$squeeze(jnp$matmul(data$A, Z_exp),          axis=-1L)
+    denom <- numer + jnp$squeeze(jnp$matmul(data$A, 1.0 - Zn_exp), axis=-1L)
+
+    prop             <- jnp$where(denom > 0, numer / denom, 0.0)
     dini_transformed <- dini_func(prop, k_shape)
-    
-    net_effect <- jnp$sum(dini_transformed, axis=0L)
+    net_effect       <- jnp$sum(dini_transformed, axis=0L)
+    soc_term         <- s_prime * net_effect
+
+    D_exp      <- jnp$expand_dims(data$D, axis=-1L)
+    lambda_all <- (lambda_0 + soc_term) * D_exp
+    # m$dist$unit(log_factor=total_log_lik, name="dynamic_networks_tweights_lik")
 }
 
 m$fit(model_dynamic_tweights)
@@ -733,21 +865,35 @@ m$summary()
 using BayesianInference
 
 m = importBI(platform="cpu")
+m.data_on_model = Dict("data" => data_list)
 
 @BI function model_dynamic_tweights(data)
-    k_raw = m.dist.normal(0, 3, name="k_raw")
+    log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
+    log_s_prime_mean  = m.dist.normal(-4, 2, name="log_s_prime_mean")
+    k_raw   = m.dist.normal(0, 3, name="k_raw")
     k_shape = 2.0 * jax.nn.sigmoid(k_raw) - 1.0
-    
+
+    lambda_0 = jnp.exp(log_lambda_0_mean)
+    s_prime  = jnp.exp(log_s_prime_mean)
+
     function dini_func(x, k)
         x_t = 2.0 .* x .- 1.0
         return ((x_t .- k .* x_t) ./ (k .- 2.0 .* k .* jnp.abs(x_t) .+ 1.0) .+ 1.0) ./ 2.0
     end
-    
-    numer = jnp.squeeze(jnp.matmul(data["A"], data["Z"]), axis=-1)
-    denom = numer .+ jnp.squeeze(jnp.matmul(data["A"], (1.0 .- data["Zn"])), axis=-1)
-    
-    prop = jnp.where(denom .> 0, numer ./ denom, 0.0)
+
+    Z_exp  = jnp.expand_dims(jnp.expand_dims(data["Z"],  axis=-1), axis=0)
+    Zn_exp = jnp.expand_dims(jnp.expand_dims(data["Zn"], axis=-1), axis=0)
+
+    numer = jnp.squeeze(jnp.matmul(data["A"], Z_exp),        axis=-1)
+    denom = numer .+ jnp.squeeze(jnp.matmul(data["A"], 1.0 .- Zn_exp), axis=-1)
+
+    prop             = jnp.where(denom .> 0, numer ./ denom, 0.0)
     dini_transformed = dini_func(prop, k_shape)
+    net_effect       = jnp.sum(dini_transformed, axis=0)
+    soc_term         = s_prime .* net_effect
+
+    D_exp      = jnp.expand_dims(data["D"], axis=-1)
+    lambda_all = (lambda_0 .+ soc_term) .* D_exp
 end
 
 m.fit(model_dynamic_tweights)
@@ -792,32 +938,39 @@ Networks are commonly abstracted from noisy sampling data featuring unequal effo
 from BI import bi
 
 m = bi(platform='cpu')
-m.data_on_model = {'data': data_list_jax}
+m.data_on_model = {'data': data_list}
 
 def model_posterior_edges(data):
-    # Generating associations directly from posterior covariance limits
+    log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
+    log_s_prime_mean  = m.dist.normal(-4, 2, name="log_s_prime_mean")
+
+    lambda_0 = m.jnp.exp(log_lambda_0_mean)
+    s_prime  = m.jnp.exp(log_s_prime_mean)
+
+    # Sample edge weights from posterior covariance structure
     edge_logit = m.dist.multivariate_normal(
-        loc = data['logit_edge_mu'],
-        covariance_matrix = data['logit_edge_cov'],
-        name = "edge_logit"
+        loc=data['logit_edge_mu'],
+        covariance_matrix=data['logit_edge_cov'],
+        name="edge_logit"
     )
     w = m.jax.nn.sigmoid(edge_logit)
-    
-    # Inject values onto matrix index
+
+    # Build symmetric A matrix from sampled edge weights
     N, P = data['N_networks'], data['P']
     A = m.jnp.zeros((N, P, P))
-    
     focal_idx = data['focal_ID'] - 1
     other_idx = data['other_ID'] - 1
-    
-    # JAX syntax for updating tensor items without mutation structures
     A = A.at[:, focal_idx, other_idx].set(w)
     A = A.at[:, other_idx, focal_idx].set(w)
-    
-    # Broadcast across components computing the aggregated connection value
-    A_sum = m.jnp.sum(A, axis=0)
-    # ... Process standard cTADA behavior evaluating social bounds based on built arrays
-    pass
+
+    A_sum    = m.jnp.sum(A, axis=0)
+    Z_exp    = m.jnp.expand_dims(data['Z'], axis=-1)
+    A_Z      = m.jnp.squeeze(m.jnp.matmul(A_sum, Z_exp), axis=-1)
+    soc_term = s_prime * A_Z
+
+    D_exp      = m.jnp.expand_dims(data['D'], axis=-1)
+    lambda_all = (lambda_0 + soc_term) * D_exp
+    # m.dist.unit(log_factor=total_log_lik, name="posterior_edges_lik")
 
 m.fit(model_posterior_edges)
 m.summary()
@@ -828,29 +981,42 @@ m.summary()
 ```r
 library(BayesianInference)
 m <- importBI(platform = "cpu")
-m$data_on_model <- list(data = data_list_jax)
+m$data_on_model <- list(data = data_list)
 
 model_posterior_edges <- function(data) {
+    log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")
+    log_s_prime_mean  <- m$dist$normal(-4, 2, name="log_s_prime_mean")
+
+    lambda_0 <- jnp$exp(log_lambda_0_mean)
+    s_prime  <- jnp$exp(log_s_prime_mean)
+
     edge_logit <- m$dist$multivariate_normal(
         loc = data$logit_edge_mu,
         covariance_matrix = data$logit_edge_cov,
         name = "edge_logit"
     )
-    
-    w <- import("jax.nn")$sigmoid(edge_logit)
-    
-    A_init <- jnp$zeros(tuple(data$N_networks, data$P, data$P))
-    network_idx <- jnp$arange(data$N_networks)[, jnp$newaxis]
-    
-    # Convert back from 1-indexed R datasets identifying specific interactions
+
+    jax <- reticulate::import("jax")
+    w <- jax$nn$sigmoid(edge_logit)
+
+    # Build symmetric A from sampled dyadic weights
+    N  <- as.integer(data$N_networks)
+    P  <- as.integer(data$P)
+    A  <- jnp$zeros(tuple(N, P, P))
     focal_idx <- data$focal_ID - 1L
     other_idx <- data$other_ID - 1L
-    
-    A <- A_init$at[network_idx, focal_idx, other_idx]$set(w)
-    A <- A$at[network_idx, other_idx, focal_idx]$set(w)
-    
-    A_sum <- jnp$sum(A, axis=0L)
-    # ... Diffuse resulting matrix data against chronological target behaviors ...
+    net_idx   <- jnp$arange(N)[, jnp$newaxis]
+    A <- A$at[net_idx, focal_idx, other_idx]$set(w)
+    A <- A$at[net_idx, other_idx, focal_idx]$set(w)
+
+    A_sum    <- jnp$sum(A, axis=0L)
+    Z_exp    <- jnp$expand_dims(data$Z, axis=-1L)
+    A_Z      <- jnp$squeeze(jnp$matmul(A_sum, Z_exp), axis=-1L)
+    soc_term <- s_prime * A_Z
+
+    D_exp      <- jnp$expand_dims(data$D, axis=-1L)
+    lambda_all <- (lambda_0 + soc_term) * D_exp
+    # m$dist$unit(log_factor=total_log_lik, name="posterior_edges_lik")
 }
 
 m$fit(model_posterior_edges)
@@ -863,25 +1029,34 @@ m$summary()
 using BayesianInference
 
 m = importBI(platform="cpu")
-m.data_on_model = Dict("data" => data_list_jax)
+m.data_on_model = Dict("data" => data_list)
 
 @BI function model_posterior_edges(data)
+    log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
+    log_s_prime_mean  = m.dist.normal(-4, 2, name="log_s_prime_mean")
+
+    lambda_0 = jnp.exp(log_lambda_0_mean)
+    s_prime  = jnp.exp(log_s_prime_mean)
+
     edge_logit = m.dist.multivariate_normal(
         loc=data["logit_edge_mu"], covariance_matrix=data["logit_edge_cov"], name="edge_logit"
     )
     w = jax.nn.sigmoid(edge_logit)
-    
+
     N, P = data["N_networks"], data["P"]
     A = jnp.zeros((N, P, P))
-    
     focal_idx = data["focal_ID"] .- 1
     other_idx = data["other_ID"] .- 1
-    
-    # Use JAX index array mutators mapping standard undirected weights across symmetric bounds
     A = A.at[:, focal_idx, other_idx].set(w)
     A = A.at[:, other_idx, focal_idx].set(w)
-    
-    A_sum = jnp.sum(A, axis=0)
+
+    A_sum    = jnp.sum(A, axis=0)
+    Z_exp    = jnp.expand_dims(data["Z"], axis=-1)
+    A_Z      = jnp.squeeze(jnp.matmul(A_sum, Z_exp), axis=-1)
+    soc_term = s_prime .* A_Z
+
+    D_exp      = jnp.expand_dims(data["D"], axis=-1)
+    lambda_all = (lambda_0 .+ soc_term) .* D_exp
 end
 
 m.fit(model_posterior_edges)

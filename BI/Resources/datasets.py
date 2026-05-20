@@ -534,30 +534,30 @@ class load:
         
         return self._load_csv("iris.csv", description, frame=frame, only_path=only_path)
 
-    def NBDA(self, only_path=False):
-        """
-        Load the NBDA dataset.
-        
-        Returns:
-        --------
-        bunch : Bunch
-            NBDA dataset for testing NBDA models
-        """
+    def NBDA_events(self, frame=True, only_path=False):
+        """Load NBDA event data (STbayes::event_data format)."""
         description = """
-        NBDA Dataset
-        ============
-        
-        Simulated time series of acquisitions of a new behavior in a population.
+        NBDA Event Data
+        ===============
+
+        Simulated acquisition times for 50 individuals across 1 trial.
+        Columns: id, time, t_end, trial
+        Source: STbayes example data (Chimento 2025).
         """
-        # load json file
-        self.data_dir = Path(__file__).parent
-        with open("NBDA.json", "r") as f:
-            data = json.load(f)
-        if only_path:
-            return self.data_dir / "NBDA.json"
-        else:
-            return data
-        
+        return self._load_csv("NBDA_event_data.csv", description, frame=frame, only_path=only_path)
+
+    def NBDA_network(self, frame=True, only_path=False):
+        """Load NBDA network edge list (STbayes::edge_list format)."""
+        description = """
+        NBDA Network Edge List
+        ======================
+
+        Association strengths for 100 dyads across 1 trial.
+        Columns: focal, other, trial, assoc
+        Source: STbayes example data (Chimento 2025).
+        """
+        return self._load_csv("NBDA_edge_list.csv", description, frame=frame, only_path=only_path)
+
 
     # Phylogenetic Datasets -------------------------------------------------------------------
 
