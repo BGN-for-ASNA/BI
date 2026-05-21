@@ -623,6 +623,31 @@ class load:
 
     # Panama EWA -----------------------------------------------------------------------
 
+    def sim_nested_effects(self, frame=True, only_path=False):
+        """Load simulated nested varying-effects dataset.
+
+        Simulated data with observations nested in groups, groups nested in regions.
+        Generated with known true parameters for model validation.
+
+        DGP parameters
+        --------------
+        N_regions=5, N_groups_per_region=4, N_obs_per_group=20 (400 total obs)
+        mu_a_region=5.0,  mu_b_region=-1.0
+        sigma_a_region=1.0, sigma_b_region=0.5, rho_region=-0.5
+        sigma_a_group=0.5,  sigma_b_group=0.2,  rho_group=0.3
+        sigma_obs=0.5, seed=42
+
+        Columns
+        -------
+        y         : float — outcome
+        x         : float — continuous predictor (standardised)
+        group_id  : int   — group index 0..19
+        region_id : int   — region index 0..4
+        """
+        return self._load_csv("sim_nested_effects.csv",
+                              description="Simulated nested varying-effects dataset.",
+                              frame=frame, only_path=only_path)
+
     def panama_ewa(self, frame=True, only_path=False):
         """Load the Panama EWA social learning dataset (Barrett et al.).
 

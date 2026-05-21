@@ -235,7 +235,15 @@ class manip():
             return "Error, no data found"
 
         for k in args_with_defaults.keys():
-            result[k] = jnp.array(args_with_defaults[k][0], dtype =self.pandas_to_jax_dtype_map.get(str(args_with_defaults[k][1]) + bit))
+            val, type_name = args_with_defaults[k]
+            if type_name in ('int', 'float', 'bool'):
+                # Scalar primitives stay as Python scalars — keeps them static for
+                # JAX shape arguments (e.g. shape=(N_groups,) requires a Python int).
+                result[k] = val
+            elif bit is not None:
+                result[k] = jnp.array(val, dtype=self.pandas_to_jax_dtype_map_force32.get(type_name + bit))
+            else:
+                result[k] = jnp.array(val, dtype=self.pandas_to_jax_dtype_map.get(type_name))
 
         return result     
 
