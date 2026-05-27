@@ -125,6 +125,67 @@ div.csl-indent {
     "search-label": "Search"
   }
 }</script>
+<!-- header-scripts.html -->
+<script>
+  (function() {
+    const isFileUrl = () => window.location.protocol === 'file:';
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : "alternate"; // Default to dark/alternate
+      } else {
+        return "alternate";
+      }
+    };
+    
+    const alternate = (getColorSchemeSentinel() === "alternate");
+    
+    if (alternate) {
+      // Instantly add dark classes to prevent FOUC (flash of unstyled content)
+      document.documentElement.classList.add("quarto-dark");
+      document.documentElement.classList.remove("quarto-light");
+      
+      // Function to instantly swap a stylesheet node to dark
+      const makeNodeDark = (node) => {
+        if (node.tagName === 'LINK' && node.classList.contains('quarto-color-alternate')) {
+          node.removeAttribute('disabled');
+          const id = node.id;
+          if (id) {
+            const lightSib = document.querySelector(`link.quarto-color-scheme[id="${id}"]:not(.quarto-color-alternate)`);
+            if (lightSib) {
+              lightSib.setAttribute('disabled', 'true');
+            }
+          }
+        }
+      };
+
+      // Check already parsed nodes in head
+      if (document.head) {
+        document.head.querySelectorAll('link.quarto-color-alternate').forEach(makeNodeDark);
+      }
+
+      // Set up MutationObserver to catch nodes appended later in head
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          mutation.addedNodes.forEach(makeNodeDark);
+        });
+      });
+      
+      // Wait for head to exist or observe documentElement if head is loading
+      const target = document.head || document.documentElement;
+      observer.observe(target, { childList: true, subtree: true });
+      
+      // Clean up observer and run final safety check on DOMContentLoaded
+      document.addEventListener("DOMContentLoaded", function() {
+        observer.disconnect();
+        document.querySelectorAll('link.quarto-color-alternate').forEach(makeNodeDark);
+      });
+    } else {
+      document.documentElement.classList.add("quarto-light");
+      document.documentElement.classList.remove("quarto-dark");
+    }
+  })();
+</script>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -170,7 +231,7 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="MyStyles.css">
+<link rel="stylesheet" href="MyStyles_v1.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -247,13 +308,13 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
  <span class="menu-text">Foundations</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./0.Introduction.html" class="sidebar-item-text sidebar-link">
@@ -264,13 +325,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
  <span class="menu-text">Linear Models</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
@@ -299,13 +360,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
  <span class="menu-text">Generalized Linear Models</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
@@ -370,13 +431,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
  <span class="menu-text">Multilevel &amp; Varying Effects</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./15. Varying intercepts.html" class="sidebar-item-text sidebar-link">
@@ -411,13 +472,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
  <span class="menu-text">Measurement</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./20. Measuring error.html" class="sidebar-item-text sidebar-link">
@@ -469,13 +530,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
  <span class="menu-text">Networks models</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network model.html" class="sidebar-item-text sidebar-link">
@@ -510,13 +571,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
  <span class="menu-text">Social transmission</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./31. Network-Based Diffusion Analysis.html" class="sidebar-item-text sidebar-link">
@@ -533,13 +594,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
  <span class="menu-text">Bayesian Neural Networks (BNN)</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./33. BNN.html" class="sidebar-item-text sidebar-link">
@@ -1536,6 +1597,34 @@ An activation function is a nonlinear transformation applied to the pre-activati
     });
 </script>
 <script>
+  // Synchronize body theme class to html/document element for root scrollbar styling
+  function syncThemeClass() {
+    const isDark = document.body.classList.contains('quarto-dark');
+    document.documentElement.classList.toggle('quarto-dark', isDark);
+    document.documentElement.classList.toggle('quarto-light', !isDark);
+  }
+  
+  if (document.body) {
+    syncThemeClass();
+  }
+  document.addEventListener("DOMContentLoaded", syncThemeClass);
+  
+  const themeObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        syncThemeClass();
+      }
+    });
+  });
+  
+  if (document.body) {
+    themeObserver.observe(document.body, { attributes: true });
+  } else {
+    document.addEventListener("DOMContentLoaded", function() {
+      themeObserver.observe(document.body, { attributes: true });
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function() {
     // Set the global if Quarto respects it
     window.quartoDisableCodeFolding = true;
@@ -1550,6 +1639,117 @@ An activation function is a nonlinear transformation applied to the pre-activati
     `;
     document.head.appendChild(style);
   });
+
+  // Dynamic sidebar folding: fold everything except the current and NEXT section with smooth transitions
+  (function() {
+    function adjustSidebarFolding(useTransition) {
+      const sidebar = document.querySelector('#quarto-sidebar');
+      if (!sidebar) return;
+
+      const sections = Array.from(sidebar.querySelectorAll('li.sidebar-item-section'));
+      if (sections.length === 0) return;
+
+      // Find the active link
+      const activeLink = sidebar.querySelector('a.active');
+      let currentSectionLi = null;
+      if (activeLink) {
+        currentSectionLi = activeLink.closest('li.sidebar-item-section');
+      }
+
+      // Determine the index of the current section
+      const currentIndex = currentSectionLi ? sections.indexOf(currentSectionLi) : -1;
+
+      sections.forEach((sectionLi, index) => {
+        const shouldOpen = (currentIndex !== -1 && (index === currentIndex || index === currentIndex + 1));
+        
+        const ul = sectionLi.querySelector('ul.sidebar-section');
+        if (ul) {
+          if (useTransition && window.bootstrap && window.bootstrap.Collapse) {
+            try {
+              const bsCollapse = bootstrap.Collapse.getOrCreateInstance(ul, { toggle: false });
+              if (shouldOpen) {
+                bsCollapse.show();
+              } else {
+                bsCollapse.hide();
+              }
+            } catch (e) {
+              toggleDOMDirectly(ul, shouldOpen);
+              toggleTogglesDirectly(sectionLi, shouldOpen);
+            }
+          } else {
+            toggleDOMDirectly(ul, shouldOpen);
+            toggleTogglesDirectly(sectionLi, shouldOpen);
+          }
+        }
+      });
+    }
+
+    function toggleDOMDirectly(ul, shouldOpen) {
+      if (shouldOpen) {
+        ul.classList.add('show');
+      } else {
+        ul.classList.remove('show');
+      }
+    }
+
+    function toggleTogglesDirectly(sectionLi, shouldOpen) {
+      const toggles = sectionLi.querySelectorAll('[data-bs-toggle="collapse"]');
+      toggles.forEach(toggle => {
+        toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+        if (!shouldOpen) {
+          toggle.classList.add('collapsed');
+        } else {
+          toggle.classList.remove('collapsed');
+        }
+      });
+    }
+
+    // Save the current active section index before leaving the page
+    window.addEventListener('beforeunload', function() {
+      const activeLink = document.querySelector('#quarto-sidebar a.active');
+      if (activeLink) {
+        const currentSectionLi = activeLink.closest('li.sidebar-item-section');
+        const sections = Array.from(document.querySelectorAll('#quarto-sidebar li.sidebar-item-section'));
+        const currentIndex = sections.indexOf(currentSectionLi);
+        if (currentIndex !== -1) {
+          sessionStorage.setItem('prevActiveSectionIndex', currentIndex);
+        }
+      }
+    });
+
+    // Helper to restore previous page's sidebar state instantly before DOMContentLoaded/paint
+    function restorePreviousSidebarState() {
+      const prevActiveIndexStr = sessionStorage.getItem('prevActiveSectionIndex');
+      if (prevActiveIndexStr !== null) {
+        const prevActiveIndex = parseInt(prevActiveIndexStr, 10);
+        const sidebar = document.querySelector('#quarto-sidebar');
+        if (!sidebar) return;
+        
+        const sections = Array.from(sidebar.querySelectorAll('li.sidebar-item-section'));
+        sections.forEach((sectionLi, index) => {
+          const shouldStartOpen = (index === prevActiveIndex || index === prevActiveIndex + 1);
+          const ul = sectionLi.querySelector('ul.sidebar-section');
+          if (ul) {
+            toggleDOMDirectly(ul, shouldStartOpen);
+          }
+          toggleTogglesDirectly(sectionLi, shouldStartOpen);
+        });
+      }
+    }
+
+    // Try restoring immediately if the DOM elements are already available
+    restorePreviousSidebarState();
+
+    // Trigger smooth sliding folding animation shortly after DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Restore again here just in case the elements weren't loaded when the script parsed
+      restorePreviousSidebarState();
+      
+      setTimeout(function() {
+        adjustSidebarFolding(true);
+      }, 50);
+    });
+  })();
 </script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

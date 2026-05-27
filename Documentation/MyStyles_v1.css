@@ -151,16 +151,108 @@ GENERAL SETUP & LAYOUT (No changes)
   margin: 0;
 }
 
-/* Sidebar Level 1 styling: Light Mode (Default) */
+/* Sidebar Level 1 styling: Default / Dark Mode */
 .sidebar-item-section > .sidebar-item-container > .sidebar-item-text,
 .sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle {
+  color: #B58900 !important;
+}
+
+/* Sidebar Level 1 styling: Light Mode Overrides */
+body.quarto-light .sidebar-item-section > .sidebar-item-container > .sidebar-item-text,
+body.quarto-light .sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle,
+html.quarto-light .sidebar-item-section > .sidebar-item-container > .sidebar-item-text,
+html.quarto-light .sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle,
+[data-bs-theme="light"] .sidebar-item-section > .sidebar-item-container > .sidebar-item-text,
+[data-bs-theme="light"] .sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle {
   color: #0D6EFD !important;
 }
 
-/* Sidebar Level 1 styling: Dark Mode Overrides */
-[data-bs-theme="dark"] .sidebar-item-section > .sidebar-item-container > .sidebar-item-text,
-[data-bs-theme="dark"] .sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle,
-body.quarto-dark .sidebar-item-section > .sidebar-item-container > .sidebar-item-text,
-body.quarto-dark .sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle {
-  color: #B58900 !important;
+/*
+==================================================================
+5. PREMIUM CUSTOM SCROLLBARS (Sleek & Minimal)
+==================================================================
+*/
+
+/* WebKit-based browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+/* Default / Dark Mode scrollbar styling - solid brand yellow #B58900 */
+::-webkit-scrollbar-thumb {
+  background: #B58900 !important;
+  border-radius: 10px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B58900 !important;
+}
+
+/* Light Mode scrollbar styling overrides - solid brand blue #0D6EFD */
+body.quarto-light::-webkit-scrollbar-thumb,
+body.quarto-light ::-webkit-scrollbar-thumb,
+html.quarto-light::-webkit-scrollbar-thumb,
+html.quarto-light ::-webkit-scrollbar-thumb,
+[data-bs-theme="light"]::-webkit-scrollbar-thumb,
+[data-bs-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #0D6EFD !important;
+  border-radius: 10px !important;
+}
+
+body.quarto-light::-webkit-scrollbar-thumb:hover,
+body.quarto-light ::-webkit-scrollbar-thumb:hover,
+html.quarto-light::-webkit-scrollbar-thumb:hover,
+html.quarto-light ::-webkit-scrollbar-thumb:hover,
+[data-bs-theme="light"]::-webkit-scrollbar-thumb:hover,
+[data-bs-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #0D6EFD !important;
+}
+
+/* Firefox compatibility - Default (Dark Mode) yellow */
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: #B58900 transparent !important;
+}
+
+html, body {
+  scrollbar-width: thin !important;
+  scrollbar-color: #B58900 transparent !important;
+}
+
+/* Firefox compatibility - Light Mode blue overrides */
+body.quarto-light,
+body.quarto-light *,
+html.quarto-light,
+html.quarto-light *,
+[data-bs-theme="light"],
+[data-bs-theme="light"] * {
+  scrollbar-color: #0D6EFD transparent !important;
+}
+
+/* Premium Sidebar Collapse Transition Override (Ultra-smooth Ease-Out Expo curve) */
+#quarto-sidebar .collapsing {
+  transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Premium Content & TOC Page Load Animations (Cohesive Fade & Slide Up) */
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#quarto-document-content,
+#TOC {
+  animation: contentFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
 }

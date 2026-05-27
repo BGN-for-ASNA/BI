@@ -164,3 +164,70 @@ body.quarto-dark .sidebar-item-section > .sidebar-item-container > .sidebar-item
 body.quarto-dark .sidebar-item-section > .sidebar-item-container > .sidebar-item-toggle {
   color: #B58900 !important;
 }
+
+/*
+==================================================================
+5. PREMIUM CUSTOM SCROLLBARS (Sleek & Minimal)
+==================================================================
+*/
+
+/* WebKit-based browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+/* Light Mode (Default) scrollbar styling - solid brand blue */
+::-webkit-scrollbar-thumb {
+  background: #0D6EFD !important;
+  border-radius: 10px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0D6EFD !important;
+}
+
+/* Dark Mode scrollbar styling - solid brand yellow #B58900 */
+body.quarto-dark::-webkit-scrollbar-thumb,
+body.quarto-dark ::-webkit-scrollbar-thumb,
+html.quarto-dark::-webkit-scrollbar-thumb,
+html.quarto-dark ::-webkit-scrollbar-thumb,
+[data-bs-theme="dark"]::-webkit-scrollbar-thumb,
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #B58900 !important;
+  border-radius: 10px !important;
+}
+
+body.quarto-dark::-webkit-scrollbar-thumb:hover,
+body.quarto-dark ::-webkit-scrollbar-thumb:hover,
+html.quarto-dark::-webkit-scrollbar-thumb:hover,
+html.quarto-dark ::-webkit-scrollbar-thumb:hover,
+[data-bs-theme="dark"]::-webkit-scrollbar-thumb:hover,
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #B58900 !important;
+}
+
+/* Firefox compatibility - Default (Light Mode) blue */
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: #0D6EFD transparent !important;
+}
+
+html, body {
+  scrollbar-width: thin !important;
+  scrollbar-color: #0D6EFD transparent !important;
+}
+
+/* Firefox compatibility - Dark Mode yellow overrides */
+body.quarto-dark,
+body.quarto-dark *,
+html.quarto-dark,
+html.quarto-dark *,
+[data-bs-theme="dark"],
+[data-bs-theme="dark"] * {
+  scrollbar-color: #B58900 transparent !important;
+}

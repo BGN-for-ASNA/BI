@@ -315,6 +315,92 @@ class Neteffect(array_manip):
         b = dist.normal(mu_ij, b_ij_sd, sample=sample, name=f'b_{name}')
         return Neteffect.block_prior_to_edglelist(group, b)
 
+    # BISoN edge-weight builtins -----------------------------------------------
+
+    def edge_weights(self, num_edges, prior_mu=0.0, prior_sigma=2.5,
+                     partial_pooling=True, sample=False, name='edge_weight'):
+        """Sample edge weight parameters for BISoN-style dyadic inference.
+
+        Args:
+            num_edges (int): Number of unique dyads/edges.
+            prior_mu (float): Prior mean on logit/log scale. Defaults to 0.0.
+            prior_sigma (float): Prior SD (direct) or half-normal scale (partial pooling).
+                Defaults to 2.5.
+            partial_pooling (bool): If True, uses non-centered parameterization with a shared
+                sigma hyperprior — decouples edge_sigma from edge geometry for better mixing.
+                Defaults to True.
+            sample (bool): Draw from prior (DGP mode) vs declare latent variable. Defaults to False.
+            name (str): Base name for sampled sites. Defaults to 'edge_weight'.
+
+        Returns:
+            jax array: Edge weight values of shape (num_edges,).
+        """
+        if partial_pooling:
+            edge_sigma = dist.half_normal(prior_sigma, name=f'{name}_sigma', sample=sample)
+            edge_raw   = dist.normal(0, 1, shape=(num_edges,), name=name, sample=sample)
+            return prior_mu + edge_sigma * edge_raw
+        else:
+            return dist.normal(prior_mu, prior_sigma, shape=(num_edges,), name=name, sample=sample)
+
+    @staticmethod
+    def nodal_fixed_effects(design_fixed, num_fixed, prior_mu=0.0, prior_sigma=2.5,
+                             sample=False, name='beta_fixed'):
+        """Sample fixed nodal effects and return their predictor contribution.
+
+        Args:
+            design_fixed (jax array): Design matrix of shape (num_rows, num_fixed).
+            num_fixed (int): Number of fixed predictors.
+            prior_mu (float): Prior mean for coefficients. Defaults to 0.0.
+            prior_sigma (float): Prior SD for coefficients. Defaults to 2.5.
+            sample (bool): Draw from prior (DGP mode) vs declare latent variable. Defaults to False.
+            name (str): Name for the sampled site. Defaults to 'beta_fixed'.
+
+        Returns:
+            jax array: Predictor contribution of shape (num_rows,).
+        """
+        beta = dist.normal(prior_mu, prior_sigma, shape=(num_fixed,), name=name, sample=sample)
+        return jnp.dot(design_fixed, beta)
+
+    @staticmethod
+    def nodal_random_effects(design_random, random_group_index, num_random, num_random_groups,
+                              prior_mean_mu=0.0, prior_mean_sigma=1.0, prior_std_sigma=1.0,
+                              centered=False, sample=False, name='beta_random'):
+        """Sample hierarchical random nodal effects and return predictor contribution.
+
+        Args:
+            design_random (jax array): Design matrix of shape (num_rows, num_random).
+            random_group_index (jax int array): 1-based group membership per random effect,
+                shape (num_random,).
+            num_random (int): Number of random effect levels (e.g. number of nodes).
+            num_random_groups (int): Number of groups (e.g. sex categories).
+            prior_mean_mu (float): Prior mean for group-level means. Defaults to 0.0.
+            prior_mean_sigma (float): Prior SD for group-level means. Defaults to 1.0.
+            prior_std_sigma (float): Half-normal scale for group-level SDs. Defaults to 1.0.
+            centered (bool): Use centered parameterization. Preferred for undirected networks
+                where u_i + u_j shift non-identifiability causes non-centered mode-switching.
+                Non-centered (default) is better for directed networks. Defaults to False.
+            sample (bool): Draw from prior (DGP mode) vs declare latent variable. Defaults to False.
+            name (str): Base name for sampled sites. Defaults to 'beta_random'.
+
+        Returns:
+            jax array: Predictor contribution of shape (num_rows,).
+        """
+        group_idx_0 = random_group_index - 1
+        group_mu    = dist.normal(prior_mean_mu, prior_mean_sigma, shape=(num_random_groups,),
+                                   name=f'{name}_group_mu', sample=sample)
+        group_sigma = dist.half_normal(prior_std_sigma, shape=(num_random_groups,),
+                                        name=f'{name}_group_sigma', sample=sample)
+        if centered:
+            # Sample actual effects directly — avoids mode-switching on the u_i+u_j shift ridge
+            # in undirected networks. Posterior for `name` is the actual random effect value.
+            beta = dist.normal(group_mu[group_idx_0], group_sigma[group_idx_0],
+                               shape=(num_random,), name=name, sample=sample)
+            return jnp.dot(design_random, beta)
+        else:
+            beta_raw    = dist.normal(0, 1, shape=(num_random,), name=name, sample=sample)
+            beta_actual = group_mu[group_idx_0] + group_sigma[group_idx_0] * beta_raw
+            return jnp.dot(design_random, beta_actual)
+
     @staticmethod
     @partial(jax.jit, static_argnums=(1,))
     def block_build_mu_ij(N_by_group, N_group):

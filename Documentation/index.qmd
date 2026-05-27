@@ -2,7 +2,7 @@
 title: ""
 format:
   html:
-    css: IndexStyle.css
+    css: IndexStyle_v1.css
     page-layout: full
     toc: true
     toc-location: right
@@ -59,7 +59,7 @@ listing:
 
 ::: {.panel .welcome-panel}
 
-# <span class="text-primary">Welcome to Bayesian Inference (BI)</span>
+# Welcome to Bayesian Inference (BI)
 
 ## An open-source library for Python, R and Julia
 
@@ -244,7 +244,7 @@ m.dist.normal( 0, 1, name = 'a', shape=(100,2, 4), sample = True, to_jax = False
 :::
 
 
-# <span class="text-primary" id="gallery">Gallery</span>
+# Gallery {#gallery}
 
 
 <!-- JS to detect when the gallery is on screen -->
@@ -266,11 +266,10 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       });
     },
-    { 
-      // Fire as soon as 1 pixel of the gallery is visible
+    {
+      // Only trigger when the gallery grid is substantially in the viewport
       threshold: 0,
-      // Optional: expand the hit area slightly so it opens just before scrolling hits it
-      rootMargin: "50px 0px 50px 0px" 
+      rootMargin: "-150px 0px -150px 0px"
     }
   );
 
