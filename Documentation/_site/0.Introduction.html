@@ -104,6 +104,67 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<!-- header-scripts.html -->
+<script>
+  (function() {
+    const isFileUrl = () => window.location.protocol === 'file:';
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : "alternate"; // Default to dark/alternate
+      } else {
+        return "alternate";
+      }
+    };
+    
+    const alternate = (getColorSchemeSentinel() === "alternate");
+    
+    if (alternate) {
+      // Instantly add dark classes to prevent FOUC (flash of unstyled content)
+      document.documentElement.classList.add("quarto-dark");
+      document.documentElement.classList.remove("quarto-light");
+      
+      // Function to instantly swap a stylesheet node to dark
+      const makeNodeDark = (node) => {
+        if (node.tagName === 'LINK' && node.classList.contains('quarto-color-alternate')) {
+          node.removeAttribute('disabled');
+          const id = node.id;
+          if (id) {
+            const lightSib = document.querySelector(`link.quarto-color-scheme[id="${id}"]:not(.quarto-color-alternate)`);
+            if (lightSib) {
+              lightSib.setAttribute('disabled', 'true');
+            }
+          }
+        }
+      };
+
+      // Check already parsed nodes in head
+      if (document.head) {
+        document.head.querySelectorAll('link.quarto-color-alternate').forEach(makeNodeDark);
+      }
+
+      // Set up MutationObserver to catch nodes appended later in head
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          mutation.addedNodes.forEach(makeNodeDark);
+        });
+      });
+      
+      // Wait for head to exist or observe documentElement if head is loading
+      const target = document.head || document.documentElement;
+      observer.observe(target, { childList: true, subtree: true });
+      
+      // Clean up observer and run final safety check on DOMContentLoaded
+      document.addEventListener("DOMContentLoaded", function() {
+        observer.disconnect();
+        document.querySelectorAll('link.quarto-color-alternate').forEach(makeNodeDark);
+      });
+    } else {
+      document.documentElement.classList.add("quarto-light");
+      document.documentElement.classList.remove("quarto-dark");
+    }
+  })();
+</script>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -149,7 +210,7 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="MyStyles.css">
+<link rel="stylesheet" href="MyStyles_v1.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -243,13 +304,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
  <span class="menu-text">Linear Models</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./1. Linear Regression for continuous variable.html" class="sidebar-item-text sidebar-link">
@@ -278,13 +339,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
  <span class="menu-text">Generalized Linear Models</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./5. Binomial model.html" class="sidebar-item-text sidebar-link">
@@ -349,13 +410,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
  <span class="menu-text">Multilevel &amp; Varying Effects</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./15. Varying intercepts.html" class="sidebar-item-text sidebar-link">
@@ -390,13 +451,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
  <span class="menu-text">Measurement</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./20. Measuring error.html" class="sidebar-item-text sidebar-link">
@@ -413,13 +474,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
  <span class="menu-text">Latent Variables &amp; Clusters</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./22. Latent variable.html" class="sidebar-item-text sidebar-link">
@@ -448,13 +509,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
  <span class="menu-text">Networks models</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./26. Network model.html" class="sidebar-item-text sidebar-link">
@@ -489,13 +550,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
  <span class="menu-text">Social transmission</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./31. Network-Based Diffusion Analysis.html" class="sidebar-item-text sidebar-link">
@@ -512,13 +573,13 @@ window.Quarto = {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
  <span class="menu-text">Bayesian Neural Networks (BNN)</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./33. BNN.html" class="sidebar-item-text sidebar-link">
@@ -702,7 +763,7 @@ Y \sim \text{Normal}(\mu, \sigma)
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="a3dd140e" class="cell" data-execution_count="1">
+<div id="3d2e0b11" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
@@ -723,59 +784,59 @@ Y \sim \text{Normal}(\mu, \sigma)
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name <span class="op">=</span> <span class="st">'sigma'</span>, shape <span class="op">=</span> (<span class="dv">1</span>,))</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(alpha <span class="op">+</span> beta <span class="op">*</span> X, sigma, obs<span class="op">=</span>Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>BI v 0.0.26 package loaded</code></pre>
+</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/sosa/work/3.12venv/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning:
-
-IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
-</code></pre>
+<pre><code>E0525 12:04:44.841991  539550 cuda_dnn.cc:523] Loaded runtime CuDNN library: 9.1.0 but source was compiled with: 9.8.0.  CuDNN library needs to have matching major version and equal or higher minor version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.
+E0525 12:04:44.844942  539550 cuda_dnn.cc:523] Loaded runtime CuDNN library: 9.1.0 but source was compiled with: 9.8.0.  CuDNN library needs to have matching major version and equal or higher minor version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>BI v 0.0.45 package loaded
-jax.local_device_count 32</code></pre>
+<pre><code>jax.local_device_count 32</code></pre>
 </div>
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">"cpu"</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">=</span> <span class="fl">2.5</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">=</span> <span class="fl">0.5</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">=</span> <span class="fl">1.0</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>X <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">sample =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(alpha <span class="sc">+</span> beta <span class="sc">*</span> X, sigma, <span class="at">sample =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="ot">=</span> <span class="fu">list</span>(<span class="at">X=</span>X, <span class="at">Y=</span>Y)</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y){   </span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'alpha'</span>, <span class="at">shape=</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'beta'</span>, <span class="at">shape=</span> <span class="fu">c</span>(<span class="dv">1</span>))   </span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    sigma <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'sigma'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bi.dist.normal</span>(alpha <span class="sc">+</span> beta <span class="sc">*</span> X, sigma, <span class="at">obs=</span>Y)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(mode)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">"cpu"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">=</span> <span class="fl">2.5</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">=</span> <span class="fl">0.5</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">=</span> <span class="fl">1.0</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>X <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">sample =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(alpha <span class="sc">+</span> beta <span class="sc">*</span> X, sigma, <span class="at">sample =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="ot">=</span> <span class="fu">list</span>(<span class="at">X=</span>X, <span class="at">Y=</span>Y)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y){   </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'alpha'</span>, <span class="at">shape=</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>( <span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'beta'</span>, <span class="at">shape=</span> <span class="fu">c</span>(<span class="dv">1</span>))   </span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    sigma <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'sigma'</span>, <span class="at">shape =</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bi.dist.normal</span>(alpha <span class="sc">+</span> beta <span class="sc">*</span> X, sigma, <span class="at">obs=</span>Y)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(mode)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>beta <span class="op">=</span> <span class="fl">2.5</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="fl">1.0</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, sample <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> m.dist.<span class="fu">normal</span>(alpha <span class="op">+</span> beta <span class="op">*</span> X, sigma, sample <span class="op">=</span> <span class="cn">true</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="fu">Dict</span>(<span class="st">"X"</span> <span class="op">=&gt;</span> X, <span class="st">"Y"</span> <span class="op">=&gt;</span> Y)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(X, Y)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, name<span class="op">=</span><span class="st">"alpha"</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, name<span class="op">=</span><span class="st">"beta"</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name<span class="op">=</span><span class="st">"sigma"</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(alpha <span class="op">+</span> beta <span class="op">*</span> X, sigma, obs<span class="op">=</span>Y)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>beta <span class="op">=</span> <span class="fl">2.5</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, sample <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> m.dist.<span class="fu">normal</span>(alpha <span class="op">+</span> beta <span class="op">*</span> X, sigma, sample <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> <span class="fu">Dict</span>(<span class="st">"X"</span> <span class="op">=&gt;</span> X, <span class="st">"Y"</span> <span class="op">=&gt;</span> Y)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(X, Y)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, name<span class="op">=</span><span class="st">"alpha"</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, name<span class="op">=</span><span class="st">"beta"</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name<span class="op">=</span><span class="st">"sigma"</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(alpha <span class="op">+</span> beta <span class="op">*</span> X, sigma, obs<span class="op">=</span>Y)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -1532,6 +1593,34 @@ An activation function is a nonlinear transformation applied to the pre-activati
     });
 </script>
 <script>
+  // Synchronize body theme class to html/document element for root scrollbar styling
+  function syncThemeClass() {
+    const isDark = document.body.classList.contains('quarto-dark');
+    document.documentElement.classList.toggle('quarto-dark', isDark);
+    document.documentElement.classList.toggle('quarto-light', !isDark);
+  }
+  
+  if (document.body) {
+    syncThemeClass();
+  }
+  document.addEventListener("DOMContentLoaded", syncThemeClass);
+  
+  const themeObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        syncThemeClass();
+      }
+    });
+  });
+  
+  if (document.body) {
+    themeObserver.observe(document.body, { attributes: true });
+  } else {
+    document.addEventListener("DOMContentLoaded", function() {
+      themeObserver.observe(document.body, { attributes: true });
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function() {
     // Set the global if Quarto respects it
     window.quartoDisableCodeFolding = true;
@@ -1546,6 +1635,117 @@ An activation function is a nonlinear transformation applied to the pre-activati
     `;
     document.head.appendChild(style);
   });
+
+  // Dynamic sidebar folding: fold everything except the current and NEXT section with smooth transitions
+  (function() {
+    function adjustSidebarFolding(useTransition) {
+      const sidebar = document.querySelector('#quarto-sidebar');
+      if (!sidebar) return;
+
+      const sections = Array.from(sidebar.querySelectorAll('li.sidebar-item-section'));
+      if (sections.length === 0) return;
+
+      // Find the active link
+      const activeLink = sidebar.querySelector('a.active');
+      let currentSectionLi = null;
+      if (activeLink) {
+        currentSectionLi = activeLink.closest('li.sidebar-item-section');
+      }
+
+      // Determine the index of the current section
+      const currentIndex = currentSectionLi ? sections.indexOf(currentSectionLi) : -1;
+
+      sections.forEach((sectionLi, index) => {
+        const shouldOpen = (currentIndex !== -1 && (index === currentIndex || index === currentIndex + 1));
+        
+        const ul = sectionLi.querySelector('ul.sidebar-section');
+        if (ul) {
+          if (useTransition && window.bootstrap && window.bootstrap.Collapse) {
+            try {
+              const bsCollapse = bootstrap.Collapse.getOrCreateInstance(ul, { toggle: false });
+              if (shouldOpen) {
+                bsCollapse.show();
+              } else {
+                bsCollapse.hide();
+              }
+            } catch (e) {
+              toggleDOMDirectly(ul, shouldOpen);
+              toggleTogglesDirectly(sectionLi, shouldOpen);
+            }
+          } else {
+            toggleDOMDirectly(ul, shouldOpen);
+            toggleTogglesDirectly(sectionLi, shouldOpen);
+          }
+        }
+      });
+    }
+
+    function toggleDOMDirectly(ul, shouldOpen) {
+      if (shouldOpen) {
+        ul.classList.add('show');
+      } else {
+        ul.classList.remove('show');
+      }
+    }
+
+    function toggleTogglesDirectly(sectionLi, shouldOpen) {
+      const toggles = sectionLi.querySelectorAll('[data-bs-toggle="collapse"]');
+      toggles.forEach(toggle => {
+        toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+        if (!shouldOpen) {
+          toggle.classList.add('collapsed');
+        } else {
+          toggle.classList.remove('collapsed');
+        }
+      });
+    }
+
+    // Save the current active section index before leaving the page
+    window.addEventListener('beforeunload', function() {
+      const activeLink = document.querySelector('#quarto-sidebar a.active');
+      if (activeLink) {
+        const currentSectionLi = activeLink.closest('li.sidebar-item-section');
+        const sections = Array.from(document.querySelectorAll('#quarto-sidebar li.sidebar-item-section'));
+        const currentIndex = sections.indexOf(currentSectionLi);
+        if (currentIndex !== -1) {
+          sessionStorage.setItem('prevActiveSectionIndex', currentIndex);
+        }
+      }
+    });
+
+    // Helper to restore previous page's sidebar state instantly before DOMContentLoaded/paint
+    function restorePreviousSidebarState() {
+      const prevActiveIndexStr = sessionStorage.getItem('prevActiveSectionIndex');
+      if (prevActiveIndexStr !== null) {
+        const prevActiveIndex = parseInt(prevActiveIndexStr, 10);
+        const sidebar = document.querySelector('#quarto-sidebar');
+        if (!sidebar) return;
+        
+        const sections = Array.from(sidebar.querySelectorAll('li.sidebar-item-section'));
+        sections.forEach((sectionLi, index) => {
+          const shouldStartOpen = (index === prevActiveIndex || index === prevActiveIndex + 1);
+          const ul = sectionLi.querySelector('ul.sidebar-section');
+          if (ul) {
+            toggleDOMDirectly(ul, shouldStartOpen);
+          }
+          toggleTogglesDirectly(sectionLi, shouldStartOpen);
+        });
+      }
+    }
+
+    // Try restoring immediately if the DOM elements are already available
+    restorePreviousSidebarState();
+
+    // Trigger smooth sliding folding animation shortly after DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Restore again here just in case the elements weren't loaded when the script parsed
+      restorePreviousSidebarState();
+      
+      setTimeout(function() {
+        adjustSidebarFolding(true);
+      }, 50);
+    });
+  })();
 </script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

@@ -38,7 +38,7 @@ website:
   sidebar:
     - title: "Bayesian Inference (BI)"
       style: "floating" # Keeps sidebar pinned
-      collapse-level: 3 # Starts with everything expanded or easy to toggle
+      collapse-level: 1 # Starts with everything collapsed by default
       contents:
         - section: "Foundations"
           contents:
@@ -111,7 +111,7 @@ website:
         - api_diag.qmd
 
     - id: start
-      collapse-level: 3
+      collapse-level: 1
       title: "Get started"
       contents:
         - section: "Installation"
@@ -137,7 +137,7 @@ format:
     theme:       
       dark: solar
       light: Morph
-    css: MyStyles.css
+    css: MyStyles_v1.css
     code-copy: true
     highlight-style: monokai
     toc: true
@@ -148,6 +148,8 @@ format:
     code-fold: show
     code-overflow: wrap
     code-tools: false
+    include-in-header:
+      - header-scripts.html
     include-after-body: 
       - tooltip-scripts.html
       - disable-codefold.html
