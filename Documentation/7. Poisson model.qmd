@@ -30,7 +30,7 @@ This is a special shape of the binomial distribution; it is useful because it mo
 :::
 
 ## Example
-Below is an example code snippet demonstrating a Bayesian Poisson model using the Bayesian Inference (BI) package. Data consist of:
+Below is an example code snippet demonstrating a Bayesian Poisson model using the BayesForge (BF) package. Data consist of:
 
 1) A continuous dependent variable *total_tools*, which represents the number of tools produced by a civilization.
 
@@ -44,10 +44,10 @@ The goal is to estimate the production of tools based on population size, accoun
 ::: {.panel-tabset group="language"}
 ### Python
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # import data ------------------------------------------------
 # Import
@@ -72,10 +72,10 @@ m.summary()
 
 ### R
 ```R
-library(BayesianInference)
+library(BayesForge)
 
 # Setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 
 # import data ------------------------------------------------
 m$data(m$load$kline(only_path = T), sep=';')
@@ -86,8 +86,8 @@ m$data_to_model(list('total_tools', 'population', 'cid' )) # Send to model (conv
 # Define model ------------------------------------------------
 model <- function(total_tools, population, cid){
   # Parameter prior distributions
-  alpha = bi.dist.normal(3, 0.5, name='alpha', shape = c(2))
-  beta = bi.dist.normal(0, 0.2, name='beta', shape = c(2))
+  alpha = bf.dist.normal(3, 0.5, name='alpha', shape = c(2))
+  beta = bf.dist.normal(0, 0.2, name='beta', shape = c(2))
   l = jnp$exp(alpha[cid] + beta[cid]*population)
   # Likelihood
   m.dist.poisson(l, obs=total_tools)
@@ -103,10 +103,10 @@ m$summary() # Get posterior distribution
 
 ### Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -116,7 +116,7 @@ m.scale(["population"]) # Normalize
 m.df["cid"] = m.df.contact.eq("high").astype("int")
 
 # Define model ------------------------------------------------
-@BI function model(cid, population, total_tools)
+@BF function model(cid, population, total_tools)
     a = m.dist.normal(3, 0.5, shape= (2,), name="a")
     b = m.dist.normal(0, 0.2, shape=(2,), name="b")
     l = jnp.exp(a[cid] + b[cid]*population)

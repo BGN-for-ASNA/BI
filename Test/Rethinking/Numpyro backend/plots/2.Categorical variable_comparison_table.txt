@@ -1,9 +1,29 @@
 Comparison Table for 2.Categorical variable
 ============================================================
-Parameter BI Mean Stan Mean    Diff KL Div
-     a[1]  0.3543    0.3490  0.0053 0.0533
-     a[3] -0.5455   -0.5445 -0.0010 0.0621
-     a[0] -0.4604   -0.4667  0.0063 0.0866
-        s  0.8001    0.8032 -0.0031 0.0557
-     a[2]  0.6391    0.6435 -0.0043 0.0844
+Parameter BF Mean Stan Mean    Diff KL Div
+     a[0] -0.4622   -0.4677  0.0055 0.0694
+     a[1]  0.3544    0.3462  0.0082 0.0654
+        s  0.8002    0.8016 -0.0014 0.0762
+     a[2]  0.6333    0.6329  0.0003 0.0546
+     a[3] -0.5463   -0.5484  0.0021 0.1091
 ============================================================
+
+================================================================
+WAIC cross-check  -  2.Categorical variable
+================================================================
+[A] NumPyro direct (numpyro.infer.log_likelihood)
+      elpd_waic = -36.335998    p_waic = 3.570661
+[B] ArviZ round-trip (az.from_numpyro log_likelihood group)
+      elpd_waic = -36.335998    p_waic = 3.570661
+|delta elpd_waic| = 0.000e+00      |delta p_waic| = 0.000e+00
+RESULT: PASS   (S=4000, N=29)
+----------------------------------------------------------------
+LOO cross-check  -  2.Categorical variable
+----------------------------------------------------------------
+[A'] BF native JAX PSIS-LOO (jax_diagnostics.loo)
+      elpd_loo  = -36.430622    p_loo  = 3.665285
+[B'] ArviZ az.loo (PSIS-LOO) on the same log-likelihood
+      elpd_loo  = -36.430338    p_loo  = 3.665001
+|delta elpd_loo| = 2.839e-04      |delta p_loo| = 2.839e-04
+RESULT: PASS
+================================================================

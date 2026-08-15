@@ -1,11 +1,11 @@
 """
 compare_bl_beast_equivalence.py
 ================================
-Comparing BI's latent branch lengths (bl_scale, bl_base) with BEAST-equivalent
+Comparing BF's latent branch lengths (bl_scale, bl_base) with BEAST-equivalent
 metrics (Tree Height and Total Tree Length).
 
-This script extracts node heights and total branch length from the BI posterior
-of Model 3 and Model 4 to demonstrate how BI's continuous geometric relaxation
+This script extracts node heights and total branch length from the BF posterior
+of Model 3 and Model 4 to demonstrate how BF's continuous geometric relaxation
 reclaims the geometric uncertainty of BEAST.
 """
 
@@ -54,17 +54,17 @@ def calculate_tree_metrics(branch_lengths):
     
     return total_length, tree_height
 
-# ── 2. Load BI Samples ────────────────────────────────────────────────────────
-# Note: bi_ucln_blmarg_post.csv contains 'bl_scale' as many columns if saved correctly.
+# ── 2. Load BF Samples ────────────────────────────────────────────────────────
+# Note: BF_ucln_blmarg_post.csv contains 'bl_scale' as many columns if saved correctly.
 # But my fit scripts only saved kappa/alpha/mu/sigma!
 # I need to rerun models and save 'bl_scale' samples if I want to compare them.
 
 print("Checking if branch length samples exist in the CSVs...")
 try:
-    df_m4 = pd.read_csv("Model_4_Temporal_BLMarg/bi_ucln_blmarg_post.csv")
+    df_m4 = pd.read_csv("Model_4_Temporal_BLMarg/BF_ucln_blmarg_post.csv")
     has_bl = any('bl_scale' in col for col in df_m4.columns)
     if not has_bl:
-        print("  WARNING: bi_ucln_blmarg_post.csv does not contain 'bl_scale' columns.")
+        print("  WARNING: BF_ucln_blmarg_post.csv does not contain 'bl_scale' columns.")
         print("  I need to update the fit scripts to save the latent branch lengths.")
 except:
     print("  ERROR: CSV not found.")

@@ -2,8 +2,8 @@ import os
 import subprocess
 import sys
 
-# Get the python executable from the BayesInference virtualenv
-python_exe = "/home/sebastian_sosa/.virtualenvs/BayesInference/bin/python3"
+# Get the python executable from the current environment
+python_exe = sys.executable
 
 models = [
     "1.Continuous variable.py",
@@ -31,7 +31,7 @@ if not os.path.exists(plots_dir):
 print(f"Starting execution of {len(models)} models...")
 
 env = os.environ.copy()
-env['BI_NSIM'] = os.environ.get('BI_NSIM', '10')
+env['BF_NSIM'] = os.environ.get('BF_NSIM', '10')
 
 log_file = os.path.join(script_dir, "log.txt")
 with open(log_file, "w") as f_log:

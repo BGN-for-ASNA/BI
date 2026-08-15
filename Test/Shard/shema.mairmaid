@@ -1,0 +1,37 @@
+flowchart TD
+    A["setup_device(cores=C)<br/>XLA_FORCE_HOST_PLATFORM_DEVICE_COUNT=C"] --> B["__init__: count devices<br/>build mesh + data_sharding + rep_sharding"]
+    B --> C{"BF_SHARD=1<br/>or shard=True?"}
+    C -->|no| Z["chain_method=parallel<br/>(pmap chains, data replicated)"]
+    C -->|yes| D{"mesh exists?<br/>n_devices>1"}
+    D -->|no| W["warn: no effect"] --> Z
+    D -->|yes| E["chain_method = 'vectorized'"]
+
+    E --> F{"chain_method == 'vectorized'<br/>AND data_sharding?"}
+    F -->|yes| G["_auto_shard_data(data)"]
+    G --> H{"for each array:<br/>ndim>=1 AND<br/>shape0 % n_devices == 0?"}
+    H -->|yes| I["device_put(arr, data_sharding)<br/>SHARD axis 0"]
+    H -->|no| J["pass through<br/>(replicated)"]
+    I --> K["sampler.run(**sharded_data)"]
+    J --> K
+
+    %% ---- Improvement annotations ----
+    P1["IMPROVE 1: replace divisibility guess<br/>with declarative per-array SHARD_SPEC<br/>default = replicate (always correct)"]
+    P2["IMPROVE 2: gate on explicit shard flag,<br/>NOT chain_method=='vectorized'"]
+    P3["IMPROVE 3: non-divisible -> raise/pad+mask,<br/>never silent no-op"]
+    P4["IMPROVE 4: respect existing m.shard/m.replicate;<br/>don't overwrite"]
+    P5["IMPROVE 5: drop blanket except;<br/>log shard/replicate report per array"]
+    P6["IMPROVE 6: don't mutate self.data_on_model;<br/>keep host copy independent"]
+    P7["IMPROVE 7: dyadic random effects (2,N_dyads)<br/>stay replicated -> document / shard for memory"]
+
+    P1 -.fixes silent-wrong-answer.-> H
+    P2 -.-> F
+    P3 -.-> J
+    P4 -.-> I
+    P5 -.-> G
+    P6 -.-> K
+    P7 -.-> K
+
+    classDef risk fill:#ffe0e0,stroke:#c00,color:#000;
+    classDef fix  fill:#e0ffe0,stroke:#080,color:#000;
+    class H,F,J,I risk;
+    class P1,P2,P3,P4,P5,P6,P7 fix;

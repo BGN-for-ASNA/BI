@@ -1,5 +1,5 @@
 """
-bi_phylogenetics.src
+BF_phylogenetics.src
 ====================
 VINE: Variational Inference with Node Embeddings for Bayesian Phylogenetic Inference.
 

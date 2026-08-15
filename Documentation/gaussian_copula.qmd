@@ -38,7 +38,7 @@ When applying the Gaussian copula, keep the following facts in mind:
 
 ## Example
 
-Below we demonstrate how to implement a Gaussian Copula in Python, R, and Julia, modeling a bivariate relationship. For Python, we use the BI framework to define custom marginal distributions and perform Bayesian inference.
+Below we demonstrate how to implement a Gaussian Copula in Python, R, and Julia, modeling a bivariate relationship. For Python, we use the BF framework to define custom marginal distributions and perform BayesForge.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -55,7 +55,7 @@ import numpyro.distributions as dist
 from numpyro.distributions import constraints
 from tensorflow_probability.substrates import jax as tfp
 import jax.scipy.special as jss
-from BI import bi
+from BayesForge import bf
 
 # Core parameters
 n = 1000
@@ -90,9 +90,9 @@ x_beta = stats.beta.ppf(u1, a=alpha_param, b=beta_param)
 x_poisson = stats.poisson.ppf(u2, mu=lambda_param)
 
 # -------------------------------------------------------------------
-# 2. Built-in Copula (Beta & Poisson) with BI
+# 2. Built-in Copula (Beta & Poisson) with BF
 # -------------------------------------------------------------------
-m = bi('cpu')
+m = bf('cpu')
 
 class BetaPoissonMarginal(dist.Distribution):
     """
@@ -181,21 +181,21 @@ class BetaPoissonMarginal(dist.Distribution):
         x_b = stats.beta.ppf(u1, a=np.asarray(self.alpha), b=np.asarray(self.beta))
         x_p = stats.poisson.ppf(u2, mu=np.asarray(self.lam))
         
-        # Coerce back to JAX arrays to integrate into the regular BI/JAX pipeline properly
+        # Coerce back to JAX arrays to integrate into the regular BF/JAX pipeline properly
         return jnp.stack([jnp.array(x_b), jnp.array(x_p)], axis=-1)
 
-samples_bi = m.dist.gaussian_copula(
+samples_BF = m.dist.gaussian_copula(
     marginal_dist=BetaPoissonMarginal(alpha_param, beta_param, lambda_param),
     correlation_cholesky=Sigma_chol,
     sample=True,
     shape=(n,),
     seed=seed
 )
-x_b1 = samples_bi[:, 0]
-x_b2 = samples_bi[:, 1]
+x_b1 = samples_BF[:, 0]
+x_b2 = samples_BF[:, 1]
 
 # -------------------------------------------------------------------
-# 3. Inference model with BI
+# 3. Inference model with BF
 # -------------------------------------------------------------------
 def model(x_b1, x_b2):
     alpha_est = m.dist.exponential(0.1, name='alpha_est')

@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,11 +8,11 @@ import jax
 
 model_name = "9.Beta binomial"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu')
 
 # 1. Data Loading -------------------------------------------
-data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BI", "Resources")) + os.sep
+data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BayesForge", "Resources")) + os.sep
 df = pd.read_csv(data_path + 'UCBadmit.csv', sep=';')
 df["gid"] = (df["applicant.gender"] != "male").astype(int)
 
@@ -23,19 +23,19 @@ m.data_on_model = {
     'admit': jnp.array(df.admit.values)
 }
 
-def model_bi(gid, applications, admit):
+def model_BF(gid, applications, admit):
     # Uniform prior for phi
-    phi = m.dist.uniform(0.0, 20.0, name='phi')
-    alpha = m.dist.normal(0.0, 1.5, shape=(2,), name='alpha')
+    phi = m.dist.uniform(0.0, 20.0)
+    alpha = m.dist.normal(0.0, 1.5, shape=(2,))
     theta = phi + 2.0
     pbar = jax.nn.sigmoid(alpha[gid])
     concentration1 = pbar * theta
     concentration0 = (1.0 - pbar) * theta
     m.dist.beta_binomial(total_count=applications, concentration1=concentration1, concentration0=concentration0, obs=admit)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -84,13 +84,13 @@ plot_comparaison(m, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(gid, applications, a_true, phi_true):
-    theta = float(phi_true) + 2.0
+    theta = float(np.squeeze(phi_true)) + 2.0
     pbar = jax.nn.sigmoid(a_true[gid])
     # Beta-binomial simulation
     p = np.random.beta(pbar * theta, (1.0 - pbar) * theta)
     admit_sim = np.random.binomial(applications, p)
     
-    m_rec = bi(print_devices_found=False)
+    m_rec = bf(print_devices_found=False)
     m_rec.data_on_model = {
         'gid': jnp.array(gid),
         'applications': jnp.array(applications),
@@ -98,13 +98,13 @@ def estimate(gid, applications, a_true, phi_true):
     }
     def model_rec(gid, applications, admit):
         # Match prior to simulation range
-        phi = m_rec.dist.uniform(0.0, 20.0, name='phi')
-        alpha = m_rec.dist.normal(0.0, 1.5, shape=(2,), name='alpha')
+        phi = m_rec.dist.uniform(0.0, 20.0)
+        alpha = m_rec.dist.normal(0.0, 1.5, shape=(2,))
         theta = phi + 2.0
         pbar = jax.nn.sigmoid(alpha[gid])
         m_rec.dist.beta_binomial(total_count=applications, concentration1=pbar*theta, concentration0=(1-pbar)*theta, obs=admit)
         
-    m_rec.fit(model_rec, num_samples=1000, progress_bar=False) # Increased samples for better phi identification
+    m_rec.fit(model_rec, num_samples=1000, progress_bar=False, shard=False)  # no sharding in recovery loop
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -121,7 +121,7 @@ def param_recovery(gid, applications, a_sims, phi_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 100))
+nsim_test = int(os.environ.get("BF_NSIM", 10))
 a_sims = np.random.normal(0, 1.5, size=(nsim_test, 2))
 # Wider phi range and more simulations to distinguish from binomial noise
 phi_sims = np.random.uniform(1.0, 15.0, size=(nsim_test, 1))
@@ -130,3 +130,7 @@ phi_sims = np.random.uniform(1.0, 15.0, size=(nsim_test, 1))
 gid_ext = np.tile(df.gid.values, 200)
 apps_ext = np.tile(df.applications.values, 200)
 recovery_results = param_recovery(gid_ext, apps_ext, a_sims, phi_sims, nsim=nsim_test)
+
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

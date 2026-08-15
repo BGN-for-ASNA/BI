@@ -59,7 +59,7 @@ listing:
 
 ::: {.panel .welcome-panel}
 
-# Welcome to Bayesian Inference (BI)
+# Welcome to BayesForge (BF)
 
 ## An open-source library for Python, R and Julia
 
@@ -89,7 +89,7 @@ listing:
 <div class="container">
 ## One Mental Model. Three Languages.
 
-**BI** provides a unified experience across Julia, Python, and R. Whether you work in R's formula syntax, Python's object-oriented approach, or Julia's mathematical elegance, the model logic remains consistent.
+**BF** provides a unified experience across Julia, Python, and R. Whether you work in R's formula syntax, Python's object-oriented approach, or Julia's mathematical elegance, the model logic remains consistent.
 
 
 ### Compare the Syntax
@@ -100,40 +100,40 @@ listing:
 ```python
 def model(height, weight):
     # Priors
-    sigma = bi.dist.uniform(0, 50, name='sigma', shape=(1,))
-    alpha = bi.dist.normal(178, 20, name='alpha', shape=(1,))
-    beta  = bi.dist.normal(0, 1, name='beta', shape=(1,))
+    sigma = bf.dist.uniform(0, 50, name='sigma', shape=(1,))
+    alpha = bf.dist.normal(178, 20, name='alpha', shape=(1,))
+    beta  = bf.dist.normal(0, 1, name='beta', shape=(1,))
 
     # Likelihood
     mu = alpha + beta * weight
-    bi.dist.normal(mu, sigma, obs=height)
+    bf.dist.normal(mu, sigma, obs=height)
 ```
 
 ### R Syntax
 ```r
 model <- function(height, weight){
   # Priors
-  sigma = bi.dist.uniform(0, 50, name='sigma', shape=c(1))
-  alpha = bi.dist.normal(178, 20, name='alpha', shape=c(1))
-  beta  = bi.dist.normal(0, 1, name='beta', shape=c(1))
+  sigma = bf.dist.uniform(0, 50, name='sigma', shape=c(1))
+  alpha = bf.dist.normal(178, 20, name='alpha', shape=c(1))
+  beta  = bf.dist.normal(0, 1, name='beta', shape=c(1))
 
   # Likelihood
   mu = alpha + beta * weight
-  bi.dist.normal(mu, sigma, obs=height)
+  bf.dist.normal(mu, sigma, obs=height)
 }
 ```
 
 ### Julia Syntax
 ```Julia
-@BI function model(weight, height)
+@BF function model(weight, height)
     # Priors
-    sigma = bi.dist.uniform(0, 50, name='sigma', shape=(1,))
-    alpha = bi.dist.normal(178, 20, name='alpha', shape=(1,))
-    beta  = bi.dist.normal(0, 1, name='beta', shape=(1,))
+    sigma = bf.dist.uniform(0, 50, name='sigma', shape=(1,))
+    alpha = bf.dist.normal(178, 20, name='alpha', shape=(1,))
+    beta  = bf.dist.normal(0, 1, name='beta', shape=(1,))
 
     # Likelihood
     mu = alpha + beta * weight
-    bi.dist.normal(mu, sigma, obs=height)
+    bf.dist.normal(mu, sigma, obs=height)
 end
 ```
 :::
@@ -149,10 +149,10 @@ end
 ::: {.panel-tabset}
 ### Pipeline
 ```python
-from BI import bi
+from BayesForge import bf
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu') # cpu, gpu or tpu
+m = bf(platform='cpu') # cpu, gpu or tpu
 
 # Import Data ------------------------------------------------
 m.data(data_path) 
@@ -175,9 +175,9 @@ m.diag()
 ```python
 
 def model(kcal_per_g, index_clade):
-    alpha = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'a') # shape based on the number of clades
-    beta = m.bi.dist.normal(0, 0.5, shape=(4,), name = 'b')
-    sigma = m.bi.dist.exponential( 1, name = 's')    
+    alpha = m.bf.dist.normal(0, 0.5, shape=(4,), name = 'a') # shape based on the number of clades
+    beta = m.bf.dist.normal(0, 0.5, shape=(4,), name = 'b')
+    sigma = m.bf.dist.exponential( 1, name = 's')    
     mu = a[index_clade]+b[index_clade]*mass
     m.normal(mu, s, obs=kcal_per_g)
 ```
@@ -203,8 +203,8 @@ def model(kcal_per_g, index_clade):
 #| label: model-to-latex
 #| results: hold
 #| echo: true
-from BI import bi
-m = bi(platform='cpu')
+from BayesForge import bf
+m = bf(platform='cpu')
 
 # define model ------------------------------------------------
 def model(weight, height):    
@@ -231,8 +231,8 @@ $$
 #| label: dist-visualization
 #| results: hold
 #| echo: true
-from BI import bi
-m = bi()
+from BayesForge import bf
+m = bf()
 m.dist.normal( 0, 1, name = 'a', shape=(100,2, 4), sample = True, to_jax = False).hist()
 ```
 

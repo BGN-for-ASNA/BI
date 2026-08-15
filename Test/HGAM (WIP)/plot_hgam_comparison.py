@@ -15,36 +15,36 @@ def generate_comparison():
     axes = axes.flatten()
     
     for i, model in enumerate(models):
-        data_dir = f"bi_data/{model}"
+        data_dir = f"BF_data/{model}"
         r_file = f"{data_dir}/results_r.csv"
-        bi_file = f"{data_dir}/results_bi.csv"
+        BF_file = f"{data_dir}/results_BF.csv"
         
-        if not (os.path.exists(r_file) and os.path.exists(bi_file)):
+        if not (os.path.exists(r_file) and os.path.exists(BF_file)):
             print(f"Results for {model} not found. Skipping plot.")
             continue
             
         r_res = pd.read_csv(r_file)
-        bi_res = pd.read_csv(bi_file)
+        BF_res = pd.read_csv(BF_file)
         
         # Combine
         comp = pd.DataFrame({
             'Model': model,
             'Parameter': [f"b_{j}" for j in range(len(r_res))],
             'R_Mean': r_res['coef'],
-            'BI_Mean': bi_res['bi_mean'],
-            'Difference': bi_res['bi_mean'] - r_res['coef']
+            'BF_Mean': BF_res['BF_mean'],
+            'Difference': BF_res['BF_mean'] - r_res['coef']
         })
         
         all_logs.append(comp)
         
         # Parity Plot
         ax = axes[i]
-        sns.regplot(data=comp, x='R_Mean', y='BI_Mean', ax=ax, scatter_kws={'alpha':0.5})
+        sns.regplot(data=comp, x='R_Mean', y='BF_Mean', ax=ax, scatter_kws={'alpha':0.5})
         ax.plot([comp['R_Mean'].min(), comp['R_Mean'].max()], 
                 [comp['R_Mean'].min(), comp['R_Mean'].max()], 'r--')
-        ax.set_title(f"Model {model}: R vs BI Parity")
+        ax.set_title(f"Model {model}: R vs BF Parity")
         ax.set_xlabel("R (REML) Estimate")
-        ax.set_ylabel("BI (MCMC) Mean")
+        ax.set_ylabel("BF (MCMC) Mean")
         
     # Final log
     full_log = pd.concat(all_logs)

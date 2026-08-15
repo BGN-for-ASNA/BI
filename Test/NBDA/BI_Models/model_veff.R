@@ -1,5 +1,5 @@
-# BI Model for varying-effects (veff) formulation
-bi_model_veff <- function(data) {
+# BF Model for varying-effects (veff) formulation
+BF_model_veff <- function(data) {
   # STEP 1: Setting up main factors
   log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")
   log_s_prime_mean <- m$dist$normal(-4, 2, name="log_s_prime_mean")
@@ -69,7 +69,7 @@ bi_model_veff <- function(data) {
   
   log_lik_ind <- neg_lambda_sum + log_lambda_term
   
-  # Register the resulting cumulative probabilities with BI framework
+  # Register the resulting cumulative probabilities with BF framework
   total_log_lik <- jnp$sum(log_lik_ind * data$valid_ind) 
   m$dist$unit(log_factor=total_log_lik, name="veff_lik")
 }

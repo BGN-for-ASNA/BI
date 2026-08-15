@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,8 +8,8 @@ import jax
 
 model_name = "7.Negative binomial"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu', backend='tfp')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu', backend='tfp')
 
 # 1. Data Simulation ----------------------------------------
 np.random.seed(1)
@@ -27,15 +27,15 @@ df['log_days'] = np.log(df['days'])
 m.df = df
 m.data_to_model(['y', 'log_days', 'monastery'])
 
-def model_bi(y, log_days, monastery):
+def model_BF(y, log_days, monastery):
     a = yield m.dist.normal(0, 1, name='a')
     b = yield m.dist.normal(0, 1, name='b')
     lambda_ = jnp.exp(log_days + a + b * monastery)
     yield m.dist.poisson(lambda_, obs=y)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -69,16 +69,16 @@ print("Fitting Stan model...")
 df_stan = build_stan_model(stan_code, data=data_stan, chains=4)
 
 # 3. Output Comparison ---------------------------------------
-bi_df = prepare_bi_data(m)
+BF_df = prepare_bi_data(m)
 param_map = {'a[0]': 'a', 'b[0]': 'b'}
-plot_comparaison(bi_df, df_stan, param_map=param_map, model_name=model_name)
+plot_comparaison(BF_df, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(log_days, monastery, a_true, b_true):
     lambda_sim = np.exp(log_days + a_true + b_true * monastery)
     y_sim = np.random.poisson(lambda_sim)
     
-    m_rec = bi(print_devices_found=False, backend='tfp')
+    m_rec = bf(print_devices_found=False, backend='tfp')
     m_rec.data_on_model = {
         'log_days': jnp.array(log_days),
         'monastery': jnp.array(monastery),
@@ -106,8 +106,22 @@ def param_recovery(log_days, monastery, a_sims, b_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 10))
+nsim_test = int(os.getenv('BF_NSIM', 10))
 a_sims = np.random.normal(0, 1, nsim_test)
 b_sims = np.random.normal(0, 1, nsim_test)
 
 recovery_results = param_recovery(df.log_days.values, df.monastery.values, a_sims, b_sims, nsim=nsim_test)
+
+
+# --- WAIC & LOO cross-check: native TFP vs NumPyro/ArviZ reference (same draws) ---
+# `waic_ref` is a numpyro-mode transcription of the fitted TFP model (identical
+# latent site names), used to evaluate the same posterior draws through
+# numpyro.infer.log_likelihood -- the exact machinery ArviZ uses.
+m_ref = bf(platform='cpu', print_devices_found=False)
+
+def waic_ref(y, log_days, monastery):
+    a = m_ref.dist.normal(0, 1)
+    b = m_ref.dist.normal(0, 1)
+    lambda_ = jnp.exp(log_days + a + b * monastery)
+    m_ref.dist.poisson(lambda_, obs=y)
+waic_report(m, model_name, ref_model=waic_ref, ref_kwargs={'y': m.data_on_model['y'], 'log_days': m.data_on_model['log_days'], 'monastery': m.data_on_model['monastery']})

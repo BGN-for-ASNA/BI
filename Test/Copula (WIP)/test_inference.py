@@ -5,9 +5,9 @@ from scipy import stats
 import numpy as np
 import numpyro.distributions as dist
 import numpyro.distributions.constraints as constraints
-from BI import bi
+from BayesForge import BayesForge
 
-m = bi("cpu")
+m = BF("cpu")
 seed = 123
 
 
@@ -47,15 +47,15 @@ n = 500
 Sigma = jnp.array([[1.0, 0.4], [0.4, 1.0]])
 Sigma_chol = jnp.linalg.cholesky(Sigma)
 
-samples_bi = m.dist.gaussian_copula(
+samples_BF = m.dist.gaussian_copula(
     marginal_dist=BetaPoissonMarginal(2.0, 5.0, 3.0),
     correlation_cholesky=Sigma_chol,
     sample=True,
     shape=(n,),
     seed=seed,
 )
-x_b1 = samples_bi[:, 0]
-x_b2 = samples_bi[:, 1]
+x_b1 = samples_BF[:, 0]
+x_b2 = samples_BF[:, 1]
 
 
 def model(x_b1, x_b2):

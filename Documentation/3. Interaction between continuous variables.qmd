@@ -26,15 +26,15 @@ If you have a case where you believe the effect of one independent variable depe
 :::
 
 ## Example
-Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the Bayesian Inference (BI) package. The data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption. This example is based on @mcelreath2018statistical.
+Below is example code demonstrating Bayesian regression with an interaction term between two continuous variables using the BayesForge (BF) package. The data consist of three continuous variables (temperature, humidity, energy consumption), and the goal is to estimate the effect of the interaction between temperature and humidity on energy consumption. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ### Python
 ```{python}
-from BI import bi
+from BayesForge import bf
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -63,8 +63,8 @@ m.summary()
 
 ### R
 ```R
-library(BayesianInference)
-m=importBI(platform='cpu')
+library(BayesForge)
+m=importBF(platform='cpu')
 
 # Load csv file
 m$data(m$load$tulips(only_path = T), sep = ''), sep=';')
@@ -74,11 +74,11 @@ m$data_to_model(list('blooms', 'water', 'shade')) # Send to model (convert to ja
 # Define model ------------------------------------------------
 model <- function(blooms, water,shade){
   # Parameter prior distributions
-  alpha = bi.dist.normal( 0.5, 0.25, name = 'a')
-  beta1 = bi.dist.normal( 0,  0.25, name = 'b1')
-  beta2 = bi.dist.normal(  0,  0.25, name = 'b2')
-  beta_interaction_ = bi.dist.normal(  0, 0.25, name = 'bint')
-  sigma = bi.dist.normal(0, 50, name = 's')
+  alpha = bf.dist.normal( 0.5, 0.25, name = 'a')
+  beta1 = bf.dist.normal( 0,  0.25, name = 'b1')
+  beta2 = bf.dist.normal(  0,  0.25, name = 'b2')
+  beta_interaction_ = bf.dist.normal(  0, 0.25, name = 'bint')
+  sigma = bf.dist.normal(0, 50, name = 's')
   # Likelihood
   m$normal(alpha + beta1*water + beta2*shade + beta_interaction_*water*shade, sigma, obs=blooms)
 }
@@ -94,10 +94,10 @@ m$summary() # Get posterior distributions
 
 ### Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -105,7 +105,7 @@ data_path = m.load.tulips(only_path = true)
 m.data(data_path, sep=';')
 m.scale(["blooms", "water", "shade"]) # Normalize
 # Define model ------------------------------------------------
-@BI function model(blooms,shade, water)
+@BF function model(blooms,shade, water)
     sigma = m.dist.exponential(1, name = "sigma", shape = (1,))
     bws = m.dist.normal(0, 0.25, name = "bws", shape = (1,))
     bs = m.dist.normal(0, 0.25, name = "bs", shape = (1,))

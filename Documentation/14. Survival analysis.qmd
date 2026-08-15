@@ -33,18 +33,18 @@ Key concepts include:
 
 ## Example
 
-Here’s an example of a Bayesian survival analysis using the **Bayesian Inference (BI)** package. The data come from a clinical trial of mastectomy for breast cancer. The goal is to estimate the effect of the `metastasized` covariate, coded as 0 (no metastasis) and 1 (metastasis), on the survival outcome `event` for each patient. Time is continuous and censoring is indicated by the event variable.
+Here’s an example of a Bayesian survival analysis using the **BayesForge (BF)** package. The data come from a clinical trial of mastectomy for breast cancer. The goal is to estimate the effect of the `metastasized` covariate, coded as 0 (no metastasis) and 1 (metastasis), on the survival outcome `event` for each patient. Time is continuous and censoring is indicated by the event variable.
 
 ::: {.panel-tabset group="language"}
 
 ### Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 import numpy as np
 import jax.numpy as jnp
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -98,7 +98,7 @@ m.models.survival.plot_surv()
 
 ### *Bayesian formulation*
 
-The BI survival model uses a **piecewise-constant hazard** (Poisson counting-process) approach. The continuous follow-up time is divided into $K$ fixed intervals of length $\Delta$. Each subject $i$ in interval $k$ contributes:
+The BF survival model uses a **piecewise-constant hazard** (Poisson counting-process) approach. The continuous follow-up time is divided into $K$ fixed intervals of length $\Delta$. Each subject $i$ in interval $k$ contributes:
 
 $$
 N_{ik} \sim \text{Poisson}\!\left(\mu_{ik}\right)

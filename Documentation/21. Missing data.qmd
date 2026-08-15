@@ -1,6 +1,6 @@
 ---
 title: "Handling Missing Data"
-description: "An overview of strategies for dealing with missing values in a dataset, such as imputation, using Bayesian Inference (BI)."
+description: "An overview of strategies for dealing with missing values in a dataset, such as imputation, using BayesForge (BF)."
 categories: [Imputation]
 image: "Figures/21.png"
 order: 21
@@ -34,14 +34,14 @@ From a causal inference perspective, the strategy for handling missing data hing
 
 ::: callout-note
 - **Parameters vs. Data**: In generative models, there is no philosophical distinction between "unobserved parameters" and "unobserved data". Both are simply unknowns governed by probability distributions. The likelihood of an observed data point behaves identically to the prior for an unobserved one.
-- **Imputation vs. Marginalization**: Bayesian Inference offers two primary computational strategies. **Imputation** treats each missing value as a parameter, yielding full posterior distributions for the unknowns; it is highly flexible and transparent but computationally intensive. **Marginalization** mathematically integrates over the unknowns, which is often faster but can be analytically opaque or numerically unstable for certain density functions.
-- **JAX Arrays are Immutable**: `BayesInference` uses JAX in the backend. JAX arrays do not support direct heterogeneous assignments (e.g., `y[ii_mis] = y_mis`). When splicing missing data into a larger array, you must use `.at[...].set(...)` operations.
+- **Imputation vs. Marginalization**: BayesForge offers two primary computational strategies. **Imputation** treats each missing value as a parameter, yielding full posterior distributions for the unknowns; it is highly flexible and transparent but computationally intensive. **Marginalization** mathematically integrates over the unknowns, which is often faster but can be analytically opaque or numerically unstable for certain density functions.
+- **JAX Arrays are Immutable**: `BayesForge` uses JAX in the backend. JAX arrays do not support direct heterogeneous assignments (e.g., `y[ii_mis] = y_mis`). When splicing missing data into a larger array, you must use `.at[...].set(...)` operations.
 - **Partial Knowledge**: Sometimes covariance or correlation matrices are only partially known. Instead of discarding the known parts, we only sample the unknown cells uniformly within mathematically valid positive-definite bounds and reconstruct the matrix deterministically.
 :::
 
 ## Examples
 
-Below are four typical missing data patterns translated into the **BayesInference (BI)** framework. Each example demonstrates a specific strategy discussed in the [General Principles](#general-principles) and [Considerations](#considerations) sections.
+Below are four typical missing data patterns translated into the **BayesForge (BF)** framework. Each example demonstrates a specific strategy discussed in the [General Principles](#general-principles) and [Considerations](#considerations) sections.
 
 ### 1. Simple Missing Imputation
 
@@ -51,11 +51,11 @@ This example demonstrates the core concept of **Imputation** vs. **Marginalizati
 
 ## Python
 ```python
-from BI import bi
+from BayesForge import bf
 import numpy as np
 import jax.numpy as jnp
 
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 
 def missing_data_model(y_obs, N_mis):
     mu = m.dist.normal(0, 10, name="mu")
@@ -71,8 +71,8 @@ def missing_data_model(y_obs, N_mis):
 
 ## R
 ```r
-library(BayesianInference)
-m <- importBI(platform = "cpu")
+library(BayesForge)
+m <- importBF(platform = "cpu")
 jnp <- reticulate::import("jax.numpy")
 
 missing_data_model <- function(y_obs, N_mis) {
@@ -90,13 +90,13 @@ missing_data_model <- function(y_obs, N_mis) {
 
 ## Julia
 ```julia
-using BayesianInference
+using BayesForge
 using PythonCall
 
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 jnp = pyimport("jax.numpy")
 
-@BI function missing_data_model(y_obs, N_mis)
+@BF function missing_data_model(y_obs, N_mis)
     mu = m.dist.normal(0, 10, name="mu")
     sigma = m.dist.half_normal(10, name="sigma")
     
@@ -162,7 +162,7 @@ partially_known_model <- function(y, var1, var2) {
 
 ## Julia
 ```julia
-@BI function partially_known_model(y, var1, var2)
+@BF function partially_known_model(y, var1, var2)
     max_cov = jnp.sqrt(var1 * var2)
     min_cov = -max_cov
     
@@ -225,7 +225,7 @@ sliced_missing_model <- function(y_obs, ii_obs, N_mis, ii_mis, N_total) {
 
 ## Julia
 ```julia
-@BI function sliced_missing_model(y_obs, ii_obs, N_mis, ii_mis, N_total)
+@BF function sliced_missing_model(y_obs, ii_obs, N_mis, ii_mis, N_total)
     sigma = m.dist.gamma(1, 1, name="sigma")
     y_mis = m.dist.normal(0, 10, shape=(N_mis,), name="y_mis")
     
@@ -318,7 +318,7 @@ mastectomy_survival_model <- function() {
 
 ## Julia
 ```julia
-@BI function mastectomy_survival_model()
+@BF function mastectomy_survival_model()
     # Load survival dataset with censored values
     data_path = m.load.mastectomy(only_path=true)
     m.data(data_path, sep=",") 
@@ -335,7 +335,7 @@ mastectomy_survival_model <- function() {
     # Plot censoring (the missingness mechanism)
     m.models.survival.plot_censoring(cov="metastasized")
 
-    @BI function model(intervals, death, metastasized, exposure)
+    @BF function model(intervals, death, metastasized, exposure)
         lambda0 = m.dist.gamma(0.01, 0.01, shape=intervals.shape, name="lambda0")
         beta = m.dist.normal(0, 1000, shape=(1,), name="beta")
         

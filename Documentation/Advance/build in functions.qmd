@@ -8,16 +8,16 @@ sidebar: start
 ::: {.panel-tabset group="language"}
 ## Varying intercepts 
 ```python
-from BI import bi
+from BayesForge import bf
 import numpy as np
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'reedfrogs.csv'
+data_path = files('BayesForge.Resources') / 'reedfrogs.csv'
 m.data(data_path, sep=';') 
 # Manipulate
 m.df["tank"] = np.arange(m.df.shape[0]) 
@@ -40,14 +40,14 @@ m.summary()
 
 ## Varying intercepts and slopes 
 ``` python
-from BI import bi
+from BayesForge import bf
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
 from importlib.resources import files
-data_path = files('BI.resources.data') / 'Sim data multivariatenormal.csv'
+data_path = files('BayesForge.Resources') / 'Sim data multivariatenormal.csv'
 m.data(data_path, sep=',') 
 
 # Define model ------------------------------------------------
@@ -68,9 +68,49 @@ def model(cafe, wait, N_cafes, afternoon):
     m.dist.normal(mu, sigma, obs=wait)
 
 # Run sampler ------------------------------------------------
-m.fit(model) 
+m.fit(model)
 
 ```
+
+## Nested varying effects
+```python
+from BayesForge import bf
+
+# Setup device------------------------------------------------
+m = bf(platform='cpu')
+
+# Import Data & Data Manipulation ------------------------------------------------
+# group_id / region_id are one obs-level index array per level (top to bottom).
+# The parent structure (which region each group belongs to) is derived automatically.
+data_path = m.load.sim_nested_effects(only_path=True)
+m.data(data_path)
+
+# Define model ------------------------------------------------
+# N_vars = intercept + slopes; it is independent of the number of levels.
+def model(y, x, group_id, region_id, N_groups=20, N_regions=5):
+    sigma = m.dist.exponential(1)
+
+    a_est, b_est = m.effects.nested_varying_effects(
+        N_vars   = 2,                      # intercept + 1 slope
+        names    = ["region", "group"],    # levels, top to bottom
+        N_groups = [N_regions, N_groups],  # units at each level
+        group_ids= [region_id, group_id],  # obs-level index per level
+        centered = False,                  # non-centered (recommended)
+    )
+
+    mu = a_est + b_est * x
+    m.dist.normal(mu, sigma, obs=y)
+
+# Run sampler ------------------------------------------------
+m.fit(model)
+m.summary()
+```
+
+`m.effects.nested_varying_effects` generalizes to any depth (add levels to `names`, `N_groups`,
+`group_ids`) and any number of variables (`N_vars` = intercept + number of slopes, returned as
+`a_est, b1, b2, ...`). Pass `centered=True` for the centered parameterization, or supply per-level
+`sigma` / `L_corr` / `corr` priors to override the defaults. See
+[Nested varying effects](../17. Nested varying effects.qmd) for the full model and math.
 
 
 :::
@@ -81,27 +121,27 @@ m.fit(model)
 ::: {.panel-tabset group="language"}
 ## Squared Exponential Kernel
 ``` python
-from BI import bi
+from BayesForge import bf
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.gaussian.kernel_sq_exp
 
 ```
 
 ## Periodic Kernel
 ``` python
-from BI import bi
+from BayesForge import bf
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.gaussian.kernel_periodic
 
 ```
 
 ## Locally Periodic Kernel
 ``` python
-from BI import bi
+from BayesForge import bf
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.gaussian.kernel_periodic_local
 
 ```

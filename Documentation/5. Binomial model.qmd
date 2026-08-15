@@ -21,16 +21,16 @@ To model the relationship between a binary dependent variable—e.g., counts of 
 
 ## Example
 
-Below is an example code snippet that demonstrates Bayesian binomial regression using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (*pulled_left*), which represents which lever each chimpanzee pulled in an experimental setup. The goal is to evaluate the probability of pulling the left side. This example is based on @mcelreath2018statistical.
+Below is an example code snippet that demonstrates Bayesian binomial regression using the BayesForge (BF) package. The data consist of one binary dependent variable (*pulled_left*), which represents which lever each chimpanzee pulled in an experimental setup. The goal is to evaluate the probability of pulling the left side. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ### Python
 
 ``` {python}
-from BI import bi
+from BayesForge import bf
 
 # setup platform------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 # import data ------------------------------------------------
 # Import
 from importlib.resources import files
@@ -53,10 +53,10 @@ m.summary()
 ### R
 
 ``` r
-library(BayesianInference)
+library(BayesForge)
 
 # setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 
 # import data ------------------------------------------------
 m$data(m$load$chimpanzees(only_path = T), sep=';')
@@ -65,9 +65,9 @@ m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 # Define model ------------------------------------------------
 model <- function(pulled_left){
   # Parameters priors distributions
-  alpha = bi.dist.normal( 0, 10, name = 'alpha')
+  alpha = bf.dist.normal( 0, 10, name = 'alpha')
   # Likelihood
-  bi.dist.binomial(total_count = 1, logits = alpha, obs=pulled_left)
+  bf.dist.binomial(total_count = 1, logits = alpha, obs=pulled_left)
 }
 
 
@@ -80,10 +80,10 @@ m$summary() # Get posterior distribution
 
 ### Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -91,7 +91,7 @@ data_path = m.load.chimpanzees(only_path = true)
 m.data(data_path, sep=';')
 
 # Define model ------------------------------------------------
-@BI function model(pulled_left)
+@BF function model(pulled_left)
     a = m.dist.normal( 0, 10, shape=(1,), name = "a")
     m.dist.binomial(total_count = 1, logits=a[0], obs=pulled_left)
 end
@@ -146,11 +146,11 @@ Where:
 
 -   We can apply categorical variables similarly to [chapter 4](4.%20Categorical%20variable.qmd).
 
--   Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the Bayesian Inference (BI) package. The data consist of one binary dependent variable (*pulled_left*), which represents which side individuals pulled, and three independent variables (*actor*, *side*, *cond*). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as for the different conditions.
+-   Below is an example code snippet demonstrating a Bayesian binomial model for multiple categorical variables using the BayesForge (BF) package. The data consist of one binary dependent variable (*pulled_left*), which represents which side individuals pulled, and three independent variables (*actor*, *side*, *cond*). The goal is to evaluate, for each individual, the probability of pulling the left side, accounting for whether the individual is left-handed or right-handed, as well as for the different conditions.
 
 ``` python
-from BI import bi
-m = bi(platform='cpu')
+from BayesForge import bf
+m = bf(platform='cpu')
 m.data('../resources/data/chimpanzees.csv', sep=';')
 m.df['treatment'] =  m.df.prosoc_left + 2 * m.df.condition
 m.df['actor'] = m.df['actor'] - 1
@@ -170,20 +170,20 @@ m.summary()
 ```
 
 ``` r
-library(BayesianInference)
+library(BayesForge)
 
 # setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 
 # import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/chimpanzees.csv", sep = ''), sep=';')
+m$data(paste(system.file(package = "BayesForge"),"/data/chimpanzees.csv", sep = ''), sep=';')
 m$data_to_model(list('pulled_left')) # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
 model <- function(pulled_left){
   # Parameters priors distributions
-  a = bi.dist.normal( 0, 1.5, name = 'a')
-  b = bi.dist.normal( 0, 0.5, name = 'b')
+  a = bf.dist.normal( 0, 1.5, name = 'a')
+  b = bf.dist.normal( 0, 0.5, name = 'b')
   p = a[actor] + b[treatment]
   # Likelihood
   m$binomial(total_count = 1, logits = alpha, obs=pulled_left)

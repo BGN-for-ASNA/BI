@@ -36,11 +36,11 @@ The "EWA" model is a basic version that includes asocial learning and pay-off bi
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import jax
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 def model(K, J, tech, id, bout, y_prev, s, ps):
     # Priors
@@ -95,8 +95,8 @@ m.summary()
 ## R
 
 ```R
-library(BayesianInference)
-m <- importBI(platform='cpu')
+library(BayesForge)
+m <- importBF(platform='cpu')
 
 model <- function(K, J, tech, id, bout, y_prev, s, ps) {
   # Priors
@@ -115,10 +115,10 @@ m$summary()
 ## Julia
 
 ```julia
-using BayesianInference
-m = importBI(platform="cpu")
+using BayesForge
+m = importBF(platform="cpu")
 
-@BI function model(K, J, tech, id, bout, y_prev, s, ps)
+@BF function model(K, J, tech, id, bout, y_prev, s, ps)
     # Priors
     lam = m.dist.exponential(name="lambda", rate=1.0)
     mu = m.dist.normal(name="mu", loc=jnp.zeros(4), scale=1.0)
@@ -256,11 +256,11 @@ The "EWA-ILV" model expands the EWA version by incorporating a wider array of so
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import jax
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 def model(K, J, tech, id, bout, y_prev, s, ps, ks, pr, co, yo, age):
     # Priors (8 varying effects)

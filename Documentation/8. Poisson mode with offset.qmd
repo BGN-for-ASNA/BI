@@ -31,12 +31,12 @@ Below is an example of code that demonstrates a Bayesian Poisson regression with
 
 
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import numpy as np
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Simulated data ------------------------------------------------
 # Using numpy for simulation to easily set the true values
@@ -76,8 +76,8 @@ print(summ[['mean']])
 ### R
 
 ```R
-library(BayesianInference)
-m=importBI(platform='cpu')
+library(BayesForge)
+m=importBF(platform='cpu')
 jnp = reticulate::import('jax.numpy')
 
 # Simulated data ------------------------------------------------
@@ -99,15 +99,15 @@ print(paste("True b:", paste(true_b, collapse=" ")))
 # Define model ------------------------------------------------
 model <- function(cid, population, hours, total_tools){
   # Parameter prior distributions
-  a = bi.dist.normal(3, 0.5, name='a', shape = c(2))
-  b = bi.dist.normal(0, 0.2, name='b', shape = c(2))
+  a = bf.dist.normal(3, 0.5, name='a', shape = c(2))
+  b = bf.dist.normal(0, 0.2, name='b', shape = c(2))
   l = hours * jnp$exp(a[cid] + b[cid]*population)
   # Likelihood
-  bi.dist.poisson(l, obs=total_tools)
+  bf.dist.poisson(l, obs=total_tools)
 }
 
 m$data_on_model = list(
-  cid = as.integer(cid - 1), # Back to 0-based for JAX/BI if needed, check BI convention
+  cid = as.integer(cid - 1), # Back to 0-based for JAX/BF if needed, check BF convention
   population = population,
   hours = hours,
   total_tools = total_tools
@@ -123,12 +123,12 @@ m$summary()
 ### Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 using Random
 using Distributions
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Simulated data ------------------------------------------------
 Random.seed!(42)
@@ -147,7 +147,7 @@ println("True a: ", true_a)
 println("True b: ", true_b)
 
 # Define model ------------------------------------------------
-@BI function model(cid, population, hours, total_tools)
+@BF function model(cid, population, hours, total_tools)
     a = m.dist.normal(3, 0.5, shape= (2,), name="a")
     b = m.dist.normal(0, 0.2, shape=(2,), name="b")
     l = hours .* exp.(a[cid] .+ b[cid] .* population)
@@ -156,7 +156,7 @@ end
 
 # Pass data to model
 m.data_on_model = Dict(
-    "cid" => cid .- 1, # Back to 0-based for JAX/BI if needed
+    "cid" => cid .- 1, # Back to 0-based for JAX/BF if needed
     "population" => population, 
     "hours" => hours, 
     "total_tools" => total_tools

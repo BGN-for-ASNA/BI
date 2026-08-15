@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,11 +8,11 @@ import jax
 
 model_name = "11.Varying intercepts"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu')
 
 # 1. Data Loading -------------------------------------------
-data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BI", "Resources")) + os.sep
+data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BayesForge", "Resources")) + os.sep
 df = pd.read_csv(data_path + 'reedfrogs.csv', sep=';')
 df["tank"] = np.arange(len(df))
 
@@ -23,16 +23,16 @@ m.data_on_model = {
     'density': jnp.array(df.density.values)
 }
 
-def model_bi(tank, surv, density):
-    sigma = m.dist.exponential(1.0, name='sigma')
-    bar_alpha = m.dist.normal(0.0, 1.5, name='a_bar')
-    alpha = m.dist.normal(bar_alpha, sigma, shape=(48,), name='alpha')
+def model_BF(tank, surv, density):
+    sigma = m.dist.exponential(1.0)
+    a_bar = m.dist.normal(0.0, 2.0)
+    alpha = m.dist.normal(a_bar, sigma, shape=(48,))
     p = alpha[tank]
     m.dist.binomial(total_count=density, logits=p, obs=surv)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -51,7 +51,7 @@ parameters {
 model {
     vector[N_obs] p;
     sigma ~ exponential(1);
-    a_bar ~ normal(0, 1.5);
+    a_bar ~ normal(0, 2);
     a ~ normal(a_bar, sigma);
     for (i in 1:N_obs) {
         p[i] = a[tank[i]];
@@ -81,7 +81,7 @@ def estimate(tank, density, a_bar_true, sigma_true, alpha_true):
     p_true = alpha_true[tank]
     surv_sim = np.random.binomial(density, jax.nn.sigmoid(p_true))
     
-    m_rec = bi(print_devices_found=False)
+    m_rec = bf(print_devices_found=False)
     m_rec.data_on_model = {
         'tank': jnp.array(tank),
         'surv': jnp.array(surv_sim),
@@ -89,13 +89,13 @@ def estimate(tank, density, a_bar_true, sigma_true, alpha_true):
     }
     
     def model_rec(tank, surv, density):
-        sigma = m_rec.dist.exponential(1.0, name='sigma')
-        bar_alpha = m_rec.dist.normal(0.0, 1.5, name='a_bar')
-        alpha = m_rec.dist.normal(bar_alpha, sigma, shape=(48,), name='alpha')
+        sigma = m_rec.dist.exponential(1.0)
+        a_bar = m_rec.dist.normal(0.0, 2.0)
+        alpha = m_rec.dist.normal(a_bar, sigma, shape=(48,))
         p = alpha[tank]
         m_rec.dist.binomial(total_count=density, logits=p, obs=surv)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, progress_bar=False, shard=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -124,9 +124,13 @@ def param_recovery(tank, density, a_bar_sims, sigma_sims, alpha_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 10))
-a_bar_sims = np.random.normal(0, 1.5, (nsim_test, 1))
+nsim_test = int(os.environ.get("BF_NSIM", 10))
+a_bar_sims = np.random.normal(0, 2.0, (nsim_test, 1))
 sigma_sims = np.random.exponential(1.0, (nsim_test, 1))
 alpha_sims = np.random.normal(a_bar_sims, sigma_sims, (nsim_test, 48))
 
 recovery_results = param_recovery(df.tank.values, df.density.values, a_bar_sims, sigma_sims, alpha_sims, nsim=nsim_test)
+
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

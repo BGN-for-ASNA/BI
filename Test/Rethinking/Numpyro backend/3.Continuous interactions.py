@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,11 +8,11 @@ import jax
 
 model_name = "3.Continuous interactions"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu')
 
 # 1. Data Loading -------------------------------------------
-data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BI", "Resources")) + os.sep
+data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BayesForge", "Resources")) + os.sep
 df = pd.read_csv(data_path + 'tulips.csv', sep=';')
 df['blooms_scaled'] = df.blooms / df.blooms.max()
 df['water_scaled'] = df.water - df.water.mean()
@@ -21,18 +21,18 @@ df['shade_scaled'] = df.shade - df.shade.mean()
 m.df = df
 m.data_to_model(['blooms_scaled', 'water_scaled', 'shade_scaled'])
 
-def model_bi(blooms_scaled, water_scaled, shade_scaled):
-    sigma = m.dist.exponential(1, name='sigma')
-    bws = m.dist.normal(0, 0.25, name='bws')
-    bs = m.dist.normal(0, 0.25, name='bs')
-    bw = m.dist.normal(0, 0.25, name='bw')
-    a = m.dist.normal(0.5, 0.25, name='a')
+def model_BF(blooms_scaled, water_scaled, shade_scaled):
+    sigma = m.dist.exponential(1)
+    bws = m.dist.normal(0, 0.25)
+    bs = m.dist.normal(0, 0.25)
+    bw = m.dist.normal(0, 0.25)
+    a = m.dist.normal(0.5, 0.25)
     mu = a + bw*water_scaled + bs*shade_scaled + bws*water_scaled*shade_scaled
     m.dist.normal(mu, sigma, obs=blooms_scaled)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -88,19 +88,19 @@ def sim_blooms(water, shade, sigma, bws, bs, bw, a):
 
 def estimate(water, shade, sigma, bws, bs, bw, a):
     blooms_sim = sim_blooms(water, shade, sigma, bws, bs, bw, a)
-    m_rec = bi(print_devices_found=False)
+    m_rec = bf(print_devices_found=False)
     m_rec.df = pd.DataFrame({"water": water, "shade": shade, "blooms": blooms_sim})
     
     def model_rec(blooms, shade, water):
-        sigma = m_rec.dist.exponential(1, name='sigma')
-        bws = m_rec.dist.normal(0, 0.25, name='bws')
-        bs = m_rec.dist.normal(0, 0.25, name='bs')
-        bw = m_rec.dist.normal(0, 0.25, name='bw')
-        a = m_rec.dist.normal(0.5, 0.25, name='a')
+        sigma = m_rec.dist.exponential(1)
+        bws = m_rec.dist.normal(0, 0.25)
+        bs = m_rec.dist.normal(0, 0.25)
+        bw = m_rec.dist.normal(0, 0.25)
+        a = m_rec.dist.normal(0.5, 0.25)
         mu = a + bw*water + bs*shade + bws*water*shade
         m_rec.dist.normal(mu, sigma, obs=blooms)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, progress_bar=False, shard=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -123,7 +123,7 @@ def param_recovery(water, shade, sigma_true, bws_true, bs_true, bw_true, a_true,
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 10))
+nsim_test = int(os.environ.get("BF_NSIM", 10))
 sigma_sim = np.random.exponential(1, size=(nsim_test, 1))
 bws_sim = np.random.normal(0, 0.25, size=(nsim_test, 1))
 bs_sim = np.random.normal(0, 0.25, size=(nsim_test, 1))
@@ -134,3 +134,7 @@ water_vals = df.water_scaled.values
 shade_vals = df.shade_scaled.values
 
 recovery_results = param_recovery(water_vals, shade_vals, sigma_sim, bws_sim, bs_sim, bw_sim, a_sim, nsim=nsim_test)
+
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

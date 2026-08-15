@@ -15,7 +15,7 @@ sidebar: api
 - *pd.DataFrame*: DataFrame with encoded columns
 
 ```python
-bi.dist.OHE(
+bf.dist.OHE(
 self,
 cols='all',
 )
@@ -34,7 +34,7 @@ cols='all',
 pd.DataFrame: Loaded dataframe
 
 ```python
-bi.dist.data(
+bf.dist.data(
 self,
 path,
 **kwargs,
@@ -55,7 +55,7 @@ path,
 - *dict*: JAX formatted dictionary
 
 ```python
-bi.dist.data_to_model(
+bf.dist.data_to_model(
 self,
 cols,
 )
@@ -75,7 +75,7 @@ cols,
 - *pd.DataFrame*: DataFrame with encoded columns
 
 ```python
-bi.dist.index(
+bf.dist.index(
 self,
 cols='all',
 )
@@ -96,7 +96,7 @@ cols='all',
 - *dict*: JAX formatted dictionary
 
 ```python
-bi.dist.pd_to_jax(
+bf.dist.pd_to_jax(
 self,
 model,
 bit=None,
@@ -117,7 +117,7 @@ bit=None,
 - *pd.DataFrame*: Standardized dataframe
 
 ```python
-bi.dist.scale(
+bf.dist.scale(
 self,
 data='all',
 )
@@ -131,7 +131,7 @@ data='all',
 ## JAX-jitted function to scale/standardize a single variable
 
 ```python
-bi.dist.scale_var(
+bf.dist.scale_var(
 self,
 x,
 )
@@ -152,7 +152,7 @@ x,
 - *pd.DataFrame*: Converted dataframe
 
 ```python
-bi.dist.to_float(
+bf.dist.to_float(
 self,
 cols='all',
 type='float32',
@@ -174,7 +174,7 @@ type='float32',
 - *pd.DataFrame*: Converted dataframe
 
 ```python
-bi.dist.to_int(
+bf.dist.to_int(
 self,
 cols='all',
 type='int32',

@@ -1,5 +1,5 @@
 #%%
-# bi_script_to_graph_traced.py
+# BF_script_to_graph_traced.py
 
 from __future__ import annotations
 
@@ -84,7 +84,7 @@ class ScriptGraphBuilder:
         self.latex_output: Optional[str] = None
         self.real_model = None
         self.model_args = {}
-        self.fitted_bi = None  # BI model object after fit, used for diagWIP
+        self.fitted_BF = None  # BF model object after fit, used for diagWIP
         self.ppc_samples = None
 
         # runtime hook
@@ -242,23 +242,23 @@ class ScriptGraphBuilder:
 
     def analyze_sampler_diagnostics(self):
         """Run programmatic diagnostics via diagWIP (rhat, ess, divergences, BFMI)."""
-        if not self.fitted_bi:
+        if not self.fitted_BF:
             return None
 
         import numpy as np
         sections = []
 
-        # Resolve the raw NumPyro MCMC sampler from the BI object
+        # Resolve the raw NumPyro MCMC sampler from the BF object
         sampler = None
         for attr in ("sampler", "mcmc", "_sampler", "_mcmc"):
-            if hasattr(self.fitted_bi, attr):
-                sampler = getattr(self.fitted_bi, attr)
+            if hasattr(self.fitted_BF, attr):
+                sampler = getattr(self.fitted_BF, attr)
                 break
         if sampler is None:
-            return "_Sampler object not accessible on BI model — skipping advanced diagnostics._"
+            return "_Sampler object not accessible on BF model — skipping advanced diagnostics._"
 
         try:
-            from BI.Diagnostic.Diag2 import diagWIP
+            from BayesForge.Diagnostic.Diag2 import diagWIP
             diag = diagWIP(sampler)
             diag.to_az()
 
@@ -364,13 +364,6 @@ class ScriptGraphBuilder:
                 pass
 
         return "\n\n".join(sections) if sections else None
-
-
-
-
-
-
-
 
     def analyze_ppc(self):
         """Summarize PPC samples vs observed data as markdown text."""
@@ -500,7 +493,7 @@ class ScriptGraphBuilder:
 
     def generate_report(self):
         report = []
-        report.append("# BI Workflow Research Report")
+        report.append("# BF Workflow Research Report")
         
         # 1. Data Profiling
         if self.data_profiles:
@@ -513,28 +506,86 @@ class ScriptGraphBuilder:
                     report.append(f"  - `{col}`: `{dtype}`")
         
         # 2. Causal Workflow DAG
+        mermaid_text = self.as_mermaid()
         report.append("\n## Causal Workflow DAG")
-        report.append(self.as_mermaid())
         
-        # 3. Probabilistic Plate Diagram (Image)
-        if os.path.exists("plate_diagram.svg"):
-            report.append("\n## Probabilistic Plate Diagram")
-            report.append("![Plate Diagram](plate_diagram.svg)")
-        else:
-            report.append("\n## Probabilistic Plate Diagram")
-            report.append("_Visual plate diagram not found._")
-        
-        # 4. Computational Logic
-        report.append("\n## NumPyro Computational Graph")
-        report.append("```python")
-        report.append("import numpyro")
-        report.append("# Use this logic to render the plate diagram locally:")
-        arg_names = ", ".join(self.model_args.keys()) if self.model_args else "..."
-        report.append(f"numpyro.render_model(model, model_args=({arg_names}), render_distributions=True)")
-        report.append("```")
-        
-        # Save DOT file for external rendering
+        raw_mermaid = mermaid_text.replace("```mermaid\n", "").replace("\n```", "")
+        with open("causal_workflow.mmd", "w", encoding="utf-8") as f:
+            f.write(raw_mermaid)
+            
+        saved_image = False
+        # Try Kroki first (fast and does not require Node/headless browser dependencies)
+        try:
+            import urllib.request, base64, zlib
+            data = raw_mermaid.encode('utf-8')
+            compressed = zlib.compress(data, 9)
+            b64 = base64.urlsafe_b64encode(compressed).decode('ascii')
+            url = f"https://kroki.io/mermaid/png/{b64}"
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+            with urllib.request.urlopen(req, timeout=5) as response:
+                with open("causal_workflow.png", "wb") as img_f:
+                    img_f.write(response.read())
+            report.append("![Causal Workflow DAG](causal_workflow.png)")
+            saved_image = True
+        except Exception:
+            # Fallback to local mermaid-cli if Kroki fails
+            import subprocess
+            try:
+                try:
+                    subprocess.run(["mmdc", "-i", "causal_workflow.mmd", "-o", "causal_workflow.png", "-b", "transparent"], check=True, capture_output=True, timeout=10)
+                    report.append("![Causal Workflow DAG](causal_workflow.png)")
+                    saved_image = True
+                except FileNotFoundError:
+                    subprocess.run(["npx", "-y", "@mermaid-js/mermaid-cli", "-i", "causal_workflow.mmd", "-o", "causal_workflow.png", "-b", "transparent"], check=True, capture_output=True, timeout=15)
+                    report.append("![Causal Workflow DAG](causal_workflow.png)")
+                    saved_image = True
+            except Exception:
+                pass
+
+        if not saved_image:
+            report.append(mermaid_text)
+                
+        # Generate DOT and SVG files before checking for them
         self.save_dot_file()
+        
+
+        # 3b. Programmatic Graphs (Model Graph & Causal DAG)
+        if self.fitted_BF and self.real_model:
+            try:
+                import matplotlib.pyplot as plt
+                graph = self.fitted_BF.graph(self.real_model, draw=False)
+                graph.draw(title="Programmatic Model Graph")
+                plt.savefig("programmatic_model_graph.png", dpi=90, bbox_inches="tight")
+                plt.close("all")
+                report.append("\n## Programmatic Model Graph")
+                report.append("![Model Graph](programmatic_model_graph.png)")
+            except Exception:
+                pass
+                
+            try:
+                dagitty_text = self.generate_dagitty_text()
+                if dagitty_text and not dagitty_text.startswith("#"):
+                    import re
+                    m_dag = re.search(r'dag\s*\{\s*(.*?)\s*\}', dagitty_text)
+                    if m_dag:
+                        dag_str = m_dag.group(1).replace(";", ",")
+                        import matplotlib.pyplot as plt
+                        g = self.fitted_BF.dag(dag_str)
+                        
+                        causal = self.analyze_causal_structure()
+                        plot_kwargs = {"title": "Programmatic Causal DAG"}
+                        x_var = None
+                        y_var = causal.get("outcome") if causal else None
+                        if y_var and causal and causal.get("predictors"):
+                            x_var = causal["predictors"][0]
+                            plot_kwargs["x"] = x_var
+                            plot_kwargs["y"] = y_var
+                            
+                        g.plot(**plot_kwargs)
+                        plt.savefig("programmatic_causal_dag.png", dpi=90, bbox_inches="tight")
+                        plt.close("all")
+            except Exception:
+                pass
         
         # 5. Statistical Logic (LaTeX)
         report.append("\n## Statistical Formulation")
@@ -542,31 +593,6 @@ class ScriptGraphBuilder:
             report.append(self.latex_output)
         else:
             report.append(self.generate_latex())
-        
-        # 6. Probabilistic Model Structure (With Prior Values)
-        latents_nodes = [n for n in self.nodes if n.kind == "latent"]
-        if latents_nodes:
-            report.append("\n## Probabilistic Model Structure")
-            latents_by_name = {}
-            for l in latents_nodes:
-                name = l.label.split(":")[-1]
-                if name not in latents_by_name or l.meta.get("runtime"):
-                    latents_by_name[name] = l
-            
-            for name in sorted(latents_by_name.keys()):
-                l = latents_by_name[name]
-                payload = l.meta.get("payload", {})
-                if payload:
-                    dist_type = payload.get("type", "unknown")
-                    args_str = payload.get("args", "()")
-                    import re
-                    args_str = re.sub(r'JitTracer\(.*?\)', '<parameter>', args_str)
-                    args_str = re.sub(r'Tracer\(.*?\)', '<parameter>', args_str)
-                    if len(args_str) > 100: args_str = args_str[:100] + "..."
-                    report.append(f"* **{name}**: `{dist_type}{args_str}`")
-                else:
-                    dist = l.meta.get("dist", "unknown")
-                    report.append(f"* **{name}**: `{dist}`")
         
         # 7. Causal Analysis
         causal = self.analyze_causal_structure()
@@ -592,7 +618,26 @@ class ScriptGraphBuilder:
         report.append(f"- **Type**: `{archetype}`")
         report.append(f"- **Suggested Next Steps**: {suggestion}")
 
-        # 9. Generative Model (sample=True)
+        # 8b. Recommended BI Workflows
+        report.append("\n## Recommended BI Workflows")
+        report.append("Based on the model archetype, consider exploring these built-in BI workflows (`BI_mcp list_workflows`):")
+        if "Hierarchical" in archetype:
+            report.append("- `hierarchical`: For evaluating multilevel group-level shrinkage.")
+        elif "Simple Regression" in archetype:
+            report.append("- `dgp_estimation`: For parameter recovery via Data Generating Process simulation.")
+            report.append("- `posterior`: For in-depth posterior analysis and marginal effects.")
+        elif "High-Dimensional" in archetype:
+            report.append("- `model_comparison`: To compare this model against simpler variants via LOO/WAIC.")
+        elif "Purely Generative" in archetype:
+            report.append("- `dgp_estimation`: To validate the prior distributions and simulation.")
+        else:
+            report.append("- `model_comparison`: To evaluate the fit against alternative model structures.")
+            report.append("- `posterior`: For generic posterior predictive insights.")
+            
+        report.append("- `diagnostics`: If you encounter Divergences, R-hat, or ESS problems.")
+        report.append("- `model_improvement`: For iterative improvements if predictive coverage is poor.")
+
+        # 9. Generative Model (Simulation)
         report.append("\n## Generative Model (Simulation)")
         report.append("```python")
         report.append(self.generate_simulation_code())
@@ -633,7 +678,7 @@ class ScriptGraphBuilder:
         for p in self.data_profiles.values():
             all_data_cols.update(p.get("dtypes", {}).keys())
         
-        missing = (all_inputs - all_outputs - all_data_cols) - {"m", "bi"}
+        missing = (all_inputs - all_outputs - all_data_cols) - {"m", "BF"}
         if missing:
             report.append("\n## Missing Dependencies")
             for m in sorted(list(missing)):
@@ -646,38 +691,24 @@ class ScriptGraphBuilder:
         if not self.real_model:
             return None
         try:
-            import numpyro
-            import re
-            try:
-                from graphviz import Digraph
-            except ImportError:
-                return "# Graphviz package not installed."
-            
-            model = self.real_model
-            args = tuple(self.model_args.values())
-            
-            g = numpyro.render_model(model, model_args=args, render_distributions=False)
-            if not isinstance(g, Digraph):
+            causal = self.analyze_causal_structure()
+            if not causal or not causal.get("outcome"):
                 return None
-
+            
+            outcome = causal["outcome"]
+            predictors = causal.get("predictors", [])
+            latents = causal.get("latents", [])
+            
             edges = []
-            nodes = set()
-
-            # parse DOT source
-            for line in g.source.splitlines():
-                line = line.strip()
-                if "->" in line:
-                    m = re.match(r'(\w+)\s*->\s*(\w+)', line)
-                    if m:
-                        u, v = m.groups()
-                        edges.append((u, v))
-                        nodes.update([u, v])
-                else:
-                    m = re.match(r'(\w+)\s+\[', line)
-                    if m:
-                        nodes.add(m.group(1))
-
+            # Predictors point to outcome
+            for p in predictors:
+                edges.append((p, outcome))
+            # Latents point to outcome
+            for l in latents:
+                edges.append((l, outcome))
+                
             edge_str = "; ".join(f"{u} -> {v}" for u, v in edges)
+            nodes = [outcome] + list(predictors) + list(latents)
             iso_nodes = [n for n in nodes if all(n not in e for e in edges)]
             if iso_nodes:
                 edge_str += "; " + "; ".join(iso_nodes)
@@ -699,6 +730,14 @@ class ScriptGraphBuilder:
             
             # Get DOT source with distributions rendered to see parameters
             g = numpyro.render_model(model, model_args=args, render_distributions=True)
+            causal = self.analyze_causal_structure()
+            if causal:
+                x_vars = causal.get("predictors", [])
+                y_var = causal.get("outcome")
+                if y_var:
+                    for x_var in x_vars:
+                        g.node(x_var, label=x_var, fillcolor="white", shape="ellipse", style="filled")
+                        g.edge(x_var, y_var)
             dot = g.source
             
             lines = ["```mermaid", "graph TD"]
@@ -746,7 +785,7 @@ class ScriptGraphBuilder:
             return f"_Could not generate Mermaid plate: {e}_"
 
     def save_dot_file(self):
-        """Saves the DOT source to plate_diagram.dot for external rendering."""
+        """Saves the DOT source to plate_diagram.dot and generates a clean SVG."""
         if not self.real_model:
             return
         try:
@@ -754,10 +793,96 @@ class ScriptGraphBuilder:
             model = self.real_model
             args = tuple(self.model_args.values())
             g = numpyro.render_model(model, model_args=args, render_distributions=True)
+            causal = self.analyze_causal_structure()
+            if causal:
+                x_vars = causal.get("predictors", [])
+                y_var = causal.get("outcome")
+                if y_var:
+                    for x_var in x_vars:
+                        g.node(x_var, label=x_var, fillcolor="white", shape="ellipse", style="filled")
+                        g.edge(x_var, y_var)
+            dot_source = g.source
             with open("plate_diagram.dot", "w") as f:
-                f.write(g.source)
-        except:
+                f.write(dot_source)
+
+            # Strategy 1: use 'dot' CLI (graphviz system binary)
+            try:
+                import subprocess
+                subprocess.run(
+                    ["dot", "-Tsvg", "-o", "plate_diagram.svg", "plate_diagram.dot"],
+                    check=True, capture_output=True, timeout=10
+                )
+                return
+            except Exception:
+                pass
+
+            # Strategy 2: Kroki API
+            try:
+                import urllib.request, base64, zlib
+                data = dot_source.encode("utf-8")
+                compressed = zlib.compress(data, 9)
+                b64 = base64.urlsafe_b64encode(compressed).decode("ascii")
+                urllib.request.urlretrieve(f"https://kroki.io/graphviz/svg/{b64}", "plate_diagram.svg")
+                return
+            except Exception:
+                pass
+
+            # Strategy 3: matplotlib manual render from DOT source
+            try:
+                import re, math, matplotlib
+                matplotlib.use("Agg")
+                import matplotlib.pyplot as plt
+
+                edges = re.findall(r'\t(\w+)\s*->\s*(\w+)', dot_source)
+                node_labels_raw = re.findall(r'\t(\w+)\s+\[label=(\w+)', dot_source)
+                observed_set = set(re.findall(r'\t(\w+)\s+\[label=\w+\s+fillcolor=grey', dot_source))
+                dist_text_match = re.search(r'distribution_description_node\s+\[label=\"([^\"]+)\"', dot_source)
+
+                labels = {n: l for n, l in node_labels_raw if n != "distribution_description_node"}
+                draw_edges = [(u, v) for u, v in edges if "distribution_description_node" not in (u, v)]
+
+                latent_nodes = [n for n in labels if n not in observed_set]
+                observed_nodes = [n for n in labels if n in observed_set]
+                pos = {}
+                for i, n in enumerate(latent_nodes):
+                    pos[n] = (i - (len(latent_nodes) - 1) / 2, 1.0)
+                for i, n in enumerate(observed_nodes):
+                    pos[n] = (0.0, -0.5)
+
+                fig, ax = plt.subplots(figsize=(6, 4), facecolor="white")
+                ax.set_xlim(-2, 2); ax.set_ylim(-1.5, 2)
+                ax.set_aspect("equal")
+
+                for u, v in draw_edges:
+                    if u in pos and v in pos:
+                        x1, y1 = pos[u]; x2, y2 = pos[v]
+                        dy = -0.18 if y1 > y2 else 0.18
+                        ax.annotate("", xy=(x2, y2 + 0.18), xytext=(x1, y1 - 0.18),
+                                    arrowprops=dict(arrowstyle="->", color="black", lw=1.5))
+
+                for node, (x, y) in pos.items():
+                    color = "#c0c0c0" if node in observed_set else "white"
+                    lbl = labels.get(node, node)
+                    circle = plt.Circle((x, y), 0.18, color=color, ec="black", lw=1.5, zorder=3)
+                    ax.add_patch(circle)
+                    ax.text(x, y, lbl, ha="center", va="center", fontsize=13, fontweight="bold", zorder=4)
+
+                if dist_text_match:
+                    dist_txt = dist_text_match.group(1).replace(r"\l", "\n").strip()
+                    ax.text(1.1, 1.0, dist_txt, fontsize=9, va="top",
+                            bbox=dict(boxstyle="round", facecolor="lightyellow", alpha=0.8))
+
+                ax.set_title("Probabilistic Plate Diagram", fontsize=13)
+                ax.axis("off")
+                plt.tight_layout()
+                plt.savefig("plate_diagram.svg", format="svg", bbox_inches="tight")
+                plt.close("all")
+            except Exception:
+                pass
+
+        except Exception:
             pass
+
 
     def analyze_causal_structure(self):
         # 1. Identify Outcome (Y) - The node receiving 'obs' data
@@ -788,9 +913,11 @@ class ScriptGraphBuilder:
                 name = node.label.split(":")[-1]
                 if name not in ["normal", "log_normal", "uniform"]:
                     latents.add(name)
-            elif node.kind == "data_attach" or node.kind == "assign":
-                if node.outputs:
-                    predictors.update(node.outputs)
+            elif node.kind in ("data_attach", "assign", "call_assign", "model_assign"):
+                for inp in node.inputs:
+                    predictors.add(inp)
+                for out in node.outputs:
+                    predictors.add(out)
         
         # Crucial: Find data variables used in the likelihood node itself
         for inp in outcome_node.inputs:
@@ -861,7 +988,7 @@ class ScriptGraphBuilder:
             
         # Use native logic but adapt to our captured source to avoid inspect errors
         try:
-            from BI.PostModel.to_latex import extract_lines, extract_latex_line_final
+            from BayesForge.PostModel.to_latex import extract_lines, extract_latex_line_final
             if not self.model_fn:
                 return "_No model function found in script._"
             
@@ -972,6 +1099,80 @@ class ScriptGraphBuilder:
         # Variables we want to show
         vars_nodes: Dict[str, str] = {} # var_name -> node_id
         
+        # Helper to recursively resolve inputs through deterministic assignments
+        def resolve_inputs(name: str) -> Set[str]:
+            if name in vars_nodes:
+                return {name}
+            for node in self.nodes:
+                if node.kind in ("model_assign", "Assign", "latent") and name in node.outputs:
+                    if node.kind == "latent":
+                        site_name = node.label.split(":")[-1]
+                        if site_name in vars_nodes:
+                            return {site_name}
+                    res = set()
+                    for inp in node.inputs:
+                        res.update(resolve_inputs(inp))
+                    return res
+            return set()
+
+        GREEK_LETTERS = {
+            "alpha": "α",
+            "beta": "β",
+            "gamma": "γ",
+            "delta": "δ",
+            "epsilon": "ε",
+            "zeta": "ζ",
+            "eta": "η",
+            "theta": "θ",
+            "iota": "ι",
+            "kappa": "κ",
+            "lambda": "λ",
+            "mu": "μ",
+            "nu": "ν",
+            "xi": "ξ",
+            "omicron": "ο",
+            "pi": "π",
+            "rho": "ρ",
+            "sigma": "σ",
+            "tau": "τ",
+            "upsilon": "υ",
+            "phi": "φ",
+            "chi": "χ",
+            "psi": "ψ",
+            "omega": "ω",
+        }
+
+        def replace_greek(text: str) -> str:
+            import re
+            for g_name, g_char in GREEK_LETTERS.items():
+                text = re.sub(r'\b' + g_name + r'\b', g_char, text, flags=re.IGNORECASE)
+            return text
+
+        def to_pretty_label(text: str) -> str:
+            parts_super = text.split('^')
+            base_sub_part = parts_super[0]
+            super_part = parts_super[1] if len(parts_super) > 1 else None
+            
+            parts_sub = base_sub_part.split('_')
+            base_part = parts_sub[0]
+            sub_part = parts_sub[1] if len(parts_sub) > 1 else None
+            
+            base_pretty = replace_greek(base_part)
+            
+            result = base_pretty
+            if sub_part:
+                sub_pretty = replace_greek(sub_part)
+                result += f"<sub>{sub_pretty}</sub>"
+            if super_part:
+                super_pretty = replace_greek(super_part)
+                result += f"<sup>{super_pretty}</sup>"
+            return result
+
+        def pretty_formula(expr: str) -> str:
+            import re
+            pattern = r'\b[a-zA-Z_][a-zA-Z0-9_]*(?:\^[a-zA-Z0-9_]+)?\b'
+            return re.sub(pattern, lambda m: to_pretty_label(m.group(0)), expr)
+
         # 1. Identify Data Variables
         data_vars = set()
         for prof_name, prof in self.data_profiles.items():
@@ -996,9 +1197,34 @@ class ScriptGraphBuilder:
                 # If it's a parameter (has a name in the script like a, b, s)
                 if ":" in n.label and n.label.startswith("prior:"):
                     if name not in vars_nodes:
-                        lines.append(f'  {n.id}(("{name}")):::latent')
+                        lines.append(f'  {n.id}(("{to_pretty_label(name)}")):::latent')
                         vars_nodes[name] = n.id
-                    latent_vars[name] = n
+                    # Only set/overwrite if we don't already have a static AST node with dist info
+                    existing = latent_vars.get(name)
+                    if existing is None or not existing.meta.get("runtime"):
+                        if existing is None or n.meta.get("dist"):
+                            latent_vars[name] = n
+
+        # Find multiplications between coefficient latents and data predictors
+        coef_targets = {}
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Mult):
+                left_names = collect_names(node.left)
+                right_names = collect_names(node.right)
+                
+                resolved_left = set()
+                for n_val in left_names:
+                    resolved_left.update(resolve_inputs(n_val))
+                resolved_right = set()
+                for n_val in right_names:
+                    resolved_right.update(resolve_inputs(n_val))
+                
+                for l_val in resolved_left:
+                    for r_val in resolved_right:
+                        if l_val in latent_vars and r_val in data_vars:
+                            coef_targets[l_val] = r_val
+                        elif r_val in latent_vars and l_val in data_vars:
+                            coef_targets[r_val] = l_val
 
         # Second, handle likelihood nodes — insert a link-function node between inputs and outcome
         seen_link_edges = set()
@@ -1019,10 +1245,7 @@ class ScriptGraphBuilder:
 
             # Build link-function label: e.g. "Normal(a + b * weight, s)"
             expr_str = ", ".join(arg_exprs)
-            link_label = f"{dist_name}({expr_str})"
-            # Truncate if too long for readability
-            if len(link_label) > 50:
-                link_label = f"{dist_name}({expr_str[:47]}...)"
+            link_label = pretty_formula(f"{dist_name}({expr_str})")
             link_id = f"link_{n.id}"
             lines.append(f'  {link_id}["{link_label}"]')
 
@@ -1032,9 +1255,25 @@ class ScriptGraphBuilder:
                     lines[i] = line.replace(":::data", ":::outcome")
 
             # inputs → link node
+            resolved_inps = set()
             for inp_name in n.inputs:
+                resolved_inps.update(resolve_inputs(inp_name))
+
+            for inp_name in resolved_inps:
                 if inp_name in vars_nodes:
                     src_id = vars_nodes[inp_name]
+                    # If this input is a latent coefficient and has a predictor target,
+                    # draw the edge directly to the predictor instead of the link node!
+                    if inp_name in coef_targets:
+                        target_var = coef_targets[inp_name]
+                        if target_var in vars_nodes:
+                            coeff_target_id = vars_nodes[target_var]
+                            edge = (src_id, coeff_target_id)
+                            if edge not in seen_link_edges:
+                                lines.append(f"  {src_id} --> {coeff_target_id}")
+                                seen_link_edges.add(edge)
+                            continue
+                    
                     edge = (src_id, link_id)
                     if edge not in seen_link_edges:
                         lines.append(f"  {src_id} --> {link_id}")
@@ -1046,7 +1285,10 @@ class ScriptGraphBuilder:
         # 3. Add Edges for Latent Parameter dependencies
         seen_edges = set()
         for name, node in latent_vars.items():
+            resolved_inps = set()
             for inp in node.inputs:
+                resolved_inps.update(resolve_inputs(inp))
+            for inp in resolved_inps:
                 if inp in vars_nodes:
                     src_id = vars_nodes[inp]
                     edge = (src_id, node.id)
@@ -1061,6 +1303,64 @@ class ScriptGraphBuilder:
                         if edge not in seen_edges:
                             lines.append(f"  {src_id} --> {node.id}")
                             seen_edges.add(edge)
+
+        # 4. Add Causal Info Card at the bottom of the diagram
+        causal = self.analyze_causal_structure()
+        if causal and causal.get("outcome") and causal.get("predictors"):
+            y_var = causal["outcome"]
+            dag_text = self.generate_dagitty_text()
+            
+            dag_g = None
+            if dag_text and not dag_text.startswith("#"):
+                import re
+                m_dag = re.search(r'dag\s*\{\s*(.*?)\s*\}', dag_text)
+                if m_dag:
+                    dag_str = m_dag.group(1).replace(";", ",")
+                    try:
+                        from BayesForge.Causal.dag import DAG
+                        dag_g = DAG(dag_str)
+                    except Exception:
+                        pass
+
+            adj_lines = []
+            for pred in causal["predictors"]:
+                adj_str = "N/A"
+                if dag_g:
+                    try:
+                        adj = dag_g.adjustment_sets(pred, y_var)
+                        if not adj:
+                            adj_str = "∅"
+                        else:
+                            adj_str = ", ".join(f"{{{', '.join(s)}}}" if s else "∅" for s in adj)
+                    except Exception:
+                        pass
+                adj_lines.append(f"Adjustment Sets ({to_pretty_label(pred)} -> {to_pretty_label(y_var)}): {to_pretty_label(adj_str)}")
+            
+            adj_section = "<br/>".join(adj_lines)
+            
+            # Format prior distributions for the legend
+            priors_list = []
+            for name, node in latent_vars.items():
+                dist_name = node.meta.get("dist", "").split(".")[-1] if node.meta else ""
+                arg_exprs = node.meta.get("arg_exprs", []) if node.meta else []
+                if dist_name and arg_exprs:
+                    formatted_dist = "".join(part.capitalize() for part in dist_name.split("_"))
+                    pretty_args = [pretty_formula(arg) for arg in arg_exprs]
+                    priors_list.append(f"{to_pretty_label(name)} ~ {formatted_dist}({', '.join(pretty_args)})")
+            
+            # Format data and their types
+            data_list = []
+            for prof_name, prof in self.data_profiles.items():
+                for col, dtype in prof.get("dtypes", {}).items():
+                    data_list.append(f"{col}: {dtype}")
+            data_str = "<br/>".join(data_list)
+            data_section = f"<br/><br/>Data:<br/>{data_str}" if data_list else ""
+
+            priors_str = "<br/>".join(priors_list)
+            priors_section = f"<br/><br/>Priors:<br/>{priors_str}" if priors_list else ""
+            
+            lines.append("  classDef info fill:#f0f4f8,stroke:#cbd5e1,stroke-width:1px;")
+            lines.append(f'  info_node["Causal Properties<br/>{adj_section}{priors_section}{data_section}"]:::info')
 
         lines.append("```")
         return "\n".join(lines)
@@ -1089,8 +1389,8 @@ class ScriptGraphBuilder:
         path = call_path(call.func)
         out = [target_name(t) for t in stmt.targets]
 
-        if path == "bi":
-            self.add_node("setup", "bi()", unparse(stmt), outputs=out)
+        if path == "BF":
+            self.add_node("setup", "BF()", unparse(stmt), outputs=out)
             return
 
         if path.startswith("m.load."):
@@ -1187,10 +1487,13 @@ class ScriptGraphBuilder:
 
     def _model_assign(self, stmt):
         call = stmt.value
-        if not isinstance(call, ast.Call):
-            return
-        path = call_path(call.func)
         out = [target_name(t) for t in stmt.targets]
+        if not isinstance(call, ast.Call):
+            inp = list(collect_names(call) - {"m"})
+            self.add_node("model_assign", "Assign", unparse(stmt), inputs=inp, outputs=out)
+            return
+            
+        path = call_path(call.func)
 
         # Extract TRUE dependencies from arguments
         inp = set()
@@ -1213,8 +1516,11 @@ class ScriptGraphBuilder:
                 if kw.arg == "name" and isinstance(kw.value, ast.Constant):
                     latent = kw.value.value
 
-            outputs = [latent] if latent else out
-            if obs_var: outputs.append(obs_var)
+            outputs = list(out)
+            if latent and latent not in outputs:
+                outputs.append(latent)
+            if obs_var and obs_var not in outputs:
+                outputs.append(obs_var)
 
             arg_exprs = [unparse(a) for a in call.args]
             self.add_node(
@@ -1231,15 +1537,21 @@ class ScriptGraphBuilder:
 
 
 # =========================================================
-# TRACED BI (RUNTIME LAYER)
+# TRACED BF (RUNTIME LAYER)
 # =========================================================
 
 class TracedBI:
     def __init__(self, real, builder=None):
-        self._m = real
-        self.builder = builder
-        self.state = {}
-        self.last_model = None
+        super().__setattr__("_m", real)
+        super().__setattr__("builder", builder)
+        super().__setattr__("state", {})
+        super().__setattr__("last_model", None)
+
+    def __setattr__(self, name, value):
+        if name in ("_m", "builder", "state", "last_model"):
+            super().__setattr__(name, value)
+        else:
+            setattr(self._m, name, value)
 
     def __getattr__(self, name):
         attr = getattr(self._m, name)
@@ -1307,10 +1619,17 @@ class TracedBI:
             except Exception as e:
                 print(f"LaTeX error: {e}")
 
+            if hasattr(self._m, "df"):
+                df = self._m.df
+                self.builder.data_profiles["m.df"] = {
+                    "shape": df.shape,
+                    "dtypes": {k: str(v) for k, v in df.dtypes.items()} if hasattr(df, "dtypes") else {}
+                }
+
             model_name = getattr(model, "__name__", "model")
             self.builder.real_model = model
             self.builder.model_args = self._m.data_on_model if hasattr(self._m, "data_on_model") else {}
-            self.builder.fitted_bi = self._m
+            self.builder.fitted_BF = self._m
 
             self.builder.add_runtime_event(
                 kind="fit",
@@ -1336,7 +1655,7 @@ class TracedBI:
         if not self.builder or not self.builder.real_model or not self.builder.model_args:
             return
 
-        # Resolve raw NumPyro MCMC sampler from BI object
+        # Resolve raw NumPyro MCMC sampler from BayesForge object
         sampler = None
         for attr in ("sampler", "mcmc", "_sampler", "_mcmc"):
             if hasattr(self._m, attr):
@@ -1416,34 +1735,36 @@ class TracedDist:
 # =========================================================
 
 script = """
-from BI import bi
+from BayesForge import BayesForge
 
 data_path = m.load.howell1(only_path=True)
 m.data(data_path, sep=';')
-m.scale(['weight'])
+m.scale(['weight', 'age'])
 
-def model(weight, height):
-    a = m.dist.normal(178, 20, name='a')
-    b = m.dist.log_normal(0, 1, name='b')
-    s = m.dist.uniform(0, 50, name='s')
-    m.dist.normal(a + b * weight, s, obs=height)
+def model(weight, height, age):
+    alpha = m.dist.normal(178, 20, name='alpha')
+    beta_weight = m.dist.log_normal(0, 1, name='beta_weight')
+    beta_age = m.dist.log_normal(0, 1, name='beta_age')    
+    sigma = m.dist.uniform(0, 50, name='sigma')
+    
+    m.dist.normal(alpha + beta_weight * weight + beta_age*age, sigma, name='height', obs=height)
 
 m.fit(model, num_warmup=500, num_samples=500, num_chains=1)
 m.summary()
 """
 
-from BI import bi
+from BayesForge import bf
 
 builder = ScriptGraphBuilder(script)
 builder.build() # Static analysis first
 
-real_m = bi(platform="cpu")
+real_m = bf()
 m = TracedBI(real_m, builder)
 
 # Use m for runtime trace
 env = {
     "m": m,
-    "bi": bi,
+    "BF": bf,
 }
 
 exec(script, env)

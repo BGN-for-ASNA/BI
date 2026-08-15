@@ -1,6 +1,6 @@
 ---
 title: "BNN for Classification"
-description: "Neural networks that incorporate Bayesian inference to predict probabilities of binary outcomes."
+description: "Neural networks that incorporate BayesForge to predict probabilities of binary outcomes."
 categories: [Neural Networks, Classification, Deep Learning]
 image: "Figures/24.png"
 order: 34
@@ -23,18 +23,18 @@ For binary classification, the final layer of the network condenses the hidden r
 
 ## Example
 
-Below is an example code snippet demonstrating a *Bayesian Neural Network for classification* using the Bayesian Inference (**BI**) package. This example is inspired by stochastic variational inference tutorials and uses a synthetic nested moons dataset (typically generated via `make_moons`).
+Below is an example code snippet demonstrating a *Bayesian Neural Network for classification* using the BayesForge (**BF**) package. This example is inspired by stochastic variational inference tutorials and uses a synthetic nested moons dataset (typically generated via `make_moons`).
 
 ::: {.panel-tabset group="language"}
 ## Python
 
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 from sklearn.datasets import make_moons
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Generate Synthetic Data ------------------------------------
 # Two interleaving half-moon shapes
@@ -105,11 +105,11 @@ fig.colorbar(contour, ax=ax)
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 using PyCall
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Generate Synthetic Data using Python's scikit-learn ---------
 sk_datasets = pyimport("sklearn.datasets")
@@ -120,7 +120,7 @@ m.data_on_model["X"] = X
 m.data_on_model["Y"] = Y
 
 # Define model ------------------------------------------------
-@BI function model(X, Y)
+@BF function model(X, Y)
     N, D_X = size(X)
     D_H1 = 4
     D_H2 = 3

@@ -1,7 +1,7 @@
 # %%
-"""Posterior Predictive Check (PPC) demos for BI.
+"""Posterior Predictive Check (PPC) demos for BF.
 
-Covers all ppc_* functions in BI.Diagnostic.ppc:
+Covers all ppc_* functions in BF.Diagnostic.ppc:
   Distributions : ppc_density, ppc_hist, ppc_boxplot
   Statistics    : ppc_stat, ppc_stat_2d
   Intervals     : ppc_intervals, ppc_ribbon
@@ -10,14 +10,16 @@ Covers all ppc_* functions in BI.Diagnostic.ppc:
   Discrete      : ppc_rootogram, ppc_bars
   LOO           : ppc_loo_pit, ppc_loo_intervals
 """
-from BI import bi
+import plotly.io as pio
+pio.renderers.default = "json"
+from BayesForge import bf
 import jax.numpy as jnp
 import numpy as np
 
 # =============================================================================
 # Gaussian model setup
 # =============================================================================
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 data_path = m.load.howell1(only_path=True)
 m.data(data_path, sep=";")
 m.df = m.df[m.df.age > 18]
@@ -119,7 +121,7 @@ m.diag.ppc_loo_intervals().show()
 rng = np.random.default_rng(42)
 counts_obs = rng.poisson(lam=3, size=200)
 
-m_pois = bi(platform="cpu")
+m_pois = bf(platform="cpu")
 
 def model_pois(x, y):
     lam = m_pois.dist.exponential(1 / 3, name="lam")
@@ -127,12 +129,12 @@ def model_pois(x, y):
 
 m_pois.fit(
     model_pois,
-    data=dict(x=jnp.ones(len(counts_obs)), y=jnp.array(counts_obs)),
+    obs=dict(x=jnp.ones(len(counts_obs)), y=jnp.array(counts_obs)),
     num_samples=300, num_chains=2, progress_bar=False,
 )
 
 # %%
 yrep_pois = m_pois.diag.get_yrep()
-from BI.Diagnostic.ppc import ppc_rootogram, ppc_bars
+from BayesForge.Diagnostic.ppc import ppc_rootogram, ppc_bars
 ppc_rootogram(counts_obs, yrep_pois).show()
 ppc_bars(counts_obs, yrep_pois).show()

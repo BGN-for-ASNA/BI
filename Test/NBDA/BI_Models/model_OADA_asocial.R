@@ -1,5 +1,5 @@
-# BI Model for OADA Asocial (Order of Acquisition Data Analysis, No Social Learning)
-bi_model_OADA_asocial <- function(data) {
+# BF Model for OADA Asocial (Order of Acquisition Data Analysis, No Social Learning)
+BF_model_OADA_asocial <- function(data) {
   # STEP 1: No Parameters Evaluated
   # In a purely asocial OADA model, there is no generic intrinsic rate estimated directly or social rate
   # since all individuals learn asocially at a constant rate that cancels out when normalized by order.

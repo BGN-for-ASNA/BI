@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,8 +8,8 @@ import jax
 
 model_name = "8.Multinomial"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu')
 
 # 1. Data Simulation ----------------------------------------
 # To identify the 'b' parameter in a multinomial model, the covariate (income) 
@@ -42,21 +42,21 @@ df = pd.DataFrame({
 m.df = df
 m.data_to_model(['career', 'inc0', 'inc1', 'inc2'])
 
-def model_bi(career, inc0, inc1, inc2):
-    a = m.dist.normal(0, 1, shape=(2,), name='a')
-    b = m.dist.half_normal(1.0, name='b')
+def model_BF(career, inc0, inc1, inc2):
+    a = m.dist.normal(0, 1, shape=(2,))
+    b = m.dist.half_normal(1.0)
     
     s1 = a[0] + b * inc0
     s2 = a[1] + b * inc1
     s3 = b * inc2
     
-    # BI handles vector-to-vector softmax if inputs are vectors
+    # BF handles vector-to-vector softmax if inputs are vectors
     p = jax.nn.softmax(jnp.stack([s1, s2, s3], axis=1), axis=1)
     m.dist.categorical(probs=p, obs=career)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -112,7 +112,7 @@ def estimate(income_sim, a_true, b_true):
     p = jax.nn.softmax(scores, axis=1)
     career_sim = np.array([np.random.choice([0, 1, 2], p=pp) for pp in p])
     
-    m_rec = bi(print_devices_found=False)
+    m_rec = bf(print_devices_found=False)
     m_rec.data_on_model = {
         'career': jnp.array(career_sim),
         'inc0': jnp.array(income_sim[:, 0]),
@@ -120,15 +120,15 @@ def estimate(income_sim, a_true, b_true):
         'inc2': jnp.array(income_sim[:, 2])
     }
     def model_rec(career, inc0, inc1, inc2):
-        a = m_rec.dist.normal(0, 1, shape=(2,), name='a')
-        b = m_rec.dist.half_normal(1.0, name='b')
+        a = m_rec.dist.normal(0, 1, shape=(2,))
+        b = m_rec.dist.half_normal(1.0)
         s1 = a[0] + b * inc0
         s2 = a[1] + b * inc1
         s3 = b * inc2
         p = jax.nn.softmax(jnp.stack([s1, s2, s3], axis=1), axis=1)
         m_rec.dist.categorical(probs=p, obs=career)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, progress_bar=False, shard=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -145,10 +145,13 @@ def param_recovery(income_sim, a_sims, b_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 100)) 
+nsim_test = int(os.environ.get("BF_NSIM", 100)) 
 a_sims = np.random.normal(0, 1, size=(nsim_test, 2))
 b_sims = np.abs(np.random.normal(0, 1.0, size=(nsim_test, 1)))
 
 # Generate varied income for recovery test
 income_recovery = np.random.uniform(1, 10, size=(1000, 3))
 recovery_results = param_recovery(income_recovery, a_sims, b_sims, nsim=nsim_test)
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

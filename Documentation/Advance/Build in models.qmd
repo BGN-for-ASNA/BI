@@ -5,10 +5,10 @@ sidebar: start
 
 # PCA
 ``` python
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
-m=bi()
+m= bf()
 m.data('iris.csv', sep=',') # Data is already scaled
 m.data_on_model = dict(
     X=jnp.array(m.df.iloc[:,0:-2].values)
@@ -28,10 +28,10 @@ m.models.pca.plot(
 
 # Survival analysis
 ```python
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
-m = bi()
+m = bf()
 m.data('mastectomy.csv', sep=',').head()
 m.df.metastasized = (m.df.metastasized.values == "yes").astype(jnp.int64)
 
@@ -60,9 +60,9 @@ m.models.survival.plot_surv( beta = 'Hazard_rate_metastasized')
 # Gaussian Mixture Models
 
 ```python
-from BI import bi
+from BayesForge import bf
 from sklearn.datasets import make_blobs
-m = bi()
+m = bf()
 
 # Generate synthetic data
 data, true_labels = make_blobs(
@@ -82,9 +82,9 @@ m.plot(X=data,sampler=m.sampler)  # ⚠️ Experimental feature
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 from sklearn.datasets import make_blobs
-m = bi()
+m = bf()
 
 # Generate synthetic data
 data, true_labels = make_blobs(
@@ -101,9 +101,9 @@ m.plot(data,m.sampler)
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 from sklearn.datasets import make_blobs
-m = bi()
+m = bf()
 
 # Generate synthetic data
 data, true_labels = make_blobs(
@@ -121,11 +121,11 @@ m.plot(data,m.sampler)
 ## Python
 ```Python
 # Setup device------------------------------------------------
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 # Simulate data ------------------------------------------------
 N = 50
 individual_predictor = m.dist.normal(0,1, shape = (N,1), sample = True)

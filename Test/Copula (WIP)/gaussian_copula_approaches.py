@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpyro.distributions as dist
 import numpyro.distributions.constraints as constraints
-from BI import bi
+from BayesForge import BayesForge
 
-m = bi("cpu")
+m = BF("cpu")
 # ==========================================
 # Common Parameters
 # ==========================================
@@ -130,10 +130,10 @@ plt.show()
 
 # %%
 # ==========================================
-# Approach 2: Built-in approach with BI
+# Approach 2: Built-in approach with BF
 # ==========================================
 print("\n" + "=" * 50)
-print("Approach 2: Built-in bi.dist.gaussian_copula")
+print("Approach 2: Built-in BF.dist.gaussian_copula")
 print("=" * 50)
 
 
@@ -199,10 +199,10 @@ class BetaPoissonMarginal(dist.Distribution):
 # Cholesky of the correlation matrix is often required/preferred for numerical stability
 Sigma_chol = jnp.linalg.cholesky(Sigma)
 
-# Sample using the BI object with our mocked Marginal
+# Sample using the BF object with our mocked Marginal
 
 for i in range(1):
-    samples_bi = m.dist.gaussian_copula(
+    samples_BF = m.dist.gaussian_copula(
         marginal_dist=BetaPoissonMarginal(alpha_param, beta_param, lambda_param),
         correlation_cholesky=Sigma_chol,
         sample=True,
@@ -210,8 +210,8 @@ for i in range(1):
         seed=seed,
     )
 
-    x_b1 = samples_bi[:, 0]
-    x_b2 = samples_bi[:, 1]
+    x_b1 = samples_BF[:, 0]
+    x_b2 = samples_BF[:, 1]
 # %%
 display_correlation_recovery(x_b1, x_b2, original_rho=pearson_rho)
 plot_results(x_b1, x_b2, "Built-in Copula (Beta & Poisson)")
@@ -220,7 +220,7 @@ plot_results(x_b1, x_b2, "Built-in Copula (Beta & Poisson)")
 # Inference model
 # ==========================================
 print("\n" + "=" * 50)
-print("Running BI Inference Model to recover parameters")
+print("Running BF Inference Model to recover parameters")
 print("=" * 50)
 
 # %%

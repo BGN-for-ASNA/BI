@@ -5,7 +5,7 @@ def trait_model(m, y, individual):
     Model for personality traits and repeated measures using variance partitioning.
     
     Args:
-        m: BayesInference (BI) model instance
+        m: BayesForge (BF) model instance
         y: The behavioral/trait measure (array of observations)
         individual: The integer ID for each subject (array matching len(y))
     """
@@ -35,7 +35,7 @@ def calculate_repeatability(m):
     R = tau^2 / (tau^2 + sigma^2)
     
     Args:
-        m: BayesInference (BI) model instance (after inference is complete)
+        m: BayesForge (BF) model instance (after inference is complete)
         
     Returns:
         R_samples: The Repeatability calculated for every MCMC draw
@@ -67,7 +67,7 @@ def extract_latent_traits(m):
     Extracts the latent trait expressions (unobservable personality scores) of each individual.
     
     Args:
-        m: BayesInference (BI) model instance (after inference is complete)
+        m: BayesForge (BF) model instance (after inference is complete)
         
     Returns:
         traits_summary: Dictionary containing posterior means and 95% HDIs for each individual's alpha_id

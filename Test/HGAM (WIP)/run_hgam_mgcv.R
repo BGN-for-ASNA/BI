@@ -42,7 +42,7 @@ bird_modI <- bam(count ~ species + te(week, latitude, by=species,
                   data=bird_move, method="fREML", family="poisson",
                   knots=list(week=c(0, 52)))
 
-# Function to export model data for BI
+# Function to export model data for BF
 export_bi_data <- function(model, name) {
   # Design matrix
   X <- predict(model, type="lpmatrix")
@@ -52,16 +52,16 @@ export_bi_data <- function(model, name) {
   coefs <- coef(model)
   ses <- sqrt(diag(vcov(model)))
   
-  dir.create(paste0("bi_data/", name), recursive=TRUE, showWarnings=FALSE)
+  dir.create(paste0("BF_data/", name), recursive=TRUE, showWarnings=FALSE)
   
-  write.csv(X, paste0("bi_data/", name, "/X.csv"), row.names=FALSE)
-  write.csv(data.frame(y=y), paste0("bi_data/", name, "/y.csv"), row.names=FALSE)
-  write.csv(data.frame(coef=coefs, se=ses), paste0("bi_data/", name, "/results_r.csv"), row.names=FALSE)
+  write.csv(X, paste0("BF_data/", name, "/X.csv"), row.names=FALSE)
+  write.csv(data.frame(y=y), paste0("BF_data/", name, "/y.csv"), row.names=FALSE)
+  write.csv(data.frame(coef=coefs, se=ses), paste0("BF_data/", name, "/results_r.csv"), row.names=FALSE)
   
   # Export penalty information
   # We'll save the smoothing parameters and the S matrices
   lambdas <- model$sp
-  write.csv(data.frame(lambda=lambdas), paste0("bi_data/", name, "/lambdas.csv"), row.names=TRUE)
+  write.csv(data.frame(lambda=lambdas), paste0("BF_data/", name, "/lambdas.csv"), row.names=TRUE)
   
   # Export each smooth's S and its range in X
   smooth_info <- list()
@@ -75,19 +75,19 @@ export_bi_data <- function(model, name) {
     for (k in seq_along(sm$S)) {
       s_mat <- sm$S[[k]]
       # Save S matrix
-      write.csv(as.matrix(s_mat), paste0("bi_data/", name, "/S_", i, "_", k, ".csv"), row.names=FALSE)
+      write.csv(as.matrix(s_mat), paste0("BF_data/", name, "/S_", i, "_", k, ".csv"), row.names=FALSE)
     }
     
     smooth_info[[i]] <- list(label=sm$label, first=first, last=last, n_S = length(sm$S))
   }
   
   # Save smooth info summary
-  saveRDS(smooth_info, paste0("bi_data/", name, "/smooth_info.rds"))
+  saveRDS(smooth_info, paste0("BF_data/", name, "/smooth_info.rds"))
   # Also write as CSV for easy reading in Python
   info_df <- do.call(rbind, lapply(seq_along(smooth_info), function(i) {
     data.frame(id=i, label=smooth_info[[i]]$label, first=smooth_info[[i]]$first, last=smooth_info[[i]]$last, n_S=smooth_info[[i]]$n_S)
   }))
-  write.csv(info_df, paste0("bi_data/", name, "/smooth_info.csv"), row.names=FALSE)
+  write.csv(info_df, paste0("BF_data/", name, "/smooth_info.csv"), row.names=FALSE)
 }
 
 cat("Exporting data...\n")

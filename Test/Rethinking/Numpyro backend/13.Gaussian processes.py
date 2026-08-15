@@ -1,6 +1,6 @@
 #%%
 from Utils import *
-from BI import bi
+from BayesForge import bf, BF
 import pandas as pd
 import os
 import numpy as np
@@ -11,9 +11,9 @@ import numpyro
 
 model_name = "13.Gaussian processes"
 
-print(f'Running BI for {model_name}')
+print(f'Running BF for {model_name}')
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -21,7 +21,7 @@ data_path = m.load.kline2(only_path=True)
 m.data(data_path, sep=';') 
 
 from importlib.resources import files
-data_path2 = files('BI.Resources') / 'islandsDistMatrix.csv'
+data_path2 = files('BayesForge.Resources') / 'islandsDistMatrix.csv'
 islandsDistMatrix = pd.read_csv(data_path2, index_col=0)
 
 m.data_to_model(['total_tools', 'population'])
@@ -29,19 +29,19 @@ m.data_on_model["society"] = jnp.arange(0, 10)
 m.data_on_model["Dmat"] = islandsDistMatrix.values
 
 def model(Dmat, population, society, total_tools):
-    a = m.dist.exponential(1,   name='a')
-    b = m.dist.exponential(1,   name='b')
-    g = m.dist.exponential(1,   name='g')
+    a = m.dist.exponential(1)
+    b = m.dist.exponential(1)
+    g = m.dist.exponential(1)
     numpyro.deterministic('a_over_g', a / g)
 
-    etasq = m.dist.exponential(2,   name='etasq')
-    rhosq = m.dist.exponential(0.5, name='rhosq')
+    etasq = m.dist.exponential(2)
+    rhosq = m.dist.exponential(0.5)
 
     n = Dmat.shape[0]
     SIGMA = etasq * jnp.exp(-rhosq * jnp.square(Dmat))
     SIGMA = SIGMA.at[jnp.diag_indices(n)].add(0.01)
     L_chol = jnp.linalg.cholesky(SIGMA)
-    z = m.dist.multivariate_normal(jnp.zeros(n), jnp.eye(n), name='k_z')
+    z = m.dist.multivariate_normal(jnp.zeros(n), jnp.eye(n))
     k = numpyro.deterministic('k', L_chol @ z)
 
     lambda_ = a * population**b / g * jnp.exp(k[society])
@@ -49,9 +49,9 @@ def model(Dmat, population, society, total_tools):
 
 #%%
 # Run sampler ------------------------------------------------
-print("Fitting BI model...")
+print("Fitting BF model...")
 m.fit(model, num_samples=1000, num_warmup=2000, target_accept_prob=0.9, dense_mass=True)
-print("BI Summary:")
+print("BF Summary:")
 print(m.summary())
 
 #%%
@@ -120,8 +120,8 @@ df_stan = build_stan_model(stan_code, data= data, chains=4)
 #%%
 # 4. Comparison
 param_map = {'a': 'a', 'b': 'b', 'g': 'g', 'etasq': 'etasq', 'rhosq': 'rhosq'}
-bi_df = prepare_bi_data(m)
-plot_comparaison(bi_df, df_stan, param_map, model_name=model_name)
+BF_df = prepare_bi_data(m)
+plot_comparaison(BF_df, df_stan, param_map, model_name=model_name)
 
 #%%
 # 5. Parameter Recovery Analysis
@@ -142,24 +142,24 @@ def estimate_rec(Dm_rec, P_rec, a_true, b_true, g_true, etasq_true, rhosq_true, 
     }
 
     def model_rec(Dmat, population, society, total_tools):
-        a     = m.dist.exponential(1,   name='a')
-        b     = m.dist.exponential(1,   name='b')
-        g     = m.dist.exponential(1,   name='g')
-        etasq = m.dist.exponential(2,   name='etasq')
-        rhosq = m.dist.exponential(0.5, name='rhosq')
+        a     = m.dist.exponential(1)
+        b     = m.dist.exponential(1)
+        g     = m.dist.exponential(1)
+        etasq = m.dist.exponential(2)
+        rhosq = m.dist.exponential(0.5)
 
         nr = Dmat.shape[0]
         SIGMA = etasq * jnp.exp(-rhosq * jnp.square(Dmat))
         SIGMA = SIGMA.at[jnp.diag_indices(nr)].add(0.01)
         L_chol = jnp.linalg.cholesky(SIGMA)
-        z = m.dist.multivariate_normal(jnp.zeros(nr), jnp.eye(nr), name='k_z')
+        z = m.dist.multivariate_normal(jnp.zeros(nr), jnp.eye(nr))
         k = numpyro.deterministic('k', L_chol @ z)
 
         lambda_ = a * population**b / g * jnp.exp(k[society])
         m.dist.poisson(lambda_, obs=total_tools)
 
     m.fit(model_rec, num_samples=1000, num_warmup=2000, progress_bar=False,
-          target_accept_prob=0.9, dense_mass=True)
+          target_accept_prob=0.9, dense_mass=True, shard=False)
     sum_df = m.summary()
     return sum_df.iloc[:, 0]
 
@@ -192,7 +192,7 @@ def param_recovery(Dm, P_vals, a_sims, b_sims, g_sims, etasq_sims, rhosq_sims, s
     return df_res
 
 print("\nRunning Parameter Recovery...")
-nsim = int(os.environ.get("BI_NSIM", 5))
+nsim = int(os.environ.get("BF_NSIM", 5))
 # Sample true params from the same priors used in the model
 # a, g: LogNormal(0,1) — clip to avoid extreme a/g ratios
 # b: Exp(1) clipped; etasq/rhosq clipped for non-degenerate GP
@@ -210,3 +210,7 @@ res = param_recovery(Dm, P_vals, a_sims, b_sims, g_sims, etasq_sims, rhosq_sims,
 
 
 # %%
+
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

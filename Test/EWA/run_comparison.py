@@ -11,20 +11,20 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
-from BI import bi
-from BI.Resources.datasets import load as bi_load
+from BayesForge import bf
+from BayesForge.Resources.datasets import load as BF_load
 
-# Load BI/model.py as a module without making BI/ a package
+# Load BF/model.py as a module without making BF/ a package
 _here = Path(__file__).parent
 _spec = importlib.util.spec_from_file_location(
-    "bi_model", _here / "BI_backend" / "model.py"
+    "BF_model", _here / "BF_backend" / "model.py"
 )
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
 make_model = _mod.make_model
 
-# 1. Load data via BI loader
-data_path = bi_load().panama_ewa(only_path=True)
+# 1. Load data via BF loader
+data_path = BF_load().panama_ewa(only_path=True)
 d = pd.read_csv(data_path)
 
 for col_prefix in ["Yobs", "cos", "ks", "ps", "prs"]:
@@ -120,16 +120,16 @@ stan_params = [
 stan_means = {p: stan_summary.loc[p, "Mean"] for p in stan_params}
 print("Stan means:", stan_means)
 
-# 3. Run BI model
-print("Running BI model...")
+# 3. Run BF model
+print("Running BF model...")
 
 y_prev = np.zeros_like(stan_data["y"])
 y_prev[1:] = stan_data["y"][:-1]
 
-m = bi(platform="cpu")
-bi_ewa_model = make_model(m)
+m = bf(platform="cpu")
+BF_ewa_model = make_model(m)
 
-bi_data = {
+BF_data = {
     "K": 7,  # Number of foraging techniques (options)
     "J": stan_data["J"],  # Number of unique individuals (monkeys)
     "tech": stan_data["tech"] - 1,  # Technique chosen (0-indexed for JAX)
@@ -151,22 +151,22 @@ bi_data = {
     "age": stan_data["age"],  # Centered age of the monkey at each observation
 }
 
-m.fit(model=bi_ewa_model, obs=bi_data, num_warmup=1000, num_samples=1000, num_chains=2)
-bi_summary_df = m.summary()
-print("BI summary:\n", bi_summary_df)
+m.fit(model=BF_ewa_model, obs=BF_data, num_warmup=1000, num_samples=1000, num_chains=2)
+BF_summary_df = m.summary()
+print("BF summary:\n", BF_summary_df)
 
 # 4. Compare and log
-bi_means = {"lambda": bi_summary_df.loc["lambda", "mean"]}
+BF_means = {"lambda": BF_summary_df.loc["lambda", "mean"]}
 for i in range(8):
-    bi_means[f"mu[{i+1}]"] = bi_summary_df.loc[f"mu[{i}]", "mean"]
-    bi_means[f"sigma[{i+1}]"] = bi_summary_df.loc[f"sigma[{i}]", "mean"]
+    BF_means[f"mu[{i+1}]"] = BF_summary_df.loc[f"mu[{i}]", "mean"]
+    BF_means[f"sigma[{i+1}]"] = BF_summary_df.loc[f"sigma[{i}]", "mean"]
 for i in range(2):
-    bi_means[f"b_age[{i+1}]"] = bi_summary_df.loc[f"b_age[{i}]", "mean"]
+    BF_means[f"b_age[{i+1}]"] = BF_summary_df.loc[f"b_age[{i}]", "mean"]
 
 log_lines = ["Parameter\tStan Mean\tBI Mean\tDifference"]
 for p in stan_params:
     s_m = stan_means[p]
-    b_m = bi_means.get(p, float("nan"))
+    b_m = BF_means.get(p, float("nan"))
     diff = b_m - s_m
     log_lines.append(f"{p}\t{s_m:.4f}\t{b_m:.4f}\t{diff:.4f}")
 
@@ -176,7 +176,7 @@ print("\n".join(log_lines))
 
 # 5. Density plots
 samples_stan = fit_stan.draws_pd()
-posteriors_bi = m.posteriors
+posteriors_BF = m.posteriors
 
 ncols = 4
 nrows = (len(stan_params) + ncols - 1) // ncols
@@ -187,15 +187,15 @@ for i, p in enumerate(stan_params):
     sns.kdeplot(samples_stan[p], label="Stan", color="blue")
 
     if "mu[" in p:
-        bi_p = posteriors_bi["mu"][:, int(p[3:-1]) - 1]
+        BF_p = posteriors_BF["mu"][:, int(p[3:-1]) - 1]
     elif "sigma[" in p:
-        bi_p = posteriors_bi["sigma"][:, int(p[6:-1]) - 1]
+        BF_p = posteriors_BF["sigma"][:, int(p[6:-1]) - 1]
     elif "b_age[" in p:
-        bi_p = posteriors_bi["b_age"][:, int(p[6:-1]) - 1]
+        BF_p = posteriors_BF["b_age"][:, int(p[6:-1]) - 1]
     else:
-        bi_p = posteriors_bi[p]
+        BF_p = posteriors_BF[p]
 
-    sns.kdeplot(bi_p, label="BI", color="orange")
+    sns.kdeplot(BF_p, label="BF", color="orange")
     plt.title(p)
     plt.legend(fontsize=7)
 

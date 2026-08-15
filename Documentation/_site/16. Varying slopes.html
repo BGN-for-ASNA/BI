@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="description" content="Extending mixed-effects models by allowing the relationship (slope) to vary across different groups.">
 
-<title>Varying Slopes Models – Bayesian Inference (BI)</title>
+<title>Varying Slopes Models – BayesForge (BF)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -92,12 +92,12 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-6a8f47518b915c51477edcf8788f90ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-294eff73d59fba645e10c6e6b482604a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -245,7 +245,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Bayesian Inference (BI)</span>
+    <span class="navbar-title">BayesForge (BF)</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -272,12 +272,12 @@ window.Quarto = {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-help">    
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/issues"><i class="bi bi-bug" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/issues"><i class="bi bi-bug" role="img">
 </i> 
  <span class="dropdown-text">Report a Bug</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/discussions"><i class="bi bi-chat-dots" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/discussions"><i class="bi bi-chat-dots" role="img">
 </i> 
  <span class="dropdown-text">Ask a Question</span></a>
   </li>  
@@ -287,7 +287,7 @@ window.Quarto = {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools tools-wide">
     <a href="https://twitter.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
-    <a href="https://github.com/BGN-for-ASNA/BI" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+    <a href="https://github.com/BGN-for-ASNA/BF" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
@@ -321,7 +321,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./0.Introduction.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Bayesian analysis with BI</span></a>
+ <span class="menu-text">Bayesian analysis with BF</span></a>
   </div>
 </li>
       </ul>
@@ -717,14 +717,14 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python (Raw)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="d20c39be" class="cell" data-execution_count="1">
+<div id="9fa45180" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
@@ -768,15 +768,11 @@ IProgress not found. Please update jupyter and ipywidgets. See https://ipywidget
 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>BI v 0.0.45 package loaded
+<pre><code>bf v 0.0.47 package loaded
 jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/sosa/work/3.12venv/lib/python3.10/site-packages/arviz/stats/diagnostics.py:596: RuntimeWarning:
-
-invalid value encountered in scalar divide
-
-/home/sosa/work/3.12venv/lib/python3.10/site-packages/arviz/stats/diagnostics.py:991: RuntimeWarning:
+<pre><code>/home/sosa/work/BF/BayesForge/Diagnostic/jax_diagnostics.py:214: RuntimeWarning:
 
 invalid value encountered in scalar divide
 </code></pre>
@@ -808,10 +804,10 @@ invalid value encountered in scalar divide
 <td>1.00</td>
 <td>1.00</td>
 <td>0.00</td>
-<td>NaN</td>
-<td>4000.00</td>
-<td>4000.00</td>
-<td>NaN</td>
+<td>0.00</td>
+<td>14408.24</td>
+<td>14408.24</td>
+<td>inf</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">Rho[0, 1]</td>
@@ -819,8 +815,8 @@ invalid value encountered in scalar divide
 <td>0.22</td>
 <td>-0.89</td>
 <td>-0.24</td>
+<td>0.01</td>
 <td>0.00</td>
-<td>0.0</td>
 <td>1752.10</td>
 <td>1183.04</td>
 <td>1.00</td>
@@ -831,8 +827,8 @@ invalid value encountered in scalar divide
 <td>0.22</td>
 <td>-0.89</td>
 <td>-0.24</td>
+<td>0.01</td>
 <td>0.00</td>
-<td>0.0</td>
 <td>1752.10</td>
 <td>1183.04</td>
 <td>1.00</td>
@@ -844,10 +840,10 @@ invalid value encountered in scalar divide
 <td>1.00</td>
 <td>1.00</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4021.66</td>
 <td>3814.38</td>
-<td>1.00</td>
+<td>1.05</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">a</td>
@@ -856,7 +852,7 @@ invalid value encountered in scalar divide
 <td>3.46</td>
 <td>4.29</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4211.85</td>
 <td>2808.09</td>
 <td>1.00</td>
@@ -868,7 +864,7 @@ invalid value encountered in scalar divide
 <td>3.88</td>
 <td>4.56</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4246.90</td>
 <td>2753.36</td>
 <td>1.00</td>
@@ -880,7 +876,7 @@ invalid value encountered in scalar divide
 <td>-1.88</td>
 <td>-1.13</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3533.17</td>
 <td>2772.77</td>
 <td>1.00</td>
@@ -892,7 +888,7 @@ invalid value encountered in scalar divide
 <td>0.02</td>
 <td>0.76</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>2936.09</td>
 <td>3106.71</td>
 <td>1.00</td>
@@ -904,7 +900,7 @@ invalid value encountered in scalar divide
 <td>-1.20</td>
 <td>-0.26</td>
 <td>0.01</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>1943.59</td>
 <td>2541.81</td>
 <td>1.00</td>
@@ -916,7 +912,7 @@ invalid value encountered in scalar divide
 <td>4.06</td>
 <td>4.75</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4660.96</td>
 <td>3267.56</td>
 <td>1.00</td>
@@ -928,7 +924,7 @@ invalid value encountered in scalar divide
 <td>-1.75</td>
 <td>-1.03</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4060.15</td>
 <td>2632.03</td>
 <td>1.00</td>
@@ -940,7 +936,7 @@ invalid value encountered in scalar divide
 <td>3.27</td>
 <td>3.99</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3076.67</td>
 <td>2735.60</td>
 <td>1.00</td>
@@ -952,7 +948,7 @@ invalid value encountered in scalar divide
 <td>-2.03</td>
 <td>-1.20</td>
 <td>0.01</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>1829.69</td>
 <td>2648.20</td>
 <td>1.00</td>
@@ -964,7 +960,7 @@ invalid value encountered in scalar divide
 <td>2.87</td>
 <td>3.57</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3473.14</td>
 <td>2807.37</td>
 <td>1.00</td>
@@ -976,7 +972,7 @@ invalid value encountered in scalar divide
 <td>-1.43</td>
 <td>-0.64</td>
 <td>0.01</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>1895.39</td>
 <td>2453.51</td>
 <td>1.00</td>
@@ -988,7 +984,7 @@ invalid value encountered in scalar divide
 <td>2.66</td>
 <td>3.34</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3541.30</td>
 <td>3190.21</td>
 <td>1.00</td>
@@ -1000,7 +996,7 @@ invalid value encountered in scalar divide
 <td>-1.78</td>
 <td>-0.98</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>2785.63</td>
 <td>3036.67</td>
 <td>1.00</td>
@@ -1012,7 +1008,7 @@ invalid value encountered in scalar divide
 <td>2.51</td>
 <td>3.22</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>1998.02</td>
 <td>2188.31</td>
 <td>1.00</td>
@@ -1024,7 +1020,7 @@ invalid value encountered in scalar divide
 <td>-1.33</td>
 <td>-0.47</td>
 <td>0.01</td>
-<td>0.0</td>
+<td>0.01</td>
 <td>1211.87</td>
 <td>1529.38</td>
 <td>1.00</td>
@@ -1036,7 +1032,7 @@ invalid value encountered in scalar divide
 <td>2.65</td>
 <td>3.34</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4163.17</td>
 <td>2692.32</td>
 <td>1.00</td>
@@ -1047,8 +1043,8 @@ invalid value encountered in scalar divide
 <td>0.25</td>
 <td>-1.83</td>
 <td>-1.05</td>
-<td>0.01</td>
-<td>0.0</td>
+<td>0.00</td>
+<td>0.00</td>
 <td>2515.43</td>
 <td>2446.61</td>
 <td>1.00</td>
@@ -1060,7 +1056,7 @@ invalid value encountered in scalar divide
 <td>5.14</td>
 <td>5.83</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3705.00</td>
 <td>2692.29</td>
 <td>1.00</td>
@@ -1072,7 +1068,7 @@ invalid value encountered in scalar divide
 <td>-1.88</td>
 <td>-1.11</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3252.27</td>
 <td>2745.19</td>
 <td>1.00</td>
@@ -1084,7 +1080,7 @@ invalid value encountered in scalar divide
 <td>3.13</td>
 <td>3.80</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3890.75</td>
 <td>2430.43</td>
 <td>1.00</td>
@@ -1096,7 +1092,7 @@ invalid value encountered in scalar divide
 <td>-1.73</td>
 <td>-0.99</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3595.03</td>
 <td>2944.52</td>
 <td>1.00</td>
@@ -1108,7 +1104,7 @@ invalid value encountered in scalar divide
 <td>3.65</td>
 <td>4.33</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3057.81</td>
 <td>2108.29</td>
 <td>1.00</td>
@@ -1120,7 +1116,7 @@ invalid value encountered in scalar divide
 <td>-1.49</td>
 <td>-0.72</td>
 <td>0.01</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>1840.29</td>
 <td>2968.54</td>
 <td>1.00</td>
@@ -1132,7 +1128,7 @@ invalid value encountered in scalar divide
 <td>3.91</td>
 <td>4.56</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3333.13</td>
 <td>2455.28</td>
 <td>1.00</td>
@@ -1144,7 +1140,7 @@ invalid value encountered in scalar divide
 <td>-1.68</td>
 <td>-0.95</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3665.55</td>
 <td>2985.66</td>
 <td>1.00</td>
@@ -1156,7 +1152,7 @@ invalid value encountered in scalar divide
 <td>5.03</td>
 <td>5.73</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3218.64</td>
 <td>2721.53</td>
 <td>1.00</td>
@@ -1168,7 +1164,7 @@ invalid value encountered in scalar divide
 <td>-2.08</td>
 <td>-1.29</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>2545.57</td>
 <td>2842.72</td>
 <td>1.00</td>
@@ -1180,7 +1176,7 @@ invalid value encountered in scalar divide
 <td>3.21</td>
 <td>3.88</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4455.94</td>
 <td>3129.22</td>
 <td>1.00</td>
@@ -1192,7 +1188,7 @@ invalid value encountered in scalar divide
 <td>-1.56</td>
 <td>-0.84</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3530.66</td>
 <td>2965.95</td>
 <td>1.00</td>
@@ -1204,7 +1200,7 @@ invalid value encountered in scalar divide
 <td>3.15</td>
 <td>3.82</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3597.24</td>
 <td>2854.85</td>
 <td>1.00</td>
@@ -1216,7 +1212,7 @@ invalid value encountered in scalar divide
 <td>-1.50</td>
 <td>-0.74</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>2675.32</td>
 <td>2497.12</td>
 <td>1.00</td>
@@ -1228,7 +1224,7 @@ invalid value encountered in scalar divide
 <td>3.98</td>
 <td>4.64</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4774.13</td>
 <td>3162.85</td>
 <td>1.00</td>
@@ -1240,10 +1236,10 @@ invalid value encountered in scalar divide
 <td>-1.77</td>
 <td>-1.04</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3984.24</td>
 <td>3133.99</td>
-<td>1.01</td>
+<td>1.00</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">a_b_cafe[16, 0]</td>
@@ -1252,7 +1248,7 @@ invalid value encountered in scalar divide
 <td>4.21</td>
 <td>4.88</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>2460.98</td>
 <td>2889.72</td>
 <td>1.00</td>
@@ -1264,7 +1260,7 @@ invalid value encountered in scalar divide
 <td>-1.99</td>
 <td>-1.21</td>
 <td>0.01</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>1907.81</td>
 <td>2387.54</td>
 <td>1.00</td>
@@ -1276,7 +1272,7 @@ invalid value encountered in scalar divide
 <td>4.35</td>
 <td>5.00</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4086.72</td>
 <td>3105.06</td>
 <td>1.00</td>
@@ -1288,7 +1284,7 @@ invalid value encountered in scalar divide
 <td>-1.69</td>
 <td>-0.96</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3467.95</td>
 <td>3220.21</td>
 <td>1.00</td>
@@ -1300,7 +1296,7 @@ invalid value encountered in scalar divide
 <td>5.05</td>
 <td>5.75</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>2735.52</td>
 <td>2947.42</td>
 <td>1.00</td>
@@ -1312,7 +1308,7 @@ invalid value encountered in scalar divide
 <td>-2.18</td>
 <td>-1.36</td>
 <td>0.01</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>1839.87</td>
 <td>3035.21</td>
 <td>1.00</td>
@@ -1324,7 +1320,7 @@ invalid value encountered in scalar divide
 <td>3.54</td>
 <td>4.20</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4067.57</td>
 <td>3290.06</td>
 <td>1.00</td>
@@ -1336,7 +1332,7 @@ invalid value encountered in scalar divide
 <td>-1.55</td>
 <td>-0.81</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>2978.96</td>
 <td>2725.84</td>
 <td>1.00</td>
@@ -1348,7 +1344,7 @@ invalid value encountered in scalar divide
 <td>-1.50</td>
 <td>-1.15</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>2452.25</td>
 <td>2609.21</td>
 <td>1.00</td>
@@ -1360,7 +1356,7 @@ invalid value encountered in scalar divide
 <td>0.49</td>
 <td>0.59</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>3524.04</td>
 <td>2303.50</td>
 <td>1.00</td>
@@ -1372,7 +1368,7 @@ invalid value encountered in scalar divide
 <td>0.89</td>
 <td>1.45</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>4369.97</td>
 <td>2984.81</td>
 <td>1.00</td>
@@ -1384,7 +1380,7 @@ invalid value encountered in scalar divide
 <td>0.16</td>
 <td>0.53</td>
 <td>0.00</td>
-<td>0.0</td>
+<td>0.00</td>
 <td>672.14</td>
 <td>791.70</td>
 <td>1.00</td>
@@ -1397,14 +1393,14 @@ invalid value encountered in scalar divide
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div id="02261a31" class="cell" data-execution_count="2">
+<div id="a8041583" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
@@ -1440,31 +1436,31 @@ invalid value encountered in scalar divide
 </div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesForge)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'jax.numpy'</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform------------------------------------------------</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBF</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesianInference"</span>),<span class="st">"/data/Sim data multivariatenormal.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">','</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesForge"</span>),<span class="st">"/data/Sim data multivariatenormal.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">','</span>)</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'cafe'</span>, <span class="st">'wait'</span>, <span class="st">'afternoon'</span>))</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesianInference"</span>),<span class="st">"/data/Sim data multivariatenormal.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">','</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesForge"</span>),<span class="st">"/data/Sim data multivariatenormal.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">','</span>)</span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">'cafe'</span>, <span class="st">'wait'</span>, <span class="st">'afternoon'</span>))</span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>data_on_model</span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(cafe, afternoon, wait, <span class="at">N_cafes =</span> <span class="fu">as.integer</span>(<span class="dv">20</span>) ){</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  sigma_cafe <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">shape=</span> <span class="fu">c</span>(<span class="dv">2</span>), <span class="at">name =</span> <span class="st">'sigma_cafe'</span>)</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>( <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'sigma'</span>)</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  Rho <span class="ot">=</span> <span class="fu">bi.dist.lkj</span>(<span class="fu">as.integer</span>(<span class="dv">2</span>), <span class="fu">as.integer</span>(<span class="dv">2</span>), <span class="at">name =</span> <span class="st">'Rho'</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bf.dist.normal</span>(<span class="dv">5</span>, <span class="dv">2</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bf.dist.normal</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  sigma_cafe <span class="ot">=</span> <span class="fu">bf.dist.exponential</span>(<span class="dv">1</span>, <span class="at">shape=</span> <span class="fu">c</span>(<span class="dv">2</span>), <span class="at">name =</span> <span class="st">'sigma_cafe'</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bf.dist.exponential</span>( <span class="dv">1</span>, <span class="at">name =</span> <span class="st">'sigma'</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  Rho <span class="ot">=</span> <span class="fu">bf.dist.lkj</span>(<span class="fu">as.integer</span>(<span class="dv">2</span>), <span class="fu">as.integer</span>(<span class="dv">2</span>), <span class="at">name =</span> <span class="st">'Rho'</span>)</span>
 <span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  cov <span class="ot">=</span> jnp<span class="sc">$</span><span class="fu">outer</span>(sigma_cafe, sigma_cafe) <span class="sc">*</span> Rho</span>
 <span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  a_cafe_b_cafe <span class="ot">=</span> <span class="fu">bi.dist.multivariate_normal</span>(</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  a_cafe_b_cafe <span class="ot">=</span> <span class="fu">bf.dist.multivariate_normal</span>(</span>
 <span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    jnp<span class="sc">$</span><span class="fu">squeeze</span>(jnp<span class="sc">$</span><span class="fu">stack</span>(<span class="fu">list</span>(a, b))), </span>
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    cov, </span>
 <span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="fu">c</span>(N_cafes), <span class="at">name =</span> <span class="st">'a_cafe'</span>)  </span>
@@ -1474,7 +1470,7 @@ invalid value encountered in scalar divide
 <span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">=</span> a_cafe[cafe] <span class="sc">+</span> b_cafe[cafe] <span class="sc">*</span> afternoon</span>
 <span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bi.dist.normal</span>(mu, sigma, <span class="at">obs=</span>wait)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf.dist.normal</span>(mu, sigma, <span class="at">obs=</span>wait)</span>
 <span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
@@ -1484,10 +1480,10 @@ invalid value encountered in scalar divide
 <span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
-<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesForge</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBF</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
@@ -1503,7 +1499,7 @@ invalid value encountered in scalar divide
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(cafe, wait, N_cafes, afternoon)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="pp">@BF</span> <span class="kw">function</span> <span class="fu">model</span>(cafe, wait, N_cafes, afternoon)</span>
 <span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">5</span>, <span class="fl">2</span>,  name <span class="op">=</span> <span class="st">"a"</span>)</span>
 <span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="op">-</span><span class="fl">1</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">"b"</span>)</span>
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    sigma_cafe <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, shape<span class="op">=</span>(<span class="fl">2</span>,),  name <span class="op">=</span> <span class="st">"sigma_cafe"</span>)</span>
@@ -1675,7 +1671,7 @@ Note
 <ul>
 <li><p>We can apply interaction terms similarly to <a href="./3. Interaction between continuous variables.html">Chapter 3</a>.</p></li>
 <li><p>We can apply categorical variables similarly to <a href="./4. Categorical variable.html">Chapter 4</a>.</p></li>
-<li><p>We can apply multiple random effects in Bayesian inference as follows:</p></li>
+<li><p>We can apply multiple random effects in BayesForge as follows:</p></li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(cafe, wait, N_cafes, afternoon, state):</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential( <span class="dv">1</span>,  name <span class="op">=</span> <span class="st">'sigma'</span>)</span>
@@ -1803,7 +1799,7 @@ $$
 ``` python
 from main import *
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 # Import data
 m.read_csv("../data/chimpanzees.csv", sep=";")
 m.df["block_id"] = m.df.block
@@ -2841,8 +2837,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -2953,7 +2947,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

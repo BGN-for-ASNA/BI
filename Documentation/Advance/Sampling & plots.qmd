@@ -1,0 +1,261 @@
+---
+title: "Direct sampling & plots"
+sidebar: start
+---
+
+
+## Sample distribution
+Every distribution in `m.dist` can be sampled **directly**, outside of a model, by passing
+`sample=True`. This is useful for prior predictive checks, simulating data, or quickly inspecting a
+distribution's shape.
+
+```{python}
+from BayesForge import bf
+m = bf()
+# Draw 1000 samples from a standard normal
+m.dist.normal(0, 1, shape=(4,), sample=True)
+```
+
+By default (`to_jax=False`) a direct sample is returned as a **`SampledData`** object — a thin wrapper
+around a JAX array. It behaves like a JAX array everywhere (arithmetic, indexing, `jnp.*` functions,
+`jit`/`vmap`/`grad`, use as a distribution parameter), and its `repr` reports the dtype so you can see
+the kind and precision at a glance:
+
+
+The extra thing a `SampledData` gives you over a raw array is a set of **built-in plotting methods** and **built-in helper functions**.
+
+If you only want the raw JAX array (no wrapper, no plotting helpers), pass `to_jax=True`:
+
+```{python}
+x = m.dist.normal(0, 1, shape=(1000,), sample=True, to_jax=True)   # plain jax array
+```
+
+## Plotting helpers
+
+Each plotting method is called directly on the sampled object. Most accept `interactive=True`
+(the default, **Plotly**) or `interactive=False` (**matplotlib / seaborn**):
+
+
+The available methods depend on the **shape** of the sampled array.
+
+### 1D-(n_samples,)
+
+::: {.panel-tabset}
+#### histogram
+```{python}
+m.dist.normal(0, 1, shape=(1000,), sample=True).hist() 
+```
+
+#### kernel
+```{python}
+m.dist.normal(0, 1, shape=(1000,), sample=True).density()
+```
+
+#### PPC
+```{python}
+m.dist.normal(0,1,shape=(100,4),sample=True).ppc_plot(m.dist.normal(0,1,shape=(100,),sample=True))
+```
+
+#### Time series — `(n_samples, n_time)`
+
+Treat the second axis as time and summarise across draws.
+
+```{python}
+m.dist.gaussian_random_walk(scale=0.5, num_steps=50, shape=(500,), sample=True).timeseries(credible_interval=0.9)
+```
+:::
+
+### 2D-(n_samples, n_variables)
+::: {.panel-tabset}
+#### histogram
+```{python}
+m.dist.normal(0, 1, shape=(1000,4), sample=True).hist() 
+```
+
+#### kernel
+```{python}
+m.dist.normal(0, 1, shape=(1000,4), sample=True).density() 
+```
+
+#### boxplot
+```{python}
+m.dist.normal(0, 1, shape=(1000,4), sample=True).boxplot() 
+```
+
+#### violinplot
+```{python}
+m.dist.normal(0, 1, shape=(1000,4), sample=True).violinplot() 
+```
+
+#### pairplot
+```{python}
+m.dist.normal(0, 1, shape=(1000,4), sample=True).pairplot() 
+```
+
+#### corr_heatmap
+```{python}
+m.dist.lkj_cholesky(4, 2, name = 'a', sample = True).corr_heatmap() 
+```
+
+#### traceplot
+```{python}
+m.dist.normal(0, 1, shape=(1000,4), sample=True).traceplot() 
+```
+
+#### surface_3d
+
+Computes a 2D Kernel Density Estimate (KDE) using the first two variables. It plots a 3D surface where the X and Y axes represent the variables and the Z axis represents the estimated probability density.
+
+```{python}
+m.dist.normal(0, 1, shape=(1000,4), sample=True).surface_3d() 
+```
+
+#### scatter3d
+
+Takes the first three variables (columns) and plots them directly as points in a 3D space (X, Y, and Z axes). Requires the array to have at least 3 variables (columns).
+
+```{python}
+m.dist.normal(0, 1, shape=(1000,4), sample=True).scatter3d() 
+```
+#### Posterior predictive
+
+Compare draws against observed data.
+:::
+
+### 3D-(n_samples, n_groups, n_times)
+::: {.panel-tabset}
+
+
+```{python}
+m.dist.normal(0, 1, shape=(1000,4, 3), sample=True).hist() 
+```
+
+
+
+#### 3D scatter — `(n_samples, >=3)`
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).hist()
+```
+
+:::
+
+## Non-plot helper
+
+In addition to plot helper functions, there are several other helper functions that can be used to compute summaries or transform the sampled array. For reduction operations (like `mean`, `std`, `sum`), you can pass an `axis` argument to reduce along specific dimensions. For example, passing `axis=0` will reduce across the sample dimension.
+
+### mean
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).mean(axis=0)
+```
+
+### std
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).std()
+```
+
+### variance
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).var()
+```
+
+### hdi
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).hdi(cred_mass=0.95)
+```
+
+### sum
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).sum()
+```
+### prod
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).prod()
+```
+### min
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).min()
+```
+### max
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).max()
+```
+### argmin
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).argmin()
+```
+### argmax
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).argmax()
+```
+### all
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).all()
+```
+### any
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).any()
+```
+### cumsum
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).cumsum()
+```
+### round
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).round()
+```
+### clip
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).clip(0, 1)
+```
+### ptp
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).ptp()
+```
+### sort
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).sort()
+```
+
+### .at[]
+
+Since the sampled object wraps a JAX array, you can use JAX's `.at[]` syntax for in-place style updates (which return a new object):
+
+```{python}
+s = m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True)
+s_new = s.at[0, 0, 0].set(0.0)
+```
+
+### reshape
+
+```{python}
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).reshape((100, 20))
+```
+
+And many other standard NumPy/JAX array methods like `.flatten()`, `.squeeze()`, `.astype()`, etc., are also available directly on the sampled object.
+
+
+## Notes
+
+::: callout-note
+- `density`, `surface_3d`, and `ppc_plot` are **Plotly-only** — passing `interactive=False` has no
+  effect on them.
+- The dimensional requirement is **enforced**: e.g. `corr_heatmap`, `boxplot`, `violinplot`,
+  `pairplot`, `traceplot`, `scatter3d`, and `timeseries` raise a `ValueError` if the array is not the
+  expected shape.
+- Plotting methods live on the `SampledData` wrapper only. If you sampled with `to_jax=True` (or later
+  called `.to_jax()`), convert back with `SampledData(arr)` to plot, or re-sample without `to_jax`.
+:::

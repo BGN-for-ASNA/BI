@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,22 +8,22 @@ import jax
 
 model_name = "4.Binomial"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu')
 
 # 1. Data Preparation ----------------------------------------
-data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BI", "Resources")) + os.sep
+data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BayesForge", "Resources")) + os.sep
 df = pd.read_csv(data_path + 'chimpanzees.csv', sep=';')
 m.df = df
 m.data_on_model = {'pulled_left': jnp.array(df.pulled_left.values)}
 
-def model_bi(pulled_left):
-    alpha = m.dist.normal(0, 10, name='a')
-    m.dist.binomial(total_count=1, logits=alpha, obs=pulled_left)
+def model_BF(pulled_left):
+    a = m.dist.normal(0, 10)
+    m.dist.binomial(total_count=1, logits=a, obs=pulled_left)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -57,12 +57,12 @@ def sim_pulled_left(a):
 
 def estimate(a):
     pulled_left_sim = sim_pulled_left(a)
-    m_rec = bi(print_devices_found=False)
+    m_rec = bf(print_devices_found=False)
     m_rec.data_on_model = {"pulled_left": pulled_left_sim}
     def model_rec(pulled_left):
-        alpha = m_rec.dist.normal(0, 10, name='a')
-        m_rec.dist.binomial(total_count=1, logits=alpha, obs=pulled_left)
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+        a = m_rec.dist.normal(0, 10)
+        m_rec.dist.binomial(total_count=1, logits=a, obs=pulled_left)
+    m_rec.fit(model_rec, num_samples=500, progress_bar=False, shard=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -81,6 +81,10 @@ def param_recovery(a_true, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 10))
+nsim_test = int(os.environ.get("BF_NSIM", 10))
 a_sim = np.random.normal(0, 1, size=(nsim_test, 1))
 recovery_results = param_recovery(a_sim, nsim=nsim_test)
+
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

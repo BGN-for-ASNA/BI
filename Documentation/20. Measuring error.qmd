@@ -12,16 +12,16 @@ Measurement error refers to the variability in the measurement of a variable, an
 
 
 ## Example
-Below is an example code snippet demonstrating a Bayesian measurement error model using the Bayesian Inference (BI) package. The data consist of three continuous variables (marriage rate, divorce rate, age), and the goal is to estimate the effect of age and marriage rate on the divorce rate while considering that the divorce rate has a measurement error. This example is based on @mcelreath2018statistical.
+Below is an example code snippet demonstrating a Bayesian measurement error model using the BayesForge (BF) package. The data consist of three continuous variables (marriage rate, divorce rate, age), and the goal is to estimate the effect of age and marriage rate on the divorce rate while considering that the divorce rate has a measurement error. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ## Python
 ``` {python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -56,14 +56,14 @@ m.summary() # Get posterior distributions
 
 ## R
 ``` R
-library(BayesianInference)
+library(BayesForge)
 jnp = reticulate::import('jax.numpy')
 
 # Setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/WaffleDivorce.csv", sep = ''), sep=';')
+m$data(paste(system.file(package = "BayesForge"),"/data/WaffleDivorce.csv", sep = ''), sep=';')
 
 m$scale(list('MedianAgeMarriage', 'Marriage'))
 
@@ -75,13 +75,13 @@ m$data_on_model$N = as.integer(nrow(m$df))
 
 # Define model ------------------------------------------------
 model <- function(D_obs, D_sd, A, N, M){
-  a = bi.dist.normal(0, 0.2, name = 'a') 
-  beta = bi.dist.normal(0, 0.5, name = 'beta')
-  eta = bi.dist.normal(0, 0.5, name = 'eta') 
-  s = bi.dist.exponential(1, name = 's') 
+  a = bf.dist.normal(0, 0.2, name = 'a') 
+  beta = bf.dist.normal(0, 0.5, name = 'beta')
+  eta = bf.dist.normal(0, 0.5, name = 'eta') 
+  s = bf.dist.exponential(1, name = 's') 
   mu = a + beta * A + eta * M
-  D_true = bi.dist.normal(mu, s, name = 'D_true') 
-  bi.dist.normal(D_true , D_sd, obs = D_obs) 
+  D_true = bf.dist.normal(mu, s, name = 'D_true') 
+  bf.dist.normal(D_true , D_sd, obs = D_obs) 
 }
 
 # Run MCMC ------------------------------------------------
@@ -93,10 +93,10 @@ m$summary() # Get posterior distribution
 ```
 ## Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -113,7 +113,7 @@ dat = pydict(
 m.data_on_model = dat # Send to model (convert to jax array)
 
 # Define model ------------------------------------------------
-@BI function model(D_obs, D_sd, A, N, M)
+@BF function model(D_obs, D_sd, A, N, M)
     a = m.dist.normal(0, 0.2, name = "a") 
     beta = m.dist.normal(0, 0.5, name = "beta")
     eta = m.dist.normal(0, 0.5, name = "eta")  

@@ -1,8 +1,8 @@
 # %%
 from patch_diag import patch_diag_class
-from BI import bi
+from BayesForge import bf
 
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 from importlib.resources import files

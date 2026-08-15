@@ -13,16 +13,16 @@ Zero-Inflated Regression models are used when the outcome variable is a count va
 
 ## Example
 
-Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson regression using the Bayesian Inference (BI) package. The data represent the production of books in a monastery (y), which is affected by the number of days that individuals work, as well as the number of days individuals drink. This example is based on @mcelreath2018statistical.
+Below is an example code snippet demonstrating Bayesian Zero-Inflated Poisson regression using the BayesForge (BF) package. The data represent the production of books in a monastery (y), which is affected by the number of days that individuals work, as well as the number of days individuals drink. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ### Python
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device ------------------------------------------------
-m = bi('cpu', rand_seed = False) # Fixing seed for reproducibility
+m = bf('cpu', rand_seed = False) # Fixing seed for reproducibility
 
 # Simulated data------------------------------------------------
 prob_drink = 0.2  # 20% of days
@@ -55,29 +55,29 @@ m.summary()
 
 ### R
 ```R
-library(BayesianInference)
+library(BayesForge)
 
 # setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 
 # Simulate data ------------------------------------------------
 prob_drink = 0.2  # 20% of days
 rate_work = 1     # average 1 manuscript per day
 # sample one year of production
 N = as.integer(365)
-drink = bi.dist.binomial(total_count = as.integer(1), probs = prob_drink, shape = c(N), sample = T ) # An example of sampling a distribution with BI
-y = (1 - drink) *  bi.dist.poisson(rate_work, shape = c(N), sample = T)
+drink = bf.dist.binomial(total_count = as.integer(1), probs = prob_drink, shape = c(N), sample = T ) # An example of sampling a distribution with BF
+y = (1 - drink) *  bf.dist.poisson(rate_work, shape = c(N), sample = T)
 data = list()
 data$y = y
 m$data_on_model = data
 
 # Define model ------------------------------------------------
 model <- function(y){
-  al = bi.dist.normal(1, 0.5, name='al', shape=c(1))
-  ap = bi.dist.normal(-1, 1, name='ap', shape=c(1))
+  al = bf.dist.normal(1, 0.5, name='al', shape=c(1))
+  ap = bf.dist.normal(-1, 1, name='ap', shape=c(1))
   p = m$link$inv_logit(ap)
   lambda_ = jnp$exp(al)
-  bi.dist.zero_inflated_poisson(p, lambda_, obs=y)
+  bf.dist.zero_inflated_poisson(p, lambda_, obs=y)
 }
 
 # Run MCMC ------------------------------------------------
@@ -91,10 +91,10 @@ m$summary() # Get posterior distribution
 
 ### Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Simulated data ------------------------------------------------
 prob_drink = 0.2  
@@ -111,12 +111,12 @@ drink = m.dist.binomial(1, prob_drink, shape=(N,), sample=true)
 # and we taught Julia how to handle Py arithmetic in the previous step
 y = (1 - drink) * m.dist.poisson(rate_work, shape=(N,), sample=true)
 
-# Send data to BI class object ------------------------------------------------
+# Send data to BF class object ------------------------------------------------
 m.data_on_model = pydict(Dict("y" =>y))
 
 
 # Define model ------------------------------------------------
-@BI function model(y)
+@BF function model(y)
     al = m.dist.normal(1, 0.5, name="al")
     ap = m.dist.normal(-1.5, 1, name="ap")
     p = m.link.inv_logit(ap)

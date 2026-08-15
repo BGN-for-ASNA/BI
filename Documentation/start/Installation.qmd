@@ -8,34 +8,26 @@ format:
 ---
 
 
-You can run BI on python or R. For R users you need to have installed python and the R [**reticulate**](https://rstudio.github.io/reticulate/).
+You can run BF on python or R. For R users you need to have installed python and the R [**reticulate**](https://rstudio.github.io/reticulate/).
 
 
 ::: {.panel-tabset group="language"}
 ## Python
 ``` python
 #| code-fold: false
-pip install BayesInference # For CPU support
-pip install BayesInference[gpu] # For GPU support 
+pip install BayesForge # For CPU support
+pip install BayesForge[gpu] # For GPU support 
 ```
 
 ## R
 ``` R
 #| code-fold: false
-package.install(BayesianInference)
+package.install(BayesForge)
 ```
 :::
 
 ::: callout-note
-* As reticulate uses its own python environment, you need to install the python version of BI through reticulate. You can do this by running the following command in R:
-  
-    ``` R
-    reticulate::py_install("BayesianInference", pip = TRUE)
-    ```
-
 * GPU support is only available for linux and WSL2 systems.
-
-
 :::
 
 <script>

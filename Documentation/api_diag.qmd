@@ -49,7 +49,7 @@ scale: scale of the elpd
 The returned object has a custom print method that overrides pd.Series method.
 
 ```python
-bi.dist.WAIC(
+bf.dist.WAIC(
 self,
 pointwise=None,
 var_name=None,
@@ -72,7 +72,7 @@ Returns:
 fig: Autocorrelation plot
 
 ```python
-bi.dist.autocor(
+bf.dist.autocor(
 self,
 *args,
 **kwargs,
@@ -166,7 +166,7 @@ leave-one-out cross-validation and WAIC. Stat Comput 27, 1413–1432 (2017)
 see https://doi.org/10.1007/s11222-016-9696-4
 
 ```python
-bi.dist.compare(
+bf.dist.compare(
 compare_dict,
 ic=None,
 method='stacking',
@@ -194,7 +194,7 @@ Returns:
 fig: Density plots
 
 ```python
-bi.dist.density(
+bf.dist.density(
 self,
 var_names=None,
 shade=0.2,
@@ -217,7 +217,7 @@ Returns:
 ess: Effective sample sizes
 
 ```python
-bi.dist.ess(
+bf.dist.ess(
 self,
 *args,
 **kwargs,
@@ -242,7 +242,7 @@ Returns:
 fig: Forest plot
 
 ```python
-bi.dist.forest(
+bf.dist.forest(
 self,
 list=None,
 kind='ridgeplot',
@@ -306,7 +306,7 @@ good_k: For a sample size S, the thresold is compute as min(1 - 1/log10(S), 0.7)
 The returned object has a custom print method that overrides pd.Series method.
 
 ```python
-bi.dist.loo(
+bf.dist.loo(
 self,
 pointwise=None,
 var_name=None,
@@ -333,7 +333,7 @@ Stores plots in instance variables:
 self.plot_posterior, self.autocor, self.traces, self.rank, self.forest
 
 ```python
-bi.dist.model_checks(
+bf.dist.model_checks(
 self,
 )
 ```
@@ -358,7 +358,7 @@ Returns:
 fig: Pair plot
 
 ```python
-bi.dist.pair(
+bf.dist.pair(
 self,
 var_names=None,
 kind=['scatter', 'kde'],
@@ -449,7 +449,7 @@ cross-validation and WAIC https://arxiv.org/abs/1507.04544
 R and Stan, Second edition, CRC Press.
 
 ```python
-bi.dist.plot_compare(
+bf.dist.plot_compare(
 comp_df,
 insample_dev=False,
 plot_standard_error=True,
@@ -479,7 +479,7 @@ Returns:
 fig: ESS evolution plot
 
 ```python
-bi.dist.plot_ess(
+bf.dist.plot_ess(
 self,
 )
 ```
@@ -500,7 +500,7 @@ Returns:
 plot: The trace plot object
 
 ```python
-bi.dist.plot_trace(
+bf.dist.plot_trace(
 self,
 var_names=None,
 kind='rank_bars',
@@ -523,7 +523,7 @@ Returns:
 fig: Matplotlib figure containing posterior plots
 
 ```python
-bi.dist.posterior(
+bf.dist.posterior(
 self,
 figsize=(8, 4),
 )
@@ -543,7 +543,7 @@ Returns:
 fig: Matplotlib figure containing the prior distribution plots
 
 ```python
-bi.dist.prior_dist(
+bf.dist.prior_dist(
 self,
 N=100,
 )
@@ -563,7 +563,7 @@ Returns:
 fig: Rank plots
 
 ```python
-bi.dist.rank(
+bf.dist.rank(
 self,
 *args,
 **kwargs,
@@ -584,7 +584,7 @@ Returns:
 rhat: R-hat values
 
 ```python
-bi.dist.rhat(
+bf.dist.rhat(
 self,
 *args,
 **kwargs,
@@ -608,7 +608,7 @@ Returns:
 pd.DataFrame: Summary statistics of the posterior distribution
 
 ```python
-bi.dist.summary(
+bf.dist.summary(
 self,
 round_to=2,
 kind='stats',
@@ -631,7 +631,7 @@ Returns:
 self.trace: The arviz trace object containing the diagnostic data
 
 ```python
-bi.dist.to_az(
+bf.dist.to_az(
 self,
 backend='numpyro',
 sample_stats_name=['target_log_prob', 'log_accept_ratio', 'has_divergence', 'energy'],
@@ -652,7 +652,7 @@ Returns:
 fig: Trace plots
 
 ```python
-bi.dist.traces(
+bf.dist.traces(
 self,
 *args,
 **kwargs,

@@ -1,39 +1,39 @@
 # Installation
 
-You can run BI on python or R. For R users you need to have installed python and the R [**reticulate**](https://rstudio.github.io/reticulate/) package.
+You can run BF on python or R. For R users you need to have installed python and the R [**reticulate**](https://rstudio.github.io/reticulate/) package.
 
 ::: {.panel-tabset group="language"}
 ## Python
 ``` python
-pip install BayesInference
+pip install BayesForge
 ```
 
 ## R
 ``` R
-package.install(BayesInference)
+package.install(BayesForge)
 ```
 :::
 
-# Import BI class
-Before anything else, you need to import the BI class. This will allow you to create a BI object that will be used to : 1) import data, 2) define the model, 3) fit the model, 4) summarize the results, and 5) plot the results.
+# Import BF class
+Before anything else, you need to import the BF class. This will allow you to create a BF object that will be used to : 1) import data, 2) define the model, 3) fit the model, 4) summarize the results, and 5) plot the results.
 
 ::: {.panel-tabset group="language"}
 ## Python
 ``` python
-from BI import bi
-m = bi()
+from BayesForge import bf
+m = bf()
 ```
 
 ## R
 ``` R
-library(BayesInference)
-m=importBI(platform='cpu')
+library(BayesForge)
+m=importBF(platform='cpu')
 ```
 :::
 
 # Import data
 
-The BI class can import data from a csv file or from a dictionary for data that can't be stored in a tabular format.
+The BF class can import data from a csv file or from a dictionary for data that can't be stored in a tabular format.
 
 ## Import tabular data from a csv file
 ::: {.panel-tabset group="language"}
@@ -69,7 +69,7 @@ m$data_on_model=data
 :::
 
 # Define model
-A function that declare a mathematical model need to be defined first and sent it to the BI class. 
+A function that declare a mathematical model need to be defined first and sent it to the BF class. 
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -88,7 +88,7 @@ model <- function(ID1, ID2){
 :::
 
 # Fit model
-To fit your model, you need to use the ```bi.fit``` function. This function takes the model function as an argument and returns a ```bi``` object that contains the results of the model fitting. The ```bi``` object can be used to access the posterior distributions of the parameters, as well as the summary statistics of the model.
+To fit your model, you need to use the ```BF.fit``` function. This function takes the model function as an argument and returns a ```BF``` object that contains the results of the model fitting. The ```BF``` object can be used to access the posterior distributions of the parameters, as well as the summary statistics of the model.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -102,7 +102,7 @@ m$fit(model)
 :::
 
 # Summary
-The ```bi``` object also provides a summary of the model results. This summary includes the posterior distributions of the parameters, as well as the summary statistics of the model.
+The ```BF``` object also provides a summary of the model results. This summary includes the posterior distributions of the parameters, as well as the summary statistics of the model.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -116,7 +116,7 @@ m$summary()
 :::
 
 # Diagnostics
-Bayesian models can be subject to various types of model misspecification, such as model over-fitting, model under-fitting, or model mis-specification. To assess the model's performance, you can use the ```bi``` object's ```bi.diag``` function. This function provides a range of diagnostic tools, including posterior predictive checks, posterior predictive distributions, and model comparisons.
+Bayesian models can be subject to various types of model misspecification, such as model over-fitting, model under-fitting, or model mis-specification. To assess the model's performance, you can use the ```BF``` object's ```BF.diag``` function. This function provides a range of diagnostic tools, including posterior predictive checks, posterior predictive distributions, and model comparisons.
 
 ::: {.panel-tabset group="language"}
 ## Python

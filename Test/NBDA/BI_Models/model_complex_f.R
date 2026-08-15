@@ -1,5 +1,5 @@
-# BI Model for Complex f Frequency-Dependent Transmission Networks
-bi_model_complex_f <- function(data) {
+# BF Model for Complex f Frequency-Dependent Transmission Networks
+BF_model_complex_f <- function(data) {
   # STEP 1: Setting up Primary Factor Models
   # Log space sampling of fundamental intrinsic and transmission values
   log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")

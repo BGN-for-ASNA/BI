@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,11 +8,11 @@ import jax
 
 model_name = "11.Varying intercepts"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu', backend='tfp')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu', backend='tfp')
 
 # 1. Data Loading -------------------------------------------
-data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BI", "Resources")) + os.sep
+data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BayesForge", "Resources")) + os.sep
 df = pd.read_csv(data_path + 'reedfrogs.csv', sep=';')
 df["tank"] = np.arange(len(df))
 
@@ -23,18 +23,18 @@ m.data_on_model = {
     'density': jnp.array(df.density.values, dtype=jnp.float32) # Cast to float for TFP
 }
 
-def model_bi(tank, surv, density):
+def model_BF(tank, surv, density):
     sigma = yield m.dist.exponential(1.0, shape=(1,), name='sigma')
-    a_bar = yield m.dist.normal(0.0, 1.5, shape=(1,), name='a_bar')
+    a_bar = yield m.dist.normal(0.0, 2.0, shape=(1,), name='a_bar')
     # Non-Centered Parametrization
     z = yield m.dist.normal(0, 1, shape=(48,), name='z')
     alpha = a_bar + z * sigma
     p = alpha[tank]
     yield m.dist.binomial(total_count=density, logits=p, obs=surv)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -53,7 +53,7 @@ parameters {
 model {
     vector[N_obs] p;
     sigma ~ exponential(1);
-    a_bar ~ normal(0, 1.5);
+    a_bar ~ normal(0, 2);
     a ~ normal(a_bar, sigma);
     for (i in 1:N_obs) {
         p[i] = a[tank[i]];
@@ -76,15 +76,15 @@ param_map = {
     'a_bar[0]': 'a_bar',
     'sigma[0]': 'sigma'
 }
-bi_df = prepare_bi_data(m)
-plot_comparaison(bi_df, df_stan, param_map=param_map, model_name=model_name)
+BF_df = prepare_bi_data(m)
+plot_comparaison(BF_df, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(tank, density, a_bar_true, sigma_true, alpha_true):
     p_true = alpha_true[tank]
     surv_sim = np.random.binomial(density.astype(int), jax.nn.sigmoid(p_true)).astype(float)
     
-    m_rec = bi(print_devices_found=False, backend='tfp')
+    m_rec = bf(print_devices_found=False, backend='tfp')
     m_rec.data_on_model = {
         'tank': jnp.array(tank, dtype=jnp.int32),
         'surv': jnp.array(surv_sim, dtype=jnp.float32),
@@ -93,7 +93,7 @@ def estimate(tank, density, a_bar_true, sigma_true, alpha_true):
     
     def model_rec(tank, surv, density):
         sigma = yield m_rec.dist.exponential(1.0, name='sigma')
-        a_bar = yield m_rec.dist.normal(0.0, 1.5, name='a_bar')
+        a_bar = yield m_rec.dist.normal(0.0, 2.0, name='a_bar')
         z = yield m_rec.dist.normal(0, 1, shape=(48,), name='z')
         alpha = a_bar + z * sigma
         p = alpha[tank]
@@ -121,8 +121,8 @@ def param_recovery(tank, density, a_bar_sims, sigma_sims, alpha_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 10))
-a_bar_sims = np.random.normal(0, 1.5, (nsim_test, 1))
+nsim_test = int(os.getenv('BF_NSIM', 10))
+a_bar_sims = np.random.normal(0, 2.0, (nsim_test, 1))
 sigma_sims = np.random.exponential(1.0, (nsim_test, 1))
 alpha_sims = np.random.normal(a_bar_sims, sigma_sims, (nsim_test, 48))
 
@@ -130,3 +130,19 @@ alpha_sims = np.random.normal(a_bar_sims, sigma_sims, (nsim_test, 48))
 tank_ext = np.tile(df.tank.values, 50)
 dens_ext = np.tile(df.density.values, 50).astype(float)
 recovery_results = param_recovery(tank_ext, dens_ext, a_bar_sims, sigma_sims, alpha_sims, nsim=nsim_test)
+
+
+# --- WAIC & LOO cross-check: native TFP vs NumPyro/ArviZ reference (same draws) ---
+# `waic_ref` is a numpyro-mode transcription of the fitted TFP model (identical
+# latent site names), used to evaluate the same posterior draws through
+# numpyro.infer.log_likelihood -- the exact machinery ArviZ uses.
+m_ref = bf(platform='cpu', print_devices_found=False)
+
+def waic_ref(tank, surv, density):
+    sigma = m_ref.dist.exponential(1.0, shape=(1,))
+    a_bar = m_ref.dist.normal(0.0, 2.0, shape=(1,))
+    z = m_ref.dist.normal(0, 1, shape=(48,))
+    alpha = a_bar + z * sigma
+    p = alpha[tank]
+    m_ref.dist.binomial(total_count=density, logits=p, obs=surv)
+waic_report(m, model_name, ref_model=waic_ref, ref_kwargs={'tank': m.data_on_model['tank'], 'surv': m.data_on_model['surv'], 'density': m.data_on_model['density']})

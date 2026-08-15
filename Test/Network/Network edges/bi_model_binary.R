@@ -1,7 +1,7 @@
 library(reticulate)
-library(BayesianInference)
+library(BayesForge)
 
-m <- importBI("cpu")
+m <- importBF("cpu")
 
 # Ensure JAX is available and uses 64-bit precision to match Stan
 jax <- import("jax")
@@ -9,7 +9,7 @@ jax$config$update("jax_enable_x64", TRUE)
 jnp <- import("jax.numpy")
 jax_scipy <- import("jax.scipy.special")
 
-bi_model_binary <- function(data) {
+BF_model_binary <- function(data) {
   predictor <- jnp$zeros(as.integer(data$num_rows))
 
   # 0-based indexing for JAX

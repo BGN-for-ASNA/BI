@@ -1,9 +1,29 @@
 Comparison Table for 3.Continuous interactions
 ============================================================
-Parameter BI Mean Stan Mean    Diff KL Div
-     a[0]  0.3586    0.3583  0.0002 0.0393
-    bs[0] -0.1132   -0.1127 -0.0006 0.0434
-    bw[0]  0.2058    0.2056  0.0002 0.0600
-   bws[0] -0.1415   -0.1427  0.0012 0.0478
- sigma[0]  0.1414    0.1419 -0.0004 0.0494
+Parameter BF Mean Stan Mean    Diff KL Div
+   bws[0] -0.1424   -0.1423 -0.0001 0.0446
+    bw[0]  0.2057    0.2064 -0.0007 0.0815
+ sigma[0]  0.1438    0.1427  0.0011 0.0694
+     a[0]  0.3592    0.3579  0.0013 0.0902
+    bs[0] -0.1128   -0.1125 -0.0003 0.0730
 ============================================================
+
+================================================================
+WAIC cross-check  -  3.Continuous interactions
+================================================================
+[A] TFP native (JointDistributionCoroutine replay)
+      elpd_waic = +12.584028    p_waic = 4.181533
+[B] NumPyro log_likelihood on same draws (== ArviZ machinery)
+      elpd_waic = +12.584028    p_waic = 4.181533
+|delta elpd_waic| = 2.831e-07      |delta p_waic| = 0.000e+00
+RESULT: PASS   (S=4000, N=27)
+----------------------------------------------------------------
+LOO cross-check  -  3.Continuous interactions
+----------------------------------------------------------------
+[A'] BF native JAX PSIS-LOO (jax_diagnostics.loo)
+      elpd_loo  = +12.400654    p_loo  = 4.364918
+[B'] ArviZ az.loo (PSIS-LOO) on the same log-likelihood
+      elpd_loo  = +12.400390    p_loo  = 4.365178
+|delta elpd_loo| = 2.639e-04      |delta p_loo| = 2.602e-04
+RESULT: PASS
+================================================================

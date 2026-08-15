@@ -1,8 +1,8 @@
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import pandas as pd
 
-m = bi(backend='tfp', platform='cpu')
+m = bf(backend='tfp', platform='cpu')
 m.df = pd.DataFrame({'y': [1.0, 2.0, 3.0]})
 m.data_to_model(['y'])
 

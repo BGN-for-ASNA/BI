@@ -21,14 +21,14 @@ To model the relationship between a vector outcome variable in which each elemen
 
 ### Python
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import jax
 import numpy as np
 from jax.nn import softmax
 
 # Setup device------------------------------------------------
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 
 # Simulated data ------------------------------------------------
 np.random.seed(42)
@@ -90,8 +90,8 @@ print(summ[['mean']])
 ### R
 
 ```R
-library(BayesianInference)
-m=importBI(platform='cpu')
+library(BayesForge)
+m=importBF(platform='cpu')
 jnp = reticulate::import('jax.numpy')
 
 # Simulated data ------------------------------------------------
@@ -126,9 +126,9 @@ for(i in 1:N) {
 # Define model ------------------------------------------------
 model <- function(X, Y){
   # Parameter prior distributions
-  alpha = bi.dist.normal(0, 5, name='alpha', shape = c(2))
-  beta = bi.dist.normal(0, 5, name='beta', shape = c(2))
-  kappa = bi.dist.exponential(1.0, name='kappa')
+  alpha = bf.dist.normal(0, 5, name='alpha', shape = c(2))
+  beta = bf.dist.normal(0, 5, name='beta', shape = c(2))
+  kappa = bf.dist.exponential(1.0, name='kappa')
   
   # Linear predictors
   s1 = alpha[1] + beta[1] * X
@@ -139,7 +139,7 @@ model <- function(X, Y){
   theta = jnp$nn$softmax(phi, axis=as.integer(1))
   
   # Likelihood
-  bi.dist.dirichlet(theta * kappa, obs=Y)
+  bf.dist.dirichlet(theta * kappa, obs=Y)
 }
 
 m$data_on_model = list(X=X, Y=Y)
@@ -154,12 +154,12 @@ m$summary()
 ### Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 using Random
 using Distributions
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Simulated data ------------------------------------------------
 Random.seed!(42)
@@ -186,7 +186,7 @@ for i in 1:N
 end
 
 # Define model ------------------------------------------------
-@BI function model(X, Y)
+@BF function model(X, Y)
     alpha = m.dist.normal(0, 5, shape=(2,), name="alpha")
     beta = m.dist.normal(0, 5, shape=(2,), name="beta")
     kappa = m.dist.exponential(1.0, name="kappa")

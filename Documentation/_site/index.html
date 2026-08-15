@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Bayesian Inference (BI)</title>
+<title>BayesForge (BF)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -71,12 +71,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-6a8f47518b915c51477edcf8788f90ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-294eff73d59fba645e10c6e6b482604a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -197,22 +197,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-<script type="text/javascript">
-window.PlotlyConfig = {MathJaxConfig: 'local'};
-if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
-if (typeof require !== 'undefined') {
-require.undef("plotly");
-requirejs.config({
-    paths: {
-        'plotly': ['https://cdn.plot.ly/plotly-2.35.2.min']
-    }
-});
-require(['plotly'], function(Plotly) {
-    window._Plotly = Plotly;
-});
-}
-</script>
-
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -270,7 +254,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Bayesian Inference (BI)</span>
+    <span class="navbar-title">BayesForge (BF)</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -297,12 +281,12 @@ window.Quarto = {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-help">    
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/issues"><i class="bi bi-bug" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/issues"><i class="bi bi-bug" role="img">
 </i> 
  <span class="dropdown-text">Report a Bug</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/discussions"><i class="bi bi-chat-dots" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/discussions"><i class="bi bi-chat-dots" role="img">
 </i> 
  <span class="dropdown-text">Ask a Question</span></a>
   </li>  
@@ -312,7 +296,7 @@ window.Quarto = {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools tools-wide">
     <a href="https://twitter.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
-    <a href="https://github.com/BGN-for-ASNA/BI" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+    <a href="https://github.com/BGN-for-ASNA/BF" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
@@ -327,7 +311,7 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#welcome-to-bayesian-inference-bi" id="toc-welcome-to-bayesian-inference-bi" class="nav-link active" data-scroll-target="#welcome-to-bayesian-inference-bi">Welcome to Bayesian Inference (BI)</a>
+  <li><a href="#welcome-to-bayesforge-bf" id="toc-welcome-to-bayesforge-bf" class="nav-link active" data-scroll-target="#welcome-to-bayesforge-bf">Welcome to BayesForge (BF)</a>
   <ul class="collapse">
   <li><a href="#an-open-source-library-for-python-r-and-julia" id="toc-an-open-source-library-for-python-r-and-julia" class="nav-link" data-scroll-target="#an-open-source-library-for-python-r-and-julia">An open-source library for Python, R and Julia</a></li>
   </ul></li>
@@ -339,15 +323,15 @@ window.Quarto = {
   <li><a href="#gallery" id="toc-gallery" class="nav-link" data-scroll-target="#gallery">Gallery</a></li>
   </ul>
 </nav>
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(36)</span></div><div class="category" data-category="Biases">Biases <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Classification">Classification <span class="quarto-category-count">(7)</span></div><div class="category" data-category="Clustering">Clustering <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Community Detection">Community Detection <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Count Data">Count Data <span class="quarto-category-count">(4)</span></div><div class="category" data-category="Deep Learning">Deep Learning <span class="quarto-category-count">(3)</span></div><div class="category" data-category="Dimensionality Reduction">Dimensionality Reduction <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Factor Analysis">Factor Analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="GLM">GLM <span class="quarto-category-count">(9)</span></div><div class="category" data-category="Graph Theory">Graph Theory <span class="quarto-category-count">(5)</span></div><div class="category" data-category="Hierarchical Models">Hierarchical Models <span class="quarto-category-count">(5)</span></div><div class="category" data-category="Imputation">Imputation <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Network Analysis">Network Analysis <span class="quarto-category-count">(6)</span></div><div class="category" data-category="Neural Networks">Neural Networks <span class="quarto-category-count">(4)</span></div><div class="category" data-category="Non-parametric">Non-parametric <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Regression">Regression <span class="quarto-category-count">(19)</span></div><div class="category" data-category="Social Learning">Social Learning <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Survival Analysis">Survival Analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Unsupervised Learning">Unsupervised Learning <span class="quarto-category-count">(4)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(36)</span></div><div class="category" data-category="Qmlhc2Vz">Biases <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Q2xhc3NpZmljYXRpb24=">Classification <span class="quarto-category-count">(7)</span></div><div class="category" data-category="Q2x1c3RlcmluZw==">Clustering <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Q29tbXVuaXR5JTIwRGV0ZWN0aW9u">Community Detection <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Q291bnQlMjBEYXRh">Count Data <span class="quarto-category-count">(4)</span></div><div class="category" data-category="RGVlcCUyMExlYXJuaW5n">Deep Learning <span class="quarto-category-count">(3)</span></div><div class="category" data-category="RGltZW5zaW9uYWxpdHklMjBSZWR1Y3Rpb24=">Dimensionality Reduction <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RmFjdG9yJTIwQW5hbHlzaXM=">Factor Analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R0xN">GLM <span class="quarto-category-count">(9)</span></div><div class="category" data-category="R3JhcGglMjBUaGVvcnk=">Graph Theory <span class="quarto-category-count">(5)</span></div><div class="category" data-category="SGllcmFyY2hpY2FsJTIwTW9kZWxz">Hierarchical Models <span class="quarto-category-count">(5)</span></div><div class="category" data-category="SW1wdXRhdGlvbg==">Imputation <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TmV0d29yayUyMEFuYWx5c2lz">Network Analysis <span class="quarto-category-count">(6)</span></div><div class="category" data-category="TmV1cmFsJTIwTmV0d29ya3M=">Neural Networks <span class="quarto-category-count">(4)</span></div><div class="category" data-category="Tm9uLXBhcmFtZXRyaWM=">Non-parametric <span class="quarto-category-count">(2)</span></div><div class="category" data-category="UmVncmVzc2lvbg==">Regression <span class="quarto-category-count">(19)</span></div><div class="category" data-category="U29jaWFsJTIwTGVhcm5pbmc=">Social Learning <span class="quarto-category-count">(2)</span></div><div class="category" data-category="U3Vydml2YWwlMjBBbmFseXNpcw==">Survival Analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VW5zdXBlcnZpc2VkJTIwTGVhcm5pbmc=">Unsupervised Learning <span class="quarto-category-count">(4)</span></div></div></div>
 <!-- main -->
-<main class="content column-page-left" id="quarto-document-content">
+<main class="content column-page-left" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
 
-<section id="welcome-to-bayesian-inference-bi" class="level1 panel welcome-panel">
-<h1>Welcome to Bayesian Inference (BI)</h1>
+<section id="welcome-to-bayesforge-bf" class="level1 panel welcome-panel">
+<h1>Welcome to BayesForge (BF)</h1>
 <section id="an-open-source-library-for-python-r-and-julia" class="level2">
 <h2 class="anchored" data-anchor-id="an-open-source-library-for-python-r-and-julia">An open-source library for Python, R and Julia</h2>
 <div class="container">
@@ -367,7 +351,7 @@ window.Quarto = {
 <div class="panel welcome-show">
 <section id="one-mental-model.-three-languages." class="level2 container">
 <h2 class="anchored" data-anchor-id="one-mental-model.-three-languages.">One Mental Model. Three Languages.</h2>
-<p><strong>BI</strong> provides a unified experience across Julia, Python, and R. Whether you work in R’s formula syntax, Python’s object-oriented approach, or Julia’s mathematical elegance, the model logic remains consistent.</p>
+<p><strong>BF</strong> provides a unified experience across Julia, Python, and R. Whether you work in R’s formula syntax, Python’s object-oriented approach, or Julia’s mathematical elegance, the model logic remains consistent.</p>
 <section id="compare-the-syntax" class="level3">
 <h3 class="anchored" data-anchor-id="compare-the-syntax">Compare the Syntax</h3>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
@@ -376,36 +360,36 @@ window.Quarto = {
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(height, weight):</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Priors</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> bi.dist.uniform(<span class="dv">0</span>, <span class="dv">50</span>, name<span class="op">=</span><span class="st">'sigma'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bi.dist.normal(<span class="dv">178</span>, <span class="dv">20</span>, name<span class="op">=</span><span class="st">'alpha'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    beta  <span class="op">=</span> bi.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name<span class="op">=</span><span class="st">'beta'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> bf.dist.uniform(<span class="dv">0</span>, <span class="dv">50</span>, name<span class="op">=</span><span class="st">'sigma'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bf.dist.normal(<span class="dv">178</span>, <span class="dv">20</span>, name<span class="op">=</span><span class="st">'alpha'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    beta  <span class="op">=</span> bf.dist.normal(<span class="dv">0</span>, <span class="dv">1</span>, name<span class="op">=</span><span class="st">'beta'</span>, shape<span class="op">=</span>(<span class="dv">1</span>,))</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> alpha <span class="op">+</span> beta <span class="op">*</span> weight</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    bi.dist.normal(mu, sigma, obs<span class="op">=</span>height)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    bf.dist.normal(mu, sigma, obs<span class="op">=</span>height)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight){</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Priors</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bi.dist.uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name=</span><span class="st">'sigma'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">178</span>, <span class="dv">20</span>, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  beta  <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'beta'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bf.dist.uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name=</span><span class="st">'sigma'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bf.dist.normal</span>(<span class="dv">178</span>, <span class="dv">20</span>, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  beta  <span class="ot">=</span> <span class="fu">bf.dist.normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name=</span><span class="st">'beta'</span>, <span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">=</span> alpha <span class="sc">+</span> beta <span class="sc">*</span> weight</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bi.dist.normal</span>(mu, sigma, <span class="at">obs=</span>height)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf.dist.normal</span>(mu, sigma, <span class="at">obs=</span>height)</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(weight, height)</span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@BF</span> <span class="kw">function</span> <span class="fu">model</span>(weight, height)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Priors</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> bi.dist.<span class="fu">uniform</span>(<span class="fl">0</span>, <span class="fl">50</span>, name<span class="op">=</span><span class="ch">'sigma'</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bi.dist.<span class="fu">normal</span>(<span class="fl">178</span>, <span class="fl">20</span>, name<span class="op">=</span><span class="ch">'alpha'</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    beta  <span class="op">=</span> bi.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, name<span class="op">=</span><span class="ch">'beta'</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> bf.dist.<span class="fu">uniform</span>(<span class="fl">0</span>, <span class="fl">50</span>, name<span class="op">=</span><span class="ch">'sigma'</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> bf.dist.<span class="fu">normal</span>(<span class="fl">178</span>, <span class="fl">20</span>, name<span class="op">=</span><span class="ch">'alpha'</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    beta  <span class="op">=</span> bf.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, name<span class="op">=</span><span class="ch">'beta'</span>, shape<span class="op">=</span>(<span class="fl">1</span>,))</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Likelihood</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> alpha <span class="op">+</span> beta <span class="op">*</span> weight</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    bi.dist.<span class="fu">normal</span>(mu, sigma, obs<span class="op">=</span>height)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    bf.dist.<span class="fu">normal</span>(mu, sigma, obs<span class="op">=</span>height)</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
@@ -420,10 +404,10 @@ window.Quarto = {
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Pipeline</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Full Model definition</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false">Prebuilt function</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-4" role="tab" aria-controls="tabset-2-4" aria-selected="false">Model to Latex</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-5" role="tab" aria-controls="tabset-2-5" aria-selected="false">Distributions visualization</a></li></ul>
 <div class="tab-content">
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>) <span class="co"># cpu, gpu or tpu</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">'cpu'</span>) <span class="co"># cpu, gpu or tpu</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data ------------------------------------------------</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>m.data(data_path) </span>
@@ -444,9 +428,9 @@ window.Quarto = {
 <div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(kcal_per_g, index_clade):</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.bi.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">4</span>,), name <span class="op">=</span> <span class="st">'a'</span>) <span class="co"># shape based on the number of clades</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.bi.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">4</span>,), name <span class="op">=</span> <span class="st">'b'</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.bi.dist.exponential( <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'s'</span>)    </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.bf.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">4</span>,), name <span class="op">=</span> <span class="st">'a'</span>) <span class="co"># shape based on the number of clades</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.bf.dist.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, shape<span class="op">=</span>(<span class="dv">4</span>,), name <span class="op">=</span> <span class="st">'b'</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.bf.dist.exponential( <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'s'</span>)    </span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a[index_clade]<span class="op">+</span>b[index_clade]<span class="op">*</span>mass</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    m.normal(mu, s, obs<span class="op">=</span>kcal_per_g)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -468,8 +452,8 @@ window.Quarto = {
 <div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: model-to-latex</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: hold</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># define model ------------------------------------------------</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(weight, height):    </span>
@@ -491,27 +475,36 @@ height &amp;\sim \text{Normal}(\alpha + \beta * weight, \sigma) \\
 </span></p>
 </div>
 <div id="tabset-2-5" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-5-tab">
-<div id="cell-dist-visualization" class="cell" data-results="hold" data-execution_count="1">
+<div id="dist-visualization" class="cell" data-results="hold" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi()</span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf()</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>m.dist.normal( <span class="dv">0</span>, <span class="dv">1</span>, name <span class="op">=</span> <span class="st">'a'</span>, shape<span class="op">=</span>(<span class="dv">100</span>,<span class="dv">2</span>, <span class="dv">4</span>), sample <span class="op">=</span> <span class="va">True</span>, to_jax <span class="op">=</span> <span class="va">False</span>).hist()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>BI v 0.0.26 package loaded</code></pre>
-</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>E0525 12:21:49.545932  549871 cuda_dnn.cc:523] Loaded runtime CuDNN library: 9.1.0 but source was compiled with: 9.8.0.  CuDNN library needs to have matching major version and equal or higher minor version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.
-E0525 12:21:49.548036  549871 cuda_dnn.cc:523] Loaded runtime CuDNN library: 9.1.0 but source was compiled with: 9.8.0.  CuDNN library needs to have matching major version and equal or higher minor version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.</code></pre>
+<pre><code>/home/sosa/work/3.12venv/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning:
+
+IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 32</code></pre>
+<pre><code>bf v 0.0.48 package loaded
+jax.local_device_count 32</code></pre>
 </div>
-<div id="dist-visualization" class="cell-output cell-output-display">
-<div>                            <div id="5288c599-9299-4903-af4b-a176879b3082" class="plotly-graph-div" style="height:525px; width:100%;"></div>            <script type="text/javascript">                require(["plotly"], function(Plotly) {                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("5288c599-9299-4903-af4b-a176879b3082")) {                    Plotly.newPlot(                        "5288c599-9299-4903-af4b-a176879b3082",                        [{"line":{"color":"#636EFA","width":5},"mode":"lines","name":"Group 0, Time 0","x":[-3.8666666666666667,-3.6,-3.3333333333333335,-3.066666666666667,-2.8000000000000003,-2.5333333333333337,-2.2666666666666666,-2.0,-1.7333333333333334,-1.4666666666666668,-1.2000000000000002,-0.9333333333333332,-0.6666666666666665,-0.3999999999999999,-0.1333333333333333,0.1333333333333333,0.3999999999999999,0.6666666666666665,0.9333333333333331,1.1999999999999997,1.4666666666666663,1.733333333333333,1.9999999999999996,2.2666666666666666,2.5333333333333337,2.8000000000000003,3.066666666666667,3.3333333333333335,3.6,3.8666666666666667],"y":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"z":[0.0,0.0,0.0,0.0,0.037500000000000006,0.07500000000000001,0.07499999999999978,0.0750000000000002,0.0749999999999999,0.15000000000000027,0.11249999999999984,0.26249999999999984,0.30000000000000004,0.45000000000000007,0.22500000000000003,0.4125000000000001,0.5250000000000001,0.18750000000000003,0.22500000000000003,0.15000000000000002,0.26250000000000007,0.037500000000000006,0.11250000000000002,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"type":"scatter3d"},{"line":{"color":"#636EFA","width":5},"mode":"lines","name":"Group 0, Time 1","x":[-3.8666666666666667,-3.6,-3.3333333333333335,-3.066666666666667,-2.8000000000000003,-2.5333333333333337,-2.2666666666666666,-2.0,-1.7333333333333334,-1.4666666666666668,-1.2000000000000002,-0.9333333333333332,-0.6666666666666665,-0.3999999999999999,-0.1333333333333333,0.1333333333333333,0.3999999999999999,0.6666666666666665,0.9333333333333331,1.1999999999999997,1.4666666666666663,1.733333333333333,1.9999999999999996,2.2666666666666666,2.5333333333333337,2.8000000000000003,3.066666666666667,3.3333333333333335,3.6,3.8666666666666667],"y":[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],"z":[0.0,0.0,0.0,0.0,0.0,0.037500000000000006,0.0,0.0750000000000002,0.11249999999999984,0.07500000000000014,0.18749999999999972,0.1499999999999999,0.37500000000000006,0.22500000000000003,0.5625000000000001,0.48750000000000016,0.37500000000000006,0.3375000000000001,0.26250000000000007,0.22500000000000003,0.15000000000000002,0.07500000000000001,0.0,0.03749999999999989,0.0,0.0,0.0,0.0,0.0,0.0],"type":"scatter3d"},{"line":{"color":"#636EFA","width":5},"mode":"lines","name":"Group 0, Time 2","x":[-3.8666666666666667,-3.6,-3.3333333333333335,-3.066666666666667,-2.8000000000000003,-2.5333333333333337,-2.2666666666666666,-2.0,-1.7333333333333334,-1.4666666666666668,-1.2000000000000002,-0.9333333333333332,-0.6666666666666665,-0.3999999999999999,-0.1333333333333333,0.1333333333333333,0.3999999999999999,0.6666666666666665,0.9333333333333331,1.1999999999999997,1.4666666666666663,1.733333333333333,1.9999999999999996,2.2666666666666666,2.5333333333333337,2.8000000000000003,3.066666666666667,3.3333333333333335,3.6,3.8666666666666667],"y":[2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0],"z":[0.0,0.0,0.0,0.0,0.0,0.037500000000000006,0.0,0.0750000000000002,0.11249999999999984,0.07500000000000014,0.18749999999999972,0.1499999999999999,0.37500000000000006,0.22500000000000003,0.5625000000000001,0.48750000000000016,0.37500000000000006,0.3375000000000001,0.26250000000000007,0.22500000000000003,0.15000000000000002,0.07500000000000001,0.0,0.03749999999999989,0.0,0.0,0.0,0.0,0.0,0.0],"type":"scatter3d"},{"line":{"color":"#636EFA","width":5},"mode":"lines","name":"Group 0, Time 3","x":[-3.8666666666666667,-3.6,-3.3333333333333335,-3.066666666666667,-2.8000000000000003,-2.5333333333333337,-2.2666666666666666,-2.0,-1.7333333333333334,-1.4666666666666668,-1.2000000000000002,-0.9333333333333332,-0.6666666666666665,-0.3999999999999999,-0.1333333333333333,0.1333333333333333,0.3999999999999999,0.6666666666666665,0.9333333333333331,1.1999999999999997,1.4666666666666663,1.733333333333333,1.9999999999999996,2.2666666666666666,2.5333333333333337,2.8000000000000003,3.066666666666667,3.3333333333333335,3.6,3.8666666666666667],"y":[3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0],"z":[0.0,0.0,0.0,0.0,0.0,0.037500000000000006,0.0,0.0750000000000002,0.11249999999999984,0.07500000000000014,0.18749999999999972,0.1499999999999999,0.37500000000000006,0.22500000000000003,0.5625000000000001,0.48750000000000016,0.37500000000000006,0.3375000000000001,0.26250000000000007,0.22500000000000003,0.15000000000000002,0.07500000000000001,0.0,0.03749999999999989,0.0,0.0,0.0,0.0,0.0,0.0],"type":"scatter3d"},{"line":{"color":"#EF553B","width":5},"mode":"lines","name":"Group 1, Time 0","x":[-3.8666666666666667,-3.6,-3.3333333333333335,-3.066666666666667,-2.8000000000000003,-2.5333333333333337,-2.2666666666666666,-2.0,-1.7333333333333334,-1.4666666666666668,-1.2000000000000002,-0.9333333333333332,-0.6666666666666665,-0.3999999999999999,-0.1333333333333333,0.1333333333333333,0.3999999999999999,0.6666666666666665,0.9333333333333331,1.1999999999999997,1.4666666666666663,1.733333333333333,1.9999999999999996,2.2666666666666666,2.5333333333333337,2.8000000000000003,3.066666666666667,3.3333333333333335,3.6,3.8666666666666667],"y":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"z":[1.0,1.0,1.0,1.0,1.0,1.0375,1.1124999999999996,1.0750000000000002,1.15,1.1500000000000004,1.3374999999999995,1.1875,1.1875,1.3,1.4500000000000002,1.4125,1.375,1.15,1.3,1.2625000000000002,1.1125,1.0375,1.075,1.0,1.0,1.0375,1.0,1.0,1.0,1.0],"type":"scatter3d"},{"line":{"color":"#EF553B","width":5},"mode":"lines","name":"Group 1, Time 1","x":[-3.8666666666666667,-3.6,-3.3333333333333335,-3.066666666666667,-2.8000000000000003,-2.5333333333333337,-2.2666666666666666,-2.0,-1.7333333333333334,-1.4666666666666668,-1.2000000000000002,-0.9333333333333332,-0.6666666666666665,-0.3999999999999999,-0.1333333333333333,0.1333333333333333,0.3999999999999999,0.6666666666666665,0.9333333333333331,1.1999999999999997,1.4666666666666663,1.733333333333333,1.9999999999999996,2.2666666666666666,2.5333333333333337,2.8000000000000003,3.066666666666667,3.3333333333333335,3.6,3.8666666666666667],"y":[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],"z":[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0750000000000002,1.2624999999999997,1.1875000000000004,1.15,1.3749999999999998,1.5250000000000001,1.2625000000000002,1.1875,1.5250000000000001,1.3375000000000001,1.225,1.225,1.1875,1.0375,1.075,1.075,1.0374999999999999,1.0,1.0,1.0,1.0,1.0,1.0],"type":"scatter3d"},{"line":{"color":"#EF553B","width":5},"mode":"lines","name":"Group 1, Time 2","x":[-3.8666666666666667,-3.6,-3.3333333333333335,-3.066666666666667,-2.8000000000000003,-2.5333333333333337,-2.2666666666666666,-2.0,-1.7333333333333334,-1.4666666666666668,-1.2000000000000002,-0.9333333333333332,-0.6666666666666665,-0.3999999999999999,-0.1333333333333333,0.1333333333333333,0.3999999999999999,0.6666666666666665,0.9333333333333331,1.1999999999999997,1.4666666666666663,1.733333333333333,1.9999999999999996,2.2666666666666666,2.5333333333333337,2.8000000000000003,3.066666666666667,3.3333333333333335,3.6,3.8666666666666667],"y":[2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0],"z":[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0750000000000002,1.2624999999999997,1.1875000000000004,1.15,1.3749999999999998,1.5250000000000001,1.2625000000000002,1.1875,1.5250000000000001,1.3375000000000001,1.225,1.225,1.1875,1.0375,1.075,1.075,1.0374999999999999,1.0,1.0,1.0,1.0,1.0,1.0],"type":"scatter3d"},{"line":{"color":"#EF553B","width":5},"mode":"lines","name":"Group 1, Time 3","x":[-3.8666666666666667,-3.6,-3.3333333333333335,-3.066666666666667,-2.8000000000000003,-2.5333333333333337,-2.2666666666666666,-2.0,-1.7333333333333334,-1.4666666666666668,-1.2000000000000002,-0.9333333333333332,-0.6666666666666665,-0.3999999999999999,-0.1333333333333333,0.1333333333333333,0.3999999999999999,0.6666666666666665,0.9333333333333331,1.1999999999999997,1.4666666666666663,1.733333333333333,1.9999999999999996,2.2666666666666666,2.5333333333333337,2.8000000000000003,3.066666666666667,3.3333333333333335,3.6,3.8666666666666667],"y":[3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0,3.0],"z":[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0750000000000002,1.2624999999999997,1.1875000000000004,1.15,1.3749999999999998,1.5250000000000001,1.2625000000000002,1.1875,1.5250000000000001,1.3375000000000001,1.225,1.225,1.1875,1.0375,1.075,1.075,1.0374999999999999,1.0,1.0,1.0,1.0,1.0,1.0],"type":"scatter3d"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"Histogram of Sampled Data"},"xaxis":{"title":{"text":"Value"}},"yaxis":{"title":{"text":"Frequency"}}},                        {"responsive": true}                    ).then(function(){
+<div id="dist-visualization-1" class="cell-output cell-output-display">
+        <script type="text/javascript">
+        window.PlotlyConfig = {MathJaxConfig: 'local'};
+        if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
+        </script>
+        <script type="module">import "https://cdn.plot.ly/plotly-3.1.1.min"</script>
+        
+</div>
+<div id="dist-visualization-2" class="cell-output cell-output-display">
+<div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script type="text/javascript">if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.1.min.js" integrity="sha256-HUEFyfiTnZJxCxur99FjbKYTvKSzwDaD3/x5TqHpFu4=" crossorigin="anonymous"></script>                <div id="4c025ddf-b6bf-4e25-afe5-2d2df3c0262d" class="plotly-graph-div" style="height:525px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("4c025ddf-b6bf-4e25-afe5-2d2df3c0262d")) {                    Plotly.newPlot(                        "4c025ddf-b6bf-4e25-afe5-2d2df3c0262d",                        [{"line":{"color":"#636EFA","width":5},"mode":"lines","name":"Group 0, Time 0","x":{"dtype":"f8","bdata":"7+7u7u7uDsDNzMzMzMwMwKuqqqqqqgrAiYiIiIiICMBnZmZmZmYGwEVERERERATAIiIiIiIiAsAAAAAAAAAAwLy7u7u7u\u002fu\u002feHd3d3d39780MzMzMzPzv93d3d3d3e2\u002fVFVVVVVV5b+YmZmZmZnZvxAREREREcG\u002fEBERERERwT+YmZmZmZnZP1RVVVVVVeU\u002f3N3d3d3d7T8yMzMzMzPzP3Z3d3d3d\u002fc\u002furu7u7u7+z\u002f+\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002fPyIiIiIiIgJARUREREREBEBnZmZmZmYGQImIiIiIiAhAq6qqqqqqCkDNzMzMzMwMQO\u002fu7u7u7g5A"},"y":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"z":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIzMzMzMzoz9CMzMzMzOzP8HMzMzMzLw\u002fAAAAAAAAAAD2\u002f\u002f\u002f\u002f\u002f\u002f\u002fXP2FmZmZmZto\u002fzszMzMzMzD\u002fOzMzMzMzgPwEAAAAAANg\u002fAQAAAAAA2D80MzMzMzPDP87MzMzMzMw\u002fNDMzMzMz0z\u002fOzMzMzMzQP87MzMzMzLw\u002fNDMzMzMzoz80MzMzMzOjPyMzMzMzM7M\u002fAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANDMzMzMzoz8AAAAAAAAAAAAAAAAAAAAA"},"type":"scatter3d"},{"line":{"color":"#636EFA","width":5},"mode":"lines","name":"Group 0, Time 1","x":{"dtype":"f8","bdata":"7+7u7u7uDsDNzMzMzMwMwKuqqqqqqgrAiYiIiIiICMBnZmZmZmYGwEVERERERATAIiIiIiIiAsAAAAAAAAAAwLy7u7u7u\u002fu\u002feHd3d3d39780MzMzMzPzv93d3d3d3e2\u002fVFVVVVVV5b+YmZmZmZnZvxAREREREcG\u002fEBERERERwT+YmZmZmZnZP1RVVVVVVeU\u002f3N3d3d3d7T8yMzMzMzPzP3Z3d3d3d\u002fc\u002furu7u7u7+z\u002f+\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002fPyIiIiIiIgJARUREREREBEBnZmZmZmYGQImIiIiIiAhAq6qqqqqqCkDNzMzMzMwMQO\u002fu7u7u7g5A"},"y":{"dtype":"f8","bdata":"AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002f"},"z":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPTMzMzMzoz8sMzMzMzPTP8jMzMzMzMw\u002fAQAAAAAAyD\u002fOzMzMzMzgP87MzMzMzOA\u002fAQAAAAAA2D+bmZmZmZnVPwEAAAAAAOI\u002fAQAAAAAA2D80MzMzMzOzPzQzMzMzM7M\u002fNDMzMzMzsz80MzMzMzOjPyMzMzMzM6M\u002fAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"type":"scatter3d"},{"line":{"color":"#636EFA","width":5},"mode":"lines","name":"Group 0, Time 2","x":{"dtype":"f8","bdata":"7+7u7u7uDsDNzMzMzMwMwKuqqqqqqgrAiYiIiIiICMBnZmZmZmYGwEVERERERATAIiIiIiIiAsAAAAAAAAAAwLy7u7u7u\u002fu\u002feHd3d3d39780MzMzMzPzv93d3d3d3e2\u002fVFVVVVVV5b+YmZmZmZnZvxAREREREcG\u002fEBERERERwT+YmZmZmZnZP1RVVVVVVeU\u002f3N3d3d3d7T8yMzMzMzPzP3Z3d3d3d\u002fc\u002furu7u7u7+z\u002f+\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002fPyIiIiIiIgJARUREREREBEBnZmZmZmYGQImIiIiIiAhAq6qqqqqqCkDNzMzMzMwMQO\u002fu7u7u7g5A"},"y":{"dtype":"f8","bdata":"AAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABA"},"z":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPTMzMzMzoz8sMzMzMzPTP8jMzMzMzMw\u002fAQAAAAAAyD\u002fOzMzMzMzgP87MzMzMzOA\u002fAQAAAAAA2D+bmZmZmZnVPwEAAAAAAOI\u002fAQAAAAAA2D80MzMzMzOzPzQzMzMzM7M\u002fNDMzMzMzsz80MzMzMzOjPyMzMzMzM6M\u002fAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"type":"scatter3d"},{"line":{"color":"#636EFA","width":5},"mode":"lines","name":"Group 0, Time 3","x":{"dtype":"f8","bdata":"7+7u7u7uDsDNzMzMzMwMwKuqqqqqqgrAiYiIiIiICMBnZmZmZmYGwEVERERERATAIiIiIiIiAsAAAAAAAAAAwLy7u7u7u\u002fu\u002feHd3d3d39780MzMzMzPzv93d3d3d3e2\u002fVFVVVVVV5b+YmZmZmZnZvxAREREREcG\u002fEBERERERwT+YmZmZmZnZP1RVVVVVVeU\u002f3N3d3d3d7T8yMzMzMzPzP3Z3d3d3d\u002fc\u002furu7u7u7+z\u002f+\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002fPyIiIiIiIgJARUREREREBEBnZmZmZmYGQImIiIiIiAhAq6qqqqqqCkDNzMzMzMwMQO\u002fu7u7u7g5A"},"y":{"dtype":"f8","bdata":"AAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhA"},"z":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPTMzMzMzoz8sMzMzMzPTP8jMzMzMzMw\u002fAQAAAAAAyD\u002fOzMzMzMzgP87MzMzMzOA\u002fAQAAAAAA2D+bmZmZmZnVPwEAAAAAAOI\u002fAQAAAAAA2D80MzMzMzOzPzQzMzMzM7M\u002fNDMzMzMzsz80MzMzMzOjPyMzMzMzM6M\u002fAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"type":"scatter3d"},{"line":{"color":"#EF553B","width":5},"mode":"lines","name":"Group 1, Time 0","x":{"dtype":"f8","bdata":"7+7u7u7uDsDNzMzMzMwMwKuqqqqqqgrAiYiIiIiICMBnZmZmZmYGwEVERERERATAIiIiIiIiAsAAAAAAAAAAwLy7u7u7u\u002fu\u002feHd3d3d39780MzMzMzPzv93d3d3d3e2\u002fVFVVVVVV5b+YmZmZmZnZvxAREREREcG\u002fEBERERERwT+YmZmZmZnZP1RVVVVVVeU\u002f3N3d3d3d7T8yMzMzMzPzP3Z3d3d3d\u002fc\u002furu7u7u7+z\u002f+\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002fPyIiIiIiIgJARUREREREBEBnZmZmZmYGQImIiIiIiAhAq6qqqqqqCkDNzMzMzMwMQO\u002fu7u7u7g5A"},"y":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"z":{"dtype":"f8","bdata":"AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fmZmZmZmZ8D\u002fOzMzMzMzxP2ZmZmZmZvI\u002faGZmZmZm8j\u002fMzMzMzMzxP8zMzMzMzPE\u002fZ2ZmZmZm+D80MzMzMzP0PzQzMzMzM\u002fQ\u002fNDMzMzMz9z80MzMzMzP0P2dmZmZmZvU\u002fzczMzMzM8T+amZmZmZnzP2ZmZmZmZvI\u002fAAAAAAAA8z9mZmZmZmbyPwAAAAAAAPA\u002fMzMzMzMz8T+amZmZmZnwP5qZmZmZmfA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002f"},"type":"scatter3d"},{"line":{"color":"#EF553B","width":5},"mode":"lines","name":"Group 1, Time 1","x":{"dtype":"f8","bdata":"7+7u7u7uDsDNzMzMzMwMwKuqqqqqqgrAiYiIiIiICMBnZmZmZmYGwEVERERERATAIiIiIiIiAsAAAAAAAAAAwLy7u7u7u\u002fu\u002feHd3d3d39780MzMzMzPzv93d3d3d3e2\u002fVFVVVVVV5b+YmZmZmZnZvxAREREREcG\u002fEBERERERwT+YmZmZmZnZP1RVVVVVVeU\u002f3N3d3d3d7T8yMzMzMzPzP3Z3d3d3d\u002fc\u002furu7u7u7+z\u002f+\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002fPyIiIiIiIgJARUREREREBEBnZmZmZmYGQImIiIiIiAhAq6qqqqqqCkDNzMzMzMwMQO\u002fu7u7u7g5A"},"y":{"dtype":"f8","bdata":"AAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002f"},"z":{"dtype":"f8","bdata":"AAAAAAAA8D8AAAAAAADwP5qZmZmZmfA\u002fAAAAAAAA8D+amZmZmZnwP5qZmZmZmfA\u002fy8zMzMzM8T+amZmZmZnwP5mZmZmZmfA\u002fzszMzMzM8T\u002fMzMzMzMzxP2ZmZmZmZvU\u002fZmZmZmZm8j8AAAAAAAD2P83MzMzMzPQ\u002fAAAAAAAA9j+amZmZmZn2P83MzMzMzPQ\u002fAAAAAAAA8z80MzMzMzP0P5qZmZmZmfM\u002fAAAAAAAA8z\u002fNzMzMzMzxPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002f"},"type":"scatter3d"},{"line":{"color":"#EF553B","width":5},"mode":"lines","name":"Group 1, Time 2","x":{"dtype":"f8","bdata":"7+7u7u7uDsDNzMzMzMwMwKuqqqqqqgrAiYiIiIiICMBnZmZmZmYGwEVERERERATAIiIiIiIiAsAAAAAAAAAAwLy7u7u7u\u002fu\u002feHd3d3d39780MzMzMzPzv93d3d3d3e2\u002fVFVVVVVV5b+YmZmZmZnZvxAREREREcG\u002fEBERERERwT+YmZmZmZnZP1RVVVVVVeU\u002f3N3d3d3d7T8yMzMzMzPzP3Z3d3d3d\u002fc\u002furu7u7u7+z\u002f+\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002fPyIiIiIiIgJARUREREREBEBnZmZmZmYGQImIiIiIiAhAq6qqqqqqCkDNzMzMzMwMQO\u002fu7u7u7g5A"},"y":{"dtype":"f8","bdata":"AAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABA"},"z":{"dtype":"f8","bdata":"AAAAAAAA8D8AAAAAAADwP5qZmZmZmfA\u002fAAAAAAAA8D+amZmZmZnwP5qZmZmZmfA\u002fy8zMzMzM8T+amZmZmZnwP5mZmZmZmfA\u002fzszMzMzM8T\u002fMzMzMzMzxP2ZmZmZmZvU\u002fZmZmZmZm8j8AAAAAAAD2P83MzMzMzPQ\u002fAAAAAAAA9j+amZmZmZn2P83MzMzMzPQ\u002fAAAAAAAA8z80MzMzMzP0P5qZmZmZmfM\u002fAAAAAAAA8z\u002fNzMzMzMzxPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002f"},"type":"scatter3d"},{"line":{"color":"#EF553B","width":5},"mode":"lines","name":"Group 1, Time 3","x":{"dtype":"f8","bdata":"7+7u7u7uDsDNzMzMzMwMwKuqqqqqqgrAiYiIiIiICMBnZmZmZmYGwEVERERERATAIiIiIiIiAsAAAAAAAAAAwLy7u7u7u\u002fu\u002feHd3d3d39780MzMzMzPzv93d3d3d3e2\u002fVFVVVVVV5b+YmZmZmZnZvxAREREREcG\u002fEBERERERwT+YmZmZmZnZP1RVVVVVVeU\u002f3N3d3d3d7T8yMzMzMzPzP3Z3d3d3d\u002fc\u002furu7u7u7+z\u002f+\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002fPyIiIiIiIgJARUREREREBEBnZmZmZmYGQImIiIiIiAhAq6qqqqqqCkDNzMzMzMwMQO\u002fu7u7u7g5A"},"y":{"dtype":"f8","bdata":"AAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhA"},"z":{"dtype":"f8","bdata":"AAAAAAAA8D8AAAAAAADwP5qZmZmZmfA\u002fAAAAAAAA8D+amZmZmZnwP5qZmZmZmfA\u002fy8zMzMzM8T+amZmZmZnwP5mZmZmZmfA\u002fzszMzMzM8T\u002fMzMzMzMzxP2ZmZmZmZvU\u002fZmZmZmZm8j8AAAAAAAD2P83MzMzMzPQ\u002fAAAAAAAA9j+amZmZmZn2P83MzMzMzPQ\u002fAAAAAAAA8z80MzMzMzP0P5qZmZmZmfM\u002fAAAAAAAA8z\u002fNzMzMzMzxPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002fAAAAAAAA8D8AAAAAAADwPwAAAAAAAPA\u002f"},"type":"scatter3d"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"Histogram of Sampled Data"},"xaxis":{"title":{"text":"Value"}},"yaxis":{"title":{"text":"Frequency"}}},                        {"responsive": true}                    ).then(function(){
                             
-var gd = document.getElementById('5288c599-9299-4903-af4b-a176879b3082');
+var gd = document.getElementById('4c025ddf-b6bf-4e25-afe5-2d2df3c0262d');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -533,7 +526,7 @@ if (outputEl) {{
     x.observe(outputEl, {childList: true});
 }}
 
-                        })                };                });            </script>        </div>
+                        })                };            </script>        </div>
 </div>
 </div>
 </div>
@@ -579,7 +572,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="Regression" data-listing-file-modified-sort="1777038126456" data-listing-reading-time-sort="5" data-listing-word-count-sort="924">
+<div class="g-col-1" data-index="0" data-categories="UmVncmVzc2lvbg==" data-listing-file-modified-sort="1781278336650" data-listing-reading-time-sort="5" data-listing-word-count-sort="923">
 <a href="./1. Linear Regression for continuous variable.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -593,7 +586,7 @@ Univariate Linear Regression
 5 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
 </div>
@@ -604,7 +597,7 @@ An introduction to linear regression models.
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="Regression" data-listing-file-modified-sort="1774961597389" data-listing-reading-time-sort="4" data-listing-word-count-sort="786">
+<div class="g-col-1" data-index="1" data-categories="UmVncmVzc2lvbg==" data-listing-file-modified-sort="1781278336656" data-listing-reading-time-sort="4" data-listing-word-count-sort="785">
 <a href="./2. Multiple continuous variables.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -618,7 +611,7 @@ Multivariate Linear Regression
 4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
 </div>
@@ -629,7 +622,7 @@ Extending linear regression to model a continuous outcome using multiple predict
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="Regression" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="5" data-listing-word-count-sort="972">
+<div class="g-col-1" data-index="2" data-categories="UmVncmVzc2lvbg==" data-listing-file-modified-sort="1781278336625" data-listing-reading-time-sort="5" data-listing-word-count-sort="971">
 <a href="./3. Interaction between continuous variables.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -643,7 +636,7 @@ Interaction Terms in Regression
 5 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
 </div>
@@ -654,7 +647,7 @@ Modeling how the effect of one independent variable on the outcome changes based
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="3" data-categories="Regression,GLM" data-listing-file-modified-sort="1774961597389" data-listing-reading-time-sort="5" data-listing-word-count-sort="801">
+<div class="g-col-1" data-index="3" data-categories="UmVncmVzc2lvbiUyQ0dMTQ==" data-listing-file-modified-sort="1781278336760" data-listing-reading-time-sort="4" data-listing-word-count-sort="800">
 <a href="./4. Categorical variable.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -665,13 +658,13 @@ Modeling how the effect of one independent variable on the outcome changes based
 Regression with a Categorical Independent Variable
 </h5>
 <div class="listing-reading-time card-text text-muted">
-5 min
+4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R0xN'); return false;">
 GLM
 </div>
 </div>
@@ -682,7 +675,7 @@ Incorporating categorical predictors (i.e., factor variables) into a regression 
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="4" data-categories="Classification,Regression,GLM" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="4" data-listing-word-count-sort="763">
+<div class="g-col-1" data-index="4" data-categories="Q2xhc3NpZmljYXRpb24lMkNSZWdyZXNzaW9uJTJDR0xN" data-listing-file-modified-sort="1781278336625" data-listing-reading-time-sort="4" data-listing-word-count-sort="761">
 <a href="./5. Binomial model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -696,13 +689,13 @@ Binomial Model
 4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q2xhc3NpZmljYXRpb24='); return false;">
 Classification
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R0xN'); return false;">
 GLM
 </div>
 </div>
@@ -713,7 +706,7 @@ Modeling binary outcomes (e.g., successes/failures) across multiple independent 
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="5" data-categories="Regression,GLM" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="6" data-listing-word-count-sort="1177">
+<div class="g-col-1" data-index="5" data-categories="UmVncmVzc2lvbiUyQ0dMTQ==" data-listing-file-modified-sort="1781278336680" data-listing-reading-time-sort="6" data-listing-word-count-sort="1176">
 <a href="./6. Beta binomial model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -727,10 +720,10 @@ Beta-Binomial Model
 6 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R0xN'); return false;">
 GLM
 </div>
 </div>
@@ -741,7 +734,7 @@ Modeling binary outcomes (e.g., successes/failures) across multiple independent 
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="6" data-categories="Regression,Count Data,GLM" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="4" data-listing-word-count-sort="669">
+<div class="g-col-1" data-index="6" data-categories="UmVncmVzc2lvbiUyQ0NvdW50JTIwRGF0YSUyQ0dMTQ==" data-listing-file-modified-sort="1781278336721" data-listing-reading-time-sort="4" data-listing-word-count-sort="668">
 <a href="./7. Poisson model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -755,13 +748,13 @@ Poisson Model
 4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Count Data'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q291bnQlMjBEYXRh'); return false;">
 Count Data
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R0xN'); return false;">
 GLM
 </div>
 </div>
@@ -772,7 +765,7 @@ Modeling count data, such as the number of events occurring in a fixed interval 
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="7" data-categories="Regression,Count Data" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="5" data-listing-word-count-sort="907">
+<div class="g-col-1" data-index="7" data-categories="UmVncmVzc2lvbiUyQ0NvdW50JTIwRGF0YQ==" data-listing-file-modified-sort="1781278336680" data-listing-reading-time-sort="5" data-listing-word-count-sort="907">
 <a href="./8. Poisson mode with offset.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -786,10 +779,10 @@ Poisson Model with an Offset
 5 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Count Data'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q291bnQlMjBEYXRh'); return false;">
 Count Data
 </div>
 </div>
@@ -800,7 +793,7 @@ Modeling count data that has been collected over different levels of exposure us
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="8" data-categories="Regression,Count Data,GLM" data-listing-file-modified-sort="1777035468366" data-listing-reading-time-sort="3" data-listing-word-count-sort="580">
+<div class="g-col-1" data-index="8" data-categories="UmVncmVzc2lvbiUyQ0NvdW50JTIwRGF0YSUyQ0dMTQ==" data-listing-file-modified-sort="1781278336653" data-listing-reading-time-sort="3" data-listing-word-count-sort="579">
 <a href="./9. Gamma-Poisson.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -814,13 +807,13 @@ Gamma-Poisson Model
 3 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Count Data'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q291bnQlMjBEYXRh'); return false;">
 Count Data
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R0xN'); return false;">
 GLM
 </div>
 </div>
@@ -831,7 +824,7 @@ An extension of the Poisson model for count data that exhibits overdispersion.
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="9" data-categories="Classification,Regression,GLM" data-listing-file-modified-sort="1777035468366" data-listing-reading-time-sort="5" data-listing-word-count-sort="813">
+<div class="g-col-1" data-index="9" data-categories="Q2xhc3NpZmljYXRpb24lMkNSZWdyZXNzaW9uJTJDR0xN" data-listing-file-modified-sort="1781278336660" data-listing-reading-time-sort="5" data-listing-word-count-sort="812">
 <a href="./10. Categorical model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -845,13 +838,13 @@ Categorical Model
 5 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q2xhc3NpZmljYXRpb24='); return false;">
 Classification
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R0xN'); return false;">
 GLM
 </div>
 </div>
@@ -862,7 +855,7 @@ Modeling a categorical dependent variable with more than two nominal outcomes.
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="10" data-categories="Regression,GLM,Classification" data-listing-file-modified-sort="1777035468366" data-listing-reading-time-sort="4" data-listing-word-count-sort="618">
+<div class="g-col-1" data-index="10" data-categories="UmVncmVzc2lvbiUyQ0dMTSUyQ0NsYXNzaWZpY2F0aW9u" data-listing-file-modified-sort="1781278336726" data-listing-reading-time-sort="4" data-listing-word-count-sort="617">
 <a href="./11. Multinomial model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -876,13 +869,13 @@ Multinomial Model
 4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R0xN'); return false;">
 GLM
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q2xhc3NpZmljYXRpb24='); return false;">
 Classification
 </div>
 </div>
@@ -893,7 +886,7 @@ Modeling the counts of outcomes across multiple categorical trials.
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="11" data-categories="Regression,GLM,Classification" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="5" data-listing-word-count-sort="889">
+<div class="g-col-1" data-index="11" data-categories="UmVncmVzc2lvbiUyQ0dMTSUyQ0NsYXNzaWZpY2F0aW9u" data-listing-file-modified-sort="1781278336760" data-listing-reading-time-sort="5" data-listing-word-count-sort="889">
 <a href="./12. Dirichlet model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -907,13 +900,13 @@ Dirichlet Model
 5 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R0xN'); return false;">
 GLM
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q2xhc3NpZmljYXRpb24='); return false;">
 Classification
 </div>
 </div>
@@ -924,7 +917,7 @@ Modeling uncertainty about the probabilities of categories themselves.
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="12" data-categories="Count Data,Regression,GLM" data-listing-file-modified-sort="1777035468366" data-listing-reading-time-sort="4" data-listing-word-count-sort="716">
+<div class="g-col-1" data-index="12" data-categories="Q291bnQlMjBEYXRhJTJDUmVncmVzc2lvbiUyQ0dMTQ==" data-listing-file-modified-sort="1781278336723" data-listing-reading-time-sort="4" data-listing-word-count-sort="715">
 <a href="./13. Zero inflated.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -938,13 +931,13 @@ Zero-Inflated Models
 4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Count Data'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q291bnQlMjBEYXRh'); return false;">
 Count Data
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('GLM'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R0xN'); return false;">
 GLM
 </div>
 </div>
@@ -955,7 +948,7 @@ Handling count data with an excess of zero counts by combining a count model wit
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="13" data-categories="Survival Analysis" data-listing-file-modified-sort="1774967147982" data-listing-reading-time-sort="4" data-listing-word-count-sort="721">
+<div class="g-col-1" data-index="13" data-categories="U3Vydml2YWwlMjBBbmFseXNpcw==" data-listing-file-modified-sort="1781278336653" data-listing-reading-time-sort="4" data-listing-word-count-sort="720">
 <a href="./14. Survival analysis.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -969,7 +962,7 @@ Survival Analysis
 4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Survival Analysis'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('U3Vydml2YWwlMjBBbmFseXNpcw=='); return false;">
 Survival Analysis
 </div>
 </div>
@@ -980,7 +973,7 @@ Analyzing time-to-event data, focusing on the duration until an event of interes
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="14" data-categories="Hierarchical Models,Regression" data-listing-file-modified-sort="1777035468366" data-listing-reading-time-sort="4" data-listing-word-count-sort="675">
+<div class="g-col-1" data-index="14" data-categories="SGllcmFyY2hpY2FsJTIwTW9kZWxzJTJDUmVncmVzc2lvbg==" data-listing-file-modified-sort="1781278336747" data-listing-reading-time-sort="4" data-listing-word-count-sort="674">
 <a href="./15. Varying intercepts.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -994,10 +987,10 @@ Varying Intercepts Models
 4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Hierarchical Models'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('SGllcmFyY2hpY2FsJTIwTW9kZWxz'); return false;">
 Hierarchical Models
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
 </div>
@@ -1008,7 +1001,7 @@ Modeling grouped or hierarchical data by allowing the intercept to vary for each
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="15" data-categories="Hierarchical Models,Regression" data-listing-file-modified-sort="1777038272856" data-listing-reading-time-sort="10" data-listing-word-count-sort="1957">
+<div class="g-col-1" data-index="15" data-categories="SGllcmFyY2hpY2FsJTIwTW9kZWxzJTJDUmVncmVzc2lvbg==" data-listing-file-modified-sort="1781278336628" data-listing-reading-time-sort="10" data-listing-word-count-sort="1956">
 <a href="./16. Varying slopes.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1022,10 +1015,10 @@ Varying Slopes Models
 10 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Hierarchical Models'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('SGllcmFyY2hpY2FsJTIwTW9kZWxz'); return false;">
 Hierarchical Models
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
 </div>
@@ -1036,7 +1029,7 @@ Extending mixed-effects models by allowing the relationship (slope) to vary acro
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="16" data-categories="Hierarchical Models,Regression" data-listing-file-modified-sort="1779351770052" data-listing-reading-time-sort="8" data-listing-word-count-sort="1460">
+<div class="g-col-1" data-index="16" data-categories="SGllcmFyY2hpY2FsJTIwTW9kZWxzJTJDUmVncmVzc2lvbg==" data-listing-file-modified-sort="1781278336723" data-listing-reading-time-sort="8" data-listing-word-count-sort="1460">
 <a href="./17. Nested varying effects.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1050,10 +1043,10 @@ Extending mixed-effects models by allowing the relationship (slope) to vary acro
 8 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Hierarchical Models'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('SGllcmFyY2hpY2FsJTIwTW9kZWxz'); return false;">
 Hierarchical Models
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
 </div>
@@ -1064,7 +1057,7 @@ Modeling hierarchical data with multiple levels of nesting (e.g., individuals wi
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="17" data-categories="Hierarchical Models,Regression" data-listing-file-modified-sort="1776684752313" data-listing-reading-time-sort="24" data-listing-word-count-sort="4634">
+<div class="g-col-1" data-index="17" data-categories="SGllcmFyY2hpY2FsJTIwTW9kZWxzJTJDUmVncmVzc2lvbg==" data-listing-file-modified-sort="1781278336749" data-listing-reading-time-sort="24" data-listing-word-count-sort="4634">
 <a href="./18. Phylogenetic analysis.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1078,10 +1071,10 @@ Phylogenetic Generalized Multilevel Models (PGMMs)
 24 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Hierarchical Models'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('SGllcmFyY2hpY2FsJTIwTW9kZWxz'); return false;">
 Hierarchical Models
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
 </div>
@@ -1092,7 +1085,7 @@ Estimating evolutionary relationships and morphological evolution using Generali
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="18" data-categories="Regression,Non-parametric" data-listing-file-modified-sort="1777038274984" data-listing-reading-time-sort="7" data-listing-word-count-sort="1221">
+<div class="g-col-1" data-index="18" data-categories="UmVncmVzc2lvbiUyQ05vbi1wYXJhbWV0cmlj" data-listing-file-modified-sort="1781278336727" data-listing-reading-time-sort="7" data-listing-word-count-sort="1220">
 <a href="./19. Gaussian processes.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1106,10 +1099,10 @@ Gaussian Processes
 7 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Non-parametric'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Tm9uLXBhcmFtZXRyaWM='); return false;">
 Non-parametric
 </div>
 </div>
@@ -1120,7 +1113,7 @@ A Bayesian approach to regression and classification that defines a distribution
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="19" data-categories="Regression,Biases" data-listing-file-modified-sort="1777035468366" data-listing-reading-time-sort="5" data-listing-word-count-sort="829">
+<div class="g-col-1" data-index="19" data-categories="UmVncmVzc2lvbiUyQ0JpYXNlcw==" data-listing-file-modified-sort="1781278336649" data-listing-reading-time-sort="5" data-listing-word-count-sort="828">
 <a href="./20. Measuring error.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1134,10 +1127,10 @@ Measurement Error Models
 5 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Regression'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('UmVncmVzc2lvbg=='); return false;">
 Regression
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Biases'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Qmlhc2Vz'); return false;">
 Biases
 </div>
 </div>
@@ -1148,7 +1141,7 @@ Statistical models that explicitly account for errors in the measurement of pred
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="20" data-categories="Imputation" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="14" data-listing-word-count-sort="2770">
+<div class="g-col-1" data-index="20" data-categories="SW1wdXRhdGlvbg==" data-listing-file-modified-sort="1781278336747" data-listing-reading-time-sort="14" data-listing-word-count-sort="2769">
 <a href="./21. Missing data.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1162,18 +1155,18 @@ Handling Missing Data
 14 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Imputation'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('SW1wdXRhdGlvbg=='); return false;">
 Imputation
 </div>
 </div>
 <div class="card-text listing-description">
-An overview of strategies for dealing with missing values in a dataset, such as imputation, using Bayesian Inference (BI).
+An overview of strategies for dealing with missing values in a dataset, such as imputation, using BayesForge (BF).
 </div>
 </div>
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="21" data-categories="Factor Analysis" data-listing-file-modified-sort="1777199332346" data-listing-reading-time-sort="4" data-listing-word-count-sort="776">
+<div class="g-col-1" data-index="21" data-categories="RmFjdG9yJTIwQW5hbHlzaXM=" data-listing-file-modified-sort="1781278336749" data-listing-reading-time-sort="4" data-listing-word-count-sort="776">
 <a href="./22. Latent variable.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1187,7 +1180,7 @@ An overview of strategies for dealing with missing values in a dataset, such as 
 4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Factor Analysis'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('RmFjdG9yJTIwQW5hbHlzaXM='); return false;">
 Factor Analysis
 </div>
 </div>
@@ -1198,7 +1191,7 @@ Models that relate a set of observable variables to a set of unobserved (latent)
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="22" data-categories="Dimensionality Reduction,Unsupervised Learning" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="13" data-listing-word-count-sort="2585">
+<div class="g-col-1" data-index="22" data-categories="RGltZW5zaW9uYWxpdHklMjBSZWR1Y3Rpb24lMkNVbnN1cGVydmlzZWQlMjBMZWFybmluZw==" data-listing-file-modified-sort="1781278336727" data-listing-reading-time-sort="13" data-listing-word-count-sort="2587">
 <a href="./23. PCA.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1212,10 +1205,10 @@ Principal Component Analysis
 13 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Dimensionality Reduction'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('RGltZW5zaW9uYWxpdHklMjBSZWR1Y3Rpb24='); return false;">
 Dimensionality Reduction
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Unsupervised Learning'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('VW5zdXBlcnZpc2VkJTIwTGVhcm5pbmc='); return false;">
 Unsupervised Learning
 </div>
 </div>
@@ -1226,7 +1219,7 @@ A dimensionality reduction technique to transform a large set of variables into 
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="23" data-categories="Clustering,Unsupervised Learning" data-listing-file-modified-sort="1777035468366" data-listing-reading-time-sort="7" data-listing-word-count-sort="1374">
+<div class="g-col-1" data-index="23" data-categories="Q2x1c3RlcmluZyUyQ1Vuc3VwZXJ2aXNlZCUyMExlYXJuaW5n" data-listing-file-modified-sort="1781278336721" data-listing-reading-time-sort="7" data-listing-word-count-sort="1374">
 <a href="./24. GMM.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1240,10 +1233,10 @@ Gaussian Mixture Models
 7 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Clustering'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q2x1c3RlcmluZw=='); return false;">
 Clustering
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Unsupervised Learning'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('VW5zdXBlcnZpc2VkJTIwTGVhcm5pbmc='); return false;">
 Unsupervised Learning
 </div>
 </div>
@@ -1254,7 +1247,7 @@ A probabilistic model for representing normally distributed subpopulations, ofte
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="24" data-categories="Clustering,Unsupervised Learning,Non-parametric" data-listing-file-modified-sort="1777035468366" data-listing-reading-time-sort="8" data-listing-word-count-sort="1518">
+<div class="g-col-1" data-index="24" data-categories="Q2x1c3RlcmluZyUyQ1Vuc3VwZXJ2aXNlZCUyMExlYXJuaW5nJTJDTm9uLXBhcmFtZXRyaWM=" data-listing-file-modified-sort="1781278336649" data-listing-reading-time-sort="8" data-listing-word-count-sort="1518">
 <a href="./25. DPMM.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1268,13 +1261,13 @@ Dirichlet Process Mixture Models
 8 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Clustering'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q2x1c3RlcmluZw=='); return false;">
 Clustering
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Unsupervised Learning'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('VW5zdXBlcnZpc2VkJTIwTGVhcm5pbmc='); return false;">
 Unsupervised Learning
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Non-parametric'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Tm9uLXBhcmFtZXRyaWM='); return false;">
 Non-parametric
 </div>
 </div>
@@ -1285,7 +1278,7 @@ A non-parametric Bayesian clustering method that automatically determines the nu
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="25" data-categories="Network Analysis,Graph Theory" data-listing-file-modified-sort="1777035468366" data-listing-reading-time-sort="7" data-listing-word-count-sort="1379">
+<div class="g-col-1" data-index="25" data-categories="TmV0d29yayUyMEFuYWx5c2lzJTJDR3JhcGglMjBUaGVvcnk=" data-listing-file-modified-sort="1781278336714" data-listing-reading-time-sort="7" data-listing-word-count-sort="1379">
 <a href="./26. Network model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1299,10 +1292,10 @@ Network Models
 7 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV0d29yayUyMEFuYWx5c2lz'); return false;">
 Network Analysis
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R3JhcGglMjBUaGVvcnk='); return false;">
 Graph Theory
 </div>
 </div>
@@ -1313,7 +1306,7 @@ Modeling relationships and interactions between entities as a graph of nodes and
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="26" data-categories="Network Analysis,Graph Theory,Community Detection" data-listing-file-modified-sort="1777038770736" data-listing-reading-time-sort="7" data-listing-word-count-sort="1220">
+<div class="g-col-1" data-index="26" data-categories="TmV0d29yayUyMEFuYWx5c2lzJTJDR3JhcGglMjBUaGVvcnklMkNDb21tdW5pdHklMjBEZXRlY3Rpb24=" data-listing-file-modified-sort="1781278336660" data-listing-reading-time-sort="7" data-listing-word-count-sort="1220">
 <a href="./27. Network with block model.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1327,13 +1320,13 @@ Stochastic Block Models
 7 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV0d29yayUyMEFuYWx5c2lz'); return false;">
 Network Analysis
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R3JhcGglMjBUaGVvcnk='); return false;">
 Graph Theory
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Community Detection'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q29tbXVuaXR5JTIwRGV0ZWN0aW9u'); return false;">
 Community Detection
 </div>
 </div>
@@ -1344,7 +1337,7 @@ A generative model for random graphs used to find communities of nodes with simi
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="27" data-categories="Network Analysis,Graph Theory,Biases" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="4" data-listing-word-count-sort="623">
+<div class="g-col-1" data-index="27" data-categories="TmV0d29yayUyMEFuYWx5c2lzJTJDR3JhcGglMjBUaGVvcnklMkNCaWFzZXM=" data-listing-file-modified-sort="1781278336747" data-listing-reading-time-sort="4" data-listing-word-count-sort="623">
 <a href="./28. Network control for data collection biases.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1358,13 +1351,13 @@ Controlling for Network Biases
 4 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV0d29yayUyMEFuYWx5c2lz'); return false;">
 Network Analysis
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R3JhcGglMjBUaGVvcnk='); return false;">
 Graph Theory
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Biases'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Qmlhc2Vz'); return false;">
 Biases
 </div>
 </div>
@@ -1375,7 +1368,7 @@ Techniques to account for biases in data collection that can affect the structur
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="28" data-categories="Network Analysis,Graph Theory" data-listing-file-modified-sort="1779710375284" data-listing-reading-time-sort="23" data-listing-word-count-sort="4581">
+<div class="g-col-1" data-index="28" data-categories="TmV0d29yayUyMEFuYWx5c2lzJTJDR3JhcGglMjBUaGVvcnk=" data-listing-file-modified-sort="1781278336761" data-listing-reading-time-sort="23" data-listing-word-count-sort="4580">
 <a href="./29. Network Edges Inference.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1389,10 +1382,10 @@ Network Edges Inference
 23 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV0d29yayUyMEFuYWx5c2lz'); return false;">
 Network Analysis
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R3JhcGglMjBUaGVvcnk='); return false;">
 Graph Theory
 </div>
 </div>
@@ -1403,7 +1396,7 @@ Documentation for Bayesian frameworks inferring social networks from observation
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="29" data-categories="Network Analysis,Graph Theory" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="11" data-listing-word-count-sort="2150">
+<div class="g-col-1" data-index="29" data-categories="TmV0d29yayUyMEFuYWx5c2lzJTJDR3JhcGglMjBUaGVvcnk=" data-listing-file-modified-sort="1781278336718" data-listing-reading-time-sort="11" data-listing-word-count-sort="2150">
 <a href="./30. Network Metrics.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1417,10 +1410,10 @@ Network Metrics
 11 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV0d29yayUyMEFuYWx5c2lz'); return false;">
 Network Analysis
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Graph Theory'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('R3JhcGglMjBUaGVvcnk='); return false;">
 Graph Theory
 </div>
 </div>
@@ -1431,7 +1424,7 @@ An overview of key metrics used to describe and analyze the structure and proper
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="30" data-categories="Social Learning,Network Analysis" data-listing-file-modified-sort="1779266514404" data-listing-reading-time-sort="27" data-listing-word-count-sort="5251">
+<div class="g-col-1" data-index="30" data-categories="U29jaWFsJTIwTGVhcm5pbmclMkNOZXR3b3JrJTIwQW5hbHlzaXM=" data-listing-file-modified-sort="1781278336721" data-listing-reading-time-sort="27" data-listing-word-count-sort="5250">
 <a href="./31. Network-Based Diffusion Analysis.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1445,10 +1438,10 @@ An overview of key metrics used to describe and analyze the structure and proper
 27 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Social Learning'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('U29jaWFsJTIwTGVhcm5pbmc='); return false;">
 Social Learning
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Network Analysis'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV0d29yayUyMEFuYWx5c2lz'); return false;">
 Network Analysis
 </div>
 </div>
@@ -1459,7 +1452,7 @@ Documentation for Bayesian models of social transmission using the STbayes frame
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="31" data-categories="Social Learning,Hierarchical Models" data-listing-file-modified-sort="1779266514404" data-listing-reading-time-sort="15" data-listing-word-count-sort="2915">
+<div class="g-col-1" data-index="31" data-categories="U29jaWFsJTIwTGVhcm5pbmclMkNIaWVyYXJjaGljYWwlMjBNb2RlbHM=" data-listing-file-modified-sort="1781278336635" data-listing-reading-time-sort="15" data-listing-word-count-sort="2915">
 <a href="./32. EWA.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1473,10 +1466,10 @@ Documentation for Bayesian models of social transmission using the STbayes frame
 15 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Social Learning'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('U29jaWFsJTIwTGVhcm5pbmc='); return false;">
 Social Learning
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Hierarchical Models'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('SGllcmFyY2hpY2FsJTIwTW9kZWxz'); return false;">
 Hierarchical Models
 </div>
 </div>
@@ -1487,7 +1480,7 @@ Experience-Weighted Attraction (EWA) model applied to social learning in wild ca
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="32" data-categories="Neural Networks,Deep Learning" data-listing-file-modified-sort="1775113911085" data-listing-reading-time-sort="9" data-listing-word-count-sort="1623">
+<div class="g-col-1" data-index="32" data-categories="TmV1cmFsJTIwTmV0d29ya3MlMkNEZWVwJTIwTGVhcm5pbmc=" data-listing-file-modified-sort="1781278336718" data-listing-reading-time-sort="9" data-listing-word-count-sort="1622">
 <a href="./33. BNN.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1501,21 +1494,21 @@ BNN for Regression
 9 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Neural Networks'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV1cmFsJTIwTmV0d29ya3M='); return false;">
 Neural Networks
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Deep Learning'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">
 Deep Learning
 </div>
 </div>
 <div class="card-text listing-description">
-Neural networks that incorporate Bayesian inference to quantify uncertainty in their predictions.
+Neural networks that incorporate BayesForge to quantify uncertainty in their predictions.
 </div>
 </div>
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="33" data-categories="Neural Networks,Classification,Deep Learning" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="7" data-listing-word-count-sort="1226">
+<div class="g-col-1" data-index="33" data-categories="TmV1cmFsJTIwTmV0d29ya3MlMkNDbGFzc2lmaWNhdGlvbiUyQ0RlZXAlMjBMZWFybmluZw==" data-listing-file-modified-sort="1781278336753" data-listing-reading-time-sort="7" data-listing-word-count-sort="1225">
 <a href="./34. BNN for classification.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1529,24 +1522,24 @@ BNN for Classification
 7 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Neural Networks'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV1cmFsJTIwTmV0d29ya3M='); return false;">
 Neural Networks
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q2xhc3NpZmljYXRpb24='); return false;">
 Classification
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Deep Learning'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">
 Deep Learning
 </div>
 </div>
 <div class="card-text listing-description">
-Neural networks that incorporate Bayesian inference to predict probabilities of binary outcomes.
+Neural networks that incorporate BayesForge to predict probabilities of binary outcomes.
 </div>
 </div>
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="34" data-categories="Neural Networks,Classification,Deep Learning" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="6" data-listing-word-count-sort="1074">
+<div class="g-col-1" data-index="34" data-categories="TmV1cmFsJTIwTmV0d29ya3MlMkNDbGFzc2lmaWNhdGlvbiUyQ0RlZXAlMjBMZWFybmluZw==" data-listing-file-modified-sort="1781278336661" data-listing-reading-time-sort="6" data-listing-word-count-sort="1073">
 <a href="./35. BNN for multiclass classification.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1560,24 +1553,24 @@ BNN for Multiclass Classification
 6 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Neural Networks'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV1cmFsJTIwTmV0d29ya3M='); return false;">
 Neural Networks
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q2xhc3NpZmljYXRpb24='); return false;">
 Classification
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Deep Learning'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">
 Deep Learning
 </div>
 </div>
 <div class="card-text listing-description">
-Neural networks that incorporate Bayesian inference to predict probabilities across three or more mutually exclusive classes.
+Neural networks that incorporate BayesForge to predict probabilities across three or more mutually exclusive classes.
 </div>
 </div>
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="35" data-categories="Neural Networks,Classification,Unsupervised Learning" data-listing-file-modified-sort="1774961597381" data-listing-reading-time-sort="5" data-listing-word-count-sort="923">
+<div class="g-col-1" data-index="35" data-categories="TmV1cmFsJTIwTmV0d29ya3MlMkNDbGFzc2lmaWNhdGlvbiUyQ1Vuc3VwZXJ2aXNlZCUyMExlYXJuaW5n" data-listing-file-modified-sort="1781278336636" data-listing-reading-time-sort="5" data-listing-word-count-sort="922">
 <a href="./36. BNNC unsupervised.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
 <p class="card-img-top">
@@ -1591,13 +1584,13 @@ Neural networks that incorporate Bayesian inference to predict probabilities acr
 5 min
 </div>
 <div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('Neural Networks'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('TmV1cmFsJTIwTmV0d29ya3M='); return false;">
 Neural Networks
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Classification'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('Q2xhc3NpZmljYXRpb24='); return false;">
 Classification
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('Unsupervised Learning'); return false;">
+<div class="listing-category" onclick="window.quartoListingCategory('VW5zdXBlcnZpc2VkJTIwTGVhcm5pbmc='); return false;">
 Unsupervised Learning
 </div>
 </div>
@@ -2594,8 +2587,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -2706,7 +2697,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

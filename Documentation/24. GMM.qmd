@@ -33,18 +33,18 @@ To discover group structures or clusters in data, we can use a **Gaussian Mixtur
 
 ## Example
 
-Below is an example of a GMM implemented in BI. The goal is to cluster a synthetic dataset into a pre-specified K=4 groups.
+Below is an example of a GMM implemented in BF. The goal is to cluster a synthetic dataset into a pre-specified K=4 groups.
 
 
 ::: {.panel-tabset group="language"}
 ## Python
 
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 from sklearn.datasets import make_blobs
 
-m = bi()
+m = bf()
 # Generate synthetic data
 data, true_labels = make_blobs(
     n_samples=500, centers=8, cluster_std=0.8,
@@ -89,7 +89,7 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 ## Julia
 ```julia
-@BI function gmm(data, K, initial_means)
+@BF function gmm(data, K, initial_means)
     D = data.shape[1] 
     alpha_prior = 0.5 * jnp.ones(K)
     w = m.dist.dirichlet(concentration=alpha_prior, name="weights") 

@@ -27,8 +27,8 @@ model_slopes <- brm(
   refresh = 0
 )
 
-# 2. Load BI posteriors
-bi_post   <- read.csv("bi_post_slopes.csv")
+# 2. Load BF posteriors
+BF_post   <- read.csv("BF_post_slopes.csv")
 post_brms <- as.data.frame(model_slopes)
 
 # 3. Compare posterior means -> log.txt
@@ -48,16 +48,16 @@ comparison <- data.frame(
     mean(post_brms$sd_phylo__x),
     mean(brms_rho, na.rm = TRUE)
   ),
-  BI_Mean = c(
-    mean(bi_post$Intercept,    na.rm = TRUE),
-    mean(bi_post$b_x,          na.rm = TRUE),
-    mean(bi_post$sigma,        na.rm = TRUE),
-    mean(bi_post$sd_intercept, na.rm = TRUE),
-    mean(bi_post$sd_slope,     na.rm = TRUE),
-    mean(bi_post$rho,          na.rm = TRUE)
+  BF_Mean = c(
+    mean(BF_post$Intercept,    na.rm = TRUE),
+    mean(BF_post$b_x,          na.rm = TRUE),
+    mean(BF_post$sigma,        na.rm = TRUE),
+    mean(BF_post$sd_intercept, na.rm = TRUE),
+    mean(BF_post$sd_slope,     na.rm = TRUE),
+    mean(BF_post$rho,          na.rm = TRUE)
   )
 )
-comparison$Difference <- comparison$BI_Mean - comparison$brms_Mean
+comparison$Difference <- comparison$BF_Mean - comparison$brms_Mean
 comparison$Diff_Pct   <- abs(comparison$Difference) / abs(comparison$brms_Mean) * 100
 print(comparison)
 write.csv(comparison, "comparison_slopes.csv", row.names = FALSE)
@@ -67,29 +67,29 @@ write.table(comparison, file = "log.txt", append = TRUE,
 
 # 4. Combined density panel (all parameters)
 cat("\nGenerating combined density comparison panel...\n")
-draw_density <- function(label, brms_s, bi_s) {
+draw_density <- function(label, brms_s, BF_s) {
   brms_s <- as.numeric(na.omit(as.vector(brms_s)))
-  bi_s   <- as.numeric(na.omit(bi_s))
-  if (length(brms_s) < 2 || length(bi_s) < 2) {
+  BF_s   <- as.numeric(na.omit(BF_s))
+  if (length(brms_s) < 2 || length(BF_s) < 2) {
     plot.new(); title(main = paste(label, "(no data)")); return()
   }
-  d1 <- density(brms_s); d2 <- density(bi_s)
+  d1 <- density(brms_s); d2 <- density(BF_s)
   xlim <- range(c(d1$x, d2$x)); ylim <- range(c(d1$y, d2$y))
   plot(d1, col = "red", lwd = 2, main = label,
        xlim = xlim, ylim = ylim, xlab = "Value", ylab = "Density")
   lines(d2, col = "blue", lwd = 2, lty = 2)
-  legend("topright", legend = c("brms", "BI"),
+  legend("topright", legend = c("brms", "BF"),
          col = c("red", "blue"), lwd = 2, lty = c(1, 2), cex = 0.8)
 }
 
 png("density_comparison.png", width = 1800, height = 800, res = 120)
 par(mfrow = c(2, 3), mar = c(4, 4, 3, 1))
-draw_density("Intercept",    brms_intercept,              bi_post$Intercept)
-draw_density("b_x",          brms_bx,                     bi_post$b_x)
-draw_density("sigma",        post_brms$sigma,             bi_post$sigma)
-draw_density("sd_intercept", post_brms$sd_phylo__Intercept, bi_post$sd_intercept)
-draw_density("sd_slope",     post_brms$sd_phylo__x,       bi_post$sd_slope)
-draw_density("rho",          brms_rho,                    bi_post$rho)
+draw_density("Intercept",    brms_intercept,              BF_post$Intercept)
+draw_density("b_x",          brms_bx,                     BF_post$b_x)
+draw_density("sigma",        post_brms$sigma,             BF_post$sigma)
+draw_density("sd_intercept", post_brms$sd_phylo__Intercept, BF_post$sd_intercept)
+draw_density("sd_slope",     post_brms$sd_phylo__x,       BF_post$sd_slope)
+draw_density("rho",          brms_rho,                    BF_post$rho)
 dev.off()
 cat("Panel saved to density_comparison.png\n")
 # %%

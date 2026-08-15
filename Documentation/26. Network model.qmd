@@ -22,11 +22,11 @@ Below is an example code snippet demonstrating a Bayesian network model with a s
 ```{python}
 
 # Setup device------------------------------------------------
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 # Simulate data ------------------------------------------------
 N = 50
 individual_predictor = m.dist.normal(0,1, shape = (N,1), sample = True)
@@ -83,12 +83,12 @@ m.fit(model, progress_bar=False)
 
 ## R
 ```r
-library(BayesianInference)
+library(BayesForge)
 # Setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 
 # Import data ------------------------------------------------
-load(paste(system.file(package = "BayesianInference"),'/data/STRAND sim sr only.Rdata', sep = ''))
+load(paste(system.file(package = "BayesForge"),'/data/STRAND sim sr only.Rdata', sep = ''))
 
 m$data_on_model = list()
 m$data_on_model$N_id = length(ids)
@@ -102,7 +102,7 @@ model <- function( N_id, N_dyads, network, focal_individual_predictors, target_i
 
   
   ## Block ---------------------------------------
-  B = bi.dist.normal(0, 2.5, shape=c(1), name = 'block')
+  B = bf.dist.normal(0, 2.5, shape=c(1), name = 'block')
   
   #SR ---------------------------------------
   sr =  m$net$sender_receiver(focal_individual_predictors,target_individual_predictors)
@@ -126,10 +126,10 @@ summary =m$summary()
 ## Julia
 ```julia
 # Setup device------------------------------------------------
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Simulate data ------------------------------------------------
 N = 50
@@ -165,7 +165,7 @@ m.data_on_model = pydict(
 )
 
 
-@BI function model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors)
+@BF function model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors)
     N_id = network.shape[0]
 
     # Block ---------------------------------------
@@ -318,11 +318,11 @@ $$
 
 -   We can apply interaction terms as in [chapter 3: Interaction Between Continuous Variables](3.%20Interaction%20between%20continuous%20variables.qmd).
 
--   Network links can be modeled using Bernoulli (for proportions), Binomial (for unweighted network), Poisson  or zero-inflated Poisson distributions (for count). In BI, you just need to set the correct likelihood distributions. For example, if you want to model the number of interactions between nodes, you can use the Poisson distribution. If you want to model the existence or absence of a link, you can use the Bernoulli distribution.
+-   Network links can be modeled using Bernoulli (for proportions), Binomial (for unweighted network), Poisson  or zero-inflated Poisson distributions (for count). In BF, you just need to set the correct likelihood distributions. For example, if you want to model the number of interactions between nodes, you can use the Poisson distribution. If you want to model the existence or absence of a link, you can use the Bernoulli distribution.
 
 -   If the network is undirected, then accounting for the correlation between the propensity to emit and receive links is not necessary, and the terms $\lambda_i$, $\pi_j$, and $\delta_{ij}$ are no longer required. (Is it correct?)
 
-- To account for exposure on a poisson model treat exposure as a nodal characteristic with its own parameter effect (i.e., regression coefficient). Their is several function that will help you to convert vectors or matrices in edge list format to have compatible data structure for the model (see API reference for bi.net.vec_to_edgl and bi.net.mat_to_edgl). F
+- To account for exposure on a poisson model treat exposure as a nodal characteristic with its own parameter effect (i.e., regression coefficient). Their is several function that will help you to convert vectors or matrices in edge list format to have compatible data structure for the model (see API reference for BF.net.vec_to_edgl and BF.net.mat_to_edgl). F
 - 
 
 -   In the following chapters, we will see how to incorporate additional network effects into the model to account for network structural properties (e.g., clusters, assortativity, triadic closure, etc.).

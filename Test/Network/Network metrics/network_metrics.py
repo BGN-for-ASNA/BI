@@ -1,4 +1,4 @@
-from BI import bi
+from BayesForge import bf
 import numpy as np
 import pandas as pd
 import jax.numpy as jnp
@@ -23,10 +23,10 @@ log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "log.tx
 log_file = open(log_file_path, "w")
 sys.stdout = Tee(sys.stdout, log_file)
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 print('Loading data...')
-data_path = os.path.dirname(os.path.abspath("")) + "/BI/resources/data/"
+data_path = os.path.dirname(os.path.abspath("")) + "/BF/resources/data/"
 G_undirected = nx.karate_club_graph()
 G_directed = nx.DiGraph(G_undirected)  # Convert to directed graph
 
@@ -230,4 +230,4 @@ run_test("geodesic_distance binary", lambda: np.testing.assert_array_almost_equa
 beteeweness_run_all_tests()
 
 print("\nAll tests completed.")
-log_file.close()
+log_file.close()

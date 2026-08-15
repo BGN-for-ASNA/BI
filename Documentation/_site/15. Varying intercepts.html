@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="description" content="Modeling grouped or hierarchical data by allowing the intercept to vary for each group.">
 
-<title>Varying Intercepts Models – Bayesian Inference (BI)</title>
+<title>Varying Intercepts Models – BayesForge (BF)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -92,12 +92,12 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-6a8f47518b915c51477edcf8788f90ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-294eff73d59fba645e10c6e6b482604a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -245,7 +245,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Bayesian Inference (BI)</span>
+    <span class="navbar-title">BayesForge (BF)</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -272,12 +272,12 @@ window.Quarto = {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-help">    
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/issues"><i class="bi bi-bug" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/issues"><i class="bi bi-bug" role="img">
 </i> 
  <span class="dropdown-text">Report a Bug</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/discussions"><i class="bi bi-chat-dots" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/discussions"><i class="bi bi-chat-dots" role="img">
 </i> 
  <span class="dropdown-text">Ask a Question</span></a>
   </li>  
@@ -287,7 +287,7 @@ window.Quarto = {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools tools-wide">
     <a href="https://twitter.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
-    <a href="https://github.com/BGN-for-ASNA/BI" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+    <a href="https://github.com/BGN-for-ASNA/BF" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
@@ -321,7 +321,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./0.Introduction.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Bayesian analysis with BI</span></a>
+ <span class="menu-text">Bayesian analysis with BF</span></a>
   </div>
 </li>
       </ul>
@@ -700,19 +700,19 @@ Note
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consists of a dependent variable representing individuals’ survival (<em>surv</em>) and an independent categorical variable (<em>tank</em>), which indicates the tank where the individual was born, with a total of 48 tanks. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
+<p>Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the BayesForge (BF) package. The data consists of a dependent variable representing individuals’ survival (<em>surv</em>) and an independent categorical variable (<em>tank</em>), which indicates the tank where the individual was born, with a total of 48 tanks. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python (Raw)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="5744cf78" class="cell" data-execution_count="1">
+<div id="f19b1064" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
@@ -743,7 +743,7 @@ IProgress not found. Please update jupyter and ipywidgets. See https://ipywidget
 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>BI v 0.0.45 package loaded
+<pre><code>bf v 0.0.48 package loaded
 jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -797,7 +797,7 @@ jax.local_device_count 32</code></pre>
 <td>1.38</td>
 <td>4.79</td>
 <td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4333.78</td>
 <td>2411.09</td>
 <td>1.0</td>
@@ -821,7 +821,7 @@ jax.local_device_count 32</code></pre>
 <td>1.34</td>
 <td>4.80</td>
 <td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4551.94</td>
 <td>2776.54</td>
 <td>1.0</td>
@@ -833,7 +833,7 @@ jax.local_device_count 32</code></pre>
 <td>0.66</td>
 <td>3.47</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4310.13</td>
 <td>2200.45</td>
 <td>1.0</td>
@@ -845,7 +845,7 @@ jax.local_device_count 32</code></pre>
 <td>0.76</td>
 <td>3.46</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>5083.25</td>
 <td>2802.82</td>
 <td>1.0</td>
@@ -857,7 +857,7 @@ jax.local_device_count 32</code></pre>
 <td>1.34</td>
 <td>4.83</td>
 <td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4594.50</td>
 <td>2655.09</td>
 <td>1.0</td>
@@ -893,7 +893,7 @@ jax.local_device_count 32</code></pre>
 <td>0.83</td>
 <td>3.58</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4571.70</td>
 <td>2439.08</td>
 <td>1.0</td>
@@ -965,7 +965,7 @@ jax.local_device_count 32</code></pre>
 <td>0.74</td>
 <td>3.48</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>5729.82</td>
 <td>2630.65</td>
 <td>1.0</td>
@@ -977,7 +977,7 @@ jax.local_device_count 32</code></pre>
 <td>1.62</td>
 <td>4.06</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>3841.21</td>
 <td>2417.77</td>
 <td>1.0</td>
@@ -1013,7 +1013,7 @@ jax.local_device_count 32</code></pre>
 <td>2.01</td>
 <td>5.10</td>
 <td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4360.67</td>
 <td>2731.38</td>
 <td>1.0</td>
@@ -1073,7 +1073,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.67</td>
 <td>-0.26</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5890.22</td>
 <td>3129.53</td>
 <td>1.0</td>
@@ -1085,7 +1085,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.45</td>
 <td>0.85</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6071.92</td>
 <td>2947.29</td>
 <td>1.0</td>
@@ -1097,7 +1097,7 @@ jax.local_device_count 32</code></pre>
 <td>-2.22</td>
 <td>-0.65</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5964.15</td>
 <td>3038.19</td>
 <td>1.0</td>
@@ -1109,7 +1109,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.10</td>
 <td>0.18</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5068.89</td>
 <td>3092.02</td>
 <td>1.0</td>
@@ -1121,7 +1121,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.51</td>
 <td>0.73</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5310.95</td>
 <td>3095.96</td>
 <td>1.0</td>
@@ -1145,7 +1145,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.28</td>
 <td>0.02</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5476.04</td>
 <td>2773.30</td>
 <td>1.0</td>
@@ -1157,7 +1157,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.95</td>
 <td>0.32</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5023.47</td>
 <td>3169.33</td>
 <td>1.0</td>
@@ -1169,7 +1169,7 @@ jax.local_device_count 32</code></pre>
 <td>2.02</td>
 <td>4.43</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4116.48</td>
 <td>2283.51</td>
 <td>1.0</td>
@@ -1229,7 +1229,7 @@ jax.local_device_count 32</code></pre>
 <td>2.32</td>
 <td>5.32</td>
 <td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4231.43</td>
 <td>2521.72</td>
 <td>1.0</td>
@@ -1265,7 +1265,7 @@ jax.local_device_count 32</code></pre>
 <td>-2.52</td>
 <td>-1.07</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5663.69</td>
 <td>3198.80</td>
 <td>1.0</td>
@@ -1277,7 +1277,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.13</td>
 <td>-0.01</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5231.16</td>
 <td>2817.50</td>
 <td>1.0</td>
@@ -1289,7 +1289,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.02</td>
 <td>0.10</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5481.04</td>
 <td>2856.80</td>
 <td>1.0</td>
@@ -1301,7 +1301,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.86</td>
 <td>0.21</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5622.36</td>
 <td>3168.15</td>
 <td>1.0</td>
@@ -1313,7 +1313,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.03</td>
 <td>1.08</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5259.45</td>
 <td>3008.82</td>
 <td>1.0</td>
@@ -1325,7 +1325,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.13</td>
 <td>-0.02</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5481.65</td>
 <td>3084.27</td>
 <td>1.0</td>
@@ -1349,7 +1349,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.55</td>
 <td>0.51</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>4967.65</td>
 <td>3062.32</td>
 <td>1.0</td>
@@ -1374,15 +1374,15 @@ jax.local_device_count 32</code></pre>
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div id="7f4413d5" class="cell" data-execution_count="2">
+<div id="870cdfe7" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
@@ -1436,7 +1436,7 @@ jax.local_device_count 32</code></pre>
 <td>0.00</td>
 <td>3128.12</td>
 <td>2795.06</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[0]</td>
@@ -1448,7 +1448,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4896.42</td>
 <td>2977.89</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[1]</td>
@@ -1457,10 +1457,10 @@ jax.local_device_count 32</code></pre>
 <td>1.34</td>
 <td>4.77</td>
 <td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>3333.45</td>
 <td>2244.17</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[2]</td>
@@ -1472,7 +1472,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4006.84</td>
 <td>2518.35</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[3]</td>
@@ -1481,10 +1481,10 @@ jax.local_device_count 32</code></pre>
 <td>1.43</td>
 <td>4.88</td>
 <td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4039.46</td>
 <td>2370.83</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[4]</td>
@@ -1492,11 +1492,11 @@ jax.local_device_count 32</code></pre>
 <td>0.89</td>
 <td>0.66</td>
 <td>3.50</td>
-<td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
+<td>0.01</td>
 <td>4107.92</td>
 <td>2448.18</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[5]</td>
@@ -1505,10 +1505,10 @@ jax.local_device_count 32</code></pre>
 <td>0.69</td>
 <td>3.39</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4944.03</td>
 <td>2837.00</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[6]</td>
@@ -1517,10 +1517,10 @@ jax.local_device_count 32</code></pre>
 <td>1.42</td>
 <td>4.85</td>
 <td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4331.09</td>
 <td>2669.68</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[7]</td>
@@ -1532,7 +1532,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4676.57</td>
 <td>2710.76</td>
-<td>1.01</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[8]</td>
@@ -1544,7 +1544,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4758.66</td>
 <td>2968.60</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[9]</td>
@@ -1553,10 +1553,10 @@ jax.local_device_count 32</code></pre>
 <td>0.72</td>
 <td>3.49</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4105.76</td>
 <td>2176.15</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[10]</td>
@@ -1568,7 +1568,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4926.33</td>
 <td>2771.45</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[11]</td>
@@ -1580,7 +1580,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>5618.92</td>
 <td>2532.68</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[12]</td>
@@ -1592,7 +1592,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>5699.74</td>
 <td>3091.73</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[13]</td>
@@ -1604,7 +1604,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4517.82</td>
 <td>3282.02</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[14]</td>
@@ -1616,7 +1616,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4330.61</td>
 <td>2838.22</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[15]</td>
@@ -1628,7 +1628,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>5491.65</td>
 <td>2816.60</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[16]</td>
@@ -1637,10 +1637,10 @@ jax.local_device_count 32</code></pre>
 <td>1.67</td>
 <td>4.17</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>3714.04</td>
 <td>2200.71</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[17]</td>
@@ -1652,7 +1652,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4742.72</td>
 <td>2658.82</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[18]</td>
@@ -1664,7 +1664,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4770.20</td>
 <td>2576.51</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[19]</td>
@@ -1672,11 +1672,11 @@ jax.local_device_count 32</code></pre>
 <td>0.98</td>
 <td>2.14</td>
 <td>5.19</td>
-<td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
+<td>0.01</td>
 <td>4511.41</td>
 <td>2613.67</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[20]</td>
@@ -1688,7 +1688,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4807.48</td>
 <td>2924.05</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[21]</td>
@@ -1700,7 +1700,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>5326.42</td>
 <td>3409.34</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[22]</td>
@@ -1712,7 +1712,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4326.56</td>
 <td>2649.60</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[23]</td>
@@ -1721,10 +1721,10 @@ jax.local_device_count 32</code></pre>
 <td>0.88</td>
 <td>2.53</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6182.40</td>
 <td>2765.81</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[24]</td>
@@ -1733,10 +1733,10 @@ jax.local_device_count 32</code></pre>
 <td>-1.69</td>
 <td>-0.27</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>4693.38</td>
 <td>3158.50</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[25]</td>
@@ -1745,10 +1745,10 @@ jax.local_device_count 32</code></pre>
 <td>-0.45</td>
 <td>0.84</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5440.26</td>
 <td>3232.16</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[26]</td>
@@ -1760,7 +1760,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4787.53</td>
 <td>3209.81</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[27]</td>
@@ -1769,10 +1769,10 @@ jax.local_device_count 32</code></pre>
 <td>-1.14</td>
 <td>0.16</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5371.22</td>
 <td>3073.55</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[28]</td>
@@ -1781,22 +1781,22 @@ jax.local_device_count 32</code></pre>
 <td>-0.48</td>
 <td>0.75</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5524.77</td>
 <td>3064.63</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[29]</td>
 <td>1.45</td>
-<td>0.50</td>
+<td>0.49</td>
 <td>0.65</td>
 <td>2.20</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>4955.46</td>
 <td>2997.19</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[30]</td>
@@ -1805,10 +1805,10 @@ jax.local_device_count 32</code></pre>
 <td>-1.29</td>
 <td>0.04</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5545.06</td>
 <td>2746.35</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[31]</td>
@@ -1817,10 +1817,10 @@ jax.local_device_count 32</code></pre>
 <td>-0.95</td>
 <td>0.32</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5515.18</td>
 <td>3231.43</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[32]</td>
@@ -1829,10 +1829,10 @@ jax.local_device_count 32</code></pre>
 <td>1.96</td>
 <td>4.41</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>4177.53</td>
 <td>2401.12</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[33]</td>
@@ -1844,7 +1844,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4409.42</td>
 <td>2737.95</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[34]</td>
@@ -1856,7 +1856,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4860.33</td>
 <td>2668.98</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[35]</td>
@@ -1868,7 +1868,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4312.01</td>
 <td>2396.63</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[36]</td>
@@ -1880,7 +1880,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4848.59</td>
 <td>2593.87</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[37]</td>
@@ -1888,11 +1888,11 @@ jax.local_device_count 32</code></pre>
 <td>0.98</td>
 <td>2.32</td>
 <td>5.34</td>
-<td>0.02</td>
-<td>0.02</td>
+<td>0.01</td>
+<td>0.01</td>
 <td>4605.46</td>
 <td>2403.61</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[38]</td>
@@ -1904,7 +1904,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4782.85</td>
 <td>2836.53</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[39]</td>
@@ -1916,7 +1916,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>3994.05</td>
 <td>2812.19</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[40]</td>
@@ -1925,10 +1925,10 @@ jax.local_device_count 32</code></pre>
 <td>-2.51</td>
 <td>-1.02</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5382.02</td>
 <td>3046.55</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[41]</td>
@@ -1937,10 +1937,10 @@ jax.local_device_count 32</code></pre>
 <td>-1.16</td>
 <td>-0.05</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5302.09</td>
 <td>3115.69</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[42]</td>
@@ -1949,10 +1949,10 @@ jax.local_device_count 32</code></pre>
 <td>-1.00</td>
 <td>0.11</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>4749.29</td>
 <td>2987.73</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[43]</td>
@@ -1961,10 +1961,10 @@ jax.local_device_count 32</code></pre>
 <td>-0.89</td>
 <td>0.19</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5657.56</td>
 <td>3111.34</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[44]</td>
@@ -1973,10 +1973,10 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>1.13</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>4815.44</td>
 <td>3005.92</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[45]</td>
@@ -1985,10 +1985,10 @@ jax.local_device_count 32</code></pre>
 <td>-1.10</td>
 <td>-0.02</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>5504.29</td>
 <td>3210.16</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">intercept_tank[46]</td>
@@ -2000,7 +2000,7 @@ jax.local_device_count 32</code></pre>
 <td>0.01</td>
 <td>4768.77</td>
 <td>2698.03</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">intercept_tank[47]</td>
@@ -2009,10 +2009,10 @@ jax.local_device_count 32</code></pre>
 <td>-0.54</td>
 <td>0.51</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>4584.66</td>
 <td>3164.46</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sd_tank</td>
@@ -2024,7 +2024,7 @@ jax.local_device_count 32</code></pre>
 <td>0.00</td>
 <td>2070.88</td>
 <td>2143.18</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 </tbody>
 </table>
@@ -2034,10 +2034,10 @@ jax.local_device_count 32</code></pre>
 </div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesForge)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBF</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">reedfrogs</span>(<span class="at">only_path=</span>T), <span class="at">sep=</span><span class="st">';'</span>)</span>
@@ -2050,9 +2050,9 @@ jax.local_device_count 32</code></pre>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(tank, surv, density){</span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameter prior distributions</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>( <span class="dv">1</span>,  <span class="at">name =</span> <span class="st">'sigma'</span>,<span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  a_bar <span class="ot">=</span>  <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">1.5</span>, <span class="at">name=</span><span class="st">'a_bar'</span>,<span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(a_bar, sigma, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape =</span><span class="fu">c</span>(<span class="dv">48</span>))</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> <span class="fu">bf.dist.exponential</span>( <span class="dv">1</span>,  <span class="at">name =</span> <span class="st">'sigma'</span>,<span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  a_bar <span class="ot">=</span>  <span class="fu">bf.dist.normal</span>(<span class="dv">0</span>, <span class="fl">1.5</span>, <span class="at">name=</span><span class="st">'a_bar'</span>,<span class="at">shape=</span><span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">=</span> <span class="fu">bf.dist.normal</span>(a_bar, sigma, <span class="at">name=</span><span class="st">'alpha'</span>, <span class="at">shape =</span><span class="fu">c</span>(<span class="dv">48</span>))</span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">=</span> alpha[tank]</span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood</span></span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">binomial</span>(<span class="at">total_count =</span> density, <span class="at">logits =</span> p, <span class="at">obs=</span>surv)</span>
@@ -2066,10 +2066,10 @@ jax.local_device_count 32</code></pre>
 <span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
-<div class="sourceCode" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesForge</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBF</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
@@ -2078,7 +2078,7 @@ jax.local_device_count 32</code></pre>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>m.df[<span class="st">"tank"</span>] <span class="op">=</span> jnp.<span class="fu">arange</span>(m.df.shape[<span class="fl">0</span>]) </span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(tank, surv, density)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="pp">@BF</span> <span class="kw">function</span> <span class="fu">model</span>(tank, surv, density)</span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> m.effects.<span class="fu">varying_intercept</span>(N_groups<span class="op">=</span><span class="fl">48</span>,group_id<span class="op">=</span>tank, group_name <span class="op">=</span> <span class="st">"tank"</span>)</span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">binomial</span>(total_count <span class="op">=</span> density, logits <span class="op">=</span> alpha, obs<span class="op">=</span>surv)</span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
@@ -3138,8 +3138,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -3250,7 +3248,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

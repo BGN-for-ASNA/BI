@@ -38,11 +38,11 @@ Below is an example code snippet demonstrating Bayesian regression with varying 
 ## Python (Raw)
 
 ``` {python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device------------------------------------------------
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -83,11 +83,11 @@ m.summary()
 ## Python (Build in function)
 
 ``` {python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device------------------------------------------------
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 
@@ -121,31 +121,31 @@ m.fit(model, progress_bar=False)
 ## R
 
 ``` r
-library(BayesianInference)
+library(BayesForge)
 jnp = reticulate::import('jax.numpy')
 
 # Setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 
 # Import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/Sim data multivariatenormal.csv", sep = ''), sep=',')
+m$data(paste(system.file(package = "BayesForge"),"/data/Sim data multivariatenormal.csv", sep = ''), sep=',')
 m$data_to_model(list('cafe', 'wait', 'afternoon'))
 
 # Import data ------------------------------------------------
-m$data(paste(system.file(package = "BayesianInference"),"/data/Sim data multivariatenormal.csv", sep = ''), sep=',')
+m$data(paste(system.file(package = "BayesForge"),"/data/Sim data multivariatenormal.csv", sep = ''), sep=',')
 m$data_to_model(list('cafe', 'wait', 'afternoon'))
 m$data_on_model
 
 # Define model ------------------------------------------------
 model <- function(cafe, afternoon, wait, N_cafes = as.integer(20) ){
-  a = bi.dist.normal(5, 2, name = 'a')
-  b = bi.dist.normal(-1, 0.5, name = 'b')
-  sigma_cafe = bi.dist.exponential(1, shape= c(2), name = 'sigma_cafe')
-  sigma = bi.dist.exponential( 1, name = 'sigma')
-  Rho = bi.dist.lkj(as.integer(2), as.integer(2), name = 'Rho')
+  a = bf.dist.normal(5, 2, name = 'a')
+  b = bf.dist.normal(-1, 0.5, name = 'b')
+  sigma_cafe = bf.dist.exponential(1, shape= c(2), name = 'sigma_cafe')
+  sigma = bf.dist.exponential( 1, name = 'sigma')
+  Rho = bf.dist.lkj(as.integer(2), as.integer(2), name = 'Rho')
   cov = jnp$outer(sigma_cafe, sigma_cafe) * Rho
   
-  a_cafe_b_cafe = bi.dist.multivariate_normal(
+  a_cafe_b_cafe = bf.dist.multivariate_normal(
     jnp$squeeze(jnp$stack(list(a, b))), 
     cov, 
     shape = c(N_cafes), name = 'a_cafe')  
@@ -155,7 +155,7 @@ model <- function(cafe, afternoon, wait, N_cafes = as.integer(20) ){
   
   mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
   
-  bi.dist.normal(mu, sigma, obs=wait)
+  bf.dist.normal(mu, sigma, obs=wait)
 }
 
 # Run MCMC ------------------------------------------------
@@ -168,10 +168,10 @@ m$summary() # Get posterior distribution
 
 ## Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -187,7 +187,7 @@ m.data_on_model = pybuiltins.dict(
 
 
 # Define model ------------------------------------------------
-@BI function model(cafe, wait, N_cafes, afternoon)
+@BF function model(cafe, wait, N_cafes, afternoon)
     a = m.dist.normal(5, 2,  name = "a")
     b = m.dist.normal(-1, 0.5, name = "b")
     sigma_cafe = m.dist.exponential(1, shape=(2,),  name = "sigma_cafe")
@@ -375,7 +375,7 @@ $$
 
 - We can apply categorical variables similarly to [Chapter 4](/4.%20Categorical%20variable.qmd).
 
-- We can apply multiple random effects in Bayesian inference as follows:
+- We can apply multiple random effects in BayesForge as follows:
 
 ```python
 def model(cafe, wait, N_cafes, afternoon, state):
@@ -509,7 +509,7 @@ $$
 ``` python
 from main import *
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 # Import data
 m.read_csv("../data/chimpanzees.csv", sep=";")
 m.df["block_id"] = m.df.block

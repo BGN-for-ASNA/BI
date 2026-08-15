@@ -13,7 +13,7 @@ def generate_xtx(comparison_csv, output_dir, params, model_name, plot_file):
     output_path = os.path.join(output_dir, "log.xtx")
     
     with open(output_path, "w") as f:
-        f.write(f"% --- BI vs BEAST Diagnostic Log: {model_name} ---\n")
+        f.write(f"% --- BF vs BEAST Diagnostic Log: {model_name} ---\n")
         f.write(f"% Generated: {now}\n\n")
         
         f.write(f"\\section{{Phylogenetic {model_name} Comparison}}\n")
@@ -23,15 +23,15 @@ def generate_xtx(comparison_csv, output_dir, params, model_name, plot_file):
         f.write("\\centering\n")
         f.write("\\begin{tabular}{l|ccc}\n")
         f.write("\\hline\n")
-        f.write("Parameter & BI Mean (SD) & BEAST Mean (SD) & Diff (\\%) \\\\\n")
+        f.write("Parameter & BF Mean (SD) & BEAST Mean (SD) & Diff (\\%) \\\\\n")
         f.write("\\hline\n")
         
         for _, row in df.iterrows():
             p = row['Parameter'].replace('_', '\\_')
-            bi = row['BI Mean (SD)']
+            BF = row['BF Mean (SD)']
             beast = row['BEAST Mean (SD)']
             diff = row['Diff (%)']
-            f.write(f"{p} & {bi} & {beast} & {diff} \\\\\n")
+            f.write(f"{p} & {BF} & {beast} & {diff} \\\\\n")
             
         f.write("\\hline\n")
         f.write("\\end{tabular}\n")
@@ -43,21 +43,21 @@ def generate_xtx(comparison_csv, output_dir, params, model_name, plot_file):
 
 if __name__ == "__main__":
     # Model 1
-    generate_xtx("BI_vs_BEAST_comparison.csv", 
+    generate_xtx("BF_vs_BEAST_comparison.csv", 
                  "Model_1_Spatial_Heterogeneity", 
                  ['kappa', 'alpha'], 
                  "Spatial Heterogeneity (+Gamma)",
                  "density_gamma.png")
     
     # Model 2
-    generate_xtx("BI_vs_BEAST_comparison.csv", 
+    generate_xtx("BF_vs_BEAST_comparison.csv", 
                  "Model_2_Temporal_Heterogeneity", 
                  ['kappa', 'alpha', 'mu_c', 'sigma_c'], 
                  "Temporal Heterogeneity (UCLN Revised)",
                  "density_ucln.png")
     
     # Root summary
-    generate_xtx("BI_vs_BEAST_comparison.csv", 
+    generate_xtx("BF_vs_BEAST_comparison.csv", 
                  ".", 
                  ['kappa', 'alpha', 'mu_c', 'sigma_c'], 
                  "Evolutionary Heterogeneity Full",

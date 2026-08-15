@@ -1,4 +1,4 @@
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import numpy as np
 import pandas as pd
@@ -7,8 +7,8 @@ import seaborn as sns
 from sklearn.decomposition import PCA as sklearn_PCA
 from sklearn.datasets import load_iris
 
-# Initialize BI model
-m = bi()
+# Initialize BF model
+m = bf()
 
 # Logging setup to capture results in log.txt
 import sys
@@ -51,15 +51,15 @@ def scale_data(X):
 
 X_scaled, data_mean, data_std = scale_data(X_raw)
 
-print("Fitting model with BI...")
+print("Fitting model with BF...")
 m.data_on_model = dict(X=X_scaled)
 # Using classic PCA for direct comparison with sklearn
 m.fit(m.models.pca(type="classic"), num_samples=500, num_warmup=500)
 
-# Extract results from BI
-bi_pca_results = m.models.pca.get_attributes(X=X_scaled)
-bi_components = bi_pca_results["components"]
-bi_variance_ratio = bi_pca_results["explained_variance_ratio"]
+# Extract results from BayesForge
+BF_pca_results = m.models.pca.get_attributes(X=X_scaled)
+BF_components = BF_pca_results["components"]
+BF_variance_ratio = BF_pca_results["explained_variance_ratio"]
 
 print("Fitting model with sklearn...")
 sklearn_pca = sklearn_PCA(n_components=X_scaled.shape[1])
@@ -70,12 +70,12 @@ sklearn_variance_ratio = sklearn_pca.explained_variance_ratio_
 print("\n--- Numerical Comparison ---")
 
 # 1. Compare Explained Variance Ratio
-print(f"BI Variance Ratio:      {bi_variance_ratio}")
+print(f"BF Variance Ratio:      {BF_variance_ratio}")
 print(f"Sklearn Variance Ratio: {sklearn_variance_ratio}")
 
 try:
     np.testing.assert_allclose(
-        bi_variance_ratio,
+        BF_variance_ratio,
         sklearn_variance_ratio,
         atol=1e-2,
         err_msg="Explained variance ratio mismatch",
@@ -86,7 +86,7 @@ except AssertionError as e:
 
 # 2. Compare Components (Loading Matrix)
 # Note: Signs can be flipped, so we compare absolute values or align signs
-# BI components are already sign-corrected in BI.Models.PCA.set_deterministic_sign
+# BF components are already sign-corrected in BF.Models.PCA.set_deterministic_sign
 # Sklearn components might have different signs.
 
 
@@ -100,14 +100,14 @@ def align_signs(comp_matrix):
 
 
 sklearn_components_aligned = align_signs(sklearn_components.copy())
-bi_components_aligned = align_signs(np.array(bi_components))
+BF_components_aligned = align_signs(np.array(BF_components))
 
-print("\nBI Components (first 2 PCs):\n", bi_components_aligned[:, :2])
+print("\nBI Components (first 2 PCs):\n", BF_components_aligned[:, :2])
 print("\nSklearn Components (first 2 PCs):\n", sklearn_components_aligned[:, :2])
 
 try:
     np.testing.assert_allclose(
-        bi_components_aligned,
+        BF_components_aligned,
         sklearn_components_aligned,
         atol=0.5,
         err_msg="PCA components mismatch",

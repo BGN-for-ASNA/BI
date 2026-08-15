@@ -24,15 +24,15 @@ def generate_beast_samples(param, n=2000):
     mean, std = beast_stats[param]
     return np.random.normal(mean, std, n)
 
-# 2. Load BI Posteriors
+# 2. Load BF Posteriors
 def load_csv(path):
     try: return pd.read_csv(path)
     except: return None
 
-gamma_fixed  = load_csv("Model_1_Spatial_Heterogeneity/bi_gamma_post.csv")
-gamma_blmarg = load_csv("Model_3_Spatial_BLMarg/bi_gamma_blmarg_post.csv")
-ucln_fixed   = load_csv("Model_2_Temporal_Heterogeneity/bi_ucln_post.csv")
-ucln_blmarg  = load_csv("Model_4_Temporal_BLMarg/bi_ucln_blmarg_post.csv")
+gamma_fixed  = load_csv("Model_1_Spatial_Heterogeneity/BF_gamma_post.csv")
+gamma_blmarg = load_csv("Model_3_Spatial_BLMarg/BF_gamma_blmarg_post.csv")
+ucln_fixed   = load_csv("Model_2_Temporal_Heterogeneity/BF_ucln_post.csv")
+ucln_blmarg  = load_csv("Model_4_Temporal_BLMarg/BF_ucln_blmarg_post.csv")
 
 palette = {"Fixed": "#4C72B0", "BLMarg": "#DD8452", "BEAST": "#55A868"}
 
@@ -43,9 +43,9 @@ def make_plots(params, title, save_name, df_f, df_b):
     
     for ax, p in zip(axes, params):
         if df_f is not None and p in df_f.columns:
-            sns.kdeplot(df_f[p], ax=ax, label='BI (Fixed)', color=palette['Fixed'], fill=True, alpha=0.2)
+            sns.kdeplot(df_f[p], ax=ax, label='BF (Fixed)', color=palette['Fixed'], fill=True, alpha=0.2)
         if df_b is not None and p in df_b.columns:
-            sns.kdeplot(df_b[p], ax=ax, label='BI (BLMarg)', color=palette['BLMarg'], fill=True, alpha=0.4)
+            sns.kdeplot(df_b[p], ax=ax, label='BF (BLMarg)', color=palette['BLMarg'], fill=True, alpha=0.4)
         
         if p in beast_stats:
             samples = generate_beast_samples(p)
