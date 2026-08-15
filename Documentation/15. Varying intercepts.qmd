@@ -25,16 +25,16 @@ To model the relationship between a dependent variable and an independent variab
 
 ## Example
 
-Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the Bayesian Inference (BI) package. The data consists of a dependent variable representing individuals' survival (*surv*) and an independent categorical variable (*tank*), which indicates the tank where the individual was born, with a total of 48 tanks. This example is based on @mcelreath2018statistical.
+Below is an example code snippet demonstrating Bayesian regression with varying intercepts using the BayesForge (BF) package. The data consists of a dependent variable representing individuals' survival (*surv*) and an independent categorical variable (*tank*), which indicates the tank where the individual was born, with a total of 48 tanks. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ## Python (Raw)
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -61,12 +61,12 @@ m.summary()
 
 ## Python (Build in function)
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -91,10 +91,10 @@ m.summary()
 ## R
 
 ```R
-library(BayesianInference)
+library(BayesForge)
 
 # setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 
 # Import data ------------------------------------------------
 m$data(m$load$reedfrogs(only_path=T), sep=';')
@@ -107,9 +107,9 @@ m$data_on_model$surv = m$data_on_model$surv$astype(jnp$int32) # Manipulate
 # Define model ------------------------------------------------
 model <- function(tank, surv, density){
   # Parameter prior distributions
-  sigma = bi.dist.exponential( 1,  name = 'sigma',shape=c(1))
-  a_bar =  bi.dist.normal(0, 1.5, name='a_bar',shape=c(1))
-  alpha = bi.dist.normal(a_bar, sigma, name='alpha', shape =c(48))
+  sigma = bf.dist.exponential( 1,  name = 'sigma',shape=c(1))
+  a_bar =  bf.dist.normal(0, 1.5, name='a_bar',shape=c(1))
+  alpha = bf.dist.normal(a_bar, sigma, name='alpha', shape =c(48))
   p = alpha[tank]
   # Likelihood
   m$dist$binomial(total_count = density, logits = p, obs=surv)
@@ -126,10 +126,10 @@ m$summary() # Get posterior distribution
 
 ## Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -138,7 +138,7 @@ m.data(data_path, sep=';')
 m.df["tank"] = jnp.arange(m.df.shape[0]) 
 
 # Define model ------------------------------------------------
-@BI function model(tank, surv, density)
+@BF function model(tank, surv, density)
     alpha = m.effects.varying_intercept(N_groups=48,group_id=tank, group_name = "tank")
     m.dist.binomial(total_count = density, logits = alpha, obs=surv)
 end

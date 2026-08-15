@@ -7,6 +7,6 @@ all_params = []
 all_params.append(pd.DataFrame({key: array}))
 all_params.append(pd.DataFrame({f"{key}[0]": array}))
 
-df_bi = pd.concat(all_params, axis=1)
-print(df_bi.columns)
-print(df_bi[['s[0]']])
+df_BF = pd.concat(all_params, axis=1)
+print(df_BF.columns)
+print(df_BF[['s[0]']])

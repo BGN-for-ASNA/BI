@@ -6,8 +6,8 @@ import pandas as pd
 from cmdstanpy import CmdStanModel
 import multiprocessing as mp
 
-# Setup device and BI model
-from BI import bi
+# Setup device and BF model
+from BayesForge import bf
 import jax.numpy as jnp
 import jax
 from numpyro.diagnostics import summary as numpyro_summary
@@ -20,8 +20,8 @@ def simulate_data(N_nodes):
     N_target_vars = 4
     N_dyad_vars = 3
     
-    # Instantiate bi for network utilities
-    m_utils = bi('cpu', rand_seed=False)
+    # Instantiate BF for network utilities
+    m_utils = bf('cpu', rand_seed=False)
     
     # Generate individual (focal/target) predictors
     wide_focal_np = np.random.normal(0, 1, size=(N_nodes, N_focal_vars))
@@ -46,8 +46,8 @@ def simulate_data(N_nodes):
     N_by_grp_Any = np.array([N_nodes])
     N_by_grp_Merica = np.array([np.sum(Merica_np == i) for i in range(N_grp_Merica)])
     
-    # Simulate network outcomes using bi's generative APIs
-    m_sim = bi('cpu', rand_seed=False)
+    # Simulate network outcomes using BF's generative APIs
+    m_sim = bf('cpu', rand_seed=False)
     B_intercept = m_sim.net.block_model(Any_np, 1, jnp.array(N_by_grp_Any), sample=True, name="intercept")
     B_category = m_sim.net.block_model(Merica_np, 3, jnp.array(N_by_grp_Merica), sample=True, name="category")
     sr = m_sim.net.sender_receiver(
@@ -205,7 +205,8 @@ def prepare_orig_stan_data(sim_data):
 def get_stan_ess(fit):
     try:
         summ = fit.summary()
-        n_effs = summ['N_Eff'].dropna().values
+        col = 'N_Eff' if 'N_Eff' in summ.columns else 'ESS_bulk'
+        n_effs = summ[col].dropna().values
         n_effs = n_effs[np.isfinite(n_effs)]
         if len(n_effs) == 0:
             return 0.0, 0.0
@@ -216,14 +217,14 @@ def get_stan_ess(fit):
 
 def run_bi_isolated(device, sim_data, N, ITER_WARMUP, ITER_SAMPLING, q):
     """
-    Runs BI inference in a strictly isolated process.
+    Runs BF inference in a strictly isolated process.
     This guarantees JAX initializes freshly with the correct backend device.
     """
     import time
     import jax
     import jax.numpy as jnp
     import numpy as np
-    from BI import bi
+    from BayesForge import bf
     import os
     os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
     
@@ -231,16 +232,16 @@ def run_bi_isolated(device, sim_data, N, ITER_WARMUP, ITER_SAMPLING, q):
         try:
             from model_effects import Neteffect
         except ImportError:
-            from BI.Network.model_effects import Neteffect
+            from BayesForge.Network.model_effects import Neteffect
             
-        m2_inner = bi(device)
+        m2_inner = bf(device)
         B_any    = Neteffect.block_model(Any,    1,    jnp.array(N_by_grp_Any),    name='intercept')
         B_Merica = Neteffect.block_model(Merica, 3,    jnp.array(N_by_grp_Merica), name='Merica')
         sr = m2_inner.net.sender_receiver(sender_predictors, receiver_predictors)
         dr = m2_inner.net.dyadic_effect(dyadic_predictors)
         m2_inner.dist.bernoulli(logits=B_any + B_Merica + sr + dr, obs=network_edgl, name='network_edgl')
 
-    m2 = bi(device)
+    m2 = bf(device)
     
     N_grp_Any = 1
     N_grp_Merica = 3
@@ -261,14 +262,14 @@ def run_bi_isolated(device, sim_data, N, ITER_WARMUP, ITER_SAMPLING, q):
     start_time = time.time()
     m2.fit(model_srm_wide, num_samples=ITER_SAMPLING, num_warmup=ITER_WARMUP, num_chains=1)
     end_time = time.time()
-    elapsed_bi = end_time - start_time
+    elapsed_BF = end_time - start_time
     
     from numpyro.diagnostics import summary as numpyro_summary
     try:
         posteriors_with_chains = {k: np.expand_dims(v, axis=0) for k, v in m2.posteriors.items()}
-        bi_sum = numpyro_summary(posteriors_with_chains)
+        BF_sum = numpyro_summary(posteriors_with_chains)
         all_n_effs = []
-        for k, v in bi_sum.items():
+        for k, v in BF_sum.items():
             if 'n_eff' in v:
                 all_n_effs.extend(np.array(v['n_eff']).flatten().tolist())
         all_n_effs = np.array(all_n_effs)
@@ -280,14 +281,14 @@ def run_bi_isolated(device, sim_data, N, ITER_WARMUP, ITER_SAMPLING, q):
     except Exception as e:
         min_ess, mean_ess = 0.0, 0.0
 
-    q.put((elapsed_bi, min_ess, mean_ess))
+    q.put((elapsed_BF, min_ess, mean_ess))
 
 def run_benchmark():
     import argparse
     parser = argparse.ArgumentParser(description="Run SRM Benchmarks")
     parser.add_argument('-n', '--nodes', nargs='+', type=int, default=[50], help="List of network sizes (N_nodes) to test")
-    parser.add_argument('--gpu', action='store_true', help="Also run BI Wide model on GPU in addition to CPU")
-    parser.add_argument('--gpu-only', action='store_true', help="Only run BI Wide model on GPU (skips CPU for BI)")
+    parser.add_argument('--gpu', action='store_true', help="Also run BF Wide model on GPU in addition to CPU")
+    parser.add_argument('--gpu-only', action='store_true', help="Only run BF Wide model on GPU (skips CPU for BF)")
     args = parser.parse_args()
     network_sizes = args.nodes
 
@@ -357,9 +358,9 @@ def run_benchmark():
         print(f"{'Stan Original':<15} | {N:<6} | {sim_data['N_dyads']:<6} | {elapsed_orig:<10.2f} | {min_ess_orig:<10.2f} | {mean_ess_orig:<10.2f} | {ITER_WARMUP:<12} | {ITER_SAMPLING:<13}")
         sys.stdout.flush()
 
-        # --- 3. Run BI Wide (CPU and potentially GPU via subprocess) ---
+        # --- 3. Run BF Wide (CPU and potentially GPU via subprocess) ---
         for device in devices_to_test:
-            bi_model_name = f"BI Wide ({device.upper()})"
+            BF_model_name = f"BF Wide ({device.upper()})"
             
             ctx = mp.get_context('spawn')
             q = ctx.Queue()
@@ -369,17 +370,17 @@ def run_benchmark():
             
             # If process crashed or failed, q might be empty
             if not q.empty():
-                elapsed_bi, min_ess_bi, mean_ess_bi = q.get()
+                elapsed_BF, min_ess_BF, mean_ess_BF = q.get()
             else:
-                elapsed_bi, min_ess_bi, mean_ess_bi = 0.0, 0.0, 0.0
-                print(f"[ERROR] {bi_model_name} execution failed in subprocess.")
+                elapsed_BF, min_ess_BF, mean_ess_BF = 0.0, 0.0, 0.0
+                print(f"[ERROR] {BF_model_name} execution failed in subprocess.")
             
             results.append({
-                'Model': bi_model_name, 'N_nodes': N, 'N_dyads': sim_data['N_dyads'], 
-                'Time_s': elapsed_bi, 'Min_ESS': min_ess_bi, 'Mean_ESS': mean_ess_bi,
+                'Model': BF_model_name, 'N_nodes': N, 'N_dyads': sim_data['N_dyads'], 
+                'Time_s': elapsed_BF, 'Min_ESS': min_ess_BF, 'Mean_ESS': mean_ess_BF,
                 'Iter_Warmup': ITER_WARMUP, 'Iter_Sampling': ITER_SAMPLING
             })
-            print(f"{bi_model_name:<15} | {N:<6} | {sim_data['N_dyads']:<6} | {elapsed_bi:<10.2f} | {min_ess_bi:<10.2f} | {mean_ess_bi:<10.2f} | {ITER_WARMUP:<12} | {ITER_SAMPLING:<13}")
+            print(f"{BF_model_name:<15} | {N:<6} | {sim_data['N_dyads']:<6} | {elapsed_BF:<10.2f} | {min_ess_BF:<10.2f} | {mean_ess_BF:<10.2f} | {ITER_WARMUP:<12} | {ITER_SAMPLING:<13}")
             sys.stdout.flush()
 
     print("-" * 110)
@@ -409,8 +410,8 @@ def plot_benchmark(csv_path):
     colors = {
         'STAN2': '#D55E00',
         'Stan Original': '#FFA500', 
-        'BI Wide (GPU)': '#2500D6',
-        'BI Wide (CPU)': '#02D600'
+        'BF Wide (GPU)': '#2500D6',
+        'BF Wide (CPU)': '#02D600'
     }
 
     # Group by model

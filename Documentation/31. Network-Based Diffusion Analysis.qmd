@@ -8,7 +8,7 @@ reading-time: true
 
 ---
 
-This document provides a unified framework for performing Bayesian analysis of social transmission using Network-Based Diffusion Analysis (NBDA) models from @STBayes [original work](https://github.com/michaelchimento/STbayes). Below, we detail the implementation of various models using the Bayesian Inference (**BI**) package via Python, R, and Julia. All examples assume data is loaded using standard `STbayes` structures @STBayes.
+This document provides a unified framework for performing Bayesian analysis of social transmission using Network-Based Diffusion Analysis (NBDA) models from @STBayes [original work](https://github.com/michaelchimento/STbayes). Below, we detail the implementation of various models using the BayesForge (**BF**) package via Python, R, and Julia. All examples assume data is loaded using standard `STbayes` structures @STBayes.
 
 ## General Principles
 The principle idea behind Network Based Diffusion analysis (NBDA) is that if social transmission is involved in the spread of a novel behavior through a group, then that spread is expected to follow a social network links @NBDAjae. The basic model underlying NBDA states that at time $t$ an individual, $i$, learns the behavior of interest with a specific rate formula. 
@@ -25,16 +25,16 @@ In principle NBDA can be consider as a survival analysis, so we have the same co
 
 ## Data
 
-The examples below use the NBDA dataset bundled with the **BI** package (adapted from the STbayes package, @STBayes). It contains acquisition events for 50 individuals across 1 trial and their undirected social network.
+The examples below use the NBDA dataset bundled with the **BF** package (adapted from the STbayes package, @STBayes). It contains acquisition events for 50 individuals across 1 trial and their undirected social network.
 
 ::: {.panel-tabset group="language"}
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 events_path  = m.load.NBDA_events(only_path=True)
 network_path = m.load.NBDA_network(only_path=True)
@@ -46,9 +46,9 @@ network = pd.read_csv(network_path)  # columns: focal, other, trial, assoc
 ## R
 
 ```r
-library(BayesianInference)
+library(BayesForge)
 library(STbayes)
-m <- importBI(platform = "cpu")
+m <- importBF(platform = "cpu")
 jnp <- reticulate::import("jax.numpy")
 
 to_jax <- function(x) {
@@ -70,10 +70,10 @@ m$data_on_model <- list(data = data_list)
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 using DataFrames, CSV
 
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 events_path  = m.load.NBDA_events(only_path=true)
 network_path = m.load.NBDA_network(only_path=true)
@@ -101,9 +101,9 @@ The cTADA model is used when the exact continuous times of behavioural acquisiti
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.data_on_model = {'data': data_list}
 
 def model_cTADA(data):
@@ -131,8 +131,8 @@ m.summary()
 ## R
 
 ```r
-library(BayesianInference)
-m <- importBI(platform = "cpu")
+library(BayesForge)
+m <- importBF(platform = "cpu")
 m$data_on_model <- list(data = data_list)
 
 model_cTADA <- function(data) {
@@ -161,12 +161,12 @@ m$summary()
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 m.data_on_model = Dict("data" => data_list)
 
-@BI function model_cTADA(data)
+@BF function model_cTADA(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
     log_s_prime_mean = m.dist.normal(-4, 2, name="log_s_prime_mean")
     
@@ -233,9 +233,9 @@ OADA is used when the precise times of acquisition are unknown, but the sequenti
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.data_on_model = {'data': data_list}
 
 def model_OADA(data):
@@ -259,8 +259,8 @@ m.summary()
 ## R
 
 ```r
-library(BayesianInference)
-m <- importBI(platform = "cpu")
+library(BayesForge)
+m <- importBF(platform = "cpu")
 m$data_on_model <- list(data = data_list)
 
 model_OADA <- function(data) {
@@ -284,12 +284,12 @@ m$summary()
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 m.data_on_model = Dict("data" => data_list)
 
-@BI function model_OADA(data)
+@BF function model_OADA(data)
     log_s_prime_mean = m.dist.normal(-4, 2, name="log_s_prime_mean")
     s_prime = jnp.exp(log_s_prime_mean)
     
@@ -340,9 +340,9 @@ The ILV model integrates continuous, boolean, or categorical traits observed on 
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.data_on_model = {'data': data_list}
 
 def model_ILV(data):
@@ -379,8 +379,8 @@ m.summary()
 ## R
 
 ```r
-library(BayesianInference)
-m <- importBI(platform = "cpu")
+library(BayesForge)
+m <- importBF(platform = "cpu")
 m$data_on_model <- list(data = data_list)
 
 model_ILV <- function(data) {
@@ -417,12 +417,12 @@ m$summary()
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 m.data_on_model = Dict("data" => data_list)
 
-@BI function model_ILV(data)
+@BF function model_ILV(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
     log_s_prime_mean  = m.dist.normal(-4, 2, name="log_s_prime_mean")
 
@@ -491,9 +491,9 @@ Models containing varying (random) effects assign specific variance structures, 
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.data_on_model = {'data': data_list}
 
 def model_veff(data):
@@ -528,8 +528,8 @@ m.summary()
 ## R
 
 ```r
-library(BayesianInference)
-m <- importBI(platform = "cpu")
+library(BayesForge)
+m <- importBF(platform = "cpu")
 m$data_on_model <- list(data = data_list)
 
 model_veff <- function(data) {
@@ -565,12 +565,12 @@ m$summary()
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 m.data_on_model = Dict("data" => data_list)
 
-@BI function model_veff(data)
+@BF function model_veff(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
     log_s_prime_mean = m.dist.normal(-4, 2, name="log_s_prime_mean")
     
@@ -640,9 +640,9 @@ Traditional linear assumption states transmission increases uniformly with more 
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.data_on_model = {'data': data_list}
 
 def model_complex_f(data):
@@ -678,8 +678,8 @@ m.summary()
 ## R
 
 ```r
-library(BayesianInference)
-m <- importBI(platform = "cpu")
+library(BayesForge)
+m <- importBF(platform = "cpu")
 m$data_on_model <- list(data = data_list)
 
 model_complex_f <- function(data) {
@@ -717,12 +717,12 @@ m$summary()
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 m.data_on_model = Dict("data" => data_list)
 
-@BI function model_complex_f(data)
+@BF function model_complex_f(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
     log_s_prime_mean = m.dist.normal(-4, 2, name="log_s_prime_mean")
     log_f_mean = m.dist.normal(0, 1, name="log_f_mean")
@@ -780,9 +780,9 @@ Some phenomena involve interactions bounded over fluctuating intervals, such as 
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.data_on_model = {'data': data_list}
 
 def model_dynamic_tweights(data):
@@ -820,8 +820,8 @@ m.summary()
 ## R
 
 ```r
-library(BayesianInference)
-m <- importBI(platform = "cpu")
+library(BayesForge)
+m <- importBF(platform = "cpu")
 jax_nn <- reticulate::import("jax.nn")
 m$data_on_model <- list(data = data_list)
 
@@ -862,12 +862,12 @@ m$summary()
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 m.data_on_model = Dict("data" => data_list)
 
-@BI function model_dynamic_tweights(data)
+@BF function model_dynamic_tweights(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
     log_s_prime_mean  = m.dist.normal(-4, 2, name="log_s_prime_mean")
     k_raw   = m.dist.normal(0, 3, name="k_raw")
@@ -935,9 +935,9 @@ Networks are commonly abstracted from noisy sampling data featuring unequal effo
 ## Python
 
 ```python
-from BI import bi
+from BayesForge import bf
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 m.data_on_model = {'data': data_list}
 
 def model_posterior_edges(data):
@@ -979,8 +979,8 @@ m.summary()
 ## R
 
 ```r
-library(BayesianInference)
-m <- importBI(platform = "cpu")
+library(BayesForge)
+m <- importBF(platform = "cpu")
 m$data_on_model <- list(data = data_list)
 
 model_posterior_edges <- function(data) {
@@ -1026,12 +1026,12 @@ m$summary()
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 m.data_on_model = Dict("data" => data_list)
 
-@BI function model_posterior_edges(data)
+@BF function model_posterior_edges(data)
     log_lambda_0_mean = m.dist.normal(-4, 2, name="log_lambda_0_mean")
     log_s_prime_mean  = m.dist.normal(-4, 2, name="log_s_prime_mean")
 

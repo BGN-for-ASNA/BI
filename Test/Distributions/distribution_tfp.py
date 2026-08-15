@@ -20,7 +20,7 @@ except Exception as e:
 import os
 import sys
 import jax.numpy as jnp
-from BI import bi
+from BayesForge import bf
 
 def log_error(dist_name, error_msg):
     with open('log_tfp.txt', 'a') as f:
@@ -28,9 +28,9 @@ def log_error(dist_name, error_msg):
         f.write(f"Error: {error_msg}\n")
         f.write("-" * 30 + "\n")
 
-# Initialize BI with TFP backend
+# Initialize BF with TFP backend
 try:
-    m = bi(backend='tfp')
+    m = bf(backend='tfp')
 except Exception as e:
     log_error("Initialization", str(e))
     sys.exit(1)

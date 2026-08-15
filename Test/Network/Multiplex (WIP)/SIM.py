@@ -1,6 +1,6 @@
 ##############################
 #### Multiplex Network Model Test
-#### BI vs STRAND numpyro backend
+#### BF vs STRAND numpyro backend
 ##############################
 #%%
 import os
@@ -21,7 +21,7 @@ from rpy2.robjects.conversion import localconverter
 from rpy2.rinterface import NULLType
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-from BI import bi
+from BayesForge import BayesForge
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 RDATA_PATH = os.path.join(SCRIPT_DIR, 'multiplex_arrays.RData')
@@ -151,8 +151,8 @@ for f in npy_files:
     strand_post[nm] = np.load(f)
 print("STRAND numpyro params:", list(strand_post.keys()))
 
-# %% Step 4: BI multiplex model (mirrors numpyro_multiplex exactly)
-def model_multiplex_bi(outcome, long_focal_set, long_target_set, long_dyad_set,
+# %% Step 4: BF multiplex model (mirrors numpyro_multiplex exactly)
+def model_multiplex_BF(outcome, long_focal_set, long_target_set, long_dyad_set,
                        long_block_set, long_ids_int,
                        block_mu, block_sigma,
                        A_F, A_T, A_D,
@@ -161,7 +161,7 @@ def model_multiplex_bi(outcome, long_focal_set, long_target_set, long_dyad_set,
                        N_id, N_dyads, N_layers,
                        N_var_focal, N_var_target, N_var_dyad, N_var_block,
                        sample=False):
-    m = bi()
+    m = BF()
 
     # Observation noise: (N_layers, 1, 1) matches numpyro_multiplex exactly
     # prior_23: loc=0, scale=2.5 (STRAND default)
@@ -280,9 +280,9 @@ def model_multiplex_bi(outcome, long_focal_set, long_target_set, long_dyad_set,
                  / bandage_penalty) ** 2))
 
 
-# %% Step 5: Fit BI model
-m_bi = bi('cpu')
-m_bi.data_on_model = dict(
+# %% Step 5: Fit BF model
+m_BF = BF('cpu')
+m_BF.data_on_model = dict(
     outcome=long_outcome,
     long_focal_set=long_focal_set,
     long_target_set=long_target_set,
@@ -307,10 +307,10 @@ m_bi.data_on_model = dict(
     N_var_dyad=N_var_dyad,
     N_var_block=N_var_block,
 )
-m_bi.fit(model_multiplex_bi, num_samples=2000, num_warmup=2000, num_chains=1,
+m_BF.fit(model_multiplex_BF, num_samples=2000, num_warmup=2000, num_chains=1,
          target_accept_prob=0.95, max_tree_depth=12,
          init_strategy=numpyro.infer.init_to_uniform(radius=0.25))
-bi_post = m_bi.posteriors
+BF_post = m_BF.posteriors
 
 
 # %% Step 6: Density plot comparison utilities
@@ -320,10 +320,10 @@ def _flatten(arr):
         arr = arr.astype(np.float64)
     return arr.reshape(arr.shape[0], -1)
 
-def density_figure(strand_samples, bi_samples, param_name, out_dir):
+def density_figure(strand_samples, BF_samples, param_name, out_dir):
     try:
         s = _flatten(strand_samples)
-        b = _flatten(bi_samples)
+        b = _flatten(BF_samples)
     except Exception as e:
         print(f'  Skipping {param_name}: flatten error: {e}')
         return
@@ -338,7 +338,7 @@ def density_figure(strand_samples, bi_samples, param_name, out_dir):
         row, col = divmod(idx, ncols)
         ax = axes[row][col]
         for vals, color, label in [(s[:, idx], '#e07b00', 'STRAND'),
-                                   (b[:, idx], '#1565c0', 'BI')]:
+                                   (b[:, idx], '#1565c0', 'BF')]:
             if vals.std() < 1e-9:
                 continue
             lo = vals.mean() - 4 * vals.std()
@@ -359,7 +359,7 @@ def density_figure(strand_samples, bi_samples, param_name, out_dir):
         row, col = divmod(idx, ncols)
         axes[row][col].set_visible(False)
 
-    fig.suptitle(f'{param_name}: STRAND numpyro (orange) vs BI (blue)', fontsize=9)
+    fig.suptitle(f'{param_name}: STRAND numpyro (orange) vs BF (blue)', fontsize=9)
     plt.tight_layout()
     path = os.path.join(out_dir, f'density_{param_name}.png')
     plt.savefig(path, dpi=130, bbox_inches='tight')
@@ -367,7 +367,7 @@ def density_figure(strand_samples, bi_samples, param_name, out_dir):
     print(f'  Saved {os.path.basename(path)}')
 
 
-def corr_density_figure(strand_L_samples, bi_L_samples, label, out_dir):
+def corr_density_figure(strand_L_samples, BF_L_samples, label, out_dir):
     """Upper-triangle correlations from L @ L.T samples."""
     def corr_upper(L_samples):
         rows = []
@@ -383,7 +383,7 @@ def corr_density_figure(strand_L_samples, bi_L_samples, label, out_dir):
         return np.stack(rows)
 
     s = corr_upper(strand_L_samples)
-    b = corr_upper(bi_L_samples)
+    b = corr_upper(BF_L_samples)
     density_figure(s, b, f'{label}_corr', out_dir)
 
 
@@ -393,26 +393,26 @@ scalar_params = ['focal_effects', 'target_effects', 'dyad_effects',
 
 for pname in scalar_params:
     s = strand_post.get(pname)
-    b = bi_post.get(pname)
+    b = BF_post.get(pname)
     if s is not None and b is not None:
-        print(f'  Plotting {pname}: strand dtype={np.array(s).dtype}, bi dtype={np.array(b).dtype}')
+        print(f'  Plotting {pname}: strand dtype={np.array(s).dtype}, BF dtype={np.array(b).dtype}')
         density_figure(s, b, pname, SCRIPT_DIR)
     else:
-        print(f'  Skipping {pname}: strand={s is not None}, bi={b is not None}')
+        print(f'  Skipping {pname}: strand={s is not None}, BF={b is not None}')
 
 for lname, cname in [('sr_L', 'sr'), ('dr_L', 'dr')]:
     s = strand_post.get(lname)
-    b = bi_post.get(lname)
+    b = BF_post.get(lname)
     if s is not None and b is not None:
         corr_density_figure(s, b, cname, SCRIPT_DIR)
 
 
 # %% Step 8: Summary txt with means + differences
-def build_summary_df(strand_post, bi_post, params):
+def build_summary_df(strand_post, BF_post, params):
     rows = []
     for pname in params:
         s = strand_post.get(pname)
-        b = bi_post.get(pname)
+        b = BF_post.get(pname)
         if s is None or b is None:
             continue
         sf = _flatten(s)
@@ -424,13 +424,13 @@ def build_summary_df(strand_post, bi_post, params):
             rows.append({
                 'Parameter':   f'{pname}[{idx}]',
                 'STRAND_mean': round(sm, 4),
-                'BI_mean':     round(bm, 4),
+                'BF_mean':     round(bm, 4),
                 'Difference':  round(bm - sm, 4),
             })
     # Add correlation matrices (mean Cholesky -> corr upper tri)
     for lname, cname in [('sr_L', 'sr_corr'), ('dr_L', 'dr_corr')]:
         s = strand_post.get(lname)
-        b = bi_post.get(lname)
+        b = BF_post.get(lname)
         if s is None or b is None:
             continue
         sL = np.array(s).mean(axis=0)
@@ -445,19 +445,19 @@ def build_summary_df(strand_post, bi_post, params):
             rows.append({
                 'Parameter':   f'{cname}[{r},{c}]',
                 'STRAND_mean': round(sm, 4),
-                'BI_mean':     round(bm, 4),
+                'BF_mean':     round(bm, 4),
                 'Difference':  round(bm - sm, 4),
             })
     return pd.DataFrame(rows)
 
 
-df = build_summary_df(strand_post, bi_post,
+df = build_summary_df(strand_post, BF_post,
                       ['focal_effects', 'target_effects', 'dyad_effects',
                        'block_effects', 'sr_sigma', 'dr_sigma', 'error_sigma'])
 
 txt_path = os.path.join(SCRIPT_DIR, 'parameter_comparison.txt')
 with open(txt_path, 'w') as f:
-    f.write('Parameter Mean Comparison: STRAND numpyro vs BI\n')
+    f.write('Parameter Mean Comparison: STRAND numpyro vs BF\n')
     f.write('=' * 65 + '\n\n')
     f.write(df.to_string(index=False))
     f.write('\n\n')

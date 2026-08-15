@@ -29,15 +29,15 @@ PCA is  employed for *dimensionality reduction*, particularly in scenarios invol
 
 ## Example
 
-Here is an example code snippet demonstrating Bayesian PCA using BI:
+Here is an example code snippet demonstrating Bayesian PCA using BF:
 
 ::: {.panel-tabset group="language"}
 
 ## Build in functions
 ```python
 
-from BI import bi,jnp
-m=bi()
+from BayesForge import bf, jnp
+m= bf()
 data_path = m.load.iris(only_path=True)
 m.data(data_path)
 m.data_on_model = dict(
@@ -81,10 +81,10 @@ m.fit(model)
 ## With ARD
 ```python
 
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 def model_ARD(X, data_dim, latent_dim, num_datapoints):
     # --- Automatic Dimensionality Selection using an ARD Prior ---
@@ -258,8 +258,8 @@ m.summary()
 
 ## Julia
 ```julia
-using BayesianInference
-m = importBI(platform="cpu")
+using BayesForge
+m = importBF(platform="cpu")
 data_path = m.load.iris(only_path=true)
 m.data(data_path)
 m.data_on_model = pydict(

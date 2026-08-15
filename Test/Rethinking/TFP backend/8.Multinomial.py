@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,8 +8,8 @@ import jax
 
 model_name = "8.Multinomial"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu', backend='tfp')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu', backend='tfp')
 
 # 1. Data Simulation ----------------------------------------
 N = 1000
@@ -41,7 +41,7 @@ df = pd.DataFrame({
 m.df = df
 m.data_to_model(['career', 'inc0', 'inc1', 'inc2'])
 
-def model_bi(career, inc0, inc1, inc2):
+def model_BF(career, inc0, inc1, inc2):
     a = yield m.dist.normal(0, 1, shape=(2,), name='a')
     b = yield m.dist.half_normal(1.0, name='b')
     
@@ -52,9 +52,9 @@ def model_bi(career, inc0, inc1, inc2):
     p = jax.nn.softmax(jnp.stack([s1, s2, s3], axis=1), axis=1)
     yield m.dist.categorical(probs=p, obs=career)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -115,7 +115,7 @@ def estimate(income_sim, a_true, b_true):
         career_sim.append(np.random.choice([0, 1, 2], p=pp))
     career_sim = np.array(career_sim)
     
-    m_rec = bi(print_devices_found=False, backend='tfp')
+    m_rec = bf(print_devices_found=False, backend='tfp')
     m_rec.data_on_model = {
         'career': jnp.array(career_sim),
         'inc0': jnp.array(income_sim[:, 0]),
@@ -148,10 +148,27 @@ def param_recovery(income_sim, a_sims, b_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 10)) 
+nsim_test = int(os.getenv('BF_NSIM', 10)) 
 a_sims = np.random.normal(0, 1, size=(nsim_test, 2))
 b_sims = np.abs(np.random.normal(0, 1.0, size=(nsim_test, 1)))
 
 # Generate varied income for recovery test
 income_recovery = np.random.uniform(1, 10, size=(1000, 3))
 recovery_results = param_recovery(income_recovery, a_sims, b_sims, nsim=nsim_test)
+
+
+# --- WAIC & LOO cross-check: native TFP vs NumPyro/ArviZ reference (same draws) ---
+# `waic_ref` is a numpyro-mode transcription of the fitted TFP model (identical
+# latent site names), used to evaluate the same posterior draws through
+# numpyro.infer.log_likelihood -- the exact machinery ArviZ uses.
+m_ref = bf(platform='cpu', print_devices_found=False)
+
+def waic_ref(career, inc0, inc1, inc2):
+    a = m_ref.dist.normal(0, 1, shape=(2,))
+    b = m_ref.dist.half_normal(1.0)
+    s1 = a[0] + b * inc0
+    s2 = a[1] + b * inc1
+    s3 = b * inc2
+    p = jax.nn.softmax(jnp.stack([s1, s2, s3], axis=1), axis=1)
+    m_ref.dist.categorical(probs=p, obs=career)
+waic_report(m, model_name, ref_model=waic_ref, ref_kwargs={'career': m.data_on_model['career'], 'inc0': m.data_on_model['inc0'], 'inc1': m.data_on_model['inc1'], 'inc2': m.data_on_model['inc2']})

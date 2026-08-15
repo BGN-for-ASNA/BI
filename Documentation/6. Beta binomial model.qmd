@@ -27,7 +27,7 @@ Therefore, by adjusting the shape parameters $\gamma$ and $\eta$, the Beta distr
 :::
 
 ## Example
-Below is an example code snippet demonstrating Bayesian Beta-Binomial regression using the Bayesian Inference (BI) package. The data consist of:
+Below is an example code snippet demonstrating Bayesian Beta-Binomial regression using the BayesForge (BF) package. The data consist of:
 
 1) One binary dependent variable (admit), which represents candidates' admission status.
 
@@ -40,10 +40,10 @@ The goal is to evaluate whether the probability of admission is different betwee
 ::: {.panel-tabset group="language"}
 ### Python
 ```{python}
-from BI import bi
+from BayesForge import bf
 
 # setup platform------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -89,10 +89,10 @@ m.summary()
 
 ### R
 ``` R
-library(BayesianInference)
+library(BayesForge)
 
 # setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 jnp = reticulate::import("jax.numpy")
 # import data ------------------------------------------------
 m$data(m$load$ucbadmit(only_path = T), sep=';')
@@ -102,8 +102,8 @@ m$data_on_model$admit = jnp$array(as.integer(unlist(m$df["admit"])))
 # Define model ------------------------------------------------
 model <- function(gid, applications, admit){
   # Parameter prior distributions
-  phi = bi.dist.exponential(1, name = 'phi',shape=c(1))
-  alpha = bi.dist.normal(0., 1.5, shape= c(2), name='alpha')
+  phi = bf.dist.exponential(1, name = 'phi',shape=c(1))
+  alpha = bf.dist.normal(0., 1.5, shape= c(2), name='alpha')
   t = phi + 2
   pbar = m$link$inv_logit(alpha[gid])
   gamma = pbar * t
@@ -126,10 +126,10 @@ m$data_on_model
 
 ### Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -139,7 +139,7 @@ m.data(data_path, sep=';')
 m.df["gid"] = m.df["applicant.gender"].ne("male").astype("int")
 
 # Define model ------------------------------------------------
-@BI function model(gid, applications, admit)
+@BF function model(gid, applications, admit)
     # Prior for overall concentration scaling (positive, via exponential)
     phi = m.dist.exponential(1, name="phi")
     

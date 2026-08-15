@@ -1,6 +1,6 @@
 # %%
 """
-MCMC convergence diagnostics for BI models.
+MCMC convergence diagnostics for BF models.
 
 Checks treedepth, divergences, E-BFMI, rank-normalized split ESS, and R-hat.
 Mirrors the diagnostic output of CmdStan's `diagnose` utility.
@@ -110,14 +110,14 @@ def diagnose(
     ess_threshold: float = 400.0,
 ) -> str:
     """
-    Run MCMC convergence diagnostics on a fitted BI model.
+    Run MCMC convergence diagnostics on a fitted BF model.
 
     Parameters
     ----------
-    m : bi
-        Fitted BI object (after calling m.fit()).
+    m : BF
+        Fitted BF object (after calling m.fit()).
     max_treedepth : int
-        Maximum tree depth used during sampling (default 10, matching BI default).
+        Maximum tree depth used during sampling (default 10, matching BF default).
     ebfmi_threshold : float
         E-BFMI values below this trigger a warning (default 0.3).
     rhat_threshold : float
@@ -288,10 +288,10 @@ def diagnose(
 
 
 # %%
-from BI import bi
+from BayesForge import bf
 
 # Setup device------------------------------------------------
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import

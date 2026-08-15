@@ -21,15 +21,15 @@ To study relationships between multiple continuous independent variables (e.g., 
 :::
 
 ## Example
-Below is example code demonstrating Bayesian multiple linear regression using the Bayesian Inference (BI) package. Data consist of three continuous variables (*height*, *weight*, *age*), and the goal is to estimate the effect of *weight* and *age* on *height*. This example is based on @mcelreath2018statistical.
+Below is example code demonstrating Bayesian multiple linear regression using the BayesForge (BF) package. Data consist of three continuous variables (*height*, *weight*, *age*), and the goal is to estimate the effect of *weight* and *age* on *height*. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ### Python
 ```{python}
-from BI import bi
+from BayesForge import bf
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 from importlib.resources import files
@@ -58,8 +58,8 @@ m.summary()
 
 ### R
 ```R
-library(BayesianInference)
-m=importBI(platform='cpu')
+library(BayesForge)
+m=importBF(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 m$data(m$load$howell1(only_path = T), sep=';')# Import
@@ -70,12 +70,12 @@ m$data_to_model(list('weight', 'height', 'age')) # Send to model (convert to jax
 # Define model ------------------------------------------------
 model <- function(height, weight, age){
   # Parameter prior distributions
-  alpha = bi.dist.normal(0, 0.5, name = 'a')
-  beta1 = bi.dist.normal(0, 0.5, name = 'b1')
-  beta2 = bi.dist.normal(0, 0.5, name = 'b2')   
-  sigma = bi.dist.uniform(0, 50, name = 's')
+  alpha = bf.dist.normal(0, 0.5, name = 'a')
+  beta1 = bf.dist.normal(0, 0.5, name = 'b1')
+  beta2 = bf.dist.normal(0, 0.5, name = 'b2')   
+  sigma = bf.dist.uniform(0, 50, name = 's')
   # Likelihood
-  bi.dist.normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)
+  bf.dist.normal(alpha + beta1 * weight + beta2 * age, sigma, obs=height)
 }
 
 # Run MCMC ------------------------------------------------
@@ -88,10 +88,10 @@ m$summary() # Get posterior distributions
 
 ### Julia
 ```Julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -101,7 +101,7 @@ m.df = m.df[m.df.age > 18] # Subset data to adults
 m.scale(["weight", "age"]) # Normalize
 
 # Define model ------------------------------------------------
-@BI function model(height, weight, age)
+@BF function model(height, weight, age)
     # Parameter prior distributions
     alpha = m.dist.normal(0, 0.5, name = "alpha")    
     beta1 = m.dist.normal(0, 0.5, name = "beta1")
@@ -123,7 +123,7 @@ m.summary() # Get posterior distributions
 For R users, if you create the regression coefficient in a single call:
 
 ```python
-betas = bi.dist.normal(0, 0.5, name = 'regression_coefficients', shape = (2,))
+betas = bf.dist.normal(0, 0.5, name = 'regression_coefficients', shape = (2,))
 ```
 
 you need to index them starting by 0:

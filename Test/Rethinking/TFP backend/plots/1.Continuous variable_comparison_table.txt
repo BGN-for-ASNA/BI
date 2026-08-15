@@ -1,7 +1,27 @@
 Comparison Table for 1.Continuous variable
 ============================================================
-Parameter  BI Mean Stan Mean    Diff KL Div
-     b[0]   5.8162    5.8144  0.0018 0.0477
-     a[0] 154.6451  154.6502 -0.0051 0.0881
-     s[0]   5.1391    5.1441 -0.0050 0.0553
+Parameter  BF Mean Stan Mean   Diff KL Div
+     s[0]   5.1470    5.1458 0.0012 0.0587
+     b[0]   5.8267    5.8265 0.0002 0.1015
+     a[0] 154.6570  154.6561 0.0009 0.0690
 ============================================================
+
+================================================================
+WAIC cross-check  -  1.Continuous variable
+================================================================
+[A] TFP native (JointDistributionCoroutine replay)
+      elpd_waic = -1058.422376    p_waic = 3.126519
+[B] NumPyro log_likelihood on same draws (== ArviZ machinery)
+      elpd_waic = -1058.422381    p_waic = 3.126519
+|delta elpd_waic| = 4.601e-06      |delta p_waic| = 0.000e+00
+RESULT: PASS   (S=4000, N=346)
+----------------------------------------------------------------
+LOO cross-check  -  1.Continuous variable
+----------------------------------------------------------------
+[A'] BF native JAX PSIS-LOO (jax_diagnostics.loo)
+      elpd_loo  = -1058.426466    p_loo  = 3.130812
+[B'] ArviZ az.loo (PSIS-LOO) on the same log-likelihood
+      elpd_loo  = -1058.426364    p_loo  = 3.130635
+|delta elpd_loo| = 1.019e-04      |delta p_loo| = 1.763e-04
+RESULT: PASS
+================================================================

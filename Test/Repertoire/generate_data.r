@@ -8,9 +8,9 @@ set.seed(42)
 dat <- sim_repertoire(N=50, M=50, NR=10)
 dat$a <- NULL
 
-# Save data to a JSON file for cmdstanpy and a CSV for Python/BI
+# Save data to a JSON file for cmdstanpy and a CSV for Python/BF
 # Stan data needs: N, M, J, d, id, Y
-# We'll also save true L and p for comparison if needed, though the task asks for Stan vs BI comparison.
+# We'll also save true L and p for comparison if needed, though the task asks for Stan vs BF comparison.
 
 # Prepare Stan data list
 stan_data <- list(

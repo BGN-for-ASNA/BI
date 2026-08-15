@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -10,7 +10,7 @@ import jax
 
 model_name = "12.Varying effects"
 
-print(f'Running BI for {model_name}')
+print(f'Running BF for {model_name}')
 # 1. Data Simulation (Varying Effects - Cafes)
 a = 3.5  
 b = -1.0  
@@ -23,7 +23,7 @@ Rho_sim = jnp.array([[1, rho], [rho, 1]])
 Sigma = jnp.diag(sigmas) @ Rho_sim @ jnp.diag(sigmas)
 
 N_cafes = 20
-m_sim = bi(platform='cpu')
+m_sim = bf(platform='cpu')
 vary_effects = m_sim.dist.multivariate_normal(Mu, Sigma, shape=(N_cafes,), sample=True)
 a_cafe_sim = vary_effects[:, 0]
 b_cafe_sim = vary_effects[:, 1]
@@ -36,8 +36,8 @@ sigma_sim = 0.5
 wait = m_sim.dist.normal(mu_sim, sigma_sim, sample=True)
 d = pd.DataFrame(dict(cafe=cafe_id, afternoon=afternoon, wait=wait))
 
-# 2. BI Model (Non-Centered Parametrization)
-m = bi(platform='cpu', backend='tfp')
+# 2. BF Model (Non-Centered Parametrization)
+m = bf(platform='cpu', backend='tfp')
 m.data_on_model = dict(
     cafe=jnp.array(d.cafe.values, dtype=jnp.int32),
     wait=jnp.array(d.wait.values, dtype=jnp.float32),
@@ -46,8 +46,8 @@ m.data_on_model = dict(
 )
 
 def model(cafe, wait, N_cafes, afternoon):
-    a = yield m.dist.normal(5.0, 2.0, name='a')
-    b = yield m.dist.normal(-1.0, 0.5, name='b')
+    a = yield m.dist.normal(0.0, 2.0, name='a')
+    b = yield m.dist.normal(0.0, 1.0, name='b')
     sigma = yield m.dist.exponential(1.0, name='sigma')
     sigma_cafe = yield m.dist.exponential(1.0, shape=(2,), name='sigma_cafe')
     
@@ -66,13 +66,13 @@ def model(cafe, wait, N_cafes, afternoon):
     mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
     yield m.dist.normal(mu, sigma, obs=wait)
 
-print("Fitting BI model...")
+print("Fitting BF model...")
 m.fit(model, num_samples=1000, num_warmup=1000)
-bi_summary = m.summary()
-print("BI Summary Index:")
-print(bi_summary.index.tolist())
-print("BI Summary:")
-print(bi_summary)
+BF_summary = m.summary()
+print("BF Summary Index:")
+print(BF_summary.index.tolist())
+print("BF Summary:")
+print(BF_summary)
 
 # 3. Stan Model (Non-Centered Parametrization)
 stan_code = """
@@ -104,8 +104,8 @@ model{
     L_Rho ~ lkj_corr_cholesky( 2 );
     sigma ~ exponential( 1 );
     sigma_cafe ~ exponential( 1 );
-    b ~ normal( -1 , 0.5 );
-    a ~ normal( 5 , 2 );
+    b ~ normal( 0 , 1 );
+    a ~ normal( 0 , 2 );
     
     vector[len] mu;
     for ( i in 1:len ) {
@@ -139,16 +139,16 @@ param_map = {
     'rho': 'Rho[2,1]'
 }
 
-bi_df = prepare_bi_data(m)
+BF_df = prepare_bi_data(m)
 # Map rho from rho_unconstrained
-bi_df['rho'] = np.tanh(bi_df['rho_unconstrained'])
+BF_df['rho'] = np.tanh(BF_df['rho_unconstrained'])
 
-bi_df = bi_df.rename(columns={
+BF_df = BF_df.rename(columns={
     'sigma_cafe[0]': 'sigma_cafe_0',
     'sigma_cafe[1]': 'sigma_cafe_1'
 })
 
-plot_comparaison(bi_df, df_stan, param_map, model_name=model_name)
+plot_comparaison(BF_df, df_stan, param_map, model_name=model_name)
 
 # 5. Parameter Recovery Analysis
 def estimate_rec(a_true, b_true, sigma_cafe_true, rho_true, sigma_true):
@@ -169,7 +169,7 @@ def estimate_rec(a_true, b_true, sigma_cafe_true, rho_true, sigma_true):
     mu = a_cafe[cafe_id] + b_cafe[cafe_id] * afternoon
     wait_sim = np.random.normal(mu, sigma_true).astype(float)
     
-    m_rec = bi(print_devices_found=False, backend='tfp')
+    m_rec = bf(print_devices_found=False, backend='tfp')
     m_rec.data_on_model = {
         'cafe': jnp.array(cafe_id, dtype=jnp.int32),
         'wait': jnp.array(wait_sim, dtype=jnp.float32),
@@ -177,8 +177,8 @@ def estimate_rec(a_true, b_true, sigma_cafe_true, rho_true, sigma_true):
         'afternoon': jnp.array(afternoon, dtype=jnp.float32)
     }
     def model_rec(cafe, wait, N_cafes, afternoon):
-        a = yield m_rec.dist.normal(5.0, 2.0, name='a')
-        b = yield m_rec.dist.normal(-1.0, 0.5, name='b')
+        a = yield m_rec.dist.normal(0.0, 2.0, name='a')
+        b = yield m_rec.dist.normal(0.0, 1.0, name='b')
         sigma = yield m_rec.dist.exponential(1.0, name='sigma')
         sigma_cafe = yield m_rec.dist.exponential(1.0, shape=(2,), name='sigma_cafe')
         rho_unconstrained = yield m_rec.dist.normal(0, 1, name='rho_unconstrained')
@@ -195,11 +195,11 @@ def estimate_rec(a_true, b_true, sigma_cafe_true, rho_true, sigma_true):
     return s.iloc[:, 0]
 
 print("\nRunning Parameter Recovery...")
-nsim = int(os.getenv('BI_NSIM', 20))
+nsim = int(os.getenv('BF_NSIM', 20))
 results = []
 for i in range(nsim):
-    a_sim = np.random.normal(3.5, 0.5)
-    b_sim = np.random.normal(-1.0, 0.5)
+    a_sim = np.random.normal(0.0, 2.0)
+    b_sim = np.random.normal(0.0, 1.0)
     sigma_cafe_sim = np.random.exponential(1.0, size=2)
     rho_sim = np.random.uniform(-0.9, 0.9)
     sigma_sim = 0.5
@@ -210,3 +210,25 @@ for i in range(nsim):
             
 df_res = pd.DataFrame(results)
 plot_recovery(df_res, model_name=model_name)
+
+
+# --- WAIC & LOO cross-check: native TFP vs NumPyro/ArviZ reference (same draws) ---
+# `waic_ref` is a numpyro-mode transcription of the fitted TFP model (identical
+# latent site names), used to evaluate the same posterior draws through
+# numpyro.infer.log_likelihood -- the exact machinery ArviZ uses.
+m_ref = bf(platform='cpu', print_devices_found=False)
+
+def waic_ref(cafe, wait, N_cafes, afternoon):
+    a = m_ref.dist.normal(0.0, 2.0)
+    b = m_ref.dist.normal(0.0, 1.0)
+    sigma = m_ref.dist.exponential(1.0)
+    sigma_cafe = m_ref.dist.exponential(1.0, shape=(2,))
+    rho_unconstrained = m_ref.dist.normal(0, 1)
+    rho = jnp.tanh(rho_unconstrained)
+    L_Rho = jnp.array([[1.0, 0.0], [rho, jnp.sqrt(1.0 - rho**2)]])
+    z = m_ref.dist.normal(0, 1, shape=(N_cafes, 2))
+    vary_effects = jnp.stack([a, b]) + (jnp.diag(sigma_cafe) @ L_Rho @ z.T).T
+    a_cafe, b_cafe = vary_effects[:, 0], vary_effects[:, 1]
+    mu = a_cafe[cafe] + b_cafe[cafe] * afternoon
+    m_ref.dist.normal(mu, sigma, obs=wait)
+waic_report(m, model_name, ref_model=waic_ref, ref_kwargs={'cafe': m.data_on_model['cafe'], 'wait': m.data_on_model['wait'], 'N_cafes': m.data_on_model['N_cafes'], 'afternoon': m.data_on_model['afternoon']})

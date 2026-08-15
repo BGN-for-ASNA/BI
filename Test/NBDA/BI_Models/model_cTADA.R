@@ -1,5 +1,5 @@
-# BI Model for cTADA (Continuous Time of Acquisition Data Analysis)
-bi_model_cTADA <- function(data) {
+# BF Model for cTADA (Continuous Time of Acquisition Data Analysis)
+BF_model_cTADA <- function(data) {
   # STEP 1: Define Model Parameters
   # cTADA models both a baseline intrinsic learning rate (lambda_0) and a social transmission rate (s_prime).
   log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")

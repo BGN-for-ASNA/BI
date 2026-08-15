@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,8 +8,8 @@ import jax
 
 model_name = "7.Negative binomial"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu')
 
 # 1. Data Simulation ----------------------------------------
 np.random.seed(1)
@@ -27,15 +27,15 @@ df['log_days'] = np.log(df['days'])
 m.df = df
 m.data_to_model(['y', 'log_days', 'monastery'])
 
-def model_bi(y, log_days, monastery):
-    a = m.dist.normal(0, 1, name='a')
-    b = m.dist.normal(0, 1, name='b')
+def model_BF(y, log_days, monastery):
+    a = m.dist.normal(0, 1)
+    b = m.dist.normal(0, 1)
     lambda_ = jnp.exp(log_days + a + b * monastery)
     m.dist.poisson(lambda_, obs=y)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -76,19 +76,19 @@ def estimate(log_days, monastery, a_true, b_true):
     lambda_sim = np.exp(log_days + a_true + b_true * monastery)
     y_sim = np.random.poisson(lambda_sim)
     
-    m_rec = bi(print_devices_found=False)
+    m_rec = bf(print_devices_found=False)
     m_rec.data_on_model = {
         'log_days': jnp.array(log_days),
         'monastery': jnp.array(monastery),
         'y': jnp.array(y_sim)
     }
     def model_rec(log_days, monastery, y):
-        a = m_rec.dist.normal(0, 1, name='a')
-        b = m_rec.dist.normal(0, 1, name='b')
+        a = m_rec.dist.normal(0, 1)
+        b = m_rec.dist.normal(0, 1)
         lambda_ = jnp.exp(log_days + a + b * monastery)
         m_rec.dist.poisson(lambda_, obs=y)
         
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, progress_bar=False, shard=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -104,8 +104,12 @@ def param_recovery(log_days, monastery, a_sims, b_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 10))
+nsim_test = int(os.environ.get("BF_NSIM", 10))
 a_sims = np.random.normal(0, 1, nsim_test)
 b_sims = np.random.normal(0, 1, nsim_test)
 
 recovery_results = param_recovery(df.log_days.values, df.monastery.values, a_sims, b_sims, nsim=nsim_test)
+
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

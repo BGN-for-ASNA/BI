@@ -23,11 +23,11 @@ Below is an example code snippet demonstrating a Bayesian network model using th
 ```{python}
 
 # Setup device------------------------------------------------
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu', rand_seed = False)
+m = bf(platform='cpu', rand_seed = False)
 # Simulate data ------------------------------------------------
 N = 50
 individual_predictor = m.dist.normal(0,1, shape = (N,1), sample = True)
@@ -123,10 +123,10 @@ m$summary()
 ## Julia
 ```julia
 # Setup device------------------------------------------------
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu", rand_seed = false)
+m = importBF(platform="cpu", rand_seed = false)
 
 # Simulate data ------------------------------------------------
 N = 50
@@ -168,7 +168,7 @@ m.data_on_model = pydict(
 )
 
 
-@BI function model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors,category) 
+@BF function model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors,category) 
     N_id = focal_individual_predictors.shape[0]
 
     # Block ---------------------------------------

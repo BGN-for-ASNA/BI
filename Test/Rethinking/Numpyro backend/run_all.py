@@ -1,6 +1,14 @@
+import argparse
 import os
 import subprocess
 import sys
+
+parser = argparse.ArgumentParser(description="Run all Rethinking models")
+parser.add_argument("--shard", action="store_true",
+                    help="Enable data sharding across CPU cores via shard=True in fit()")
+parser.add_argument("--start", type=int, default=1,
+                    help="Start from model number N (1-indexed, default 1)")
+args = parser.parse_args()
 
 # Get the python executable from the venv
 python_exe = sys.executable
@@ -23,17 +31,23 @@ models = [
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Ensure plots directory exists
-plots_dir = os.path.join(script_dir, "plots")
-if not os.path.exists(plots_dir):
-    os.makedirs(plots_dir)
+plots_subdir = "plots_shard" if args.shard else "plots"
+plots_dir    = os.path.join(script_dir, plots_subdir)
+os.makedirs(plots_dir, exist_ok=True)
 
-print(f"Starting execution of {len(models)} models...")
+models = models[args.start - 1:]
+print(f"Starting execution of {len(models)} models (from model {args.start})...")
+if args.shard:
+    print("  shard=True  — data sharding enabled across CPU cores")
+print(f"  Plots → {plots_dir}")
 
 env = os.environ.copy()
-env['BI_NSIM'] = os.environ.get('BI_NSIM', '10')
+env['BF_NSIM']     = os.environ.get('BF_NSIM', '10')
+env['BF_PLOTS_DIR'] = plots_subdir          # read by Utils.py
+if args.shard:
+    env['BF_SHARD'] = '1'                   # read by bf.__init__
 
-log_file = os.path.join(script_dir, "log.txt")
+log_file = os.path.join(script_dir, "log_shard.txt" if args.shard else "log.txt")
 
 with open(log_file, "w") as f_log:
     f_log.write(f"Execution Log - {len(models)} models\n")

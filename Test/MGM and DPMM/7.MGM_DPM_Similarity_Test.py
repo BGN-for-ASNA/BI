@@ -8,7 +8,7 @@ sys.modules["IPython.display"] = mock_ipython
 
 import numpy as np
 import jax.numpy as jnp
-from BI import bi
+from BayesForge import bf
 from sklearn.datasets import make_blobs
 from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 from sklearn.metrics import adjusted_rand_score
@@ -37,22 +37,22 @@ def run_similarity_test():
         )
         print(f"Generated {n_samples} samples with {n_centers} centers.")
 
-        # Initialize BI
-        m = bi(platform='cpu')
+        # Initialize BF
+        m = bf(platform='cpu')
 
         # --- DPMM Section ---
         print("\n--- Testing DPMM Similarity ---")
         T = 11
         m.data_on_model = dict(data=data, T=T)
         
-        # BI DPMM Fit
-        print("Fitting BI DPMM...")
+        # BF DPMM Fit
+        print("Fitting BF DPMM...")
         m.fit(m.models.dpmm, num_chains=1, num_samples=1000, num_warmup=1000)
         
-        # Extract labels from BI DPMM
-        _, _, _, _, bi_dpmm_labels = m.models.dpmm.predict(data, m.sampler)
-        n_clusters_bi = len(np.unique(bi_dpmm_labels))
-        log_msg(f"BI DPMM found {n_clusters_bi} clusters.")
+        # Extract labels from BayesForge DPMM
+        _, _, _, _, BF_dpmm_labels = m.models.dpmm.predict(data, m.sampler)
+        n_clusters_BF = len(np.unique(BF_dpmm_labels))
+        log_msg(f"BF DPMM found {n_clusters_BF} clusters.")
 
         # Sklearn DPMM (BayesianGaussianMixture)
         print("Fitting Sklearn BayesianGaussianMixture...")
@@ -65,26 +65,26 @@ def run_similarity_test():
         log_msg(f"Sklearn DPMM found {n_clusters_sklearn} clusters.")
 
         # Compare labels
-        ari_dpmm = adjusted_rand_score(bi_dpmm_labels, sklearn_dpmm_labels)
+        ari_dpmm = adjusted_rand_score(BF_dpmm_labels, sklearn_dpmm_labels)
         log_msg(f"DPMM Adjusted Rand Index (ARI): {ari_dpmm:.4f}")
 
         # --- GMM Section ---
         print("\n--- Testing GMM Similarity ---")
         K = n_centers
-        # Use K-means to initialize means for BI GMM
+        # Use K-means to initialize means for BF GMM
         from sklearn.cluster import KMeans
         kmeans = KMeans(n_clusters=K, random_state=101).fit(data)
         initial_means = kmeans.cluster_centers_
 
-        # BI GMM Fit
-        print("Fitting BI GMM...")
+        # BF GMM Fit
+        print("Fitting BF GMM...")
         # Reset model data for GMM
         m.data_on_model = dict(data=data, K=K, initial_means=initial_means)
         m.fit(m.models.available['gmm'], num_chains=1, num_samples=1000, num_warmup=1000)
         
-        # Extract labels from BI GMM
-        from BI.Models.GMM import predict_gmm
-        _, _, _, bi_gmm_labels = predict_gmm(data, m.sampler)
+        # Extract labels from BayesForge GMM
+        from BayesForge.Models.GMM import predict_gmm
+        _, _, _, BF_gmm_labels = predict_gmm(data, m.sampler)
         
         # Sklearn GMM
         print("Fitting Sklearn GaussianMixture...")
@@ -92,7 +92,7 @@ def run_similarity_test():
         sklearn_gmm_labels = gmm.fit_predict(data)
 
         # Compare labels
-        ari_gmm = adjusted_rand_score(bi_gmm_labels, sklearn_gmm_labels)
+        ari_gmm = adjusted_rand_score(BF_gmm_labels, sklearn_gmm_labels)
         log_msg(f"GMM Adjusted Rand Index (ARI): {ari_gmm:.4f}")
 
         # --- Summary & Assertions ---
@@ -101,7 +101,7 @@ def run_similarity_test():
         log_msg(f"GMM ARI:  {ari_gmm:.4f}")
 
         if ari_dpmm > 0.8 and ari_gmm > 0.8:
-            log_msg("SUCCESS: High similarity detected between BI and Sklearn!")
+            log_msg("SUCCESS: High similarity detected between BF and Sklearn!")
         else:
             log_msg("WARNING: Low similarity detected. Please check model hyperparameters.")
 

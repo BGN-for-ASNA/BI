@@ -1,6 +1,6 @@
 # NBDA Model Comparison
 
-Compares NBDA models implemented in the **BI** (BayesianInference) framework against their
+Compares NBDA models implemented in the **BF** (BayesForge) framework against their
 [STbayes](https://github.com/michaelchimento/STbayes) equivalents using overlapping posterior
 density plots and benchmark timing.
 
@@ -13,16 +13,16 @@ Install STbayes from CRAN or GitHub before running any script:
 remotes::install_github("michaelchimento/STbayes")
 ```
 
-`BayesianInference` (the BI R package) and its Python backend must also be installed.
+`BayesForge` (the BF R package) and its Python backend must also be installed.
 
 ## Directory Structure
 
 ```
-BI_Models/          Core BI model definitions (one file per model)
+BF_Models/          Core BF model definitions (one file per model)
 density_plots/      Output PNG files (generated, gitignored)
 density_plots.R     Main script — fits all 8 models, produces overlapping density plots
                     with symmetric KL divergence annotations per parameter
-full_comparison.R   Benchmark script — timing comparison BI vs STbayes for all 8 models
+full_comparison.R   Benchmark script — timing comparison BF vs STbayes for all 8 models
 install_deps.R      R dependency installer
 ```
 
@@ -60,9 +60,9 @@ source("full_comparison.R")
 
 Each panel shows the marginal posterior for one parameter.
 - **Blue** = STbayes (Stan/NUTS)
-- **Orange** = BI (JAX/NUTS)
+- **Orange** = BF (JAX/NUTS)
 - **sym-KL** = symmetric KL divergence between the two posteriors (lower = better agreement)
-- Panels labelled **[BI only]** or **[STb only]** indicate that the parameter has no
+- Panels labelled **[BF only]** or **[STb only]** indicate that the parameter has no
   equivalent in the other framework (or the other fit failed).
 
 ## Known differences
@@ -77,8 +77,8 @@ a population-level scalar (`s_prime = exp(log_s_prime_mean)`); `v_id[,2]` is nev
 used in the likelihood.
 
 Consequence: `sigma_id[2]` is sampled from its prior with no likelihood information
-(BI only in the veff plot), and `log_s_prime_mean` posteriors diverge (KL ≈ 0.36)
-because BI correctly absorbs inter-individual variance into per-individual `s_prime`
+(BF only in the veff plot), and `log_s_prime_mean` posteriors diverge (KL ≈ 0.36)
+because BF correctly absorbs inter-individual variance into per-individual `s_prime`
 offsets while STbayes cannot.
 
 This appears to be an incomplete implementation in the STbayes code generator rather

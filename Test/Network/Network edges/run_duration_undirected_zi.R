@@ -1,7 +1,7 @@
-setwd("/home/sebastian_sosa/BI")
+setwd("/home/sebastian_sosa/BF")
 
 library(reticulate)
-library(BayesianInference)
+library(BayesForge)
 library(bisonR)
 library(cmdstanr)
 
@@ -14,9 +14,9 @@ options(cmdstanr_output_dir = stan_out_dir)
 
 source(file.path(BASE, "Modified simulate_bison_model.R"))
 assignInNamespace("simulate_bison_model", simulate_bison_model, ns = "bisonR")
-source(file.path(BASE, "bi_model_duration.R"))
+source(file.path(BASE, "BF_model_duration.R"))
 
-m   <- importBI("cpu")
+m   <- importBF("cpu")
 jax <- import("jax")
 jax$config$update("jax_enable_x64", TRUE)
 jnp <- import("jax.numpy")
@@ -58,9 +58,9 @@ get_stan_draws <- function(fit, param_names) {
   out
 }
 
-normalize_bi_names <- function(bi_draws, stan_draws) {
-  out <- bi_draws
-  for (nm in names(bi_draws)) {
+normalize_bi_names <- function(BF_draws, stan_draws) {
+  out <- BF_draws
+  for (nm in names(BF_draws)) {
     idx_nm <- paste0(nm, "[1]")
     if (idx_nm %in% names(stan_draws) && !(nm %in% names(stan_draws))) {
       out[[idx_nm]] <- out[[nm]]; out[[nm]] <- NULL
@@ -69,33 +69,33 @@ normalize_bi_names <- function(bi_draws, stan_draws) {
   out
 }
 
-apply_non_centered_transform <- function(bi_draws, bi_data) {
-  if (as.numeric(bi_data$partial_pooling) == 1) {
-    sig_key <- if ("edge_sigma" %in% names(bi_draws)) "edge_sigma"
-               else if ("edge_sigma[1]" %in% names(bi_draws)) "edge_sigma[1]"
+apply_non_centered_transform <- function(BF_draws, BF_data) {
+  if (as.numeric(BF_data$partial_pooling) == 1) {
+    sig_key <- if ("edge_sigma" %in% names(BF_draws)) "edge_sigma"
+               else if ("edge_sigma[1]" %in% names(BF_draws)) "edge_sigma[1]"
                else NULL
     if (!is.null(sig_key)) {
-      sigma_s <- bi_draws[[sig_key]]
-      mu_val  <- as.numeric(bi_data$prior_edge_mu)
-      for (i in seq_len(as.integer(bi_data$num_edges))) {
+      sigma_s <- BF_draws[[sig_key]]
+      mu_val  <- as.numeric(BF_data$prior_edge_mu)
+      for (i in seq_len(as.integer(BF_data$num_edges))) {
         k <- paste0("edge_weight[", i, "]")
-        if (k %in% names(bi_draws))
-          bi_draws[[k]] <- mu_val + sigma_s * bi_draws[[k]]
+        if (k %in% names(BF_draws))
+          BF_draws[[k]] <- mu_val + sigma_s * BF_draws[[k]]
       }
     }
   }
-  if (as.numeric(bi_data$num_random) > 0) {
-    grp_idx <- bi_data$random_group_index
+  if (as.numeric(BF_data$num_random) > 0) {
+    grp_idx <- BF_data$random_group_index
     for (r in seq_along(grp_idx)) {
       g     <- grp_idx[r]
       mu_k  <- paste0("random_group_mu[",    g, "]")
       sig_k <- paste0("random_group_sigma[", g, "]")
       br_k  <- paste0("beta_random[",        r, "]")
-      if (all(c(mu_k, sig_k, br_k) %in% names(bi_draws)))
-        bi_draws[[br_k]] <- bi_draws[[mu_k]] + bi_draws[[sig_k]] * bi_draws[[br_k]]
+      if (all(c(mu_k, sig_k, br_k) %in% names(BF_draws)))
+        BF_draws[[br_k]] <- BF_draws[[mu_k]] + BF_draws[[sig_k]] * BF_draws[[br_k]]
     }
   }
-  bi_draws
+  BF_draws
 }
 
 kl_divergence <- function(s, b, n_grid = 512) {
@@ -113,10 +113,10 @@ kl_divergence <- function(s, b, n_grid = 512) {
   }, error = function(e) NA_real_)
 }
 
-save_multipanel_svg <- function(test_name, stan_draws, bi_draws, out_dir) {
-  params <- intersect(names(stan_draws), names(bi_draws))
+save_multipanel_svg <- function(test_name, stan_draws, BF_draws, out_dir) {
+  params <- intersect(names(stan_draws), names(BF_draws))
   params <- params[sapply(params, function(p)
-    length(stan_draws[[p]]) > 1 && length(bi_draws[[p]]) > 1)]
+    length(stan_draws[[p]]) > 1 && length(BF_draws[[p]]) > 1)]
   if (!length(params)) return(invisible(NULL))
   ncols <- min(4L, length(params))
   nrows <- ceiling(length(params) / ncols)
@@ -125,29 +125,29 @@ save_multipanel_svg <- function(test_name, stan_draws, bi_draws, out_dir) {
     svg(svg_path, width = ncols * 4, height = nrows * 3)
     par(mfrow = c(nrows, ncols), mar = c(3, 3, 2, 1))
     for (param in params) {
-      s <- as.numeric(stan_draws[[param]]); b <- as.numeric(bi_draws[[param]])
+      s <- as.numeric(stan_draws[[param]]); b <- as.numeric(BF_draws[[param]])
       d_s <- density(s); d_b <- density(b)
       xlim <- range(c(d_s$x, d_b$x)); ylim <- range(c(d_s$y, d_b$y))
       plot(d_s, col = "red", lwd = 1.5, main = param,
            xlim = xlim, ylim = ylim, xlab = "", ylab = "", cex.main = 0.7)
       lines(d_b, col = "blue", lwd = 1.5, lty = 2)
     }
-    legend("topright", legend = c("Stan", "BI"), col = c("red", "blue"),
+    legend("topright", legend = c("Stan", "BF"), col = c("red", "blue"),
            lwd = 1.5, lty = c(1, 2), cex = 0.7, bty = "n")
     dev.off()
     cat("  SVG:", svg_path, "\n")
   }, error = function(e) { try(dev.off(), silent = TRUE) })
 }
 
-save_combination_log <- function(test_name, stan_draws, bi_draws, out_dir) {
-  all_params <- union(names(stan_draws), names(bi_draws))
+save_combination_log <- function(test_name, stan_draws, BF_draws, out_dir) {
+  all_params <- union(names(stan_draws), names(BF_draws))
   log_path   <- file.path(out_dir, paste0(test_name, "_log.txt"))
   header <- sprintf("%-40s %12s %12s %12s %14s",
-                    "Parameter", "Stan_mean", "BI_mean", "Diff", "KL(Stan||BI)")
+                    "Parameter", "Stan_mean", "BF_mean", "Diff", "KL(Stan||BF)")
   sep    <- paste(rep("-", 95), collapse = "")
   rows   <- c(paste0("=== ", test_name, " ==="), header, sep)
   for (param in all_params) {
-    s    <- stan_draws[[param]]; b <- bi_draws[[param]]
+    s    <- stan_draws[[param]]; b <- BF_draws[[param]]
     s_m  <- if (!is.null(s) && length(s) > 0) mean(as.numeric(s)) else NA
     b_m  <- if (!is.null(b) && length(b) > 0) mean(as.numeric(b)) else NA
     diff <- if (!is.na(s_m) && !is.na(b_m)) s_m - b_m else NA
@@ -162,11 +162,11 @@ save_combination_log <- function(test_name, stan_draws, bi_draws, out_dir) {
   }
   categories <- c("edge_weight", "edge_sigma", "beta_fixed", "beta_random",
                   "random_group_mu", "random_group_sigma", "rate", "zero_prob")
-  rows <- c(rows, "", "Category-wise Mean KL(Stan||BI)")
+  rows <- c(rows, "", "Category-wise Mean KL(Stan||BF)")
   for (cat_name in categories) {
     cat_params <- grep(paste0("^", cat_name, "(\\[|$)"), all_params, value = TRUE)
     cat_kls <- sapply(cat_params, function(p) {
-      s <- stan_draws[[p]]; b <- bi_draws[[p]]
+      s <- stan_draws[[p]]; b <- BF_draws[[p]]
       if (!is.null(s) && !is.null(b) && length(s) > 1 && length(b) > 1)
         kl_divergence(s, b) else NA
     })
@@ -205,21 +205,21 @@ build_stan_data_duration <- function(df, formula, directed, partial_pooling, zer
   )
 }
 
-make_jax_data <- function(bi_data) {
-  jd <- bi_data
-  jd$dyad_ids    <- jnp$array(as.integer(bi_data$dyad_ids), dtype = jnp$int32)
-  jd$event       <- jnp$array(as.numeric(bi_data$event),       dtype = jnp$float64)
-  jd$event_count <- jnp$array(as.integer(bi_data$event_count), dtype = jnp$int32)
-  jd$divisor     <- jnp$array(as.numeric(bi_data$divisor),     dtype = jnp$float64)
-  if (as.numeric(bi_data$num_fixed) > 0)
-    jd$design_fixed <- jnp$array(as.matrix(bi_data$design_fixed), dtype = jnp$float64)
+make_jax_data <- function(BF_data) {
+  jd <- BF_data
+  jd$dyad_ids    <- jnp$array(as.integer(BF_data$dyad_ids), dtype = jnp$int32)
+  jd$event       <- jnp$array(as.numeric(BF_data$event),       dtype = jnp$float64)
+  jd$event_count <- jnp$array(as.integer(BF_data$event_count), dtype = jnp$int32)
+  jd$divisor     <- jnp$array(as.numeric(BF_data$divisor),     dtype = jnp$float64)
+  if (as.numeric(BF_data$num_fixed) > 0)
+    jd$design_fixed <- jnp$array(as.matrix(BF_data$design_fixed), dtype = jnp$float64)
   else
-    jd$design_fixed <- jnp$zeros(as.integer(c(bi_data$num_rows, 0L)))
-  if (as.numeric(bi_data$num_random) > 0) {
-    jd$design_random      <- jnp$array(as.matrix(bi_data$design_random), dtype = jnp$float64)
-    jd$random_group_index <- jnp$array(as.integer(bi_data$random_group_index), dtype = jnp$int32)
+    jd$design_fixed <- jnp$zeros(as.integer(c(BF_data$num_rows, 0L)))
+  if (as.numeric(BF_data$num_random) > 0) {
+    jd$design_random      <- jnp$array(as.matrix(BF_data$design_random), dtype = jnp$float64)
+    jd$random_group_index <- jnp$array(as.integer(BF_data$random_group_index), dtype = jnp$int32)
   } else {
-    jd$design_random      <- jnp$zeros(as.integer(c(bi_data$num_rows, 0L)))
+    jd$design_random      <- jnp$zeros(as.integer(c(BF_data$num_rows, 0L)))
     jd$random_group_index <- jnp$zeros(0L, dtype = jnp$int32)
   }
   jd
@@ -236,7 +236,7 @@ dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 cat("\n=======================================================\n")
 cat("Running:", test_name, "\n")
-cat("  Stan + BI: warmup=", ITER_WARMUP, ", samples=", ITER_SAMPLES, ", chains=", NUM_CHAINS, "\n")
+cat("  Stan + BF: warmup=", ITER_WARMUP, ", samples=", ITER_SAMPLES, ", chains=", NUM_CHAINS, "\n")
 cat("=======================================================\n")
 
 set.seed(42)
@@ -248,18 +248,18 @@ df <- sim$df_sim
 formula <- as.formula(
   "(event | duration) ~ dyad(node_1_id, node_2_id) + age_diff + (1 | node_1_id) + (1 | node_2_id)")
 
-bi_data <- build_stan_data_duration(df, formula, directed = FALSE,
+BF_data <- build_stan_data_duration(df, formula, directed = FALSE,
                                     partial_pooling = TRUE, zero_inflated = TRUE)
 
-cat("  Prior values used by BI model:\n")
-cat("    prior_edge_mu          =", bi_data$prior_edge_mu, "\n")
-cat("    prior_edge_sigma       =", bi_data$prior_edge_sigma, "\n")
-cat("    prior_fixed_mu         =", bi_data$prior_fixed_mu, "\n")
-cat("    prior_fixed_sigma      =", bi_data$prior_fixed_sigma, "\n")
-cat("    prior_rate_sigma       =", bi_data$prior_rate_sigma, "\n")
-cat("    prior_random_mean_mu   =", bi_data$prior_random_mean_mu, "\n")
-cat("    prior_random_mean_sigma=", bi_data$prior_random_mean_sigma, "\n")
-cat("    prior_random_std_sigma =", bi_data$prior_random_std_sigma, "\n")
+cat("  Prior values used by BF model:\n")
+cat("    prior_edge_mu          =", BF_data$prior_edge_mu, "\n")
+cat("    prior_edge_sigma       =", BF_data$prior_edge_sigma, "\n")
+cat("    prior_fixed_mu         =", BF_data$prior_fixed_mu, "\n")
+cat("    prior_fixed_sigma      =", BF_data$prior_fixed_sigma, "\n")
+cat("    prior_rate_sigma       =", BF_data$prior_rate_sigma, "\n")
+cat("    prior_random_mean_mu   =", BF_data$prior_random_mean_mu, "\n")
+cat("    prior_random_mean_sigma=", BF_data$prior_random_mean_sigma, "\n")
+cat("    prior_random_std_sigma =", BF_data$prior_random_std_sigma, "\n")
 
 dur_file  <- system.file("stan", "duration.stan", package = "bisonR")
 dur_model <- cmdstan_model(dur_file, compile = FALSE, stanc_options = list("O1"))
@@ -268,7 +268,7 @@ dur_model$compile(dir = tempdir())
 cat("  Re-running Stan model (adapt_delta=0.999)...\n")
 t_stan_start <- proc.time()
 clean_stan_fit <- tryCatch(
-  dur_model$sample(data = bi_data, refresh = 0,
+  dur_model$sample(data = BF_data, refresh = 0,
     chains = NUM_CHAINS, parallel_chains = NUM_CHAINS,
     iter_warmup = ITER_WARMUP, iter_sampling = ITER_SAMPLES,
     adapt_delta = 0.999, step_size = 0.05, max_treedepth = 20),
@@ -280,28 +280,28 @@ stan_params <- c("edge_weight", "edge_sigma", "beta_fixed", "beta_random",
                  "random_group_mu", "random_group_sigma", "rate", "zero_prob")
 stan_draws  <- get_stan_draws(clean_stan_fit, stan_params)
 
-# --- BI fit ---
-cat("  Fitting BI model...\n")
-bi_draws <- list()
+# --- BF fit ---
+cat("  Fitting BF model...\n")
+BF_draws <- list()
 t_bi_start <- proc.time()
 tryCatch({
-  m$data_on_model <- list(data = make_jax_data(bi_data))
-  m$fit(bi_model_duration, num_warmup = ITER_WARMUP, num_samples = ITER_SAMPLES,
+  m$data_on_model <- list(data = make_jax_data(BF_data))
+  m$fit(BF_model_duration, num_warmup = ITER_WARMUP, num_samples = ITER_SAMPLES,
         num_chains = NUM_CHAINS, target_accept_prob = 0.999)
-  raw_bi   <- get_bi_draws(m$posteriors)
-  bi_draws <- normalize_bi_names(apply_non_centered_transform(raw_bi, bi_data), stan_draws)
-}, error = function(e) cat("  BI fit failed:", conditionMessage(e), "\n"))
+  raw_BF   <- get_bi_draws(m$posteriors)
+  BF_draws <- normalize_bi_names(apply_non_centered_transform(raw_BF, BF_data), stan_draws)
+}, error = function(e) cat("  BF fit failed:", conditionMessage(e), "\n"))
 t_bi_elapsed <- (proc.time() - t_bi_start)[["elapsed"]]
 
 # --- Save outputs ---
-save_multipanel_svg(test_name, stan_draws, bi_draws, out_dir)
-save_combination_log(test_name, stan_draws, bi_draws, out_dir)
+save_multipanel_svg(test_name, stan_draws, BF_draws, out_dir)
+save_combination_log(test_name, stan_draws, BF_draws, out_dir)
 
 # --- Summary KL stats ---
 cat("\n=== Summary KL stats ===\n")
-all_params <- intersect(names(stan_draws), names(bi_draws))
+all_params <- intersect(names(stan_draws), names(BF_draws))
 kls <- sapply(all_params, function(p) {
-  s <- stan_draws[[p]]; b <- bi_draws[[p]]
+  s <- stan_draws[[p]]; b <- BF_draws[[p]]
   if (length(s) > 1 && length(b) > 1) kl_divergence(s, b) else NA
 })
 kls <- kls[!is.na(kls)]
@@ -322,8 +322,8 @@ for (cat_name in c("edge_weight", "edge_sigma", "beta_fixed", "beta_random",
 # --- Timing ---
 cat("\n=== Timing ===\n")
 cat(sprintf("  Stan: %6.1f s  (%4.1f min)\n", t_stan_elapsed, t_stan_elapsed / 60))
-cat(sprintf("  BI:   %6.1f s  (%4.1f min)\n", t_bi_elapsed,   t_bi_elapsed   / 60))
-cat(sprintf("  Stan/BI ratio: %.1fx\n", t_stan_elapsed / max(t_bi_elapsed, 0.1)))
+cat(sprintf("  BF:   %6.1f s  (%4.1f min)\n", t_bi_elapsed,   t_bi_elapsed   / 60))
+cat(sprintf("  Stan/BF ratio: %.1fx\n", t_stan_elapsed / max(t_bi_elapsed, 0.1)))
 
 timing_csv <- file.path(RESULTS_DIR, "timing_summary.csv")
 timing_row  <- data.frame(
@@ -332,7 +332,7 @@ timing_row  <- data.frame(
   iter_warmup = ITER_WARMUP,
   iter_samples= ITER_SAMPLES,
   stan_sec    = round(t_stan_elapsed, 1),
-  bi_sec      = round(t_bi_elapsed,   1),
+  BF_sec      = round(t_bi_elapsed,   1),
   stan_bi_ratio = round(t_stan_elapsed / max(t_bi_elapsed, 0.1), 1),
   timestamp   = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
   stringsAsFactors = FALSE

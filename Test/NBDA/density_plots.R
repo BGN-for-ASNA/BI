@@ -1,34 +1,34 @@
 #%%
 
 # ============================================================
-# Density Plot Comparison: BI R vs STbayes
+# Density Plot Comparison: BF R vs STbayes
 # Produces overlapping density plots for all parameters
 # of all models, saved to density_plots/
 # ============================================================
-# Editable install of BayesianInference uses a relative path hook — must set
-# PYTHONPATH to project root before Python initializes so 'BI' module resolves.
-bi_root <- normalizePath(file.path(getwd(), "../.."), mustWork = FALSE)
-if (!nzchar(Sys.getenv("PYTHONPATH"))) Sys.setenv(PYTHONPATH = bi_root)
+# Editable install of BayesForge uses a relative path hook — must set
+# PYTHONPATH to project root before Python initializes so 'BF' module resolves.
+BF_root <- normalizePath(file.path(getwd(), "../.."), mustWork = FALSE)
+if (!nzchar(Sys.getenv("PYTHONPATH"))) Sys.setenv(PYTHONPATH = BF_root)
 
 library(reticulate)
-library(BayesianInference)
+library(BayesForge)
 library(STbayes)
 
 # Create output directory
 dir.create("density_plots", showWarnings = FALSE)
 
-m  <- importBI("cpu")
+m  <- importBF("cpu")
 jnp <- import("jax.numpy")
 
-# Source all BI models
-source("BI_Models/model_OADA.R")
-source("BI_Models/model_OADA_asocial.R")
-source("BI_Models/model_cTADA.R")
-source("BI_Models/model_ILV.R")
-source("BI_Models/model_veff.R")
-source("BI_Models/model_posterior_edges.R")
-source("BI_Models/model_dynamic_tweights.R")
-source("BI_Models/model_complex_f.R")
+# Source all BF models
+source("BF_Models/model_OADA.R")
+source("BF_Models/model_OADA_asocial.R")
+source("BF_Models/model_cTADA.R")
+source("BF_Models/model_ILV.R")
+source("BF_Models/model_veff.R")
+source("BF_Models/model_posterior_edges.R")
+source("BF_Models/model_dynamic_tweights.R")
+source("BF_Models/model_complex_f.R")
 
 # ---- Helpers -------------------------------------------------------
 
@@ -38,12 +38,12 @@ to_jax <- function(x) {
 }
 
 #%%
-# Extract raw BI posterior draws from m$posteriors (stateful after m$fit())
+# Extract raw BF posterior draws from m$posteriors (stateful after m$fit())
 # m$posteriors values are JAX arrays — must convert via numpy before py_to_r
-# BI already flattens chains and samples into the first dimension:
+# BF already flattens chains and samples into the first dimension:
 #   - Scalar parameter: 1D array of shape (n_total_samples,)
 #   - Vector parameter: 2D array of shape (n_total_samples, vec_length)
-bi_draws_from_m <- function() {
+BF_draws_from_m <- function() {
   np  <- import("numpy")
   raw <- m$posteriors
   if (is.null(raw)) return(list())
@@ -77,7 +77,7 @@ bi_draws_from_m <- function() {
     if (!is.null(v) && length(v) > 0) out[[nm]] <- v
   }
   
-  # Translate BI parameter names to STbayes parameter names for standard overlay plotting
+  # Translate BF parameter names to STbayes parameter names for standard overlay plotting
   map_names <- c(
     "v_lambda0" = "log_lambda_0_mean",
     "v_sprime"  = "log_s_prime_mean",
@@ -87,8 +87,8 @@ bi_draws_from_m <- function() {
     "edge_weights" = "beta_ILV"
   )
   
-  # For 2D vector parameters like sigma_veff, BI makes sigma_veff[1], STbayes uses sigma_veff[1] 
-  # wait - BI's scalar values are exactly those. 
+  # For 2D vector parameters like sigma_veff, BF makes sigma_veff[1], STbayes uses sigma_veff[1] 
+  # wait - BF's scalar values are exactly those. 
   
   # Apply renaming map
   renamed_out <- list()
@@ -115,7 +115,7 @@ bi_draws_from_m <- function() {
     renamed_out[["k_raw"]] <- NULL # Remove k_raw as STbayes outputs k_shape
   }
   
-  # Map BI ILV names to STbayes ILV names for overlay
+  # Map BF ILV names to STbayes ILV names for overlay
   if (!is.null(renamed_out[["beta_ILVi_bool_ILV[1]"]])) {
     renamed_out[["beta_ILVi_cont_ILV"]] <- renamed_out[["beta_ILVi_bool_ILV[1]"]]
     renamed_out[["beta_ILVi_bool_ILV[1]"]] <- NULL
@@ -212,7 +212,7 @@ inject_model_data <- function(dl, nm) {
   if (nm == "ILV" || nm == "complex_f") {
     ilv_vals <- rnorm(P)
     dl$jax$ILV_cont_ILV <- to_jax(ilv_vals)
-    # BI model uses ILV_bool_ILV for asocial and ILV_cat_ILV for multiplicative effects.
+    # BF model uses ILV_bool_ILV for asocial and ILV_cat_ILV for multiplicative effects.
     # Set both to the same ILV values so all three beta parameters see equivalent data
     # as STbayes (which uses the same cont_ILV vector for ILVi, ILVs, and ILVm).
     dl$jax$ILV_bool_ILV <- jnp$array(matrix(ilv_vals, ncol = 1L))
@@ -275,19 +275,19 @@ inject_model_data <- function(dl, nm) {
 }
 
 # Draw overlapping density plots and save as PNG
-plot_densities <- function(model_name, bi_samp, stb_samp) {
-  params_bi  <- names(bi_samp)
+plot_densities <- function(model_name, BF_samp, stb_samp) {
+  params_BF  <- names(BF_samp)
   params_stb <- names(stb_samp)
   # Only plot scalar parameters, but explicitly allow sigma_veff[#] and beta_ILV[#] 
   # to capture random effect variances and categorical ILV elements.
-  scalar_bi  <- params_bi[!grepl("\\[", params_bi) | grepl("sigma_id|beta_ILV", params_bi)]
+  scalar_BF  <- params_BF[!grepl("\\[", params_BF) | grepl("sigma_id|beta_ILV", params_BF)]
   scalar_stb <- params_stb[!grepl("\\[", params_stb) | grepl("sigma_id|beta_ILV", params_stb)]
 
-  shared <- intersect(scalar_bi, scalar_stb)
-  bi_only <- setdiff(scalar_bi, scalar_stb)
-  stb_only <- setdiff(scalar_stb, scalar_bi)
+  shared <- intersect(scalar_BF, scalar_stb)
+  BF_only <- setdiff(scalar_BF, scalar_stb)
+  stb_only <- setdiff(scalar_stb, scalar_BF)
 
-  all_params <- union(union(shared, bi_only), stb_only)
+  all_params <- union(union(shared, BF_only), stb_only)
   if (length(all_params) == 0) {
     cat("  No parameters to plot for", model_name, "\n"); return(invisible(NULL))
   }
@@ -302,17 +302,17 @@ plot_densities <- function(model_name, bi_samp, stb_samp) {
       bg = "white")
 
   for (p in all_params) {
-    bi_v  <- if (!is.null(bi_samp[[p]])) bi_samp[[p]] else NULL
+    BF_v  <- if (!is.null(BF_samp[[p]])) BF_samp[[p]] else NULL
     stb_v <- if (!is.null(stb_samp[[p]])) stb_samp[[p]] else NULL
 
-    status <- if (p %in% shared) "" else if (p %in% bi_only) " [BI only]" else " [STb only]"
+    status <- if (p %in% shared) "" else if (p %in% BF_only) " [BF only]" else " [STb only]"
 
-    xlim <- range(c(bi_v, stb_v), na.rm = TRUE)
+    xlim <- range(c(BF_v, stb_v), na.rm = TRUE)
     xlim <- xlim + c(-1, 1) * diff(xlim) * 0.05
 
     ylim_max <- 0
-    if (!is.null(bi_v) && length(bi_v) > 4)
-      ylim_max <- max(ylim_max, max(density(bi_v)$y))
+    if (!is.null(BF_v) && length(BF_v) > 4)
+      ylim_max <- max(ylim_max, max(density(BF_v)$y))
     if (!is.null(stb_v) && length(stb_v) > 4)
       ylim_max <- max(ylim_max, max(density(stb_v)$y))
 
@@ -326,20 +326,20 @@ plot_densities <- function(model_name, bi_samp, stb_samp) {
       polygon(d$x, d$y, col = adjustcolor("#4E9DC4", alpha.f = 0.5),
               border = "#4E9DC4", lwd = 1.5)
     }
-    if (!is.null(bi_v) && length(bi_v) > 4) {
-      d <- density(bi_v)
+    if (!is.null(BF_v) && length(BF_v) > 4) {
+      d <- density(BF_v)
       polygon(d$x, d$y, col = adjustcolor("#F5A623", alpha.f = 0.5),
               border = "#F5A623", lwd = 1.5)
     }
 
-    if (p %in% shared && !is.null(bi_v) && !is.null(stb_v) &&
-        length(bi_v) > 4 && length(stb_v) > 4) {
-      kl <- kl_div(stb_v, bi_v)
+    if (p %in% shared && !is.null(BF_v) && !is.null(stb_v) &&
+        length(BF_v) > 4 && length(stb_v) > 4) {
+      kl <- kl_div(stb_v, BF_v)
       mtext(sprintf("sym-KL = %.4f", kl), side = 3, line = -1.5,
             cex = 0.7, col = "gray40")
     }
 
-    legend("topright", legend = c("STbayes", "BI"),
+    legend("topright", legend = c("STbayes", "BF"),
            fill = c(adjustcolor("#4E9DC4", 0.5), adjustcolor("#F5A623", 0.5)),
            border = c("#4E9DC4", "#F5A623"), bty = "n", cex = 0.8)
   }
@@ -356,20 +356,20 @@ plot_densities <- function(model_name, bi_samp, stb_samp) {
 STB_PARAMS_COMMON <- c("log_lambda_0_mean", "log_s_prime_mean", "lambda_0")
 
 MODEL_CONFIG <- list(
-  cTADA        = list(bi = bi_model_cTADA, stb_args=list(), stb_extra = c()),
-  OADA         = list(bi = bi_model_OADA, stb_args=list(data_type="order"), stb_extra = c()),
-  OADA_asocial = list(bi = bi_model_OADA_asocial, stb_args=list(data_type="order", model_type="asocial"), stb_extra = c()),
-  ILV          = list(bi = bi_model_ILV,
+  cTADA        = list(BF = BF_model_cTADA, stb_args=list(), stb_extra = c()),
+  OADA         = list(BF = BF_model_OADA, stb_args=list(data_type="order"), stb_extra = c()),
+  OADA_asocial = list(BF = BF_model_OADA_asocial, stb_args=list(data_type="order", model_type="asocial"), stb_extra = c()),
+  ILV          = list(BF = BF_model_ILV,
                       stb_args=list(), # ILV data injected dynamically
                       stb_extra = c("beta_ILVi_cont_ILV","beta_ILVs_cont_ILV","beta_ILVm_cont_ILV")),
-  veff         = list(bi = bi_model_veff,
+  veff         = list(BF = BF_model_veff,
                       stb_args=list(veff_params = c("lambda_0", "s_prime")),
                       stb_extra = c("sigma_id[1]","sigma_id[2]")),
-  dynamic_tweights = list(bi = bi_model_dynamic_networks_dynamic_tweights,
+  dynamic_tweights = list(BF = BF_model_dynamic_networks_dynamic_tweights,
                           stb_file="STAN_example_dynamic_networks_dynamic_tweights.stan",
                           stb_extra = c("k_shape")),
-  complex_f    = list(bi = bi_model_complex_f, stb_args=list(transmission_func="freqdep_f"), stb_extra = c("log_f_mean")),
-  posterior_edges = list(bi = bi_model_posterior_edges, stb_file="STAN_example_posterior_edges.stan", stb_extra = c())
+  complex_f    = list(BF = BF_model_complex_f, stb_args=list(transmission_func="freqdep_f"), stb_extra = c("log_f_mean")),
+  posterior_edges = list(BF = BF_model_posterior_edges, stb_file="STAN_example_posterior_edges.stan", stb_extra = c())
 )
 
 dl <- build_data_list()
@@ -382,13 +382,13 @@ for (nm in names(MODEL_CONFIG)) {
 
   model_dl <- inject_model_data(build_data_list(), nm)
 
-  # --- BI fit ---
+  # --- BF fit ---
   m$data_on_model <- list(data = model_dl$jax)
-  bi_success <- tryCatch({
-    m$fit(cfg$bi, num_chains = 2L, num_warmup = 500L, num_samples = 500L)
+  BF_success <- tryCatch({
+    m$fit(cfg$BF, num_chains = 2L, num_warmup = 500L, num_samples = 500L)
     TRUE
-  }, error = function(e) { cat("  BI fit failed:", e$message, "\n"); FALSE })
-  bi_s <- if (bi_success) bi_draws_from_m() else list()
+  }, error = function(e) { cat("  BF fit failed:", e$message, "\n"); FALSE })
+  BF_s <- if (BF_success) BF_draws_from_m() else list()
 
   # --- STbayes fit (matched model for comparison) ---
   stb_fit <- NULL
@@ -439,7 +439,7 @@ for (nm in names(MODEL_CONFIG)) {
   stb_s <- if (!is.null(stb_fit)) stb_draws(stb_fit, params_to_pull) else list()
 
   # --- Plot ---
-  plot_densities(nm, bi_s, stb_s)
+  plot_densities(nm, BF_s, stb_s)
 }
 
 cat("\n\nAll density plots saved to density_plots/\n")

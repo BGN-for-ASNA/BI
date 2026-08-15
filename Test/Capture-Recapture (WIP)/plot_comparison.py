@@ -5,10 +5,10 @@ import json
 import numpy as np
 
 def plot():
-    # Load BI samples
-    bi_data = jnp.load('bi_samples.npz')
-    bi_h = bi_data['h']
-    bi_q = bi_data['q']
+    # Load BF samples
+    BF_data = jnp.load('BF_samples.npz')
+    BF_h = BF_data['h']
+    BF_q = BF_data['q']
     
     # Load Stan results (for means)
     with open('stan_results.json', 'r') as f:
@@ -18,18 +18,18 @@ def plot():
     stan_q = stan_results['q']
     
     fig, axes = plt.subplots(2, 3, figsize=(15, 10))
-    fig.suptitle('CJS-MS: BI (Density) vs Stan (Mean Baseline)', fontsize=16)
+    fig.suptitle('CJS-MS: BF (Density) vs Stan (Mean Baseline)', fontsize=16)
     
     # Plot h
     for i in range(3):
-        sns.kdeplot(bi_h[:, i], ax=axes[0, i], fill=True, label='BI Posterior')
+        sns.kdeplot(BF_h[:, i], ax=axes[0, i], fill=True, label='BF Posterior')
         axes[0, i].axvline(stan_h[i], color='red', linestyle='--', label='Stan Mean')
         axes[0, i].set_title(f'Posterior h[{i+1}]')
         axes[0, i].legend()
         
     # Plot q (first 3)
     for i in range(3):
-        sns.kdeplot(bi_q[:, i], ax=axes[1, i], fill=True, label='BI Posterior')
+        sns.kdeplot(BF_q[:, i], ax=axes[1, i], fill=True, label='BF Posterior')
         axes[1, i].axvline(stan_q[i], color='red', linestyle='--', label='Stan Mean')
         axes[1, i].set_title(f'Posterior q[{i+1}]')
         axes[1, i].legend()

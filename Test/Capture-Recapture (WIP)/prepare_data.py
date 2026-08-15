@@ -3,7 +3,7 @@ import jax.numpy as jnp
 
 def load_fleayi_data(subset_n=None):
     # Load from the JSON exported by R
-    with open('data_bi.json', 'r') as f:
+    with open('data_BF.json', 'r') as f:
         data = json.load(f)
     
     y = jnp.array(data['y'])

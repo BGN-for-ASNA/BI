@@ -100,7 +100,7 @@ model {
     //------------------------------------------------------------------------//
     // Precompute scale and correlations
     matrix[N_id, 2] sr_eff = (diag_pre_multiply(sr_sigma, sr_L) * z_sr)';
-    matrix[N_dyads, 2] dr_eff = (diag_pre_multiply(dr_sigma, dr_L) * z_dr)';
+    matrix[N_dyads, 2] dr_eff = (diag_pre_multiply(rep_vector(dr_sigma, 2), dr_L) * z_dr)';
 
     // Precalculate covariate effects
     vector[N_id] f_eff = rep_vector(0.0, N_id);
@@ -148,7 +148,7 @@ generated quantities {
 
     if (export_network == 1) {
         matrix[2, N_id] sr_base = diag_pre_multiply(sr_sigma, sr_L) * z_sr;
-        matrix[2, N_dyads] dr_base = diag_pre_multiply(dr_sigma, dr_L) * z_dr;
+        matrix[2, N_dyads] dr_base = diag_pre_multiply(rep_vector(dr_sigma, 2), dr_L) * z_dr;
 
         for (k in 1:N_obs) {
             real f_val = 0.0;

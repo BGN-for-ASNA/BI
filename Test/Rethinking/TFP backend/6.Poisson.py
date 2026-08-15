@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,11 +8,11 @@ import jax
 
 model_name = "6.Poisson"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu', backend='tfp')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu', backend='tfp')
 
 # 1. Data Preparation ----------------------------------------
-data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BI", "Resources")) + os.sep
+data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "BayesForge", "Resources")) + os.sep
 df = pd.read_csv(data_path + 'Kline.csv', sep=';')
 # Log-transform population to reduce outlier impact (standard for Kline dataset)
 df['log_pop'] = np.log(df['population'])
@@ -22,16 +22,16 @@ df['cid'] = (df['contact'] == "high").astype(int)
 m.df = df
 m.data_to_model(['cid', 'population_scaled', 'total_tools'])
 
-def model_bi(cid, population_scaled, total_tools):
+def model_BF(cid, population_scaled, total_tools):
     a = yield m.dist.normal(3, 0.5, shape=(2,), name='a')
     # Wider prior on b allows better recovery when b varies
     b = yield m.dist.normal(0, 0.5, shape=(2,), name='b')
     lambda_ = jnp.exp(a[cid] + b[cid] * population_scaled)
     yield m.dist.poisson(lambda_, obs=total_tools)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -80,7 +80,7 @@ def estimate(cid, population, a_true, b_true):
     lambda_sim = np.exp(a_true[cid] + b_true[cid] * population)
     total_tools_sim = np.random.poisson(lambda_sim).astype(float)
     
-    m_rec = bi(print_devices_found=False, backend='tfp')
+    m_rec = bf(print_devices_found=False, backend='tfp')
     m_rec.data_on_model = {
         'cid': jnp.array(cid),
         'population_scaled': jnp.array(population),
@@ -109,7 +109,7 @@ def param_recovery(cid, population, a_sims, b_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 10))
+nsim_test = int(os.getenv('BF_NSIM', 10))
 a_sims = np.random.normal(3, 0.5, size=(nsim_test, 2))
 b_sims = np.random.normal(0, 0.4, size=(nsim_test, 2))
 
@@ -117,3 +117,17 @@ b_sims = np.random.normal(0, 0.4, size=(nsim_test, 2))
 cid_extended = np.tile(df.cid.values, 100)
 pop_extended = np.tile(df.population_scaled.values, 100)
 recovery_results = param_recovery(cid_extended, pop_extended, a_sims, b_sims, nsim=nsim_test)
+
+
+# --- WAIC & LOO cross-check: native TFP vs NumPyro/ArviZ reference (same draws) ---
+# `waic_ref` is a numpyro-mode transcription of the fitted TFP model (identical
+# latent site names), used to evaluate the same posterior draws through
+# numpyro.infer.log_likelihood -- the exact machinery ArviZ uses.
+m_ref = bf(platform='cpu', print_devices_found=False)
+
+def waic_ref(cid, population_scaled, total_tools):
+    a = m_ref.dist.normal(3, 0.5, shape=(2,))
+    b = m_ref.dist.normal(0, 0.5, shape=(2,))
+    lambda_ = jnp.exp(a[cid] + b[cid] * population_scaled)
+    m_ref.dist.poisson(lambda_, obs=total_tools)
+waic_report(m, model_name, ref_model=waic_ref, ref_kwargs={'cid': m.data_on_model['cid'], 'population_scaled': m.data_on_model['population_scaled'], 'total_tools': m.data_on_model['total_tools']})

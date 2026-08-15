@@ -1,4 +1,4 @@
-full_data <- readRDS('c:/Users/Sosa/Documents/BI/Test/Capture-Recapture (WIP)/cr-in-stan/case-studies/data/fleayi-stan-data.rds')
+full_data <- readRDS('c:/Users/Sosa/Documents/BF/Test/Capture-Recapture (WIP)/cr-in-stan/case-studies/data/fleayi-stan-data.rds')
 tau <- full_data$tau[1:20, 1]
 print("TAU SUMMARY:")
 print(summary(tau))

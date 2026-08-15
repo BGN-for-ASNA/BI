@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,8 +8,8 @@ import jax
 
 model_name = "1.Continuous variable"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu')
 
 # import data ------------------------------------------------
 data_path = m.load.howell1(only_path = True)
@@ -18,14 +18,14 @@ m.df = m.df[m.df.age > 18]
 m.scale(['weight'])
 
 # define model ------------------------------------------------
-def model_bi(weight, height):    
-    alpha = m.dist.normal( 178, 20, name = 'a')
-    beta = m.dist.log_normal( 0, 1, name = 'b')   
-    sigma = m.dist.uniform( 0, 50, name = 's')
-    m.dist.normal(alpha + beta * weight , sigma, obs=height)
+def model_BF(weight, height):    
+    a = m.dist.normal( 178, 20)
+    b = m.dist.log_normal( 0, 1)
+    s = m.dist.uniform( 0, 50)
+    m.dist.normal(a + b * weight , s, obs=height)
 
 # Run sampler ------------------------------------------------
-m.fit(model_bi) 
+m.fit(model_BF) 
 m.summary()
 
 print('Running Stan')
@@ -64,9 +64,9 @@ plot_comparaison(m, stan_df, model_name=model_name)
 
 print('Running Parameters recovery')
 def model_rec(weight, height):    
-    a = m.dist.normal( 0, 1, name = 'a')   
-    b = m.dist.normal(0, 1, name = 'b')
-    s = m.dist.exponential(1, name = 's')
+    a = m.dist.normal( 0, 1)
+    b = m.dist.normal(0, 1)
+    s = m.dist.exponential(1)
     m.dist.normal(a + b * weight , s, obs=height)
 
 def simulate_height(weight, a, b, s):    
@@ -76,10 +76,10 @@ def simulate_height(weight, a, b, s):
 
 def estimate(weight, a, b, s):
     weight_scaled, height = simulate_height(weight, a, b, s)
-    m_rec = bi(print_devices_found=False)
+    m_rec = bf(print_devices_found=False)
     m_rec.df = pd.DataFrame({"weight": weight_scaled, "height": height})
     m_rec.data_to_model(['weight', 'height'])
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False) 
+    m_rec.fit(model_rec, num_samples=500, progress_bar=False, shard=False) 
     sum_df = m_rec.summary()
     return sum_df.iloc[:,0]
 
@@ -101,10 +101,14 @@ def param_recovery(weight_data, a_sims, b_sims, s_sims, nsim):
     return df_res
 
 N = 200
-nsim = int(os.environ.get("BI_NSIM", 10))
+nsim = int(os.environ.get("BF_NSIM", 10))
 a_sims = np.random.normal(0, 1, size=(nsim, 1))
 b_sims = np.random.normal(0, 1, size=(nsim, 1))
 s_sims = np.random.exponential(1, size=(nsim, 1))
 weight_data = np.random.normal(80, 30, size=(nsim, N))
 
 res = param_recovery(weight_data, a_sims, b_sims, s_sims, nsim = nsim)
+
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

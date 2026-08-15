@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -9,8 +9,8 @@ from jax.scipy.special import expit
 
 model_name = "10.Zero inflated"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu', backend='tfp')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu', backend='tfp')
 
 # 1. Data Simulation -----------------------------------------
 # Simulate production of manuscripts
@@ -26,7 +26,7 @@ df = pd.DataFrame({'y': y})
 m.df = df
 m.data_on_model = {'y': jnp.array(y, dtype=jnp.float32)} # Cast to float for TFP
 
-def model_bi(y):
+def model_BF(y):
     ap = yield m.dist.normal(-1.5, 1.0, name='ap')
     # Broadcast to match 'y' shape for Independent wrapper in tfp_dists.py
     p = jnp.full_like(y, expit(ap))
@@ -34,9 +34,9 @@ def model_bi(y):
     lambda_ = jnp.full_like(y, jnp.exp(al))
     yield m.dist.zero_inflated_poisson(p, lambda_, obs=y)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -80,7 +80,7 @@ plot_comparaison(m, df_stan, param_map=param_map, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(y_sim):
-    m_rec = bi(print_devices_found=False, backend='tfp')
+    m_rec = bf(print_devices_found=False, backend='tfp')
     m_rec.data_on_model = {'y': jnp.array(y_sim, dtype=jnp.float32)}
     def model_rec(y):
         ap = yield m_rec.dist.normal(-1.5, 1.0, name='ap')
@@ -110,8 +110,23 @@ def param_recovery(y_true, ap_sims, al_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.getenv('BI_NSIM', 10))
+nsim_test = int(os.getenv('BF_NSIM', 10))
 ap_sims = np.random.normal(-1.5, 1.0, nsim_test)
 al_sims = np.random.normal(1.0, 0.5, nsim_test)
 
 recovery_results = param_recovery(y, ap_sims, al_sims, nsim=nsim_test)
+
+
+# --- WAIC & LOO cross-check: native TFP vs NumPyro/ArviZ reference (same draws) ---
+# `waic_ref` is a numpyro-mode transcription of the fitted TFP model (identical
+# latent site names), used to evaluate the same posterior draws through
+# numpyro.infer.log_likelihood -- the exact machinery ArviZ uses.
+m_ref = bf(platform='cpu', print_devices_found=False)
+
+def waic_ref(y):
+    ap = m_ref.dist.normal(-1.5, 1.0)
+    p = jnp.full_like(y, expit(ap))
+    al = m_ref.dist.normal(1.0, 0.5)
+    lambda_ = jnp.full_like(y, jnp.exp(al))
+    m_ref.dist.zero_inflated_poisson(p, lambda_, obs=y)
+waic_report(m, model_name, ref_model=waic_ref, ref_kwargs={'y': m.data_on_model['y']})

@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="description" content="Statistical models that explicitly account for errors in the measurement of predictor variables.">
 
-<title>Measurement Error Models – Bayesian Inference (BI)</title>
+<title>Measurement Error Models – BayesForge (BF)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -92,12 +92,12 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-6a8f47518b915c51477edcf8788f90ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-294eff73d59fba645e10c6e6b482604a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -245,7 +245,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Bayesian Inference (BI)</span>
+    <span class="navbar-title">BayesForge (BF)</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -272,12 +272,12 @@ window.Quarto = {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-help">    
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/issues"><i class="bi bi-bug" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/issues"><i class="bi bi-bug" role="img">
 </i> 
  <span class="dropdown-text">Report a Bug</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/discussions"><i class="bi bi-chat-dots" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/discussions"><i class="bi bi-chat-dots" role="img">
 </i> 
  <span class="dropdown-text">Ask a Question</span></a>
   </li>  
@@ -287,7 +287,7 @@ window.Quarto = {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools tools-wide">
     <a href="https://twitter.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
-    <a href="https://github.com/BGN-for-ASNA/BI" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+    <a href="https://github.com/BGN-for-ASNA/BF" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
@@ -321,7 +321,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./0.Introduction.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Bayesian analysis with BI</span></a>
+ <span class="menu-text">Bayesian analysis with BF</span></a>
   </div>
 </li>
       </ul>
@@ -682,19 +682,19 @@ window.Quarto = {
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating a Bayesian measurement error model using the Bayesian Inference (BI) package. The data consist of three continuous variables (marriage rate, divorce rate, age), and the goal is to estimate the effect of age and marriage rate on the divorce rate while considering that the divorce rate has a measurement error. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
+<p>Below is an example code snippet demonstrating a Bayesian measurement error model using the BayesForge (BF) package. The data consist of three continuous variables (marriage rate, divorce rate, age), and the goal is to estimate the effect of age and marriage rate on the divorce rate while considering that the divorce rate has a measurement error. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="5e229421" class="cell" data-execution_count="1">
+<div id="3e636823" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
@@ -733,7 +733,7 @@ IProgress not found. Please update jupyter and ipywidgets. See https://ipywidget
 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>BI v 0.0.45 package loaded
+<pre><code>bf v 0.0.47 package loaded
 jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
@@ -763,7 +763,7 @@ jax.local_device_count 32</code></pre>
 <td>0.62</td>
 <td>1.76</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>4898.56</td>
 <td>2950.00</td>
 <td>1.0</td>
@@ -775,7 +775,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.20</td>
 <td>1.60</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6767.20</td>
 <td>2954.89</td>
 <td>1.0</td>
@@ -787,7 +787,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.10</td>
 <td>0.96</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>9424.69</td>
 <td>2188.03</td>
 <td>1.0</td>
@@ -799,7 +799,7 @@ jax.local_device_count 32</code></pre>
 <td>0.67</td>
 <td>2.16</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6660.57</td>
 <td>2774.63</td>
 <td>1.0</td>
@@ -823,7 +823,7 @@ jax.local_device_count 32</code></pre>
 <td>0.05</td>
 <td>1.31</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6591.60</td>
 <td>3004.39</td>
 <td>1.0</td>
@@ -835,7 +835,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.94</td>
 <td>-0.85</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7080.96</td>
 <td>2947.65</td>
 <td>1.0</td>
@@ -847,7 +847,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.12</td>
 <td>0.42</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6817.77</td>
 <td>2850.74</td>
 <td>1.0</td>
@@ -895,7 +895,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.35</td>
 <td>0.20</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6537.34</td>
 <td>3143.58</td>
 <td>1.0</td>
@@ -931,7 +931,7 @@ jax.local_device_count 32</code></pre>
 <td>0.11</td>
 <td>1.06</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7383.96</td>
 <td>2790.51</td>
 <td>1.0</td>
@@ -943,7 +943,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.29</td>
 <td>0.93</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>8327.51</td>
 <td>3046.94</td>
 <td>1.0</td>
@@ -955,7 +955,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.18</td>
 <td>1.16</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>10559.49</td>
 <td>3121.17</td>
 <td>1.0</td>
@@ -967,7 +967,7 @@ jax.local_device_count 32</code></pre>
 <td>0.73</td>
 <td>1.83</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6431.65</td>
 <td>2677.77</td>
 <td>1.0</td>
@@ -979,7 +979,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.15</td>
 <td>1.06</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7829.08</td>
 <td>2102.36</td>
 <td>1.0</td>
@@ -1003,7 +1003,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.07</td>
 <td>-0.07</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>8848.45</td>
 <td>3154.84</td>
 <td>1.0</td>
@@ -1039,7 +1039,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.49</td>
 <td>-0.57</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6745.24</td>
 <td>3084.11</td>
 <td>1.0</td>
@@ -1051,7 +1051,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.25</td>
 <td>1.05</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6438.17</td>
 <td>3296.35</td>
 <td>1.0</td>
@@ -1063,7 +1063,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.54</td>
 <td>0.47</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>8795.45</td>
 <td>2821.55</td>
 <td>1.0</td>
@@ -1075,7 +1075,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.88</td>
 <td>0.79</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7747.36</td>
 <td>2713.19</td>
 <td>1.0</td>
@@ -1087,7 +1087,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.82</td>
 <td>0.46</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7817.42</td>
 <td>2841.78</td>
 <td>1.0</td>
@@ -1099,7 +1099,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.09</td>
 <td>0.59</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>6949.89</td>
 <td>2790.89</td>
 <td>1.0</td>
@@ -1123,7 +1123,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.47</td>
 <td>0.89</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7561.12</td>
 <td>2963.06</td>
 <td>1.0</td>
@@ -1183,7 +1183,7 @@ jax.local_device_count 32</code></pre>
 <td>0.65</td>
 <td>1.95</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7805.13</td>
 <td>3291.93</td>
 <td>1.0</td>
@@ -1195,7 +1195,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.29</td>
 <td>0.84</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7717.66</td>
 <td>3039.59</td>
 <td>1.0</td>
@@ -1231,7 +1231,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.24</td>
 <td>-0.21</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>8713.63</td>
 <td>2927.19</td>
 <td>1.0</td>
@@ -1243,7 +1243,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.64</td>
 <td>1.16</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7686.43</td>
 <td>2870.83</td>
 <td>1.0</td>
@@ -1255,7 +1255,7 @@ jax.local_device_count 32</code></pre>
 <td>0.22</td>
 <td>1.30</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7922.41</td>
 <td>3202.13</td>
 <td>1.0</td>
@@ -1279,7 +1279,7 @@ jax.local_device_count 32</code></pre>
 <td>0.16</td>
 <td>1.53</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>4556.65</td>
 <td>2974.71</td>
 <td>1.0</td>
@@ -1291,7 +1291,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.23</td>
 <td>0.46</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7036.61</td>
 <td>2558.60</td>
 <td>1.0</td>
@@ -1315,7 +1315,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.36</td>
 <td>0.63</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>9348.16</td>
 <td>2648.71</td>
 <td>1.0</td>
@@ -1327,7 +1327,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.09</td>
 <td>1.38</td>
 <td>0.01</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>7999.91</td>
 <td>3034.39</td>
 <td>1.0</td>
@@ -1339,7 +1339,7 @@ jax.local_device_count 32</code></pre>
 <td>-1.11</td>
 <td>-0.22</td>
 <td>0.00</td>
-<td>0.01</td>
+<td>0.00</td>
 <td>8181.23</td>
 <td>2620.55</td>
 <td>1.0</td>
@@ -1347,7 +1347,7 @@ jax.local_device_count 32</code></pre>
 <tr class="even">
 <td data-quarto-table-cell-role="th">D_true[49]</td>
 <td>0.86</td>
-<td>0.58</td>
+<td>0.57</td>
 <td>-0.04</td>
 <td>1.80</td>
 <td>0.01</td>
@@ -1412,14 +1412,14 @@ jax.local_device_count 32</code></pre>
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesForge)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'jax.numpy'</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform------------------------------------------------</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBF</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesianInference"</span>),<span class="st">"/data/WaffleDivorce.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(<span class="fu">paste</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">"BayesForge"</span>),<span class="st">"/data/WaffleDivorce.csv"</span>, <span class="at">sep =</span> <span class="st">''</span>), <span class="at">sep=</span><span class="st">';'</span>)</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">'MedianAgeMarriage'</span>, <span class="st">'Marriage'</span>))</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
@@ -1431,13 +1431,13 @@ jax.local_device_count 32</code></pre>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(D_obs, D_sd, A, N, M){</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">name =</span> <span class="st">'a'</span>) </span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'beta'</span>)</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  eta <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'eta'</span>) </span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'s'</span>) </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bf.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">name =</span> <span class="st">'a'</span>) </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">=</span> <span class="fu">bf.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'beta'</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  eta <span class="ot">=</span> <span class="fu">bf.dist.normal</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'eta'</span>) </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">=</span> <span class="fu">bf.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'s'</span>) </span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">=</span> a <span class="sc">+</span> beta <span class="sc">*</span> A <span class="sc">+</span> eta <span class="sc">*</span> M</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  D_true <span class="ot">=</span> <span class="fu">bi.dist.normal</span>(mu, s, <span class="at">name =</span> <span class="st">'D_true'</span>) </span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bi.dist.normal</span>(D_true , D_sd, <span class="at">obs =</span> D_obs) </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  D_true <span class="ot">=</span> <span class="fu">bf.dist.normal</span>(mu, s, <span class="at">name =</span> <span class="st">'D_true'</span>) </span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bf.dist.normal</span>(D_true , D_sd, <span class="at">obs =</span> D_obs) </span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
@@ -1447,10 +1447,10 @@ jax.local_device_count 32</code></pre>
 <span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesForge</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBF</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
@@ -1467,7 +1467,7 @@ jax.local_device_count 32</code></pre>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>m.data_on_model <span class="op">=</span> dat <span class="co"># Send to model (convert to jax array)</span></span>
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(D_obs, D_sd, A, N, M)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="pp">@BF</span> <span class="kw">function</span> <span class="fu">model</span>(D_obs, D_sd, A, N, M)</span>
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.2</span>, name <span class="op">=</span> <span class="st">"a"</span>) </span>
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    beta <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">"beta"</span>)</span>
 <span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    eta <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">0</span>, <span class="fl">0.5</span>, name <span class="op">=</span> <span class="st">"eta"</span>)  </span>
@@ -2525,8 +2525,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -2637,7 +2635,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

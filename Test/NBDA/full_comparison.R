@@ -1,28 +1,28 @@
 # ============================================================
-# Full Comparison Script: STbayes vs BI R Models
+# Full Comparison Script: STbayes vs BF R Models
 # Runs all 8 working models with 500 warmup + 500 samples
 # Includes timing benchmarks per model
 # ============================================================
 
-bi_root <- normalizePath(file.path(getwd(), "../.."), mustWork = FALSE)
-if (!nzchar(Sys.getenv("PYTHONPATH"))) Sys.setenv(PYTHONPATH = bi_root)
+BF_root <- normalizePath(file.path(getwd(), "../.."), mustWork = FALSE)
+if (!nzchar(Sys.getenv("PYTHONPATH"))) Sys.setenv(PYTHONPATH = BF_root)
 
 library(reticulate)
-library(BayesianInference)
+library(BayesForge)
 library(STbayes)
 
-m <- importBI("cpu")
+m <- importBF("cpu")
 jnp <- import("jax.numpy")
 
-# ---- Source all BI models ----
-source("BI_Models/model_OADA.R")
-source("BI_Models/model_OADA_asocial.R")
-source("BI_Models/model_cTADA.R")
-source("BI_Models/model_ILV.R")
-source("BI_Models/model_veff.R")
-source("BI_Models/model_posterior_edges.R")
-source("BI_Models/model_dynamic_tweights.R")
-source("BI_Models/model_complex_f.R")
+# ---- Source all BF models ----
+source("BF_Models/model_OADA.R")
+source("BF_Models/model_OADA_asocial.R")
+source("BF_Models/model_cTADA.R")
+source("BF_Models/model_ILV.R")
+source("BF_Models/model_veff.R")
+source("BF_Models/model_posterior_edges.R")
+source("BF_Models/model_dynamic_tweights.R")
+source("BF_Models/model_complex_f.R")
 
 # ---- Helper: safely convert R matrix/vector to JAX ----
 to_jax <- function(x) {
@@ -93,7 +93,7 @@ build_data_list <- function() {
 }
 
 # ---- Master comparison function ----
-run_full_comparison <- function(model_name, bi_func, stb_extra_args = list()) {
+run_full_comparison <- function(model_name, BF_func, stb_extra_args = list()) {
   cat("\n\n", strrep("=", 60), "\n")
   cat("  MODEL:", model_name, "\n")
   cat(strrep("=", 60), "\n")
@@ -101,21 +101,21 @@ run_full_comparison <- function(model_name, bi_func, stb_extra_args = list()) {
   dl <- build_data_list()
   m$data_on_model <- list(data = dl$jax)
 
-  # --- BI fit ---
-  cat("\n[1] Fitting BI R model (500 warmup + 500 samples, 2 chains)...\n")
-  bi_time <- system.time({
-    bi_fit <- tryCatch(
-      m$fit(bi_func, num_chains = 2L, num_warmup = 500L, num_samples = 500L),
-      error = function(e) { cat("  BI ERROR:", conditionMessage(e), "\n"); NULL }
+  # --- BF fit ---
+  cat("\n[1] Fitting BF R model (500 warmup + 500 samples, 2 chains)...\n")
+  BF_time <- system.time({
+    BF_fit <- tryCatch(
+      m$fit(BF_func, num_chains = 2L, num_warmup = 500L, num_samples = 500L),
+      error = function(e) { cat("  BF ERROR:", conditionMessage(e), "\n"); NULL }
     )
   })
   
-  bi_summary <- NULL
-  if (!is.null(bi_fit)) {
-    bi_summary <- m$summary(bi_fit)
-    cat("\n  -- BI Posterior Summary --\n")
-    print(bi_summary[, c("mean","sd","hdi_5.5%","hdi_94.5%")])
-    cat(sprintf("  >> BI wall time: %.1f s\n", bi_time["elapsed"]))
+  BF_summary <- NULL
+  if (!is.null(BF_fit)) {
+    BF_summary <- m$summary(BF_fit)
+    cat("\n  -- BF Posterior Summary --\n")
+    print(BF_summary[, c("mean","sd","hdi_5.5%","hdi_94.5%")])
+    cat(sprintf("  >> BF wall time: %.1f s\n", BF_time["elapsed"]))
   }
   
   # --- STbayes fit ---
@@ -149,35 +149,35 @@ run_full_comparison <- function(model_name, bi_func, stb_extra_args = list()) {
   
   # --- Side-by-side comparison for matching parameters ---
   cat("\n  -- Side-by-Side Parameter Comparison --\n")
-  if (!is.null(bi_summary) && !is.null(stb_summary)) {
+  if (!is.null(BF_summary) && !is.null(stb_summary)) {
     # Match on common key params
-    bi_params <- rownames(bi_summary)
+    BF_params <- rownames(BF_summary)
     stb_params <- stb_summary$Parameter
     
     cat(sprintf("  %-28s %10s %10s %10s %10s\n",
-                "Parameter", "BI_Mean", "BI_SD", "STb_Median", "STb_MAD"))
+                "Parameter", "BF_Mean", "BF_SD", "STb_Median", "STb_MAD"))
     cat("  ", strrep("-", 68), "\n")
     
     for (p in c("log_lambda_0_mean", "log_s_prime_mean")) {
-      bi_row  <- bi_summary[grep(p, bi_params, fixed=TRUE), ]
+      BF_row  <- BF_summary[grep(p, BF_params, fixed=TRUE), ]
       stb_row <- stb_summary[grep(p, stb_params, fixed=TRUE), ]
-      if (nrow(bi_row) > 0 && nrow(stb_row) > 0) {
+      if (nrow(BF_row) > 0 && nrow(stb_row) > 0) {
         cat(sprintf("  %-28s %10.3f %10.3f %10.3f %10.3f\n",
                     p,
-                    as.numeric(bi_row[1,"mean"]),
-                    as.numeric(bi_row[1,"sd"]),
+                    as.numeric(BF_row[1,"mean"]),
+                    as.numeric(BF_row[1,"sd"]),
                     as.numeric(stb_row[1,"Median"]),
                     as.numeric(stb_row[1,"MAD"])))
       }
     }
-    cat(sprintf("\n  Speedup factor (STbayes/BI): %.1fx\n",
-                as.numeric(stb_time["elapsed"]) / max(as.numeric(bi_time["elapsed"]), 0.01)))
+    cat(sprintf("\n  Speedup factor (STbayes/BF): %.1fx\n",
+                as.numeric(stb_time["elapsed"]) / max(as.numeric(BF_time["elapsed"]), 0.01)))
   } else {
     cat("  (incomplete — one or both fits failed)\n")
   }
   
-  invisible(list(bi = bi_summary, stb = stb_summary,
-                 bi_time = bi_time, stb_time = stb_time))
+  invisible(list(BF = BF_summary, stb = stb_summary,
+                 BF_time = BF_time, stb_time = stb_time))
 }
 
 # ============================================================
@@ -185,15 +185,15 @@ run_full_comparison <- function(model_name, bi_func, stb_extra_args = list()) {
 # ============================================================
 results <- list()
 
-results$cTADA        <- run_full_comparison("cTADA",        bi_model_cTADA)
-results$OADA         <- run_full_comparison("OADA",         bi_model_OADA)
-results$OADA_asocial <- run_full_comparison("OADA_Asocial", bi_model_OADA_asocial)
-results$ILV          <- run_full_comparison("ILV",          bi_model_ILV)
-results$veff         <- run_full_comparison("veff",         bi_model_veff,
+results$cTADA        <- run_full_comparison("cTADA",        BF_model_cTADA)
+results$OADA         <- run_full_comparison("OADA",         BF_model_OADA)
+results$OADA_asocial <- run_full_comparison("OADA_Asocial", BF_model_OADA_asocial)
+results$ILV          <- run_full_comparison("ILV",          BF_model_ILV)
+results$veff         <- run_full_comparison("veff",         BF_model_veff,
                           stb_extra_args = list(veff_params = c("lambda_0", "s_prime")))
-results$dynamic_tw   <- run_full_comparison("dynamic_tweights", bi_model_dynamic_networks_dynamic_tweights)
-results$complex_f    <- run_full_comparison("complex_f",    bi_model_complex_f)
-results$post_edges   <- run_full_comparison("posterior_edges", bi_model_posterior_edges)
+results$dynamic_tw   <- run_full_comparison("dynamic_tweights", BF_model_dynamic_networks_dynamic_tweights)
+results$complex_f    <- run_full_comparison("complex_f",    BF_model_complex_f)
+results$post_edges   <- run_full_comparison("posterior_edges", BF_model_posterior_edges)
 
 # ============================================================
 #  Final benchmark summary table
@@ -201,14 +201,14 @@ results$post_edges   <- run_full_comparison("posterior_edges", bi_model_posterio
 cat("\n\n", strrep("=", 60), "\n")
 cat("  BENCHMARK SUMMARY\n")
 cat(strrep("=", 60), "\n")
-cat(sprintf("  %-20s %12s %12s %12s\n", "Model", "BI_time(s)", "STb_time(s)", "Speedup"))
+cat(sprintf("  %-20s %12s %12s %12s\n", "Model", "BF_time(s)", "STb_time(s)", "Speedup"))
 cat("  ", strrep("-", 60), "\n")
 
 for (nm in names(results)) {
   r <- results[[nm]]
-  bi_t  <- as.numeric(r$bi_time["elapsed"])
+  BF_t  <- as.numeric(r$BF_time["elapsed"])
   stb_t <- as.numeric(r$stb_time["elapsed"])
   cat(sprintf("  %-20s %12.1f %12.1f %11.1fx\n",
-              nm, bi_t, stb_t, stb_t / max(bi_t, 0.01)))
+              nm, BF_t, stb_t, stb_t / max(BF_t, 0.01)))
 }
 cat("\nDone!\n")

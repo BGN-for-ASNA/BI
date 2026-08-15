@@ -17,10 +17,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from scipy.stats import pearsonr
-from BI import bi
+from BayesForge import bf
 
 # ── 0.  device ────────────────────────────────────────────────────────────────
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 
 # =============================================================================
 # 1.  DATA GENERATING PROCESS (DGP)

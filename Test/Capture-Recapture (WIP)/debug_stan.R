@@ -1,7 +1,7 @@
 library(cmdstanr)
 library(readr)
 
-repo_root <- "c:/Users/Sosa/Documents/BI/Test/Capture-Recapture/cr-in-stan"
+repo_root <- "c:/Users/Sosa/Documents/BF/Test/Capture-Recapture/cr-in-stan"
 stan_file <- file.path(repo_root, "stan/cjs-ms.stan")
 data_file <- file.path(repo_root, "case-studies/data/fleayi-stan-data.rds")
 

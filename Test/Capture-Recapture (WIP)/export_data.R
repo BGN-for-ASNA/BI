@@ -1,5 +1,5 @@
 library(jsonlite)
-full_data <- readRDS('c:/Users/Sosa/Documents/BI/Test/Capture-Recapture (WIP)/cr-in-stan/case-studies/data/fleayi-stan-data.rds')
+full_data <- readRDS('c:/Users/Sosa/Documents/BF/Test/Capture-Recapture (WIP)/cr-in-stan/case-studies/data/fleayi-stan-data.rds')
 
 n_ind <- 400
 idx <- 1:n_ind # Use first 400 for consistency
@@ -40,5 +40,5 @@ data_export <- list(
     n_states = 3L
 )
 
-write_json(data_export, "data_bi.json", auto_unbox = TRUE)
-cat("Data exported to data_bi.json\n")
+write_json(data_export, "data_BF.json", auto_unbox = TRUE)
+cat("Data exported to data_BF.json\n")

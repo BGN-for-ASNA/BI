@@ -1,6 +1,6 @@
 ---
 title: " BNN for Multiclass Classification"
-description: "Neural networks that incorporate Bayesian inference to predict probabilities across three or more mutually exclusive classes."
+description: "Neural networks that incorporate BayesForge to predict probabilities across three or more mutually exclusive classes."
 categories: [Neural Networks, Classification, Deep Learning]
 image: "Figures/24.png"
 order: 35
@@ -24,19 +24,19 @@ Instead of the final layer returning a single output, the final layer in a multi
 
 ## Example
 
-Below is an example code snippet demonstrating a *Bayesian Neural Network for multiclass classification* using the Bayesian Inference (**BI**) package. This example generates a synthetic $K=3$ cluster dataset.
+Below is an example code snippet demonstrating a *Bayesian Neural Network for multiclass classification* using the BayesForge (**BF**) package. This example generates a synthetic $K=3$ cluster dataset.
 
 ::: {.panel-tabset group="language"}
 ## Python
 
 
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import jax
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Generate Synthetic Data ------------------------------------
 # 3 classes based on a random normal distribution split
@@ -100,11 +100,11 @@ fig.colorbar(contour, ax=ax)
 ## Julia
 
 ```julia
-using BayesianInference
+using BayesForge
 using PythonCall
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Generate Synthetic Data ------------------------------------
 np = pyimport("numpy")
@@ -121,7 +121,7 @@ m.data_on_model["X"] = X
 m.data_on_model["Y"] = Y
 
 # Define model ------------------------------------------------
-@BI function model(X, Y)
+@BF function model(X, Y)
     N, D_X = size(X)
     D_H1 = 5
     K = 3

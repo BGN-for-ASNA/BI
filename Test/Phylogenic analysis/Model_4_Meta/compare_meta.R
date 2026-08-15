@@ -22,8 +22,8 @@ model_meta <- brm(
   refresh = 0
 )
 
-# 2. Load BI posteriors
-bi_post   <- read.csv("bi_post_meta.csv")
+# 2. Load BF posteriors
+BF_post   <- read.csv("BF_post_meta.csv")
 post_brms <- as.data.frame(model_meta)
 
 # 3. Compare posterior means -> log.txt
@@ -35,13 +35,13 @@ comparison <- data.frame(
     mean(post_brms$sd_phylo__Intercept),
     mean(post_brms$sd_obs__Intercept)
   ),
-  BI_Mean = c(
-    mean(bi_post$Intercept),
-    mean(bi_post$sd_phylo),
-    mean(bi_post$sd_obs)
+  BF_Mean = c(
+    mean(BF_post$Intercept),
+    mean(BF_post$sd_phylo),
+    mean(BF_post$sd_obs)
   )
 )
-comparison$Difference <- comparison$BI_Mean - comparison$brms_Mean
+comparison$Difference <- comparison$BF_Mean - comparison$brms_Mean
 print(comparison)
 write.csv(comparison, "comparison_meta.csv", row.names = FALSE)
 cat("\n--- META-ANALYSIS MODEL COMPARISON ---\n", file = "log.txt", append = TRUE)
@@ -50,23 +50,23 @@ write.table(comparison, file = "log.txt", append = TRUE,
 
 # 4. Combined density panel (all parameters)
 cat("\nGenerating combined density comparison panel...\n")
-draw_density <- function(label, brms_s, bi_s) {
+draw_density <- function(label, brms_s, BF_s) {
   brms_s <- as.numeric(na.omit(as.vector(brms_s)))
-  bi_s   <- as.numeric(na.omit(bi_s))
-  d1 <- density(brms_s); d2 <- density(bi_s)
+  BF_s   <- as.numeric(na.omit(BF_s))
+  d1 <- density(brms_s); d2 <- density(BF_s)
   xlim <- range(c(d1$x, d2$x)); ylim <- range(c(d1$y, d2$y))
   plot(d1, col = "red", lwd = 2, main = label,
        xlim = xlim, ylim = ylim, xlab = "Value", ylab = "Density")
   lines(d2, col = "blue", lwd = 2, lty = 2)
-  legend("topright", legend = c("brms", "BI"),
+  legend("topright", legend = c("brms", "BF"),
          col = c("red", "blue"), lwd = 2, lty = c(1, 2), cex = 0.8)
 }
 
 png("density_comparison.png", width = 1800, height = 600, res = 120)
 par(mfrow = c(1, 3), mar = c(4, 4, 3, 1))
-draw_density("Intercept", post_brms$b_Intercept,         bi_post$Intercept)
-draw_density("sd_phylo",  post_brms$sd_phylo__Intercept, bi_post$sd_phylo)
-draw_density("sd_obs",    post_brms$sd_obs__Intercept,   bi_post$sd_obs)
+draw_density("Intercept", post_brms$b_Intercept,         BF_post$Intercept)
+draw_density("sd_phylo",  post_brms$sd_phylo__Intercept, BF_post$sd_phylo)
+draw_density("sd_obs",    post_brms$sd_obs__Intercept,   BF_post$sd_obs)
 dev.off()
 cat("Panel saved to density_comparison.png\n")
 # %%

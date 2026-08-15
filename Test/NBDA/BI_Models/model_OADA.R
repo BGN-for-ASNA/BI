@@ -1,10 +1,10 @@
 library(reticulate)
-library(BayesianInference)
-m <- importBI("cpu")
+library(BayesForge)
+m <- importBF("cpu")
 jnp <- import("jax.numpy")
 
-# BI Model for OADA (Order of Acquisition Data Analysis)
-bi_model_OADA <- function(data) {
+# BF Model for OADA (Order of Acquisition Data Analysis)
+BF_model_OADA <- function(data) {
   # STEP 1: Define Model Parameters
   # We extract the base log learning rate modifiers from normal distributions.
   # The parameters are mapped from STbayes 'parameters' block.

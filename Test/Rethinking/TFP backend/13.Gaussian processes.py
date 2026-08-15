@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf, BF
 import pandas as pd
 import os
 import numpy as np
@@ -10,15 +10,15 @@ from importlib.resources import files
 
 model_name = "13.Gaussian processes"
 
-print(f'Running BI for {model_name}')
+print(f'Running BF for {model_name}')
 # Setup device------------------------------------------------
-m = bi(platform='cpu', backend='tfp')
+m = bf(platform='cpu', backend='tfp')
 
 # Import Data & Data Manipulation ------------------------------------------------
 data_path = m.load.kline2(only_path=True)
 m.data(data_path, sep=';')
 
-data_path2 = files('BI.Resources') / 'islandsDistMatrix.csv'
+data_path2 = files('BayesForge.Resources') / 'islandsDistMatrix.csv'
 islandsDistMatrix = pd.read_csv(data_path2, index_col=0)
 
 m.data_to_model(['total_tools', 'population'])
@@ -47,9 +47,9 @@ def model(Dmat, population, society, total_tools):
     yield m.dist.poisson(lambda_, obs=total_tools)
 
 # Run sampler ------------------------------------------------
-print("Fitting BI model...")
+print("Fitting BF model...")
 m.fit(model, num_samples=1000, num_warmup=2000)
-print("BI Summary:")
+print("BF Summary:")
 print(m.summary())
 
 # 3. Stan Model
@@ -124,7 +124,7 @@ def estimate_rec(Dm_rec, P_rec, a_true, b_true, g_true, etasq_true, rhosq_true, 
     K_sim = K_sim.at[jnp.diag_indices(n)].add(0.01)
     K_sim = K_sim.astype(jnp.float32)
 
-    m_rec = bi(print_devices_found=False, backend='tfp')
+    m_rec = bf(print_devices_found=False, backend='tfp')
     k_sim = m_rec.dist.multivariate_normal(
         jnp.zeros(n, dtype=jnp.float32), K_sim, sample=True
     )
@@ -210,5 +210,28 @@ def param_recovery(nsim):
 
 
 print("\nRunning Parameter Recovery...")
-nsim = int(os.environ.get("BI_NSIM", 5))
+nsim = int(os.environ.get("BF_NSIM", 5))
 res  = param_recovery(nsim=nsim)
+
+
+# --- WAIC & LOO cross-check: native TFP vs NumPyro/ArviZ reference (same draws) ---
+# `waic_ref` is a numpyro-mode transcription of the fitted TFP model (identical
+# latent site names), used to evaluate the same posterior draws through
+# numpyro.infer.log_likelihood -- the exact machinery ArviZ uses.
+m_ref = bf(platform='cpu', print_devices_found=False)
+
+def waic_ref(Dmat, population, society, total_tools):
+    a = m_ref.dist.exponential(1)
+    b = m_ref.dist.exponential(1)
+    g = m_ref.dist.exponential(1)
+    etasq = m_ref.dist.exponential(2)
+    rhosq = m_ref.dist.exponential(0.5)
+    n = Dmat.shape[0]
+    SIGMA = etasq * jnp.exp(-rhosq * jnp.square(Dmat))
+    SIGMA = SIGMA.at[jnp.diag_indices(n)].add(0.01)
+    L_chol = jnp.linalg.cholesky(SIGMA)
+    k_z = m_ref.dist.multivariate_normal(jnp.zeros(n, dtype=jnp.float32), jnp.eye(n, dtype=jnp.float32))
+    k = L_chol @ k_z
+    lambda_ = a * population**b / g * jnp.exp(k[society])
+    m_ref.dist.poisson(lambda_, obs=total_tools)
+waic_report(m, model_name, ref_model=waic_ref, ref_kwargs={'Dmat': m.data_on_model['Dmat'], 'population': m.data_on_model['population'], 'society': m.data_on_model['society'], 'total_tools': m.data_on_model['total_tools']})

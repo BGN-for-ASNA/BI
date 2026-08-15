@@ -4,10 +4,10 @@ import sys
 newPath = os.path.dirname(os.path.abspath(""))
 if newPath not in sys.path:
     sys.path.append(newPath)
-from BI import bi
+from BayesForge import bf
 
 import jax.numpy as jnp
-m = bi('cpu')
+m = bf('cpu')
 errors = []
 #%%
 try:

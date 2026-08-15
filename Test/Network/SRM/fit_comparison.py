@@ -3,15 +3,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import sys
+import time
 from cmdstanpy import CmdStanModel
 
 # Force non-interactive matplotlib backend
 plt.switch_backend('Agg')
 
-# Setup device and BI model
-from BI import bi
+# Setup device and BF model
+from BayesForge import bf
+from BayesForge.Network.model_effects2 import NeteffectMatrix
 import jax.numpy as jnp
-m = bi('cpu', rand_seed=False)
+m = bf('cpu', rand_seed=False)
 
 print("Step 1: Simulating data 100% in Python (matching SIM.py structure)...")
 sys.stdout.flush()
@@ -46,10 +48,10 @@ N_grp_Merica = 3
 N_by_grp_Any = np.array([N_nodes])
 N_by_grp_Merica = np.array([np.sum(Merica_np == i) for i in range(N_grp_Merica)])
 
-# Simulate network outcomes using bi's generative APIs
+# Simulate network outcomes using BF's generative APIs
 def sim_network(dyadic_predictors, focal_individual_predictors, target_individual_predictors, Any, Merica):
-    from BI import bi
-    m_sim = bi()
+    from BayesForge import bf
+    m_sim = bf()
     B_intercept = m_sim.net.block_model(Any, 1, jnp.array(N_by_grp_Any), sample=True, name="intercept")
     B_category = m_sim.net.block_model(Merica, 3, jnp.array(N_by_grp_Merica), sample=True, name="category")
     sr = m_sim.net.sender_receiver(
@@ -76,39 +78,83 @@ N_obs = N_dyads * 2
 print(f"Data successfully simulated. Dyads: {N_dyads}, Observations: {N_obs}")
 sys.stdout.flush()
 
-# Prepare variables for BI wide model fitting
+# Prepare variables for BF wide model fitting
 wide_network_edgl = network_edgl
 wide_dyad_edgl = dyadic_predictors_edgl
 wide_sender_preds = jnp.array(wide_focal_np)
 wide_receiver_preds = jnp.array(wide_target_np)
 
-print("Step 2: Fitting model_srm_wide in BI...")
+print("Step 2: Fitting model_srm_wide in BF...")
 sys.stdout.flush()
 
 def model_srm_wide(network_edgl, dyadic_predictors, sender_predictors, receiver_predictors, Any, Merica):
     try:
         from model_effects import Neteffect
     except ImportError:
-        from BI.Network.model_effects import Neteffect
+        from BayesForge.Network.model_effects import Neteffect
         
-    m2_inner = bi()
+    m2_inner = bf()
     B_any    = Neteffect.block_model(Any,    1,    jnp.array(N_by_grp_Any),    name='intercept')
     B_Merica = Neteffect.block_model(Merica, 3,    jnp.array(N_by_grp_Merica), name='Merica')
     sr = m2_inner.net.sender_receiver(sender_predictors, receiver_predictors)
     dr = m2_inner.net.dyadic_effect(dyadic_predictors)
     m2_inner.dist.bernoulli(logits=B_any + B_Merica + sr + dr, obs=network_edgl, name='network_edgl')
 
-m2 = bi('cpu')
+m2 = bf('cpu')
 m2.data_on_model = dict(
-    network_edgl=wide_network_edgl, 
-    dyadic_predictors=wide_dyad_edgl, 
-    sender_predictors=wide_sender_preds, 
-    receiver_predictors=wide_receiver_preds, 
-    Any=Any_jnp, 
+    network_edgl=wide_network_edgl,
+    dyadic_predictors=wide_dyad_edgl,
+    sender_predictors=wide_sender_preds,
+    receiver_predictors=wide_receiver_preds,
+    Any=Any_jnp,
     Merica=Merica_jnp
 )
 m2.fit(model_srm_wide, num_samples=1000, num_warmup=1000, num_chains=1)
-bi_samples = m2.posteriors
+BF_samples = m2.posteriors
+
+print("Step 2.5: Fitting model_srm_matrix (BF matrix-form — model_effects2)...")
+sys.stdout.flush()
+
+# Convert edgelist data to (N, N) matrix form for the matrix model
+Y_mat_jnp = jnp.array(m.net.edgl_to_mat(network_edgl, N_nodes))           # (N, N)
+dyadic_predictors_mat_jnp = NeteffectMatrix.edgelist_to_matrix_predictors(
+    dyadic_predictors_edgl, N_nodes                                          # (N, N, K)
+)
+
+m3 = bf('cpu')
+
+def model_srm_matrix(network_edgl, dyadic_predictors_mat, sender_predictors,
+                     receiver_predictors, Any, Merica, **_):
+    """Matrix-form SRM: outer-sum SR + matrix dyadic effects.
+    Logits assembled in (N,N) space then converted back to edgelist for
+    the Bernoulli likelihood — identical statistical model to model_srm_wide,
+    but eliminates the scatter-gather in node_effects_to_dyadic_format so the
+    model is compatible with axis-0 data sharding.
+    """
+    N = sender_predictors.shape[0]
+    B_any    = NeteffectMatrix.block_model(Any,    1, jnp.array(N_by_grp_Any),    name='intercept')
+    B_Merica = NeteffectMatrix.block_model(Merica, 3, jnp.array(N_by_grp_Merica), name='Merica')
+    SR_mat   = m3.net2.sender_receiver(sender_predictors, receiver_predictors)
+    D_mat    = NeteffectMatrix.dyadic_effect(dyadic_predictors_mat)
+    # Convert (N,N) logit matrix → (N_dyads,2) for the edgelist likelihood
+    # (mat_to_edgl is a gather op that is fine without sharding)
+    logits_edgl = m3.net.mat_to_edgl(B_any + B_Merica + SR_mat + D_mat)
+    m3.dist.bernoulli(logits=logits_edgl, obs=network_edgl, name='network_edgl')
+
+m3.data_on_model = dict(
+    network_edgl          = wide_network_edgl,
+    dyadic_predictors_mat = dyadic_predictors_mat_jnp,
+    sender_predictors     = wide_sender_preds,
+    receiver_predictors   = wide_receiver_preds,
+    Any                   = Any_jnp,
+    Merica                = Merica_jnp,
+)
+_t0_mat = time.perf_counter()
+m3.fit(model_srm_matrix, num_samples=1000, num_warmup=1000, num_chains=1)
+elapsed_mat = time.perf_counter() - _t0_mat
+m3_samples = m3.posteriors
+print(f"BF Matrix fitting time: {elapsed_mat:.2f}s")
+sys.stdout.flush()
 
 print("Step 3: Preparing data and fitting STAN2.stan...")
 sys.stdout.flush()
@@ -116,7 +162,7 @@ sys.stdout.flush()
 # Construct dyad index representation
 # Standard row-major indexing off-diagonal:
 urows, ucols = np.triu_indices(N_nodes, k=1)
-long_ids_int = np.stack([urows, ucols], axis=1) # Corrected to urows, ucols to match BI's mat_to_edgl
+long_ids_int = np.stack([urows, ucols], axis=1) # Corrected to urows, ucols to match BF's mat_to_edgl
 
 sender = np.concatenate([long_ids_int[:, 0], long_ids_int[:, 1]]) + 1
 receiver = np.concatenate([long_ids_int[:, 1], long_ids_int[:, 0]]) + 1
@@ -240,7 +286,7 @@ print("Step 3.7: Preparing data and fitting STRAND NumPyro...")
 sys.stdout.flush()
 
 import os
-os.environ['RETICULATE_PYTHON'] = '/home/sosa/.virtualenvs/BayesInference/bin/python'
+os.environ['RETICULATE_PYTHON'] = '/home/sosa/.virtualenvs/BayesForge/bin/python'
 
 import rpy2.robjects as ro
 from rpy2.robjects import numpy2ri, pandas2ri
@@ -341,21 +387,33 @@ strand_b_intercept = np.array(strand_block_params.rx2(1)).reshape(-1)
 strand_b_Merica = np.array(strand_block_params.rx2(2))
 
 print("\nStep 4: Printing Posterior Comparison Table...")
-print("BI posteriors keys:", list(bi_samples.keys()))
+print("BF posteriors keys:", list(BF_samples.keys()))
+print("BF Matrix posteriors keys:", list(m3_samples.keys()))
 print("Stan (Block) posteriors keys:", list(stan_samples.keys()))
 print("Stan (Original) posteriors keys:", list(orig_samples.keys()))
 sys.stdout.flush()
 
-# Map BI and Stan parameters for exact side-by-side comparison
-bi_mapped = {
-    'Block Intercept': bi_samples['b_intercept'].reshape(bi_samples['b_intercept'].shape[0], -1)[:, 0],
-    **{f'Block Merica {i+1}-{j+1}': np.array([m[i, j] for m in bi_samples['b_Merica']]) for i in range(3) for j in range(3)},
-    **{f'Sender covariate {i+1}': bi_samples['sender_effects'][:, i] for i in range(4)},
-    **{f'Receiver covariate {i+1}': bi_samples['receiver_effects'][:, i] for i in range(4)},
-    **{f'Dyad covariate {i+1}': bi_samples['dyad_effects'][:, i] for i in range(3)},
-    'Sender SD': bi_samples['sr_sigma'][:, 0],
-    'Receiver SD': bi_samples['sr_sigma'][:, 1],
-    'Dyad SD': bi_samples['dr_sigma']
+# Map BF and Stan parameters for exact side-by-side comparison
+BF_mapped = {
+    'Block Intercept': BF_samples['b_intercept'].reshape(BF_samples['b_intercept'].shape[0], -1)[:, 0],
+    **{f'Block Merica {i+1}-{j+1}': np.array([m[i, j] for m in BF_samples['b_Merica']]) for i in range(3) for j in range(3)},
+    **{f'Sender covariate {i+1}': BF_samples['sender_effects'][:, i] for i in range(4)},
+    **{f'Receiver covariate {i+1}': BF_samples['receiver_effects'][:, i] for i in range(4)},
+    **{f'Dyad covariate {i+1}': BF_samples['dyad_effects'][:, i] for i in range(3)},
+    'Sender SD': BF_samples['sr_sigma'][:, 0],
+    'Receiver SD': BF_samples['sr_sigma'][:, 1],
+    'Dyad SD': BF_samples['dr_sigma']
+}
+
+m3_mapped = {
+    'Block Intercept': m3_samples['b_intercept'].reshape(m3_samples['b_intercept'].shape[0], -1)[:, 0],
+    **{f'Block Merica {i+1}-{j+1}': np.array([s[i, j] for s in m3_samples['b_Merica']]) for i in range(3) for j in range(3)},
+    **{f'Sender covariate {i+1}': m3_samples['sender_effects'][:, i] for i in range(4)},
+    **{f'Receiver covariate {i+1}': m3_samples['receiver_effects'][:, i] for i in range(4)},
+    **{f'Dyad covariate {i+1}': m3_samples['dyad_effects'][:, i] for i in range(3)},
+    'Sender SD': m3_samples['sr_sigma'][:, 0],
+    'Receiver SD': m3_samples['sr_sigma'][:, 1],
+    'Dyad SD': m3_samples['dr_sigma']
 }
 
 stan_mapped = {
@@ -392,29 +450,32 @@ strand_mapped = {
 }
 
 records = []
-for key in bi_mapped:
-    bi_mean, bi_std = np.mean(bi_mapped[key]), np.std(bi_mapped[key])
-    stan_mean, stan_std = np.mean(stan_mapped[key]), np.std(stan_mapped[key])
-    orig_mean, orig_std = np.mean(orig_mapped[key]), np.std(orig_mapped[key])
+for key in BF_mapped:
+    BF_mean, BF_std       = np.mean(BF_mapped[key]),     np.std(BF_mapped[key])
+    m3_mean, m3_std       = np.mean(m3_mapped[key]),     np.std(m3_mapped[key])
+    stan_mean, stan_std   = np.mean(stan_mapped[key]),   np.std(stan_mapped[key])
+    orig_mean, orig_std   = np.mean(orig_mapped[key]),   np.std(orig_mapped[key])
     strand_mean, strand_std = np.mean(strand_mapped[key]), np.std(strand_mapped[key])
-        
+
     records.append({
-        'Parameter': key,
-        'BI Mean': f"{bi_mean: .4f}",
-        'BI Std': f"{bi_std: .4f}",
-        'Stan Blk Mean': f"{stan_mean: .4f}",
-        'Stan Blk Std': f"{stan_std: .4f}",
+        'Parameter':      key,
+        'BF Mean':        f"{BF_mean: .4f}",
+        'BF Std':         f"{BF_std: .4f}",
+        'BF Mat Mean':    f"{m3_mean: .4f}",
+        'BF Mat Std':     f"{m3_std: .4f}",
+        'Stan Blk Mean':  f"{stan_mean: .4f}",
+        'Stan Blk Std':   f"{stan_std: .4f}",
         'Stan Orig Mean': f"{orig_mean: .4f}",
-        'Stan Orig Std': f"{orig_std: .4f}",
-        'STRAND Mean': f"{strand_mean: .4f}",
-        'STRAND Std': f"{strand_std: .4f}"
+        'Stan Orig Std':  f"{orig_std: .4f}",
+        'STRAND Mean':    f"{strand_mean: .4f}",
+        'STRAND Std':     f"{strand_std: .4f}",
     })
 
 df_comparison = pd.DataFrame(records)
 print(df_comparison.to_string(index=False))
 sys.stdout.flush()
 
-print("\nStep 5: Generating Forest Plot 'stan-edgle V BI.png'...")
+print("\nStep 5: Generating Forest Plot 'stan-edgle V BF.png'...")
 sys.stdout.flush()
 
 def get_stats(data):
@@ -422,47 +483,50 @@ def get_stats(data):
     hpd = np.percentile(data, [2.5, 97.5])
     return m, np.array([[m - hpd[0]], [hpd[1] - m]])
 
-params = list(bi_mapped.keys())
+params = list(BF_mapped.keys())
 n = len(params)
 y = np.arange(n)
 
 # Extract stats for all models
-bi_stats = [get_stats(bi_mapped[key]) for key in params]
-stan_stats = [get_stats(stan_mapped[key]) for key in params]
-orig_stats = [get_stats(orig_mapped[key]) for key in params]
+BF_stats     = [get_stats(BF_mapped[key])     for key in params]
+m3_stats     = [get_stats(m3_mapped[key])     for key in params]
+stan_stats   = [get_stats(stan_mapped[key])   for key in params]
+orig_stats   = [get_stats(orig_mapped[key])   for key in params]
 strand_stats = [get_stats(strand_mapped[key]) for key in params]
 
-bi_means = [s[0] for s in bi_stats]
-bi_errs = np.hstack([s[1] for s in bi_stats])
+BF_means   = [s[0] for s in BF_stats];   BF_errs   = np.hstack([s[1] for s in BF_stats])
+m3_means   = [s[0] for s in m3_stats];   m3_errs   = np.hstack([s[1] for s in m3_stats])
+stan_means = [s[0] for s in stan_stats]; stan_errs = np.hstack([s[1] for s in stan_stats])
+orig_means = [s[0] for s in orig_stats]; orig_errs = np.hstack([s[1] for s in orig_stats])
+strand_means = [s[0] for s in strand_stats]; strand_errs = np.hstack([s[1] for s in strand_stats])
 
-stan_means = [s[0] for s in stan_stats]
-stan_errs = np.hstack([s[1] for s in stan_stats])
+colors = {
+    'stan':   '#ff7f0e',
+    'BF':     '#1f77b4',
+    'BF_mat': '#9467bd',
+    'orig':   '#2ca02c',
+    'strand': '#d62728',
+}
 
-orig_means = [s[0] for s in orig_stats]
-orig_errs = np.hstack([s[1] for s in orig_stats])
-
-strand_means = [s[0] for s in strand_stats]
-strand_errs = np.hstack([s[1] for s in strand_stats])
-
-colors = {'stan': '#ff7f0e', 'bi': '#1f77b4', 'orig': '#2ca02c', 'strand': '#d62728'}
-
-plt.figure(figsize=(14, n * 0.55 + 2))
+# 5 models: offsets +0.4, +0.2, 0.0, -0.2, -0.4
+plt.figure(figsize=(14, n * 0.65 + 2))
 plt.axvline(0, color='k', ls='--', alpha=0.3)
 
-plt.errorbar(stan_means, y + 0.3, xerr=stan_errs, fmt='o', label='Stan (Block - STAN2)', color=colors['stan'], capsize=3)
-plt.errorbar(bi_means, y + 0.1, xerr=bi_errs, fmt='s', label='BI (Wide - model_srm_wide)', color=colors['bi'], capsize=3)
-plt.errorbar(orig_means, y - 0.1, xerr=orig_errs, fmt='^', label='Stan (Original - original_srm)', color=colors['orig'], capsize=3)
-plt.errorbar(strand_means, y - 0.3, xerr=strand_errs, fmt='d', label='R STRAND (NumPyro)', color=colors['strand'], capsize=3)
+plt.errorbar(stan_means,   y + 0.4,  xerr=stan_errs,   fmt='o', label='Stan (Block - STAN2)',          color=colors['stan'],   capsize=3)
+plt.errorbar(BF_means,     y + 0.2,  xerr=BF_errs,     fmt='s', label='BF Wide (edgelist)',            color=colors['BF'],     capsize=3)
+plt.errorbar(m3_means,     y + 0.0,  xerr=m3_errs,     fmt='P', label='BF Matrix (model_effects2)',   color=colors['BF_mat'], capsize=3)
+plt.errorbar(orig_means,   y - 0.2,  xerr=orig_errs,   fmt='^', label='Stan (Original - original_srm)', color=colors['orig'],   capsize=3)
+plt.errorbar(strand_means, y - 0.4,  xerr=strand_errs, fmt='d', label='R STRAND (NumPyro)',            color=colors['strand'], capsize=3)
 
 plt.yticks(y, params, fontsize=8)
 plt.xlabel("Estimate")
 plt.ylabel("Parameter")
-plt.legend()
-plt.title('SRM Posterior Comparison: Stan Block vs. BI Wide vs. Stan Original vs. R STRAND')
+plt.legend(loc='lower right', fontsize=9)
+plt.title('SRM Posterior Comparison: Stan Block | BF Wide | BF Matrix | Stan Original | STRAND')
 plt.tight_layout()
 
 # Save plot relative to script directory
-plot_path = os.path.join(script_dir, 'stan-edgle V BI.png')
+plot_path = os.path.join(script_dir, 'stan-edgle V BF.png')
 plt.savefig(plot_path, dpi=150)
 plt.close()
 print(f"Forest plot saved successfully to {plot_path}")

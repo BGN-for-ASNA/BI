@@ -2,7 +2,7 @@
 """
 DPMM: Dirichlet Process Mixture Model
 Working clustering model with excellent performance (ARI ~0.956)
-All components learned via SVI with BI package
+All components learned via SVI with BF package
 """
 
 import os
@@ -19,11 +19,11 @@ import matplotlib.pyplot as plt
 import time
 from functools import partial
 
-project_root = r'C:\Users\Sosa\Documents\BI'
+project_root = r'C:\Users\Sosa\Documents\BF'
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from BI import bi
+from BayesForge import BayesForge
 
 # Force ASCII mode for tqdm
 os.environ['TQDM_DISABLE'] = '1'
@@ -39,7 +39,7 @@ def log_message(msg="", end="\n"):
         log_file.write(msg + end)
         log_file.flush()
 
-# Global state for BI API
+# Global state for BF API
 _current_X = None
 _current_K = None
 
@@ -163,8 +163,8 @@ def run_single_test(n_clusters, n_samples, cluster_std, n_features, seed=42, ite
     _current_X = jnp.array(X, dtype=jnp.float32)
     _current_K = n_clusters + 3  # Truncation
 
-    # Initialize BI
-    m = bi(platform='cpu')
+    # Initialize BF
+    m = BF(platform='cpu')
 
     # Train DPMM with SVI
     try:
@@ -253,7 +253,7 @@ def main():
     log_message(f"Average ARI: {avg_ari:.4f}")
     log_message(f"Perfect tests (ARI >= 0.99): {perfect_count}/{len(configs)}")
     log_message(f"\nModel: Dirichlet Process Mixture Model")
-    log_message(f"Training: SVI with BI package (numpyro backend)")
+    log_message(f"Training: SVI with BF package (numpyro backend)")
     log_message(f"\nPlots saved as: plot_iter0_testXX_ariYYYY.png")
     
     # Close log file

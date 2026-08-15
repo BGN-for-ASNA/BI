@@ -1,6 +1,6 @@
 ---
 title: "BNN for Regression"
-description: "Neural networks that incorporate Bayesian inference to quantify uncertainty in their predictions."
+description: "Neural networks that incorporate BayesForge to quantify uncertainty in their predictions."
 categories: [Neural Networks,  Deep Learning]
 image: "Figures/24.png"
 order: 33
@@ -44,19 +44,19 @@ or [<span style="color:#0D6EFD">Stochastic Gradient MCMC 🛈</span>]{#SG-MCMC},
 
 ## Example
 
-Below is an example code snippet demonstrating a *Bayesian Neural Network* for regression using the Bayesian Inference (BI) package. Simulated data consist of two continuous variables ($Y$ and $X$), and the goal is to predict $X$ from $Y$ using a non-linear model.
+Below is an example code snippet demonstrating a *Bayesian Neural Network* for regression using the BayesForge (BF) package. Simulated data consist of two continuous variables ($Y$ and $X$), and the goal is to predict $X$ from $Y$ using a non-linear model.
 
 ::: {.panel-tabset group="language"}
 
 ## Python
 ```{python}
-from BI import bi
+from BayesForge import bf
 import json
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 
@@ -116,12 +116,12 @@ ax.set(xlabel="X", ylabel="Y", title="Mean predictions with 90% CI")
 ## R
 
 ```r
-library(BayesianInference)
-m=importBI(platform='cpu')
+library(BayesForge)
+m=importBF(platform='cpu')
 
 # Load csv file
 # Import data ------------------------------------------------
-path = normalizePath(paste(system.file(package = "BayesianInference"),"/data/BNN.json", sep = ''))
+path = normalizePath(paste(system.file(package = "BayesForge"),"/data/BNN.json", sep = ''))
 data <- fromJSON(path)
 m$data_on_model = list()
 m$data_on_model$X = jnp$array(data$X)
@@ -130,19 +130,19 @@ m$data_on_model$Y = jnp$array(data$Y)
 # Define model ------------------------------------------------
 model <- function(X, Y, D_X = 2, D_H=5L, D_Y=1L){
 
-  w1 <- m$bnn$layer_linear(X, dist=bi.dist.normal(0, 1,  name='w1',shape=c(D_X,D_H)), activation='tanh')
+  w1 <- m$bnn$layer_linear(X, dist=bf.dist.normal(0, 1,  name='w1',shape=c(D_X,D_H)), activation='tanh')
   
   w2 <- m$bnn$layer_linear(
     w1, 
-    dist=bi.dist.normal(0, 1,  name='w2',shape=c(D_H,D_Y)),
+    dist=bf.dist.normal(0, 1,  name='w2',shape=c(D_H,D_Y)),
     activation='tanh'
   )
   
   # Prior for the output standard deviation
-  s = bi.dist.exponential(1, name = 's')
+  s = bf.dist.exponential(1, name = 's')
   
   # Likelihood
-  bi.dist.normal(w2, s, obs = Y)
+  bf.dist.normal(w2, s, obs = Y)
 }
 
 # Run mcmc ------------------------------------------------

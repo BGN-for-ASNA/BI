@@ -3,7 +3,7 @@ title: "Model Diagnostic"
 sidebar: start
 ---
 
-The BI class can compute model diagnostics for a given model.
+The BF class can compute model diagnostics for a given model.
 
 Lets consider the following model for a linear regression:
 
@@ -24,11 +24,11 @@ $$
 $$
 
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # setup platform------------------------------------------------
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 
 # import data ------------------------------------------------
 data_path = m.load.howell1(only_path=True)

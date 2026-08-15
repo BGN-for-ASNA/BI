@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,8 +8,8 @@ import jax
 
 model_name = "1.Continuous variable"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu', backend='tfp')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu', backend='tfp')
 
 # import data ------------------------------------------------
 data_path = m.load.howell1(only_path = True)
@@ -18,7 +18,7 @@ m.df = m.df[m.df.age > 18]
 m.scale(['weight'])
 
 # define model ------------------------------------------------
-def model_bi(weight, height):
+def model_BF(weight, height):
     a = yield m.dist.normal(178, 20, name='a')
     b = yield m.dist.log_normal(0, 1, name='b')  
     s = yield m.dist.uniform(0, 50, name='s')   
@@ -26,7 +26,7 @@ def model_bi(weight, height):
 
 
 # Run sampler ------------------------------------------------
-m.fit(model_bi, num_samples=1000, num_warmup=1000) 
+m.fit(model_BF, num_samples=1000, num_warmup=1000) 
 m.summary()
 
 print('Running Stan')
@@ -78,7 +78,7 @@ def simulate_height(weight, a, b, s):
 
 def estimate(weight, a, b, s):
     weight_scaled, height = simulate_height(weight, a, b, s)
-    m_rec = bi(print_devices_found=False, backend='tfp')
+    m_rec = bf(print_devices_found=False, backend='tfp')
     m_rec.df = pd.DataFrame({"weight": weight_scaled, "height": height})
     m_rec.data_to_model(['weight', 'height'])
     m_rec.fit(model_rec, num_samples=500, num_warmup=500, progress_bar=False) 
@@ -103,10 +103,23 @@ def param_recovery(weight_data, a_sims, b_sims, s_sims, nsim):
     return df_res
 
 N = 200
-nsim = int(os.getenv('BI_NSIM', 10))
+nsim = int(os.getenv('BF_NSIM', 10))
 a_sims = np.random.normal(0, 1, size=(nsim, 1))
 b_sims = np.random.normal(0, 1, size=(nsim, 1))
 s_sims = np.random.exponential(1, size=(nsim, 1))
 weight_data = np.random.normal(80, 30, size=(nsim, N))
 
 res = param_recovery(weight_data, a_sims, b_sims, s_sims, nsim = nsim)
+
+# --- WAIC & LOO cross-check: native TFP vs NumPyro/ArviZ reference (same draws) ---
+# `waic_ref` is a numpyro-mode transcription of the fitted TFP model (identical
+# latent site names), used to evaluate the same posterior draws through
+# numpyro.infer.log_likelihood -- the exact machinery ArviZ uses.
+m_ref = bf(platform='cpu', print_devices_found=False)
+
+def waic_ref(weight, height):
+    a = m_ref.dist.normal(178, 20)
+    b = m_ref.dist.log_normal(0, 1)
+    s = m_ref.dist.uniform(0, 50)
+    m_ref.dist.normal(a + b * weight, s, obs=height)
+waic_report(m, model_name, ref_model=waic_ref, ref_kwargs={'weight': m.data_on_model['weight'], 'height': m.data_on_model['height']})

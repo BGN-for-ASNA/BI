@@ -1,46 +1,122 @@
 ---
-title: "Import BI class"
+title: "Session initialization"
 sidebar: start
 ---
 
-Before anything, you need to import the BI class. This will allow you to create a BI object that will be used to : 1) import data, 2) define the model, 3) fit the model, 4) summarize the results, and 5) plot the results.
+Every BI session **must** start by importing `bf` and initializing the BI object. This single object is the gateway to everything: data handling, model definition, fitting, diagnostics, and saving.
 
-::: {.panel-tabset group="language"}
+> **Rule:** Always import `bf` **before** importing `jax` or any other JAX-dependent module, so that the XLA configuration is applied first.
+
 ## Python
-``` python
-from BI import bi
-m = bi()
+
+```python
+from BayesForge import bf
+
+m = bf(
+    platform="cpu",          # "cpu", "gpu", or "tpu"
+    cores=None,              # CPU cores (None = all available)
+    float_precision=64,      # 64 for float64, 32 for float32
+    rand_seed=42,            # int for reproducibility, True for random
+    gpu_index=None,          # GPU index when platform="gpu"
+    deallocate=False,        # deallocate existing device first
+    print_devices_found=True,# print device info on init
+)
+```
+
+### Arguments
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `platform` | str | `"cpu"` | Hardware backend: `"cpu"`, `"gpu"`, or `"tpu"` |
+| `cores` | int | `None` | CPU cores to allocate (`None` = all). Only for `platform="cpu"` |
+| `float_precision` | int or str | `64` | JAX floating-point precision. Pass `64` (`"float64"`) or `32` (`"float32"`) |
+| `rand_seed` | int or bool | `True` | Reproducibility seed. Pass an `int` (e.g. `42`) for reproducible results, or `True` for entropy-based randomness |
+| `gpu_index` | int | `None` | Which GPU to use by index. Only for `platform="gpu"` |
+| `deallocate` | bool | `False` | Deallocate existing device before setting up new configuration |
+| `print_devices_found` | bool | `True` | Print detected devices on initialization |
+| `backend` | str | `"numpyro"` | Inference backend: `"numpyro"` or `"tfp"` |
+
+### Common initialization patterns
+
+```python
+# Reproducible CPU session (default for development)
+m = bf(platform="cpu", rand_seed=42, float_precision=64)
+
+# GPU with specific device
+m = bf(platform="gpu", gpu_index=0, rand_seed=42)
+
+# Multi-core CPU for parallel chains
+m = bf(platform="cpu", cores=8, rand_seed=42)
+
+# 32-bit precision for memory efficiency
+m = bf(platform="cpu", rand_seed=42, float_precision=32)
 ```
 
 ## R
-``` R
-library(BayesInference)
-m=importBI(platform='cpu')
+
+```r
+library(BayesianInference)
+m = importBI(platform = "cpu", rand_seed = 42)
 ```
-:::
 
-### Arguments:
+## Julia
 
-- *platform:* (str, optional). The hardware platform to use for computation. Options include:
-  
-    - 'cpu': Use CPU(s) for computation
-    - 'gpu': Use GPU(s) for computation
-    - 'tpu': Use TPU(s) for computation
-  
-    Defaults to 'cpu'.
+```julia
+using BayesianInference
+m = importBI(platform = "cpu", rand_seed = 42)
+```
 
-- *cores:* (int, optional). Number of CPU cores to allocate for computation. If None, all available CPU 
-    cores will be used. Only applicable when platform is 'cpu'.
-    
-- *deallocate:* (bool, optional). Whether to deallocate any existing device before setting up a new configuration.
-    Defaults to False.
+---
 
+## Saving and reusing a BI object
 
-### Examples
+After fitting a model, save the complete BI object to disk. This persists the model, data, posteriors, and full sampler state — allowing you to reload and analyze later without re-fitting.
+
+### Save
+
 ```python
-setup_device(platform='cpu')
-
-setup_device(platform='gpu') # Only for BayesInference[gpu]
-
-setup_device(platform='cpu', cores=4) # Specifying CPU cores
+m.save("/path/to/my_model.pkl")
+# Default filename: "{model_name}_bf.pkl" in current directory
 ```
+
+### Load
+
+```python
+m = bf.load("/path/to/my_model.pkl")
+```
+
+Once loaded, you can access:
+
+```python
+m.posteriors        # Posterior samples
+m.posteriors_full   # Full posterior (before any filtering)
+m.summary()         # Posterior summary table
+m.data_on_model     # Data used in the fit
+m.model             # Model function
+m.diag              # Diagnostic tools
+```
+
+### Workflow with save/load
+
+```python
+# --- Session 1: Fit and save ---
+from BayesForge import bf
+m = bf(platform="cpu", rand_seed=42)
+
+def model(x, y):
+    alpha = m.dist.normal(0, 10, name="alpha")
+    beta  = m.dist.normal(0, 1, name="beta")
+    sigma = m.dist.exponential(1, name="sigma")
+    m.dist.normal(alpha + beta * x, sigma, obs=y)
+
+m.fit(model, obs=dict(x=x, y=y))
+m.save("/tmp/linear_regression.pkl")
+
+# --- Session 2: Load and analyze (no re-fit) ---
+from BayesForge import bf
+m = bf.load("/tmp/linear_regression.pkl")
+print(m.summary())
+print(m.posteriors["beta"].mean())
+```
+
+> **Note:** The object is serialized with `cloudpickle`, so the full model closure and sampler state are preserved. The saved `.pkl` file is self-contained and portable.

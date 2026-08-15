@@ -31,12 +31,12 @@ Below is an example of a nested model with both **varying intercepts** and **var
 ::: {.panel-tabset group="language"}
 ## Python (Centered)
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import numpy as np
 
 # Setup device -----------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Load data — column args are mapped automatically from the DataFrame.
 # N_groups and N_regions are dataset-specific; provide them as defaults.
@@ -105,11 +105,11 @@ m.summary()
 
 ## Python (Built-in)
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device -----------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Load data — column args are mapped automatically from the DataFrame.
 # N_groups and N_regions are dataset-specific; provide them as defaults.
@@ -138,11 +138,11 @@ m.summary()
 
 ## Python (Built-in Centered)
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
 # Setup device -----------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Load data — column args are mapped automatically from the DataFrame.
 # N_groups and N_regions are dataset-specific; provide them as defaults.
@@ -169,10 +169,10 @@ m.summary()
 
 ## Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device ------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Load data — column args mapped automatically from the DataFrame.
 # N_groups and N_regions are dataset-specific; provide them as defaults.
@@ -180,7 +180,7 @@ data_path = m.load.sim_nested_effects(only_path=true)
 m.data(data_path)
 
 # Define model ------------------------------------------------
-@BI function model(y, x, group_id, region_id, N_groups=20, N_regions=5)
+@BF function model(y, x, group_id, region_id, N_groups=20, N_regions=5)
     sigma = m.dist.exponential(1, name="sigma")
 
     a_g_est, b_g_est = m.effects.nested_varying_effects(
@@ -202,10 +202,10 @@ m.summary()
 
 ## R
 ```R
-library(BayesianInference)
+library(BayesForge)
 
 # Setup platform ------------------------------------------------
-m = importBI(platform='cpu')
+m = importBF(platform='cpu')
 
 # Load data — column args mapped automatically from the DataFrame.
 # N_groups and N_regions are dataset-specific; provide them as defaults.

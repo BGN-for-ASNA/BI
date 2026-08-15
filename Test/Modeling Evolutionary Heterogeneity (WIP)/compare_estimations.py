@@ -30,16 +30,16 @@ def plot_comparison(orig_path, vec_path, title, out_path):
 
 # Model 1
 plot_comparison(
-    "Model_1_Spatial_Heterogeneity/bi_gamma_post.csv",
-    "Model_1_Spatial_Heterogeneity/bi_gamma_vec_post.csv",
+    "Model_1_Spatial_Heterogeneity/BF_gamma_post.csv",
+    "Model_1_Spatial_Heterogeneity/BF_gamma_vec_post.csv",
     "Model 1: Spatial Heterogeneity (+Gamma) Comparison",
     "comparison_gamma.png"
 )
 
 # Model 2
 plot_comparison(
-    "Model_2_Temporal_Heterogeneity/bi_ucln_post.csv",
-    "Model_2_Temporal_Heterogeneity/bi_ucln_vec_post.csv",
+    "Model_2_Temporal_Heterogeneity/BF_ucln_post.csv",
+    "Model_2_Temporal_Heterogeneity/BF_ucln_vec_post.csv",
     "Model 2: Temporal Heterogeneity (UCLN) Comparison",
     "comparison_ucln.png"
 )

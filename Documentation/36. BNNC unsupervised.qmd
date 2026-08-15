@@ -23,7 +23,7 @@ Rather than sampling discrete cluster assignments via categorical weights direct
 
 ## Example
 
-Below is an example code snippet demonstrating *Unsupervised BNNC* using the Bayesian Inference (**BI**) package to locate hidden clusters from a $K=4$ synthetic target.
+Below is an example code snippet demonstrating *Unsupervised BNNC* using the BayesForge (**BF**) package to locate hidden clusters from a $K=4$ synthetic target.
 
 ### Simulated Data
 
@@ -31,7 +31,7 @@ Below is an example code snippet demonstrating *Unsupervised BNNC* using the Bay
 ## Python (Raw)
 
 ```python
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import jax
 import numpyro
@@ -39,7 +39,7 @@ import jax.scipy.stats as stats
 from sklearn.datasets import make_blobs
 
 # Setup device------------------------------------------------
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Generate Synthetic Data ------------------------------------
 # 4 distinct underlying true clusters
@@ -101,9 +101,9 @@ m.fit(bnn_mixture_model, num_chains=1)
 ## Python (Build in function)
 
 ```{python}
-from BI import bi
+from BayesForge import bf
 from sklearn.datasets import make_blobs
-m = bi()
+m = bf()
 
 # Generate Synthetic Data ------------------------------------
 data, true_labels = make_blobs(

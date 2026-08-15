@@ -32,10 +32,10 @@ def load_csv(path, label):
         return None
 
 print("Loading posterior CSVs...")
-gamma_fixed  = load_csv("Model_1_Spatial_Heterogeneity/bi_gamma_post.csv",     "Model 1 (Fixed)")
-gamma_blmarg = load_csv("Model_3_Spatial_BLMarg/bi_gamma_blmarg_post.csv",     "Model 3 (BLMarg)")
-ucln_fixed   = load_csv("Model_2_Temporal_Heterogeneity/bi_ucln_post.csv",     "Model 2 (Fixed)")
-ucln_blmarg  = load_csv("Model_4_Temporal_BLMarg/bi_ucln_blmarg_post.csv",     "Model 4 (BLMarg)")
+gamma_fixed  = load_csv("Model_1_Spatial_Heterogeneity/BF_gamma_post.csv",     "Model 1 (Fixed)")
+gamma_blmarg = load_csv("Model_3_Spatial_BLMarg/BF_gamma_blmarg_post.csv",     "Model 3 (BLMarg)")
+ucln_fixed   = load_csv("Model_2_Temporal_Heterogeneity/BF_ucln_post.csv",     "Model 2 (Fixed)")
+ucln_blmarg  = load_csv("Model_4_Temporal_BLMarg/BF_ucln_blmarg_post.csv",     "Model 4 (BLMarg)")
 
 # Fall back to dummy data where missing so plots always render
 rng = np.random.default_rng(42)

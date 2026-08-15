@@ -1,13 +1,13 @@
 # %%
 """Regression overlay plot demo — Gaussian and logistic models."""
-from BI import bi
+from BayesForge import bf
 import jax
 import jax.numpy as jnp
 
 # =============================================================================
 # Gaussian model (Howell height ~ weight)
 # =============================================================================
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 data_path = m.load.howell1(only_path=True)
 m.data(data_path, sep=";")
 m.df = m.df[m.df.age > 18]
@@ -30,7 +30,7 @@ fig.show()
 
 # %%
 # --- standalone import ---
-from BI.Diagnostic.regression_plot import plot_regression
+from BayesForge.Diagnostic.regression_plot import plot_regression
 import numpy as np
 
 fig2 = plot_regression(
@@ -51,7 +51,7 @@ x_data = rng.uniform(-3, 3, n_obs)
 true_p = jax.nn.sigmoid(0.5 + 1.2 * x_data)
 y_data = rng.binomial(1, np.asarray(true_p), n_obs).astype(float)
 
-m2 = bi(platform="cpu")
+m2 = bf(platform="cpu")
 
 
 def model_logistic(x, y):

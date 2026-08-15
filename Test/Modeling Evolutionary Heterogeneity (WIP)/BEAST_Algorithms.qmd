@@ -1,7 +1,7 @@
 ---
-title: "Hierarchical Models of Sequence Evolution: Spatial and Temporal Heterogeneity in Bayesian Inference"
-description: "Algorithmic and mathematical foundations of Bayesian phylogenetic inference, covering Felsenstein's pruning algorithm, relaxed molecular clocks, generative tree priors, and MCMC operators—with native BI implementations."
-categories: [Phylogenetics, MCMC, Bayesian Inference, Sequence Evolution]
+title: "Hierarchical Models of Sequence Evolution: Spatial and Temporal Heterogeneity in BayesForge"
+description: "Algorithmic and mathematical foundations of Bayesian phylogenetic inference, covering Felsenstein's pruning algorithm, relaxed molecular clocks, generative tree priors, and MCMC operators—with native BF implementations."
+categories: [Phylogenetics, MCMC, BayesForge, Sequence Evolution]
 order: 99
 reading-time: true
 ---
@@ -17,7 +17,7 @@ The framework integrates three principal generative model components:
 
 2.  **Generative Tree Priors:** rather than uninformative uniform priors on branch lengths, explicitly model the biological process that generated the clade—either a **Birth-Death process** for macroevolutionary species-level trees, or **Kingman's Coalescent** for population-level or epidemiological phylodynamic analyses.
 
-3.  **MCMC Proposal Operators:** Metropolis-Hastings algorithms navigate the discrete, hyper-dimensional space of tree topologies using specialized operators (Subtree Slide, Wilson-Balding, Narrow/Wide Exchange) alongside continuous scale operators for branch rates and times. Within BI, this architecture naturally maps to the framework's core design philosophy of joint posterior sampling via NUTS/HMC over continuous parameters, with the phylogenetic likelihood injected analytically via `numpyro.factor`. The two core models explored here are:
+3.  **MCMC Proposal Operators:** Metropolis-Hastings algorithms navigate the discrete, hyper-dimensional space of tree topologies using specialized operators (Subtree Slide, Wilson-Balding, Narrow/Wide Exchange) alongside continuous scale operators for branch rates and times. Within BF, this architecture naturally maps to the framework's core design philosophy of joint posterior sampling via NUTS/HMC over continuous parameters, with the phylogenetic likelihood injected analytically via `numpyro.factor`. The two core models explored here are:
 
 -   **Model 1 (Spatial Heterogeneity — $+\Gamma$):** Models among-site rate variation (ASRV) using a discrete Gamma distribution over $K$ rate categories, capturing the non-uniform substitution rate across genomic positions.
 
@@ -34,11 +34,11 @@ The models in this chapter operate within **Phase 1** of comparative biology (*P
 ::: {.callout-tip}
 ### HMC vs. Metropolis-Hastings for Phylogenetics
 
-Classical software (BEAST, MrBayes) relies on Metropolis-Hastings MCMC with discrete topological operators because HMC requires continuous, differentiable parameter spaces. Since tree *topologies* are discrete structures, they resist direct gradient-based inference. BI circumvents this by accepting a **fixed tree topology**—typically a maximum-likelihood or consensus tree—and performing NUTS/HMC inference exclusively over the continuous parameters: evolutionary rates, clock parameters, and branch rates. This yields dramatically superior mixing efficiency over continuous parameters while the topology is treated as observed data.
+Classical software (BEAST, MrBayes) relies on Metropolis-Hastings MCMC with discrete topological operators because HMC requires continuous, differentiable parameter spaces. Since tree *topologies* are discrete structures, they resist direct gradient-based inference. BF circumvents this by accepting a **fixed tree topology**—typically a maximum-likelihood or consensus tree—and performing NUTS/HMC inference exclusively over the continuous parameters: evolutionary rates, clock parameters, and branch rates. This yields dramatically superior mixing efficiency over continuous parameters while the topology is treated as observed data.
 :::
 ::: {.callout-warning}
 ### The Epistemological Trade-off
-Fixed vs. Joint TopologiesBy treating the topology as observed data, the inferential target fundamentally shifts. Rather than estimating the joint posterior $P(\theta, \mathcal{T} \mid D)$ as BEAST does, BI estimates the conditional posterior $P(\theta \mid D, \mathcal{T}_{\text{fixed}})$. While computationally brilliant, this imposes a strict "zero uncertainty" assumption on the evolutionary history. This can lead to statistical overconfidence (artificially narrow credible intervals) and parameter warping. A detailed mathematical breakdown of these limitations and mitigation strategies is provided in the Notes section.
+Fixed vs. Joint TopologiesBy treating the topology as observed data, the inferential target fundamentally shifts. Rather than estimating the joint posterior $P(\theta, \mathcal{T} \mid D)$ as BEAST does, BF estimates the conditional posterior $P(\theta \mid D, \mathcal{T}_{\text{fixed}})$. While computationally brilliant, this imposes a strict "zero uncertainty" assumption on the evolutionary history. This can lead to statistical overconfidence (artificially narrow credible intervals) and parameter warping. A detailed mathematical breakdown of these limitations and mitigation strategies is provided in the Notes section.
 :::
 
 ::: {.callout-note}
@@ -64,10 +64,10 @@ import jax.numpy as jnp
 import numpyro
 import numpy as np
 import pandas as pd
-from BI import bi
+from BayesForge import BayesForge
 from tree_data import get_tree_data
 
-m = bi(platform='cpu')
+m = BF(platform='cpu')
 
 # Load real primate mtDNA tip partial likelihoods: shape (N_taxa, L_sites, 4)
 leaf_likelihoods = jnp.load("primate_data.npy")[:, :100, :]
@@ -146,9 +146,9 @@ m.fit(model, num_samples=500, num_warmup=500)
 ## R
 
 ``` r
-library(BayesianInference)
+library(BayesForge)
 library(reticulate)  # for JAX access via R bindings
-m <- importBI(platform = "cpu")
+m <- importBF(platform = "cpu")
 
 # Vectorized HKY rate matrix
 .IS_TRANSITION <- matrix(c(0,0,1,0, 0,0,0,1, 1,0,0,0, 0,1,0,0), nrow=4, byrow=TRUE)
@@ -170,8 +170,8 @@ discrete_gamma_rates <- function(alpha, K = 4) {
 }
 
 model <- function(left, right, bl, leaf_liks) {
-    kappa <- bi.dist.half_normal(10.0, name = "kappa")
-    alpha <- bi.dist.half_normal(5.0, name = "alpha")
+    kappa <- BF.dist.half_normal(10.0, name = "kappa")
+    alpha <- BF.dist.half_normal(5.0, name = "alpha")
     pi    <- c(0.3, 0.2, 0.1, 0.4)
     Q     <- get_hky_Q(kappa, pi)
     rates <- discrete_gamma_rates(alpha, K = 4)
@@ -183,7 +183,7 @@ model <- function(left, right, bl, leaf_liks) {
         compute_felsenstein_lik(Q, bl * r, left, right, leaf_liks, pi)
     })
     log_lik <- sum(log(pmax(rowMeans(site_liks_by_rate), 1e-30)))
-    bi.factor("phylo_lik", log_lik)
+    BF.factor("phylo_lik", log_lik)
 }
 
 m$fit(model, num_samples = 500L, num_warmup = 500L)
@@ -192,10 +192,10 @@ m$fit(model, num_samples = 500L, num_warmup = 500L)
 ## Julia
 
 ``` julia
-using BayesianInference
+using BayesForge
 using LinearAlgebra
 
-m = importBI(platform = "cpu")
+m = importBF(platform = "cpu")
 
 # Vectorized HKY rate matrix
 const _IS_TRANSITION = Float32[0 0 1 0; 0 0 0 1; 1 0 0 0; 0 1 0 0]
@@ -214,7 +214,7 @@ function discrete_gamma_rates(alpha; K=4)
     max.(K .* diff([0.0; cdf_int; 1.0]), 1e-6)
 end
 
-@BI function model(left, right, bl, leaf_liks)
+@BF function model(left, right, bl, leaf_liks)
     kappa = m.dist.half_normal(10.0, name = "kappa")
     alpha = m.dist.half_normal(5.0, name = "alpha")
     pi_f  = [0.3, 0.2, 0.1, 0.4]
@@ -281,10 +281,10 @@ import jax.numpy as jnp
 import numpyro
 import numpy as np
 import pandas as pd
-from BI import bi
+from BayesForge import BayesForge
 from tree_data import get_tree_data
 
-m = bi(platform='cpu')
+m = BF(platform='cpu')
 
 leaf_likelihoods = jnp.load("primate_data.npy")[:, :100, :]
 N_taxa, L, _ = leaf_likelihoods.shape
@@ -368,20 +368,20 @@ m.fit(model, num_samples=500, num_warmup=500)
 ## R
 
 ``` r
-library(BayesianInference)
-m <- importBI(platform = "cpu")
+library(BayesForge)
+m <- importBF(platform = "cpu")
 
 model <- function(left, right, bl, leaf_liks) {
     # Substitution parameters
-    kappa   <- bi.dist.half_normal(10.0, name = "kappa")
-    alpha   <- bi.dist.half_normal(5.0,  name = "alpha")
+    kappa   <- BF.dist.half_normal(10.0, name = "kappa")
+    alpha   <- BF.dist.half_normal(5.0,  name = "alpha")
     pi_f    <- c(0.3, 0.2, 0.1, 0.4)
     Q       <- get_hky_Q(kappa, pi_f)
 
     # UCLN relaxed clock (non-centered)
-    mu_c    <- bi.dist.normal(0.0, 1.0, name = "mu_c")
-    sigma_c <- bi.dist.half_normal(1.0,  name = "sigma_c")
-    z_c     <- bi.dist.normal(rep(0.0, N_nodes), 1.0, name = "z_c")
+    mu_c    <- BF.dist.normal(0.0, 1.0, name = "mu_c")
+    sigma_c <- BF.dist.half_normal(1.0,  name = "sigma_c")
+    z_c     <- BF.dist.normal(rep(0.0, N_nodes), 1.0, name = "z_c")
     branch_rates <- exp(mu_c + sigma_c * z_c)
 
     # Effective branch distances
@@ -392,7 +392,7 @@ model <- function(left, right, bl, leaf_liks) {
     site_liks_by_rate <- sapply(rates, function(r)
         compute_felsenstein_lik(Q, eff_bl * r, left, right, leaf_liks, pi_f))
     log_lik <- sum(log(pmax(rowMeans(site_liks_by_rate), 1e-30)))
-    bi.factor("phylo_lik", log_lik)
+    BF.factor("phylo_lik", log_lik)
 }
 
 m$fit(model, num_samples = 500L, num_warmup = 500L)
@@ -401,10 +401,10 @@ m$fit(model, num_samples = 500L, num_warmup = 500L)
 ## Julia
 
 ``` julia
-using BayesianInference
-m = importBI(platform = "cpu")
+using BayesForge
+m = importBF(platform = "cpu")
 
-@BI function model(left, right, bl, leaf_liks)
+@BF function model(left, right, bl, leaf_liks)
     kappa   = m.dist.half_normal(10.0, name = "kappa")
     alpha   = m.dist.half_normal(5.0,  name = "alpha")
     pi_f    = [0.3, 0.2, 0.1, 0.4]
@@ -533,15 +533,15 @@ While this approach perfectly marginalizes over **geometric uncertainty** (durat
 
 ::: callout-note
 
-### Architectural Equivalence: BI vs. BEAST
+### Architectural Equivalence: BF vs. BEAST
 
-The BI implementations developed in this chapter are architecturally equivalent to BEAST's continuous-parameter inference component, with key differences reflecting BI's HMC/NUTS-based design:
+The BF implementations developed in this chapter are architecturally equivalent to BEAST's continuous-parameter inference component, with key differences reflecting BF's HMC/NUTS-based design:
 
 **1. Non-Centered Parameterizations:** The UCLN model employs a non-centered reparameterization ($c_j = \exp(\mu_c + \sigma_c z_{c,j})$, with $z_{c,j} \sim \text{Normal}(0,1)$ as the sampled variable). This is essential for efficient NUTS sampling: the centered parameterization directly creates severe funnel-shaped posterior geometry that degrades HMC step acceptance rates.
 
 **2. Vectorized Pruning via** `jax.lax.fori_loop`**:** The Felsenstein post-order traversal is implemented using `jax.lax.fori_loop`, which preserves JAX's JIT-compilation while respecting the sequential data dependency of the node-update recursion. The outer loop over Gamma rate categories uses `jax.vmap` for full vectorization and GPU-accelerability.
 
-**3. The Likelihood Injection Pattern:** Because the phylogenetic likelihood is not a standard distributional form, it is manually computed and injected into the BI/NumPyro probabilistic program via `numpyro.factor("phylo_lik", log_lik)`. This pattern is general and supports any analytically computable log-likelihood contribution.
+**3. The Likelihood Injection Pattern:** Because the phylogenetic likelihood is not a standard distributional form, it is manually computed and injected into the BF/NumPyro probabilistic program via `numpyro.factor("phylo_lik", log_lik)`. This pattern is general and supports any analytically computable log-likelihood contribution.
 :::
 
 ::: callout-warning
@@ -560,7 +560,7 @@ If the fixed topology contains structural errors (e.g., forcing a false sister-t
 To harness the efficiency of NUTS while mitigating these biases, researchers can adopt a multiple-imputation-style strategy. Rather than running the HMC sampler on a single Maximum Likelihood tree, one can:
 
 1.  Generate a posterior distribution of trees (or 100 non-parametric bootstrap trees) using standard heuristic software (e.g., IQ-TREE).
-2.  Run the BI HMC model independently across a random sample of these fixed trees.
+2.  Run the BF HMC model independently across a random sample of these fixed trees.
 3.  Pool the resulting posterior draws of the continuous parameters. This recovers the marginal variance lost by fixing a single topology, approximating the true joint posterior $P(\theta \mid D)$.
     :::
 
@@ -574,7 +574,7 @@ The primary limitation of HMC/NUTS for phylogenetics is the non-differentiabilit
   - **Continuous relaxations:** Parameterizing discrete tree structures via latent continuous variables (e.g., differentiable sorting networks).
   - **Variational approaches:** Using normalizing flows with learned proposal distributions to efficiently explore tree posterior distributions without gradient computation.
 
-These frontiers position BI's GPU-accelerated HMC engine as a compelling platform for next-generation phylogenetic samplers.
+These frontiers position BF's GPU-accelerated HMC engine as a compelling platform for next-generation phylogenetic samplers.
 :::
 
 ::: callout-tip

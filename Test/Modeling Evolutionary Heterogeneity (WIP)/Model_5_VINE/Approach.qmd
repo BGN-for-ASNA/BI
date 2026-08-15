@@ -68,7 +68,7 @@ Without strict fossil calibrations or highly specialized geometric regularizatio
 ### The Verdict for Your Software
 Yes, you can combine them. It is the logical endpoint of the architecture you are building. 
 
-However, if you do so, you must engineer a way to apply **Node Calibrations (fossil priors)** dynamically to a topology that is changing during the SVI training loop. This is the exact frontier that the creators of Variational Phylogenetic Inference are actively researching right now. If you solve this in BI, you are not just writing a software package—you are publishing a major methodological breakthrough.
+However, if you do so, you must engineer a way to apply **Node Calibrations (fossil priors)** dynamically to a topology that is changing during the SVI training loop. This is the exact frontier that the creators of Variational Phylogenetic Inference are actively researching right now. If you solve this in BF, you are not just writing a software package—you are publishing a major methodological breakthrough.
 
 Applying Node Calibrations (fossil priors) in a fully differentiable Variational Inference (VI) architecture like VINE or VBPI is one of the most mathematically treacherous challenges in modern phylogenetics. 
 
@@ -167,4 +167,4 @@ monophyly_violation = jnp.maximum(0.0, jnp.max(clade_distances) - jnp.min(cross_
 numpyro.factor("monophyly_constraint", -100.0 * monophyly_violation)
 ```
 
-By combining continuous MRCA approximation with gradient-based ELBO penalties, you completely bypass the discrete topology limitations, allowing your BI framework to date nodes and resolve relaxed clocks at deep-learning speeds.
+By combining continuous MRCA approximation with gradient-based ELBO penalties, you completely bypass the discrete topology limitations, allowing your BF framework to date nodes and resolve relaxed clocks at deep-learning speeds.

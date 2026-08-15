@@ -7,18 +7,19 @@ import jax.numpy as jnp
 from cmdstanpy import CmdStanModel
 import matplotlib.pyplot as plt
 import arviz as az
+from scipy.stats import gaussian_kde
 
-# Add BI to path
+# Add BF to path
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..")))
-from BI import bi
+from BayesForge import bf
 
 def main():
     # 1. Load Data
     with open('stan_data.json', 'r') as f:
         data = json.load(f)
     
-    # Convert data for BI (BI expects jnp arrays)
-    bi_data = {
+    # Convert data for BF (BF expects jnp arrays)
+    BF_data = {
         'N': data['N'],
         'M': data['M'],
         'J': data['J'],
@@ -40,11 +41,11 @@ def main():
     L_stan_means = [stan_summary.loc[f'L[{i+1}]', 'Mean'] for i in range(data['M'])]
     p_stan_means = [stan_summary.loc[f'p[{i+1}]', 'Mean'] for i in range(data['M'])]
 
-    # 3. Run BI
-    print("Running BI model...", flush=True)
-    m = bi('cpu')
+    # 3. Run BF
+    print("Running BF model...", flush=True)
+    m = bf('cpu')
     
-    def bi_model(**d):
+    def BF_model(**d):
         # L: rates of each token (shape M)
         L = m.dist.exponential(1.0, shape=(d['M'],), name='L')
         # p: population probabilities of each token (shape M)
@@ -56,18 +57,18 @@ def main():
         # Obs Y is (J, M)
         m.dist.zero_inflated_poisson(gate=gate, rate=rate, obs=d['Y'], name='Y')
 
-    m.fit(bi_model, obs=bi_data, num_samples=1000, num_warmup=1000, num_chains=2, seed=42)
-    bi_summary = m.summary()
+    m.fit(BF_model, obs=BF_data, num_samples=1000, num_warmup=1000, num_chains=2, seed=42)
+    BF_summary = m.summary()
 
-    # Extract BI estimates
-    # L and p in BI summary might be arrays (L[0], L[1]...)
-    L_bi_means = [bi_summary.loc[f'L[{i}]', 'mean'] for i in range(data['M'])]
-    p_bi_means = [bi_summary.loc[f'p[{i}]', 'mean'] for i in range(data['M'])]
+    # Extract BF estimates
+    # L and p in BF summary might be arrays (L[0], L[1]...)
+    L_bi_means = [BF_summary.loc[f'L[{i}]', 'mean'] for i in range(data['M'])]
+    p_bi_means = [BF_summary.loc[f'p[{i}]', 'mean'] for i in range(data['M'])]
 
     # 4. Save results to log.txt
     print("Generating log.txt...")
     with open('log.txt', 'w') as f:
-        f.write("Parameter | Stan Mean | BI Mean | Difference\n")
+        f.write("Parameter | Stan Mean | BF Mean | Difference\n")
         f.write("-" * 50 + "\n")
         
         diff_L = []
@@ -89,22 +90,24 @@ def main():
     
     # Extract samples for plotting
     stan_post = fit_stan.draws_pd()
-    bi_post = m.posteriors
+    BF_post = m.posteriors
 
     for i in range(4):
         # L
-        stan_l = stan_post[f'L[{i+1}]']
-        bi_l = bi_post['L'][:, i]
-        az.plot_dist(stan_l, ax=axes[0, i], label='Stan', color='blue')
-        az.plot_dist(bi_l, ax=axes[0, i], label='BI', color='orange')
+        stan_l = np.array(stan_post[f'L[{i+1}]']).flatten()
+        BF_l = np.array(BF_post['L'][:, i]).flatten()
+        for arr, label, color in [(stan_l, 'Stan', 'blue'), (BF_l, 'BF', 'orange')]:
+            xs = np.linspace(arr.min(), arr.max(), 300)
+            axes[0, i].plot(xs, gaussian_kde(arr)(xs), label=label, color=color)
         axes[0, i].set_title(f'Density Comparison: L[{i}]')
         axes[0, i].legend()
 
         # p
-        stan_p = stan_post[f'p[{i+1}]']
-        bi_p = bi_post['p'][:, i]
-        az.plot_dist(stan_p, ax=axes[1, i], label='Stan', color='blue')
-        az.plot_dist(bi_p, ax=axes[1, i], label='BI', color='orange')
+        stan_p = np.array(stan_post[f'p[{i+1}]']).flatten()
+        BF_p = np.array(BF_post['p'][:, i]).flatten()
+        for arr, label, color in [(stan_p, 'Stan', 'blue'), (BF_p, 'BF', 'orange')]:
+            xs = np.linspace(arr.min(), arr.max(), 300)
+            axes[1, i].plot(xs, gaussian_kde(arr)(xs), label=label, color=color)
         axes[1, i].set_title(f'Density Comparison: p[{i}]')
         axes[1, i].legend()
 

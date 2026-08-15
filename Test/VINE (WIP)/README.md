@@ -5,7 +5,7 @@ Scalable, fully differentiable, GPU-accelerated Bayesian phylogenetic inference.
 ## Architecture
 
 ```
-bi_phylogenetics/
+BF_phylogenetics/
 ├── pyproject.toml
 ├── README.md
 └── src/

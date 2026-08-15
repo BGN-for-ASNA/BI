@@ -1,7 +1,27 @@
 Comparison Table for 9.Beta binomial
 ============================================================
-Parameter BI Mean Stan Mean   Diff KL Div
-      phi  2.1838    2.1786 0.0052 0.0494
- alpha[0] -0.4825   -0.4865 0.0040 0.0497
- alpha[1] -0.3553   -0.3611 0.0058 0.0710
+Parameter BF Mean Stan Mean    Diff KL Div
+ alpha[0] -0.4893   -0.4758 -0.0134 0.0712
+ alpha[1] -0.3598   -0.3589 -0.0010 0.0406
+      phi  2.1775    2.1844 -0.0070 0.0416
 ============================================================
+
+================================================================
+WAIC cross-check  -  9.Beta binomial
+================================================================
+[A] NumPyro direct (numpyro.infer.log_likelihood)
+      elpd_waic = -69.471248    p_waic = 2.957215
+[B] ArviZ round-trip (az.from_numpyro log_likelihood group)
+      elpd_waic = -69.471248    p_waic = 2.957215
+|delta elpd_waic| = 0.000e+00      |delta p_waic| = 0.000e+00
+RESULT: PASS   (S=4000, N=12)
+----------------------------------------------------------------
+LOO cross-check  -  9.Beta binomial
+----------------------------------------------------------------
+[A'] BF native JAX PSIS-LOO (jax_diagnostics.loo)
+      elpd_loo  = -69.696353    p_loo  = 3.182320
+[B'] ArviZ az.loo (PSIS-LOO) on the same log-likelihood
+      elpd_loo  = -69.695668    p_loo  = 3.181635
+|delta elpd_loo| = 6.852e-04      |delta p_loo| = 6.852e-04
+RESULT: PASS
+================================================================

@@ -15,7 +15,7 @@ Building upon the hierarchical frameworks introduced in [Varying intercepts](15.
 
 In these architectures, species identity is specified as a structured varying effect—conceptually analogous to subject-level effects in longitudinal designs. However, rather than assuming independent intercepts, we parameterize the variance-covariance structure of this effect using a *phylogenetic variance-covariance* (VCV) matrix derived from the tree topology. This parameterization enables a precise partitioning of variance among the phylogenetic signal, fixed environmental or biological covariates, and residual (non-phylogenetic) variation.
 
-In this chapter, we delineate the implementation of several foundational phylogenetic models within BI:
+In this chapter, we delineate the implementation of several foundational phylogenetic models within BF:
 
 1.  **Simple Phylogenetic Model**: A Gaussian response model for continuous traits, integrating a phylogenetic VCV matrix to model the correlated error structure among taxa.
    
@@ -40,10 +40,10 @@ To optimize computational efficiency during sampling, we utilize the Cholesky de
 ## Python
 
 ```{python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 
-m = bi(platform='cpu')
+m = bf(platform='cpu')
 
 # Load and prepare data
 df = m.load.phylo_simple()
@@ -85,27 +85,27 @@ m.fit(model)
 ## R
 
 ``` r
-library(BayesianInference)
-m <- importBI(platform="cpu")
+library(BayesForge)
+m <- importBF(platform="cpu")
 
 model <- function(y, x, phylo_idx, L) {
     # Priors
-    intercept <- bi.dist.normal(0, 50, name = "intercept")
-    b_x <- bi.dist.normal(0, 10, name = "b_x")
+    intercept <- bf.dist.normal(0, 50, name = "intercept")
+    b_x <- bf.dist.normal(0, 10, name = "b_x")
     
-    sd_phylo <- bi.dist.half_normal(20, name = "sd_phylo")
-    sigma <- bi.dist.half_normal(20, name = "sigma")
+    sd_phylo <- bf.dist.half_normal(20, name = "sd_phylo")
+    sigma <- bf.dist.half_normal(20, name = "sigma")
 
     # Phylogenetic effects
     num_species <- dim(L)[1]
-    z_phylo <- bi.dist.normal(rep(0, num_species), 1.0, name = "z_phylo")
+    z_phylo <- bf.dist.normal(rep(0, num_species), 1.0, name = "z_phylo")
     u_phylo <- (L %*% z_phylo) * sd_phylo
 
     # Linear predictor
     mu <- intercept + b_x * x + u_phylo[phylo_idx]
     
     # Likelihood
-    bi.dist.normal(mu, sigma, name = "obs", obs = y)
+    bf.dist.normal(mu, sigma, name = "obs", obs = y)
 }
 
 m$fit(model)
@@ -114,10 +114,10 @@ m$fit(model)
 ## Julia
 
 ``` julia
-using BayesianInference
-m = importBI(platform="cpu")
+using BayesForge
+m = importBF(platform="cpu")
 
-@BI function model(y, x, phylo_idx, L):
+@BF function model(y, x, phylo_idx, L):
     # Priors
     intercept = m.dist.normal(0, 50, name = "intercept")
     b_x = m.dist.normal(0, 10, name = "b_x")
@@ -224,28 +224,28 @@ m.fit(model)
 
 ``` r
 model <- function(y, x, phylo_idx, obs_idx, L) {
-    intercept <- bi.dist.normal(0, 5, name = "intercept")
-    b_x <- bi.dist.normal(0, 2, name = "b_x")
+    intercept <- bf.dist.normal(0, 5, name = "intercept")
+    b_x <- bf.dist.normal(0, 2, name = "b_x")
     
-    sd_phylo <- bi.dist.half_normal(1, name = "sd_phylo")
-    sd_obs <- bi.dist.half_normal(1, name = "sd_obs")
+    sd_phylo <- bf.dist.half_normal(1, name = "sd_phylo")
+    sd_obs <- bf.dist.half_normal(1, name = "sd_obs")
 
     num_species <- dim(L)[1]
-    z_p <- bi.dist.normal(rep(0, num_species), 1, name = "z_p")
+    z_p <- bf.dist.normal(rep(0, num_species), 1, name = "z_p")
     u_p <- (L %*% z_p) * sd_phylo
     
-    z_o <- bi.dist.normal(rep(0, length(y)), 1, name = "z_o")
+    z_o <- bf.dist.normal(rep(0, length(y)), 1, name = "z_o")
     u_o <- z_o * sd_obs
 
     mu <- intercept + b_x * x + u_p[phylo_idx] + u_o[obs_idx]
-    bi.dist.poisson(exp(mu), name = "obs", obs = y)
+    bf.dist.poisson(exp(mu), name = "obs", obs = y)
 }
 ```
 
 ## Julia
 
 ``` julia
-@BI function model(y, x, phylo_idx, obs_idx, L):
+@BF function model(y, x, phylo_idx, obs_idx, L):
     intercept = m.dist.normal(0, 5, name = "intercept")
     b_x = m.dist.normal(0, 2, name = "b_x")
     
@@ -354,26 +354,26 @@ m.fit(model)
 
 ``` r
 model <- function(y, x, phylo_idx, species_idx, L) {
-    intercept <- bi.dist.normal(0, 50, name = "Intercept")
-    b_x <- bi.dist.normal(0, 10, name = "b_x")
+    intercept <- bf.dist.normal(0, 50, name = "Intercept")
+    b_x <- bf.dist.normal(0, 10, name = "b_x")
 
-    sd_p <- bi.dist.half_normal(20, name = "sd_p")
-    sd_s <- bi.dist.half_normal(20, name = "sd_s")
-    sigma <- bi.dist.half_normal(20, name = "sigma")
+    sd_p <- bf.dist.half_normal(20, name = "sd_p")
+    sd_s <- bf.dist.half_normal(20, name = "sd_s")
+    sigma <- bf.dist.half_normal(20, name = "sigma")
 
     num_sp <- dim(L)[1]
-    u_p <- (L %*% bi.dist.normal(rep(0, num_sp), 1, name="z_p")) * sd_p
-    u_s <- bi.dist.normal(rep(0, num_sp), 1, name="z_s") * sd_s
+    u_p <- (L %*% bf.dist.normal(rep(0, num_sp), 1, name="z_p")) * sd_p
+    u_s <- bf.dist.normal(rep(0, num_sp), 1, name="z_s") * sd_s
 
     mu <- intercept + b_x * x + u_p[phylo_idx] + u_s[species_idx]
-    bi.dist.normal(mu, sigma, obs = y)
+    bf.dist.normal(mu, sigma, obs = y)
 }
 ```
 
 ## Julia
 
 ``` julia
-@BI function model(y, x, phylo_idx, species_idx, L):
+@BF function model(y, x, phylo_idx, species_idx, L):
     intercept = m.dist.normal(0, 50, name = "Intercept")
     b_x = m.dist.normal(0, 10, name = "b_x")
 
@@ -424,7 +424,7 @@ Where:
 
 ::: {.callout-tip}
 ### Hierarchical Parameterization & Covariance
-Technically, a [Nested Varying effect](17.%20Nested%20varying%20effects.qmd) structure can be readily implemented within BI. This hierarchical parameterization is particularly effective for modeling complex covariance structures across multiple tiers of evolutionary divergence (e.g., distinct populations or clades nested within focal species). By explicitly mapping these sub-specific strata, the model provides a more nuanced and biologically realistic partitioning of phenotypic variance compared to a standard additive formulation.
+Technically, a [Nested Varying effect](17.%20Nested%20varying%20effects.qmd) structure can be readily implemented within BF. This hierarchical parameterization is particularly effective for modeling complex covariance structures across multiple tiers of evolutionary divergence (e.g., distinct populations or clades nested within focal species). By explicitly mapping these sub-specific strata, the model provides a more nuanced and biologically realistic partitioning of phenotypic variance compared to a standard additive formulation.
 :::
 
 ## Example 4: Phylogenetic Meta-Analysis
@@ -477,22 +477,22 @@ m.fit(model)
 
 ``` r
 model <- function(y, se, phylo_idx, obs_idx, L) {
-    intercept <- bi.dist.normal(0, 10, name = "Intercept")
-    sd_o <- bi.dist.half_normal(10, name = "sd_o")
-    sd_p <- bi.dist.half_normal(10, name = "sd_p")
+    intercept <- bf.dist.normal(0, 10, name = "Intercept")
+    sd_o <- bf.dist.half_normal(10, name = "sd_o")
+    sd_p <- bf.dist.half_normal(10, name = "sd_p")
 
-    u_p <- (L %*% bi.dist.normal(rep(0, dim(L)[1]), 1, name="z_p")) * sd_p
-    u_o <- bi.dist.normal(rep(0, length(y)), 1, name="z_o") * sd_o
+    u_p <- (L %*% bf.dist.normal(rep(0, dim(L)[1]), 1, name="z_p")) * sd_p
+    u_o <- bf.dist.normal(rep(0, length(y)), 1, name="z_o") * sd_o
 
     mu <- intercept + u_p[phylo_idx] + u_o[obs_idx]
-    bi.dist.normal(mu, se, obs = y)
+    bf.dist.normal(mu, se, obs = y)
 }
 ```
 
 ## Julia
 
 ``` julia
-@BI function model(y, se, phylo_idx, obs_idx, L):
+@BF function model(y, se, phylo_idx, obs_idx, L):
     intercept = m.dist.normal(0, 10, name = "Intercept")
     sd_o = m.dist.half_normal(10, name = "sd_o")
     sd_p = m.dist.half_normal(10, name = "sd_p")
@@ -589,32 +589,32 @@ m.fit(model)
 
 ``` r
 model <- function(y, x, phylo_idx, L_A) {
-    intercept <- bi.dist.normal(0, 10, name = "Intercept")
-    b_x <- bi.dist.normal(0, 10, name = "b_x")
-    sigma <- bi.dist.half_normal(5, name = "sigma")
+    intercept <- bf.dist.normal(0, 10, name = "Intercept")
+    b_x <- bf.dist.normal(0, 10, name = "b_x")
+    sigma <- bf.dist.half_normal(5, name = "sigma")
 
-    sd_a <- bi.dist.half_normal(10, name = "sd_a")
-    sd_b <- bi.dist.half_normal(10, name = "sd_b")
-    L_corr <- bi.dist.lkj_cholesky(2, 2.0, name = "L_corr")
+    sd_a <- bf.dist.half_normal(10, name = "sd_a")
+    sd_b <- bf.dist.half_normal(10, name = "sd_b")
+    L_corr <- bf.dist.lkj_cholesky(2, 2.0, name = "L_corr")
     
     L_sigma <- diag(c(sd_a, sd_b)) %*% L_corr
     
     num_sp <- dim(L_A)[1]
-    z <- bi.dist.normal(matrix(0, num_sp, 2), 1, name = "z")
+    z <- bf.dist.normal(matrix(0, num_sp, 2), 1, name = "z")
     U <- (L_A %*% z) %*% t(L_sigma)
     
     u_a <- U[, 1]
     u_b <- U[, 2]
     
     mu <- intercept + u_a[phylo_idx] + (b_x + u_b[phylo_idx]) * x
-    bi.dist.normal(mu, sigma, name = "obs", obs = y)
+    bf.dist.normal(mu, sigma, name = "obs", obs = y)
 }
 ```
 
 ## Julia
 
 ``` julia
-@BI function model(y, x, phylo_idx, L_A):
+@BF function model(y, x, phylo_idx, L_A):
     intercept = m.dist.normal(0, 10, name = "Intercept")
     b_x = m.dist.normal(0, 10, name = "b_x")
     sigma = m.dist.half_normal(5, name = "sigma")

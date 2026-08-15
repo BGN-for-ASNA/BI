@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="description" content="Modeling hierarchical data with multiple levels of nesting (e.g., individuals within groups within regions).">
 
-<title>🚧Nested Varying Effects – Bayesian Inference (BI)</title>
+<title>🚧Nested Varying Effects – BayesForge (BF)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -72,12 +72,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-6a8f47518b915c51477edcf8788f90ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-294eff73d59fba645e10c6e6b482604a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -225,7 +225,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Bayesian Inference (BI)</span>
+    <span class="navbar-title">BayesForge (BF)</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -252,12 +252,12 @@ window.Quarto = {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-help">    
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/issues"><i class="bi bi-bug" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/issues"><i class="bi bi-bug" role="img">
 </i> 
  <span class="dropdown-text">Report a Bug</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/discussions"><i class="bi bi-chat-dots" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/discussions"><i class="bi bi-chat-dots" role="img">
 </i> 
  <span class="dropdown-text">Ask a Question</span></a>
   </li>  
@@ -267,7 +267,7 @@ window.Quarto = {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools tools-wide">
     <a href="https://twitter.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
-    <a href="https://github.com/BGN-for-ASNA/BI" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+    <a href="https://github.com/BGN-for-ASNA/BF" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
@@ -301,7 +301,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./0.Introduction.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Bayesian analysis with BI</span></a>
+ <span class="menu-text">Bayesian analysis with BF</span></a>
   </div>
 </li>
       </ul>
@@ -693,15 +693,15 @@ Note
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python (Centered)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Non-Centered)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Python (Built-in)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Python (Built-in Centered)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-5" role="tab" aria-controls="tabset-1-5" aria-selected="false">Julia</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-6-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-6" role="tab" aria-controls="tabset-1-6" aria-selected="false">R</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="12b42510" class="cell" data-execution_count="1">
+<div id="1bbb86ad" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device -----------------------------------------------</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data — column args are mapped automatically from the DataFrame.</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># N_groups and N_regions are dataset-specific; provide them as defaults.</span></span>
@@ -739,22 +739,27 @@ Note
 <span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/sosa/.local/lib/python3.10/site-packages/jax/_src/ops/scatter.py:108: FutureWarning:
+<pre><code>/home/sosa/work/3.12venv/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning:
 
-scatter inputs have incompatible types: cannot safely cast value from dtype=int64 to dtype=int32 with jax_numpy_dtype_promotion='standard'. In future JAX releases this will result in an error.
+IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>jax.local_device_count 32</code></pre>
+<pre><code>bf v 0.0.48 package loaded
+jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1500 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1500 [00:01&lt;36:37,  1.47s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   7%|▋         | 106/1500 [00:01&lt;00:14, 93.78it/s, 31 steps of size 3.49e-01. acc. prob=0.77]warmup:  15%|█▍        | 221/1500 [00:01&lt;00:06, 212.50it/s, 31 steps of size 2.65e-01. acc. prob=0.78]warmup:  23%|██▎       | 346/1500 [00:01&lt;00:03, 355.83it/s, 15 steps of size 5.91e-01. acc. prob=0.78]warmup:  33%|███▎      | 490/1500 [00:01&lt;00:01, 534.16it/s, 7 steps of size 1.21e-01. acc. prob=0.78] sample:  42%|████▏     | 631/1500 [00:01&lt;00:01, 700.43it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  51%|█████     | 765/1500 [00:02&lt;00:00, 836.79it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  60%|██████    | 900/1500 [00:02&lt;00:00, 956.54it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  69%|██████▊   | 1030/1500 [00:02&lt;00:00, 1036.58it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  77%|███████▋  | 1159/1500 [00:02&lt;00:00, 1102.94it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  86%|████████▌ | 1288/1500 [00:02&lt;00:00, 1115.03it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  94%|█████████▍| 1413/1500 [00:02&lt;00:00, 1142.00it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample: 100%|██████████| 1500/1500 [00:02&lt;00:00, 564.47it/s, 15 steps of size 2.64e-01. acc. prob=0.92] 
-/home/sosa/work/BI/BI/Diagnostic/jax_diagnostics.py:214: RuntimeWarning:
+<pre><code>/home/sosa/work/3.12venv/lib/python3.10/site-packages/jax/_src/ops/scatter.py:108: FutureWarning:
+
+scatter inputs have incompatible types: cannot safely cast value from dtype=int64 to dtype=int32 with jax_numpy_dtype_promotion='standard'. In future JAX releases this will result in an error.
+
+  0%|          | 0/1500 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1500 [00:01&lt;44:49,  1.79s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   6%|▌         | 86/1500 [00:01&lt;00:22, 63.14it/s, 31 steps of size 2.88e-02. acc. prob=0.76]warmup:  11%|█▏        | 169/1500 [00:01&lt;00:09, 136.10it/s, 15 steps of size 3.97e-01. acc. prob=0.78]warmup:  19%|█▊        | 281/1500 [00:02&lt;00:04, 253.80it/s, 7 steps of size 2.81e-01. acc. prob=0.78] warmup:  27%|██▋       | 405/1500 [00:02&lt;00:02, 397.30it/s, 31 steps of size 1.89e-01. acc. prob=0.78]sample:  35%|███▌      | 528/1500 [00:02&lt;00:01, 540.34it/s, 15 steps of size 2.64e-01. acc. prob=0.89]sample:  44%|████▎     | 653/1500 [00:02&lt;00:01, 680.28it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  52%|█████▏    | 785/1500 [00:02&lt;00:00, 820.88it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  61%|██████    | 910/1500 [00:02&lt;00:00, 923.09it/s, 15 steps of size 2.64e-01. acc. prob=0.91]sample:  70%|██████▉   | 1046/1500 [00:02&lt;00:00, 1032.28it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  78%|███████▊  | 1171/1500 [00:02&lt;00:00, 1087.30it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  87%|████████▋ | 1305/1500 [00:02&lt;00:00, 1156.08it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample:  96%|█████████▌| 1433/1500 [00:03&lt;00:00, 1180.11it/s, 15 steps of size 2.64e-01. acc. prob=0.92]sample: 100%|██████████| 1500/1500 [00:03&lt;00:00, 490.04it/s, 15 steps of size 2.64e-01. acc. prob=0.92] 
+/home/sosa/work/BF/BayesForge/Diagnostic/jax_diagnostics.py:214: RuntimeWarning:
 
 invalid value encountered in scalar divide
 </code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 
 
@@ -915,7 +920,7 @@ invalid value encountered in scalar divide
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div id="703974fa" class="cell" data-execution_count="2">
+<div id="9665cccd" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data and m object carry over from the Centered tab above.</span></span>
@@ -945,17 +950,17 @@ invalid value encountered in scalar divide
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/sosa/.local/lib/python3.10/site-packages/jax/_src/ops/scatter.py:108: FutureWarning:
+<pre><code>/home/sosa/work/3.12venv/lib/python3.10/site-packages/jax/_src/ops/scatter.py:108: FutureWarning:
 
 scatter inputs have incompatible types: cannot safely cast value from dtype=int64 to dtype=int32 with jax_numpy_dtype_promotion='standard'. In future JAX releases this will result in an error.
 
-  0%|          | 0/1500 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1500 [00:01&lt;25:55,  1.04s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 51/1500 [00:01&lt;00:23, 61.06it/s, 511 steps of size 1.87e-02. acc. prob=0.75]warmup:   7%|▋         | 101/1500 [00:01&lt;00:11, 125.30it/s, 255 steps of size 3.20e-01. acc. prob=0.77]warmup:  10%|▉         | 149/1500 [00:01&lt;00:07, 186.11it/s, 255 steps of size 5.46e-02. acc. prob=0.77]warmup:  13%|█▎        | 193/1500 [00:01&lt;00:05, 236.22it/s, 255 steps of size 6.08e-02. acc. prob=0.77]warmup:  17%|█▋        | 254/1500 [00:01&lt;00:03, 317.61it/s, 511 steps of size 1.23e-02. acc. prob=0.77]warmup:  20%|██        | 303/1500 [00:01&lt;00:03, 356.29it/s, 255 steps of size 3.94e-02. acc. prob=0.78]warmup:  25%|██▍       | 370/1500 [00:01&lt;00:02, 434.86it/s, 255 steps of size 4.21e-02. acc. prob=0.78]warmup:  30%|██▉       | 445/1500 [00:01&lt;00:02, 517.82it/s, 63 steps of size 4.01e-02. acc. prob=0.78] sample:  34%|███▎      | 506/1500 [00:01&lt;00:01, 532.19it/s, 127 steps of size 4.82e-02. acc. prob=0.94]sample:  39%|███▉      | 587/1500 [00:02&lt;00:01, 608.76it/s, 127 steps of size 4.82e-02. acc. prob=0.86]sample:  44%|████▎     | 654/1500 [00:02&lt;00:01, 623.75it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  48%|████▊     | 724/1500 [00:02&lt;00:01, 645.20it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  53%|█████▎    | 796/1500 [00:02&lt;00:01, 665.20it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  58%|█████▊    | 873/1500 [00:02&lt;00:00, 694.84it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  63%|██████▎   | 946/1500 [00:02&lt;00:00, 704.13it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  68%|██████▊   | 1018/1500 [00:02&lt;00:00, 708.45it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  73%|███████▎  | 1090/1500 [00:02&lt;00:00, 711.56it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  77%|███████▋  | 1162/1500 [00:02&lt;00:00, 713.89it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  82%|████████▏ | 1236/1500 [00:02&lt;00:00, 718.52it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  87%|████████▋ | 1310/1500 [00:03&lt;00:00, 723.00it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  92%|█████████▏| 1385/1500 [00:03&lt;00:00, 729.04it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  97%|█████████▋| 1459/1500 [00:03&lt;00:00, 714.44it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample: 100%|██████████| 1500/1500 [00:03&lt;00:00, 448.47it/s, 127 steps of size 4.82e-02. acc. prob=0.89]
-/home/sosa/work/BI/BI/Diagnostic/jax_diagnostics.py:214: RuntimeWarning:
+  0%|          | 0/1500 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1500 [00:01&lt;32:47,  1.31s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 44/1500 [00:01&lt;00:33, 42.84it/s, 255 steps of size 2.38e-02. acc. prob=0.74]warmup:   6%|▌         | 86/1500 [00:01&lt;00:15, 89.03it/s, 511 steps of size 1.45e-02. acc. prob=0.76]warmup:   8%|▊         | 123/1500 [00:01&lt;00:10, 130.47it/s, 255 steps of size 3.07e-02. acc. prob=0.77]warmup:  11%|█         | 166/1500 [00:01&lt;00:07, 182.39it/s, 1023 steps of size 1.87e-02. acc. prob=0.77]warmup:  14%|█▍        | 212/1500 [00:01&lt;00:05, 237.35it/s, 127 steps of size 5.23e-02. acc. prob=0.78] warmup:  18%|█▊        | 264/1500 [00:01&lt;00:04, 299.92it/s, 127 steps of size 7.03e-02. acc. prob=0.78]warmup:  21%|██        | 315/1500 [00:02&lt;00:03, 349.90it/s, 255 steps of size 5.31e-02. acc. prob=0.78]warmup:  24%|██▍       | 366/1500 [00:02&lt;00:02, 390.41it/s, 63 steps of size 5.26e-02. acc. prob=0.78] warmup:  28%|██▊       | 427/1500 [00:02&lt;00:02, 449.03it/s, 63 steps of size 5.73e-02. acc. prob=0.78]warmup:  32%|███▏      | 479/1500 [00:02&lt;00:02, 454.00it/s, 255 steps of size 3.56e-02. acc. prob=0.78]sample:  36%|███▌      | 542/1500 [00:02&lt;00:01, 502.07it/s, 127 steps of size 4.82e-02. acc. prob=0.85]sample:  41%|████      | 612/1500 [00:02&lt;00:01, 557.65it/s, 127 steps of size 4.82e-02. acc. prob=0.87]sample:  45%|████▌     | 678/1500 [00:02&lt;00:01, 586.75it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  50%|████▉     | 747/1500 [00:02&lt;00:01, 614.87it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  54%|█████▍    | 817/1500 [00:02&lt;00:01, 639.60it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  59%|█████▉    | 892/1500 [00:02&lt;00:00, 668.90it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  64%|██████▍   | 963/1500 [00:03&lt;00:00, 680.54it/s, 63 steps of size 4.82e-02. acc. prob=0.89] sample:  69%|██████▉   | 1032/1500 [00:03&lt;00:00, 677.19it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  73%|███████▎  | 1101/1500 [00:03&lt;00:00, 666.76it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  78%|███████▊  | 1169/1500 [00:03&lt;00:00, 662.88it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  83%|████████▎ | 1242/1500 [00:03&lt;00:00, 680.74it/s, 63 steps of size 4.82e-02. acc. prob=0.89] sample:  88%|████████▊ | 1313/1500 [00:03&lt;00:00, 687.38it/s, 63 steps of size 4.82e-02. acc. prob=0.89]sample:  92%|█████████▏| 1382/1500 [00:03&lt;00:00, 674.58it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  97%|█████████▋| 1450/1500 [00:03&lt;00:00, 665.07it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample: 100%|██████████| 1500/1500 [00:03&lt;00:00, 389.02it/s, 127 steps of size 4.82e-02. acc. prob=0.89]
+/home/sosa/work/BF/BayesForge/Diagnostic/jax_diagnostics.py:214: RuntimeWarning:
 
 invalid value encountered in scalar divide
 </code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
 
@@ -1116,14 +1121,14 @@ invalid value encountered in scalar divide
 </div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div id="155e664b" class="cell" data-execution_count="3">
+<div id="0119d09c" class="cell" data-execution_count="3">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device -----------------------------------------------</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data — column args are mapped automatically from the DataFrame.</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># N_groups and N_regions are dataset-specific; provide them as defaults.</span></span>
@@ -1149,23 +1154,21 @@ invalid value encountered in scalar divide
 <span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>m.fit(model_nested_builtin, num_samples<span class="op">=</span><span class="dv">1000</span>, num_warmup<span class="op">=</span><span class="dv">500</span>, num_chains<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stderr">
-<pre><code>/home/sosa/.local/lib/python3.10/site-packages/jax/_src/ops/scatter.py:108: FutureWarning:
-
-scatter inputs have incompatible types: cannot safely cast value from dtype=int64 to dtype=int32 with jax_numpy_dtype_promotion='standard'. In future JAX releases this will result in an error.
-</code></pre>
-</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1500 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1500 [00:01&lt;26:20,  1.05s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   4%|▎         | 55/1500 [00:01&lt;00:22, 65.25it/s, 127 steps of size 3.98e-02. acc. prob=0.76]warmup:   7%|▋         | 109/1500 [00:01&lt;00:10, 133.41it/s, 1023 steps of size 1.87e-02. acc. prob=0.76]warmup:  10%|█         | 154/1500 [00:01&lt;00:07, 186.77it/s, 511 steps of size 2.16e-02. acc. prob=0.77] warmup:  14%|█▍        | 209/1500 [00:01&lt;00:05, 256.79it/s, 127 steps of size 4.99e-02. acc. prob=0.78]warmup:  17%|█▋        | 261/1500 [00:01&lt;00:03, 311.32it/s, 1023 steps of size 2.03e-02. acc. prob=0.78]warmup:  22%|██▏       | 324/1500 [00:01&lt;00:03, 385.07it/s, 255 steps of size 5.45e-02. acc. prob=0.78] warmup:  26%|██▌       | 392/1500 [00:01&lt;00:02, 458.89it/s, 255 steps of size 3.35e-02. acc. prob=0.78]warmup:  31%|███▏      | 471/1500 [00:01&lt;00:01, 537.81it/s, 1023 steps of size 1.32e-02. acc. prob=0.78]sample:  37%|███▋      | 548/1500 [00:01&lt;00:01, 599.05it/s, 127 steps of size 4.82e-02. acc. prob=0.84] sample:  42%|████▏     | 623/1500 [00:02&lt;00:01, 637.72it/s, 127 steps of size 4.82e-02. acc. prob=0.87]sample:  46%|████▌     | 692/1500 [00:02&lt;00:01, 648.48it/s, 63 steps of size 4.82e-02. acc. prob=0.88] sample:  51%|█████     | 761/1500 [00:02&lt;00:01, 625.23it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  56%|█████▌    | 842/1500 [00:02&lt;00:00, 676.03it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  61%|██████▏   | 919/1500 [00:02&lt;00:00, 702.27it/s, 63 steps of size 4.82e-02. acc. prob=0.89] sample:  66%|██████▋   | 995/1500 [00:02&lt;00:00, 716.91it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  71%|███████▏  | 1072/1500 [00:02&lt;00:00, 730.73it/s, 63 steps of size 4.82e-02. acc. prob=0.89]sample:  77%|███████▋  | 1154/1500 [00:02&lt;00:00, 753.46it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  82%|████████▏ | 1231/1500 [00:02&lt;00:00, 751.36it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  87%|████████▋ | 1308/1500 [00:03&lt;00:00, 756.10it/s, 63 steps of size 4.82e-02. acc. prob=0.89] sample:  92%|█████████▏| 1384/1500 [00:03&lt;00:00, 749.82it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  97%|█████████▋| 1462/1500 [00:03&lt;00:00, 758.59it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample: 100%|██████████| 1500/1500 [00:03&lt;00:00, 458.11it/s, 127 steps of size 4.82e-02. acc. prob=0.89]
-/home/sosa/work/BI/BI/Diagnostic/jax_diagnostics.py:214: RuntimeWarning:
+<pre><code>/home/sosa/work/3.12venv/lib/python3.10/site-packages/jax/_src/ops/scatter.py:108: FutureWarning:
+
+scatter inputs have incompatible types: cannot safely cast value from dtype=int64 to dtype=int32 with jax_numpy_dtype_promotion='standard'. In future JAX releases this will result in an error.
+
+  0%|          | 0/1500 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1500 [00:01&lt;32:49,  1.31s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   3%|▎         | 44/1500 [00:01&lt;00:33, 42.84it/s, 255 steps of size 2.38e-02. acc. prob=0.74]warmup:   6%|▌         | 89/1500 [00:01&lt;00:15, 92.73it/s, 127 steps of size 2.58e-02. acc. prob=0.76]warmup:   9%|▊         | 131/1500 [00:01&lt;00:09, 141.16it/s, 127 steps of size 4.98e-02. acc. prob=0.77]warmup:  12%|█▏        | 175/1500 [00:01&lt;00:06, 193.21it/s, 255 steps of size 4.84e-02. acc. prob=0.77]warmup:  15%|█▌        | 231/1500 [00:01&lt;00:04, 266.41it/s, 95 steps of size 2.63e-02. acc. prob=0.78] warmup:  19%|█▊        | 280/1500 [00:01&lt;00:03, 315.45it/s, 127 steps of size 5.40e-02. acc. prob=0.78]warmup:  23%|██▎       | 338/1500 [00:02&lt;00:03, 378.37it/s, 127 steps of size 5.46e-02. acc. prob=0.78]warmup:  26%|██▌       | 393/1500 [00:02&lt;00:02, 419.72it/s, 255 steps of size 4.57e-02. acc. prob=0.78]warmup:  31%|███       | 461/1500 [00:02&lt;00:02, 486.95it/s, 1023 steps of size 1.80e-02. acc. prob=0.78]sample:  34%|███▍      | 517/1500 [00:02&lt;00:01, 502.64it/s, 127 steps of size 4.82e-02. acc. prob=0.92] sample:  39%|███▉      | 590/1500 [00:02&lt;00:01, 564.62it/s, 127 steps of size 4.82e-02. acc. prob=0.86]sample:  44%|████▍     | 657/1500 [00:02&lt;00:01, 593.07it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  48%|████▊     | 722/1500 [00:02&lt;00:01, 608.24it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  53%|█████▎    | 793/1500 [00:02&lt;00:01, 632.68it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  57%|█████▋    | 862/1500 [00:02&lt;00:00, 647.70it/s, 127 steps of size 4.82e-02. acc. prob=0.88]sample:  62%|██████▏   | 928/1500 [00:02&lt;00:00, 643.60it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  67%|██████▋   | 998/1500 [00:03&lt;00:00, 658.70it/s, 63 steps of size 4.82e-02. acc. prob=0.89] sample:  71%|███████   | 1065/1500 [00:03&lt;00:00, 645.94it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  75%|███████▌  | 1131/1500 [00:03&lt;00:00, 646.30it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  80%|███████▉  | 1196/1500 [00:03&lt;00:00, 621.20it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  84%|████████▍ | 1263/1500 [00:03&lt;00:00, 633.37it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  88%|████████▊ | 1327/1500 [00:03&lt;00:00, 630.87it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample:  93%|█████████▎| 1391/1500 [00:03&lt;00:00, 627.04it/s, 63 steps of size 4.82e-02. acc. prob=0.89] sample:  97%|█████████▋| 1454/1500 [00:03&lt;00:00, 605.34it/s, 127 steps of size 4.82e-02. acc. prob=0.89]sample: 100%|██████████| 1500/1500 [00:03&lt;00:00, 387.34it/s, 127 steps of size 4.82e-02. acc. prob=0.89]
+/home/sosa/work/BF/BayesForge/Diagnostic/jax_diagnostics.py:214: RuntimeWarning:
 
 invalid value encountered in scalar divide
 </code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
 
@@ -1326,39 +1329,39 @@ invalid value encountered in scalar divide
 </div>
 </div>
 <div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
-<div id="1b6c5115" class="cell" data-execution_count="4">
+<div id="72a6788a" class="cell" data-execution_count="4">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device -----------------------------------------------</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data — column args are mapped automatically from the DataFrame.</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co"># N_groups and N_regions are dataset-specific; provide them as defaults.</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.sim_nested_effects(only_path<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path)</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model_nested_builtin_centered(y, x, group_id, region_id, N_groups<span class="op">=</span><span class="dv">20</span>, N_regions<span class="op">=</span><span class="dv">5</span>):</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">'sigma'</span>)</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    a_g_est, b_g_est <span class="op">=</span> m.effects.nested_varying_effects(</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>        N_vars<span class="op">=</span><span class="dv">2</span>,</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        names<span class="op">=</span>[<span class="st">"region"</span>, <span class="st">"group"</span>],</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        N_groups<span class="op">=</span>[N_regions, N_groups],</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>        group_ids<span class="op">=</span>[region_id, group_id],</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>        centered<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    mu_est <span class="op">=</span> a_g_est <span class="op">+</span> b_g_est <span class="op">*</span> x</span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(mu_est, sigma, obs<span class="op">=</span>y)</span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>m.fit(model_nested_builtin_centered, num_samples<span class="op">=</span><span class="dv">1000</span>, num_warmup<span class="op">=</span><span class="dv">500</span>, num_chains<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device -----------------------------------------------</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data — column args are mapped automatically from the DataFrame.</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># N_groups and N_regions are dataset-specific; provide them as defaults.</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.sim_nested_effects(only_path<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>m.data(data_path)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model_nested_builtin_centered(y, x, group_id, region_id, N_groups<span class="op">=</span><span class="dv">20</span>, N_regions<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">'sigma'</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    a_g_est, b_g_est <span class="op">=</span> m.effects.nested_varying_effects(</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        N_vars<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        names<span class="op">=</span>[<span class="st">"region"</span>, <span class="st">"group"</span>],</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        N_groups<span class="op">=</span>[N_regions, N_groups],</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        group_ids<span class="op">=</span>[region_id, group_id],</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        centered<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    mu_est <span class="op">=</span> a_g_est <span class="op">+</span> b_g_est <span class="op">*</span> x</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(mu_est, sigma, obs<span class="op">=</span>y)</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>m.fit(model_nested_builtin_centered, num_samples<span class="op">=</span><span class="dv">1000</span>, num_warmup<span class="op">=</span><span class="dv">500</span>, num_chains<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/sosa/.local/lib/python3.10/site-packages/jax/_src/ops/scatter.py:108: FutureWarning:
+<pre><code>/home/sosa/work/3.12venv/lib/python3.10/site-packages/jax/_src/ops/scatter.py:108: FutureWarning:
 
 scatter inputs have incompatible types: cannot safely cast value from dtype=int64 to dtype=int32 with jax_numpy_dtype_promotion='standard'. In future JAX releases this will result in an error.
 </code></pre>
@@ -1367,13 +1370,13 @@ scatter inputs have incompatible types: cannot safely cast value from dtype=int6
 <pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/1500 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1500 [00:01&lt;36:59,  1.48s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   7%|▋         | 108/1500 [00:01&lt;00:14, 94.75it/s, 7 steps of size 7.43e-01. acc. prob=0.77]warmup:  15%|█▌        | 225/1500 [00:01&lt;00:05, 214.58it/s, 15 steps of size 2.31e-01. acc. prob=0.78]warmup:  23%|██▎       | 352/1500 [00:01&lt;00:03, 359.60it/s, 7 steps of size 4.14e-01. acc. prob=0.78] warmup:  33%|███▎      | 492/1500 [00:01&lt;00:01, 529.85it/s, 31 steps of size 2.48e-01. acc. prob=0.79]sample:  42%|████▏     | 631/1500 [00:01&lt;00:01, 692.48it/s, 15 steps of size 2.74e-01. acc. prob=0.92]sample:  52%|█████▏    | 774/1500 [00:02&lt;00:00, 848.73it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  61%|██████    | 908/1500 [00:02&lt;00:00, 961.98it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  70%|██████▉   | 1044/1500 [00:02&lt;00:00, 1060.53it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  79%|███████▉  | 1188/1500 [00:02&lt;00:00, 1158.17it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  89%|████████▊ | 1328/1500 [00:02&lt;00:00, 1222.24it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  98%|█████████▊| 1470/1500 [00:02&lt;00:00, 1275.85it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample: 100%|██████████| 1500/1500 [00:02&lt;00:00, 575.18it/s, 15 steps of size 2.74e-01. acc. prob=0.91] 
-/home/sosa/work/BI/BI/Diagnostic/jax_diagnostics.py:214: RuntimeWarning:
+<pre><code>  0%|          | 0/1500 [00:00&lt;?, ?it/s]warmup:   0%|          | 1/1500 [00:01&lt;46:17,  1.85s/it, 1 steps of size 2.34e+00. acc. prob=0.00]warmup:   6%|▋         | 95/1500 [00:01&lt;00:20, 67.74it/s, 63 steps of size 3.85e-02. acc. prob=0.77]warmup:  12%|█▏        | 187/1500 [00:02&lt;00:08, 146.69it/s, 7 steps of size 1.41e-01. acc. prob=0.78]warmup:  20%|█▉        | 295/1500 [00:02&lt;00:04, 255.51it/s, 31 steps of size 1.94e-01. acc. prob=0.78]warmup:  26%|██▋       | 396/1500 [00:02&lt;00:03, 363.09it/s, 7 steps of size 5.76e-01. acc. prob=0.79] sample:  34%|███▎      | 505/1500 [00:02&lt;00:02, 485.78it/s, 15 steps of size 2.74e-01. acc. prob=0.90]sample:  40%|████      | 604/1500 [00:02&lt;00:01, 583.07it/s, 15 steps of size 2.74e-01. acc. prob=0.92]sample:  48%|████▊     | 713/1500 [00:02&lt;00:01, 692.90it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  54%|█████▍    | 815/1500 [00:02&lt;00:00, 770.25it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  61%|██████    | 917/1500 [00:02&lt;00:00, 782.50it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  68%|██████▊   | 1013/1500 [00:02&lt;00:00, 817.70it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  74%|███████▍  | 1112/1500 [00:02&lt;00:00, 862.74it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  81%|████████  | 1209/1500 [00:03&lt;00:00, 891.63it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  87%|████████▋ | 1308/1500 [00:03&lt;00:00, 917.39it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample:  94%|█████████▍| 1413/1500 [00:03&lt;00:00, 954.61it/s, 15 steps of size 2.74e-01. acc. prob=0.91]sample: 100%|██████████| 1500/1500 [00:03&lt;00:00, 443.94it/s, 15 steps of size 2.74e-01. acc. prob=0.91]
+/home/sosa/work/BF/BayesForge/Diagnostic/jax_diagnostics.py:214: RuntimeWarning:
 
 invalid value encountered in scalar divide
 </code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
 
@@ -1534,68 +1537,68 @@ invalid value encountered in scalar divide
 </div>
 </div>
 <div id="tabset-1-5" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-5-tab">
-<div class="sourceCode" id="cb15"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<div class="sourceCode" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesForge</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device ------------------------------------------------</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBF</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data — column args mapped automatically from the DataFrame.</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># N_groups and N_regions are dataset-specific; provide them as defaults.</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.<span class="fu">sim_nested_effects</span>(only_path<span class="op">=</span><span class="cn">true</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">data</span>(data_path)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="pp">@BF</span> <span class="kw">function</span> <span class="fu">model</span>(y, x, group_id, region_id, N_groups<span class="op">=</span><span class="fl">20</span>, N_regions<span class="op">=</span><span class="fl">5</span>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name<span class="op">=</span><span class="st">"sigma"</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    a_g_est, b_g_est <span class="op">=</span> m.effects.<span class="fu">nested_varying_effects</span>(</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>        N_vars    <span class="op">=</span> <span class="fl">2</span>,</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>        names     <span class="op">=</span> [<span class="st">"region"</span>, <span class="st">"group"</span>],</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        N_groups  <span class="op">=</span> [N_regions, N_groups],</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>        group_ids <span class="op">=</span> [region_id, group_id],</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        centered  <span class="op">=</span> <span class="cn">false</span>,</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a_g_est <span class="op">.+</span> b_g_est <span class="op">.*</span> x</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(mu, sigma, obs<span class="op">=</span>y)</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-6" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-6-tab">
+<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesForge)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device ------------------------------------------------</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform ------------------------------------------------</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">importBF</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data — column args mapped automatically from the DataFrame.</span></span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># N_groups and N_regions are dataset-specific; provide them as defaults.</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.<span class="fu">sim_nested_effects</span>(only_path<span class="op">=</span><span class="cn">true</span>)</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">data</span>(data_path)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">=</span> m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">sim_nested_effects</span>(<span class="at">only_path=</span><span class="cn">TRUE</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(data_path)</span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(y, x, group_id, region_id, N_groups<span class="op">=</span><span class="fl">20</span>, N_regions<span class="op">=</span><span class="fl">5</span>)</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name<span class="op">=</span><span class="st">"sigma"</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(y, x, group_id, region_id, <span class="at">N_groups=</span><span class="dv">20</span>L, <span class="at">N_regions=</span><span class="dv">5</span>L) {</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(<span class="dv">1</span>, <span class="at">name=</span><span class="st">'sigma'</span>)</span>
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    a_g_est, b_g_est <span class="op">=</span> m.effects.<span class="fu">nested_varying_effects</span>(</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        N_vars    <span class="op">=</span> <span class="fl">2</span>,</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        names     <span class="op">=</span> [<span class="st">"region"</span>, <span class="st">"group"</span>],</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>        N_groups  <span class="op">=</span> [N_regions, N_groups],</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        group_ids <span class="op">=</span> [region_id, group_id],</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        centered  <span class="op">=</span> <span class="cn">false</span>,</span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> a_g_est <span class="op">.+</span> b_g_est <span class="op">.*</span> x</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(mu, sigma, obs<span class="op">=</span>y)</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Run mcmc ------------------------------------------------</span></span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-1-6" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-6-tab">
-<div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup platform ------------------------------------------------</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data — column args mapped automatically from the DataFrame.</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># N_groups and N_regions are dataset-specific; provide them as defaults.</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">=</span> m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">sim_nested_effects</span>(<span class="at">only_path=</span><span class="cn">TRUE</span>)</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(data_path)</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(y, x, group_id, region_id, <span class="at">N_groups=</span><span class="dv">20</span>L, <span class="at">N_regions=</span><span class="dv">5</span>L) {</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">=</span> m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">exponential</span>(<span class="dv">1</span>, <span class="at">name=</span><span class="st">'sigma'</span>)</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  veff <span class="ot">=</span> m<span class="sc">$</span>effects<span class="sc">$</span><span class="fu">nested_varying_effects</span>(</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">N_vars    =</span> <span class="dv">2</span>L,</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">names     =</span> <span class="fu">list</span>(<span class="st">'region'</span>, <span class="st">'group'</span>),</span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">N_groups  =</span> <span class="fu">list</span>(N_regions, N_groups),</span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">group_ids =</span> <span class="fu">list</span>(region_id, group_id),</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">centered  =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>  a_g_est <span class="ot">=</span> veff[[<span class="dv">1</span>]]</span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  b_g_est <span class="ot">=</span> veff[[<span class="dv">2</span>]]</span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">=</span> a_g_est <span class="sc">+</span> b_g_est <span class="sc">*</span> x</span>
-<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(mu, sigma, <span class="at">obs=</span>y)</span>
-<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
-<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model)</span>
-<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  veff <span class="ot">=</span> m<span class="sc">$</span>effects<span class="sc">$</span><span class="fu">nested_varying_effects</span>(</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">N_vars    =</span> <span class="dv">2</span>L,</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">names     =</span> <span class="fu">list</span>(<span class="st">'region'</span>, <span class="st">'group'</span>),</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">N_groups  =</span> <span class="fu">list</span>(N_regions, N_groups),</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">group_ids =</span> <span class="fu">list</span>(region_id, group_id),</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">centered  =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  a_g_est <span class="ot">=</span> veff[[<span class="dv">1</span>]]</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  b_g_est <span class="ot">=</span> veff[[<span class="dv">2</span>]]</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">=</span> a_g_est <span class="sc">+</span> b_g_est <span class="sc">*</span> x</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>  m<span class="sc">$</span>dist<span class="sc">$</span><span class="fu">normal</span>(mu, sigma, <span class="at">obs=</span>y)</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Run MCMC ------------------------------------------------</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model)</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -2644,8 +2647,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -2756,7 +2757,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

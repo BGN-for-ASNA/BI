@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -9,8 +9,8 @@ from jax.scipy.special import expit
 
 model_name = "10.Zero inflated"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu')
 
 # 1. Data Simulation -----------------------------------------
 # Simulate production of manuscripts
@@ -26,16 +26,16 @@ df = pd.DataFrame({'y': y})
 m.df = df
 m.data_on_model = {'y': jnp.array(y)}
 
-def model_bi(y):
-    ap = m.dist.normal(-1.5, 1.0, name='ap')
+def model_BF(y):
+    ap = m.dist.normal(-1.5, 1.0)
     p = expit(ap)
-    al = m.dist.normal(1.0, 0.5, name='al')
+    al = m.dist.normal(1.0, 0.5)
     lambda_ = jnp.exp(al)
     m.dist.zero_inflated_poisson(p, lambda_, obs=y)
 
-print("Fitting BI model...")
-m.fit(model_bi, num_samples=1000, num_warmup=1000)
-print("BI Summary:")
+print("Fitting BF model...")
+m.fit(model_BF, num_samples=1000, num_warmup=1000)
+print("BF Summary:")
 print(m.summary())
 
 # 2. STAN Model ----------------------------------------------
@@ -78,15 +78,15 @@ plot_comparaison(m, df_stan, model_name=model_name)
 
 # 4. Parameter Recovery --------------------------------------
 def estimate(y_sim):
-    m_rec = bi(print_devices_found=False)
+    m_rec = bf(print_devices_found=False)
     m_rec.data_on_model = {'y': jnp.array(y_sim)}
     def model_rec(y):
-        ap = m_rec.dist.normal(-1.5, 1.0, name='ap')
+        ap = m_rec.dist.normal(-1.5, 1.0)
         p = expit(ap)
-        al = m_rec.dist.normal(1.0, 0.5, name='al')
+        al = m_rec.dist.normal(1.0, 0.5)
         lambda_ = jnp.exp(al)
         m_rec.dist.zero_inflated_poisson(p, lambda_, obs=y)
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False)
+    m_rec.fit(model_rec, num_samples=500, progress_bar=False, shard=False)
     s = m_rec.summary()
     return s.iloc[:, 0]
 
@@ -108,8 +108,12 @@ def param_recovery(y_true, ap_sims, al_sims, nsim):
     return df_res
 
 print("Running Parameter Recovery...")
-nsim_test = int(os.environ.get("BI_NSIM", 10))
+nsim_test = int(os.environ.get("BF_NSIM", 10))
 ap_sims = np.random.normal(-1.5, 1.0, nsim_test)
 al_sims = np.random.normal(1.0, 0.5, nsim_test)
 
 recovery_results = param_recovery(y, ap_sims, al_sims, nsim=nsim_test)
+
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

@@ -1,5 +1,5 @@
-# BI Model for Individual-Level Variable (ILV) Extentions
-bi_model_ILV <- function(data) {
+# BF Model for Individual-Level Variable (ILV) Extentions
+BF_model_ILV <- function(data) {
   # STEP 1: Define Model Parameters
   # ILVs models introduce external dataset factors into baseline/social effects.
   log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")

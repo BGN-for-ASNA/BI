@@ -1,8 +1,8 @@
 library(ape)
 library(phylolm)
 
-data_dir <- "/home/sosa/work/BI/Test/GGMM (WIP)/graphical_mixed_model/data"
-out_dir  <- "/home/sosa/work/BI/Test/GMM (WIP)"
+data_dir <- "/home/sosa/work/BF/Test/GGMM (WIP)/graphical_mixed_model/data"
+out_dir  <- "/home/sosa/work/BF/Test/GMM (WIP)"
 
 # Load and prepare tree
 tree <- read.tree(file.path(data_dir, "VertTree_mammals.tre"))

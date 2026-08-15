@@ -32,8 +32,8 @@ for (cat_name in categories) {
 
 for (f in all_files) {
   lines <- readLines(f)
-  # Find the table start (header contains "KL(Stan||BI)")
-  header_idx <- grep("KL\\(Stan\\|\\|BI\\)", lines)
+  # Find the table start (header contains "KL(Stan||BF)")
+  header_idx <- grep("KL\\(Stan\\|\\|BF\\)", lines)
   if (length(header_idx) == 0) next
   
   # Process lines after the separator

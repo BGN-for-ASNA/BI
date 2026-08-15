@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-# Runs STRAND simulation + numpyro fit, saves arrays for Python/BI comparison
+# Runs STRAND simulation + numpyro fit, saves arrays for Python/BF comparison
 
 library(posterior)
 library(igraph)

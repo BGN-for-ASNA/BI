@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="description" content="A Bayesian approach to regression and classification that defines a distribution over functions.">
 
-<title>Gaussian Processes – Bayesian Inference (BI)</title>
+<title>Gaussian Processes – BayesForge (BF)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -92,12 +92,12 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-17c909d5fd25ae21b861c0c7a49b2096.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-6a8f47518b915c51477edcf8788f90ee.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-294eff73d59fba645e10c6e6b482604a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -189,6 +189,7 @@ div.csl-indent {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -245,7 +246,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Bayesian Inference (BI)</span>
+    <span class="navbar-title">BayesForge (BF)</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -272,12 +273,12 @@ window.Quarto = {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-help">    
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/issues"><i class="bi bi-bug" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/issues"><i class="bi bi-bug" role="img">
 </i> 
  <span class="dropdown-text">Report a Bug</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BI/discussions"><i class="bi bi-chat-dots" role="img">
+    <a class="dropdown-item" href="https://github.com/BGN-for-ASNA/BF/discussions"><i class="bi bi-chat-dots" role="img">
 </i> 
  <span class="dropdown-text">Ask a Question</span></a>
   </li>  
@@ -287,7 +288,7 @@ window.Quarto = {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools tools-wide">
     <a href="https://twitter.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-twitter"></i></a>
-    <a href="https://github.com/BGN-for-ASNA/BI" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+    <a href="https://github.com/BGN-for-ASNA/BF" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
       </div> <!-- /container-fluid -->
@@ -321,7 +322,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./0.Introduction.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Bayesian analysis with BI</span></a>
+ <span class="menu-text">Bayesian analysis with BF</span></a>
   </div>
 </li>
       </ul>
@@ -707,19 +708,19 @@ Caution
 </section>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Below is an example code snippet demonstrating Gaussian Process regression using the Bayesian Inference (BI) package. Data consist of a continuous dependent variable (<em>total_tools</em>), representing the number of tools invented in the islands, and a continuous independent variable (<em>population</em>), representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance matrix of the islands for the kernel function in order to capture the spatial dependence of the relationship. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
+<p>Below is an example code snippet demonstrating Gaussian Process regression using the BayesForge (BF) package. Data consist of a continuous dependent variable (<em>total_tools</em>), representing the number of tools invented in the islands, and a continuous independent variable (<em>population</em>), representing the population of the islands. The goal is to estimate the effect of population on the total tools. We use the distance matrix of the islands for the kernel function in order to capture the spatial dependence of the relationship. This example is based on <span class="citation" data-cites="mcelreath2018statistical">McElreath (<a href="#ref-mcelreath2018statistical" role="doc-biblioref">2018</a>)</span>.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python (Build in function)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="5da44ed2" class="cell" data-execution_count="1">
+<div id="306bee9b" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">'cpu'</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
@@ -728,7 +729,7 @@ Caution
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">';'</span>) </span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>data_path2 <span class="op">=</span> files(<span class="st">'BI.Resources'</span>) <span class="op">/</span> <span class="st">'islandsDistMatrix.csv'</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>data_path2 <span class="op">=</span> files(<span class="st">'BayesForge.Resources'</span>) <span class="op">/</span> <span class="st">'islandsDistMatrix.csv'</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> pd.read_csv(data_path2, index_col<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">'total_tools'</span>, <span class="st">'population'</span>])</span>
@@ -755,15 +756,15 @@ Caution
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>m.fit(model, progress_bar<span class="op">=</span><span class="va">False</span>) </span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>bf v 0.0.48 package loaded</code></pre>
+</div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/sosa/work/3.12venv/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning:
-
-IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
-</code></pre>
+<pre><code>E0526 15:21:25.368969 1025096 cuda_dnn.cc:523] Loaded runtime CuDNN library: 9.1.0 but source was compiled with: 9.8.0.  CuDNN library needs to have matching major version and equal or higher minor version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.
+E0526 15:21:25.370996 1025096 cuda_dnn.cc:523] Loaded runtime CuDNN library: 9.1.0 but source was compiled with: 9.8.0.  CuDNN library needs to have matching major version and equal or higher minor version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>BI v 0.0.45 package loaded
-jax.local_device_count 32</code></pre>
+<pre><code>jax.local_device_count 32</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
@@ -791,7 +792,7 @@ jax.local_device_count 32</code></pre>
 <td>1.07</td>
 <td>0.04</td>
 <td>2.74</td>
-<td>0.02</td>
+<td>0.03</td>
 <td>0.02</td>
 <td>1311.55</td>
 <td>1297.04</td>
@@ -827,8 +828,8 @@ jax.local_device_count 32</code></pre>
 <td>0.57</td>
 <td>0.01</td>
 <td>1.25</td>
-<td>0.01</td>
 <td>0.02</td>
+<td>0.01</td>
 <td>1308.38</td>
 <td>1491.80</td>
 <td>1.00</td>
@@ -840,7 +841,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.61</td>
 <td>0.36</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>768.94</td>
 <td>673.50</td>
 <td>1.00</td>
@@ -852,7 +853,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.48</td>
 <td>0.46</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>715.49</td>
 <td>648.26</td>
 <td>1.00</td>
@@ -864,10 +865,10 @@ jax.local_device_count 32</code></pre>
 <td>-0.53</td>
 <td>0.39</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>737.38</td>
 <td>671.64</td>
-<td>1.00</td>
+<td>1.01</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">k[3]</td>
@@ -876,7 +877,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.05</td>
 <td>0.77</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>789.29</td>
 <td>699.13</td>
 <td>1.01</td>
@@ -888,7 +889,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.32</td>
 <td>0.49</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>708.20</td>
 <td>524.43</td>
 <td>1.01</td>
@@ -900,7 +901,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.84</td>
 <td>0.03</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>830.21</td>
 <td>731.78</td>
 <td>1.01</td>
@@ -912,7 +913,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.25</td>
 <td>0.55</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>742.21</td>
 <td>644.47</td>
 <td>1.01</td>
@@ -924,7 +925,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.64</td>
 <td>0.21</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>740.76</td>
 <td>586.73</td>
 <td>1.01</td>
@@ -936,7 +937,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.15</td>
 <td>0.63</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>725.69</td>
 <td>634.01</td>
 <td>1.01</td>
@@ -948,7 +949,7 @@ jax.local_device_count 32</code></pre>
 <td>-0.77</td>
 <td>0.36</td>
 <td>0.01</td>
-<td>0.02</td>
+<td>0.01</td>
 <td>858.31</td>
 <td>743.44</td>
 <td>1.01</td>
@@ -959,7 +960,7 @@ jax.local_device_count 32</code></pre>
 <td>1.55</td>
 <td>0.01</td>
 <td>2.98</td>
-<td>0.04</td>
+<td>0.05</td>
 <td>0.04</td>
 <td>873.77</td>
 <td>922.26</td>
@@ -973,128 +974,68 @@ jax.local_device_count 32</code></pre>
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div id="b244f9d2" class="cell" data-execution_count="2">
+<div id="06c5fd06" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BI <span class="im">import</span> bi</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bi(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.kline2(only_path<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">";"</span>)</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> m.load.islands_dist_matrix(frame<span class="op">=</span><span class="va">False</span>)[<span class="st">"data"</span>]</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">"total_tools"</span>, <span class="st">"population"</span>])</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"society"</span>] <span class="op">=</span> jnp.arange(<span class="dv">0</span>, <span class="dv">10</span>)  <span class="co"># index observations</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"Dmat"</span>] <span class="op">=</span> islandsDistMatrix  <span class="co"># Distance matrix</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(Dmat, population, society, total_tools):</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">"a"</span>)</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">"b"</span>)</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">"g"</span>)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.gaussian.gaussian_process(Dmat, etasq<span class="op">=</span><span class="dv">2</span>, rhosq<span class="op">=</span><span class="fl">0.5</span>, sigmaq<span class="op">=</span><span class="fl">0.001</span>)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">**</span>b <span class="op">/</span> g <span class="op">*</span> jnp.exp(k[society])</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(lambda_, obs<span class="op">=</span>total_tools)</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>m.fit(model)</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.resources <span class="im">import</span> files</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>data_path <span class="op">=</span> m.load.kline2(only_path<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>m.data(data_path, sep<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>islandsDistMatrix <span class="op">=</span> m.load.islands_dist_matrix(frame<span class="op">=</span><span class="va">False</span>)[<span class="st">"data"</span>]</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>m.data_to_model([<span class="st">"total_tools"</span>, <span class="st">"population"</span>])</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"society"</span>] <span class="op">=</span> jnp.arange(<span class="dv">0</span>, <span class="dv">10</span>)  <span class="co"># index observations</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>m.data_on_model[<span class="st">"Dmat"</span>] <span class="op">=</span> islandsDistMatrix  <span class="co"># Distance matrix</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(Dmat, population, society, total_tools):</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">"a"</span>)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">"b"</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> m.dist.exponential(<span class="dv">1</span>, name<span class="op">=</span><span class="st">"g"</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> m.gaussian.gaussian_process(Dmat, etasq<span class="op">=</span><span class="dv">2</span>, rhosq<span class="op">=</span><span class="fl">0.5</span>, sigmaq<span class="op">=</span><span class="fl">0.001</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> a <span class="op">*</span> population<span class="op">**</span>b <span class="op">/</span> g <span class="op">*</span> jnp.exp(k[society])</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    m.dist.poisson(lambda_, obs<span class="op">=</span>total_tools)</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Run sampler ------------------------------------------------</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>m.fit(model)</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>jax.local_device_count 32</code></pre>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>  0%|          | 0/2000 [00:00&lt;?, ?it/s]Compiling.. :   0%|          | 0/2000 [00:00&lt;?, ?it/s]
-  0%|          | 0/2000 [00:00&lt;?, ?it/s]
-Compiling.. :   0%|          | 0/2000 [00:00&lt;?, ?it/s]
-
-  0%|          | 0/2000 [00:00&lt;?, ?it/s]
-
-Compiling.. :   0%|          | 0/2000 [00:00&lt;?, ?it/s]
-
-
-  0%|          | 0/2000 [00:00&lt;?, ?it/s]
-
-
-Compiling.. :   0%|          | 0/2000 [00:00&lt;?, ?it/s]Running chain 0:   0%|          | 0/2000 [00:00&lt;?, ?it/s]
-Running chain 1:   0%|          | 0/2000 [00:00&lt;?, ?it/s]
-
-Running chain 2:   0%|          | 0/2000 [00:00&lt;?, ?it/s]
-
-
-Running chain 3:   0%|          | 0/2000 [00:00&lt;?, ?it/s]Running chain 0:  10%|█         | 200/2000 [00:00&lt;00:00, 1963.06it/s]
-
-
-Running chain 3:  10%|█         | 200/2000 [00:00&lt;00:00, 1802.07it/s]
-Running chain 1:  10%|█         | 200/2000 [00:00&lt;00:01, 1470.69it/s]
-
-Running chain 2:  10%|█         | 200/2000 [00:01&lt;00:01, 1356.68it/s]
-
-
-Running chain 3:  20%|██        | 400/2000 [00:01&lt;00:00, 1825.92it/s]Running chain 0:  25%|██▌       | 500/2000 [00:01&lt;00:00, 1948.85it/s]
-Running chain 1:  20%|██        | 400/2000 [00:01&lt;00:01, 1548.11it/s]
-
-Running chain 2:  20%|██        | 400/2000 [00:01&lt;00:01, 1354.35it/s]
-
-
-Running chain 3:  30%|███       | 600/2000 [00:01&lt;00:00, 1869.66it/s]
-Running chain 1:  30%|███       | 600/2000 [00:01&lt;00:00, 1601.27it/s]Running chain 0:  35%|███▌      | 700/2000 [00:01&lt;00:00, 1765.54it/s]
-
-Running chain 2:  30%|███       | 600/2000 [00:01&lt;00:00, 1579.24it/s]
-
-
-Running chain 3:  45%|████▌     | 900/2000 [00:01&lt;00:00, 2197.13it/s]Running chain 0:  45%|████▌     | 900/2000 [00:01&lt;00:00, 1717.37it/s]
-
-Running chain 2:  40%|████      | 800/2000 [00:01&lt;00:00, 1637.70it/s]
-Running chain 1:  45%|████▌     | 900/2000 [00:01&lt;00:00, 1825.17it/s]
-
-
-Running chain 3:  55%|█████▌    | 1100/2000 [00:01&lt;00:00, 1999.03it/s]
-
-Running chain 2:  50%|█████     | 1000/2000 [00:01&lt;00:00, 1674.59it/s]
-Running chain 1:  55%|█████▌    | 1100/2000 [00:01&lt;00:00, 1737.18it/s]Running chain 0:  55%|█████▌    | 1100/2000 [00:01&lt;00:00, 1514.54it/s]
-
-
-Running chain 3:  65%|██████▌   | 1300/2000 [00:01&lt;00:00, 1907.17it/s]
-
-Running chain 2:  60%|██████    | 1200/2000 [00:01&lt;00:00, 1694.19it/s]
-
-
-Running chain 3:  75%|███████▌  | 1500/2000 [00:01&lt;00:00, 1890.22it/s]
-Running chain 1:  65%|██████▌   | 1300/2000 [00:01&lt;00:00, 1628.48it/s]Running chain 0:  65%|██████▌   | 1300/2000 [00:01&lt;00:00, 1473.49it/s]
-
-Running chain 2:  70%|███████   | 1400/2000 [00:01&lt;00:00, 1710.44it/s]
-
-
-Running chain 3:  85%|████████▌ | 1700/2000 [00:01&lt;00:00, 1920.55it/s]
-Running chain 1:  75%|███████▌  | 1500/2000 [00:01&lt;00:00, 1664.81it/s]Running chain 0:  75%|███████▌  | 1500/2000 [00:01&lt;00:00, 1466.44it/s]
-
-Running chain 2:  80%|████████  | 1600/2000 [00:01&lt;00:00, 1666.23it/s]
-
-
-Running chain 3:  95%|█████████▌| 1900/2000 [00:01&lt;00:00, 1878.02it/s]
-Running chain 1:  85%|████████▌ | 1700/2000 [00:01&lt;00:00, 1650.52it/s]Running chain 3: 100%|██████████| 2000/2000 [00:01&lt;00:00, 1051.86it/s]
-Running chain 0:  85%|████████▌ | 1700/2000 [00:01&lt;00:00, 1438.08it/s]
-
-Running chain 2:  90%|█████████ | 1800/2000 [00:01&lt;00:00, 1686.12it/s]
-Running chain 1:  95%|█████████▌| 1900/2000 [00:02&lt;00:00, 1686.37it/s]Running chain 1: 100%|██████████| 2000/2000 [00:02&lt;00:00, 971.74it/s] 
-
-
-Running chain 2: 100%|██████████| 2000/2000 [00:02&lt;00:00, 1739.71it/s]Running chain 2: 100%|██████████| 2000/2000 [00:02&lt;00:00, 966.89it/s] 
-Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00, 1510.69it/s]Running chain 0: 100%|██████████| 2000/2000 [00:02&lt;00:00, 937.55it/s] </code></pre>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"c45839590c0a424c8345750f7f6015ce","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"1e1dac03273a4d67b29e5370de63770f","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"a1d48127022342248991f350717cd391","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"e4a8502fabc541218b54bd508d954b5d","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <div>
@@ -1123,10 +1064,10 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.01</td>
 <td>2.45</td>
 <td>0.03</td>
-<td>0.03</td>
+<td>0.02</td>
 <td>1110.13</td>
 <td>1047.64</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">b</td>
@@ -1138,7 +1079,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.00</td>
 <td>765.61</td>
 <td>756.87</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">g</td>
@@ -1147,10 +1088,10 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.00</td>
 <td>1.93</td>
 <td>0.03</td>
-<td>0.03</td>
+<td>0.02</td>
 <td>756.89</td>
 <td>641.80</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[0]</td>
@@ -1162,7 +1103,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.02</td>
 <td>392.96</td>
 <td>721.41</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[1]</td>
@@ -1174,7 +1115,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.02</td>
 <td>364.97</td>
 <td>578.05</td>
-<td>1.01</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[2]</td>
@@ -1186,7 +1127,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.02</td>
 <td>363.15</td>
 <td>544.45</td>
-<td>1.01</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[3]</td>
@@ -1198,7 +1139,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.02</td>
 <td>349.09</td>
 <td>569.19</td>
-<td>1.01</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[4]</td>
@@ -1210,7 +1151,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.02</td>
 <td>348.83</td>
 <td>489.39</td>
-<td>1.01</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[5]</td>
@@ -1222,7 +1163,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.02</td>
 <td>375.52</td>
 <td>507.80</td>
-<td>1.01</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[6]</td>
@@ -1234,7 +1175,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.02</td>
 <td>345.04</td>
 <td>462.64</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[7]</td>
@@ -1246,7 +1187,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.02</td>
 <td>353.64</td>
 <td>462.89</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">kernel[8]</td>
@@ -1258,7 +1199,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>0.02</td>
 <td>347.00</td>
 <td>485.94</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">kernel[9]</td>
@@ -1267,10 +1208,10 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <td>-1.74</td>
 <td>0.98</td>
 <td>0.04</td>
-<td>0.02</td>
+<td>0.03</td>
 <td>442.01</td>
 <td>619.11</td>
-<td>1.00</td>
+<td>1.0</td>
 </tr>
 </tbody>
 </table>
@@ -1280,11 +1221,11 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 </div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesianInference)</span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesForge)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>jnp <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'jax.numpy'</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>pd <span class="ot">=</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">'pandas'</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># setup platform------------------------------------------------</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBI</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span><span class="fu">importBF</span>(<span class="at">platform=</span><span class="st">'cpu'</span>)</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import data ------------------------------------------------</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">kline2</span>(<span class="at">only_path=</span>T), <span class="at">sep=</span><span class="st">';'</span>)</span>
@@ -1296,13 +1237,13 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(Dmat, population, society, total_tools){</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'g'</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">=</span> <span class="fu">bf.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'a'</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">=</span> <span class="fu">bf.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'b'</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">=</span> <span class="fu">bf.dist.exponential</span>(<span class="dv">1</span>, <span class="at">name =</span> <span class="st">'g'</span>)</span>
 <span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># non-centered Gaussian Process prior</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  etasq <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="dv">2</span>, <span class="at">name =</span> <span class="st">'etasq'</span>)</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  rhosq <span class="ot">=</span> <span class="fu">bi.dist.exponential</span>(<span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'rhosq'</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  etasq <span class="ot">=</span> <span class="fu">bf.dist.exponential</span>(<span class="dv">2</span>, <span class="at">name =</span> <span class="st">'etasq'</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  rhosq <span class="ot">=</span> <span class="fu">bf.dist.exponential</span>(<span class="fl">0.5</span>, <span class="at">name =</span> <span class="st">'rhosq'</span>)</span>
 <span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  k <span class="ot">=</span> m<span class="sc">$</span>gaussian<span class="sc">$</span><span class="fu">gaussian_process</span>(Dmat, etasq, rhosq, <span class="fl">0.01</span>)</span>
 <span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  lambda_ <span class="ot">=</span> a <span class="sc">*</span> population<span class="sc">**</span>b <span class="sc">/</span> g <span class="sc">*</span> jnp<span class="sc">$</span><span class="fu">exp</span>(k[society])</span>
@@ -1316,10 +1257,10 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>() <span class="co"># Get posterior distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
-<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesianInference</span></span>
+<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">BayesForge</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup device------------------------------------------------</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBI</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBF</span>(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Data &amp; Data Manipulation ------------------------------------------------</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Import</span></span>
@@ -1334,7 +1275,7 @@ Running chain 0:  95%|█████████▌| 1900/2000 [00:02&lt;00:00,
 <span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model ------------------------------------------------</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="pp">@BI</span> <span class="kw">function</span> <span class="fu">model</span>(Dmat, population, society, total_tools)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="pp">@BF</span> <span class="kw">function</span> <span class="fu">model</span>(Dmat, population, society, total_tools)</span>
 <span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name <span class="op">=</span> <span class="st">"a"</span>)</span>
 <span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name <span class="op">=</span> <span class="st">"b"</span>)</span>
 <span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> m.dist.<span class="fu">exponential</span>(<span class="fl">1</span>, name <span class="op">=</span> <span class="st">"g"</span>)</span>
@@ -2236,6 +2177,9 @@ An activation function is a nonlinear transformation applied to the pre-activati
     });
   })();
 </script>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state":{"08cf6ff294134e07a8f7c42fccac6566":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"13ea6ec82b9644e4952118faa111bf8b":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"1ab087fe3cd2447fa689d09cb6e940c1":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"1e1dac03273a4d67b29e5370de63770f":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_225e59586c30412c82ce44b9cc943d60","IPY_MODEL_dc7de1d618ef4f75af900e19f32158e4","IPY_MODEL_f84dabb1044a4506a0aa428c866b1699"],"layout":"IPY_MODEL_08cf6ff294134e07a8f7c42fccac6566","tabbable":null,"tooltip":null}},"1edbc113f3974f2689af753cf784be40":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"225e59586c30412c82ce44b9cc943d60":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_13ea6ec82b9644e4952118faa111bf8b","placeholder":"​","style":"IPY_MODEL_cf18c11dc5914b16aa7d6a37a906b046","tabbable":null,"tooltip":null,"value":"Running chain 1: 100%"}},"226f43fcde4c41869d03383d2054b100":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"2dbe2430352742289c95bb1be714eb62":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"success","description":"","description_allow_html":false,"layout":"IPY_MODEL_bdc4f42f4ce64885bb58a104972eea30","max":2000,"min":0,"orientation":"horizontal","style":"IPY_MODEL_cf00d2e868944fb08ad676a2382f5a8c","tabbable":null,"tooltip":null,"value":2000}},"33f64e6deaa5415cb591a2c8f3b921d6":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"3ffa117247f34450a8ae320824acfddf":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"41fdcf2935a44aae8ddc73dfbbdbdec2":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"47b3ffa17f894972982691ebd149842b":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_d43f0e2f2dcd4aa3975c39e3afb68a8a","placeholder":"​","style":"IPY_MODEL_e3019f4dcdc14ed5b59cd8c200e368ed","tabbable":null,"tooltip":null,"value":" 2000/2000 [00:02&lt;00:00, 1203.16it/s]"}},"562162cae1364fb69989ab8339120318":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"748609c06c874518aee80ba40d6ff312":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"success","description":"","description_allow_html":false,"layout":"IPY_MODEL_88386904bc744f378977330b7fb85d90","max":2000,"min":0,"orientation":"horizontal","style":"IPY_MODEL_cd8457f4b40b48eeb97ef9463feb64cc","tabbable":null,"tooltip":null,"value":2000}},"7493342c16e94d17938ffba67ec0272b":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"76559835d38945f5a765f086fd981353":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_33f64e6deaa5415cb591a2c8f3b921d6","placeholder":"​","style":"IPY_MODEL_3ffa117247f34450a8ae320824acfddf","tabbable":null,"tooltip":null,"value":" 2000/2000 [00:02&lt;00:00, 1397.09it/s]"}},"798a10af62c7438e90479413e2b0b516":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"88386904bc744f378977330b7fb85d90":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"88fd153329594b7d899872f16e096bba":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"9a56c553ce6849a4ae549215f9d5a99a":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_41fdcf2935a44aae8ddc73dfbbdbdec2","placeholder":"​","style":"IPY_MODEL_1ab087fe3cd2447fa689d09cb6e940c1","tabbable":null,"tooltip":null,"value":" 2000/2000 [00:02&lt;00:00, 1239.31it/s]"}},"a1d48127022342248991f350717cd391":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_fc469b8b08a6416fb893e197378f0c60","IPY_MODEL_d95e359722de4ea3a83a563f7abb6d0d","IPY_MODEL_47b3ffa17f894972982691ebd149842b"],"layout":"IPY_MODEL_fd4bf1b9a0d2411b89ac4aa9dff8806b","tabbable":null,"tooltip":null}},"a9a8b26486b742aab9c9ffc666a4bd29":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"b9de976e1bed4ff4ba30d4eb7069efc2":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"bdc4f42f4ce64885bb58a104972eea30":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"c44b55493b5b4e7e8d2035edbfe53f49":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_ea34f24156a34c598cca1960e9cbf945","placeholder":"​","style":"IPY_MODEL_f46b2aac183749538fb784ebbd0a4d9c","tabbable":null,"tooltip":null,"value":"Running chain 0: 100%"}},"c45839590c0a424c8345750f7f6015ce":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_c44b55493b5b4e7e8d2035edbfe53f49","IPY_MODEL_2dbe2430352742289c95bb1be714eb62","IPY_MODEL_76559835d38945f5a765f086fd981353"],"layout":"IPY_MODEL_f0315ce52c23484291f2265b2d351801","tabbable":null,"tooltip":null}},"c91088b8a8814c178ba5afc3ea4d4694":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_1edbc113f3974f2689af753cf784be40","placeholder":"​","style":"IPY_MODEL_dd67e860f593456882b4979e7c19bae1","tabbable":null,"tooltip":null,"value":"Running chain 3: 100%"}},"cd8457f4b40b48eeb97ef9463feb64cc":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"cf00d2e868944fb08ad676a2382f5a8c":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"cf18c11dc5914b16aa7d6a37a906b046":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"d43f0e2f2dcd4aa3975c39e3afb68a8a":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"d74e2a8d69ac46c097bba56424ec47f8":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"d95e359722de4ea3a83a563f7abb6d0d":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"success","description":"","description_allow_html":false,"layout":"IPY_MODEL_88fd153329594b7d899872f16e096bba","max":2000,"min":0,"orientation":"horizontal","style":"IPY_MODEL_226f43fcde4c41869d03383d2054b100","tabbable":null,"tooltip":null,"value":2000}},"dc7de1d618ef4f75af900e19f32158e4":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"success","description":"","description_allow_html":false,"layout":"IPY_MODEL_d74e2a8d69ac46c097bba56424ec47f8","max":2000,"min":0,"orientation":"horizontal","style":"IPY_MODEL_f3d5f555e00e4b7e805454799b45812b","tabbable":null,"tooltip":null,"value":2000}},"dd67e860f593456882b4979e7c19bae1":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"e3019f4dcdc14ed5b59cd8c200e368ed":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"e4a8502fabc541218b54bd508d954b5d":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_c91088b8a8814c178ba5afc3ea4d4694","IPY_MODEL_748609c06c874518aee80ba40d6ff312","IPY_MODEL_9a56c553ce6849a4ae549215f9d5a99a"],"layout":"IPY_MODEL_798a10af62c7438e90479413e2b0b516","tabbable":null,"tooltip":null}},"ea34f24156a34c598cca1960e9cbf945":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"f0315ce52c23484291f2265b2d351801":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"f3d5f555e00e4b7e805454799b45812b":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"f46b2aac183749538fb784ebbd0a4d9c":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"f84dabb1044a4506a0aa428c866b1699":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_7493342c16e94d17938ffba67ec0272b","placeholder":"​","style":"IPY_MODEL_562162cae1364fb69989ab8339120318","tabbable":null,"tooltip":null,"value":" 2000/2000 [00:02&lt;00:00, 1152.15it/s]"}},"fc469b8b08a6416fb893e197378f0c60":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_b9de976e1bed4ff4ba30d4eb7069efc2","placeholder":"​","style":"IPY_MODEL_a9a8b26486b742aab9c9ffc666a4bd29","tabbable":null,"tooltip":null,"value":"Running chain 2: 100%"}},"fd4bf1b9a0d2411b89ac4aa9dff8806b":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}}},"version_major":2,"version_minor":0}
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -2462,8 +2406,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -2574,7 +2516,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

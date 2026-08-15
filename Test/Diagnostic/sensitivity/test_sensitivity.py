@@ -1,5 +1,5 @@
 # %%
-"""Sensitivity analysis and advanced posterior checks for BI.
+"""Sensitivity analysis and advanced posterior checks for BF.
 
 Covers:
   1. Prior sensitivity — compare posteriors from models with different priors
@@ -8,14 +8,14 @@ Covers:
   4. Divergence/energy — HMC health check
   5. Multimodality     — mode detection per parameter
 """
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import numpy as np
 
 # =============================================================================
 # Shared setup: Gaussian linear regression
 # =============================================================================
-m = bi(platform="cpu")
+m = bf(platform="cpu")
 data_path = m.load.howell1(only_path=True)
 m.data(data_path, sep=";")
 m.df = m.df[m.df.age > 18]
@@ -35,7 +35,7 @@ m.fit(model_weak, num_samples=500, num_chains=4, progress_bar=False)
 # 1. Prior sensitivity: refit with tighter prior on b
 # =============================================================================
 # %%
-m2 = bi(platform="cpu")
+m2 = bf(platform="cpu")
 m2.data(data_path, sep=";")
 m2.df = m2.df[m2.df.age > 18]
 m2.scale(data=["weight"])
@@ -51,7 +51,7 @@ def model_tight(weight, height):
 m2.fit(model_tight, num_samples=500, num_chains=4, progress_bar=False)
 
 # %%
-from BI.Diagnostic.sensitivity import prior_sensitivity_plot
+from BayesForge.Diagnostic.sensitivity import prior_sensitivity_plot
 
 fig = prior_sensitivity_plot(
     [m.posteriors, m2.posteriors],
@@ -99,8 +99,8 @@ m.diag.multimodality(param_names=["a", "b", "s"]).show()
 # Standalone imports (use without m.diag)
 # =============================================================================
 # %%
-from BI.Diagnostic.ppc import get_yrep
-from BI.Diagnostic.sensitivity import calibration_plot, influence_plot
+from BayesForge.Diagnostic.ppc import get_yrep
+from BayesForge.Diagnostic.sensitivity import calibration_plot, influence_plot
 
 yrep = get_yrep(m)
 y = np.asarray(m.data_on_model["height"])

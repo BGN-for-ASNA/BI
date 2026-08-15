@@ -17,17 +17,17 @@ To model the relationship between a vector outcome variable in which each elemen
 :::
 
 ## Example
-Below is an example code snippet demonstrating a Bayesian multinomial model using the Bayesian Inference (BI) package. This example is based on @mcelreath2018statistical.
+Below is an example code snippet demonstrating a Bayesian multinomial model using the BayesForge (BF) package. This example is based on @mcelreath2018statistical.
 
 ::: {.panel-tabset group="language"}
 ## Python
 
 ``` {python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp
 import jax
 # Setup device ------------------------------------------------
-m = bi('cpu')
+m = bf('cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -56,10 +56,10 @@ m.summary()
 ## R
 
 ```R
-library(BayesianInference)
+library(BayesForge)
 jax = reticulate::import('jax')
 # Setup platform------------------------------------------------
-m=importBI(platform='cpu')
+m=importBF(platform='cpu')
 
 # import data ------------------------------------------------
 m$data(m$load$sim_multinomial(only_path=T), sep=',')
@@ -72,8 +72,8 @@ m$data_on_model = py_dict(keys, values, convert = TRUE)
 # Define model ------------------------------------------------
 model <- function(income, career){
   # Parameter prior distributions
-  alpha = bi.dist.normal(0, 1, name='alpha', shape = c(2))
-  beta = bi.dist.normal(0.5, name='beta')
+  alpha = bf.dist.normal(0, 1, name='alpha', shape = c(2))
+  beta = bf.dist.normal(0.5, name='beta')
   
   s_1 = alpha[0] + beta * income[0]
   s_2 = alpha[1] + beta * income[1]
@@ -95,10 +95,10 @@ m$summary()
 
 ## Julia
 ```julia
-using BayesianInference
+using BayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -106,7 +106,7 @@ data_path = m.load.sim_multinomial(only_path = true)
 m.data(data_path, sep=',')
 
 # Define model ------------------------------------------------
-@BI function model(income, career)
+@BF function model(income, career)
     # Parameter prior distributions
     alpha = m.dist.normal(0, 1, shape=(2,), name='a')
     beta = m.dist.half_normal(0.5, shape=(1,), name='b')

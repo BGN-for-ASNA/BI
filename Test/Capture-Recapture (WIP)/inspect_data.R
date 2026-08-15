@@ -1,5 +1,5 @@
 library(readr)
-data_path <- "c:/Users/Sosa/Documents/BI/Test/Capture-Recapture/cr-in-stan/case-studies/data/fleayi-stan-data.rds"
+data_path <- "c:/Users/Sosa/Documents/BF/Test/Capture-Recapture/cr-in-stan/case-studies/data/fleayi-stan-data.rds"
 d <- read_rds(data_path)
 cat("Names:\n")
 print(names(d))

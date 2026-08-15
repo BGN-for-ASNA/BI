@@ -1,5 +1,5 @@
 from Utils import *
-from BI import bi
+from BayesForge import bf
 import pandas as pd
 import os
 import numpy as np
@@ -8,8 +8,8 @@ import jax
 
 model_name = "2.Categorical variable"
 
-print(f'Running BI for {model_name}')
-m = bi(platform='cpu')
+print(f'Running BF for {model_name}')
+m = bf(platform='cpu')
 
 # import data ------------------------------------------------
 data_path = m.load.milk(only_path = True)
@@ -17,14 +17,14 @@ m.data(data_path, sep=';')
 m.index(["clade"])
 m.scale(['kcal_per_g'])
 
-def model_bi(kcal_per_g, index_clade):
-    a = m.dist.normal(0, 0.5, shape=(4,), name = 'a')
-    s = m.dist.exponential( 1, name = 's')    
+def model_BF(kcal_per_g, index_clade):
+    a = m.dist.normal(0, 0.5, shape=(4,))
+    s = m.dist.exponential( 1)    
     mu = a[index_clade]
     m.dist.normal(mu, s, obs=kcal_per_g)
 
 m.data_to_model(['kcal_per_g', "index_clade"])
-m.fit(model_bi) 
+m.fit(model_BF) 
 m.summary()
 
 print('Running Stan')
@@ -66,8 +66,8 @@ plot_comparaison(m, stan_df, param_map=param_map, model_name=model_name)
 
 print('Running Parameters recovery')
 def model_rec(kcal_per_g, index_clade):
-    a = m.dist.normal(0, 0.5, shape=(4,), name = 'a')
-    s = m.dist.exponential( 1, name = 's')    
+    a = m.dist.normal(0, 0.5, shape=(4,))
+    s = m.dist.exponential( 1)    
     mu = a[index_clade]
     m.dist.normal(mu, s, obs=kcal_per_g)
 
@@ -77,10 +77,10 @@ def simulate_data(index_clade, a, s):
 
 def estimate(index_clade, a, s):
     kcal_per_g = simulate_data(index_clade, a, s)
-    m_rec = bi(print_devices_found=False)
+    m_rec = bf(print_devices_found=False)
     m_rec.df = pd.DataFrame({"kcal_per_g": kcal_per_g, "index_clade": index_clade})
     m_rec.data_to_model(['kcal_per_g', 'index_clade'])
-    m_rec.fit(model_rec, num_samples=500, progress_bar=False) 
+    m_rec.fit(model_rec, num_samples=500, progress_bar=False, shard=False) 
     summary = m_rec.summary()
     return summary.iloc[:,0]
 
@@ -108,9 +108,13 @@ def param_recovery(index_clade, a_sim, s_sim, nsim):
     return df_res
 
 N = 100
-nsim = int(os.environ.get("BI_NSIM", 10)) 
+nsim = int(os.environ.get("BF_NSIM", 10)) 
 a_sim = np.random.normal(0, 0.5, size=(nsim, 4))
 s_sim = np.random.exponential(1, size=(nsim,))
 index_clade = np.random.choice([0,1,2,3], size=N)
 
 res = param_recovery(index_clade, a_sim, s_sim, nsim = nsim)
+
+
+# --- WAIC cross-check: BF direct (NumPyro) vs ArviZ round-trip on the same draws ---
+waic_report(m, model_name)

@@ -1,5 +1,5 @@
-# BI Model for deriving edge connection strengths from posterior probability models
-bi_model_posterior_edges <- function(data) {
+# BF Model for deriving edge connection strengths from posterior probability models
+BF_model_posterior_edges <- function(data) {
   # STEP 1: Setting up core intrinsic vs social base factors
   log_lambda_0_mean <- m$dist$normal(-4, 2, name="log_lambda_0_mean")
   log_s_prime_mean <- m$dist$normal(-4, 2, name="log_s_prime_mean")

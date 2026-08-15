@@ -6,7 +6,7 @@ n_ind <- if(length(args) > 0) as.integer(args[1]) else 400
 
 # Use concatenated standalone Stan file
 stan_file <- "cjs-ms-all.stan"
-data_file <- "c:/Users/Sosa/Documents/BI/Test/Capture-Recapture (WIP)/cr-in-stan/case-studies/data/fleayi-stan-data.rds"
+data_file <- "c:/Users/Sosa/Documents/BF/Test/Capture-Recapture (WIP)/cr-in-stan/case-studies/data/fleayi-stan-data.rds"
 
 full_data <- readRDS(data_file)
 orig_N <- dim(full_data$y)[2]

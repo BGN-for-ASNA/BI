@@ -33,18 +33,18 @@ To discover group structures or clusters in data without pre-specifying the numb
 
 ## Example
 
-Below is an example of a DPMM implemented in BI. The goal is to cluster a synthetic dataset into its underlying groups. The code first generates data with 4 distinct centers and then applies the DPMM to recover these clusters.
+Below is an example of a DPMM implemented in BF. The goal is to cluster a synthetic dataset into its underlying groups. The code first generates data with 4 distinct centers and then applies the DPMM to recover these clusters.
 
 ::: {.panel-tabset group="language"}
 ## Python
 
 ``` {python}
-from BI import bi
+from BayesForge import bf
 import jax.numpy as jnp 
 from sklearn.datasets import make_blobs
 import numpyro
 
-m = bi(rand_seed = False)
+m = bf(rand_seed = False)
 
 # Generate synthetic data
 data, true_labels = make_blobs(
@@ -102,11 +102,11 @@ m.plot(X=data,sampler=m.sampler) # Prebuild plot function for GMM
 
 ## Julia
 ```julia
-using BayesianInference
+using BayesForge
 using PythonCall
 numpyro = pyimport("numpyro")
 
-m = importBI(rand_seed = false)
+m = importBF(rand_seed = false)
 
 # 1. Generate Data
 sk_datasets = pyimport("sklearn.datasets")
@@ -117,7 +117,7 @@ data_std = jnp.std(data, axis=0) * 2
 m.data_on_model = pydict(data=data, K=10, data_mean = data_mean, data_std = data_std)
 
 
-@BI function dpmm(data, K, data_mean , data_std)
+@BF function dpmm(data, K, data_mean , data_std)
     N, D = data.shape 
 
     alpha = m.dist.gamma(1.0, 10.0, name="alpha")
