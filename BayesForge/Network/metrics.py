@@ -58,9 +58,47 @@ class met:
 
         return clusterc
 
-    @staticmethod 
-    def cc(m, nodes=None):
-        return met.clustering_coefficient(m) 
+    @staticmethod
+    @jax.jit
+    def onnela_clustering_coefficient(mat):
+        """
+        Weighted clustering coefficient (Onnela et al., 2005).
+
+        This is the definition NetworkX computes via
+        ``nx.clustering(G, weight=...)``. Unlike ``clustering_coefficient``
+        (which binarizes the input), it uses the geometric mean of each
+        triangle's edge weights, so weak edges contribute weakly:
+
+            w_hat = mat / max(mat)                        # scale by max weight
+            tri_i = sum_{j,k} (w_hat_ij w_hat_jk w_hat_ki) ** (1/3)
+                  = diag( cbrt(w_hat) @ cbrt(w_hat) @ cbrt(w_hat) )_i
+            cc_i  = tri_i / (deg_i * (deg_i - 1))         # deg = unweighted degree
+
+        The result is bounded in [0, 1] and reduces to the unweighted
+        clustering coefficient when all edge weights are equal. Assumes a zero
+        diagonal (no self-loops), matching NetworkX. JIT-compatible.
+        """
+        max_w = jnp.max(mat)
+        max_w = jnp.where(max_w > 0, max_w, 1.0)
+        w_cbrt = jnp.cbrt(mat / max_w)
+
+        # Triangle intensity = diagonal of (cbrt(w_hat))^3; a zero diagonal on
+        # mat means only genuine i-j-k triangles contribute.
+        tri = jnp.einsum("ij,jk,ki->i", w_cbrt, w_cbrt, w_cbrt)
+
+        deg = jnp.sum(mat > 0, axis=1)
+        denom = deg * (deg - 1)
+        return jnp.where(denom > 0, tri / denom, 0.0)
+
+    @staticmethod
+    def cc(m, nodes=None, weighted=False):
+        if weighted:
+            return met.onnela_clustering_coefficient(m)
+        return met.clustering_coefficient(m)
+
+    @staticmethod
+    def weighted_cc(m, nodes=None):
+        return met.onnela_clustering_coefficient(m)
 
     ## eigenvector----------------------------------------------------------------------------------
     @staticmethod

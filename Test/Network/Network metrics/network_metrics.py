@@ -188,8 +188,41 @@ run_test("outstrength", lambda: np.testing.assert_array_almost_equal(
 ))
 
 run_test("clustering coefficient", lambda: np.testing.assert_array_almost_equal(
-    m.net.cc(adj_matrix_jax), 
+    m.net.cc(adj_matrix_jax),
     np.array(list(dict(nx.clustering(G_directed)).values()))
+))
+
+# Weighted clustering coefficient (Onnela et al.) must match NetworkX's
+# nx.clustering(G, weight='weight'). NetworkX defines it only for undirected
+# graphs, so build undirected weighted graphs from the same numpy matrices the
+# JAX side consumes (from_numpy_array copies the weights exactly).
+def nx_weighted_cc(W):
+    G = nx.from_numpy_array(W)  # undirected, weighted
+    return np.array([nx.clustering(G, weight='weight')[i] for i in range(W.shape[0])])
+
+# 1. The karate-club adjacency (this NetworkX build ships it weighted, 0-7).
+adj_undirected_np = nx.to_numpy_array(G_undirected)
+run_test("weighted cc / Onnela (karate weighted)", lambda: np.testing.assert_array_almost_equal(
+    m.net.weighted_cc(jnp.array(adj_undirected_np)),
+    nx_weighted_cc(adj_undirected_np)
+))
+
+# 2. A random continuous, symmetric, zero-diagonal weight matrix.
+_cc_rng = np.random.default_rng(42)
+_n = adj_undirected_np.shape[0]
+_cc_cont_np = _cc_rng.random((_n, _n))
+_cc_cont_np = np.tril(_cc_cont_np, -1)
+_cc_cont_np = _cc_cont_np + _cc_cont_np.T           # symmetric, zero diagonal
+_cc_cont_jax = jnp.array(_cc_cont_np)
+run_test("weighted cc / Onnela (continuous matrix)", lambda: np.testing.assert_array_almost_equal(
+    m.net.weighted_cc(_cc_cont_jax),
+    nx_weighted_cc(_cc_cont_np)
+))
+
+# 3. The opt-in flag on cc() must route to the same weighted result.
+run_test("cc(weighted=True) matches weighted_cc", lambda: np.testing.assert_array_almost_equal(
+    m.net.cc(_cc_cont_jax, weighted=True),
+    m.net.weighted_cc(_cc_cont_jax)
 ))
 
 run_test("eigenvector centrality weighted", lambda: np.testing.assert_array_almost_equal(
