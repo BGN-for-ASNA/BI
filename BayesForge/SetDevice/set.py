@@ -25,7 +25,11 @@ def setup_device(platform='cpu', cores=None, gpu_index=None, deallocate=False,
 
     - *cores:* int, optional
         Number of CPU cores to allocate for computation. If None, all available CPU
-        cores will be used. Only applicable when platform is 'cpu'.
+        cores will be used, or the value of the ``BF_MAX_CORES`` environment
+        variable when it is set (``run_simulations`` sets it in each worker so a
+        bare ``bf()`` inside a simulation takes only its own share of the
+        machine). An explicit ``cores`` above ``BF_MAX_CORES`` is capped with a
+        warning. Only applicable when platform is 'cpu'.
 
     - *gpu_index:* int, optional
         The index of the GPU to use (e.g., 0 or 1). Only applicable when platform is 'gpu'.
@@ -69,8 +73,23 @@ def setup_device(platform='cpu', cores=None, gpu_index=None, deallocate=False,
         os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_index)
         print(f"Setting CUDA_VISIBLE_DEVICES to: {gpu_index}")
 
+    # BF_MAX_CORES is set by run_simulations in each worker process so that a
+    # bare bf() inside a simulation claims only that worker's share of the
+    # machine instead of every core on it.
+    max_cores = os.environ.get("BF_MAX_CORES")
+    max_cores = int(max_cores) if max_cores else None
+
     if cores is None:
-        cores = os.cpu_count()
+        cores = max_cores if max_cores is not None else os.cpu_count()
+    elif max_cores is not None and cores > max_cores:
+        import warnings
+        warnings.warn(
+            f"cores={cores} exceeds BF_MAX_CORES={max_cores} (this process is one "
+            f"of several parallel simulation workers); capping to {max_cores}.",
+            stacklevel=2,
+        )
+        cores = max_cores
+
     if deallocate:
         set_deallocate()
 

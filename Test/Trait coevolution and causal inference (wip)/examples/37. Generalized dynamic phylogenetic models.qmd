@@ -1,0 +1,453 @@
+---
+title: "🚧Generalized Dynamic Phylogenetic Models"
+description: "Trait coevolution and causal inference on a phylogeny, from a Gaussian multivariate Ornstein-Uhlenbeck process to latent factors with non-Gaussian traits."
+categories: [Phylogenetics, Latent Variables, Hierarchical Models]
+image: "Figures/gdpm.png"
+order: 37
+reading-time: true
+---
+
+## General Principles
+
+Phylogenetic comparative methods usually ask whether traits *covary* across species. **Generalized dynamic phylogenetic models** (GDPMs) @Ringen2026 ask a stronger question: which trait *drives* which, over evolutionary time. They do this by treating the phylogeny as an implicit time series and modelling trait change as a system of stochastic differential equations unfolding along every branch.
+
+The core idea is that a vector of latent traits $\boldsymbol{\eta}$ evolves under two forces: a deterministic pull described by a **selection matrix** $\mathbf{A}$, whose off-diagonal entries are the directed effects of one trait on another, and a stochastic **drift** described by a covariance matrix $\mathbf{Q}$. Because $\mathbf{A}$ is not required to be symmetric, the model separates $X \rightarrow Y$ from $Y \rightarrow X$ and admits feedback $X \leftrightarrow Y$ — inferences that correlation-based methods cannot express.
+
+A GDPM has two layers, and keeping them apart is what makes the framework flexible:
+
+1. a **latent evolutionary model** on the species-level process $\boldsymbol{\eta}$, which is always a continuous Gaussian system regardless of what was measured;
+2. an **observation model** that links $\boldsymbol{\eta}$ to the data at the tips through a factor matrix and a link function, so traits may be counts, binary, ordinal, or positive-continuous.
+
+In this documentation, we present two variations:
+
+1.  **GDPM (Gaussian)**: the base model, where each observed trait is its own latent trait ($\mathbf{\Lambda} = \mathbf{I}$, identity link). This is exactly a multivariate Ornstein-Uhlenbeck process, and is the right starting point for continuous traits measured once per species.
+
+2.  **GDPM with latent variables (GDPM-LV)**: fewer latent dimensions than observed traits, mapped by a factor matrix $\mathbf{\Lambda}$, with non-Gaussian likelihoods, correlated drift, and missing data. This is the form used for high-dimensional comparative datasets.
+
+---
+
+## 1. GDPM (Gaussian)
+
+The base GDPM evolves $K$ latent traits along the tree and observes each one directly at the tips. Its free parameters are the selection matrix $\mathbf{A}$, the drift scales $\boldsymbol{\sigma}_Q$, the continuous-time intercepts $\mathbf{b}$, and the ancestral state at the root.
+
+### Example
+
+::: callout-note
+- **Tree as data**: the phylogeny enters as a pre-order list of segments — `parent`, `node_seq`, and the branch length `ts` — not as a covariance matrix. A parent is always computed before its children.
+- **Non-centered drift**: the per-segment innovation is sampled as a standard normal `z_drift` and scaled by the Cholesky factor of $\mathbf{Q}_{\Delta}$, which is what keeps the geometry tractable for HMC.
+- **Directed effects**: `effects_mat` switches individual off-diagonal entries of $\mathbf{A}$ on or off, which is how a causal hypothesis (e.g. "sperm size causes nothing") is imposed.
+:::
+
+::: {.panel-tabset group="language"}
+## Python
+
+```python
+from BayesForge import bf
+import jax, jax.numpy as jnp
+from jax.scipy.linalg import expm
+
+m = bf(platform='cpu')
+
+def ksolve(A, Q):
+    """Asymptotic covariance: solves A Q_inf + Q_inf A' + Q = 0."""
+    K = A.shape[0]
+    I = jnp.eye(K)
+    x = jnp.linalg.solve(jnp.kron(I, A) + jnp.kron(A, I), -Q.reshape(-1))
+    Q_inf = x.reshape(K, K)
+    return 0.5 * (Q_inf + Q_inf.T)
+
+def model(y, node_seq, parent, ts, tip, tip_id, off_rows, off_cols, K, S):
+    # Priors
+    A_diag    = m.dist.truncated_normal(0.0, 1.0, high=0.0, shape=(K,), name="A_diag")
+    A_offdiag = m.dist.normal(0.0, 2.0, shape=(off_rows.shape[0],), name="A_offdiag")
+    Q_sigma   = m.dist.truncated_normal(0.0, 2.0, low=0.0, shape=(K,), name="Q_sigma")
+    b         = m.dist.normal(0.0, 1.0, shape=(K,), name="b")
+    eta_anc   = m.dist.normal(0.0, 1.0, shape=(K,), name="eta_anc")
+    z_drift   = m.dist.normal(0.0, 1.0, shape=(S - 1, K), name="z_drift")
+
+    # Selection and drift matrices
+    A = jnp.diag(A_diag).at[off_rows, off_cols].set(A_offdiag)
+    Q = jnp.diag(Q_sigma ** 2)
+    Q_inf = ksolve(A, Q)
+    m.dist.track("A", A)
+    m.dist.track("Q", Q)
+
+    # Per-branch solution of the SDE
+    I = jnp.eye(K)
+    A_delta = jax.vmap(lambda dt: expm(A * dt))(ts)
+    VCV     = Q_inf - A_delta @ Q_inf @ A_delta.transpose(0, 2, 1)
+    L_VCV   = jnp.linalg.cholesky(0.5 * (VCV + VCV.transpose(0, 2, 1)) + 1e-10 * I)
+    A_solve = jnp.linalg.inv(A) @ (A_delta - I)
+
+    # Pre-order traversal of the tree
+    def step(eta, xs):
+        Ad, L, As, z, node, par, is_tip = xs
+        drift = jnp.where(is_tip == 0, L @ z, jnp.zeros(K))
+        return eta.at[node].set(Ad @ eta[par] + As @ b + drift), None
+
+    eta0 = jnp.zeros((S, K)).at[node_seq[0]].set(eta_anc)
+    eta, _ = jax.lax.scan(step, eta0, (A_delta[1:], L_VCV[1:], A_solve[1:],
+                                       z_drift, node_seq[1:], parent[1:], tip[1:]))
+
+    # Likelihood: tip residual under the drift accumulated on the tip branch
+    m.dist.multivariate_normal(loc=jnp.zeros(K), scale_tril=L_VCV[tip_id],
+                               obs=y - eta[tip_id], name="resid")
+
+m.fit(model)
+m.summary()
+```
+
+## R
+
+```R
+library(BayesForge)
+m <- importBF(platform='cpu')
+
+model <- function(y, node_seq, parent, ts, tip, tip_id, off_rows, off_cols, K, S) {
+  # Priors
+  A_diag    <- m$dist$truncated_normal(0.0, 1.0, high=0.0, shape=c(K), name="A_diag")
+  A_offdiag <- m$dist$normal(0.0, 2.0, shape=c(4L), name="A_offdiag")
+  Q_sigma   <- m$dist$truncated_normal(0.0, 2.0, low=0.0, shape=c(K), name="Q_sigma")
+  b         <- m$dist$normal(0.0, 1.0, shape=c(K), name="b")
+  eta_anc   <- m$dist$normal(0.0, 1.0, shape=c(K), name="eta_anc")
+  z_drift   <- m$dist$normal(0.0, 1.0, shape=c(S - 1L, K), name="z_drift")
+
+  # ... Equivalent logic to Python implementation ...
+}
+m$fit(model)
+m$summary()
+```
+
+## Julia
+
+```julia
+using BayesForge
+m = importBF(platform="cpu")
+
+@BF function model(y, node_seq, parent, ts, tip, tip_id, off_rows, off_cols, K, S)
+    # Priors
+    A_diag    = m.dist.truncated_normal(0.0, 1.0, high=0.0, shape=(K,), name="A_diag")
+    A_offdiag = m.dist.normal(0.0, 2.0, shape=(4,), name="A_offdiag")
+    Q_sigma   = m.dist.truncated_normal(0.0, 2.0, low=0.0, shape=(K,), name="Q_sigma")
+    b         = m.dist.normal(0.0, 1.0, shape=(K,), name="b")
+    eta_anc   = m.dist.normal(0.0, 1.0, shape=(K,), name="eta_anc")
+    z_drift   = m.dist.normal(0.0, 1.0, shape=(S - 1, K), name="z_drift")
+
+    # ... Equivalent logic to Python implementation ...
+end
+m.fit(model)
+m.summary()
+```
+:::
+
+### Mathematical Details
+
+The GDPM describes trait change as a stochastic differential equation solved segment by segment along a phylogeny. Throughout this section we use a four-part index: $k \in \{1,\ldots,K\}$ denotes the latent trait, $j \in \{1,\ldots,J\}$ the observed trait, $s \in \{1,\ldots,S\}$ the segment of the tree, and $n \in \{1,\ldots,N\}$ the tip (species or population). We write $\text{pa}(s)$ for the parent node of segment $s$.
+
+**1. Latent Evolutionary Process**
+
+Trait change in continuous time is partitioned into state-dependent selection and state-independent drift:
+$$
+d\boldsymbol{\eta}(t) = \bigl(\mathbf{A}\,\boldsymbol{\eta}(t) + \mathbf{b}\bigr)\,dt + \mathbf{G}\,dW(t)
+$$
+$$
+dW(t) \sim \sqrt{dt}\,\mathcal{N}(0,1)
+$$
+
+Where:
+
+- $\boldsymbol{\eta}(t) \in \mathbb{R}^K$ is the vector of latent trait values at time $t$.
+- $\mathbf{A} \in \mathbb{R}^{K \times K}$ is the **selection matrix**. Its diagonal $A_{[k,k]} < 0$ plays the role of $-\alpha$ in a univariate Ornstein-Uhlenbeck process — the rate at which trait $k$ is pulled back toward its equilibrium. Its off-diagonal $A_{[k,k']}$ is the directed effect of latent trait $k'$ on latent trait $k$, and may take either sign.
+- $\mathbf{b} \in \mathbb{R}^K$ are continuous-time intercepts. Together with $\mathbf{A}$ they set the equilibrium values of $\boldsymbol{\eta}$; without $\mathbf{b}$ every trait would revert to zero.
+- $\mathbf{G}$ is the Cholesky factor of the drift covariance $\mathbf{Q} = \mathbf{G}\mathbf{G}^\top$, scaling the Brownian motion $W(t)$. The square roots of the diagonal of $\mathbf{Q}$ correspond to $\sigma$ in the univariate process.
+
+Drift dominates at short timescales because its effect grows as $\sqrt{dt}$, while the effect of selection grows as $dt$.
+
+**2. Branch-wise Solution**
+
+Equation (1) is solved in closed form over the finite interval $\Delta t_{[s]}$ separating a parent node from its child, giving a linear Gaussian recursion down the tree:
+$$
+\boldsymbol{\eta}_{[s]} = \mathbf{A}_{\Delta[s]}\,\boldsymbol{\eta}_{[\text{pa}(s)]} + \mathbf{b}_{\Delta[s]} + \boldsymbol{\varepsilon}_{[s]}
+$$
+$$
+\mathbf{A}_{\Delta[s]} = \exp\bigl(\mathbf{A}\,\Delta t_{[s]}\bigr)
+$$
+$$
+\mathbf{b}_{\Delta[s]} = \mathbf{A}^{-1}\bigl(\mathbf{A}_{\Delta[s]} - \mathbf{I}\bigr)\,\mathbf{b}
+$$
+$$
+\boldsymbol{\varepsilon}_{[s]} \sim \mathcal{N}\bigl(\mathbf{0}_K,\, \mathbf{Q}_{\Delta[s]}\bigr)
+$$
+
+The accumulated drift covariance is obtained from the asymptotic covariance $\mathbf{Q}_\infty$:
+$$
+\mathbf{Q}_{\Delta[s]} = \mathbf{Q}_\infty - \mathbf{A}_{\Delta[s]}\,\mathbf{Q}_\infty\,\mathbf{A}_{\Delta[s]}^\top
+$$
+$$
+\operatorname{vec}(\mathbf{Q}_\infty) = -\bigl(\mathbf{A}\otimes\mathbf{I} + \mathbf{I}\otimes\mathbf{A}\bigr)^{-1}\operatorname{vec}(\mathbf{Q})
+$$
+
+Where:
+
+- $\mathbf{A}_{\Delta[s]}$ is the matrix exponential giving the deterministic change accrued over branch $s$: how far the child has moved toward its optimum given how long the branch is.
+- $\Delta t_{[s]}$ is the length of branch $s$, i.e. the time elapsed between $\text{pa}(s)$ and $s$.
+- $\mathbf{Q}_\infty$ is the stationary covariance of the process, the solution of the continuous Lyapunov equation $\mathbf{A}\mathbf{Q}_\infty + \mathbf{Q}_\infty\mathbf{A}^\top + \mathbf{Q} = \mathbf{0}$. It depends only on $\mathbf{A}$ and $\mathbf{Q}$, so it is computed **once per posterior draw** rather than once per branch. $\otimes$ denotes the Kronecker product.
+- $\boldsymbol{\varepsilon}_{[s]}$ is the stochastic change accumulated over branch $s$. In code it is sampled non-centered as $\boldsymbol{\varepsilon}_{[s]} = \mathbf{L}_{\Delta[s]}\,\mathbf{z}_{[s]}$, with $\mathbf{L}_{\Delta[s]}$ the Cholesky factor of $\mathbf{Q}_{\Delta[s]}$.
+
+The recursion is initialised at the root and applied in pre-order, so that $\boldsymbol{\eta}_{[\text{pa}(s)]}$ is always available when segment $s$ is visited.
+
+**3. Priors**
+
+$$
+A_{[k,k]} \sim \mathcal{N}(0,1)\;\text{truncated to}\;(-\infty, 0)
+$$
+$$
+A_{[k,k']} \sim \mathcal{N}(0, 2), \qquad k \neq k',\; E_{[k,k']} = 1
+$$
+$$
+\sigma_{Q[k]} \sim \mathcal{N}(0,2)\;\text{truncated to}\;(0,\infty)
+$$
+$$
+\mathbf{Q} = \operatorname{diag}\bigl(\sigma_{Q[1]}^2, \ldots, \sigma_{Q[K]}^2\bigr)
+$$
+$$
+\mathbf{b} \sim \mathcal{N}(\mathbf{0}_K, 1)
+$$
+$$
+\boldsymbol{\eta}_{[\text{root}]} \sim \mathcal{N}(\mathbf{0}_K, 1)
+$$
+$$
+\mathbf{z}_{[s]} \sim \mathcal{N}(\mathbf{0}_K, 1)
+$$
+
+Where:
+
+- The upper truncation on $A_{[k,k]}$ enforces mean reversion: a positive diagonal would make the process explode rather than adapt.
+- $\mathbf{E} \in \{0,1\}^{K \times K}$ is the **effects matrix**. Entries with $E_{[k,k']} = 0$ hold $A_{[k,k']}$ at exactly zero and are not sampled, which is how a causal hypothesis is encoded: a zero says "trait $k'$ has no direct effect on trait $k$". The $\mathcal{N}(0,2)$ prior on the free entries is weakly informative on the direction and size of each directed effect.
+- $\boldsymbol{\eta}_{[\text{root}]}$ is the ancestral state. A prior centred on the sample mean is a reasonable default; an informative prior can be substituted when domain knowledge is available (see §2).
+- $\mathbf{z}_{[s]} \in \mathbb{R}^K$ are the standard normal deviates of the non-centered drift parameterisation, one per internal segment.
+
+**4. Observation Model**
+
+In the base model each observed trait *is* a latent trait: $\mathbf{\Lambda} = \mathbf{I}$, $K = J$, and the link is the identity. The tip likelihood scores the residual between the observed value and the latent value at that tip, under the drift covariance of the terminal branch:
+$$
+\mathbf{y}_{[n]} - \boldsymbol{\eta}_{[\text{tip}(n)]} \sim \mathcal{N}\bigl(\mathbf{0}_J,\, \mathbf{Q}_{\Delta[\text{tip}(n)]}\bigr)
+$$
+
+Where:
+
+- $\mathbf{y}_{[n]} \in \mathbb{R}^J$ is the vector of observed traits for tip $n$.
+- $\boldsymbol{\eta}_{[\text{tip}(n)]}$ is the latent state at the tip node of species $n$, computed by the recursion in §2 *without* its terminal drift term.
+- $\mathbf{Q}_{\Delta[\text{tip}(n)]}$ is the drift covariance of the terminal branch. Folding the terminal drift into the likelihood rather than sampling it as a parameter marginalises it analytically, which removes $N \times K$ parameters from the posterior.
+
+---
+
+## 2. GDPM with Latent Variables (GDPM-LV)
+
+The GDPM-LV model relaxes the assumption that each observed trait is its own latent trait. A factor matrix $\mathbf{\Lambda}$ maps $K$ latent traits onto $J > K$ observed traits, each with its own likelihood and link, so that counts, binary outcomes, and positive-continuous measurements can coevolve in one system. Drift is allowed to be correlated across latent dimensions, and missing observations are dropped from the likelihood rather than imputed.
+
+### Example
+
+::: callout-note
+- **Identification**: the factor matrix needs anchors. One loading per latent dimension is fixed to $1$; the remaining loadings are free. Without this the scale and sign of $\boldsymbol{\eta}$ are arbitrary.
+- **Terminal drift is a parameter here**: because the link is non-linear, the terminal drift can no longer be marginalised analytically and is sampled explicitly as $\boldsymbol{\delta}_{[n]}$.
+- **Missing data**: pass `mask=` and the unobserved cells drop out of the likelihood, matching a Stan model that guards each trait with `if (miss[n,j] == 0)`. The placeholder sitting in the masked positions must still be numerically safe: a $-99$ sentinel reaches the Gamma log-density and yields `NaN` gradients, so substitute any valid value before masking.
+:::
+
+::: {.panel-tabset group="language"}
+## Python
+
+```python
+from BayesForge import bf
+import jax, jax.numpy as jnp
+
+m = bf(platform='cpu')
+
+def model(y, observed, y_mean, ts, tip_id, ..., K, J, N):   # observed: bool (N, J)
+    # Priors — evolutionary layer (as in §1, with correlated drift)
+    A_diag    = m.dist.truncated_normal(0.0, 1.0, high=0.0, shape=(K,), name="A_diag")
+    A_offdiag = m.dist.normal(0.0, 1.0, shape=(n_off,), name="A_offdiag")
+    Q_sigma   = m.dist.truncated_normal(0.0, 1.0, low=0.0, shape=(K,), name="Q_sigma")
+    L_R       = m.dist.lkj_cholesky(K, concentration=4.0, name="L_R")
+    b         = m.dist.normal(0.0, 1.0, shape=(K,), name="b")
+    eta_anc   = m.dist.normal(jnp.array([0.0, -0.2]),      # informative on trait 2
+                              jnp.array([1.0, 0.15]), name="eta_anc")
+
+    # Priors — observation layer
+    alpha       = m.dist.normal(0.0, 1.0, shape=(J,), name="alpha")
+    shape_      = m.dist.gamma(0.01, 0.01, shape=(J,), name="shape")
+    lambda_free = m.dist.normal(0.0, 1.0, shape=(J - K,), name="lambda_free")
+
+    # Correlated drift
+    LQ = Q_sigma[:, None] * L_R
+    Q  = LQ @ LQ.T
+
+    # ... Q_inf, per-branch quantities and tree traversal exactly as in §1 ...
+
+    # Factor matrix: anchors at 1, free loadings elsewhere
+    Lambda = jnp.zeros((J, K)).at[0, 0].set(1.0).at[1, 1].set(1.0)
+    Lambda = Lambda.at[2, 0].set(lambda_free[0]).at[3, 0].set(lambda_free[1])
+
+    # Terminal drift is sampled, not marginalised
+    delta = m.dist.multivariate_normal(loc=jnp.zeros(K), scale_tril=L_VCV[tip_id],
+                                       shape=(N,), name="terminal_drift")
+    eta_tips = eta[tip_id] + delta
+
+    # Gamma observation model, one link per trait
+    mu1 = alpha[0] + Lambda[0, 0] * eta_tips[:, 0]
+    m.dist.gamma(shape_[0], shape_[0] / jnp.exp(mu1),
+                 obs=y[:, 0] / y_mean[0], name="obs_body")
+
+    beta = jax.nn.softplus(Lambda[1, 1] * eta_tips[:, 1])   # allometric slope
+    mu2  = alpha[1] + jnp.log(y[:, 0]) * beta
+    m.dist.gamma(shape_[1], shape_[1] / jnp.exp(mu2), obs=y[:, 1], name="obs_brain")
+
+    # Partly-missing traits: mask= drops the unobserved cells from the
+    # likelihood. `observed` is the boolean complement of the missingness
+    # indicator, and `y` carries a numerically safe placeholder wherever a
+    # value is missing (a -99 sentinel would make the Gamma density NaN).
+    mu3 = alpha[2] + Lambda[2, 0] * eta_tips[:, 0]
+    m.dist.gamma(shape_[2], shape_[2] / jnp.exp(mu3), obs=y[:, 2] / y_mean[2],
+                 mask=observed[:, 2], name="obs_longevity")
+
+    mu4 = alpha[3] + Lambda[3, 0] * eta_tips[:, 0]
+    m.dist.gamma(shape_[3], shape_[3] / jnp.exp(mu4), obs=y[:, 3] / y_mean[3],
+                 mask=observed[:, 3], name="obs_maturity")
+
+# observed = (miss == 0); y = np.where(miss == 1, 1.0, y_raw)
+m.fit(model)
+m.summary()
+```
+
+## R
+
+```R
+# Equivalent R implementation: factor matrix, per-trait Gamma links,
+# and mask= on the partly-observed traits...
+```
+
+## Julia
+
+```julia
+# Equivalent Julia implementation: factor matrix, per-trait Gamma links,
+# and mask= on the partly-observed traits...
+```
+:::
+
+### Mathematical Details
+
+The GDPM-LV model keeps the latent evolutionary process of §1 unchanged and generalises the observation layer. The index convention is the same, with $j$ now ranging over $J > K$ observed traits.
+
+**1. Observation Likelihood**
+
+Each observed trait has its own density and its own link:
+$$
+y_{[n,j]} \sim f_j\bigl(\mu_{[n,j]},\, \phi_{[j]}\bigr)
+$$
+$$
+g_j\bigl(\mu_{[n,j]}\bigr) = \alpha_{[j]} + \boldsymbol{\Lambda}_{[j,\cdot]} \cdot \tilde{\boldsymbol{\eta}}_{[n]}
+$$
+
+Where:
+
+- $f_j$ is the density or mass function for trait $j$ — Gaussian, Bernoulli, Poisson, negative binomial, Gamma or ordered logistic — with expectation $\mu_{[n,j]}$ and auxiliary parameter $\phi_{[j]}$ governing dispersion, zero-inflation or shape.
+- $g_j$ is the link mapping the support of $f_j$ onto the unbounded scale on which the evolutionary process lives (log, logit, softplus, or identity).
+- $\alpha_{[j]}$ is the intercept for trait $j$.
+- $\boldsymbol{\Lambda} \in \mathbb{R}^{J \times K}$ is the **factor matrix** mapping latent traits onto observed traits. When $K = J$, $g$ is the identity and $\boldsymbol{\Lambda} = \mathbf{I}$, this reduces exactly to the model of §1.
+- $\tilde{\boldsymbol{\eta}}_{[n]}$ is the latent state at tip $n$ *including* its terminal drift, defined next.
+
+**2. Tip States and Terminal Drift**
+
+$$
+\tilde{\boldsymbol{\eta}}_{[n]} = \boldsymbol{\eta}_{[\text{tip}(n)]} + \boldsymbol{\delta}_{[n]}
+$$
+$$
+\boldsymbol{\delta}_{[n]} \sim \mathcal{N}\bigl(\mathbf{0}_K,\, \mathbf{Q}_{\Delta[\text{tip}(n)]}\bigr)
+$$
+
+Where:
+
+- $\boldsymbol{\delta}_{[n]}$ is the drift accumulated along the terminal branch leading to tip $n$. In §1 the identity link let this be integrated out analytically; under a non-linear link it must be sampled, adding $N \times K$ parameters.
+
+**3. Factor Matrix and Identification**
+
+$$
+\Lambda_{[k,k]} = 1, \qquad k = 1,\ldots,K
+$$
+$$
+\Lambda_{[j,k]} = \lambda^{\text{free}}_{[j,k]}, \qquad j > K
+$$
+$$
+\lambda^{\text{free}}_{[j,k]} \sim \mathcal{N}(0,1)
+$$
+
+Where:
+
+- Fixing one loading per latent dimension to $1$ anchors the scale and sign of that dimension; the free loadings $\lambda^{\text{free}}$ are then interpretable as the response of trait $j$ relative to its anchor. Leaving all loadings free would leave the model unidentified.
+
+**4. Correlated Drift**
+
+$$
+\mathbf{Q} = \operatorname{diag}(\boldsymbol{\sigma}_Q)\,\mathbf{L}_R\mathbf{L}_R^\top\,\operatorname{diag}(\boldsymbol{\sigma}_Q)
+$$
+$$
+\mathbf{L}_R \sim \text{LKJCholesky}(K,\, \eta = 4)
+$$
+$$
+\sigma_{Q[k]} \sim \mathcal{N}(0,1)\;\text{truncated to}\;(0,\infty)
+$$
+
+Where:
+
+- $\mathbf{L}_R$ is the Cholesky factor of the correlation matrix among latent drift dimensions. Off-diagonal entries capture *correlated stochastic evolution* — traits that fluctuate together without either causing the other — which is distinct from the directed effects carried by $\mathbf{A}$. Separating the two is what allows the model to distinguish coevolution from causation.
+- The LKJ concentration $\eta = 4$ shrinks drift correlations toward zero, so correlated drift must be supported by the data before it is inferred.
+
+**5. Example: a Gamma Trait with an Allometric Link**
+
+For a strictly positive trait scaled by its sample mean $\bar{y}_{[j]}$, the Gamma is parameterised by shape and rate:
+$$
+y_{[n,j]} \,/\, \bar{y}_{[j]} \sim \text{Gamma}\Bigl(\phi_{[j]},\; \phi_{[j]} \big/ \exp\bigl(\alpha_{[j]} + \Lambda_{[j,1]}\,\tilde{\eta}_{[n,1]}\bigr)\Bigr)
+$$
+$$
+\phi_{[j]} \sim \text{Gamma}(0.01,\, 0.01)
+$$
+$$
+\alpha_{[j]} \sim \mathcal{N}(0,1)
+$$
+
+A trait whose scaling relationship with another trait is itself evolving takes a second latent dimension as its exponent:
+$$
+\beta_{[n]} = \log\bigl(1 + \exp(\tilde{\eta}_{[n,2]})\bigr)
+$$
+$$
+y_{[n,2]} \sim \text{Gamma}\Bigl(\phi_{[2]},\; \phi_{[2]} \big/ \exp\bigl(\alpha_{[2]} + \beta_{[n]}\,\log y_{[n,1]}\bigr)\Bigr)
+$$
+
+Where:
+
+- $\phi_{[j]} > 0$ is the Gamma shape: the rate is set to $\phi_{[j]}/\mu_{[n,j]}$ so that $\mathbb{E}[y] = \mu$ and the coefficient of variation is $1/\sqrt{\phi_{[j]}}$. The $\text{Gamma}(0.01, 0.01)$ prior is deliberately diffuse.
+- $\beta_{[n]}$ is a species-specific **allometric slope**, obtained by passing the second latent dimension through a softplus so that it stays positive. Modelling the exponent as an evolving latent trait — rather than a single fixed coefficient — is what lets the scaling relationship itself coevolve.
+- Note that $y_{[n,1]}$ enters unscaled inside the logarithm, while trait 1's own likelihood uses the mean-scaled value; this keeps the allometric equation on its natural units.
+
+**6. Missing Data**
+
+$$
+\ell = \sum_{n=1}^{N}\sum_{j=1}^{J} M_{[n,j]} \, \log f_j\bigl(y_{[n,j]} \mid \mu_{[n,j]}, \phi_{[j]}\bigr)
+$$
+
+Where:
+
+- $M_{[n,j]} \in \{0,1\}$ indicates whether trait $j$ was observed for tip $n$. Missing cells contribute nothing to the log-likelihood, and the latent state $\tilde{\boldsymbol{\eta}}_{[n]}$ for that species is informed by its other traits and by its position on the tree. No imputation step is required.
+
+---
+
+## Notes
+
+::: callout-note
+- **Interpreting $\mathbf{A}$**: off-diagonal entries are *rates*, not standardised effects. Their magnitude must be read against the diagonal of the same row — a cross-lagged effect is large when it is large relative to that trait's own reversion rate.
+- **Attenuation**: evolutionary regression coefficients estimated by static methods underestimate causal effects, because species are rarely observed at equilibrium. Estimating $\mathbf{A}$ directly is what corrects this.
+- **Cost**: the traversal is sequential in tree depth. Computing all branch quantities in one vectorised pass and scanning over tree *levels* rather than individual segments keeps the gradient cheap on large trees.
+- **Numerical care**: $\mathbf{Q}_{\Delta[s]} \to \mathbf{0}$ as $\Delta t_{[s]} \to 0$, so its Cholesky factor needs a small jitter on the diagonal to stay defined on very short branches.
+:::
+
+## Reference(s)

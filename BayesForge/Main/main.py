@@ -1360,6 +1360,28 @@ class bf(manip):
             return arr
         return jax.device_put(arr, self._rep_sharding)
 
+    # ------------------------------------------------------------------
+    # Parallel simulation scenarios
+    # ------------------------------------------------------------------
+    # Exposed as staticmethods (like `load` above) because each simulation
+    # builds its *own* bf instance in its own process -- there is no `self` to
+    # speak of. Imported lazily to keep BayesForge.Parallel free of a circular
+    # import back into this module.
+
+    @staticmethod
+    def run_simulations(*args, **kwargs):
+        """Run independent simulations in parallel. See
+        :func:`BayesForge.Parallel.simulate.run_simulations`."""
+        from BayesForge.Parallel.simulate import run_simulations as _run
+        return _run(*args, **kwargs)
+
+    @staticmethod
+    def grid(*args, **kwargs):
+        """Build a scenario grid. See
+        :func:`BayesForge.Parallel.simulate.grid`."""
+        from BayesForge.Parallel.simulate import grid as _grid
+        return _grid(*args, **kwargs)
+
 
 # Alias for backward compatibility
 BF = bf
