@@ -9,6 +9,7 @@ except ImportError:
 from .Main.main import bf, BF
 from .SetDevice.set import setup_device
 from .Resources.datasets import load
+from .Parallel.simulate import grid, run_simulations
 import importlib.metadata
 
 BayesForge = BF
@@ -18,5 +19,10 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "unknown"
 
-print(f"bf v {__version__} package loaded")
-__all__ = ["bf", "BF", "BayesForge", "setup_device", "load"]
+# BF_QUIET is set by run_simulations for its workers: with a pool of them the
+# banner prints once per process and drowns the actual output.
+import os as _os
+if _os.environ.get("BF_QUIET", "0") != "1":
+    print(f"bf v {__version__} package loaded")
+__all__ = ["bf", "BF", "BayesForge", "setup_device", "load",
+           "run_simulations", "grid"]

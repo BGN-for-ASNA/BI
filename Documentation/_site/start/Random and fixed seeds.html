@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.26">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Random and fixed seeds – BayesForge (BF)</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -69,17 +75,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../start/Import_class.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-1b3db88def35042d172274863c1cdcf0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-c4e1171eb4281116019c604a711c5128.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-c4e1171eb4281116019c604a711c5128.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1edfd1f1af7245e47382b957f0945ed9.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-136e5ee928d61b38b2f9fcf6b29f4f4b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-434d13ca7c6858d2c385dcb5e7e05762.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-92493114aaed7981d4de4c24f6785a64.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -510,6 +515,12 @@ window.Quarto = {
  <span class="menu-text">Model Diagnostic</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../start/Parallel simulations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parallel simulations</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -895,1205 +906,605 @@ window.Quarto = {
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>
-
 <script src="https://unpkg.com/tippy.js@6"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-
 <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-
-
 <script>
-
 function convertMarkdownToHTML(markdown) {
-
   const options = {
-
     breaks: true,
-
     gfm: true,
-
   };
-
   const htmlContent = marked.parse(markdown, options);
-
   return htmlContent;
-
 }
 
-
-
 tippy('#Elasticity', {
-
   content: convertMarkdownToHTML('The elasticity of the response variable with respect to the exposure is the percent change in the response with respect to a percent change in the exposure. For example, an elasticity of 1.0 means that doubling the exposure time will double the response'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
-
 
 
 tippy('#Uncertainty', {
-
   content: convertMarkdownToHTML('Bayesian analysis provides a complete probability distribution for each parameter. This full distribution (rather than a single point estimate) allows you to assess uncertainty in a natural and intuitive way.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#priorKnowledge', {
-
   content: convertMarkdownToHTML('When data are sparse or noisy, incorporating prior knowledge through the prior distribution can improve the model’s performance. This is especially useful in fields where previous research or expert opinion is available.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#Flexibility', {
-
   content: convertMarkdownToHTML('Bayesian approaches naturally extend to complex settings such as hierarchical models, models with latent variables, or situations with missing data. Their ability to blend different sources of information makes them ideal for modern, data-rich applications.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#PPCs', {
-
   content: convertMarkdownToHTML('PPCs involve generating *dummy data* (or simulated observations) from the posterior predictive distribution and comparing these simulated datasets with the actual observed data.By comparing summary statistics (e.g., means, variances) or visualizations (e.g., histograms, scatter plots) between \( y^{\text{rep}} \) and the observed data, we can assess if our model is capable of reproducing key features of the data.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#HPDI', {
-
   content: convertMarkdownToHTML('HPDI is a metric that describe the distribution of a parameter. The Highest Posterior Density Interval is the narrowest interval that contains a specified proportion (e.g., 95%) of the posterior probability. HPDIs are especially useful when the posterior distribution is skewed or multimodal as it help in understanding the uncertainty of parameter estimates and in communicating the degree of uncertainty in predictions.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#convDiag', {
-
   content: convertMarkdownToHTML('Convergence diagnostics are statistical tools and methods used to assess whether a Markov Chain Monte Carlo (MCMC) algorithm has sufficiently explored the target posterior distribution in Bayesian analysis. They help ensure that the chain has stabilized and that samples are reliable for inference.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#ESS', {
-
   content: convertMarkdownToHTML('ESS estimates how many independent samples our MCMC chain is equivalent to. Low ESS values indicate that samples are highly correlated, which might affect the reliability of posterior summaries.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#Rhat', {
-
   content: convertMarkdownToHTML('Rhat compares the variance between multiple chains to the variance within each chain. Values close to 1 (typically below 1.1) indicate good convergence.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
 
-
-
   tippy('#TP', {
-
     content: convertMarkdownToHTML('Trace plots are graphical tools used in MCMC diagnostics to visualize the sampled values of a parameter over iterations. They help assess the convergence and mixing behavior of the Markov chain.'),
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
-
-
 
   tippy('#AutoCor', {
-
     content: convertMarkdownToHTML('Autocorrelation plots visualize the correlation between samples in an MCMC chain as a function of the lag (distance between samples). They help assess how dependent the samples are and whether the chain is mixing efficiently.'),
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
-
-
 
   tippy('#DesPlot', {
-
     content: convertMarkdownToHTML('Density plots visualize the estimated posterior distribution of a parameter based on MCMC samples. They provide a smoothed representation of the distribution, helping assess central tendency, spread, and shape.'),
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
-
-
-
-
 
 
 
 tippy('#DP', {
-
   content: convertMarkdownToHTML('A dependent variable  is the variable being measured or observed in an analysis. It represents the outcome whose variation depends on changes in one or morepredictor. In statistical models, it is often denoted as Y.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#IP', {
-
   content: convertMarkdownToHTML('An independent variable is the variable that is manipulated or controlled in an analysis to observe its effect on a dependent variable. It represents the input or cause in a cause-and-effect relationship and is often denoted as X in statistical models.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#lk', {
-
   content: convertMarkdownToHTML('Likelihood is a statistical concept representing the probability of observing a given set of data, assuming specific values of the *parameters* in a model.It is not the same as probability; instead, it measures how well a model with certain parameters explains the observed data.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#pdist', {
-
   content: convertMarkdownToHTML('A probability distribution is a mathematical function that describes the likelihood of different outcomes in a random process. It specifies how probabilities are assigned to values or ranges of a random variable. Distributions can be discrete (e.g.,Binomial, Poisson) or continuous (e.g., Normal, Exponential), depending on whether the variable takes finite or infinite values.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#intercept ', {
-
   content: convertMarkdownToHTML('An intercept is the value of the dependent variable when all independent variables are equal to zero in a regression model. It represents the starting point or baseline level of the outcome variable and is often denoted as α in linear models.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#slope ', {
-
   content: convertMarkdownToHTML('A slope is the rate of change in the dependent variable for a one-unit change in an independent variable in a regression model. It represents the strength and direction of the relationship and is often denoted as β in linear models. A positive slope indicates an increasing relationship, while a negative slope indicates a decreasing relationship.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
-
 
 
 tippy('#prior', {
-
   content: convertMarkdownToHTML('Priors are distributions that represent the value of the parameter before conditioning it on the data.'),
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#BT', {
-
   content: '<span style="color: white;">Bayes\' Theorem describes how to update the probability of a hypothesis given new evidence. It states that the posterior probability of a parameter is proportional to the product of the prior probability and the likelihood of the data given the parameter. This approach allows for the incorporation of prior knowledge and the use ofBayesian updating to improve the accuracy of the model.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
 
-
-
 tippy('#BUpdating', {
-
     content: '<span style="color: white;">Bayesian updating is the iterative process of refining beliefs by applying Bayes\' Theorem as new data becomes available.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
   });
 
 
 
-
-
-
-
 tippy('#overdispersion', {
-
   content: '<span style="color: white;">Overdispersion refers to a situation in statistical modeling where the variability of the data exceeds what is expected under the assumed model. In this case, by the binomial distribution.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#linkF', {
-
     content: '<span style="color: white;">The link function is a key component of the generalized linear model (GLM) and it is used to transform the mean of the response variable so that it can be modeled as a linear combination of the predictors. Different types of response data(continuous, binary, counts, etc.) have different natural ranges. For example, probabilities must lie between 0 and 1, and a logarithmic link ensures a positive mean for count data. The choice of link function influences how we interpret the regression coefficients.For instance, with a logit link (used in logistic regression), the coefficients relate to the log - odds of the outcome.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#simplex', {
-
   content: '<span style="color: white;">A simplex is a vector of k−1 probabilities that sum to one.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
   
-
 tippy('#triptych', {
-
     content: '<span style="color: white;">Three panels arranged side by side to compare multiple datasets or conditions simultaneously. Each panel often represents a different aspect of the data or a different dataset, allowing for easy comparison and analysis. They are particularly useful for displaying complex relationships or patterns across multiple variables or experimental conditions.") plots are very handy for understanding the impact of interactions.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
     
-
 tippy('#hyperP', {
-
   content: '<span style="color: white;">A hyperprior is a prior distribution placed on the parameters (called hyperparameters) of another prior distribution. Essentially, it introduces a second layer of uncertainty by modeling the parameters of the prior as random variables, allowing for more flexibility and robustness in the Bayesian model.</span>',
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#cov', {
-
     content: '<span style="color: white;">A covariance matrix is a square matrix that contains the covariances between pairs of elements in a random vector. Each element in the matrix represents the covariance between two variables. The diagonal elements represent the variances of each variable, and the off-diagonal elements represent the covariance between different variables.</span>',
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#centerRF', {
-
   content: "<span style='color: white;'>The centered version of the varying intercept model is a statistical approach where the intercepts of a regression model vary across groups or clusters, and these intercepts are centered around a global mean. In this model, each group has its own intercept, but the differences between these intercepts and the global mean are what are explicitly estimated. This helps in understanding how each group's baseline differs from an overall average, making it easier to interpret variations between groups.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#NodeF', {
-
     content: "<span style='color: white;'>Nodal categorical (e.g., sex) or continuous (e.g., age) characteristics</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#DyadicF', {
-
     content: "<span style='color: white;'>Link-related categorical (e.g., same group membership) or continuous (e.g., genetic distances) characteristics between nodes</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#senderF', {
-
     content: "<span style='color: white;'>Node <i>i</i>'s propensity to emit a link.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#receiverF', {
-
     content: "<span style='color: white;'>Node <i>j</i>'s propensity to receive a link.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#DyadicF2', {
-
     content: "<span style='color: white;'>Propensity of node <i>i</i> and <i>j</i> to receive from each other.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#expoB', {
-
     content: "<span style='color: white;'>Heterogeneity in observations between individuals leading to over- and under-sampling of some individuals.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#censoB', {
-
     content: "<span style='color: white;'>Missing interactions within observation leading to over- and under-estimation of interactions (e.g., Females birds may have cryptic phenotype compare to male birds, leading to higher probability to miss interactions during observations).</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#assor', {
-
     content: "<span style='color: white;'>The tendency of nodes to connect with similar nodes.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
 
 tippy('#disassor', {
-
     content: "<span style='color: white;'>The tendency of nodes to connect with dissimilar nodes.</span>",
-
     allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
 });
-
-
-
 
 
 tippy('#chol', {
-
   content: "<span style='color: white;'>This matrix is special because it encodes correlations between the variables but in a computationally stable way.In multivariate normal distributions, correlation matrices are positive definite and symmetric, but they can be tricky to work with directly. The Cholesky decomposition makes computation easier and more stable because it's lower triangular and simplifies matrix operations.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#uncertainty', {
-
   content: "<span style='color: white;'>Model parameter uncertainty refers to the inherent variability in the parameter estimates due to limited or noisy data, represented as probability distributions rather than fixed values. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#posterior', {
-
   content: "<span style='color: white;'> Probability distribution of the model parameters after observing the data. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#scaled', {
-
   content: "<span style='color: white;'> Scaled data is data that has been transformed to fit within a specific range or to have specific statistical properties, such as a normal distribution with a mean of zero and a standard deviation of one. This transformation helps improve the performance of algorithms and ensures that features contribute equally to the analysis. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#grandMean', {
-
   content: "<span style='color: white;'> The average value of the outcome when all predictor variables are at their mean levels. </span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#ohe', {
-
   content: "<span style='color: white;'>Convert categorical variables into binary vectors, where each category is represented by a unique vector with all elements set to zero except for one element, which is set to one.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#indices', {
-
   content: "<span style='color: white;'>Process of mapping each unique category of a categorical variable to a corresponding integer index, where each category is assigned a distinct numerical value.</span>",
-
   allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
 });
-
-
 
 tippy('#softmax', {
-
   content: `
-
   <span style='color: white;'>
-
     takes a vector of 𝑛 real-valued scores (logits) and exponentiates each score, 
-
     then normalizes them by dividing each exponentiated score by the sum of all exponentiated scores. 
-
     The resulting output values lie in the range (0, 1) and sum to 1, making them interpretable as probabilities.<br><br>
-
     <strong>Formula:</strong><br>
-
     $$softmax(z<sub>i</sub>) = [ \\frac{e^{z_i}}{\\sum_{j=1}^{n} e^{z_j}} ]$$
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#kernel', {
-
   content: `
-
   <span style='color: white;'>
-
     A kernel k(x,x') is a function that computes the similarity/covariance between any two points x and x'
-
     in a higher-dimensional feature space without explicitly transforming them. 
-
     The kernel function allows for non-linear relationships by mapping input space to feature space, 
-
     where linear techniques can then be applied. 
-
     Mathematically, like for the covariance matrix it must be symmetric and positive semi-definite.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#kernelMean0', {
-
   content: `
-
   <span style='color: white;'>
-
     GP mean is usually set to zero as by setting the mean to zero, 
-
     we center the distribution around the origin. 
-
     This helps in interpreting the model, as the values of <i>𝑓(𝑥)<\\i> 
-
     can be thought of as deviations from this mean.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#signAmbiguity', {
-
   content: `
-
   <span style='color: white;'>
-
     PCA identifies directions (principal components) that capture the maximum variance in the data. However, the orientation of these components is not unique; both a vector and its negation represent the same principal direction. This means that if 𝑤 is a principal component, −𝑤 is equally valid.
-
   </span>
-
   `,  allowHTML: true,
-
   interactive: true,
-
   delay: 100,
-
   onShow(instance) {
-
     MathJax.typesetPromise([instance.reference]).then(() => {
-
       // Optional: if you want to do something after the typesetting
-
     });
-
   },
-
 });
-
-
 
 tippy('#MatCov', {
-
   content: `
-
   <span style='color: white;'>
-
     A covariance matrix is a square matrix Σ of size $n×n$ for n random variables $X₁, X₂, ..., Xₙ$, where each element $σ_ij$ represents the covariance between variables $X_i$ and $X_j$. The diagonal elements $σ_ii$ are the variances of each variable $X_i$.
-
   </span>
-
   `, allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
     onShow(instance) {
-
       MathJax.typesetPromise([instance.reference]).then(() => {
-
         // Optional: if you want to do something after the typesetting
-
       });
-
     },
-
 });
-
-
 
 tippy('#RFcentered', {
-
   content: `
-
   <span style='color: white;'>
-
     The centered version of the varying intercept in mixed effects models is a transformation where each group's intercept is expressed as a deviation from the fixed intercept. This results in zero-mean random effects ensures that the random effects are balanced around zero, enhancing model interpretability and estimation efficiency.
-
   </span>
-
   `, allowHTML: true,
-
     interactive: true,
-
     delay: 100,
-
     onShow(instance) {
-
       MathJax.typesetPromise([instance.reference]).then(() => {
-
         // Optional: if you want to do something after the typesetting
-
       });
-
     },
-
 });
 
-
-
 tippy('#LKJcorr', {
-
       content: `
-
   <span style='color: white;'>
-
     The Cholesky Factor is a lower triangular matrix ( $L$ ) with positive diagonal entries such that $( A = LL^T )$ for a given symmetric positive-definite matrix ( $A$ ).
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
-
 
 tippy('#unsupervised', {
-
       content: `
-
   <span style='color: white;'>
-
     An unsupervised algorithm is a method that processes unlabeled data to automatically uncover patterns, groupings, or structures without predefined output targets.
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
-
 
 tippy('#stickProcess', {
-
       content: `
-
   <span style='color: white;'>
-
 The stick-breaking process is a way to generate a random distribution by imagining a unit-length stick that gets broken into pieces one step at a time. At each step, a random fraction of whatever stick remains is snapped off to form a new weight, and the rest is left for future breaks. Each weight is paired with a randomly chosen parameter value. Repeating this indefinitely yields a distribution made of infinitely many weighted parameter, where earlier pieces tend to be larger and later ones smaller.
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
-
 
 tippy('#Neurons', {
-
       content: `
-
   <span style='color: white;'>
-
  In a neural network, a neuron (or node) is a fundamental computational unit. It receives inputs, applies a weighted sum and an activation function to these inputs, and produces an output. It's analogous to a biological neuron, processing and transmitting signals.
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
-
 
 tippy('#Layers', {
-
       content: `
-
   <span style='color: white;'>
-
 Layers are groups of neurons organized in a 2D array. Each layer processes the output from the previous layer and passes its output to the next. Common layer types include input layers, hidden layers (where the main computation occurs), and output layers (which produce the final predictions).
-
 </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
-
-
 
 
 tippy('#Dropout', {
-
       content: `
-
   <span style='color: white;'>
-
  Dropout is a regularization technique where, during training, a random subset of neurons (and their connections) are temporarily ignored or "dropped out" for each training iteration. This prevents neurons from co-adapting too much and encourages the network to learn more robust features, thus reducing overfitting.
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
-
 
 tippy('#L2', {
-
       content: `
-
   <span style='color: white;'>
-
 L2 regularization (also known as weight decay) is a technique to prevent overfitting by adding a penalty term to the loss function. This penalty is proportional to the sum of the squares of the network's weights. It encourages the model to use smaller weights, leading to a simpler and more generalized model.
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
-
-
 
 
 tippy('#Overfitting', {
-
       content: `
-
   <span style='color: white;'>
-
 Overfitting occurs when a machine learning model learns the training data too well, including its noise and random fluctuations. As a result, the model performs very poorly on new, unseen data because it has failed to generalize the underlying patterns.
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
-
 
 tippy('#VI', {
-
       content: `
-
   <span style='color: white;'>
-
 An optimization-based method for approximating complex, intractable posterior distributions. Instead of sampling (as in MCMC), VI posits a parameterized family of simpler distributions (e.g., Gaussians) and optimizes their parameters to minimize the Kullback-Leibler (KL) divergence between the approximation and the true posterior. This effectively converts an integration problem into an optimization problem
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
     
-
 tippy('#SG-MCMC', {
-
       content: `
-
   <span style='color: white;'>
-
 A class of algorithms designed to scale Markov Chain Monte Carlo methods to large datasets. It approximates the gradient of the log-posterior using mini-batches (subsets) of data rather than the full dataset. To ensure convergence to the true posterior distribution despite the noise introduced by subsampling, these methods (such as Stochastic Gradient Langevin Dynamics) introduce specific noise injection and step-size schedules.
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
-
 
 tippy('#Activation', {
-
       content: `
-
   <span style='color: white;'>
-
 An activation function is a nonlinear transformation applied to the pre-activation output of a neuron in a neural network. It enables the network to learn nonlinear relationships between inputs and outputs. Common activation functions include ReLU, tanh, and sigmoid, Softmax, GELU, Swish.
-
   </span>
-
   `, allowHTML: true,
-
       interactive: true,
-
       delay: 100,
-
       onShow(instance) {
-
         MathJax.typesetPromise([instance.reference]).then(() => {
-
           // Optional: if you want to do something after the typesetting
-
         });
-
       },
-
     });
-
 </script>
-
 <script>
   // Synchronize body theme class to html/document element for root scrollbar styling
   function syncThemeClass() {
