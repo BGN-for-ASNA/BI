@@ -1,0 +1,914 @@
+<title>Testing the R2D2 Prior</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+  --paper:#F6F7F5; --surface:#FFFFFF; --surface-2:#F0F2EF;
+  --ink:#1C2321; --ink-soft:#55605C; --ink-faint:#8A938E;
+  --rule:#DDE2DE; --rule-strong:#C6CDC7;
+  --accent:#1F6F63; --accent-ink:#145047; --accent-soft:#E4EFEC;
+  --clay:#A85A3C; --clay-soft:#F3E6DF;
+  --good:#3F7A4E; --warn:#8C6E1E; --bad:#A6403A;
+  --s1:#1F6F63; --s2:#A85A3C; --s3:#3B5BA6; --s4:#8C6E1E; --s5:#7A4A73;
+  --shadow:0 1px 2px rgba(20,30,28,.05), 0 8px 24px -12px rgba(20,30,28,.12);
+  --maxtext:43rem; --maxwide:60rem;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#14181A; --surface:#1B2124; --surface-2:#20272A;
+    --ink:#E6EAE7; --ink-soft:#9AA6A1; --ink-faint:#6C7A75;
+    --rule:#2C3538; --rule-strong:#3A4549;
+    --accent:#4FB3A2; --accent-ink:#7EC8BB; --accent-soft:#17322E;
+    --clay:#CE8A6A; --clay-soft:#33241C;
+    --good:#6FB57E; --warn:#C9A94E; --bad:#D6716A;
+    --s1:#4FB3A2; --s2:#D68A63; --s3:#7D9BE0; --s4:#CBAA57; --s5:#B588AD;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14181A; --surface:#1B2124; --surface-2:#20272A;
+  --ink:#E6EAE7; --ink-soft:#9AA6A1; --ink-faint:#6C7A75;
+  --rule:#2C3538; --rule-strong:#3A4549;
+  --accent:#4FB3A2; --accent-ink:#7EC8BB; --accent-soft:#17322E;
+  --clay:#CE8A6A; --clay-soft:#33241C;
+  --good:#6FB57E; --warn:#C9A94E; --bad:#D6716A;
+  --s1:#4FB3A2; --s2:#D68A63; --s3:#7D9BE0; --s4:#CBAA57; --s5:#B588AD;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.55);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Spectral",Georgia,"Times New Roman",serif;
+  font-size:18px; line-height:1.62; font-weight:400;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.wrap{max-width:var(--maxwide); margin:0 auto; padding:0 clamp(1.1rem,4vw,2.5rem)}
+
+/* ---- rhythm ---- */
+main > section{padding:2.6rem 0; border-top:1px solid var(--rule)}
+main > section:first-of-type{border-top:0}
+.col{max-width:var(--maxtext)}
+p,ul,ol{margin:0 0 1.05rem}
+.col > *:last-child{margin-bottom:0}
+
+/* ---- type ---- */
+h1{
+  font-weight:700; font-size:clamp(2.1rem,6vw,3.15rem); line-height:1.08;
+  letter-spacing:-.015em; text-wrap:balance; margin:.2rem 0 .5rem;
+}
+h2{
+  font-weight:600; font-size:clamp(1.5rem,3.6vw,2rem); line-height:1.16;
+  letter-spacing:-.01em; text-wrap:balance; margin:0 0 .9rem;
+}
+h3{font-weight:600; font-size:1.16rem; margin:1.8rem 0 .5rem; letter-spacing:-.005em}
+h2 + p.lede{margin-top:-.3rem}
+a{color:var(--accent-ink); text-underline-offset:2px; text-decoration-thickness:1px}
+strong{font-weight:600}
+em{color:var(--ink)}
+.eyebrow{
+  font-family:"IBM Plex Sans",system-ui,sans-serif; font-weight:600;
+  font-size:.72rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--accent-ink); margin:0 0 .5rem;
+}
+.standfirst{font-size:1.24rem; line-height:1.5; color:var(--ink-soft); max-width:38rem}
+.meta{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.8rem;
+  color:var(--ink-faint); margin-top:1.4rem; line-height:1.9;
+}
+.meta b{color:var(--ink-soft); font-weight:500}
+
+/* ---- header ---- */
+header.masthead{padding:clamp(2.6rem,7vw,4.4rem) 0 2.4rem}
+
+/* ---- section index rail ---- */
+.sec-head{display:flex; gap:1.1rem; align-items:baseline; margin-bottom:1.4rem}
+.sec-num{
+  font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:.82rem;
+  color:var(--accent); border:1px solid var(--rule-strong); border-radius:999px;
+  padding:.12rem .6rem; flex:none; margin-top:.15rem;
+}
+.sec-head h2{margin:0}
+@media (min-width:1000px){
+  .sec-head{position:relative}
+  .sec-num{position:absolute; left:-7.2rem; top:.1rem; border:0; padding:0; text-align:right; width:5.4rem; color:var(--ink-faint)}
+}
+
+/* ---- verdict card ---- */
+.verdict{
+  background:var(--surface); border:1px solid var(--rule); border-radius:14px;
+  padding:1.5rem 1.6rem; box-shadow:var(--shadow); max-width:var(--maxtext);
+}
+.verdict .row{display:flex; align-items:center; gap:.8rem; margin-bottom:1rem}
+.badge{
+  font-family:"IBM Plex Sans",sans-serif; font-weight:600; font-size:.74rem;
+  letter-spacing:.1em; text-transform:uppercase; color:#fff; background:var(--good);
+  padding:.28rem .7rem; border-radius:6px;
+}
+:root[data-theme="dark"] .badge, :root:not([data-theme="light"]) .badge{color:#0c1512}
+.verdict .row b{font-family:"IBM Plex Sans",sans-serif; font-size:.98rem; font-weight:600}
+.verdict ul{margin:0; padding:0; list-style:none; display:grid; gap:.7rem}
+.verdict li{display:flex; gap:.7rem; font-size:.98rem; line-height:1.45}
+.verdict li::before{content:""; flex:none; width:.5rem; height:.5rem; margin-top:.5rem; border-radius:2px; background:var(--accent)}
+
+/* ---- callouts ---- */
+.callout{
+  border-left:3px solid var(--accent); background:var(--accent-soft);
+  padding:1rem 1.15rem; border-radius:0 8px 8px 0; margin:1.4rem 0;
+  max-width:var(--maxtext);
+}
+.callout.caution{border-left-color:var(--clay); background:var(--clay-soft)}
+.callout .k{
+  font-family:"IBM Plex Sans",sans-serif; font-weight:600; font-size:.72rem;
+  letter-spacing:.13em; text-transform:uppercase; color:var(--accent-ink);
+  display:block; margin-bottom:.35rem;
+}
+.callout.caution .k{color:var(--clay)}
+.callout p{margin:0; font-size:.98rem; line-height:1.55}
+.callout p + p{margin-top:.6rem}
+
+/* ---- equation ---- */
+.eq{
+  font-family:"IBM Plex Mono",monospace; font-size:.98rem; line-height:2.1;
+  text-align:center; color:var(--ink); margin:1.5rem 0; padding:1.1rem 1rem;
+  border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+  overflow-x:auto;
+}
+.eq .lab{color:var(--ink-faint)}
+.eq b{color:var(--accent-ink); font-weight:500}
+
+/* ---- code ---- */
+pre{
+  font-family:"IBM Plex Mono",monospace; font-size:.82rem; line-height:1.7;
+  background:var(--surface); border:1px solid var(--rule); border-radius:10px;
+  padding:1.1rem 1.2rem; overflow-x:auto; margin:1.3rem 0; color:var(--ink);
+}
+code{font-family:"IBM Plex Mono",monospace; font-size:.86em; background:var(--surface-2); padding:.08em .35em; border-radius:4px}
+pre code{background:none; padding:0; font-size:1em}
+.cm{color:var(--ink-faint)}
+.kw{color:var(--s3)} .fn{color:var(--accent-ink)} .st{color:var(--clay)}
+
+/* ---- figure / wide ---- */
+.wide{max-width:var(--maxwide); margin:1.6rem 0}
+figure{margin:0}
+.fig{
+  background:var(--surface); border:1px solid var(--rule); border-radius:12px;
+  padding:1.2rem 1.2rem .9rem; box-shadow:var(--shadow); overflow-x:auto;
+}
+.fig svg{display:block; width:100%; height:auto; min-width:520px}
+figcaption{
+  font-family:"IBM Plex Sans",sans-serif; font-size:.82rem; color:var(--ink-soft);
+  line-height:1.5; margin-top:.8rem; max-width:44rem;
+}
+figcaption b{color:var(--ink); font-weight:600}
+.fig-title{
+  font-family:"IBM Plex Sans",sans-serif; font-weight:600; font-size:.92rem;
+  color:var(--ink); margin:0 0 .1rem;
+}
+.fig-sub{font-family:"IBM Plex Sans",sans-serif; font-size:.78rem; color:var(--ink-faint); margin:0 0 .6rem}
+
+/* svg primitives */
+.ax{stroke:var(--rule-strong); stroke-width:1}
+.grid{stroke:var(--rule); stroke-width:1}
+.zero{stroke:var(--ink-faint); stroke-width:1; stroke-dasharray:3 3}
+.tick{fill:var(--ink-faint); font-family:"IBM Plex Mono",monospace; font-size:11px}
+.axlab{fill:var(--ink-soft); font-family:"IBM Plex Sans",sans-serif; font-size:11px; font-weight:500}
+.serieslab{font-family:"IBM Plex Mono",monospace; font-size:11px}
+.dot{stroke:var(--surface); stroke-width:1.5}
+.note{fill:var(--ink-soft); font-family:"IBM Plex Sans",sans-serif; font-size:10.5px}
+.s1{color:var(--s1)} .s2{color:var(--s2)} .s3{color:var(--s3)} .s4{color:var(--s4)} .s5{color:var(--s5)}
+/* hierarchy diagram (var() is invalid in SVG presentation attrs — must be CSS) */
+.dg-accent{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.5}
+.dg-plain{fill:var(--surface-2); stroke:var(--rule-strong); stroke-width:1.5}
+.dg-t-accent{fill:var(--accent-ink)}
+.dg-t-ink{fill:var(--ink)}
+.dg-t-soft{fill:var(--ink-soft)}
+.dg-edge{fill:none; stroke:var(--ink-faint); stroke-width:1.4}
+.dg-arw{fill:var(--ink-faint)}
+
+/* legend */
+.legend{
+  display:flex; flex-wrap:wrap; gap:.4rem 1.1rem; margin:.7rem 0 0;
+  font-family:"IBM Plex Mono",monospace; font-size:.78rem; color:var(--ink-soft);
+}
+.legend span{display:inline-flex; align-items:center; gap:.4rem}
+.legend i{width:1.1rem; height:0; border-top:2.5px solid currentColor; flex:none}
+
+/* ---- tables ---- */
+.tbl-wrap{overflow-x:auto; margin:1.4rem 0; border:1px solid var(--rule); border-radius:10px}
+table{border-collapse:collapse; width:100%; font-family:"IBM Plex Mono",monospace; font-size:.82rem}
+caption{
+  caption-side:top; text-align:left; font-family:"IBM Plex Sans",sans-serif;
+  font-size:.82rem; color:var(--ink-soft); padding:.8rem 1rem .2rem;
+}
+th,td{padding:.5rem .8rem; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{
+  font-family:"IBM Plex Sans",sans-serif; font-weight:600; font-size:.76rem;
+  color:var(--ink-soft); border-bottom:1px solid var(--rule-strong);
+  position:sticky; top:0; background:var(--surface);
+}
+tbody tr{border-top:1px solid var(--rule)}
+tbody tr:first-child{border-top:0}
+tbody td{color:var(--ink)}
+tr.group td{background:var(--surface-2); color:var(--ink-soft); font-family:"IBM Plex Sans",sans-serif; font-size:.76rem; letter-spacing:.04em; text-transform:uppercase}
+.cell-good{color:var(--good)} .cell-warn{color:var(--warn)} .cell-bad{color:var(--bad)}
+.u{color:var(--ink-faint)}
+
+/* ---- misc ---- */
+.dl{display:grid; grid-template-columns:auto 1fr; gap:.35rem 1rem; font-size:.95rem; margin:1.1rem 0}
+.dl dt{font-family:"IBM Plex Mono",monospace; font-size:.82rem; color:var(--accent-ink); white-space:nowrap}
+.dl dd{margin:0; color:var(--ink-soft)}
+hr.soft{border:0; border-top:1px solid var(--rule); margin:2rem 0}
+footer{padding:2.4rem 0 3.4rem; border-top:1px solid var(--rule); color:var(--ink-faint); font-size:.85rem}
+footer p{margin:.3rem 0}
+.refs{font-family:"IBM Plex Sans",sans-serif; font-size:.82rem; line-height:1.6}
+
+@media (prefers-reduced-motion:no-preference){
+  .reveal{opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease}
+  .reveal.in{opacity:1; transform:none}
+}
+::selection{background:var(--accent); color:#fff}
+</style>
+
+<div class="wrap">
+<header class="masthead">
+  <p class="eyebrow">Simulation study &nbsp;·&nbsp; BayesForge</p>
+  <h1>Testing the R2D2 Prior</h1>
+  <p class="standfirst">The R2D2 prior turns a hard question &mdash; &ldquo;what variance should each regression coefficient have?&rdquo; &mdash; into an easy one: &ldquo;how much of the outcome should the model explain?&rdquo; This is a check that BayesForge&rsquo;s implementation does what the theory promises, and a look at where the prior helps and where it quietly misleads.</p>
+  <p class="meta">
+    <b>reference doc</b> &nbsp;37.&nbsp;Feature&nbsp;extraction:&nbsp;R2D2.qmd<br>
+    <b>engine</b> &nbsp;BayesForge 0.0.48 &nbsp;·&nbsp; NumPyro / JAX (CPU) &nbsp;·&nbsp; NUTS, 4 chains<br>
+    <b>run</b> &nbsp;2026-08-27 &nbsp;·&nbsp; host ECOD052 &nbsp;·&nbsp; seed 20260827 &nbsp;·&nbsp; 20 fits, all converged
+  </p>
+</header>
+
+<main>
+
+<!-- ============ VERDICT ============ -->
+<section>
+  <div class="verdict reveal">
+    <div class="row"><span class="badge">Implementation correct</span><b>and it behaves exactly as the paper predicts</b></div>
+    <ul>
+      <li><b>Sparsity works.</b> Across every setting, the 95 useless covariates are shrunk toward zero &mdash; near-zero false positives out of 95.</li>
+      <li><b>The <span style="font-family:'IBM Plex Mono',monospace">Beta</span> prior on R&sup2; is the load-bearing choice, and its effect reverses with noise.</b> A cautious prior over-estimates the noise when the signal is strong; a confident prior over-estimates the signal when the noise is large.</li>
+      <li><b>Genuinely large coefficients are pulled toward zero</b> in this <em>V&nbsp;&gt;&nbsp;N</em> regime &mdash; ridge-like shrinkage, not the sharp selection of a horseshoe.</li>
+      <li><b>At N&nbsp;=&nbsp;300 the prior-sensitivity mostly disappears</b> &mdash; &sigma; is recovered exactly and the &ldquo;flip&rdquo; is gone (step&nbsp;7). What was fragility was mostly an under-determined problem.</li>
+      <li><b>For the low-R&sup2; regime of biology (0.05&ndash;0.50), drop the Dirichlet concentration to <span style="font-family:'IBM Plex Mono',monospace">a&#8320; &asymp; 0.1</span></b> &mdash; it restores honest intervals when the data allow it (step&nbsp;8).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 1 SETUP ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">01</span><h2>What the prior is for</h2></div>
+  <div class="col">
+    <p>Fit a linear regression with many candidate predictors and you have to say something, a priori, about the size of each coefficient. Ridge says &ldquo;all small&rdquo;. The horseshoe says &ldquo;mostly zero, a few anything&rdquo;. Both ask you to reason about the scale of an abstract regression weight &mdash; a quantity almost nobody has intuition for.</p>
+    <p><strong>R2D2</strong> (&ldquo;R&sup2;-induced Dirichlet Decomposition&rdquo;, Zhang et&nbsp;al. 2022) reframes the question. You place a prior on the model&rsquo;s <em>total explained variance</em>, R&sup2; &mdash; a number every modeller can reason about &mdash; and a Dirichlet distribution splits that variance among the predictors. The coefficient priors fall out automatically.</p>
+    <p>The test problem is deliberately unforgiving:</p>
+    <div class="dl">
+      <dt>N = 50</dt><dd>individuals &mdash; a small sample</dd>
+      <dt>V = 100</dt><dd>standardized, independent <span class="u">N(0,1)</span> covariates &mdash; more predictors than data points</dd>
+      <dt>5 real effects</dt><dd>coefficients &plusmn;2 to &plusmn;4.4; the other 95 are exactly zero</dd>
+      <dt>y</dt><dd>= X&beta; + noise, with noise standard deviation &sigma; swept over {1, 2, 4, 8}</dd>
+    </div>
+    <p>Standardizing the covariates is not optional. The Dirichlet splits <em>variance</em>; if predictors were on different scales, a coefficient&rsquo;s share of that variance would be confounded with its unit of measurement.</p>
+  </div>
+</section>
+
+<!-- ============ 2 HIERARCHY ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">02</span><h2>The variance budget</h2></div>
+  <div class="col">
+    <p>R2D2 is a five-step generative story. Read it as a budget: a single pot of &ldquo;explained variance&rdquo; is opened, then divided.</p>
+  </div>
+
+  <div class="wide reveal">
+  <figure class="fig">
+    <p class="fig-title">The R2D2 hierarchy</p>
+    <p class="fig-sub">one Beta draw opens the budget &rarr; a Dirichlet splits it &rarr; each coefficient gets a slice</p>
+    <svg viewBox="0 0 900 290" role="img" aria-label="Flow diagram: R-squared feeds a global variance tau-squared, a Dirichlet simplex phi splits it into local variances lambda-squared, each of which is the variance of one coefficient beta.">
+      <defs>
+        <marker id="arw" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path class="dg-arw" d="M0,0 L9,4.5 L0,9 z"/>
+        </marker>
+      </defs>
+      <g font-family="IBM Plex Mono, monospace" text-anchor="middle">
+        <rect class="dg-accent" x="18" y="115" width="156" height="60" rx="10"/>
+        <text class="dg-t-accent" x="96" y="140" font-size="15">R&sup2; ~ Beta(a,b)</text>
+        <text class="dg-t-soft" x="96" y="160" font-size="11">expected fit</text>
+
+        <rect class="dg-plain" x="232" y="115" width="182" height="60" rx="10"/>
+        <text class="dg-t-ink" x="323" y="138" font-size="13.5">&tau;&sup2; = &sigma;&sup2;&middot;R&sup2;/(1&minus;R&sup2;)</text>
+        <text class="dg-t-soft" x="323" y="158" font-size="11">global variance</text>
+
+        <rect class="dg-plain" x="472" y="115" width="150" height="60" rx="10"/>
+        <text class="dg-t-ink" x="547" y="140" font-size="13.5">&phi; ~ Dir(1,&hellip;,1)</text>
+        <text class="dg-t-soft" x="547" y="160" font-size="11">simplex weights</text>
+
+        <rect class="dg-plain" x="680" y="52" width="204" height="52" rx="10"/>
+        <text class="dg-t-ink" x="782" y="74" font-size="13">&lambda;&sup2;&#8323; = &tau;&sup2;&middot;&phi;&#8323;</text>
+        <text class="dg-t-soft" x="782" y="92" font-size="10.5">local variance, predictor j</text>
+
+        <rect class="dg-accent" x="680" y="182" width="204" height="52" rx="10"/>
+        <text class="dg-t-accent" x="782" y="204" font-size="13">&beta;&#8323; ~ Normal(0, &lambda;&sup2;&#8323;)</text>
+        <text class="dg-t-soft" x="782" y="222" font-size="10.5">coefficient j</text>
+      </g>
+      <g class="dg-edge" marker-end="url(#arw)">
+        <path d="M174,145 L228,145"/>
+        <path d="M414,145 L468,145"/>
+        <path d="M622,136 C650,116 652,96 676,82"/>
+        <path d="M622,154 C650,180 652,196 676,206"/>
+        <path d="M782,104 L782,178"/>
+      </g>
+      <text class="note" x="800" y="146" text-anchor="start" font-family="IBM Plex Sans, sans-serif">repeat j = 1&hellip;100</text>
+    </svg>
+  </figure>
+  </div>
+
+  <div class="col">
+    <ol>
+      <li><strong>Set the expectation.</strong> R&sup2; ~ <span class="u">Beta(a, b)</span>. How much of <em>y</em>&rsquo;s variance do you think this model explains?</li>
+      <li><strong>Open the budget.</strong> &tau;&sup2; = &sigma;&sup2;&nbsp;R&sup2;&nbsp;/&nbsp;(1&nbsp;&minus;&nbsp;R&sup2;). This maps the R&sup2; belief onto a total signal variance, scaled by the residual variance &sigma;&sup2;.</li>
+      <li><strong>Split it.</strong> &phi; ~ <span class="u">Dirichlet(1,&hellip;,1)</span> is a vector of 100 non-negative weights that sum to one.</li>
+      <li><strong>Hand out slices.</strong> &lambda;&sup2;&#8323; = &tau;&sup2;&nbsp;&phi;&#8323; is predictor <em>j</em>&rsquo;s share of the budget.</li>
+      <li><strong>Draw the coefficient.</strong> &beta;&#8323; ~ <span class="u">Normal(0, &lambda;&sup2;&#8323;)</span>.</li>
+    </ol>
+  </div>
+
+  <div class="callout">
+    <span class="k">Why the split creates sparsity</span>
+    <p>The weights &phi; must sum to one, so the predictors <em>compete</em> for a fixed pot. A predictor that claims a large share leaves less for everyone else. A predictor the data don&rsquo;t support is handed a tiny &phi;&#8323;, its coefficient variance collapses, and &beta;&#8323; is pinned near zero &mdash; without any explicit spike-at-zero. Heavy tails on the induced &beta; prior still let a genuinely large effect through.</p>
+  </div>
+</section>
+
+<!-- ============ 3 TWO R2 ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">03</span><h2>Two things called R&sup2;</h2></div>
+  <div class="col">
+    <p>The identity in step 2 only makes sense for one specific definition of R&sup2; &mdash; and it is not the one from a regression table.</p>
+  </div>
+
+  <div class="eq">
+    <span class="lab">model / explained-variance R&sup2;&nbsp;&nbsp;(what the Beta targets)</span><br>
+    R&sup2; &nbsp;=&nbsp; <b>Var(X&beta;)</b> / ( <b>Var(X&beta;)</b> + &sigma;&sup2; ) &nbsp;=&nbsp; &tau;&sup2; / ( &tau;&sup2; + &sigma;&sup2; )
+    <br><br>
+    <span class="lab">classical sample R&sup2;&nbsp;&nbsp;(for reference only)</span><br>
+    R&sup2; &nbsp;=&nbsp; 1 &minus; SS<span style="font-size:.8em">res</span> / SS<span style="font-size:.8em">tot</span>
+  </div>
+
+  <div class="col">
+    <p>The first is a property of the <em>data-generating process</em>: signal variance over total variance. The second is a property of one <em>dataset</em>. In the simulation with &sigma;&nbsp;=&nbsp;1 they are 0.982 and 0.977; by &sigma;&nbsp;=&nbsp;8 they have drifted to 0.460 and 0.324. Throughout this report, &ldquo;true R&sup2;&rdquo; means the first one &mdash; the quantity the prior is actually a statement about.</p>
+    <p>Before fitting anything, it is worth looking at what each candidate <span class="u">Beta(a, b)</span> actually believes about R&sup2;:</p>
+  </div>
+
+  <div class="wide reveal">
+  <figure class="fig">
+    <p class="fig-title">What each prior expects R&sup2; to be</p>
+    <p class="fig-sub">dot = prior mean &nbsp;·&nbsp; bar = 5th&ndash;95th percentile &nbsp;·&nbsp; vertical lines = the four true R&sup2; values in the sweep</p>
+    <svg id="svg-ppc" viewBox="0 0 900 300" role="img" aria-label="Interval plot of the prior distribution on R-squared for five Beta priors, against the four true R-squared values used in the noise sweep."></svg>
+  </figure>
+  </div>
+
+  <div class="col">
+    <p><span class="u">Beta(1/3, 3)</span> &mdash; the default in the reference doc &mdash; puts almost all its mass below R&sup2;&nbsp;=&nbsp;0.42 and expects R&sup2;&nbsp;&asymp;&nbsp;0.10. Against a process that truly explains 98% of the variance, that is a strong, wrong opinion. <span class="u">Beta(5, 1)</span> is the opposite: it barely admits R&sup2; below 0.55.</p>
+  </div>
+</section>
+
+<!-- ============ 4 EXPERIMENT ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">04</span><h2>The experiment</h2></div>
+  <div class="col">
+    <p>The inference model is the reference doc&rsquo;s snippet, vectorized to 100 predictors:</p>
+  </div>
+  <pre><code><span class="cm"># R2D2 prior, V = 100 predictors</span>
+<span class="kw">def</span> <span class="fn">model</span>(X, y):
+    sigma = m.dist.<span class="fn">exponential</span>(<span class="st">1.0</span>, name=<span class="st">"sigma"</span>)          <span class="cm"># sigma ~ Exp(1)</span>
+    r2    = m.dist.<span class="fn">beta</span>(a, b, name=<span class="st">"r2"</span>)              <span class="cm"># R2 ~ Beta(a, b)</span>
+    tau2  = sigma**<span class="st">2</span> * r2 / (<span class="st">1.0</span> - r2)                <span class="cm"># open the budget</span>
+    phi   = m.dist.<span class="fn">dirichlet</span>(jnp.<span class="fn">ones</span>(V), name=<span class="st">"phi"</span>)   <span class="cm"># split it</span>
+    lam2  = tau2 * phi                                  <span class="cm"># slices</span>
+    alpha = m.dist.<span class="fn">normal</span>(<span class="st">0.0</span>, <span class="st">2.0</span>, name=<span class="st">"alpha"</span>)
+    z     = m.dist.<span class="fn">normal</span>(jnp.<span class="fn">zeros</span>(V), <span class="st">1.0</span>, name=<span class="st">"beta_z"</span>)  <span class="cm"># non-centered</span>
+    beta  = numpyro.<span class="fn">deterministic</span>(<span class="st">"beta"</span>, z * jnp.<span class="fn">sqrt</span>(lam2))
+    m.dist.<span class="fn">normal</span>(alpha + X @ beta, sigma, obs=y, name=<span class="st">"y_obs"</span>)</code></pre>
+  <div class="col">
+    <p>Two implementation notes:</p>
+    <ul>
+      <li><strong>Non-centered by default.</strong> Writing <span class="u">&beta;&#8323; = z&#8323;&nbsp;&middot;&nbsp;&lambda;&#8323;</span> with <span class="u">z&#8323; ~ Normal(0,1)</span> is mathematically identical to <span class="u">&beta;&#8323; ~ Normal(0, &lambda;&sup2;&#8323;)</span>, but the sampler needs it. With <em>V&nbsp;&gt;&nbsp;N</em> and a prior that allows R&sup2;&nbsp;&rarr;&nbsp;1, the centered form funnels: run verbatim, <span class="u">Beta(3,1)</span> gives R&#770;&nbsp;&asymp;&nbsp;2.7 and thousands of divergences. Non-centered, all 20 fits land at R&#770;&nbsp;&le;&nbsp;1.07.</li>
+      <li><strong>R&sup2; is clipped</strong> to <span class="u">[10&#8315;&#8308;, 1&minus;10&#8315;&#8308;]</span> so the <span class="u">1/(1&minus;R&sup2;)</span> term cannot blow up.</li>
+    </ul>
+    <p>Five priors on R&sup2; are tested, from very cautious to very confident:</p>
+    <div class="dl">
+      <dt>Beta(1/3, 3)</dt><dd>prior mean R&sup2; = 0.10 &mdash; the doc default</dd>
+      <dt>Beta(1, 1)</dt><dd>0.50 &mdash; uniform, no opinion</dd>
+      <dt>Beta(3, 3)</dt><dd>0.50 &mdash; centered on a half, but confident about it</dd>
+      <dt>Beta(3, 1)</dt><dd>0.75</dd>
+      <dt>Beta(5, 1)</dt><dd>0.83 &mdash; expects a very good fit</dd>
+    </div>
+    <p>For each (prior &times; noise level) fit, the run scores five things against the known truth: recovery of the 5 real coefficients (bias, RMSE, does the 89% interval contain the true value); shrinkage of the 95 nulls (mean |&beta;&#770;|, and how many 89% intervals wrongly exclude zero); recovery of R&sup2;; recovery of &sigma;; and MCMC health (R&#770;, effective sample size, divergences).</p>
+  </div>
+</section>
+
+<!-- ============ 5 LOW NOISE ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">05</span><h2>Strong signal (true R&sup2; &asymp; 0.98)</h2></div>
+  <div class="col">
+    <p>Start with &sigma;&nbsp;=&nbsp;1, where the process explains almost everything.</p>
+  </div>
+
+  <div class="tbl-wrap reveal">
+  <table>
+    <caption>&sigma;<sub>true</sub> = 1 &nbsp;·&nbsp; true model R&sup2; = 0.982 &nbsp;·&nbsp; true &sigma; = 1.00. Cell colour marks distance from truth.</caption>
+    <thead><tr>
+      <th>prior on R&sup2;</th><th>E[R&sup2;] prior</th><th>R&sup2; post.</th><th>&sigma; post.</th>
+      <th>RMSE, 5 real &beta;</th><th>|&beta;&#770;| / |&beta;| ratio</th><th>nulls: mean |&beta;&#770;|</th><th>false pos.</th><th>max R&#770;</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>Beta(1/3, 3)</td><td class="u">0.10</td><td class="cell-warn">0.912</td><td class="cell-bad">1.38</td><td>0.71</td><td>0.77</td><td>0.092</td><td class="cell-good">0 / 95</td><td>1.00</td></tr>
+      <tr><td>Beta(1, 1)</td><td class="u">0.50</td><td class="cell-good">0.967</td><td class="cell-good">0.82</td><td>0.62</td><td>0.81</td><td>0.097</td><td class="cell-good">0 / 95</td><td>1.01</td></tr>
+      <tr><td>Beta(3, 3)</td><td class="u">0.50</td><td class="cell-warn">0.920</td><td class="cell-bad">1.32</td><td>0.69</td><td>0.77</td><td>0.092</td><td class="cell-good">0 / 95</td><td>1.00</td></tr>
+      <tr><td>Beta(3, 1)</td><td class="u">0.75</td><td class="cell-good">0.970</td><td class="cell-good">0.78</td><td>0.61</td><td>0.81</td><td>0.096</td><td class="cell-good">0 / 95</td><td>1.01</td></tr>
+      <tr><td>Beta(5, 1)</td><td class="u">0.83</td><td class="cell-good">0.970</td><td class="cell-good">0.77</td><td>0.60</td><td>0.81</td><td>0.096</td><td class="cell-good">0 / 95</td><td>1.01</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+    <p>The nulls are handled perfectly by every prior: mean |&beta;&#770;| &asymp; 0.09 and not one of the 95 intervals excludes zero. The split is doing its job.</p>
+    <p>The disagreement is about the <em>noise</em>. <span class="u">Beta(1/3, 3)</span> and <span class="u">Beta(3, 3)</span> &mdash; the priors that don&rsquo;t believe R&sup2; can be near 1 &mdash; refuse to attribute all that variance to the signal, so they inflate &sigma; to 1.38 (true value 1.00) and shrink the real coefficients harder. The priors that allow a high R&sup2; recover &sigma; &asymp; 0.8 and shrink less. <strong>Here, a cautious prior is the wrong choice.</strong></p>
+    <p>Even the best case does not fully recover the five real effects. Look at them individually at a harder noise level:</p>
+  </div>
+
+  <div class="wide reveal">
+  <figure class="fig">
+    <p class="fig-title">The 5 real coefficients, recovered &mdash; &sigma;<sub>true</sub> = 4, prior Beta(1, 1)</p>
+    <p class="fig-sub">diamond = true value (red if outside the interval) &nbsp;·&nbsp; dot = posterior mean &nbsp;·&nbsp; bar = 89% interval</p>
+    <svg id="svg-beta" viewBox="0 0 900 300" role="img" aria-label="Five coefficients: true values against posterior means with 89 percent intervals. Three of the five true values fall outside their intervals."></svg>
+    <figcaption>
+      Three of the five true values sit outside their 89% interval. The largest effect <b>&beta;<sub>35</sub></b> (true +4.43) is recovered as +2.69; <b>&beta;<sub>89</sub></b> (true &minus;3.34) as &minus;1.45; and <b>&beta;<sub>93</sub></b> (true +2.13) is flattened to +0.23. Sitting next to bigger effects, the smaller ones lose the competition for the Dirichlet budget &mdash; the same mechanism that kills the 95 nulls also starves real, mid-sized effects.
+    </figcaption>
+  </figure>
+  </div>
+</section>
+
+<!-- ============ 6 NOISE SWEEP ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">06</span><h2>Turning up the noise (N = 50)</h2></div>
+  <div class="col">
+    <p>Raising &sigma; from 1 to 8 walks the true model R&sup2; down from 0.98 to 0.46. The signal variance never changes; only the noise does. This is the pedagogically interesting part, because the ranking of the priors <em>flips</em>.</p>
+  </div>
+
+  <div class="wide reveal">
+  <figure class="fig">
+    <p class="fig-title">How wrong is the noise estimate?</p>
+    <p class="fig-sub">y = posterior-mean &sigma; &divide; true &sigma; &minus; 1 &nbsp;·&nbsp; above the line = &sigma; over-estimated, below = under-estimated &nbsp;·&nbsp; x = true model R&sup2;</p>
+    <svg id="svg-sigbias" viewBox="0 0 900 380" role="img" aria-label="Line chart of sigma recovery bias against true R-squared for five priors. At high true R-squared the cautious priors over-estimate sigma; at low true R-squared every prior under-estimates sigma, worst for the confident priors."></svg>
+    <div class="legend" id="leg-sigbias"></div>
+    <figcaption>
+      <b>The flip.</b> At true R&sup2; = 0.98 (left), the cautious <span style="font-family:'IBM Plex Mono',monospace">Beta(1/3,3)</span> over-estimates &sigma; by <b>+38%</b> while the confident priors are near-right. At true R&sup2; = 0.46 (right), <em>every</em> prior under-estimates &sigma; &mdash; and the confident <span style="font-family:'IBM Plex Mono',monospace">Beta(5,1)</span> is now the worst at <b>&minus;51%</b>. No single prior is safe across the range.
+    </figcaption>
+  </figure>
+  </div>
+
+  <div class="wide reveal">
+  <figure class="fig">
+    <p class="fig-title">&hellip;and the fit estimate?</p>
+    <p class="fig-sub">y = posterior-mean R&sup2; &minus; true R&sup2; &nbsp;·&nbsp; above the line = model claims a better fit than it has</p>
+    <svg id="svg-r2bias" viewBox="0 0 900 360" role="img" aria-label="Line chart of R-squared recovery bias against true R-squared for five priors. Confident priors increasingly over-state the fit as true R-squared falls."></svg>
+    <div class="legend" id="leg-r2bias"></div>
+    <figcaption>
+      Mirror image. When the true fit is poor (R&sup2; = 0.46), <span style="font-family:'IBM Plex Mono',monospace">Beta(5,1)</span> still reports R&sup2; = 0.86 &mdash; it was told to expect a good fit and it complies. The cautious <span style="font-family:'IBM Plex Mono',monospace">Beta(1/3,3)</span>, wrong at low noise, is now the most accurate.
+    </figcaption>
+  </figure>
+  </div>
+
+  <div class="tbl-wrap reveal">
+  <table>
+    <caption>Full sweep. Each cell is <b>RMSE of the 5 real &beta;</b> / <b>posterior-mean &sigma;</b>. All 20 fits converged (max R&#770; &le; 1.07).</caption>
+    <thead><tr>
+      <th>&sigma;<sub>true</sub></th><th>true R&sup2;</th>
+      <th>Beta(1/3,3)</th><th>Beta(1,1)</th><th>Beta(3,3)</th><th>Beta(3,1)</th><th>Beta(5,1)</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>1</td><td class="u">0.982</td><td>0.71 / <span class="cell-bad">1.38</span></td><td>0.62 / <span class="cell-good">0.82</span></td><td>0.69 / <span class="cell-bad">1.32</span></td><td>0.61 / <span class="cell-good">0.78</span></td><td>0.60 / <span class="cell-good">0.77</span></td></tr>
+      <tr><td>2</td><td class="u">0.932</td><td>1.06 / <span class="cell-good">2.05</span></td><td>0.94 / <span class="cell-warn">1.19</span></td><td>1.02 / <span class="cell-warn">1.89</span></td><td>0.93 / <span class="cell-warn">1.18</span></td><td>0.93 / <span class="cell-warn">1.09</span></td></tr>
+      <tr><td>4</td><td class="u">0.773</td><td>1.64 / <span class="cell-warn">3.58</span></td><td>1.45 / <span class="cell-bad">2.29</span></td><td>1.57 / <span class="cell-warn">3.25</span></td><td>1.44 / <span class="cell-bad">2.19</span></td><td>1.43 / <span class="cell-bad">2.01</span></td></tr>
+      <tr><td>8</td><td class="u">0.460</td><td>2.35 / <span class="cell-warn">6.59</span></td><td>2.16 / <span class="cell-bad">4.91</span></td><td>2.22 / <span class="cell-bad">5.75</span></td><td>2.14 / <span class="cell-bad">4.47</span></td><td>2.12 / <span class="cell-bad">3.94</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout caution">
+    <span class="k">Why the ranking reverses</span>
+    <p><strong>Strong signal, cautious prior.</strong> The likelihood wants R&sup2; near 1. A <span style="font-family:'IBM Plex Mono',monospace">Beta</span> with all its mass near 0.1 fights that. The compromise: keep R&sup2; moderate and blame the leftover variance on noise &mdash; so &sigma; inflates.</p>
+    <p><strong>Weak signal, confident prior.</strong> Now the truth is R&sup2; = 0.46 but the prior expects 0.83. It pushes the budget &tau;&sup2; too wide; the coefficients soak up variance that is really noise; &sigma; is left too small and R&sup2; is over-stated.</p>
+    <p>The prior does real work in both directions. A prior-predictive check on R&sup2; &mdash; the interval plot in step&nbsp;3 &mdash; is the cheap way to catch a mismatch before it reaches the posterior.</p>
+  </div>
+
+  <div class="col">
+    <h3>Two more effects worth seeing</h3>
+    <p><strong>Shrinkage of the real effects gets worse with noise.</strong> The ratio |&beta;&#770;|&nbsp;/&nbsp;|&beta;| for the five true coefficients falls from about 0.80 at &sigma;&nbsp;=&nbsp;1 to about 0.45 at &sigma;&nbsp;=&nbsp;8 &mdash; and the 89% interval, which held 3 of 5 true values at low noise, holds only 1&ndash;2 at high noise.</p>
+  </div>
+
+  <div class="wide reveal">
+  <figure class="fig">
+    <p class="fig-title">Coefficient shrinkage vs. noise</p>
+    <p class="fig-sub">y = |posterior mean| &divide; |true| averaged over the 5 real effects &nbsp;·&nbsp; 1.0 = no shrinkage</p>
+    <svg id="svg-shrink" viewBox="0 0 900 340" role="img" aria-label="Line chart: the ratio of estimated to true coefficient magnitude falls from about 0.8 to about 0.45 as noise rises, for all five priors."></svg>
+    <div class="legend" id="leg-shrink"></div>
+  </figure>
+  </div>
+
+  <div class="col">
+    <p><strong>The nulls finally leak &mdash; a little.</strong> At &sigma;&nbsp;=&nbsp;8, the confident priors produce exactly <em>one</em> false positive out of 95 (an 89% interval that excludes zero); the cautious <span class="u">Beta(1/3, 3)</span> still produces zero. That is the trade: the cautious prior gives up power on the real effects to keep its sparsity guarantee intact.</p>
+  </div>
+</section>
+
+<!-- ============ 7 MORE DATA (N=300) ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">07</span><h2>Does more data fix it? (N = 300)</h2></div>
+  <div class="col">
+    <p>Everything so far is <em>V&nbsp;&gt;&nbsp;N</em> &mdash; 100 predictors, 50 rows. Re-running the whole sweep at <strong>N&nbsp;=&nbsp;300</strong> (now 3 rows per predictor, same 100 covariates, same 5 real effects, same seed) separates &ldquo;R2D2 is fragile&rdquo; from &ldquo;the problem was under-determined&rdquo;.</p>
+  </div>
+
+  <div class="tbl-wrap reveal">
+  <table>
+    <caption>N = 300 sweep. Cell = <b>RMSE of the 5 real &beta;</b> / <b>posterior-mean &sigma;</b>. Every fit: max R&#770; &le; 1.01, <b>0 divergences</b> (N = 50 had 25&ndash;273).</caption>
+    <thead><tr>
+      <th>&sigma;<sub>true</sub></th><th>true R&sup2;</th>
+      <th>Beta(1/3,3)</th><th>Beta(1,1)</th><th>Beta(3,3)</th><th>Beta(3,1)</th><th>Beta(5,1)</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>1</td><td class="u">0.98</td><td>0.05 / <span class="cell-good">1.02</span></td><td>0.05 / <span class="cell-good">1.01</span></td><td>0.05 / <span class="cell-good">1.01</span></td><td>0.05 / <span class="cell-good">1.01</span></td><td>0.05 / <span class="cell-good">1.01</span></td></tr>
+      <tr><td>2</td><td class="u">0.92</td><td>0.13 / <span class="cell-good">2.00</span></td><td>0.13 / <span class="cell-good">1.99</span></td><td>0.13 / <span class="cell-good">2.00</span></td><td>0.12 / <span class="cell-good">1.99</span></td><td>0.12 / <span class="cell-good">1.98</span></td></tr>
+      <tr><td>4</td><td class="u">0.75</td><td>0.32 / <span class="cell-good">3.96</span></td><td>0.31 / <span class="cell-good">3.94</span></td><td>0.31 / <span class="cell-good">3.94</span></td><td>0.30 / <span class="cell-good">3.92</span></td><td>0.30 / <span class="cell-good">3.91</span></td></tr>
+      <tr><td>8</td><td class="u">0.43</td><td>0.81 / <span class="cell-good">7.86</span></td><td>0.78 / <span class="cell-good">7.82</span></td><td>0.77 / <span class="cell-good">7.80</span></td><td>0.75 / <span class="cell-good">7.77</span></td><td>0.73 / <span class="cell-good">7.73</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+    <p><strong>The prior-sensitivity story mostly collapses.</strong> The &sigma; columns barely move between priors, and every one is close to the truth. The &ldquo;flip&rdquo; is gone:</p>
+  </div>
+
+  <div class="tbl-wrap reveal">
+  <table>
+    <caption>&sigma; recovery bias (posterior mean / true &minus; 1), N = 50 vs N = 300.</caption>
+    <thead><tr><th>prior</th><th>N=50, &sigma;=1</th><th>N=50, &sigma;=8</th><th>N=300, &sigma;=1</th><th>N=300, &sigma;=8</th></tr></thead>
+    <tbody>
+      <tr><td>Beta(1/3, 3)</td><td class="cell-bad">+38%</td><td class="cell-warn">&minus;18%</td><td class="cell-good">+2%</td><td class="cell-good">&minus;2%</td></tr>
+      <tr><td>Beta(3, 3)</td><td class="cell-bad">+32%</td><td class="cell-warn">&minus;28%</td><td class="cell-good">+1%</td><td class="cell-good">&minus;3%</td></tr>
+      <tr><td>Beta(5, 1)</td><td class="cell-warn">&minus;23%</td><td class="cell-bad">&minus;51%</td><td class="cell-good">+1%</td><td class="cell-good">&minus;3%</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+    <p><strong>Coefficient recovery.</strong> Priors are within a hair of each other, so this is any of them:</p>
+  </div>
+
+  <div class="tbl-wrap reveal">
+  <table>
+    <caption>N = 300, coefficient and R&sup2; recovery (prior-independent to 2 d.p.). One of this seed&rsquo;s 5 &ldquo;real&rdquo; effects is only &beta;&nbsp;=&nbsp;0.43, which caps coverage.</caption>
+    <thead><tr>
+      <th>&sigma;<sub>true</sub></th><th>true R&sup2;</th><th>RMSE, 5 &beta;</th><th>|&beta;&#770;| / |&beta;|</th><th>89% coverage</th><th>R&sup2; post.</th><th>nulls mean |&beta;&#770;|</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>1</td><td class="u">0.980</td><td class="cell-good">0.05</td><td class="cell-good">0.97</td><td class="cell-good">5 / 5</td><td class="cell-warn">0.88</td><td>0.04</td></tr>
+      <tr><td>2</td><td class="u">0.924</td><td class="cell-good">0.13</td><td class="cell-good">0.93</td><td class="cell-good">5 / 5</td><td class="cell-warn">0.74</td><td>0.07</td></tr>
+      <tr><td>4</td><td class="u">0.753</td><td>0.31</td><td>0.85</td><td>4 / 5</td><td class="cell-warn">0.55</td><td>0.11</td></tr>
+      <tr><td>8</td><td class="u">0.433</td><td class="cell-warn">0.77</td><td class="cell-warn">0.72</td><td class="cell-warn">3 / 5</td><td class="cell-warn">0.34</td><td>0.16</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+    <p><strong>What more data fixes:</strong> &sigma; is recovered almost exactly and is prior-independent; the coefficients are recovered whenever true R&sup2;&nbsp;&ge;&nbsp;0.75; the sampler is clean (zero divergences everywhere).</p>
+    <p><strong>What survives:</strong> at genuinely low true R&sup2; (0.43) the coefficients still shrink (&asymp;&nbsp;28%) and the interval still misses 2 of 5. And one artifact is <em>independent</em> of N &mdash; the model&rsquo;s <span class="u">R&sup2;</span> posterior sits well below the truth (0.88 vs 0.98 at &sigma;&nbsp;=&nbsp;1). The flat <span class="u">Dirichlet(1,&hellip;,1)</span> spreads the budget across 100 slots when 5 matter; the 95 near-zero weights drag the implied R&sup2; down. Do not read the R&sup2; posterior as a fit estimate.</p>
+  </div>
+</section>
+
+<!-- ============ 8 LOW R2 / BIOLOGY ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">08</span><h2>Tuning R2D2 for low R&sup2; (0.05&ndash;0.50)</h2></div>
+  <div class="col">
+    <p>Most of ecology, epidemiology and quantitative biology lives at true R&sup2; between roughly 0.05 and 0.50 &mdash; a handful of weak-to-moderate effects in a sea of noise and correlated junk. That is the regime where the plain R2D2 recipe struggles most. Here is what moves the needle, tested at true R&sup2;&nbsp;&asymp;&nbsp;0.30 (&sigma;&nbsp;=&nbsp;11, so the residual dominates), with the default <span class="u">Beta(1/3, 3)</span>.</p>
+    <h3>Lever 1 &mdash; the Dirichlet concentration <span class="u">a&#8320;</span></h3>
+    <p>The reference recipe uses <span class="u">&phi; ~ Dirichlet(1, &hellip;, 1)</span>. That flat simplex is a <em>ridge</em>: it spreads variance evenly, which is exactly wrong when only a few predictors matter. Dropping the concentration to <span class="u">a&#8320;&nbsp;&lt;&nbsp;1</span> &mdash; <span class="u">&phi; ~ Dirichlet(a&#8320;, &hellip;, a&#8320;)</span> &mdash; makes the simplex prefer <em>sparse</em> allocations, which gives the marginal coefficient priors heavier tails (closer to a horseshoe). This is the concentration hyperparameter from the original R2-D2 paper; BayesForge&rsquo;s example just fixes it at 1.</p>
+  </div>
+
+  <div class="tbl-wrap reveal">
+  <table>
+    <caption>Effect of <b>a&#8320;</b> at true R&sup2; &asymp; 0.30. <b>N = 300</b> (top) &mdash; a&#8320; = 0.1 lifts interval coverage from 1/5 to 4/5 and crushes the null noise, with no divergence cost. <b>N = 50</b> (bottom) &mdash; the sample is too small to rescue; a&#8320; only trades one failure for another.</caption>
+    <thead><tr>
+      <th>a&#8320;</th><th>RMSE, 5 &beta;</th><th>|&beta;&#770;| / |&beta;|</th><th>89% coverage</th><th>R&sup2; post. <span class="u">(true 0.29)</span></th><th>nulls mean |&beta;&#770;|</th><th>divergences</th>
+    </tr></thead>
+    <tbody>
+      <tr class="group"><td colspan="7">N = 300</td></tr>
+      <tr><td>1.0 <span class="u">(default)</span></td><td>0.57</td><td>0.59</td><td class="cell-bad">1 / 5</td><td class="cell-bad">0.22</td><td>0.17</td><td class="cell-good">0</td></tr>
+      <tr><td>0.5</td><td>0.61</td><td>0.61</td><td class="cell-warn">2 / 5</td><td class="cell-bad">0.22</td><td>0.15</td><td class="cell-good">0</td></tr>
+      <tr><td>0.1</td><td>0.67</td><td>0.67</td><td class="cell-good">4 / 5</td><td class="cell-warn">0.24</td><td class="cell-good">0.08</td><td class="cell-good">0</td></tr>
+      <tr><td>0.01</td><td>0.63</td><td>0.63</td><td class="cell-good">4 / 5</td><td class="cell-good">0.32</td><td class="cell-good">0.02</td><td class="cell-bad">647</td></tr>
+      <tr class="group"><td colspan="7">N = 50</td></tr>
+      <tr><td>1.0 <span class="u">(default)</span></td><td>2.52</td><td>0.28</td><td class="cell-bad">1 / 5</td><td class="cell-bad">0.54</td><td>0.34</td><td class="cell-good">0</td></tr>
+      <tr><td>0.5</td><td>2.52</td><td>0.27</td><td class="cell-bad">1 / 5</td><td class="cell-bad">0.52</td><td>0.31</td><td class="cell-good">0</td></tr>
+      <tr><td>0.1</td><td>2.62</td><td>0.18</td><td class="cell-bad">1 / 5</td><td class="cell-warn">0.44</td><td>0.22</td><td class="cell-good">0</td></tr>
+      <tr><td>0.01</td><td class="cell-bad">2.92</td><td class="cell-bad">0.05</td><td class="cell-bad">0 / 5</td><td class="cell-good">0.32</td><td class="cell-good">0.11</td><td class="cell-bad">533</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="k">Reading the table</span>
+    <p>With enough data (N = 300), <span class="u">a&#8320; &asymp; 0.1</span> is a clear win: the intervals become honest (coverage 1/5 &rarr; 4/5), the 95 nulls are pushed from 0.17 to 0.08, and R&sup2; recovers toward the truth &mdash; all for free until <span class="u">a&#8320; &le; 0.01</span>, where the sparse simplex reintroduces a funnel and the sampler breaks (hundreds of divergences).</p>
+    <p>At N = 50 the problem is information, not the prior. 50 rows cannot resolve 5 moderate effects among 100 candidates when 70% of the variance is noise. Small <span class="u">a&#8320;</span> just moves the failure around: it recovers &sigma; and R&sup2; better while shrinking every real coefficient to zero. No prior setting rescues this cell &mdash; only more data or fewer candidate predictors.</p>
+  </div>
+
+  <div class="col">
+    <h3>The other levers</h3>
+    <ul>
+      <li><strong>Calibrate the <span class="u">Beta</span> to your field, don&rsquo;t pile it at zero.</strong> <span class="u">Beta(1/3, 3)</span> has infinite density at R&sup2;&nbsp;=&nbsp;0; if your field reliably explains 10&ndash;40% of variance, a prior <em>concentrated</em> in that band &mdash; <span class="u">Beta(2, 6)</span> or <span class="u">Beta(1, 3)</span>, mean &asymp; 0.25 &mdash; is more honest. In the tests <span class="u">Beta(2, 6)</span> and <span class="u">Beta(1/3, 3)</span> performed within noise of each other, but the difference grows as the true R&sup2; rises off the floor. Best of all: fit the <span class="u">Beta</span> to the R&sup2; values reported in comparable published studies (empirical Bayes).</li>
+      <li><strong>Scale the outcome, or scale the <span class="u">&sigma;</span> prior.</strong> <span class="u">&sigma; ~ Exponential(1)</span> assumes <em>y</em> is order 1. At low R&sup2; the residual <em>is</em> the model, so &tau;&sup2; = &sigma;&sup2;R&sup2;/(1&minus;R&sup2;) inherits any mis-scaling of the &sigma; prior directly. Standardize <em>y</em> (then &sigma; &asymp; &radic;(1&minus;R&sup2;) and the whole prior is scale-free), or use <span class="u">&sigma; ~ Exponential(1/sd(y))</span> / <span class="u">HalfNormal(sd(y))</span>.</li>
+      <li><strong>If you can guess how many predictors matter, use a regularized horseshoe instead.</strong> Piironen &amp; Vehtari&rsquo;s version takes a target <span class="u">p&#8320;</span> (expected number of non-zero coefficients) and controls the global scale from it &mdash; more direct than tuning <span class="u">a&#8320;</span> when <em>p&nbsp;&gg;&nbsp;n</em> and you genuinely expect a spike at zero. R2D2 with <span class="u">a&#8320;&nbsp;&lt;&nbsp;1</span> is an approximation of the same idea.</li>
+      <li><strong>If the effects are not sparse &mdash; many small real signals, &ldquo;everything correlates with everything&rdquo; &mdash; the flat Dirichlet is the right model.</strong> Then shrinking every coefficient toward zero is correct behaviour, and the only gains come from more data, grouping predictors (a Dirichlet over predictor <em>groups</em>), or a dimension-reduction front end (PCA / PLS).</li>
+      <li><strong>Always run the prior predictive, and always report divergences and R&#770;.</strong> At low R&sup2; and small N the prior <em>will</em> dominate the posterior &mdash; that is information theory, not a bug &mdash; so the prior has to be defensible. And <span class="u">a&#8320;&nbsp;&lt;&nbsp;1</span> stiffens the geometry: keep <span class="u">a&#8320;&nbsp;&ge;&nbsp;0.1</span>, stay non-centered, and push <span class="u">target_accept</span> up.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 9 LIMITATIONS ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">09</span><h2>Where R2D2 bites</h2></div>
+  <div class="col">
+    <p>None of these are bugs in the implementation &mdash; they are properties of the prior, and they match the reference doc&rsquo;s own &ldquo;When R2D2 Fails&rdquo; section.</p>
+    <ul>
+      <li><strong>Ridge, not selection.</strong> A flat <span class="u">Dirichlet(1,&hellip;,1)</span> with <em>V&nbsp;&gt;&nbsp;N</em> pulls every coefficient toward zero by a similar factor. It shrinks the real effects along with the noise. When you expect true sparsity and <em>p&nbsp;&gt;&nbsp;n</em>, a horseshoe or spike-and-slab is better motivated.</li>
+      <li><strong>Competition can starve a real effect.</strong> &beta;<sub>89</sub> and &beta;<sub>93</sub> above are genuine, mid-sized coefficients that are badly under-recovered because larger effects take the budget first.</li>
+      <li><strong>Prior sensitivity scales with N&#8315;&sup1;.</strong> Everything here is one dataset of 50. The likelihood cannot outvote a confident, wrong <span class="u">Beta</span>. In a larger sample the priors would converge.</li>
+      <li><strong>The centered parameterization is not usable here.</strong> It has to be non-centered; the verbatim doc snippet needs that substitution for any prior that admits R&sup2;&nbsp;&rarr;&nbsp;1.</li>
+      <li><strong>Divergences are non-trivial.</strong> Even non-centered, at <span class="u">target_accept = 0.95</span> the harder fits show 1&ndash;5% divergent transitions. The geometry is stiff; the posteriors are usable but the sampler is working hard.</li>
+      <li><strong>Normal outcomes only.</strong> The identity &tau;&sup2; = &sigma;&sup2;R&sup2;/(1&minus;R&sup2;) needs a free residual variance. It does not exist for Binomial, Poisson, or Categorical likelihoods.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 8 GUIDANCE ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">10</span><h2>How to use it well</h2></div>
+  <div class="col">
+    <ul>
+      <li><strong>Do the prior-predictive check on R&sup2; first.</strong> Sample your <span class="u">Beta(a, b)</span>, look at the 5th&ndash;95th percentile against what you plausibly expect. This is the single most effective safeguard.</li>
+      <li><strong>Small sample + suspected strong fit &rArr; do not use the <span class="u">Beta(1/3, 3)</span> default.</strong> It will inflate &sigma; and shrink real effects. Widen it (<span class="u">Beta(1, 1)</span>) or shift it up.</li>
+      <li><strong>When in doubt, be less confident, not more.</strong> A wrong-but-vague prior degrades gracefully; a wrong-but-confident one (<span class="u">Beta(5, 1)</span> here) produces the largest errors when the truth disagrees.</li>
+      <li><strong>Low true R&sup2; (0.05&ndash;0.50) &mdash; drop the Dirichlet concentration to <span class="u">a&#8320; &asymp; 0.1&ndash;0.5</span>.</strong> The flat <span class="u">Dirichlet(1,&hellip;,1)</span> is a ridge; <span class="u">a&#8320; &lt; 1</span> gives horseshoe-like tails that keep the intervals honest and crush the null noise (see step&nbsp;8). Do not go below <span class="u">a&#8320; = 0.1</span> without reparameterizing &mdash; the sampler funnels.</li>
+      <li><strong>Calibrate the <span class="u">Beta</span> to your field.</strong> If R&sup2; is reliably 0.1&ndash;0.4, use a prior concentrated there (<span class="u">Beta(2, 6)</span>), or fit <span class="u">Beta(a,b)</span> to the R&sup2; of comparable published studies &mdash; don&rsquo;t default to a prior with all its mass at zero.</li>
+      <li><strong>Always standardize predictors &mdash; and consider standardizing <em>y</em>.</strong> The Dirichlet weights only mean &ldquo;share of variance&rdquo; if the predictors are comparable; scaling <em>y</em> also makes <span class="u">&sigma; ~ Exp(1)</span> scale-appropriate, which matters most when the residual dominates.</li>
+      <li><strong>Use the non-centered parameterization.</strong> It is in the test script by default; keep it.</li>
+      <li><strong>Report divergences and R&#770;.</strong> This prior can look fine in a summary table and still have a stressed sampler underneath &mdash; especially with <span class="u">a&#8320; &lt; 1</span> or in the <span class="u">R&sup2; &rarr; 1</span> region.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 9 REPRODUCE ============ -->
+<section>
+  <div class="sec-head"><span class="sec-num">11</span><h2>Reproduce</h2></div>
+  <pre><code><span class="cm"># BF/Test/R2D2/  —  seed 20260827 throughout</span>
+python3 run_r2d2_test.py <span class="cm"># step 5-6: N=50 V=100, sigma sweep 1,2,4,8, 5 Beta priors</span>
+python3 run_r2d2_test.py --N <span class="st">300</span> <span class="cm"># step 7</span>
+python3 run_r2d2_test.py --N <span class="st">300</span> --sigma-grid <span class="st">11</span> --priors <span class="st">"1/3,3 ; 2,6"</span> --dir-conc <span class="st">0.1</span> <span class="cm"># step 8</span>
+python3 run_r2d2_test.py --centered <span class="cm"># verbatim doc parameterization (will diverge)</span></code></pre>
+  <div class="col">
+    <div class="dl">
+      <dt>run_r2d2_test.py</dt><dd>simulate &rarr; prior-predictive &rarr; fit each prior &rarr; score vs. truth &rarr; sweep noise</dd>
+      <dt>--N</dt><dd>sample size (50, 300)</dd>
+      <dt>--dir-conc</dt><dd>Dirichlet concentration <span class="u">a&#8320;</span> (1.0 = flat / ridge; &lt; 1 = sparse / horseshoe-like)</dd>
+      <dt>--priors / --sigma-grid</dt><dd>&ldquo;;&rdquo;-separated <span class="u">Beta a,b</span> pairs; comma list of DGP noise levels</dd>
+      <dt>out/results_&lt;stamp&gt;.json</dt><dd>every metric, machine-readable &mdash; the numbers in this report</dd>
+      <dt>logs/, out/*.png, README.md</dt><dd>run log, recovery + sweep figures, short-form conclusion</dd>
+    </div>
+    <p><strong>Environment.</strong> The test ran on <span class="u">ECOD052</span>, the local workstation (32 cores, CPU). The cluster nodes (<span class="u">ecocn*</span>) were not used: <span class="u">/home/sosa/work</span> is not mounted there and they carry no BayesForge environment. The job is small &mdash; 20 fits, ~3&nbsp;minutes &mdash; so a single machine is enough. The script forces <span class="u">JAX_PLATFORMS=cpu</span> because the box&rsquo;s GPU JAX has a CuDNN version mismatch.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p class="refs"><strong>References.</strong> Zhang, Y.D., Naughton, B.P., Bondell, H.D., Reich, B.J. (2022). <em>Bayesian regression using a prior on the model fit: The R2-D2 shrinkage prior.</em> JASA. &nbsp;·&nbsp; Aguilar &amp; B&uuml;rkner (2023, 2025). &nbsp;·&nbsp; Yanchenko et&nbsp;al. (2025). &nbsp;·&nbsp; BayesForge doc <em>37. Feature extraction: R2D2</em>.</p>
+  <p>Simulation study generated 2026-08-27, extended 2026-08-28 (N=300 and the low-R&sup2; concentration sweep) &mdash; BayesForge 0.0.48, seed 20260827 throughout. Numbers drawn from <code>out/results_2026082*.json</code>.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function E(tag,attrs,parent){
+    var el=document.createElementNS(NS,tag);
+    if(attrs)for(var k in attrs)el.setAttribute(k,attrs[k]);
+    if(parent)parent.appendChild(el);
+    return el;
+  }
+  function txt(parent,x,y,s,cls,extra){
+    var t=E("text",{x:x,y:y,"class":cls||"tick"},parent);
+    if(extra)for(var k in extra)t.setAttribute(k,extra[k]);
+    t.textContent=s; return t;
+  }
+  var SERIES=["--s1","--s2","--s3","--s4","--s5"];
+  var PRIORS=["Beta(1/3,3)","Beta(1,1)","Beta(3,3)","Beta(3,1)","Beta(5,1)"];
+
+  // ---- data (from results_20260827_153951.json) ----
+  var trueR2=[0.982,0.932,0.773,0.460];
+  var sigTrue=[1,2,4,8];
+  var ppc=[
+    {n:"Beta(1/3,3)",mean:0.10,lo:0.000,md:0.034,hi:0.424},
+    {n:"Beta(1,1)",  mean:0.50,lo:0.050,md:0.497,hi:0.951},
+    {n:"Beta(3,3)",  mean:0.50,lo:0.191,md:0.502,hi:0.812},
+    {n:"Beta(3,1)",  mean:0.75,lo:0.366,md:0.794,hi:0.983},
+    {n:"Beta(5,1)",  mean:0.83,lo:0.548,md:0.871,hi:0.990}
+  ];
+  var sigPost={
+    "Beta(1/3,3)":[1.38,2.05,3.58,6.59],
+    "Beta(1,1)":  [0.82,1.19,2.29,4.91],
+    "Beta(3,3)":  [1.32,1.89,3.25,5.75],
+    "Beta(3,1)":  [0.78,1.18,2.19,4.47],
+    "Beta(5,1)":  [0.77,1.09,2.01,3.94]
+  };
+  var r2Post={
+    "Beta(1/3,3)":[0.912,0.856,0.732,0.556],
+    "Beta(1,1)":  [0.967,0.948,0.887,0.766],
+    "Beta(3,3)":  [0.920,0.877,0.781,0.679],
+    "Beta(3,1)":  [0.970,0.950,0.899,0.814],
+    "Beta(5,1)":  [0.970,0.957,0.916,0.857]
+  };
+  var shrink={
+    "Beta(1/3,3)":[0.77,0.66,0.47,0.28],
+    "Beta(1,1)":  [0.81,0.72,0.58,0.41],
+    "Beta(3,3)":  [0.77,0.67,0.50,0.35],
+    "Beta(3,1)":  [0.81,0.73,0.59,0.44],
+    "Beta(5,1)":  [0.81,0.73,0.60,0.47]
+  };
+  var betaRec={ // sigma=4, Beta(1,1)
+    idx:["β₃₁","β₃₅","β₇₁","β₈₉","β₉₃"],
+    tru:[2.58,4.43,-2.32,-3.34,2.13],
+    pm:[1.99,2.69,-2.23,-1.45,0.23],
+    lo:[0.58,1.30,-3.49,-2.65,-0.54],
+    hi:[3.16,3.96,-0.83,-0.13,1.01]
+  };
+
+  function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+  // ================= prior-predictive strip =================
+  function drawPPC(){
+    var svg=document.getElementById("svg-ppc"); if(!svg)return; svg.textContent="";
+    var W=900,H=300,L=110,R=40,T=28,B=44;
+    var x=function(v){return L+v*(W-L-R);};
+    // grid + ticks 0..1
+    for(var g=0;g<=10;g+=2){
+      var gx=x(g/10);
+      E("line",{x1:gx,y1:T,x2:gx,y2:H-B,"class":"grid"},svg);
+      txt(svg,gx,H-B+18,(g/10).toFixed(1),"tick",{ "text-anchor":"middle"});
+    }
+    txt(svg,(L+W-R)/2,H-8,"prior probability of R²","axlab",{"text-anchor":"middle"});
+    // true R2 guides
+    trueR2.forEach(function(r){
+      var gx=x(r);
+      E("line",{x1:gx,y1:T-6,x2:gx,y2:H-B,"class":"zero",stroke:css("--accent")},svg);
+      txt(svg,gx,T-10,r.toFixed(2),"note",{"text-anchor":"middle",fill:css("--accent-ink")});
+    });
+    var rowH=(H-B-T)/ppc.length;
+    ppc.forEach(function(p,i){
+      var cy=T+rowH*(i+0.5), c=css(SERIES[i]);
+      txt(svg,L-12,cy+4,p.n,"serieslab",{"text-anchor":"end",fill:css("--ink")});
+      E("line",{x1:x(p.lo),y1:cy,x2:x(p.hi),y2:cy,stroke:c,"stroke-width":3,"stroke-linecap":"round"},svg);
+      E("circle",{cx:x(p.md),cy:cy,r:3,fill:css("--surface"),stroke:c,"stroke-width":2},svg);
+      E("circle",{cx:x(p.mean),cy:cy,r:5,fill:c,"class":"dot"},svg);
+    });
+  }
+
+  // ================= generic multi-series line chart =================
+  function lineChart(id,legId,opts){
+    var svg=document.getElementById(id); if(!svg)return; svg.textContent="";
+    var vb=svg.getAttribute("viewBox").split(" ").map(Number), W=vb[2], H=vb[3];
+    var L=62,R=70,T=24,B=46;
+    var xs=opts.xvals;
+    var xmin=Math.min.apply(null,xs), xmax=Math.max.apply(null,xs);
+    var ymin=opts.ymin, ymax=opts.ymax;
+    var X=function(v){return L+(v-xmin)/(xmax-xmin)*(W-L-R);};
+    var Y=function(v){return T+(ymax-v)/(ymax-ymin)*(H-T-B);};
+    // horizontal grid
+    opts.yticks.forEach(function(t){
+      var gy=Y(t);
+      E("line",{x1:L,y1:gy,x2:W-R,y2:gy,"class":(t===0?"zero":"grid")},svg);
+      txt(svg,L-10,gy+4,opts.yfmt(t),"tick",{"text-anchor":"end"});
+    });
+    // x ticks (categorical positions, labelled by true R2)
+    xs.forEach(function(v,i){
+      var gx=X(v);
+      E("line",{x1:gx,y1:H-B,x2:gx,y2:H-B+5,"class":"ax"},svg);
+      txt(svg,gx,H-B+19,opts.xlabels[i],"tick",{"text-anchor":"middle"});
+    });
+    txt(svg,(L+W-R)/2,H-8,opts.xlab,"axlab",{"text-anchor":"middle"});
+    txt(svg,0,0,opts.ylab,"axlab",{transform:"translate(16,"+((T+H-B)/2)+") rotate(-90)","text-anchor":"middle"});
+    // series
+    var leg=document.getElementById(legId); if(leg)leg.textContent="";
+    PRIORS.forEach(function(p,i){
+      var c=css(SERIES[i]), ys=opts.series[p];
+      var d="";
+      ys.forEach(function(y,k){ d+=(k?"L":"M")+X(xs[k])+" "+Y(y)+" "; });
+      E("path",{d:d,fill:"none",stroke:c,"stroke-width":opts.emph&&opts.emph.indexOf(p)>=0?2.6:1.6,"stroke-linejoin":"round","stroke-linecap":"round","opacity":opts.emph&&opts.emph.indexOf(p)<0?0.85:1},svg);
+      ys.forEach(function(y,k){ E("circle",{cx:X(xs[k]),cy:Y(y),r:3.2,fill:c,"class":"dot"},svg); });
+      if(leg){
+        var sp=document.createElement("span"); sp.style.color=c;
+        var ic=document.createElement("i"); sp.appendChild(ic);
+        sp.appendChild(document.createTextNode(p));
+        leg.appendChild(sp);
+      }
+    });
+    if(opts.anno)opts.anno(svg,X,Y);
+  }
+
+  // ================= beta recovery dot plot =================
+  function drawBeta(){
+    var svg=document.getElementById("svg-beta"); if(!svg)return; svg.textContent="";
+    var W=900,H=300,L=70,R=40,T=24,B=44;
+    var lo=-4.2, hi=4.8;
+    var Y=function(v){return L+(v-lo)/(hi-lo)*(W-L-R);}; // horizontal axis is value
+    var n=betaRec.idx.length;
+    var rowH=(H-T-B)/n;
+    // value grid (vertical lines)
+    for(var v=-4;v<=4;v+=2){
+      var gx=Y(v);
+      E("line",{x1:gx,y1:T,x2:gx,y2:H-B,"class":(v===0?"zero":"grid")},svg);
+      txt(svg,gx,H-B+18,(v>0?"+":"")+v,"tick",{"text-anchor":"middle"});
+    }
+    txt(svg,(L+W-R)/2,H-8,"coefficient value","axlab",{"text-anchor":"middle"});
+    for(var i=0;i<n;i++){
+      var cy=T+rowH*(i+0.5), c=css("--s2");
+      txt(svg,L-14,cy+4,betaRec.idx[i],"serieslab",{"text-anchor":"end",fill:css("--ink")});
+      // interval
+      E("line",{x1:Y(betaRec.lo[i]),y1:cy,x2:Y(betaRec.hi[i]),y2:cy,stroke:c,"stroke-width":3,"stroke-linecap":"round"},svg);
+      // posterior mean
+      E("circle",{cx:Y(betaRec.pm[i]),cy:cy,r:5,fill:c,"class":"dot"},svg);
+      // true value diamond
+      var tx=Y(betaRec.tru[i]);
+      var covered=(betaRec.tru[i]>=betaRec.lo[i]&&betaRec.tru[i]<=betaRec.hi[i]);
+      E("path",{d:"M "+tx+" "+(cy-6)+" L "+(tx+6)+" "+cy+" L "+tx+" "+(cy+6)+" L "+(tx-6)+" "+cy+" Z",
+        fill:covered?css("--ink-faint"):css("--bad"),stroke:css("--surface"),"stroke-width":1.5},svg);
+      if(!covered)txt(svg,tx,cy-11,"missed","note",{"text-anchor":"middle",fill:css("--bad")});
+    }
+  }
+
+  function drawAll(){
+    drawPPC();
+    drawBeta();
+    lineChart("svg-sigbias","leg-sigbias",{
+      xvals:trueR2, xlabels:trueR2.map(function(r){return r.toFixed(2);}),
+      xlab:"true model R²  (σ = 1, 2, 4, 8)", ylab:"σ post mean / true − 1",
+      ymin:-0.6, ymax:0.5, yticks:[-0.5,-0.25,0,0.25,0.5],
+      yfmt:function(t){return (t>0?"+":"")+Math.round(t*100)+"%";},
+      series:(function(){var o={};PRIORS.forEach(function(p){o[p]=sigPost[p].map(function(s,k){return s/sigTrue[k]-1;});});return o;})(),
+      emph:["Beta(1/3,3)","Beta(5,1)"],
+      anno:function(svg,X,Y){
+        txt(svg,X(0.982)-6,Y(0.38)-9,"+38%","note",{"text-anchor":"end",fill:css("--s1")});
+        txt(svg,X(0.460)+6,Y(-0.5075)+16,"−51%","note",{"text-anchor":"start",fill:css("--s5")});
+      }
+    });
+    lineChart("svg-r2bias","leg-r2bias",{
+      xvals:trueR2, xlabels:trueR2.map(function(r){return r.toFixed(2);}),
+      xlab:"true model R²", ylab:"R² post mean − true",
+      ymin:-0.1, ymax:0.45, yticks:[0,0.1,0.2,0.3,0.4],
+      yfmt:function(t){return (t>0?"+":"")+t.toFixed(1);},
+      series:(function(){var o={};PRIORS.forEach(function(p){o[p]=r2Post[p].map(function(s,k){return s-trueR2[k];});});return o;})(),
+      emph:["Beta(1/3,3)","Beta(5,1)"]
+    });
+    lineChart("svg-shrink","leg-shrink",{
+      xvals:trueR2, xlabels:trueR2.map(function(r){return r.toFixed(2);}),
+      xlab:"true model R²", ylab:"|β̂| / |β|  (5 real effects)",
+      ymin:0.2, ymax:0.9, yticks:[0.3,0.5,0.7,0.9],
+      yfmt:function(t){return t.toFixed(1);},
+      series:shrink
+    });
+  }
+
+  drawAll();
+  var mq=window.matchMedia("(prefers-color-scheme:dark)");
+  if(mq.addEventListener)mq.addEventListener("change",drawAll);
+  var mo=new MutationObserver(drawAll);
+  mo.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+  // gentle reveal
+  if(window.matchMedia("(prefers-reduced-motion:no-preference)").matches && "IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+    },{rootMargin:"0px 0px -8% 0px"});
+    document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll(".reveal").forEach(function(el){ el.classList.add("in"); });
+  }
+})();
+</script>
