@@ -1,0 +1,14 @@
+flowchart LR
+    classDef stoch fill:#eef2ff,stroke:#333,stroke-width:1.5px
+    classDef det fill:#ffffff,stroke:#333,stroke-width:1.5px,stroke-dasharray: 4 3
+
+    SIG["σ ~ Exponential(1)<br/><i>residual noise</i>"]:::stoch
+    R2["R² ~ Beta(a, b)<br/><i>expected fit</i>"]:::stoch
+    TAU["τ² = σ²·R² / (1 − R²)<br/><i>global explained variance</i>"]:::det
+    PHI["φ ~ Dirichlet(1, …, 1)<br/><i>simplex weights, Σ φⱼ = 1</i>"]:::stoch
+    LAM["λ²ⱼ = τ²·φⱼ<br/><i>local variance, predictor j</i>"]:::det
+    BETA["βⱼ ~ Normal(0, λ²ⱼ)<br/><i>coefficient j, for j = 1 … K</i>"]:::stoch
+
+    R2 --> TAU
+    SIG --> TAU
+    TAU --> PHI --> LAM --> BETA

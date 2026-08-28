@@ -2,26 +2,32 @@
 title: "R2D2 Prior"
 description: "Assigning prior beliefs to regression coefficients and variance components by placing a prior on the model's R², decomposed through a Dirichlet distribution."
 categories: [Priors, Regression]
-image: "Figures/R2D2.png"
+image: "Figures/R2D2_hierarchy.png"
 order: 37
 reading-time: true
 ---
 
 ## General Principles
 
-Rather than setting arbitrary, independent variances for individual regression coefficients — which can be difficult to intuit — the **R2D2** (*R*-squared induced Dirichlet Decomposition) prior places a prior directly on a macro-level, easily interpretable metric: the model's overall goodness-of-fit, $R^2$. This prior was introduced in @gelman2022r2d2. As illustrated in the figure below, the framework decomposes the total explained variance down to the individual predictors through a step-by-step generative process:
+Rather than setting arbitrary, independent variances for individual regression coefficients — which can be difficult to intuit — the **R2D2** (*R*-squared induced Dirichlet Decomposition) prior places a prior directly on a macro-level, easily interpretable metric: the model's overall goodness-of-fit, $R^2$. This prior was introduced in @gelman2022r2d2.
 
-![The R2D2 prior decomposes the total explained variance, induced by a Beta prior on $R^2$, into local coefficient variances through a Dirichlet simplex.](Figures/R2D2.png){#fig-r2d2}
+Think of it as a **variance budget**. A single prior on $R^2$ opens a pot of "explained variance"; a Dirichlet simplex then divides that pot among the predictors; each predictor's slice becomes the prior variance of its coefficient. The generative process has five steps (@fig-r2d2):
 
-1) A *Beta* prior is placed on the expected coefficient of determination, e.g., $R^2 \sim \text{Beta}(1/3, 3)$. This intuitively bounds the prior based on how much total variance we believe the model will explain.
+![The R2D2 prior as a variance budget: a Beta prior on $R^2$ — together with the residual scale $\sigma$ — opens a global explained variance $\tau^2$; a flat Dirichlet splits it into per-predictor weights $\phi_j$; and each slice $\lambda_j^2 = \tau^2\phi_j$ becomes the prior variance of coefficient $\beta_j$. Dashed nodes are deterministic transforms.](Figures/R2D2_hierarchy.png){#fig-r2d2 width=100%}
 
-2) The $R^2$ value is transformed into a global variance parameter $\tau^2 = \frac{\sigma^2 R^2}{1 - R^2}$. This $\tau^2$ effectively represents the total explained variance (the signal-to-noise ratio) available to the model.
+1. **Set the expectation.** $R^2 \sim \text{Beta}(a, b)$ — how much of $y$'s variance do you expect this model to explain? The conservative default is $\text{Beta}(1/3, 3)$ (prior mean $R^2 = 0.1$).
 
-3) A *Dirichlet* prior (e.g., $\phi \sim \text{Dir}(1, \dots, 1)$) generates a simplex of weights. Because these weights $\phi_j$ must sum to one, they act as fractions that distribute the global variance among the predictors.
+2. **Open the budget.** $\tau^2 = \dfrac{\sigma^2 R^2}{1 - R^2}$ maps the $R^2$ belief onto a total signal variance, scaled by the residual variance $\sigma^2$. This $\tau^2$ is the signal-to-noise budget available to the coefficients (see [*Definition of $R^2$*](#sec-r2-definition) for the exact quantity $R^2$ refers to).
 
-4) The local variance of the $j$-th coefficient is obtained by scaling the global variance by its assigned weight: $\lambda_j^2 = \tau^2 \phi_j$.
+3. **Split it.** $\phi \sim \text{Dirichlet}(a_0, \dots, a_0)$ is a vector of $K$ non-negative weights that sum to one. The concentration $a_0$ controls how sparse the split is: $a_0 = 1$ (the usual default) gives every predictor the same prior share — ridge-like — while $a_0 < 1$ favours allocating the budget to a few predictors, which makes the induced coefficient priors heavier-tailed and more horseshoe-like.
 
-5) The coefficients are drawn conditionally: $\beta_j \sim \text{Normal}(0, \lambda_j^2)$.
+4. **Hand out slices.** $\lambda_j^2 = \tau^2 \phi_j$ is predictor $j$'s share of the budget.
+
+5. **Draw the coefficient.** $\beta_j \sim \text{Normal}(0, \lambda_j^2)$.
+
+::: callout-note
+**The budget metaphor.** Because the Dirichlet weights sum to one, the predictors *compete* for a fixed pot: a predictor that claims a large share leaves less for the rest, so unsupported predictors are handed a tiny $\phi_j$ and their coefficients collapse toward zero — adaptive sparsity without an explicit spike-at-zero. This reading only holds if the predictors are **standardized**: $\lambda_j^2 = \tau^2\phi_j$ distributes *variance*, so predictors on incomparable scales would confound "share of explained variance" with unit of measurement.
+:::
 
 ## Considerations
 
@@ -384,9 +390,17 @@ This approach is particularly useful for highly structured, non-independent data
 
 -   *Spatial GLMMs*: when incorporating spatial autocorrelation terms, the Dirichlet decomposition balances the variance captured by the underlying spatial structure against that captured by local environmental covariates, providing adaptive shrinkage if the spatial signal is weak.
 
-### *Definition of $R^2$*
+### *Definition of $R^2$* {#sec-r2-definition}
 
-The primary challenge in applying the R2D2 prior to mixed-effects models — whether conceptually or when coding the matrix formulations for an inference engine — is how the $R^2$ itself is defined. In mixed-effects models, one must distinguish between the *marginal* $R^2$ (variance explained by fixed effects alone) and the *conditional* $R^2$ (variance explained by fixed plus varying effects). To properly use R2D2 for varying effects, the Beta prior must target the conditional $R^2$, so that the full signal-to-noise ratio is captured before the Dirichlet weights decompose it down the hierarchy.
+The $R^2$ that the Beta prior acts on is the model's **explained-variance ratio** — signal variance over total variance:
+
+$$
+R^2 \;=\; \frac{\operatorname{Var}(\mathbf{x}^\top\beta)}{\operatorname{Var}(\mathbf{x}^\top\beta) + \sigma^2} \;=\; \frac{\tau^2}{\tau^2 + \sigma^2},
+$$
+
+which is exactly the identity $\tau^2 = \sigma^2 R^2 / (1 - R^2)$ rearranged. This is a property of the *data-generating process*, not of a particular sample — it is **not** the classical statistic $R^2 = 1 - \text{SS}_{\text{res}} / \text{SS}_{\text{tot}}$ reported in a regression table. The two agree in large samples under a well-specified model, but can differ substantially when $N$ is small; a prior predictive check should always be read against the explained-variance definition above.
+
+A second subtlety appears in mixed-effects models: one must distinguish between the *marginal* $R^2$ (variance explained by fixed effects alone) and the *conditional* $R^2$ (variance explained by fixed plus varying effects). To properly use R2D2 for varying effects, the Beta prior must target the conditional $R^2$, so that the full signal-to-noise ratio is captured before the Dirichlet weights decompose it down the hierarchy.
 
 ## Limitations
 
@@ -409,6 +423,28 @@ The Dirichlet decomposition controls variance, not direction. If domain knowledg
 **Regularizes coefficient magnitude, not model structure.**
 R2D2 can shrink a coefficient toward zero but cannot remove a structural model component — a Gaussian process kernel, a varying-slope dimension, an entire likelihood family. It is a prior *within* a fixed model architecture, not a tool for comparing architectures. See *R2D2 vs Structural Model Selection* below.
 :::
+
+## How to Use It Well
+
+::: callout-tip
+- **Run a prior predictive check on $R^2$ before fitting.** Sample your $\text{Beta}(a, b)$ and inspect the 5th–95th percentile against what you plausibly expect the model to explain. This is the single most effective safeguard against a misspecified prior.
+
+- **Small sample with a suspected strong fit: do not use the $\text{Beta}(1/3, 3)$ default.** Its mass sits near $R^2 \approx 0.1$; against a process that truly explains most of the variance it inflates $\sigma$ and shrinks the real coefficients. Widen it ($\text{Beta}(1, 1)$) or shift it up.
+
+- **When in doubt, be less confident, not more.** A vague, mildly-wrong prior degrades gracefully; a confident, wrong prior — e.g. $\text{Beta}(5, 1)$ when the truth is a poor fit — produces the largest errors, over-stating $R^2$ and under-stating $\sigma$.
+
+- **Low-$R^2$ problems (roughly $0.05$–$0.50$, typical in ecology and quantitative biology): drop the Dirichlet concentration to $a_0 \approx 0.1$–$0.5$.** The flat $\text{Dirichlet}(1,\dots,1)$ is a ridge; $a_0 < 1$ gives horseshoe-like tails that keep the credible intervals honest and shrink the null coefficients harder. In tests at true $R^2 \approx 0.3$ with $N$ large enough, $a_0 = 0.1$ raised interval coverage of the real effects from 1/5 to 4/5 at no sampler cost; below $a_0 \approx 0.1$ the simplex funnels and divergences return, so do not go lower without reparameterizing. When $N$ is small relative to $K$, no value of $a_0$ rescues the fit — the problem is information, not the prior.
+
+- **Match the $\text{Beta}(a, b)$ to your field, not to a default.** $\text{Beta}(1/3, 3)$ has infinite density at $R^2 = 0$; if the field reliably explains 10–40% of the variance, a prior *concentrated* in that band ($\text{Beta}(2, 6)$ or $\text{Beta}(1, 3)$, prior mean $\approx 0.25$) is more honest, or fit $(a, b)$ to the $R^2$ values reported in comparable studies (empirical Bayes).
+
+- **Standardize every predictor — and consider standardizing $y$.** The Dirichlet decomposition distributes *variance*; on incomparable predictor scales $\lambda_j^2 = \tau^2\phi_j$ conflates coefficient magnitude with predictor units and the simplex weights stop meaning "share of explained variance". Scaling $y$ additionally makes the $\sigma \sim \text{Exp}(1)$ prior scale-appropriate (then $\sigma \approx \sqrt{1 - R^2}$), which matters most at low $R^2$ where the residual dominates $\tau^2$.
+
+- **Use a non-centered parameterization for the coefficients** — $\beta_j = z_j\,\lambda_j$ with $z_j \sim \text{Normal}(0, 1)$. It is mathematically identical to $\beta_j \sim \text{Normal}(0, \lambda_j^2)$ but avoids the funnel geometry that produces divergences and inflated $\hat R$ when $K > N$ and the prior admits $R^2 \to 1$.
+
+- **Report divergences and $\hat R$.** This prior can look healthy in a summary table while the sampler is stressed underneath; the $R^2 \to 1$ region is stiff.
+:::
+
+A worked simulation study of these effects — parameter recovery against a known truth at $N = 50$ and $N = 300$, how the estimates move as the residual noise (and hence the true $R^2$) is swept from $\approx 0.98$ down to $\approx 0.43$, and the effect of the concentration $a_0$ in the low-$R^2$ regime — is in `BF/Test/R2D2/`.
 
 ## Notes
 ::: callout-note
