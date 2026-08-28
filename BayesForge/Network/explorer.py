@@ -48,6 +48,7 @@ import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap, to_hex
 
 from BayesForge.Network import layouts as _lay
+from BayesForge.Network import vizfeatures as _vf
 
 
 def _categorical_hex(n: int) -> list[str]:
@@ -65,6 +66,343 @@ def _categorical_hex(n: int) -> list[str]:
         return [cycle[i % len(cycle)] for i in range(n)]
 
 _ASSETS = Path(__file__).with_name("assets") / "netexplorer"
+
+
+# --------------------------------------------------------------------- #
+# feature layer spliced into the vendored front-end
+# --------------------------------------------------------------------- #
+_FEATURES_CSS = """
+.main-menu .tool { margin: 3px 4px 0 0; padding: 6px 11px; border: 1px solid var(--line);
+  border-radius: 8px; background: #f7f9fb; color: var(--ink); font: inherit; font-size: 12px;
+  cursor: pointer; }
+.main-menu .tool:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+#nodeSearch, #sizeBy, #colorBy { width: 100%; margin-top: 4px; padding: 6px 8px;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit;
+  font-size: 12.5px; color: var(--ink); }
+#legendBox, #statsBox { position: absolute; z-index: 40; background: var(--panel-bg);
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+  box-shadow: 0 6px 24px rgba(20,30,50,.14); font-size: 12px; color: var(--ink);
+  max-width: 240px; }
+#legendBox { right: 14px; bottom: 14px; }
+#statsBox  { right: 14px; top: 14px; }
+#legendBox h4, #statsBox h4 { margin: 0 0 6px; font-size: 10.5px; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted); }
+#legendBox h4:not(:first-child) { margin-top: 10px; }
+#legendBox .row { display: flex; align-items: center; gap: 7px; margin: 3px 0; }
+#legendBox .sw { width: 13px; height: 13px; border-radius: 3px;
+  border: 1px solid rgba(0,0,0,.15); flex: 0 0 auto; }
+#legendBox .grad { width: 120px; height: 10px; border-radius: 3px; }
+#statsBox table { border-collapse: collapse; }
+#statsBox td { padding: 1px 8px 1px 0; }
+#statsBox td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+body[data-theme="dark"] { --bg:#12161c; --panel-bg:#1b212b; --ink:#e6eaf0;
+  --muted:#8b95a3; --line:#2b333f; }
+body[data-theme="dark"] svg#net { background: #12161c; }
+body[data-theme="dark"] input[type=number],
+body[data-theme="dark"] #nodeSearch,
+body[data-theme="dark"] #sizeBy, body[data-theme="dark"] #colorBy,
+body[data-theme="dark"] .main-menu .tool { background: #232b36; color: var(--ink); }
+"""
+
+_FEATURES_HTML = """
+      <li class="darkerlishadow"><span class="nav-text"><b>Explore</b></span></li>
+      <li class="darkerli"><span class="nav-text">Find node</span>
+        <input id="nodeSearch" type="text" placeholder="node id, then Enter" autocomplete="off"/></li>
+      <li class="darkerli"><span class="nav-text">Size by</span>
+        <select id="sizeBy"></select></li>
+      <li class="darkerli"><span class="nav-text">Colour by</span>
+        <select id="colorBy"></select></li>
+      <li class="darkerlishadowdown"><span class="nav-text">Min edge weight</span>
+        <form><div><span>0</span>
+          <input id="edgeThresh" type="range" min="0" max="1" step="0.001" value="0"/>
+          <span id="edgeThreshV">0</span></div></form></li>
+      <li class="darkerlishadow"><span class="nav-text"><b>View</b></span></li>
+      <li class="darkerli">
+        <button class="tool" id="btnFit" type="button">Fit</button>
+        <button class="tool" id="btnTheme" type="button">Dark</button>
+        <button class="tool" id="btnPNG" type="button">PNG</button>
+        <button class="tool" id="btnJSON" type="button">JSON</button>
+        <button class="tool" id="btnCSV" type="button">CSV</button>
+      </li>
+"""
+
+_FEATURES_JS = r"""
+(function () {
+  if (typeof graph === 'undefined' || !graph) return;
+  var G = graph;
+  var svgEl = document.querySelector('svg#net') || document.querySelector('svg');
+  var gSel = (typeof svg !== 'undefined') ? svg : d3.select(svgEl).select('g');
+  var haveLink = (typeof link !== 'undefined');
+
+  /* theme -------------------------------------------------------- */
+  document.body.setAttribute('data-theme', G.theme === 'dark' ? 'dark' : 'light');
+  var bt = document.getElementById('btnTheme');
+  function themeLbl() { if (bt) bt.textContent =
+    document.body.getAttribute('data-theme') === 'dark' ? 'Light' : 'Dark'; }
+  themeLbl();
+  if (bt) bt.onclick = function () {
+    document.body.setAttribute('data-theme',
+      document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    themeLbl();
+  };
+
+  /* directed arrowheads --------------------------------------- */
+  if (G.directed && haveLink) {
+    d3.select(svgEl).append('defs').append('marker')
+      .attr('id', 'arrow').attr('viewBox', '0 -5 10 10')
+      .attr('refX', 15).attr('refY', 0)
+      .attr('markerWidth', 5).attr('markerHeight', 5).attr('orient', 'auto')
+      .append('path').attr('d', 'M0,-5L10,0L0,5').attr('fill', '#666');
+    link.attr('marker-end', 'url(#arrow)');
+  }
+
+  /* stats panel ---------------------------------------------- */
+  if (G.stats) {
+    var s = G.stats, sb = document.createElement('div'); sb.id = 'statsBox';
+    var rr = [['nodes', s.nodes], ['edges', s.edges], ['directed', s.directed ? 'yes' : 'no'],
+      ['density', s.density], ['mean degree', s.mean_degree], ['components', s.components],
+      ['diameter', s.diameter == null ? '—' : s.diameter],
+      ['clustering', s.global_clustering == null ? '—' : s.global_clustering]];
+    sb.innerHTML = '<h4>Network</h4><table>' +
+      rr.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join('') +
+      '</table>';
+    document.body.appendChild(sb);
+  }
+
+  /* legend ------------------------------------------------- */
+  if (G.legend && G.legend.length) {
+    var lb = document.createElement('div'); lb.id = 'legendBox'; var h = '';
+    G.legend.forEach(function (e) {
+      h += '<h4>' + e.title + '</h4>';
+      if (e.kind === 'swatches') {
+        e.items.forEach(function (it) {
+          h += '<div class="row"><span class="sw" style="background:' + it.color + '"></span>' + it.label + '</div>';
+        });
+      } else if (e.kind === 'gradient') {
+        h += '<div class="row"><span class="grad" style="background:linear-gradient(90deg,' +
+          e.stops[0] + ',' + e.stops[1] + ')"></span></div>' +
+          '<div class="row"><span>' + e.lo + '</span><span style="flex:1"></span><span>' + e.hi + '</span></div>';
+      } else if (e.kind === 'shapes') {
+        e.items.forEach(function (it) {
+          h += '<div class="row"><svg width="15" height="15"><path transform="translate(7.5,7.5)" d="' +
+            d3.symbol().type(d3.symbols[it.shape]).size(70)() + '" fill="#8a94a3"></path></svg>' + it.label + '</div>';
+        });
+      } else if (e.kind === 'size') {
+        h += '<div class="row"><span>' + e.lo + '</span>&nbsp;–&nbsp;<span>' + e.hi + '</span></div>';
+      } else if (e.kind === 'note') {
+        h += '<div class="row">' + e.text + '</div>';
+      }
+    });
+    lb.innerHTML = h; document.body.appendChild(lb);
+  }
+
+  /* size-by / colour-by (centralities) ------------------- */
+  var opts = ['(none)'].concat(G.metricNames || []);
+  function fillSel(sel) { if (!sel) return;
+    sel.innerHTML = opts.map(function (m) { return '<option>' + m + '</option>'; }).join(''); }
+  var sizeBy = document.getElementById('sizeBy'), colorBy = document.getElementById('colorBy');
+  fillSel(sizeBy); fillSel(colorBy);
+  function span(k) {
+    var v = G.nodes.map(function (d) { return d.cent ? d.cent[k] : 0; });
+    var mn = Math.min.apply(null, v), mx = Math.max.apply(null, v);
+    return [mn, mx > mn ? mx : mn + 1];
+  }
+  if (sizeBy) sizeBy.onchange = function () {
+    var k = this.value;
+    if (k === '(none)') {
+      node.attr('d', d3.symbol().type(function (d) { return d3.symbols[d.shape]; })
+        .size(function (d) { return d.size * 100; }));
+      return;
+    }
+    var e = span(k);
+    node.attr('d', d3.symbol().type(function (d) { return d3.symbols[d.shape]; })
+      .size(function (d) { var t = ((d.cent ? d.cent[k] : 0) - e[0]) / (e[1] - e[0]); return 40 + t * 360; }));
+  };
+  if (colorBy) colorBy.onchange = function () {
+    var k = this.value;
+    if (k === '(none)') {
+      node.style('fill', function (d) { return d.color; });
+      return;
+    }
+    var e = span(k), sc = d3.interpolateRgb('#3b4cc0', '#b40426');
+    node.style('fill', function (d) { var t = ((d.cent ? d.cent[k] : 0) - e[0]) / (e[1] - e[0]); return sc(t); });
+  };
+
+  /* edge weight threshold ------------------------------- */
+  var et = document.getElementById('edgeThresh'), etv = document.getElementById('edgeThreshV');
+  if (et && haveLink && G.links.length) {
+    var ws = G.links.map(function (l) { return l.weigth; });
+    et.min = Math.min.apply(null, ws); et.max = Math.max.apply(null, ws);
+    et.step = ((et.max - et.min) / 200) || 0.001; et.value = et.min;
+    if (etv) etv.textContent = (+et.min).toFixed(2);
+    et.oninput = function () {
+      var t = +this.value; if (etv) etv.textContent = t.toFixed(2);
+      link.style('display', function (l) { return l.weigth < t ? 'none' : null; });
+    };
+  }
+
+  /* fit to view --------------------------------------- */
+  var bf = document.getElementById('btnFit');
+  if (bf) bf.onclick = function () {
+    var xs = G.nodes.map(function (d) { return d.x; }), ys = G.nodes.map(function (d) { return d.y; });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs),
+        y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    var w = (x1 - x0) || 1, hh = (y1 - y0) || 1, pad = 45;
+    var k = Math.min((width - 2 * pad) / w, (height - 2 * pad) / hh, 4);
+    var tx = width / 2 - k * (x0 + x1) / 2, ty = height / 2 - k * (y0 + y1) / 2;
+    gSel.transition().duration(400).attr('transform', 'translate(' + tx + ',' + ty + ') scale(' + k + ')');
+  };
+
+  /* find node ---------------------------------------- */
+  var ns = document.getElementById('nodeSearch');
+  if (ns) ns.onkeydown = function (ev) {
+    if (ev.key !== 'Enter') return;
+    var q = this.value.trim();
+    var hit = G.nodes.filter(function (d) { return String(d.id) === q; })[0];
+    if (!hit) return;
+    var k = 2, tx = width / 2 - k * hit.x, ty = height / 2 - k * hit.y;
+    gSel.transition().duration(400).attr('transform', 'translate(' + tx + ',' + ty + ') scale(' + k + ')');
+    node.filter(function (d) { return d === hit; }).transition().duration(150)
+      .style('stroke', '#ff3b30').style('stroke-width', 4).transition().duration(700)
+      .style('stroke', function (d) { return d.strokeCol; })
+      .style('stroke-width', function (d) { return d.strokeW; });
+  };
+
+  /* click node -> brighten neighbour labels --------- */
+  if (typeof texts !== 'undefined' && haveLink) {
+    var nb = {};
+    G.links.forEach(function (l) {
+      var a = (l.source && l.source.id !== undefined) ? l.source.id : l.source;
+      var b = (l.target && l.target.id !== undefined) ? l.target.id : l.target;
+      (nb[a] = nb[a] || {})[b] = 1; (nb[b] = nb[b] || {})[a] = 1;
+    });
+    var pick = null;
+    node.on('click.labels', function (d) {
+      pick = (pick === d.id) ? null : d.id;
+      texts.style('font-weight', function (o) {
+        return pick === null ? null : ((o.id === pick || (nb[pick] && nb[pick][o.id])) ? '700' : '400');
+      }).style('fill-opacity', function (o) {
+        return pick === null ? 1 : ((o.id === pick || (nb[pick] && nb[pick][o.id])) ? 1 : 0.12);
+      }).style('font-size', function (o) {
+        return pick === null ? null : ((o.id === pick || (nb[pick] && nb[pick][o.id])) ? '15px' : null);
+      });
+    });
+  }
+
+  /* exports ---------------------------------------- */
+  function dl(name, blob) {
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  var bJ = document.getElementById('btnJSON');
+  if (bJ) bJ.onclick = function () {
+    dl('network.json', new Blob([JSON.stringify({
+      nodes: G.nodes.map(function (d) { return { id: d.id, x: d.x, y: d.y, color: d.color, size: d.size, cent: d.cent }; }),
+      links: G.links.map(function (l) {
+        return { source: (l.source.id || l.source), target: (l.target.id || l.target), weight: l.weigth };
+      })
+    }, null, 1)], { type: 'application/json' }));
+  };
+  var bC = document.getElementById('btnCSV');
+  if (bC) bC.onclick = function () {
+    var cols = ['id', 'x', 'y', 'size', 'color'].concat(G.metricNames || []);
+    var rows = [cols.join(',')];
+    G.nodes.forEach(function (d) {
+      rows.push(cols.map(function (c) {
+        var v = (c in d) ? d[c] : (d.cent && (c in d.cent) ? d.cent[c] : '');
+        return (typeof v === 'string' && v.indexOf(',') >= 0) ? '"' + v + '"' : v;
+      }).join(','));
+    });
+    dl('nodes.csv', new Blob([rows.join('\n')], { type: 'text/csv' }));
+  };
+  var bP = document.getElementById('btnPNG');
+  if (bP) bP.onclick = function () {
+    var W = svgEl.clientWidth || width, H = svgEl.clientHeight || height;
+    var str = new XMLSerializer().serializeToString(svgEl);
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement('canvas'); c.width = W * 2; c.height = H * 2;
+      var ctx = c.getContext('2d'); ctx.scale(2, 2);
+      ctx.fillStyle = getComputedStyle(svgEl).backgroundColor || '#fff';
+      ctx.fillRect(0, 0, W, H); ctx.drawImage(img, 0, 0, W, H);
+      c.toBlob(function (b) { dl('network.png', b); });
+    };
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(str)));
+  };
+
+  /* canvas renderer (auto for very large graphs, or canvas=True) ---- */
+  if (G.canvas && haveLink && typeof simulation !== 'undefined') {
+    var cv = document.createElement('canvas');
+    cv.style.position = 'fixed'; cv.style.pointerEvents = 'none'; cv.style.zIndex = 5;
+    document.body.appendChild(cv);
+    function fit() {
+      var r = svgEl.getBoundingClientRect();
+      var W = r.width || svgEl.clientWidth || (window.innerWidth - 260);
+      var H = r.height || svgEl.clientHeight || window.innerHeight;
+      cv.style.left = (r.left || 260) + 'px'; cv.style.top = (r.top || 0) + 'px';
+      cv.width = W; cv.height = H;
+    }
+    fit(); window.addEventListener('resize', fit);
+    if (!cv.width || !cv.height) { cv.remove(); return; }  // keep SVG if sizing failed
+    // canvas owns rendering — drop the SVG marks
+    d3.select(svgEl).selectAll('path.node, path.link, text.label').remove();
+    var cx = cv.getContext('2d'), last = '\0';
+    function drawCanvas() {
+      var tr = gSel.attr('transform') || '';
+      var mm = /translate\(([-\d.]+)[ ,]([-\d.]+)\)(?:\s*scale\(([-\d.]+)\))?/.exec(tr);
+      cx.setTransform(1, 0, 0, 1, 0, 0);
+      cx.clearRect(0, 0, cv.width, cv.height);
+      if (mm) { cx.translate(+mm[1], +mm[2]); if (mm[3]) cx.scale(+mm[3], +mm[3]); }
+      cx.globalAlpha = 0.35;
+      cx.strokeStyle = (document.body.getAttribute('data-theme') === 'dark') ? '#5a6472' : '#9aa4b2';
+      cx.lineWidth = 0.4; cx.beginPath();
+      G.links.forEach(function (l) {
+        if (!l.source || l.source.x == null) return;
+        cx.moveTo(l.source.x, l.source.y); cx.lineTo(l.target.x, l.target.y);
+      });
+      cx.stroke();
+      cx.globalAlpha = 1;
+      G.nodes.forEach(function (d) {
+        cx.beginPath(); cx.fillStyle = d.color || '#4e79a7';
+        cx.arc(d.x, d.y, Math.max(1.5, Math.sqrt(d.size || 1) * 1.3), 0, 6.2832); cx.fill();
+      });
+    }
+    function mnmx(a) {
+      var lo = Infinity, hi = -Infinity;
+      for (var i = 0; i < a.length; i++) { var v = a[i];
+        if (v < lo) lo = v; if (v > hi) hi = v; }
+      return [lo, hi];
+    }
+    function autoFit() {
+      var xs = G.nodes.map(function (d) { return d.x; }).filter(isFinite);
+      var ys = G.nodes.map(function (d) { return d.y; }).filter(isFinite);
+      if (!xs.length) return;
+      var X = mnmx(xs), Y = mnmx(ys), pad = 30;
+      var w = (X[1] - X[0]) || 1, h = (Y[1] - Y[0]) || 1;
+      var k = Math.min(cv.width / (w + 2 * pad), cv.height / (h + 2 * pad), 2);
+      var tx = cv.width / 2 - k * (X[0] + X[1]) / 2, ty = cv.height / 2 - k * (Y[0] + Y[1]) / 2;
+      gSel.attr('transform', 'translate(' + tx + ',' + ty + ') scale(' + k + ')');
+      drawCanvas();
+    }
+    simulation.on('tick.cv', drawCanvas);
+    simulation.on('end.cv', autoFit);
+    setTimeout(autoFit, 400); setTimeout(autoFit, 1800); setTimeout(autoFit, 4000);
+    // redraw on pan / zoom without an open rAF loop
+    var pending = false;
+    function schedule() {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(function () { pending = false; drawCanvas(); });
+    }
+    svgEl.addEventListener('wheel', schedule, { passive: true });
+    svgEl.addEventListener('pointermove', function (e) { if (e.buttons) schedule(); });
+    svgEl.addEventListener('pointerup', schedule);
+    drawCanvas();
+  }
+})();
+"""
 
 
 def _in_notebook() -> bool:
@@ -263,6 +601,17 @@ class NetExplorer:
         return d
 
     @staticmethod
+    def _colorize_categorical(df: pd.DataFrame, col: str, palette: str, new_col: str) -> pd.DataFrame:
+        """Append a categorical hex column: one distinct palette colour per
+        level of ``col`` (recycled if there are more levels than colours)."""
+        d = df.copy()
+        levels = sorted(pd.unique(d[col]).tolist(), key=str)
+        pal = _vf.palette(palette)["categorical"]
+        ramp = {lv: pal[i % len(pal)] for i, lv in enumerate(levels)}
+        d[new_col] = d[col].map(ramp)
+        return d
+
+    @staticmethod
     def _shape_codes(vec, chars: Sequence[str]) -> np.ndarray:
         """Categorical vector -> d3 symbol codes via a per-category shape name."""
         vec = pd.Series(vec)
@@ -295,6 +644,7 @@ class NetExplorer:
         col_strokeCol=None,
         col_stroke=None,
         node_opacity=None,
+        palette: str = "default",
     ):
         """Normalise an arbitrary node table into the fixed column set the
         front-end reads: ``id, size, color, strokeCol, strokeW, shape,
@@ -379,12 +729,17 @@ class NetExplorer:
             d["strokeCol"] = np.nan
 
         # --- node colour ----------------------------------------- #
+        self._color_is_categorical = False
         if col_color is not None:
-            if color is None or len(color) != 2:
-                raise ValueError("`color` must be a 2-colour gradient")
             cc = self._col_id(d, col_color)
             ori_color = cc
-            d = self._colorize(d, cc, color, new_col="color")
+            if np.issubdtype(d[cc].dtype, np.number):
+                if color is None or len(color) != 2:
+                    raise ValueError("`color` must be a 2-colour gradient for a numeric column")
+                d = self._colorize(d, cc, color, new_col="color")
+            else:
+                d = self._colorize_categorical(d, cc, palette, new_col="color")
+                self._color_is_categorical = True
         else:
             ori_color = None
             d["color"] = "black"
@@ -430,6 +785,12 @@ class NetExplorer:
         layout_x=None,
         layout_y=None,
         directed: bool = True,
+        metrics: bool = True,
+        edge_color_col=None,
+        weight_posterior=None,
+        palette: str = "default",
+        theme: str = "light",
+        canvas: bool | None = None,
         out_dir: str | os.PathLike = "out",
         filename: str = "NetExplorer.html",
         inline: bool = True,
@@ -472,8 +833,25 @@ class NetExplorer:
         layout_x, layout_y
             Columns of fixed coordinates for ``layout="geo"`` (e.g. lon / lat).
         directed
-            For ``layout="layered"``: treat the matrix as directed and use
-            topological generations when it is acyclic.
+            Treat the matrix as directed: draw arrowheads on links, and for
+            ``layout="layered"`` use topological generations when acyclic.
+        metrics
+            Compute per-node centralities (degree / strength / eigenvector /
+            betweenness / clustering, via ``m.net.met`` only) and a global
+            summary. Drives the Size-by / Colour-by dropdowns and the Stats
+            panel in the page.
+        edge_color_col
+            Column of ``df`` used to colour links (via the source node);
+            otherwise links take the source node's colour.
+        weight_posterior
+            ``(draws, N, N)`` posterior edge-weight array. The posterior mean
+            becomes the plotted network; each link also carries P(weight > 0)
+            (shown as link opacity) and a 90% interval (in the tooltip).
+        palette
+            ``"default"`` or ``"cb"`` (Okabe-Ito categorical + viridis
+            sequential, colour-blind safe).
+        theme
+            ``"light"`` or ``"dark"`` — initial page theme (toggle in the page).
         height
             Inline iframe height in px for the notebook view.
         """
@@ -481,6 +859,11 @@ class NetExplorer:
             browser = not _in_notebook()
         if m is None:
             raise ValueError("vis_net needs an adjacency matrix `m`")
+
+        edge_prob = edge_lo = edge_hi = None
+        if weight_posterior is not None:
+            mean, edge_prob, edge_lo, edge_hi = _vf.edge_posterior_summary(weight_posterior)
+            m = mean
         m = jnp.asarray(m)
         N = int(m.shape[0])
 
@@ -501,6 +884,7 @@ class NetExplorer:
             col_strokeCol=col_strokeCol,
             col_stroke=col_stroke,
             node_opacity=node_opacity,
+            palette=palette,
         )
         # node labels: prefer col_id, then ctor ids, then an n1..nN fallback.
         # Set self.ids so mat_to_edgl below labels edges with the same names.
@@ -559,11 +943,44 @@ class NetExplorer:
             edgl["intralayer"] = np.nan
             edgl["interlayer"] = np.nan
 
+        adj_np = np.asarray(m, dtype=float)
+        idx_by_id = {v: i for i, v in enumerate(d["id"])}
+        si = edgl["from"].map(idx_by_id).to_numpy()
+        ti = edgl["to"].map(idx_by_id).to_numpy()
+
+        # posterior edge uncertainty: P(w>0) -> link opacity, 90% CI -> tooltip
+        if edge_prob is not None and len(edgl):
+            edgl["eprob"] = edge_prob[si, ti]
+            edgl["elo"] = edge_lo[si, ti]
+            edgl["ehi"] = edge_hi[si, ti]
+            edgl["lOpacity"] = np.clip(edgl["eprob"].to_numpy(), 0.03, 1.0)
+
+        # link colour from an edge attribute (via the source node's row)
+        if edge_color_col is not None:
+            ec = self._col_id(d, edge_color_col)
+            if np.issubdtype(d[ec].dtype, np.number):
+                d = self._colorize(d, ec, _vf.palette(palette)["sequential"], "_edgeCol")
+            else:
+                d = self._colorize_categorical(d, ec, palette, "_edgeCol")
+            edgl["colorL"] = edgl["from"].map(dict(zip(d["id"], d["_edgeCol"])))
+
+        # per-node centralities + global summary (met only)
+        node_metrics: dict[str, np.ndarray] = {}
+        stats = None
+        if metrics:
+            try:
+                node_metrics = _vf.centralities(adj_np, directed=directed)
+            except Exception:
+                node_metrics = {}
+            try:
+                stats = _vf.network_stats(adj_np)
+            except Exception:
+                stats = None
+
         # layouts: precompute coordinates for every applicable non-live layout
         # so the GUI dropdown can switch between them client-side. Big graphs
         # (N > 800) only get the one that was asked for.
         layout = (layout or "force").lower()
-        adj_np = np.asarray(m, dtype=float)
         grp_vals = (
             d[self._col_id(d, layout_col)].to_numpy() if layout_col is not None else None
         )
@@ -608,9 +1025,17 @@ class NetExplorer:
         elif layout == "chord":
             raise ValueError("layout='chord' needs layout_col (the node grouping)")
 
+        # legend entries for whatever encodings are actually in use
+        legend = self._build_legend(d, ori, color, palette, edge_prob is not None)
+
+        use_canvas = (N > 1500) if canvas is None else bool(canvas)
+
         # assemble + write
         html = self._assemble_html(
-            d, edgl, ori, layout=layout, chord=chord_payload, all_pos=all_pos
+            d, edgl, ori, layout=layout, chord=chord_payload, all_pos=all_pos,
+            stats=stats, node_metrics=node_metrics, legend=legend,
+            theme=theme, palette=palette, directed=bool(directed),
+            has_posterior=edge_prob is not None, canvas=use_canvas,
         )
         out_dir = Path(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -694,9 +1119,11 @@ class NetExplorer:
         )
         return s
 
-    def _nodes_json(self, d: pd.DataFrame, ori, all_pos: dict | None = None) -> str:
+    def _nodes_json(self, d: pd.DataFrame, ori, all_pos: dict | None = None,
+                    node_metrics: dict | None = None) -> str:
         has = dict(zip(("id", "size", "color", "strokeCol", "stroke", "shape", "opacity"), ori))
         all_pos = all_pos or {}
+        node_metrics = node_metrics or {}
         rows = []
         for i, (_, r) in enumerate(d.iterrows()):
             parts = [
@@ -728,13 +1155,19 @@ class NetExplorer:
                     if np.isfinite(lx[i]) and np.isfinite(ly[i])
                 )
                 parts.append("'pos':{" + pos + "}")
+            if node_metrics:
+                cent = ",".join(
+                    f"'{name}':{float(v[i]):.5f}" for name, v in node_metrics.items()
+                )
+                parts.append("'cent':{" + cent + "}")
             rows.append("{" + ",".join(parts) + "},")
         return "\n".join(rows)
 
     def _links_json(self, edgl: pd.DataFrame) -> str:
+        post = {"eprob", "elo", "ehi"}.issubset(edgl.columns)
         rows = []
         for _, e in edgl.iterrows():
-            rows.append(
+            row = (
                 "{"
                 f"'source':{self._js_val(e['from'])},"
                 f"'target':{self._js_val(e['to'])},"
@@ -743,8 +1176,14 @@ class NetExplorer:
                 f"'weigth':{self._js_val(e['weight'])},"
                 f"'intralayer':{self._js_val(e['intralayer'])},"
                 f"'interlayer':{self._js_val(e['interlayer'])}"
-                "},"
             )
+            if post:
+                row += (
+                    f",'eprob':{self._js_val(e['eprob'])}"
+                    f",'elo':{self._js_val(e['elo'])}"
+                    f",'ehi':{self._js_val(e['ehi'])}"
+                )
+            rows.append(row + "},")
         return "\n".join(rows)
 
     def _assemble_html(
@@ -755,6 +1194,14 @@ class NetExplorer:
         layout: str = "force",
         chord: dict | None = None,
         all_pos: dict | None = None,
+        stats: dict | None = None,
+        node_metrics: dict | None = None,
+        legend: list | None = None,
+        theme: str = "light",
+        palette: str = "default",
+        directed: bool = False,
+        has_posterior: bool = False,
+        canvas: bool = False,
     ) -> str:
         import json as _json
 
@@ -763,21 +1210,69 @@ class NetExplorer:
         p2 = self._inject_layouts(
             p2, layout, computed=list((all_pos or {}).keys()), chord=chord
         )
-        chord_js = (
-            f"json['chord'] = {_json.dumps(chord)};\n" if chord is not None else ""
+        p1 = self._inject_features(p1)
+
+        extra = {
+            "stats": stats,
+            "legend": legend or [],
+            "theme": theme,
+            "palette": palette,
+            "directed": bool(directed),
+            "hasPosterior": bool(has_posterior),
+            "canvas": bool(canvas),
+            "metricNames": list((node_metrics or {}).keys()),
+        }
+        if chord is not None:
+            extra["chord"] = chord
+        extra_js = "".join(
+            f"json[{_json.dumps(k)}] = {_json.dumps(v)};\n" for k, v in extra.items()
         )
         return (
             p1
             + self._tooltip_js(ori)
             + p2
             + "\n           function getData() {\n   let json = { 'nodes':[\n"
-            + self._nodes_json(d, ori, all_pos)
+            + self._nodes_json(d, ori, all_pos, node_metrics)
             + "\n],\n'links':[\n"
             + self._links_json(edgl)
             + "\n]}\n"
-            + chord_js
+            + extra_js
             + "return json;\n}\n</script>\n"
+            + "<script>\n" + _FEATURES_JS + "\n</script>\n"
         )
+
+    def _build_legend(self, d, ori, color, palette, has_post) -> list:
+        ln, sn, cn, scn, stn, shn, on = ori
+        ent: list = []
+        if cn is not None and "colorValue" in d.columns:
+            if getattr(self, "_color_is_categorical", False):
+                seen = {}
+                for v, hx in zip(d["colorValue"], d["color"]):
+                    seen.setdefault(str(v), hx)
+                ent.append({"kind": "swatches", "title": str(cn),
+                            "items": [{"label": k, "color": v} for k, v in seen.items()]})
+            else:
+                ent.append({"kind": "gradient", "title": str(cn), "stops": list(color),
+                            "lo": round(float(d["colorValue"].min()), 3),
+                            "hi": round(float(d["colorValue"].max()), 3)})
+        if shn is not None and "shapeValue" in d.columns:
+            seen = {}
+            for v, code in zip(d["shapeValue"], d["shape"]):
+                seen.setdefault(str(v), int(code))
+            ent.append({"kind": "shapes", "title": str(shn),
+                        "items": [{"label": k, "shape": v} for k, v in seen.items()]})
+        if sn is not None and "sizeValue" in d.columns:
+            ent.append({"kind": "size", "title": str(sn),
+                        "lo": round(float(d["sizeValue"].min()), 3),
+                        "hi": round(float(d["sizeValue"].max()), 3)})
+        if has_post:
+            ent.append({"kind": "note", "title": "Link opacity", "text": "P(weight > 0)"})
+        return ent
+
+    def _inject_features(self, p1: str) -> str:
+        p1 = p1.replace("</head>", f"<style>\n{_FEATURES_CSS}\n</style>\n</head>", 1)
+        p1 = p1.replace("    </nav>", _FEATURES_HTML + "\n    </nav>", 1)
+        return p1
 
     _LIVE_LAYOUTS = ("force", "circle", "linear", "multilayer")
 

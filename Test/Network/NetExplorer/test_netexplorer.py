@@ -226,7 +226,7 @@ def test_layouts_emit_coords_or_chord():
                  "MDS", "Radial", "Arc", "Layered", "Geo", "Chord"):
         assert f'"{want}"' in html, (want, "missing from dropdown")
     assert "var Layout = 'Spectral'" in html
-    assert "json['chord']" in html and "drawChordOnce" in html
+    assert '"chord"] = {' in html and "drawChordOnce" in html
     m = re.search(r"'pos':\{([^}]*)\}", html).group(1)
     for k in ("clustered", "spectral", "mds", "radial", "arc", "layered", "geo"):
         assert f"'{k}':[" in m, (k, "missing from node pos map")
@@ -242,6 +242,51 @@ def test_layouts_emit_coords_or_chord():
                        out_dir=OUT / f"lay_{lay}", browser=False, **kw).path.read_text()
         label = "MDS" if lay == "mds" else lay.capitalize()
         assert f"var Layout = '{label}'" in h, lay
+
+
+def test_feature_layer_payload():
+    """Metrics, legend, stats, palette, theme, directed arrows, posterior edges,
+    canvas flag and the Explore/View controls are all wired through."""
+    n = 26
+    rng = np.random.default_rng(7)
+    clan = rng.choice(["a", "b", "c"], n)
+    A = (rng.random((n, n)) < np.where(clan[:, None] == clan[None, :], 0.35, 0.07)).astype(float)
+    A = A * rng.integers(1, 4, (n, n))
+    np.fill_diagonal(A, 0)
+    Aj = jnp.asarray(A.astype(float))
+    df = pd.DataFrame({"id": [f"i{k}" for k in range(n)], "clan": clan,
+                       "sex": rng.choice(["F", "M"], n), "bs": rng.gamma(3, 1, n).round(2)})
+
+    h = NetExplorer(ids=df["id"].tolist()).vis_net(
+        df, Aj, col_id="id", col_size="bs", col_color="clan",
+        col_shape="sex", shapes=("circle", "triangle"),
+        palette="cb", theme="dark", directed=True,
+        out_dir=OUT / "feat", browser=False,
+    ).path.read_text()
+
+    assert '"palette"] = "cb"' in h and '"theme"] = "dark"' in h
+    assert '"directed"] = true' in h and '"canvas"] = false' in h
+    assert '"metricNames"] = ["degree"' in h            # centralities via met
+    assert '"stats"] = {"nodes": 26' in h               # summary panel
+    assert '"kind": "swatches"' in h                    # categorical colour legend
+    assert '"kind": "shapes"' in h                      # shape legend
+    assert "'cent':{'degree':" in h                     # per-node metrics
+    for ctl in ('id="sizeBy"', 'id="colorBy"', 'id="edgeThresh"',
+                'id="nodeSearch"', 'id="btnFit"', 'id="btnPNG"', 'id="btnTheme"'):
+        assert ctl in h, ctl
+
+    # posterior edges
+    draws = np.abs(rng.normal(0, 1, (30, n, n))) * (rng.random((30, n, n)) < 0.15)
+    hp = NetExplorer().vis_net(
+        m=jnp.zeros((n, n)), weight_posterior=draws,
+        out_dir=OUT / "post", browser=False,
+    ).path.read_text()
+    assert "'eprob':" in hp and '"hasPosterior"] = true' in hp
+    assert "P(weight > 0)" in hp
+
+    # canvas opt-in
+    hc = NetExplorer().vis_net(m=Aj, canvas=True, out_dir=OUT / "cv", browser=False).path.read_text()
+    assert '"canvas"] = true' in hc
 
 
 # --------------------------------------------------------------------- #

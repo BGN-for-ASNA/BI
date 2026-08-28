@@ -49,6 +49,26 @@ Test/Network/NetExplorer/
 JAX carries every numeric step: matrix→edge list, min-max scaling for node /
 link opacity, layer intra/inter equality flags.
 
+## Feature layer
+
+Computed in Python (`BayesForge/Network/vizfeatures.py`) and spliced into the
+front-end by `explorer.py`. Network metrics use **`m.net.met` only** — no
+networkx / scipy.
+
+| `vis_net(...)` arg | effect |
+|---|---|
+| `metrics=True` *(default)* | per-node centralities (degree, strength, in/out, eigenvector, betweenness, clustering) + a global **Stats panel** (n, edges, density, mean degree, components, diameter, global clustering). Feeds the **Size by** / **Colour by** dropdowns. |
+| `directed=True` | arrowheads on links. |
+| `edge_color_col=` | colour links by a `df` column (via the source node). |
+| `weight_posterior=` | `(draws, N, N)` array — posterior **mean** becomes the network, link opacity = P(weight > 0), 90% interval in the tooltip. |
+| `palette="cb"` | Okabe-Ito categorical + viridis sequential (colour-blind safe). Categorical `col_color` is auto-detected (distinct swatches, not a gradient). |
+| `theme="dark"` | initial dark theme (toggle in the page). |
+| `canvas=True` | render on a `<canvas>` instead of SVG — auto above 1500 nodes. |
+
+In the page, additionally: a **Legend** (colour / shape / size), a **Min edge
+weight** slider, **Find node** (centre + flash), **Fit** to view, click a node
+to brighten its neighbours' labels, and **PNG / JSON / CSV** export buttons.
+
 ## Layouts
 
 `vis_net(..., layout=...)`. The four the d3 front-end already runs live in the
