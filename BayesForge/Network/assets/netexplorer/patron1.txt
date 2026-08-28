@@ -1,0 +1,572 @@
+<!DOCTYPE html style='background-color:#d6d6d6; width: 100%; height: 100%'>
+<head>
+  <meta charset='utf-8'>
+
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script>
+
+    function download(){
+      const svg = document.querySelector('svg');
+const base64doc = btoa(unescape(encodeURIComponent(svg.outerHTML)));
+const a = document.createElement('a');
+const e = new MouseEvent('click');
+a.download = 'download.svg';
+a.href = 'data:image/svg+xml;base64,' + base64doc;
+a.dispatchEvent(e);
+    }
+  </script>
+
+<script src='d3.min.js'></script>
+<script src='d3-tip.js'></script>
+
+
+
+
+</head>
+<body>
+  <nav class="main-menu">
+    <div class="settings">
+      <a href="https://www.s-sosa.com/">
+        <img src="logo.jpg" title="Visit s-sosa.com" style="width: 100%; height: 100%;"/>
+      </a>
+    </div>
+
+    <ul>
+<!--Layouts-->
+<li class="darkerlishadow">
+  <i class="fa fa-lightbulb-o fa-lg"></i>
+  <span class="nav-text"><b>Layout</b></span>
+</li>
+
+
+<!--Type-->
+<li class="darkerli">
+  <i class="fa fa-lightbulb-o fa-lg"></i>
+  <span class="nav-text"  style="text-align: center;">Type</span>
+</li>
+<li class="darkerli">
+  <a>
+    <i class="fa fa-lightbulb-o fa-lg"></i>
+    <span class="nav-text"  style="text-align: center;">
+      <div id="dataviz_builtWithD3"></div>
+    </span>
+  </a>
+</li>
+
+<!--Background-->
+<li class="darkerli">
+  <i class="fa fa-lightbulb-o fa-lg"></i>
+  <span class="nav-text"  style="text-align: center;">Background color</span>
+</li>
+<li class="darkerli">
+  <a>
+    <i class="fa fa-lightbulb-o fa-lg"></i>
+    <span class="nav-text"  style="text-align: center;">
+      <input type="color" id="colorWell" name="head"
+      value="grey">
+      <script>
+  var colorWell
+  var defaultColor = "#0000ff";
+  window.addEventListener("load", startup, false);
+  function startup() {
+  colorWell = document.querySelector("#colorWell");
+  colorWell.value = defaultColor;
+  colorWell.addEventListener("input", updateBackground, false);
+  colorWell.select();
+  }
+  function updateBackground(event) {
+  document.body.style.backgroundColor =  event.target.value;
+  }
+                </script>
+    </span>
+  </a>
+</li>
+
+ <!--space-->
+  <!--space default layer-->
+  <script type="text/javascript">
+    var dropdownButton = d3.select("#dataviz_builtWithD3")
+    dropdownButton.on("change", function(d) {
+      // recover the option that has been chosen
+      var selectedLayout = d3.select(this).property("value")
+      if(Layout != 'Multilayer'){
+        document.getElementById("param layer 0").style.visibility = "visible";
+        document.getElementById("param layer 0").style.display = "block";
+
+        document.getElementById("param layer 0.1").style.visibility = "visible";
+        document.getElementById("param layer 0.1").style.display = "block";
+
+        document.getElementById("param layer 1").style.visibility = "hidden";
+        document.getElementById("param layer 1").style.display = "none";
+
+        document.getElementById("param layer 2").style.visibility = "hidden";
+        document.getElementById("param layer 2").style.display = "none";
+
+        document.getElementById("param layer 3").style.visibility = "hidden";
+        document.getElementById("param layer 3").style.display = "none";
+
+        document.getElementById("param layer 4").style.visibility = "hidden";
+        document.getElementById("param layer 4").style.display = "none";
+
+
+        document.getElementById("param link 0").style.visibility = "visible";
+        document.getElementById("param link 0").style.display = "block";
+
+        document.getElementById("param link 0.1").style.visibility = "visible";
+        document.getElementById("param link 0.1").style.display = "block";
+
+        document.getElementById("param link 1").style.visibility = "hidden";
+        document.getElementById("param link 1").style.display = "none";
+
+        document.getElementById("param link 2").style.visibility = "hidden";
+        document.getElementById("param link 2").style.display = "none";
+
+        document.getElementById("param link 3").style.visibility = "hidden";
+        document.getElementById("param link 3").style.display = "none";
+
+        document.getElementById("param link 4").style.visibility = "hidden";
+        document.getElementById("param link 4").style.display = "none";
+
+
+
+      }else{
+        document.getElementById("param layer 0").style.visibility = 'hidden';
+        document.getElementById("param layer 0").style.display = 'none';
+
+        document.getElementById("param layer 0.1").style.visibility = 'hidden';
+        document.getElementById("param layer 0.1").style.display = 'none';
+
+        document.getElementById("param layer 1").style.visibility = 'visible';
+        document.getElementById("param layer 1").style.display = 'block';
+
+        document.getElementById("param layer 2").style.visibility = 'visible';
+        document.getElementById("param layer 2").style.display = 'block';
+
+        document.getElementById("param layer 3").style.visibility = 'visible';
+        document.getElementById("param layer 3").style.display = 'block';
+
+        document.getElementById("param layer 4").style.visibility = 'visible';
+        document.getElementById("param layer 4").style.display = 'block';
+
+        document.getElementById("param link 0").style.visibility = 'hidden';
+        document.getElementById("param link 0").style.display = 'none';
+
+        document.getElementById("param link 0.1").style.visibility = 'hidden';
+        document.getElementById("param link 0.1").style.display = 'none';
+
+        document.getElementById("param link 1").style.visibility = 'visible';
+        document.getElementById("param link 1").style.display = 'block';
+
+        document.getElementById("param link 2").style.visibility = 'visible';
+        document.getElementById("param link 2").style.display = 'block';
+
+        document.getElementById("param link 3").style.visibility = 'visible';
+        document.getElementById("param link 3").style.display = 'block';
+
+        document.getElementById("param link 4").style.visibility = 'visible';
+        document.getElementById("param link 4").style.display = 'block';
+      }
+    })
+ </script>
+
+
+  <li class="darkerli"  id = "param layer 0">
+    <i class="fa fa-lightbulb-o fa-lg"></i>
+    <span class="nav-text"  style="text-align: center; visibility: visible" >Spread</span>
+  </li>
+  <li class="darkerli" id = "param layer 0.1">
+    <a>
+      <i class="fa fa-lightbulb-o fa-lg"></i>
+      <span class="nav-text"  style="text-align: center;">
+       <form>
+         <div>
+           <span>0</span>
+           <input id="sliderNSpace" type="range" min="0" max="100000" oninput="sliderNSpaceV.value=rangeInput.value" value="0" step="any"/>
+           <span>100k</span>
+           <input id="sliderNSpaceV" type="number" value= "1" min="0" max="100000" oninput="sliderNSpace.value=sliderNSpaceV.value"
+           style="border: 0; text-align: center; background-color: #ecebeb;"/>
+         </div>
+       </form>
+       </span>
+    </a>
+  </li>
+
+  <!--space Multilayer-->
+
+  <li class="darkerli"  id = "param layer 3" style="visibility: hidden; display: none;">
+    <i class="fa fa-lightbulb-o fa-lg"></i>
+    <span class="nav-text"  style="text-align: center; visibility: visible" >Vertical spread</span>
+  </li>
+  <li class="darkerli" id = "param layer 4" style="visibility: hidden; display: none;">
+    <a>
+      <i class="fa fa-lightbulb-o fa-lg"></i>
+      <span class="nav-text"  style="text-align: center;">
+       <form>
+         <div>
+           <span>0</span>
+           <input id="sliderNSpace2" type="range" min="0" max="100000" oninput="sliderNSpaceV2.value=rangeInput.value" value="0" step="any"/>
+           <span>100k</span>
+           <input id="sliderNSpaceV2" type="number" value= "1" min="0" max="100000" oninput="sliderNSpace2.value=sliderNSpaceV2.value"
+           style="border: 0; text-align: center; background-color: #ecebeb;"/>
+         </div>
+       </form>
+       </span>
+    </a>
+  </li>
+
+  <li class="darkerli" id = "param layer 1" style="visibility: hidden; display: none;">
+      <i class="fa fa-lightbulb-o fa-lg"></i>
+      <span class="nav-text"  style="text-align: center;">Horizontal spread</span>
+  </li>
+  <li class="darkerli" style="visibility: hidden; display: none;" id = "param layer 2">
+    <a>
+      <i class="fa fa-lightbulb-o fa-lg"></i>
+      <span class="nav-text"  style="text-align: center;">
+       <form>
+         <div>
+           <span>0</span>
+           <input id="sliderNSpaceH" type="range" min="0" max="100000" oninput="sliderNSpaceV.value=rangeInput.value" value="0" step="any"/>
+           <span>100k</span>
+           <input id="sliderNSpaceVH" type="number" value= "1" min="0" max="100000" oninput="sliderNSpace.value=sliderNSpaceV.value"
+           style="border: 0; text-align: center; background-color: #ecebeb;"/>
+         </div>
+       </form>
+       </span>
+    </a>
+  </li>
+
+        <!--Nodes-->
+        <li class="darkerlishadow">
+          <i class="fa fa-lightbulb-o fa-lg"></i>
+          <span class="nav-text"><b>Nodes</b></span>
+        </li>
+
+      <!--Size-->
+      <li class="darkerli">
+        <i class="fa fa-lightbulb-o fa-lg"></i>
+        <span class="nav-text" style="text-align: center;">Size</span>
+      </li>
+      <li class="darkerli">
+        <a>
+          <i class="fa fa-lightbulb-o fa-lg"></i>
+          <span class="nav-text"  style="text-align: center;">
+           <form>
+             <div>
+               <span>0</span>
+               <input id="sliderSize" type="range" min="0" max="100000" oninput="sliderSizeV.value=rangeInput.value" value="0" step="any"/>
+               <span>100k</span>
+               <input id="sliderSizeV" type="number" value= "0" min="0" max="100000" oninput="sliderSize.value=sliderSizeV.value"
+               style="border: 0; text-align: center; background-color: #ecebeb;"/>
+             </div>
+           </form>
+          </span>
+        </a>
+      </li>
+
+      <!--width-->
+      <li class="darkerli">
+        <i class="fa fa-lightbulb-o fa-lg"></i>
+        <span class="nav-text" style="text-align: center;">Border width</span>
+      </li>
+        <li class="darkerli">
+          <a >
+            <i class="fa fa-lightbulb-o fa-lg"></i>
+            <span class="nav-text"  style="text-align: center;">
+             <form>
+               <div>
+                 <span>0</span>
+                 <input id="sliderNWidth" type="range" min="0" max="100000" oninput="sliderNWidthV.value=rangeInput.value" value="0" step="any"/>
+                 <span>100k</span>
+                 <input id="sliderNWidthV" type="number" value= "0" min="0" max="100000" oninput="sliderNWidth.value=sliderNWidthV.value"
+                 style="border: 0; text-align: center; background-color: #ecebeb;"/>
+               </div>
+             </form>
+            </span>
+          </a>
+        </li>
+
+      <!--Label size-->
+      <li class="darkerli">
+        <i class="fa fa-lightbulb-o fa-lg"></i>
+        <span class="nav-text" style="text-align: center;">Label size</span>
+      </li>
+      <li class="darkerlishadowdown">
+        <a >
+          <i class="fa fa-lightbulb-o fa-lg"></i>
+          <span class="nav-text"  style="text-align: center;">
+           <form>
+             <div>
+               <span>0</span>
+               <input id="sliderLab" type="range" min="0" max="100000" oninput="sliderLabV.value=rangeInput.value" value="0" step="any"/>
+               <span>100k</span>
+               <input id="sliderLabV" type="number" value= "0" min="0" max="100000" oninput="sliderLab.value=sliderLabV.value"
+               style="border: 0; text-align: center; background-color: #ecebeb;"/>
+             </div>
+           </form>
+          </span>
+        </a>
+      </li>
+
+
+
+        <!--Links-->
+        <li class="darkerlishadow">
+          <i class="fa fa-lightbulb-o fa-lg"></i>
+          <span class="nav-text"><b>Links</b></span>
+        </li>
+
+        <!--width-->
+        <li class="darkerli">
+          <i class="fa fa-lightbulb-o fa-lg"></i>
+          <span class="nav-text"  style="text-align: center;">Width</span>
+        </li>
+        <li class="darkerli">
+          <a>
+            <i class="fa fa-lightbulb-o fa-lg"></i>
+            <span class="nav-text"  style="text-align: center;">
+             <form>
+               <div>
+                 <span>0</span>
+                 <input id="sliderLWidth" type="range" min="0" max="100000" oninput="sliderLWidthV.value=rangeInput.value" value="1" step="any"/>
+                 <span>100k</span>
+                 <input id="sliderLWidthV" type="number" value= "1" min="0" max="100000" oninput="sliderLWidth.value=sliderLWidthV.value"
+                 style="border: 0; text-align: center; background-color: #ecebeb;"/>
+               </div>
+             </form>
+            </span>
+          </a>
+        </li>
+
+        <!--opacity-->
+        <li class="darkerli" id="param link 0">
+          <i class="fa fa-lightbulb-o fa-lg"></i>
+          <span class="nav-text" style="text-align: center;">Opacity</span>
+        </li>
+        <li class="darkerli" id="param link 0.1">
+          <a>
+            <i class="fa fa-lightbulb-o fa-lg"></i>
+            <span class="nav-text" style="text-align: center;">
+             <form>
+               <div>
+                 <span>0</span>
+                 <input id="sliderLOpacity" type="range" min="0" max="1" oninput="sliderLOpacityV.value=rangeInput.value" value="0.5" step="any">
+                 <span>1</span>
+                 <input id="sliderLOpacityV" type="number" value="0.5" min="0" max="1" oninput="sliderLOpacity.value=sliderLOpacityV.value" style="border: 0px; text-align: center; background-color: rgb(236, 235, 235); --darkreader-inline-border-top: initial; --darkreader-inline-border-right: initial; --darkreader-inline-border-bottom: initial; --darkreader-inline-border-left: initial; --darkreader-inline-bgcolor:#ceccc7;" data-darkreader-inline-border-top="" data-darkreader-inline-border-right="" data-darkreader-inline-border-bottom="" data-darkreader-inline-border-left="" data-darkreader-inline-bgcolor="">
+               </div>
+             </form>
+            </span>
+          </a>
+        </li>
+
+
+        <!--Multilayer opacity-->
+        <li class="darkerli" id="param link 1" style="visibility: hidden; display: none;">
+          <i class="fa fa-lightbulb-o fa-lg"></i>
+          <span class="nav-text" style="text-align: center;">Intra-Layer opacity</span>
+        </li>
+        <li class="darkerli" id="param link 2" style="visibility: hidden; display: none;">
+          <a>
+            <i class="fa fa-lightbulb-o fa-lg"></i>
+            <span class="nav-text" style="text-align: center;">
+             <form>
+               <div>
+                 <span>0</span>
+                 <input id="sliderLOpacityM" type="range" min="0" max="1" oninput="sliderLOpacityMV.value=rangeInput.value" value="0.5" step="any">
+                 <span>1</span>
+                 <input id="sliderLOpacityMV" type="number" value="0.5" min="0" max="1" oninput="sliderLOpacityM.value=sliderLOpacityMV.value" style="border: 0px; text-align: center; background-color: rgb(236, 235, 235); --darkreader-inline-border-top: initial; --darkreader-inline-border-right: initial; --darkreader-inline-border-bottom: initial; --darkreader-inline-border-left: initial; --darkreader-inline-bgcolor:#ceccc7;" data-darkreader-inline-border-top="" data-darkreader-inline-border-right="" data-darkreader-inline-border-bottom="" data-darkreader-inline-border-left="" data-darkreader-inline-bgcolor="">
+               </div>
+             </form>
+            </span>
+          </a>
+        </li>
+
+        <li class="darkerli" id="param link 3" style="visibility: hidden; display: none;">
+          <i class="fa fa-lightbulb-o fa-lg"></i>
+          <span class="nav-text" style="text-align: center;">Inter-layer opacity</span>
+        </li>
+        <li class="darkerli" id="param link 4" style="visibility: hidden; display: none;">
+          <a>
+            <i class="fa fa-lightbulb-o fa-lg"></i>
+            <span class="nav-text" style="text-align: center;">
+             <form>
+               <div>
+                 <span>0</span>
+                 <input id="sliderLOpacityM2" type="range" min="0" max="1" oninput="sliderLOpacityMV2.value=rangeInput.value" value="0.5" step="any">
+                 <span>1</span>
+                 <input id="sliderLOpacityMV2" type="number" value="0.5" min="0" max="1" oninput="sliderLOpacityM2.value=sliderLOpacityMV2.value" style="border: 0px; text-align: center; background-color: rgb(236, 235, 235); --darkreader-inline-border-top: initial; --darkreader-inline-border-right: initial; --darkreader-inline-border-bottom: initial; --darkreader-inline-border-left: initial; --darkreader-inline-bgcolor:#ceccc7;" data-darkreader-inline-border-top="" data-darkreader-inline-border-right="" data-darkreader-inline-border-bottom="" data-darkreader-inline-border-left="" data-darkreader-inline-bgcolor="">
+               </div>
+             </form>
+            </span>
+          </a>
+        </li>
+
+
+
+        <!--Link curves-->
+        <li class="darkerli">
+          <i class="fa fa-lightbulb-o fa-lg"></i>
+          <span class="nav-text"  style="text-align: center;">Curves</span>
+        </li>
+        <li class="darkerlishadowdown">
+          <a>
+            <i class="fa fa-lightbulb-o fa-lg"></i>
+            <span class="nav-text"  style="text-align: center;">
+             <form>
+               <div>
+                 <span>0</span>
+                 <input id="sliderLCurve" type="range" min="0" max="2" oninput="sliderLCurveV.value=rangeInput.value" value="0.5" step="any"/>
+                 <span>2</span>
+                 <input id="sliderLCurveV" type="number" value= "0.5" min="0" max="2" oninput="sliderLCurve.value=sliderLCurveV.value"
+                 style="border: 0; text-align: center; background-color: #ecebeb;"/>
+               </div>
+             </form>
+            </span>
+          </a>
+        </li>
+        <li style="height: 1%;"></li>
+
+        <!--Save network-->
+<li>
+  <a href="javascript:download()">
+    <img class="fa icon-lg" src="save.png" style="width: 50%;"/>
+    <span class="nav-text"><b>Save network</b></span>
+  </a>
+</li>
+    </nav>
+
+  <svg xmlns="http://www.w3.org/2000/svg" width='100%' height='100%' id = 'net'></svg>
+</body>
+
+<!-- D3 function for network-->
+<script type='text/javascript'>
+  //toolpit declaration
+    var tooltip = d3.select('body')
+    .append('div')
+    .attr('class', 'tooltip')
+    .style('opacity', 0);
+
+    function zoomed() {svg.attr('transform', d3.event.transform) }
+
+    opacity = 1
+
+
+      var graph = getData();
+
+
+    var margin = {top: 20, right: 20, bottom: 20, left: 20},
+    width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+
+    var svg = d3.select('svg')
+                .call(d3.zoom().scaleExtent([1/1000, 8]).on('zoom', zoomed))
+                .attr('viewBox', '0 0 ' + width + ' ' + height )
+                .attr('preserveAspectRatio', 'xMidYMid meet')
+                .append('g')
+                .call(d3.zoom().scaleExtent([1/1000, 8]).on('zoom', zoomed))
+                .call(d3.drag()
+                  .on('start', dragstarted)
+                  .on('drag', dragged)
+                  .on('end', dragended))
+
+    // values for all forces
+    forceProperties = {
+      center: {
+          x: 0.5,
+          y: 0.5
+      },
+        charge: {
+            enabled: true,
+            strength: -1000,
+            distanceMin: 1,
+            distanceMax:  100000
+        },
+        collide: {
+            enabled: true,
+            strength: 0,
+            iterations: 1,
+            radius: 1000
+        },
+        forceX: {
+            enabled: false,
+            strength: 0.1,
+            x: .5
+        },
+        forceY: {
+            enabled: false,
+            strength: .1,
+            y: .5
+        },
+        link: {
+            enabled: true,
+            distance: 5,
+            iterations: 1
+        }
+    }
+
+    simulation = d3.forceSimulation()
+        .force('center', d3.forceCenter(width / 2, height / 2)) // setting the center of gravity of the system
+        .force('collision', d3.forceCollide(d => 12))
+        .force('charge', d3.forceManyBody()
+                            .strength(function(d) { return forceProperties.charge.strength; })
+                            .distanceMax(forceProperties.charge.distanceMax)
+                            .distanceMin(forceProperties.charge.distanceMin)) // making elements attract or repel one another
+
+
+        .force('collide', d3.forceCollide()
+                .radius(function(d) { return forceProperties.collide.radius; })
+                .strength(forceProperties.collide.strength )
+                .iterations(forceProperties.collide.iterations)
+              )
+
+        .force('link', d3.forceLink(link)
+                        .id(function(d) { return d.id; })
+                        .distance(function(d) { return  forceProperties.link.distance; })
+                        .strength(function(d) { return 1; })
+        )
+        .force('x', d3.forceX().x(function(d) { return d.size;}))
+        .force('y', d3.forceY().y(function(d) { return d.size;}))
+
+        .on('tick', ticked);
+
+    var link = svg.selectAll('.link'),
+        node = svg.selectAll('.node');
+
+      simulation.nodes(graph.nodes);
+      simulation.force('link').links(graph.links);
+
+
+  // Links -----------------------------------------------
+      link = link
+        .data(graph.links)
+        // Curve
+        .enter().append('path')
+        // No curve
+        //.enter().append('line')
+          .attr('class', 'link')
+          .style('opacity', function(d) { return d.lOpacity; })
+          .style('stroke-width', function(d) { return d.weigth; })
+          .style('stroke', function(d) { return d.colorL; })
+          .style('fill', 'none') // Curve
+
+
+  // Nodes -----------------------------------------------
+      node = node
+        .data(graph.nodes)
+        .enter().append('path')
+          .attr('class', 'node')
+          .attr("d", d3.symbol()
+            .type(function(d,i) { return d3.symbols[d.shape]
+            })
+            .size(function(d){return d.size * 100;})
+            )
+          .attr('stroke', function(d) { return d.strokeCol; })
+          .attr('stroke-width', function(d) { return d.strokeW; })
+          .style('fill', function(d) { return d.color; })
+          .style('stroke-opacity', function(d) { return d.size; })
+          .on("click", releasenode)
+          .on('mouseover', focus)
+      .on('mouseover.tooltip', function(d) {
+        tooltip.transition()
+        .duration(300)
+        .style('opacity', 0.7);
+        tooltip.html(
