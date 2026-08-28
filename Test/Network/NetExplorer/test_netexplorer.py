@@ -289,6 +289,43 @@ def test_feature_layer_payload():
     assert '"canvas"] = true' in hc
 
 
+def test_scatter_axes_payload():
+    """Every usable df covariate is offered as an invisible X/Y axis, per-node
+    values ship in the payload, and axis_x / axis_y set the initial selection."""
+    n = 20
+    rng = np.random.default_rng(11)
+    A = (rng.random((n, n)) < 0.15).astype(float)
+    np.fill_diagonal(A, 0)
+    Aj = jnp.asarray(A)
+    df = pd.DataFrame({
+        "id": [f"i{k}" for k in range(n)],
+        "sex": rng.choice(["F", "M"], n),
+        "strength": rng.gamma(2, 1, n).round(3),
+        "const": np.ones(n),                       # < 2 distinct -> skipped
+    })
+
+    h = NetExplorer(ids=df["id"].tolist()).vis_net(
+        df, Aj, col_id="id", axis_x="strength", axis_y="sex",
+        out_dir=OUT / "scatter", browser=False,
+    ).path.read_text()
+
+    assert '"axisX"] = "strength"' in h and '"axisY"] = "sex"' in h
+    assert '{"name": "strength", "type": "num"}' in h
+    assert '{"name": "sex", "type": "cat", "cats": ["F", "M"]}' in h
+    assert '"const"' not in h.split('"axisCols"]')[1].split(";")[0]  # constant col dropped
+    assert '"id"' not in h.split('"axisCols"]')[1].split(";")[0]     # id col excluded
+    assert "'av':{" in h and '"strength":' in h and '"sex":' in h
+    assert 'id="axisX"' in h and 'id="axisY"' in h
+    assert "window.ScatterMode" in h
+
+    # unknown / omitted axis names -> "(none)"
+    h2 = NetExplorer(ids=df["id"].tolist()).vis_net(
+        df, Aj, col_id="id", axis_x="nope",
+        out_dir=OUT / "scatter2", browser=False,
+    ).path.read_text()
+    assert '"axisX"] = "(none)"' in h2 and '"axisY"] = "(none)"' in h2
+
+
 # --------------------------------------------------------------------- #
 # script entry point
 # --------------------------------------------------------------------- #

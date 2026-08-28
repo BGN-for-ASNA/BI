@@ -76,9 +76,13 @@ _FEATURES_CSS = """
   border-radius: 8px; background: #f7f9fb; color: var(--ink); font: inherit; font-size: 12px;
   cursor: pointer; }
 .main-menu .tool:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-#nodeSearch, #sizeBy, #colorBy { width: 100%; margin-top: 4px; padding: 6px 8px;
+#nodeSearch, #sizeBy, #colorBy, #axisX, #axisY { width: 100%; margin-top: 4px; padding: 6px 8px;
   border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit;
   font-size: 12.5px; color: var(--ink); }
+#axisCaption { position: absolute; left: 14px; bottom: 14px; z-index: 40;
+  font-size: 11px; color: var(--muted); background: var(--panel-bg);
+  border: 1px solid var(--line); border-radius: 8px; padding: 4px 9px;
+  box-shadow: 0 4px 16px rgba(20,30,50,.12); }
 #legendBox, #statsBox { position: absolute; z-index: 40; background: var(--panel-bg);
   border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
   box-shadow: 0 6px 24px rgba(20,30,50,.14); font-size: 12px; color: var(--ink);
@@ -102,6 +106,7 @@ body[data-theme="dark"] svg#net { background: #12161c; }
 body[data-theme="dark"] input[type=number],
 body[data-theme="dark"] #nodeSearch,
 body[data-theme="dark"] #sizeBy, body[data-theme="dark"] #colorBy,
+body[data-theme="dark"] #axisX, body[data-theme="dark"] #axisY,
 body[data-theme="dark"] .main-menu .tool { background: #232b36; color: var(--ink); }
 """
 
@@ -113,6 +118,10 @@ _FEATURES_HTML = """
         <select id="sizeBy"></select></li>
       <li class="darkerli"><span class="nav-text">Colour by</span>
         <select id="colorBy"></select></li>
+      <li class="darkerli" id="liAxisX"><span class="nav-text">X axis</span>
+        <select id="axisX"></select></li>
+      <li class="darkerli" id="liAxisY"><span class="nav-text">Y axis</span>
+        <select id="axisY"></select></li>
       <li class="darkerlishadowdown"><span class="nav-text">Min edge weight</span>
         <form><div><span>0</span>
           <input id="edgeThresh" type="range" min="0" max="1" step="0.001" value="0"/>
@@ -235,6 +244,78 @@ _FEATURES_JS = r"""
     var e = span(k), sc = d3.interpolateRgb('#3b4cc0', '#b40426');
     node.style('fill', function (d) { var t = ((d.cent ? d.cent[k] : 0) - e[0]) / (e[1] - e[0]); return sc(t); });
   };
+
+  /* scatter axes: pin nodes by any df covariate --------- */
+  (function () {
+    var axisCols = G.axisCols || [];
+    var axisX = document.getElementById('axisX'), axisY = document.getElementById('axisY');
+    if (!axisX || !axisY) return;
+    if (!axisCols.length || typeof simulation === 'undefined') {
+      ['liAxisX', 'liAxisY'].forEach(function (id) {
+        var li = document.getElementById(id); if (li) li.style.display = 'none';
+      });
+      return;
+    }
+    var aopts = ['(none)'].concat(axisCols.map(function (c) { return c.name; }));
+    [axisX, axisY].forEach(function (sel) {
+      sel.innerHTML = aopts.map(function (m) { return '<option>' + m + '</option>'; }).join('');
+    });
+    if (G.axisX && aopts.indexOf(G.axisX) !== -1) axisX.value = G.axisX;
+    if (G.axisY && aopts.indexOf(G.axisY) !== -1) axisY.value = G.axisY;
+
+    var cap = document.createElement('div');
+    cap.id = 'axisCaption'; cap.style.display = 'none';
+    document.body.appendChild(cap);
+
+    function scaler(name) {
+      if (!name || name === '(none)') return null;
+      var meta = axisCols.filter(function (c) { return c.name === name; })[0];
+      if (!meta) return null;
+      if (meta.type === 'cat') {
+        var cats = meta.cats || [];
+        return function (d) {
+          var i = cats.indexOf(d.av ? String(d.av[name]) : null);
+          // band centres, inset from the edges so labels don't clip
+          return (cats.length && i >= 0) ? (i + 0.5) / cats.length : 0.5;
+        };
+      }
+      var vs = G.nodes.map(function (d) { return d.av ? d.av[name] : null; })
+        .filter(function (v) { return v != null && isFinite(v); });
+      var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+      return function (d) {
+        var v = d.av ? d.av[name] : null;
+        return (v == null || !isFinite(v) || mx === mn) ? 0.5 : (v - mn) / (mx - mn);
+      };
+    }
+
+    function applyScatter() {
+      var kx = axisX.value, ky = axisY.value;
+      if ((kx === '(none)' || !kx) && (ky === '(none)' || !ky)) {
+        window.ScatterMode = false;
+        G.nodes.forEach(function (d) { d.fx = null; d.fy = null; });
+        cap.style.display = 'none';
+        simulation.alpha(0.5).restart();
+        return;
+      }
+      window.ScatterMode = true;
+      var navW = 250, pad = 60,
+          S = Math.min(width - navW, height) - 2 * pad,
+          ox = navW + (width - navW - S) / 2, oy = (height - S) / 2;
+      var fx = scaler(kx), fy = scaler(ky);
+      G.nodes.forEach(function (d) {
+        var px = fx ? fx(d) : 0.5, py = fy ? fy(d) : 0.5;
+        d.fx = d.x = ox + px * S;
+        d.fy = d.y = oy + (1 - py) * S;   // larger value -> higher on screen
+      });
+      cap.textContent = 'x: ' + (kx === '(none)' ? '—' : kx) +
+                        '   ·   y: ' + (ky === '(none)' ? '—' : ky);
+      cap.style.display = 'block';
+      simulation.alpha(0.3).restart();
+    }
+    axisX.onchange = applyScatter; axisY.onchange = applyScatter;
+    window._applyScatter = applyScatter;
+    if (axisX.value !== '(none)' || axisY.value !== '(none)') applyScatter();
+  })();
 
   /* edge weight threshold ------------------------------- */
   var et = document.getElementById('edgeThresh'), etv = document.getElementById('edgeThreshV');
@@ -791,6 +872,8 @@ class NetExplorer:
         layout_col=None,
         layout_x=None,
         layout_y=None,
+        axis_x=None,
+        axis_y=None,
         directed: bool = True,
         metrics: bool = True,
         edge_color_col=None,
@@ -839,6 +922,12 @@ class NetExplorer:
             ``chord`` (required for ``chord``).
         layout_x, layout_y
             Columns of fixed coordinates for ``layout="geo"`` (e.g. lon / lat).
+        axis_x, axis_y
+            Names of ``df`` columns to pin nodes on an invisible scatter grid
+            (numeric -> min-max scaled, categorical -> evenly banded, larger =
+            higher). Just the initial selection: the page exposes an **X axis**
+            / **Y axis** dropdown over every usable ``df`` covariate, and
+            ``(none)`` on both releases the pins back to the current layout.
         directed
             Treat the matrix as directed: draw arrowheads on links, and for
             ``layout="layered"`` use topological generations when acyclic.
@@ -1035,6 +1124,12 @@ class NetExplorer:
         # legend entries for whatever encodings are actually in use
         legend = self._build_legend(d, ori, color, palette, edge_prob is not None)
 
+        # invisible scatter axes: every usable df covariate becomes an X/Y option
+        axis_cols, axis_vals = self._axis_cols(df, col_id)
+        names = {c["name"] for c in axis_cols}
+        ax_x = str(axis_x) if axis_x is not None and str(axis_x) in names else "(none)"
+        ax_y = str(axis_y) if axis_y is not None and str(axis_y) in names else "(none)"
+
         use_canvas = (N > 1500) if canvas is None else bool(canvas)
 
         # assemble + write
@@ -1044,6 +1139,7 @@ class NetExplorer:
             theme=theme, palette=palette, directed=bool(directed),
             has_posterior=edge_prob is not None, canvas=use_canvas,
             background=background,
+            axis_cols=axis_cols, axis_vals=axis_vals, axis_x=ax_x, axis_y=ax_y,
         )
         out_dir = Path(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -1127,11 +1223,46 @@ class NetExplorer:
         )
         return s
 
+    def _axis_cols(self, df: pd.DataFrame, col_id) -> tuple[list, dict]:
+        """Every usable ``df`` covariate -> a scatter-axis option.
+
+        Returns ``(meta, values)``: ``meta`` a list of
+        ``{"name", "type": "num"|"cat", "cats": [...]}`` and ``values`` a
+        ``name -> [per-node value]`` map aligned to the node (matrix) order.
+        Columns with < 2 distinct non-null values (e.g. the ``df=None`` ones
+        placeholder) are skipped.
+        """
+        try:
+            idc = self._col_id(df, col_id) if col_id is not None else None
+        except Exception:
+            idc = None
+        meta: list = []
+        values: dict = {}
+        for c in df.columns:
+            if c == idc:
+                continue
+            s = df[c]
+            if s.nunique(dropna=True) < 2:
+                continue
+            name = str(c)
+            if pd.api.types.is_numeric_dtype(s):
+                meta.append({"name": name, "type": "num"})
+                values[name] = [None if pd.isna(v) else float(v) for v in s]
+            else:
+                cats = sorted({str(v) for v in s.dropna().unique()})
+                meta.append({"name": name, "type": "cat", "cats": cats})
+                values[name] = [None if pd.isna(v) else str(v) for v in s]
+        return meta, values
+
     def _nodes_json(self, d: pd.DataFrame, ori, all_pos: dict | None = None,
-                    node_metrics: dict | None = None) -> str:
+                    node_metrics: dict | None = None,
+                    axis_vals: dict | None = None) -> str:
+        import json as _json
+
         has = dict(zip(("id", "size", "color", "strokeCol", "stroke", "shape", "opacity"), ori))
         all_pos = all_pos or {}
         node_metrics = node_metrics or {}
+        axis_vals = axis_vals or {}
         rows = []
         for i, (_, r) in enumerate(d.iterrows()):
             parts = [
@@ -1168,6 +1299,12 @@ class NetExplorer:
                     f"'{name}':{float(v[i]):.5f}" for name, v in node_metrics.items()
                 )
                 parts.append("'cent':{" + cent + "}")
+            if axis_vals:
+                av = ",".join(
+                    f"{_json.dumps(name)}:{self._js_val(vals[i])}"
+                    for name, vals in axis_vals.items()
+                )
+                parts.append("'av':{" + av + "}")
             rows.append("{" + ",".join(parts) + "},")
         return "\n".join(rows)
 
@@ -1211,6 +1348,10 @@ class NetExplorer:
         has_posterior: bool = False,
         canvas: bool = False,
         background: str = "grey",
+        axis_cols: list | None = None,
+        axis_vals: dict | None = None,
+        axis_x: str = "(none)",
+        axis_y: str = "(none)",
     ) -> str:
         import json as _json
 
@@ -1231,6 +1372,9 @@ class NetExplorer:
             "canvas": bool(canvas),
             "background": "#e6e6e8" if str(background).lower() == "grey" else background,
             "metricNames": list((node_metrics or {}).keys()),
+            "axisCols": axis_cols or [],
+            "axisX": axis_x,
+            "axisY": axis_y,
         }
         if chord is not None:
             extra["chord"] = chord
@@ -1242,7 +1386,7 @@ class NetExplorer:
             + self._tooltip_js(ori)
             + p2
             + "\n           function getData() {\n   let json = { 'nodes':[\n"
-            + self._nodes_json(d, ori, all_pos, node_metrics)
+            + self._nodes_json(d, ori, all_pos, node_metrics, axis_vals)
             + "\n],\n'links':[\n"
             + self._links_json(edgl)
             + "\n]}\n"
@@ -1321,7 +1465,7 @@ class NetExplorer:
           _S = Math.min(width - _navW, height) - 2 * _pad,
           _ox = _navW + (width - _navW - _S) / 2,
           _oy = (height - _S) / 2;
-      graph.nodes.forEach(function(d) {
+      if (!window.ScatterMode) graph.nodes.forEach(function(d) {
         var p = d.pos && d.pos[_pk];
         if (p) { d.x = _ox + p[0] * _S; d.y = _oy + p[1] * _S; d.fx = d.x; d.fy = d.y; }
       });
@@ -1367,7 +1511,11 @@ class NetExplorer:
           if(selectedLayout == 'Linear'){Layout = 'Linear';simulation.alpha(0.5).restart();}
           if(selectedLayout == 'Force'){Layout = 'Force2';simulation.alpha(0.5).restart();}
           if(selectedLayout == 'Multilayer'){Layout = 'Multilayer';simulation.alpha(0.5).restart();}"""
-        new_handler = """          if(["Circle","Linear","Multilayer","Force"].indexOf(selectedLayout) !== -1){
+        new_handler = """          window.ScatterMode = false;
+          (function(){ var _ax=document.getElementById('axisX'), _ay=document.getElementById('axisY'),
+              _cap=document.getElementById('axisCaption');
+            if(_ax) _ax.value='(none)'; if(_ay) _ay.value='(none)'; if(_cap) _cap.style.display='none'; })();
+          if(["Circle","Linear","Multilayer","Force"].indexOf(selectedLayout) !== -1){
             graph.nodes.forEach(function(d){ d.fx = null; d.fy = null; });
           }
           if(selectedLayout == 'Circle'){Layout = 'Circle';simulation.alpha(0.5).restart();}
