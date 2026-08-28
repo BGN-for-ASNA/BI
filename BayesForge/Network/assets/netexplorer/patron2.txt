@@ -1,0 +1,381 @@
+
+        .on('mouseover.fade', fade(0.1))
+        .on('mouseout.tooltip', function() {
+          tooltip.transition()
+          .duration(100)
+          .style('opacity', 0);
+        })
+        .on('mouseout.fade', fade(1))
+        .on('mousemove', function() {
+          tooltip.style('left', (d3.event.pageX+50) + 'px')
+          .style('top', (d3.event.pageY - 28) + 'px');
+        })
+                .call(d3.drag()
+                      .on('start', dragstarted)
+                      .on('drag', dragged)
+                      .on('end', dragended))
+
+                ;
+
+  // Label ---------------------------------------
+  var texts = svg.selectAll('text.label')
+              .data(graph.nodes)
+              .enter().append('text')
+              .attr('class', 'label')
+              .attr('fill', 'black')
+              .style("font-size",function(d) {  return 10;  })
+              .style('text-anchor', 'middle')
+              .text(function(d) {  return d.id;  })
+              .on('mouseover', focus)
+              .on('mouseover.fade', fade(0.1))
+              .on('mouseout.fade', fade(1))
+              ;
+
+  // Functions------------------
+var Layout = 'Force'
+var dist = 500
+  function ticked(size) {
+    graph.nodes.sort(function(x, y){
+      return d3.ascending(x.size, y.size);
+      })
+
+    if(Layout == 'Circle'){
+      graph.nodes.forEach(function(d, i) {
+        parts = (2*Math.PI)/graph.nodes.length
+        d.x =  width/2 + Math.sin(i*parts)*dist;
+        d.y = height/2 + Math.cos(i*parts)*dist;
+        })
+      }
+    if(Layout == 'Linear'){
+        graph.nodes.forEach(function(d, i) {
+          d.x = i*dist/5 + d.size;
+          d.y = height/2;
+        })
+      }
+
+    if(Layout == "Multilayer"){
+      simulation.force('link', d3.forceLink(link)
+                        .strength(function(d) { return 0.1; })
+        )
+
+        .force('x', d3.forceX().x(function(d) { return 100*Math.random();}))
+        .force('y', d3.forceY().y(function(d) { return d.layers*dist;}))
+    }
+
+      if(Layout == "Force2"){
+         location.reload();
+      }
+
+
+      // Curve
+      link.attr('d', function(d) {
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = Math.sqrt(dx * dx + dy * dy)
+        return 'M' + d.source.x + ',' + d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
+      });
+
+      node.attr('transform', function(d) { return 'translate('+d.x+','+d.y+')'; });
+
+      texts.attr('transform', function(d) { return 'translate('+d.x+','+d.y+')'; });
+  }
+
+
+    function dragstarted(d) {
+      if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+          d.fx = d.x
+          d.fy = d.y
+    }
+
+    function dragged(d) {
+          d.fx = d3.event.x
+          d.fy = d3.event.y
+    }
+
+    function dragended(d) {
+          if (!d3.event.active) simulation.alphaTarget(0)
+              //d.fx = null
+              //d.fy = null
+              d3.select(this).classed("fixed", d.fixed = true);
+    }
+
+    const linkedByIndex = {};
+    graph.links.forEach(d => {linkedByIndex[`${d.source.index},${d.target.index}`] = 1;});
+
+    function isConnected(a, b) {return linkedByIndex[`${a.index},${b.index}`] || linkedByIndex[`${b.index},${a.index}`] || a.index === b.index;}
+
+    function fade(opacity) {
+              return d => {
+                  node.style('stroke-opacity', function (o) {
+                      const thisOpacity = isConnected(d, o) ? 1 : opacity;
+                      this.setAttribute('fill-opacity', thisOpacity);
+                          return thisOpacity;
+                      });
+
+                  link.style('stroke-opacity', o => (o.source === d || o.target === d ? 1 : opacity));
+
+                                      texts.style('stroke-opacity', function (o) {
+                      const thisOpacity = isConnected(d, o) ? 1 : opacity;
+                      this.setAttribute('fill-opacity', thisOpacity);
+                          return thisOpacity;
+                      });
+
+              };}
+
+    function dragsubject() {
+      var i,
+      x = transform.invertX(d3.event.x),
+      y = transform.invertY(d3.event.y),
+      dx,
+      dy;
+      for (i = tempData.nodes.length - 1; i >= 0; --i) {
+        node = tempData.nodes[i];
+        dx = x - node.x;
+        dy = y - node.y;
+
+        if (dx * dx + dy * dy < radius * radius) {
+
+          node.x =  transform.applyX(node.x);
+          node.y = transform.applyY(node.y);
+
+          return node;
+        }
+      }
+    }
+
+    function releasenode(d) {
+      d.fx = null;
+      d.fy = null;
+      simulation.alpha(0.5).restart();
+      ticked(dist = 500)
+    }
+
+  /* Sliders------------------------------------------------------------------------*/
+    /*Node spaces------------------------------------------------------------------------*/
+     /*For force, linear and circular layout------------------------------------------------------*/
+     function changeNodeSpace(size) {
+       if(Layout == 'Force'){
+         simulation.force('charge', d3.forceManyBody()
+                            .strength(function(d) { return forceProperties.charge.strength*size; })
+                            .distanceMax(forceProperties.charge.distanceMax)
+                            .distanceMin(forceProperties.charge.distanceMin))
+      simulation.alpha(0.5).restart();
+       }
+       if(Layout == 'Linear'){
+         var selectedLayout = d3.select(this).property("value")
+         ticked(dist = size)
+       }
+       if(Layout == 'Circle'){
+         var selectedLayout = d3.select(this).property("value")
+         ticked(dist = size)
+       }
+       if(Layout == 'Multilayer'){
+
+         simulation.force('link', d3.forceLink(link)
+                         .strength(function(d) { return 0; })
+         )
+         .force('Y', d3.forceY().y(function(d) { return d.y * size; }))
+
+         simulation.alpha(0.5).restart();
+       }
+     }
+
+     d3.select("#sliderNSpace").on("change", function(d){
+               selectedValue = this.value
+               changeNodeSpace(selectedValue)
+     })
+
+     d3.select("#sliderNSpaceV").on("input", function(d){
+               selectedValue = this.value
+               changeNodeSpace(selectedValue)
+     })
+
+     d3.select("#sliderNSpace2").on("change", function(d){
+               selectedValue = this.value
+               changeNodeSpace(selectedValue)
+     })
+
+     d3.select("#sliderNSpaceV2").on("input", function(d){
+               selectedValue = this.value
+               changeNodeSpace(selectedValue)
+     })
+
+    /*For Multilayer layout------------------------------------------------------------------------*/
+     function changeNodeSpaceH(size) {
+       if(Layout == 'Multilayer'){
+
+         simulation.force('link', d3.forceLink(link)
+                         .strength(function(d) { return 0; })
+         )
+         .force('X', d3.forceX().x(function(d) { return d.x * size; }))
+         simulation.alpha(0.5).restart();
+       }
+     }
+
+     d3.select("#sliderNSpaceH").on("change", function(d){
+               selectedValue = this.value
+               changeNodeSpaceH(selectedValue)
+     })
+
+     d3.select("#sliderNSpaceVH").on("input", function(d){
+               selectedValue = this.value
+               changeNodeSpaceH(selectedValue)
+     })
+
+
+
+    /*Node Size------------------------------------------------------------------------*/
+    function changeSize(size) {
+              node
+              .attr('d', d3.symbol().type( function(d,i) { return d3.symbols[d.shape];} ).size(function(d){return d.size * 100 * size;}))
+    }
+
+    d3.select("#sliderSize").on("change", function(d){
+              selectedValue = this.value
+              changeSize(selectedValue)
+    })
+    d3.select("#sliderSizeV").on("input", function(d){
+              selectedValue = this.value
+              changeSize(selectedValue)
+    })
+    /*Node Width------------------------------------------------------------------------*/
+    function changeNwidth(size) {node.attr('stroke-width', function(d) { return d.strokeW * size; })}
+
+    d3.select("#sliderNWidth").on("change", function(d){
+              selectedValue = this.value
+              changeNwidth(selectedValue)
+    })
+    d3.select("#sliderNWidthV").on("input", function(d){
+              selectedValue = this.value
+              changeNwidth(selectedValue)
+    })
+    /*Node opacity------------------------------------------------------------------------*/
+    function changeNop(size) {node.style('stroke-opacity', function(d) { return d.size * size; })}
+
+    d3.select("#sliderNop").on("change", function(d){
+              selectedValue = this.value
+              changeNop(selectedValue)
+    })
+    d3.select("#sliderNopV").on("input", function(d){
+              selectedValue = this.value
+              changeNop(selectedValue)
+    })
+    /*Label size------------------------------------------------------------------------*/
+    function changeLabelSize(size) {texts.style("font-size",function(d) {  return d.size * size;  })}
+
+    d3.select("#sliderLab").on("change", function(d){
+              selectedValue = this.value
+              changeLabelSize(selectedValue)
+    })
+    d3.select("#sliderLabV").on("input", function(d){
+              selectedValue = this.value
+              changeLabelSize(selectedValue)
+    })
+    /*Links Width ------------------------------------------------------------------------*/
+    function changeLwidth(size) {link.style('stroke-width', function(d) { return d.weigth * size; })}
+
+    d3.select("#sliderLWidth").on("change", function(d){
+              selectedValue = this.value
+              changeLwidth(selectedValue)
+    })
+    d3.select("#sliderLWidthV").on("input", function(d){
+              selectedValue = this.value
+              changeLwidth(selectedValue)
+    })
+      /*Links Opacity------------------------------------------------------------------------*/
+      function changeLOpacity(size) {
+        link.style('opacity', function(d) { return d.weigth * size; })
+      }
+
+      d3.select("#sliderLOpacity").on("change", function(d){
+                selectedValue = this.value
+                changeLOpacity(selectedValue)
+      })
+      d3.select("#sliderLOpacityV").on("input", function(d){
+              selectedValue = this.value
+              changeLOpacity(selectedValue)
+    })
+        /*Links Multilayer Opacity------------------------------------------------------------------------*/
+      function changeLMOpacity(size) {
+         link.style('opacity', function(d) { return d.intralayer * size; })
+       }
+
+       d3.select("#sliderLOpacityM").on("change", function(d){
+                 selectedValue = this.value
+                 changeLMOpacity(selectedValue)
+       })
+       d3.select("#sliderLOpacityMV").on("input", function(d){
+               selectedValue = this.value
+               changeLMOpacity(selectedValue)
+     })
+
+     function changeLMOpacity2(size) {
+         link.style('opacity', function(d) { return d.interlayer * size; })
+       }
+
+       d3.select("#sliderLOpacityM2").on("change", function(d){
+                 selectedValue = this.value
+                 changeLMOpacity2(selectedValue)
+       })
+       d3.select("#sliderLOpacityMV2").on("input", function(d){
+               selectedValue = this.value
+               changeLMOpacity2(selectedValue)
+     })
+      /*Links curves------------------------------------------------------------------------*/
+      function changeLCurve(size) {
+        if(size == 0){
+          link.attr('d', function(d) {
+              var dx = d.target.x - d.source.x,
+                  dy = d.target.y - d.source.y,
+                  dr = Math.sqrt(dx * dx + dy * dy)*100;
+              return 'M' + d.source.x + ',' + d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
+            });
+        }
+        else{
+          link.attr('d', function(d) {
+            var dx = d.target.x - d.source.x,
+                dy = d.target.y - d.source.y,
+                dr = Math.sqrt(dx * dx + dy * dy)/size;
+            return 'M' + d.source.x + ',' + d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
+            });
+        }
+      }
+
+      d3.select("#sliderLCurve").on("change", function(d){
+                selectedValue = this.value
+                changeLCurve(selectedValue)
+      })
+      d3.select("#sliderLCurveV").on("input", function(d){
+              selectedValue = this.value
+              changeLCurve(selectedValue)
+    })
+      /*Change Layouts------------------------------------------------------------------------*/
+      // Create data = list of groups
+      layouts = ["Force", "Circle", "Linear", "Multilayer"]
+
+      // Initialize the button
+      var dropdownButton = d3.select("#dataviz_builtWithD3")
+          .append('select')
+
+      // add the options to the button
+      dropdownButton // Add a button
+        .selectAll('myOptions') // Next 4 lines add 6 options = 6 colors
+             .data(layouts)
+        .enter()
+            .append('option')
+        .text(function (d) { return d; }) // text showed in the menu
+        .attr("value", function (d) { return d; }) // corresponding value returned by the button
+
+        // When the button is changed, run the updateChart function
+      dropdownButton.on("change", function(d) {
+
+      // recover the option that has been chosen
+      var selectedLayout = d3.select(this).property("value")
+
+      // run the updateChart function with this selected option
+          if(selectedLayout == 'Circle'){Layout = 'Circle';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Linear'){Layout = 'Linear';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Force'){Layout = 'Force2';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Multilayer'){Layout = 'Multilayer';simulation.alpha(0.5).restart();}
+
+      })

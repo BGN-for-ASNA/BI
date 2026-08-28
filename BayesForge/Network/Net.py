@@ -2,6 +2,7 @@ from BayesForge.Network.metrics import met
 from BayesForge.Network.util import array_manip
 from BayesForge.Network.model_effects import Neteffect
 from BayesForge.Network.model_effects2 import NeteffectMatrix
+from BayesForge.Network.explorer import NetExplorer
 import jax.numpy as jnp
 
 class net(met, Neteffect, array_manip):
@@ -13,7 +14,9 @@ class net(met, Neteffect, array_manip):
     def __init__(self, *args, **kwargs):
         # Call super() without specifying the class name in a multiple inheritance context
         super().__init__(*args, **kwargs)
-        # Additional initialization code if needed
+        # d3.js network-visualisation front-end (R `NetExplorer` port).
+        #   m.net.viz(df, adj, col_id="id", col_size="strength", ...)
+        self.viz = NetExplorer()
 
 
 class net2(met, NeteffectMatrix, array_manip):
@@ -25,5 +28,6 @@ class net2(met, NeteffectMatrix, array_manip):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.viz = NetExplorer()
 
 
