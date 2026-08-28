@@ -9,10 +9,12 @@ that runs on **JAX arrays + pandas DataFrames** and emits the same standalone
 The implementation ships in the package as
 **`BayesForge/Network/explorer.py`** (`class NetExplorer`, `class
 NetworkView`) with the d3 front-end vendored under
-`BayesForge/Network/assets/netexplorer/` (`patron1.txt`, `patron2.txt`,
-`d3.min.js`, `d3-tip.js`, `style.css`, `logo.jpg`, `save.png`, copied verbatim
-from upstream `inst/www/`). Only the code that *builds the `nodes`/`links`
-payload and splices it into the template* was rewritten.
+`BayesForge/Network/assets/netexplorer/`. `d3.min.js`, `d3-tip.js`, `logo.jpg`,
+`save.png` and the d3 logic in `patron1.txt` / `patron2.txt` are from upstream
+`inst/www/`; `style.css` was replaced with a modern responsive one and
+`patron1.txt` gained a ☰ toggle button. The Python side *builds the
+`nodes`/`links` payload, precomputes the extra layouts, and splices everything
+into the template.*
 
 Reach it from a BF object as **`m.net.viz`** (and `m.net2.viz`):
 
@@ -42,20 +44,65 @@ Test/Network/NetExplorer/
 | `colorize(df, col.att, color, new.col.name)` | `NetExplorer._colorize` | `matplotlib.LinearSegmentedColormap` for `grDevices::colorRampPalette`; **does not** re-sort the frame (see deviations) |
 | `shape(vec, char)` | `NetExplorer._shape_codes` | same d3 symbol codes (`circle`→0 … `wye`→6) |
 | `vis.net.format.att(...)` | `NetExplorer.format_att` | returns `(df2, ori)`; `ori` = `[id, size, color, strokeCol, stroke, shape, opacity]` source names |
-| `vis.net(df, m, ...)` | `NetExplorer.vis_net` / `__call__` | writes `out/NetExplorer.html`, returns a `NetworkView` |
+| `vis.net(df, m, ...)` | `NetExplorer.vis_net` / `__call__` | `df` optional (see deviations); writes `out/NetExplorer.html`, returns a `NetworkView` |
 
 JAX carries every numeric step: matrix→edge list, min-max scaling for node /
 link opacity, layer intra/inter equality flags.
+
+## Layouts
+
+`vis_net(..., layout=...)`. The four the d3 front-end already runs live in the
+browser are unchanged; the rest are computed in Python
+(`BayesForge/Network/layouts.py`) and the page pins nodes to the result. The
+dropdown offers the four live layouts plus whichever one you asked for.
+
+| `layout=` | what | driver (`layout_col` unless noted) |
+|---|---|---|
+| `force` `circle` `linear` `multilayer` | live d3 (unchanged) | — |
+| `clustered` | group-in-a-box: Louvain communities (or a given grouping) laid out per-box on a grid | grouping column (optional — Louvain if omitted) |
+| `spectral` | Laplacian eigenmaps (2 smallest non-zero eigenvectors) — deterministic, no seed jitter | — |
+| `mds` | classical MDS on shortest-path distances | — |
+| `radial` | concentric rings, radius from a nodal metric | metric column (default: degree) |
+| `arc` | nodes on a line ordered by a key, links as semicircular arcs | ordering column (default: degree) |
+| `layered` | Sugiyama tiers: topological generations for a DAG, else BFS layers | `directed=` toggles DAG handling |
+| `geo` | fixed coordinates from two columns | `layout_x=`, `layout_y=` |
+| `chord` | d3 ribbon chord of between-group weight flows | grouping column (**required**) |
+
+`networkx` / `scipy` are used when importable (community detection, Floyd–Warshall)
+but not required — NumPy fallbacks cover everything except community detection,
+which then needs an explicit grouping column.
+
+```python
+m.net.viz(df, adj, col_id="id", layout="clustered", layout_col="clan")
+m.net.viz(df, adj, col_id="id", layout="chord",     layout_col="age_class")
+m.net.viz(df, adj, col_id="id", layout="geo", layout_x="lon", layout_y="lat")
+```
+
+**In the page.** One `vis_net` call precomputes *every* applicable layout (for
+graphs up to 800 nodes) and ships them in the node payload, so the **Type**
+dropdown in the panel switches between all of them client-side — `layout=` only
+picks which one is shown first. `chord` appears in the dropdown whenever a
+`layout_col` grouping is given; `geo` only when `layout_x` / `layout_y` are.
+
+## The page GUI
+
+The front-end panel was modernised: a flat white control panel whose width
+scales with the viewport (`clamp(210px, 21vw, 320px)`), a real styled
+`<select>`, modern range sliders, no font-awesome. It **no longer needs browser
+zoom** to fit — below ~820 px viewport width the panel becomes a slide-over
+behind a ☰ toggle (top-left) and the graph takes the full width. `style.css`
+and a two-line `patron1.txt` patch (the toggle button) carry this; the d3 logic
+is untouched.
 
 ## Opening the visualisation
 
 `vis_net` returns a **`NetworkView`**:
 
-* **Jupyter** — put the call (or the returned view) as the last line of a
-  cell; `_repr_html_` renders the network inline in an `<iframe srcdoc>`
-  (the HTML is self-contained, so no notebook file-server is needed). The
-  call also `display()`s itself, so it shows even when not the last
-  expression.
+* **Jupyter** — put the call (or the returned view) as the **last expression**
+  of a cell; `_repr_html_` renders the network inline in an `<iframe srcdoc>`
+  (the HTML is self-contained, so no notebook file-server is needed). It is
+  drawn **once** — `vis_net` does not also `display()` it. If you assign the
+  result (`v = m.net.viz(...)`), put `v` on its own line to show it.
 * **Browser** — outside a notebook, `vis_net` opens the file in the OS
   default browser automatically (the R `file.show` behaviour). WSL is
   handled by handing the path to `cmd.exe /c start`. Inside a notebook the
@@ -63,10 +110,12 @@ link opacity, layer intra/inter equality flags.
 * `view.path` is the written `.html`.
 
 ```python
-from netexplorer import NetExplorer
+# minimal: just an adjacency matrix, no node table
+m.net.viz(m=adj)                       # df=None -> ones placeholder, ids n1..nN
 
-view = NetExplorer(ids=nodes["id"]).vis_net(
-    nodes, M, col_id="id", col_size="strength",
+# full styling
+view = m.net.viz(
+    nodes_df, adj, col_id="id", col_size="strength",
     color=("green", "yellow"), col_color="age",
     col_shape="sex", shapes=("circle", "triangle"),
     layers="kinship",
@@ -82,6 +131,10 @@ file; set `False` to copy assets next to the HTML instead), `browser=None`
 ### Deviations from the R original (deliberate)
 
 * Column indices are **0-based** (R is 1-based).
+* `df` is **optional**. `df=None` builds a one-column all-ones placeholder and
+  sets `col_id=0`; node ids then fall back to positional `n1..nN` (a constant
+  id column would collapse every node onto one point and hide the links). Any
+  non-unique id column triggers the same fallback with a `UserWarning`.
 * `_colorize` does **not** re-sort the node frame. R's `colorize` returns
   `df[order(df[,col.att]),]`; the port keeps rows aligned to the adjacency
   matrix (R relies on `colnames(m)` for the edge labels, which we don't have —

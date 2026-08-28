@@ -47,6 +47,23 @@ import numpy as np
 import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap, to_hex
 
+from BayesForge.Network import layouts as _lay
+
+
+def _categorical_hex(n: int) -> list[str]:
+    """``n`` visually distinct hex colours for chord groups."""
+    try:
+        import matplotlib as _mpl
+
+        cmap = _mpl.colormaps["tab10" if n <= 10 else "tab20" if n <= 20 else "hsv"]
+        if n <= 20:
+            return [to_hex(cmap(i)) for i in range(n)]
+        return [to_hex(cmap(i / max(n, 1))) for i in range(n)]
+    except Exception:
+        cycle = ["#4e79a7", "#f28e2b", "#e15759", "#76b7b2", "#59a14f",
+                 "#edc948", "#b07aa1", "#ff9da7", "#9c755f", "#bab0ac"]
+        return [cycle[i % len(cycle)] for i in range(n)]
+
 _ASSETS = Path(__file__).with_name("assets") / "netexplorer"
 
 
@@ -393,8 +410,8 @@ class NetExplorer:
     # ------------------------------------------------------------------ #
     def vis_net(
         self,
-        df: pd.DataFrame,
-        m,
+        df: pd.DataFrame | None = None,
+        m=None,
         col_id=None,
         col_size=None,
         color: Sequence[str] = ("black", "white"),
@@ -408,6 +425,11 @@ class NetExplorer:
         node_opacity=None,
         link_opacity: bool = False,
         background: str = "grey",
+        layout: str = "force",
+        layout_col=None,
+        layout_x=None,
+        layout_y=None,
+        directed: bool = True,
         out_dir: str | os.PathLike = "out",
         filename: str = "NetExplorer.html",
         inline: bool = True,
@@ -421,6 +443,11 @@ class NetExplorer:
 
         Parameters
         ----------
+        df
+            Node characteristics. If ``None`` a placeholder frame of one
+            all-ones column is built and ``col_id`` defaults to ``0`` — so
+            ``m.net.viz(m=adj)`` works with no node table. (Node ids then fall
+            back to ``n1..nN`` since that column is not unique.)
         inline
             Embed d3 / CSS / images into the HTML so the single file is
             portable (needed for Jupyter inline rendering). When ``False`` the
@@ -430,13 +457,37 @@ class NetExplorer:
             ``True`` outside a notebook, ``False`` inside one (the cell renders
             it inline anyway — call ``.open()`` on the result to also pop a
             browser).
+        layout
+            Initial layout. ``force`` / ``circle`` / ``linear`` / ``multilayer``
+            run live in the browser (unchanged). ``clustered`` / ``spectral`` /
+            ``mds`` / ``radial`` / ``arc`` / ``layered`` / ``geo`` are computed
+            here (see :mod:`BayesForge.Network.layouts`) and the page pins nodes
+            to the result; ``chord`` draws a d3 ribbon chord of between-group
+            flows. The dropdown offers the four live layouts plus whichever one
+            you picked here.
+        layout_col
+            Column driving the chosen layout: the nodal metric for ``radial``
+            (default: degree) and ``arc``, the grouping for ``clustered`` and
+            ``chord`` (required for ``chord``).
+        layout_x, layout_y
+            Columns of fixed coordinates for ``layout="geo"`` (e.g. lon / lat).
+        directed
+            For ``layout="layered"``: treat the matrix as directed and use
+            topological generations when it is acyclic.
         height
             Inline iframe height in px for the notebook view.
         """
         if browser is None:
             browser = not _in_notebook()
+        if m is None:
+            raise ValueError("vis_net needs an adjacency matrix `m`")
         m = jnp.asarray(m)
         N = int(m.shape[0])
+
+        if df is None:
+            df = pd.DataFrame(np.ones((N, 1)))
+            if col_id is None:
+                col_id = 0
 
         d, ori = self.format_att(
             df,
@@ -458,6 +509,18 @@ class NetExplorer:
         else:
             self._resolve_ids(N)
             d["id"] = list(self.ids)
+        # ids must be unique for the d3 force graph — a constant/placeholder id
+        # column (e.g. df=None -> ones) collapses every node onto one point and
+        # hides the links. Fall back to positional labels.
+        if pd.Index(d["id"]).duplicated().any():
+            import warnings as _warnings
+
+            _warnings.warn(
+                "node id column is not unique; using positional ids n1..nN",
+                stacklevel=2,
+            )
+            d["id"] = [f"n{i + 1}" for i in range(len(d))]
+            self.ids = list(d["id"])
 
         # layer index per node
         if layers is not None:
@@ -496,8 +559,59 @@ class NetExplorer:
             edgl["intralayer"] = np.nan
             edgl["interlayer"] = np.nan
 
+        # layouts: precompute coordinates for every applicable non-live layout
+        # so the GUI dropdown can switch between them client-side. Big graphs
+        # (N > 800) only get the one that was asked for.
+        layout = (layout or "force").lower()
+        adj_np = np.asarray(m, dtype=float)
+        grp_vals = (
+            d[self._col_id(d, layout_col)].to_numpy() if layout_col is not None else None
+        )
+        geo_xy = None
+        if layout_x is not None and layout_y is not None:
+            geo_xy = (
+                d[self._col_id(d, layout_x)].to_numpy(),
+                d[self._col_id(d, layout_y)].to_numpy(),
+            )
+
+        wanted = _lay.PINNED if N <= 800 else (
+            (layout,) if layout in _lay.PINNED else ()
+        )
+        all_pos: dict[str, tuple] = {}
+        for name in wanted:
+            try:
+                if name == "geo":
+                    if geo_xy is None:
+                        continue
+                    lx, ly = _lay.compute("geo", adj_np, x=geo_xy[0], y=geo_xy[1])
+                elif name == "clustered":
+                    lx, ly = _lay.compute("clustered", adj_np, groups=grp_vals)
+                else:  # spectral / mds / radial / arc / layered — self-sufficient
+                    lx, ly = _lay.compute(name, adj_np, directed=directed)
+                all_pos[name] = (np.asarray(lx, float), np.asarray(ly, float))
+            except Exception:
+                continue
+        if layout in _lay.PINNED and layout not in all_pos:
+            raise ValueError(
+                f"layout={layout!r} could not be computed"
+                + (" (needs layout_x / layout_y)" if layout == "geo" else "")
+            )
+
+        chord_payload = None
+        if grp_vals is not None:
+            mat, labels = _lay.chord_matrix(grp_vals, adj_np)
+            chord_payload = {
+                "matrix": mat.tolist(),
+                "labels": [str(x) for x in labels],
+                "colors": _categorical_hex(len(labels)),
+            }
+        elif layout == "chord":
+            raise ValueError("layout='chord' needs layout_col (the node grouping)")
+
         # assemble + write
-        html = self._assemble_html(d, edgl, ori)
+        html = self._assemble_html(
+            d, edgl, ori, layout=layout, chord=chord_payload, all_pos=all_pos
+        )
         out_dir = Path(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
         if inline:
@@ -513,13 +627,10 @@ class NetExplorer:
         view = NetworkView(target, html, height=height)
         if browser:
             _open_in_browser(target)
-        if _in_notebook():
-            try:
-                from IPython.display import display
-
-                display(view)
-            except Exception:
-                pass
+        # In a notebook the returned view renders itself once via _repr_html_
+        # when it is the last expression in the cell. Do NOT also display() it
+        # here — that draws the network twice. If the call is assigned
+        # (`v = m.net.viz(...)`), evaluate `v` on its own line to show it.
         return view
 
     # `m.net.viz(df, adj, ...)` is the common path -> alias __call__ to vis_net
@@ -583,10 +694,11 @@ class NetExplorer:
         )
         return s
 
-    def _nodes_json(self, d: pd.DataFrame, ori) -> str:
+    def _nodes_json(self, d: pd.DataFrame, ori, all_pos: dict | None = None) -> str:
         has = dict(zip(("id", "size", "color", "strokeCol", "stroke", "shape", "opacity"), ori))
+        all_pos = all_pos or {}
         rows = []
-        for _, r in d.iterrows():
+        for i, (_, r) in enumerate(d.iterrows()):
             parts = [
                 f"'id':{self._js_val(r['id'])}",
                 f"'size':{self._js_val(r['size'])}",
@@ -609,6 +721,13 @@ class NetExplorer:
                 parts.append(f"'shapeValue':{self._js_val(r['shapeValue'])}")
             if has["opacity"] is not None:
                 parts.append(f"'opacityValue':{self._js_val(r['opacityValue'])}")
+            if all_pos:
+                pos = ",".join(
+                    f"'{name}':[{float(lx[i]):.5f},{float(ly[i]):.5f}]"
+                    for name, (lx, ly) in all_pos.items()
+                    if np.isfinite(lx[i]) and np.isfinite(ly[i])
+                )
+                parts.append("'pos':{" + pos + "}")
             rows.append("{" + ",".join(parts) + "},")
         return "\n".join(rows)
 
@@ -628,17 +747,160 @@ class NetExplorer:
             )
         return "\n".join(rows)
 
-    def _assemble_html(self, d: pd.DataFrame, edgl: pd.DataFrame, ori) -> str:
+    def _assemble_html(
+        self,
+        d: pd.DataFrame,
+        edgl: pd.DataFrame,
+        ori,
+        layout: str = "force",
+        chord: dict | None = None,
+        all_pos: dict | None = None,
+    ) -> str:
+        import json as _json
+
         p1 = (self.assets_dir / "patron1.txt").read_text(encoding="utf-8")
         p2 = (self.assets_dir / "patron2.txt").read_text(encoding="utf-8")
+        p2 = self._inject_layouts(
+            p2, layout, computed=list((all_pos or {}).keys()), chord=chord
+        )
+        chord_js = (
+            f"json['chord'] = {_json.dumps(chord)};\n" if chord is not None else ""
+        )
         return (
             p1
             + self._tooltip_js(ori)
             + p2
             + "\n           function getData() {\n   let json = { 'nodes':[\n"
-            + self._nodes_json(d, ori)
+            + self._nodes_json(d, ori, all_pos)
             + "\n],\n'links':[\n"
             + self._links_json(edgl)
             + "\n]}\n"
+            + chord_js
             + "return json;\n}\n</script>\n"
         )
+
+    _LIVE_LAYOUTS = ("force", "circle", "linear", "multilayer")
+
+    @staticmethod
+    def _lay_label(name: str) -> str:
+        return "MDS" if name == "mds" else name.capitalize()
+
+    def _inject_layouts(self, p2: str, layout: str, computed: list[str], chord: dict | None) -> str:
+        """Extend the front-end: put every precomputed layout (and Chord, when a
+        payload is present) in the dropdown; switch between them client-side."""
+        want = ["Force", "Circle", "Linear", "Multilayer"]
+        want += [self._lay_label(n) for n in computed if n not in self._LIVE_LAYOUTS]
+        if chord is not None:
+            want.append("Chord")
+        initial = (
+            layout.capitalize() if layout in self._LIVE_LAYOUTS
+            else "Chord" if layout == "chord"
+            else self._lay_label(layout)
+        )
+        if initial not in want:
+            initial = "Force"
+
+        p2 = p2.replace("var Layout = 'Force'", f"var Layout = '{initial}'", 1)
+        p2 = p2.replace(
+            'layouts = ["Force", "Circle", "Linear", "Multilayer"]',
+            "layouts = " + repr(want).replace("'", '"'),
+            1,
+        )
+
+        # pin nodes to whichever precomputed layout is selected + arc link paths
+        pin_js = """
+    {
+      // map pos[layout] in [0,1] onto a centred square so aspect is preserved
+      var _pk = Layout.toLowerCase(),
+          _navW = 250, _pad = 40,
+          _S = Math.min(width - _navW, height) - 2 * _pad,
+          _ox = _navW + (width - _navW - _S) / 2,
+          _oy = (height - _S) / 2;
+      graph.nodes.forEach(function(d) {
+        var p = d.pos && d.pos[_pk];
+        if (p) { d.x = _ox + p[0] * _S; d.y = _oy + p[1] * _S; d.fx = d.x; d.fy = d.y; }
+      });
+    }
+    if (Layout === 'Chord') { drawChordOnce(); }
+    else { d3.select('#chordG').style('display', 'none');
+           link.style('display', null); node.style('display', null); texts.style('display', null); }
+"""
+        p2 = p2.replace("    if(Layout == 'Circle'){", pin_js + "\n    if(Layout == 'Circle'){", 1)
+
+        arc_link = """      // Curve (semicircular arcs under the Arc layout)
+      link.attr('d', function(d) {
+        if (Layout === 'Arc') {
+          var r = Math.abs(d.target.x - d.source.x) / 2,
+              y = Math.max(d.source.y, d.target.y),
+              sweep = d.source.x < d.target.x ? 1 : 0;
+          return 'M' + d.source.x + ',' + y + ' A' + r + ',' + r + ' 0 0,' + sweep + ' ' + d.target.x + ',' + y;
+        }
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = Math.sqrt(dx * dx + dy * dy)
+        return 'M' + d.source.x + ',' + d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
+      });"""
+        old_link = """      // Curve
+      link.attr('d', function(d) {
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = Math.sqrt(dx * dx + dy * dy)
+        return 'M' + d.source.x + ',' + d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
+      });"""
+        p2 = p2.replace(old_link, arc_link, 1)
+
+        # show the initial layout as the selected <option>
+        p2 = p2.replace(
+            '.attr("value", function (d) { return d; }) // corresponding value returned by the button',
+            '.attr("value", function (d) { return d; });\n'
+            '      d3.select("#dataviz_builtWithD3 select").property("value", Layout);',
+            1,
+        )
+
+        # dropdown: clear pins when returning to a live layout; accept the extra
+        old_handler = """          if(selectedLayout == 'Circle'){Layout = 'Circle';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Linear'){Layout = 'Linear';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Force'){Layout = 'Force2';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Multilayer'){Layout = 'Multilayer';simulation.alpha(0.5).restart();}"""
+        new_handler = """          if(["Circle","Linear","Multilayer","Force"].indexOf(selectedLayout) !== -1){
+            graph.nodes.forEach(function(d){ d.fx = null; d.fy = null; });
+          }
+          if(selectedLayout == 'Circle'){Layout = 'Circle';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Linear'){Layout = 'Linear';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Force'){Layout = 'Force2';simulation.alpha(0.5).restart();}
+          if(selectedLayout == 'Multilayer'){Layout = 'Multilayer';simulation.alpha(0.5).restart();}
+          if(["Circle","Linear","Multilayer","Force"].indexOf(selectedLayout) === -1){
+            Layout = selectedLayout; simulation.alpha(0.5).restart();
+          }"""
+        p2 = p2.replace(old_handler, new_handler, 1)
+
+        # chord helper (no-op unless a chord payload was emitted)
+        chord_fn = """
+    function drawChordOnce() {
+      link.style('display','none'); node.style('display','none'); texts.style('display','none');
+      if (window._chordDrawn || !graph.chord || typeof d3.chord !== 'function') return;
+      window._chordDrawn = true;
+      var cd = graph.chord, W = Math.min(width, height), R = W/2 - 70;
+      var g = d3.select('svg').append('g').attr('id','chordG')
+        .attr('transform','translate(' + (width/2) + ',' + (height/2) + ')');
+      var chords = d3.chord().padAngle(0.045).sortSubgroups(d3.descending)(cd.matrix);
+      var arcGen = d3.arc().innerRadius(R).outerRadius(R + 16);
+      var ribGen = d3.ribbon().radius(R);
+      var col = function(i){ return cd.colors[i % cd.colors.length]; };
+      g.append('g').selectAll('path').data(chords.groups).enter().append('path')
+        .attr('d', arcGen).style('fill', function(d){ return col(d.index); }).style('stroke','#333');
+      g.append('g').style('opacity',0.72).selectAll('path').data(chords).enter().append('path')
+        .attr('d', ribGen).style('fill', function(d){ return col(d.source.index); }).style('stroke','#333');
+      g.append('g').selectAll('text').data(chords.groups).enter().append('text')
+        .each(function(d){ d.a = (d.startAngle + d.endAngle) / 2; })
+        .attr('dy','0.35em')
+        .attr('transform', function(d){
+          return 'rotate(' + (d.a * 180 / Math.PI - 90) + ') translate(' + (R + 22) + ')'
+            + (d.a > Math.PI ? ' rotate(180)' : ''); })
+        .attr('text-anchor', function(d){ return d.a > Math.PI ? 'end' : null; })
+        .text(function(d){ return cd.labels[d.index]; })
+        .style('font','12px sans-serif').style('fill','#111');
+    }
+"""
+        p2 = p2.replace("var Layout = '", chord_fn + "\nvar Layout = '", 1)
+        return p2

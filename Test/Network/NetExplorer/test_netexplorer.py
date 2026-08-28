@@ -26,6 +26,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pandas as pd
+import pytest
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
@@ -179,6 +180,68 @@ def test_mat_to_edgl_roundtrip():
     assert e[("a", "c")] == 2.0 and e[("c", "a")] == 5.0
     assert e[("b", "c")] == 4.0 and e[("c", "b")] == 6.0
     assert ("a", "a") not in e
+
+
+def test_df_none_defaults_and_unique_ids():
+    """df=None -> ones placeholder + col_id=0; non-unique id column falls back
+    to positional n1..nN so links stay visible."""
+    n = 12
+    rng = np.random.default_rng(0)
+    M = jnp.asarray((rng.random((n, n)) < 0.25) * rng.integers(1, 4, (n, n))).astype(float)
+    M = M.at[jnp.diag_indices(n)].set(0.0)
+    out = OUT / "df_none"
+    with pytest.warns(UserWarning, match="not unique"):
+        view = NetExplorer().vis_net(m=M, out_dir=out, browser=False)
+    html = view.path.read_text()
+    ids = re.findall(r"'id':'([^']*)'", html)
+    src = re.findall(r"'source':'([^']*)'", html)
+    assert len(ids) == n and len(set(ids)) == n, ids
+    assert ids[:3] == ["n1", "n2", "n3"], ids
+    assert 0 < len(src) == int((np.asarray(M) != 0).sum()), (len(src),)
+
+
+def test_layouts_emit_coords_or_chord():
+    """Every non-live layout either pins nodes (lx/ly) or ships a chord payload,
+    and the dropdown offers it."""
+    n = 24
+    rng = np.random.default_rng(3)
+    grp = rng.choice(list("XYZ"), n)
+    A = (rng.random((n, n)) < np.where(grp[:, None] == grp[None, :], 0.35, 0.06)).astype(float)
+    A = A * rng.integers(1, 4, (n, n))
+    np.fill_diagonal(A, 0)
+    A = jnp.asarray(A.astype(float))
+    df = pd.DataFrame(
+        {"id": [f"i{k}" for k in range(n)], "grp": grp,
+         "deg": np.asarray(A).sum(1), "x": rng.random(n), "y": rng.random(n)}
+    )
+    ne = NetExplorer(ids=df["id"].tolist())
+
+    # one render: every applicable layout is precomputed and offered in the GUI
+    html = ne.vis_net(
+        df, A, col_id="id", layout="spectral",
+        layout_col="grp", layout_x="x", layout_y="y",
+        out_dir=OUT / "lay_all", browser=False,
+    ).path.read_text()
+    for want in ("Force", "Circle", "Linear", "Multilayer", "Clustered", "Spectral",
+                 "MDS", "Radial", "Arc", "Layered", "Geo", "Chord"):
+        assert f'"{want}"' in html, (want, "missing from dropdown")
+    assert "var Layout = 'Spectral'" in html
+    assert "json['chord']" in html and "drawChordOnce" in html
+    m = re.search(r"'pos':\{([^}]*)\}", html).group(1)
+    for k in ("clustered", "spectral", "mds", "radial", "arc", "layered", "geo"):
+        assert f"'{k}':[" in m, (k, "missing from node pos map")
+    assert 'id="menuToggle"' in html and "--panel-w" in html  # modernised GUI
+
+    # each layout can be the initial one too
+    for lay, kw in {
+        "clustered": {"layout_col": "grp"}, "radial": {}, "arc": {},
+        "layered": {}, "chord": {"layout_col": "grp"},
+        "geo": {"layout_x": "x", "layout_y": "y"},
+    }.items():
+        h = ne.vis_net(df, A, col_id="id", layout=lay,
+                       out_dir=OUT / f"lay_{lay}", browser=False, **kw).path.read_text()
+        label = "MDS" if lay == "mds" else lay.capitalize()
+        assert f"var Layout = '{label}'" in h, lay
 
 
 # --------------------------------------------------------------------- #
