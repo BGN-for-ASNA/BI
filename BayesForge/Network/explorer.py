@@ -661,7 +661,7 @@ class NetExplorer:
         # --- opacity -------------------------------------------------- #
         if node_opacity is not None:
             c = self._col_id(d, node_opacity)
-            if not np.issubdtype(d[c].dtype, np.number):
+            if not pd.api.types.is_numeric_dtype(d[c]):
                 raise TypeError("node_opacity column must be numeric")
             ori_opacity = c
             v = jnp.asarray(d[c].to_numpy(dtype=float))
@@ -677,7 +677,7 @@ class NetExplorer:
         # --- size --------------------------------------------------- #
         if col_size is not None:
             c = self._col_id(d, col_size)
-            if not np.issubdtype(d[c].dtype, np.number):
+            if not pd.api.types.is_numeric_dtype(d[c]):
                 raise TypeError("col_size column must be numeric")
             ori_size = c
             d["size"] = d[c].astype(float)
@@ -709,7 +709,7 @@ class NetExplorer:
         # --- stroke width + stroke colour ------------------------- #
         if col_stroke is not None:
             c = self._col_id(d, col_stroke)
-            if not np.issubdtype(d[c].dtype, np.number):
+            if not pd.api.types.is_numeric_dtype(d[c]):
                 raise TypeError("col_stroke column must be numeric")
             ori_stroke = c
             d["strokeW"] = d[c].astype(float)
@@ -733,7 +733,7 @@ class NetExplorer:
         if col_color is not None:
             cc = self._col_id(d, col_color)
             ori_color = cc
-            if np.issubdtype(d[cc].dtype, np.number):
+            if pd.api.types.is_numeric_dtype(d[cc]):
                 if color is None or len(color) != 2:
                     raise ValueError("`color` must be a 2-colour gradient for a numeric column")
                 d = self._colorize(d, cc, color, new_col="color")
@@ -958,7 +958,7 @@ class NetExplorer:
         # link colour from an edge attribute (via the source node's row)
         if edge_color_col is not None:
             ec = self._col_id(d, edge_color_col)
-            if np.issubdtype(d[ec].dtype, np.number):
+            if pd.api.types.is_numeric_dtype(d[ec]):
                 d = self._colorize(d, ec, _vf.palette(palette)["sequential"], "_edgeCol")
             else:
                 d = self._colorize_categorical(d, ec, palette, "_edgeCol")
