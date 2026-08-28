@@ -65,19 +65,19 @@ a.dispatchEvent(e);
     <i class="fa fa-lightbulb-o fa-lg"></i>
     <span class="nav-text"  style="text-align: center;">
       <input type="color" id="colorWell" name="head"
-      value="grey">
+      value="#e6e6e8">
       <script>
   var colorWell
-  var defaultColor = "#0000ff";
+  var defaultColor = "#e6e6e8";
   window.addEventListener("load", startup, false);
   function startup() {
   colorWell = document.querySelector("#colorWell");
   colorWell.value = defaultColor;
   colorWell.addEventListener("input", updateBackground, false);
-  colorWell.select();
   }
   function updateBackground(event) {
-  document.body.style.backgroundColor =  event.target.value;
+  var g = document.querySelector("svg#net");
+  if (g) g.style.background = event.target.value;
   }
                 </script>
     </span>

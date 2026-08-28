@@ -135,6 +135,13 @@ _FEATURES_JS = r"""
   var gSel = (typeof svg !== 'undefined') ? svg : d3.select(svgEl).select('g');
   var haveLink = (typeof link !== 'undefined');
 
+  /* background -------------------------------------------------- */
+  if (G.background && !(G.theme === 'dark' && G.background === '#e6e6e8')) {
+    svgEl.style.background = G.background;   // dark + default keeps the CSS dark canvas
+    var cw0 = document.getElementById('colorWell');
+    if (cw0 && /^#[0-9a-fA-F]{6}$/.test(G.background)) cw0.value = G.background;
+  }
+
   /* theme -------------------------------------------------------- */
   document.body.setAttribute('data-theme', G.theme === 'dark' ? 'dark' : 'light');
   var bt = document.getElementById('btnTheme');
@@ -1036,6 +1043,7 @@ class NetExplorer:
             stats=stats, node_metrics=node_metrics, legend=legend,
             theme=theme, palette=palette, directed=bool(directed),
             has_posterior=edge_prob is not None, canvas=use_canvas,
+            background=background,
         )
         out_dir = Path(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -1202,6 +1210,7 @@ class NetExplorer:
         directed: bool = False,
         has_posterior: bool = False,
         canvas: bool = False,
+        background: str = "grey",
     ) -> str:
         import json as _json
 
@@ -1220,6 +1229,7 @@ class NetExplorer:
             "directed": bool(directed),
             "hasPosterior": bool(has_posterior),
             "canvas": bool(canvas),
+            "background": "#e6e6e8" if str(background).lower() == "grey" else background,
             "metricNames": list((node_metrics or {}).keys()),
         }
         if chord is not None:
