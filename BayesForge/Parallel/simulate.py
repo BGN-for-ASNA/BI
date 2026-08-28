@@ -25,6 +25,7 @@ backend is initialised.
 import hashlib
 import itertools
 import os
+import shutil
 import sys
 import time
 import traceback
@@ -260,10 +261,11 @@ def _pin_worker(block, block_size):
     return _STATE["cpus"]
 
 
-def _worker_init(env, fn_bytes, fn_kwargs_bytes, quiet, block_size):
+def _worker_init(env, fn_bytes, fn_kwargs_bytes, quiet, block_size, queue):
     """Pool initializer: set the environment, then unpack the payloads."""
     os.environ.update(env)
     _STATE["block_size"] = block_size
+    _STATE["queue"] = queue
 
     if quiet:
         # bf.__init__ prints its device count and BayesForge prints a banner on
@@ -290,10 +292,29 @@ def _worker_entry(payload_bytes, block):
         _STATE["fn_kwargs"] = cloudpickle.loads(blob) if blob else {}
 
     scenario = cloudpickle.loads(payload_bytes)
-    rows, error = _run_one(
-        _STATE["fn"], scenario, _STATE["fn_kwargs"], _STATE.get("worker", os.getpid())
-    )
+    pid = _STATE.get("worker", os.getpid())
+    sim = scenario.get("sim")
+
+    # Tell the parent this simulation is now running, so its display can show
+    # in-flight work rather than only completions. Never let the progress
+    # channel break a simulation.
+    _notify(("start", pid, sim, time.time()))
+    started = time.time()
+    rows, error = _run_one(_STATE["fn"], scenario, _STATE["fn_kwargs"], pid)
+    _notify(("done", pid, sim, time.time() - started, error is not None))
+
     return cloudpickle.dumps((rows, error))
+
+
+def _notify(msg):
+    """Best-effort progress message to the parent."""
+    q = _STATE.get("queue")
+    if q is None:
+        return
+    try:
+        q.put(msg)
+    except Exception:
+        _STATE["queue"] = None            # parent gone; stop trying
 
 
 def _run_one(fn, scenario, fn_kwargs, worker):
@@ -388,7 +409,19 @@ def run_simulations(
         on_error: ``'record'`` (default) keeps going and puts the traceback in
             the row's ``error`` column; ``'raise'`` aborts the run.
         quiet: Suppress worker stdout.
-        progress: Print completion progress to stdout.
+        progress: Live progress. ``True`` (default) draws a panel showing every
+            worker -- which simulation it is on, for how long, how many it has
+            finished and its average -- above an overall bar with elapsed time
+            and ETA, redrawn in place on a terminal::
+
+                run_simulations  14/100 [###-------]  14%  elapsed 2m14s  eta 8m03s
+                  worker 12345   sim 27    running    14.2s  done 3    avg  41.1s
+                  worker 12346   sim 31    running     2.1s  done 4    avg  38.7s
+                  worker 12347   idle                        done 3    avg  40.0s
+
+            Off a terminal (redirected to a log) it degrades to about ten
+            one-line updates plus a per-worker summary at the end. ``'plain'``
+            forces that simpler form even on a terminal; ``False`` is silent.
         backend: ``'process'`` (default) or ``'serial'``. The serial path runs
             in-process, so ``pdb`` and full tracebacks work while debugging.
 
@@ -565,12 +598,153 @@ def run_simulations(
         df = df.sort_values("sim", kind="stable").reset_index(drop=True)
 
     if progress:
+        # The live display already reported the counts; only the pointer to the
+        # failed rows is worth adding.
         n_failed = int(df["error"].notna().sum()) if "error" in df.columns else 0
-        msg = f"run_simulations: {n} simulations done"
         if n_failed:
-            msg += f", {n_failed} row(s) carry an error -- see df[df.error.notna()]"
-        print(msg)
+            print(f"run_simulations: {n_failed} row(s) carry an error -- "
+                  "see df[df.error.notna()]")
     return df
+
+
+def _fmt_secs(s):
+    if s is None:
+        return "--"
+    if s < 10:
+        return f"{s:.1f}s"
+    s = int(s)
+    if s < 60:
+        return f"{s}s"
+    if s < 3600:
+        return f"{s // 60}m{s % 60:02d}s"
+    return f"{s // 3600}h{(s % 3600) // 60:02d}m"
+
+
+class _WorkerDisplay:
+    """Live per-worker progress, redrawn in place on a terminal.
+
+    Shows what every worker is doing right now -- which simulation it picked
+    up, how long it has been on it, how many it has finished -- rather than a
+    single aggregate counter. On a long study that is the difference between
+    "something is running" and "worker 5 has been stuck on sim 63 for 20
+    minutes".
+
+    Falls back to periodic one-line updates when stdout is not a terminal
+    (redirected to a log), and prints a per-worker summary at the end either
+    way.
+    """
+
+    BAR = 24
+
+    def __init__(self, total, enabled=True, rich=None):
+        self.total = total
+        self.enabled = enabled
+        self.done = 0
+        self.failed = 0
+        self.started = time.time()
+        self.running = {}                 # pid -> (sim, start_time)
+        self.stats = {}                   # pid -> [count, total_seconds]
+        self._lines = 0                   # lines painted, for cursor rewind
+        self._last_paint = 0.0
+
+        if rich is None:
+            try:
+                rich = enabled and sys.stdout.isatty()
+            except Exception:
+                rich = False
+        self.rich = rich
+
+    # -- event intake ----------------------------------------------------
+    def handle(self, msg):
+        kind = msg[0]
+        if kind == "start":
+            _, pid, sim, t = msg
+            self.running[pid] = (sim, t)
+            self.stats.setdefault(pid, [0, 0.0])
+        elif kind == "done":
+            _, pid, sim, elapsed, failed = msg
+            self.running.pop(pid, None)
+            st = self.stats.setdefault(pid, [0, 0.0])
+            st[0] += 1
+            st[1] += elapsed
+            if failed:
+                self.failed += 1
+
+    def completed(self, n):
+        self.done = n
+
+    # -- rendering -------------------------------------------------------
+    def _bar(self, frac):
+        filled = int(round(self.BAR * frac))
+        return "#" * filled + "-" * (self.BAR - filled)
+
+    def _header(self):
+        frac = self.done / self.total if self.total else 1.0
+        elapsed = time.time() - self.started
+        eta = (elapsed / self.done) * (self.total - self.done) if self.done else None
+        msg = (f"run_simulations  {self.done}/{self.total} [{self._bar(frac)}] "
+               f"{frac * 100:3.0f}%  elapsed {_fmt_secs(elapsed)}  "
+               f"eta {_fmt_secs(eta)}")
+        if self.failed:
+            msg += f"  failed {self.failed}"
+        return msg
+
+    def _worker_lines(self):
+        now = time.time()
+        out = []
+        for pid in sorted(self.stats):
+            n, tot = self.stats[pid]
+            avg = tot / n if n else None
+            if pid in self.running:
+                sim, t0 = self.running[pid]
+                state = f"sim {sim:<5} running {_fmt_secs(now - t0):>7}"
+            else:
+                state = f"{'idle':<21}"
+            out.append(f"  worker {pid:<7} {state}  done {n:<4} avg {_fmt_secs(avg):>6}")
+        return out
+
+    def paint(self, force=False):
+        if not self.enabled:
+            return
+        if not self.rich:
+            self._paint_plain()
+            return
+        now = time.time()
+        if not force and now - self._last_paint < 0.25:
+            return                        # cap redraws; the queue can be chatty
+        self._last_paint = now
+
+        try:
+            width = shutil.get_terminal_size().columns - 1
+        except Exception:
+            width = 100
+        lines = [self._header()] + self._worker_lines()
+        lines = [ln[:width] for ln in lines]
+
+        buf = []
+        if self._lines:
+            buf.append(f"\033[{self._lines}A")     # rewind over the last frame
+        for ln in lines:
+            buf.append("\033[2K" + ln + "\n")      # clear then write
+        sys.stdout.write("".join(buf))
+        sys.stdout.flush()
+        self._lines = len(lines)
+
+    def _paint_plain(self):
+        step = max(1, self.total // 10)
+        if self.done and (self.done == self.total or self.done % step == 0):
+            if self.done != getattr(self, "_last_plain", None):
+                self._last_plain = self.done
+                print(self._header(), flush=True)
+
+    def close(self):
+        if not self.enabled:
+            return
+        self.running.clear()
+        self.paint(force=True)          # emits the final header either way
+        if not self.rich:
+            for ln in self._worker_lines():
+                print(ln, flush=True)
 
 
 def _report(progress, done, total):
@@ -616,7 +790,8 @@ def _serial(fn, scenarios, fn_kwargs, on_error, progress):
 def _parallel(fn, scenarios, fn_kwargs, workers, cores_per_worker,
               on_error, quiet, progress):
     import multiprocessing
-    from concurrent.futures import ProcessPoolExecutor, as_completed
+    import queue as _queue
+    from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
     from concurrent.futures.process import BrokenProcessPool
 
     import cloudpickle
@@ -645,36 +820,80 @@ def _parallel(fn, scenarios, fn_kwargs, workers, cores_per_worker,
         else (os.cpu_count() or 1)
     block_size = max(cores_per_worker, n_cpu // workers)
 
+    display = _WorkerDisplay(len(scenarios), enabled=bool(progress),
+                             rich=(None if progress is True else False))
+
+    state = {"manager": None, "q": None}
+
+    def drain():
+        q = state["q"]
+        if q is None:
+            return
+        while True:
+            try:
+                display.handle(q.get_nowait())
+            except _queue.Empty:
+                break
+            except Exception:
+                break
+
     rows = []
     try:
         with _env_override(env):
+            # Created inside the env override so the manager process inherits
+            # BF_QUIET: it is spawned too, and re-imports the calling script.
+            # A manager-backed queue carries per-simulation start/finish events
+            # for the live display; manager proxies pickle cleanly into spawned
+            # children, unlike a raw shared Value.
+            if progress:
+                state["manager"] = ctx.Manager()
+                state["q"] = state["manager"].Queue()
+            q = state["q"]
+
             with ProcessPoolExecutor(
                 max_workers=workers,
                 mp_context=ctx,
                 initializer=_worker_init,
-                initargs=(env, fn_bytes, fn_kwargs_bytes, quiet, block_size),
+                initargs=(env, fn_bytes, fn_kwargs_bytes, quiet, block_size, q),
             ) as pool:
                 futures = {pool.submit(_worker_entry, p, i % workers): s
                            for i, (p, s) in enumerate(zip(payloads, scenarios))}
-                for i, future in enumerate(as_completed(futures), 1):
-                    scenario = futures[future]
-                    out, error = cloudpickle.loads(future.result())
-                    if error is not None and on_error == "raise":
-                        # cancel_futures drops the queued work so the pool's
-                        # exit only waits on what is already running.
-                        pool.shutdown(wait=False, cancel_futures=True)
-                        if progress:
-                            print()
-                        raise RuntimeError(
-                            f"run_simulations: simulation {scenario.get('sim')} "
-                            f"failed:\n{error}"
-                        )
-                    rows.extend(out)
-                    _report(progress, i, len(scenarios))
+                pending = set(futures)
+                completed = 0
+                display.paint(force=True)
+
+                while pending:
+                    # Short timeout rather than as_completed: the display has to
+                    # keep ticking while long fits are still in flight.
+                    finished, pending = wait(pending, timeout=0.25,
+                                             return_when=FIRST_COMPLETED)
+                    drain()
+                    for future in finished:
+                        scenario = futures[future]
+                        out, error = cloudpickle.loads(future.result())
+                        if error is not None and on_error == "raise":
+                            # cancel_futures drops the queued work so the pool's
+                            # exit only waits on what is already running.
+                            pool.shutdown(wait=False, cancel_futures=True)
+                            display.close()
+                            raise RuntimeError(
+                                f"run_simulations: simulation "
+                                f"{scenario.get('sim')} failed:\n{error}"
+                            )
+                        rows.extend(out)
+                        completed += 1
+                    display.completed(completed)
+                    display.paint()
+                drain()
+                display.completed(completed)
+                display.close()
     except BrokenProcessPool as exc:
         raise RuntimeError(
             f"run_simulations: a worker process died.\n\n{_GUARD_MSG}\n\n"
             "If the script already has that guard, the worker was most likely "
             "killed by the OS (out of memory) -- lower `workers`."
         ) from exc
+    finally:
+        if state["manager"] is not None:
+            state["manager"].shutdown()
     return rows

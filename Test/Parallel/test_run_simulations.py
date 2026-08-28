@@ -236,7 +236,38 @@ if __name__ == "__main__":
     else:
         print("SKIP  (no sched_setaffinity on this platform)")
 
-    print("\n--- 11. returning a bf is rejected ---")
+    print("\n--- 11. progress display ---")
+    import io
+    import contextlib
+    import time as _time
+
+    def slow(sim, seed, **_):
+        _time.sleep(0.4)
+        return {"v": sim}
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        pr = run_simulations(slow, 8, workers=4, progress=True)
+    out = buf.getvalue()
+    check("results unaffected by progress display", len(pr) == 8)
+    check("no errors with display on", pr["error"].isna().all())
+    check("progress header rendered", "run_simulations" in out and "8/8" in out)
+    check("per-worker lines rendered", out.count("worker ") >= 2)
+    check("worker completion counts sum to n",
+          sum(int(ln.split("done")[1].split()[0])
+              for ln in out.splitlines() if "worker " in ln and "done" in ln) == 8)
+
+    buf2 = io.StringIO()
+    with contextlib.redirect_stdout(buf2):
+        run_simulations(slow, 4, workers=2, progress="plain")
+    check("progress='plain' still reports", "run_simulations" in buf2.getvalue())
+
+    buf3 = io.StringIO()
+    with contextlib.redirect_stdout(buf3):
+        run_simulations(slow, 4, workers=2, progress=False)
+    check("progress=False is silent", buf3.getvalue().strip() == "")
+
+    print("\n--- 12. returning a bf is rejected ---")
     r = run_simulations(lambda seed, **_: bf(cores=1, print_devices_found=False),
                         2, workers=2, on_error="record", progress=False)
     check("bf return produces a clear error",
