@@ -147,6 +147,8 @@ def build(out_dir: Path = OUT, log: logging.Logger | None = None, browser: bool 
         "shape_codes": sorted({int(x) for x in re.findall(r"'shape':(\d+)", html)}),
         "distinct_node_colors": sorted(set(re.findall(r"'color':'(#[0-9a-fA-F]{6})'", html))),
         "iframe_repr": view._repr_html_()[:60],
+        # legend: one entry per encoding channel, each naming its df column
+        "legend_channels": dict(re.findall(r'"title": "([^"]+)", "col": "([^"]+)"', html)),
     }
     return metrics
 
@@ -162,6 +164,13 @@ def _check(metrics: dict) -> None:
     assert m["self_contained"], m  # inline=True folds d3/css/images in
     assert {"d3.min.js", "d3-tip.js", "style.css"}.issubset(set(m["ext_assets_copied"])), m
     assert m["iframe_repr"].startswith("<iframe srcdoc="), m
+    # legend has a section per encoding channel, each labelled with its column
+    ch = m["legend_channels"]
+    assert ch.get("Size") == "strength", ch          # "size: strength", not a bare "strength"
+    assert ch.get("Colour") == "age", ch
+    assert ch.get("Shape") == "sex", ch
+    assert ch.get("Border colour") == "kinship", ch   # stroke colour now shown
+    assert ch.get("Border width") == "degree", ch     # stroke width now shown
 
 
 # --------------------------------------------------------------------- #

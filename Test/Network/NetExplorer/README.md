@@ -66,8 +66,11 @@ networkx / scipy.
 | `canvas=True` | render on a `<canvas>` instead of SVG — auto above 1500 nodes. |
 | `axis_x=`, `axis_y=` | pin nodes on an invisible scatter grid by any `df` covariate (numeric → min-max scaled, categorical → evenly banded, larger = higher). Just the initial pick — the page has **X axis** / **Y axis** dropdowns over every usable covariate; `(none)` on both releases the pins. e.g. `axis_x="strength", axis_y="sex"`. |
 
-In the page, additionally: a **Legend** (colour / shape / size), a **Min edge
-weight** slider, an **Arrow size** slider (directed graphs only), **X axis** /
+In the page, additionally: a **Legend** — one section per encoding channel in
+use (Colour, Shape, Size, Border colour, Border width), each headed by the
+channel and sub-labelled with the `df` column driving it (e.g. *Size /
+strength*) — a **Min edge weight** slider, an **Arrow size** slider (directed
+graphs only), **X axis** /
 **Y axis** covariate dropdowns (invisible scatter layout), **Find node** (centre
 + flash), **Fit** to view, click a node to brighten its neighbours' labels, and
 **PNG / JSON / CSV** export buttons.

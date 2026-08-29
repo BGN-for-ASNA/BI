@@ -93,6 +93,7 @@ _FEATURES_CSS = """
   text-transform: uppercase; color: var(--muted); }
 #legendBox h4:not(:first-child) { margin-top: 10px; }
 #legendBox .row { display: flex; align-items: center; gap: 7px; margin: 3px 0; }
+#legendBox .lgd-col { margin: -3px 0 4px; font-size: 11px; color: var(--muted); }
 #legendBox .sw { width: 13px; height: 13px; border-radius: 3px;
   border: 1px solid rgba(0,0,0,.15); flex: 0 0 auto; }
 #legendBox .grad { width: 120px; height: 10px; border-radius: 3px; }
@@ -209,6 +210,7 @@ _FEATURES_JS = r"""
     var lb = document.createElement('div'); lb.id = 'legendBox'; var h = '';
     G.legend.forEach(function (e) {
       h += '<h4>' + e.title + '</h4>';
+      if (e.col) h += '<div class="row lgd-col">' + e.col + '</div>';
       if (e.kind === 'swatches') {
         e.items.forEach(function (it) {
           h += '<div class="row"><span class="sw" style="background:' + it.color + '"></span>' + it.label + '</div>';
@@ -1414,29 +1416,66 @@ class NetExplorer:
         )
 
     def _build_legend(self, d, ori, color, palette, has_post) -> list:
+        """One entry per *encoding channel* actually in use. ``title`` is the
+        channel ("Size", "Colour", "Border width", ...); ``col`` is the source
+        ``df`` column driving it (rendered as a sub-label, e.g. "Size /
+        strength")."""
         ln, sn, cn, scn, stn, shn, on = ori
         ent: list = []
+
+        # node fill colour
         if cn is not None and "colorValue" in d.columns:
             if getattr(self, "_color_is_categorical", False):
                 seen = {}
                 for v, hx in zip(d["colorValue"], d["color"]):
                     seen.setdefault(str(v), hx)
-                ent.append({"kind": "swatches", "title": str(cn),
+                ent.append({"kind": "swatches", "title": "Colour", "col": str(cn),
                             "items": [{"label": k, "color": v} for k, v in seen.items()]})
             else:
-                ent.append({"kind": "gradient", "title": str(cn), "stops": list(color),
+                ent.append({"kind": "gradient", "title": "Colour", "col": str(cn),
+                            "stops": list(color),
                             "lo": round(float(d["colorValue"].min()), 3),
                             "hi": round(float(d["colorValue"].max()), 3)})
+
+        # node shape
         if shn is not None and "shapeValue" in d.columns:
             seen = {}
             for v, code in zip(d["shapeValue"], d["shape"]):
                 seen.setdefault(str(v), int(code))
-            ent.append({"kind": "shapes", "title": str(shn),
+            ent.append({"kind": "shapes", "title": "Shape", "col": str(shn),
                         "items": [{"label": k, "shape": v} for k, v in seen.items()]})
+
+        # node size
         if sn is not None and "sizeValue" in d.columns:
-            ent.append({"kind": "size", "title": str(sn),
+            ent.append({"kind": "size", "title": "Size", "col": str(sn),
                         "lo": round(float(d["sizeValue"].min()), 3),
                         "hi": round(float(d["sizeValue"].max()), 3)})
+
+        # node border colour
+        if scn is not None and "strokeColValue" in d.columns:
+            sv = d["strokeColValue"]
+            if pd.api.types.is_numeric_dtype(sv):
+                order = np.argsort(sv.to_numpy())
+                stops = [str(d["strokeCol"].iloc[int(order[0])]),
+                         str(d["strokeCol"].iloc[int(order[-1])])]
+                ent.append({"kind": "gradient", "title": "Border colour", "col": str(scn),
+                            "stops": stops,
+                            "lo": round(float(sv.min()), 3),
+                            "hi": round(float(sv.max()), 3)})
+            else:
+                seen = {}
+                for v, hx in zip(sv, d["strokeCol"]):
+                    seen.setdefault(str(v), hx)
+                ent.append({"kind": "swatches", "title": "Border colour", "col": str(scn),
+                            "items": [{"label": k, "color": v} for k, v in seen.items()]})
+
+        # node border width
+        if stn is not None and "strokeWValue" in d.columns:
+            wv = d["strokeWValue"]
+            ent.append({"kind": "size", "title": "Border width", "col": str(stn),
+                        "lo": round(float(wv.min()), 3),
+                        "hi": round(float(wv.max()), 3)})
+
         if has_post:
             ent.append({"kind": "note", "title": "Link opacity", "text": "P(weight > 0)"})
         return ent
