@@ -111,6 +111,18 @@ body[data-theme="dark"] #axisX, body[data-theme="dark"] #axisY,
 body[data-theme="dark"] .main-menu .tool { background: #232b36; color: var(--ink); }
 """
 
+# injected into the native "Links" section (after the Curves control)
+_FEATURES_LINKS_HTML = """
+        <li class="darkerli"><span class="nav-text">Min edge weight</span>
+          <form><div><span>0</span>
+            <input id="edgeThresh" type="range" min="0" max="1" step="0.001" value="0"/>
+            <span id="edgeThreshV">0</span></div></form></li>
+        <li class="darkerlishadowdown" id="liArrow"><span class="nav-text">Arrow size</span>
+          <form><div><span>4</span>
+            <input id="arrowSize" type="range" min="4" max="28" step="0.5" value="9"/>
+            <span id="arrowSizeV">9</span></div></form></li>
+"""
+
 _FEATURES_HTML = """
       <li class="darkerlishadow"><span class="nav-text"><b>Explore</b></span></li>
       <li class="darkerli"><span class="nav-text">Find node</span>
@@ -123,14 +135,6 @@ _FEATURES_HTML = """
         <select id="axisX"></select></li>
       <li class="darkerli" id="liAxisY"><span class="nav-text">Y axis</span>
         <select id="axisY"></select></li>
-      <li class="darkerlishadowdown"><span class="nav-text">Min edge weight</span>
-        <form><div><span>0</span>
-          <input id="edgeThresh" type="range" min="0" max="1" step="0.001" value="0"/>
-          <span id="edgeThreshV">0</span></div></form></li>
-      <li class="darkerlishadowdown" id="liArrow"><span class="nav-text">Arrow size</span>
-        <form><div><span>4</span>
-          <input id="arrowSize" type="range" min="4" max="28" step="0.5" value="9"/>
-          <span id="arrowSizeV">9</span></div></form></li>
       <li class="darkerlishadow"><span class="nav-text"><b>View</b></span></li>
       <li class="darkerli">
         <button class="tool" id="btnFit" type="button">Fit</button>
@@ -1482,6 +1486,13 @@ class NetExplorer:
 
     def _inject_features(self, p1: str) -> str:
         p1 = p1.replace("</head>", f"<style>\n{_FEATURES_CSS}\n</style>\n</head>", 1)
+        # Arrow size / Min edge weight belong in the native "Links" section:
+        # splice them in right after the Curves control (before the spacer li).
+        p1 = p1.replace(
+            '        <li style="height: 1%;"></li>',
+            _FEATURES_LINKS_HTML + '        <li style="height: 1%;"></li>',
+            1,
+        )
         p1 = p1.replace("    </nav>", _FEATURES_HTML + "\n    </nav>", 1)
         return p1
 
