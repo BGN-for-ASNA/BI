@@ -118,8 +118,8 @@ _FEATURES_LINKS_HTML = """
             <input id="edgeThresh" type="range" min="0" max="1" step="0.001" value="0"/>
             <span id="edgeThreshV">0</span></div></form></li>
         <li class="darkerlishadowdown" id="liArrow"><span class="nav-text">Arrow size</span>
-          <form><div><span>4</span>
-            <input id="arrowSize" type="range" min="4" max="28" step="0.5" value="9"/>
+          <form><div><span>0</span>
+            <input id="arrowSize" type="range" min="0" max="100" step="1" value="9"/>
             <span id="arrowSizeV">9</span></div></form></li>
 """
 
@@ -180,8 +180,11 @@ _FEATURES_JS = r"""
     mk.append('path').attr('d', 'M0,-5L10,0L0,5').attr('fill', '#666');
     link.attr('marker-end', 'url(#arrow)');
     function setArrow(s) {
-      // refX pulls the tip back off the node as the head grows
-      mk.attr('markerWidth', s).attr('markerHeight', s).attr('refX', 6 + s * 0.5);
+      // markerUnits=userSpaceOnUse: refX is in viewBox (0..10) units, its
+      // pull-back in px scales by s/10 -> keep the tip a roughly constant
+      // ~12px off the node whatever the head size (s=0 just hides it).
+      mk.attr('markerWidth', s).attr('markerHeight', s)
+        .attr('refX', s > 0 ? 10 + 120 / s : 10);
     }
     var as = document.getElementById('arrowSize'),
         asv = document.getElementById('arrowSizeV'),
