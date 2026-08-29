@@ -61,8 +61,9 @@ networkx / scipy.
 | `directed=True` | arrowheads on links. |
 | `edge_color_col=` | colour links by a `df` column (via the source node). |
 | `weight_posterior=` | `(draws, N, N)` array — posterior **mean** becomes the network, link opacity = P(weight > 0), 90% interval in the tooltip. |
-| `col_color=` | numeric column → continuous gradient over `color`; non-numeric column → the `color` gradient sampled at one equidistant stop per group (legend then shows discrete swatches). `color` defaults to the palette's sequential ramp when not given. |
-| `palette="cb"` | colour-blind-safe ramp: `color`-less gradients then use viridis stops instead of the default grey. |
+| `color_node=`, `col_color=` | node fill. Numeric column → continuous gradient over `color_node`; non-numeric column → the `color_node` gradient sampled at one equidistant stop per group (legend then shows discrete swatches). `color_node` defaults to the palette's sequential ramp when not given. |
+| `color_stroke=`, `col_strokeColor=`, `col_stroke=` | node border. `col_strokeColor` colours borders from a column (ramp = `color_stroke`, else palette sequential); `color_stroke` alone (2-tuple or single colour) paints every border one colour. **Declaring `color_stroke` or `col_strokeColor` sets stroke width to 1 for all nodes** unless `col_stroke` gives a numeric width column. |
+| `palette="cb"` | colour-blind-safe ramp: gradients with no explicit `color_node` / `color_stroke` then use viridis stops instead of the default grey. |
 | `theme="dark"` | initial dark theme (toggle in the page). |
 | `canvas=True` | render on a `<canvas>` instead of SVG — auto above 1500 nodes. |
 | `axis_x=`, `axis_y=` | pin nodes on an invisible scatter grid by any `df` covariate (numeric → min-max scaled, categorical → evenly banded, larger = higher). Just the initial pick — the page has **X axis** / **Y axis** dropdowns over every usable covariate; `(none)` on both releases the pins. e.g. `axis_x="strength", axis_y="sex"`. |
@@ -143,7 +144,8 @@ m.net.viz(m=adj)                       # df=None -> ones placeholder, ids n1..nN
 # full styling
 view = m.net.viz(
     nodes_df, adj, col_id="id", col_size="strength",
-    color=("green", "yellow"), col_color="age",
+    color_node=("green", "yellow"), col_color="age",
+    color_stroke=("red", "blue"), col_strokeColor="kinship",
     col_shape="sex", shapes=("circle", "triangle"),
     layers="kinship",
 )          # notebook: renders inline   |   script: pops a browser tab
@@ -204,8 +206,8 @@ then calls
 NetExplorer(ids=nodes["id"]).vis_net(
     nodes, M,
     col_id="id", col_size="strength",
-    color=("green", "yellow"), col_color="age",
-    strokeCol=("red", "blue"), col_strokeCol="kinship",
+    color_node=("green", "yellow"), col_color="age",
+    color_stroke=("red", "blue"), col_strokeColor="kinship",
     col_stroke="degree",
     col_shape="sex", shapes=("circle", "triangle"),
     layers="kinship", link_opacity=True, out_dir="out",

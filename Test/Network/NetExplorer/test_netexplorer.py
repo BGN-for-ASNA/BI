@@ -101,10 +101,10 @@ def build(out_dir: Path = OUT, log: logging.Logger | None = None, browser: bool 
         M,
         col_id="id",
         col_size="strength",
-        color=("green", "yellow"),
+        color_node=("green", "yellow"),
         col_color="age",
-        strokeCol=("red", "blue"),
-        col_strokeCol="kinship",
+        color_stroke=("red", "blue"),
+        col_strokeColor="kinship",
         col_stroke="degree",
         col_shape="sex",
         shapes=("circle", "triangle"),
@@ -120,7 +120,7 @@ def build(out_dir: Path = OUT, log: logging.Logger | None = None, browser: bool 
     # non-inline variant: assets copied next to the file instead of embedded
     ext_dir = out_dir / "external"
     ne.vis_net(nodes, M, col_id="id", col_size="strength", col_color="age",
-               color=("green", "yellow"), out_dir=ext_dir, inline=False, browser=False)
+               color_node=("green", "yellow"), out_dir=ext_dir, inline=False, browser=False)
 
     node_objs = re.findall(r"\{'id':'ind\d+'.*?\}", html)
     link_objs = re.findall(r"\{'source':'ind\d+'.*?\}", html)
@@ -351,16 +351,45 @@ def test_colour_numeric_gradient_vs_group_sampling():
     })
     ne = NetExplorer(ids=df["id"].tolist())
 
-    hc = ne.vis_net(df, Aj, col_id="id", color=("green", "yellow"),
+    hc = ne.vis_net(df, Aj, col_id="id", color_node=("green", "yellow"),
                     col_color="grp", out_dir=OUT / "cc", browser=False).path.read_text()
     cols = sorted(set(re.findall(r"'color':'(#[0-9a-fA-F]{6})'", hc)))
     assert cols == ["#008000", "#80c000", "#ffff00"], cols   # green / mid / yellow
     assert '"kind": "swatches"' in hc and '"title": "Colour", "col": "grp"' in hc
 
-    hn = ne.vis_net(df, Aj, col_id="id", color=("green", "yellow"),
+    hn = ne.vis_net(df, Aj, col_id="id", color_node=("green", "yellow"),
                     col_color="val", out_dir=OUT / "cn", browser=False).path.read_text()
     assert len(set(re.findall(r"'color':'(#[0-9a-fA-F]{6})'", hn))) > 5   # continuous
     assert '"kind": "gradient", "title": "Colour", "col": "val"' in hn
+
+
+def test_stroke_defaults_width_1_when_declared():
+    """Declaring color_stroke or col_strokeColor (without col_stroke) sets every
+    node's stroke width to 1; declaring neither leaves it at 0."""
+    n = 12
+    rng = np.random.default_rng(4)
+    A = (rng.random((n, n)) < 0.2).astype(float)
+    np.fill_diagonal(A, 0)
+    Aj = jnp.asarray(A)
+    df = pd.DataFrame({"id": [f"i{k}" for k in range(n)],
+                       "grp": rng.choice(["x", "y"], n)})
+    ne = NetExplorer(ids=df["id"].tolist())
+
+    def strokes(**kw):
+        h = ne.vis_net(df, Aj, col_id="id", out_dir=OUT / "sw", browser=False,
+                       **kw).path.read_text()
+        return sorted(set(re.findall(r"'strokeW':([0-9.]+)", h)))
+
+    assert strokes() == ["0"]                                    # nothing declared
+    assert strokes(color_stroke=("red", "blue")) == ["1"]        # ramp alone
+    assert strokes(color_stroke="black") == ["1"]                # single colour
+    assert strokes(col_strokeColor="grp") == ["1"]               # column alone
+    # explicit width column still wins
+    dfw = df.assign(bw=rng.integers(2, 6, n).astype(float))
+    hw = NetExplorer(ids=df["id"].tolist()).vis_net(
+        dfw, Aj, col_id="id", col_stroke="bw", col_strokeColor="grp",
+        out_dir=OUT / "sw2", browser=False).path.read_text()
+    assert set(re.findall(r"'strokeW':([0-9.]+)", hw)) - {"1"}    # not all 1s
 
 
 # --------------------------------------------------------------------- #

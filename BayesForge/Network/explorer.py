@@ -719,7 +719,7 @@ class NetExplorer:
     def _gradient_stops(color: Sequence[str] | None, palette: str) -> list:
         """Gradient endpoints for ``_colorize``: the caller's ``color`` when it
         gives at least two stops, else the palette's sequential ramp."""
-        if color is not None and len(color) >= 2:
+        if color is not None and not isinstance(color, str) and len(color) >= 2:
             return list(color)
         return list(_vf.palette(palette)["sequential"])
 
@@ -748,12 +748,12 @@ class NetExplorer:
         df: pd.DataFrame,
         col_id=None,
         col_size=None,
-        color: Sequence[str] | None = None,
+        color_node: Sequence[str] | None = None,
         col_color=None,
         shapes: Sequence[str] | None = None,
         col_shape=None,
-        strokeCol: Sequence[str] | None = None,
-        col_strokeCol=None,
+        color_stroke: Sequence[str] | str | None = None,
+        col_strokeColor=None,
         col_stroke=None,
         node_opacity=None,
         palette: str = "default",
@@ -765,9 +765,17 @@ class NetExplorer:
         Returns ``(df2, ori)`` where ``ori`` is the list of the seven source
         column names ``[id, size, color, strokeCol, stroke, shape, opacity]``
         (``None`` where not supplied), used later for tooltip labels.
+
+        ``color_node`` is the node-fill gradient, ``color_stroke`` the border
+        gradient (or a single colour) and ``col_strokeColor`` the border-colour
+        column. Supplying ``color_stroke`` or ``col_strokeColor`` turns borders
+        on for every node at width 1 unless ``col_stroke`` gives an explicit
+        width column.
         """
         d = df.copy()
-        if col_id is None and any(x is not None for x in (color, strokeCol, col_shape, node_opacity)):
+        if col_id is None and any(
+            x is not None for x in (color_node, color_stroke, col_shape, node_opacity)
+        ):
             raise ValueError("col_id cannot be None when other styling arguments are set")
 
         # --- opacity -------------------------------------------------- #
@@ -819,25 +827,39 @@ class NetExplorer:
             d["shape"] = 0
 
         # --- stroke width + stroke colour ------------------------- #
+        # Declaring `color_stroke` or `col_strokeColor` turns borders on for
+        # every node: width 1 unless `col_stroke` gives an explicit width column.
+        stroke_on = (
+            col_stroke is not None
+            or col_strokeColor is not None
+            or color_stroke is not None
+        )
         if col_stroke is not None:
             c = self._col_id(d, col_stroke)
             if not pd.api.types.is_numeric_dtype(d[c]):
                 raise TypeError("col_stroke column must be numeric")
             ori_stroke = c
             d["strokeW"] = d[c].astype(float)
-            if col_strokeCol is not None:
-                if strokeCol is None or len(strokeCol) != 2:
-                    raise ValueError("`strokeCol` must be a 2-colour gradient")
-                cc = self._col_id(d, col_strokeCol)
-                ori_strokeCol = cc
-                d = self._colorize(d, cc, strokeCol, new_col="strokeCol")
-            else:
-                ori_strokeCol = None
-                d["strokeCol"] = "white"
+        elif stroke_on:
+            ori_stroke = None
+            d["strokeW"] = 1.0
         else:
             ori_stroke = None
-            ori_strokeCol = None
             d["strokeW"] = 0.0
+
+        if col_strokeColor is not None:
+            cc = self._col_id(d, col_strokeColor)
+            ori_strokeCol = cc
+            stops = self._gradient_stops(color_stroke, palette)
+            d = self._colorize(d, cc, stops, new_col="strokeCol")
+        elif stroke_on:
+            ori_strokeCol = None
+            d["strokeCol"] = (
+                color_stroke if isinstance(color_stroke, str)
+                else (color_stroke[-1] if color_stroke else "black")
+            )
+        else:
+            ori_strokeCol = None
             d["strokeCol"] = np.nan
 
         # --- node colour ----------------------------------------- #
@@ -848,7 +870,7 @@ class NetExplorer:
         if col_color is not None:
             cc = self._col_id(d, col_color)
             ori_color = cc
-            stops = self._gradient_stops(color, palette)
+            stops = self._gradient_stops(color_node, palette)
             d = self._colorize(d, cc, stops, new_col="color")
             if not pd.api.types.is_numeric_dtype(d[cc]):
                 self._color_is_categorical = True
@@ -881,12 +903,12 @@ class NetExplorer:
         m=None,
         col_id=None,
         col_size=None,
-        color: Sequence[str] = ("black", "white"),
+        color_node: Sequence[str] = ("black", "white"),
         col_color=None,
         col_shape=None,
         shapes: Sequence[str] | None = None,
-        strokeCol: Sequence[str] = ("white", "black"),
-        col_strokeCol=None,
+        color_stroke: Sequence[str] | str | None = None,
+        col_strokeColor=None,
         col_stroke=None,
         layers=None,
         node_opacity=None,
@@ -952,6 +974,17 @@ class NetExplorer:
             higher). Just the initial selection: the page exposes an **X axis**
             / **Y axis** dropdown over every usable ``df`` covariate, and
             ``(none)`` on both releases the pins back to the current layout.
+        color_node, col_color
+            Node-fill gradient and the column that drives it. A numeric column
+            gives a continuous gradient over ``color_node``; a non-numeric one
+            gives that ramp sampled at one equidistant stop per group.
+        color_stroke, col_strokeColor, col_stroke
+            Node border. ``col_strokeColor`` colours borders from a column
+            (ramp = ``color_stroke``, else the palette sequential ramp);
+            ``color_stroke`` alone (a 2-tuple or a single colour) paints every
+            border one colour. Declaring either of those switches borders on at
+            width 1 for all nodes unless ``col_stroke`` supplies a numeric
+            width column.
         directed
             Treat the matrix as directed: draw arrowheads on links, and for
             ``layout="layered"`` use topological generations when acyclic.
@@ -996,12 +1029,12 @@ class NetExplorer:
             df,
             col_id=col_id,
             col_size=col_size,
-            color=color,
+            color_node=color_node,
             col_color=col_color,
             shapes=shapes,
             col_shape=col_shape,
-            strokeCol=strokeCol,
-            col_strokeCol=col_strokeCol,
+            color_stroke=color_stroke,
+            col_strokeColor=col_strokeColor,
             col_stroke=col_stroke,
             node_opacity=node_opacity,
             palette=palette,
@@ -1144,7 +1177,7 @@ class NetExplorer:
             raise ValueError("layout='chord' needs layout_col (the node grouping)")
 
         # legend entries for whatever encodings are actually in use
-        legend = self._build_legend(d, ori, color, palette, edge_prob is not None)
+        legend = self._build_legend(d, ori, color_node, palette, edge_prob is not None)
 
         # invisible scatter axes: every usable df covariate becomes an X/Y option
         axis_cols, axis_vals = self._axis_cols(df, col_id)
@@ -1417,7 +1450,7 @@ class NetExplorer:
             + "<script>\n" + _FEATURES_JS + "\n</script>\n"
         )
 
-    def _build_legend(self, d, ori, color, palette, has_post) -> list:
+    def _build_legend(self, d, ori, color_node, palette, has_post) -> list:
         """One entry per *encoding channel* actually in use. ``title`` is the
         channel ("Size", "Colour", "Border width", ...); ``col`` is the source
         ``df`` column driving it (rendered as a sub-label, e.g. "Size /
@@ -1435,7 +1468,7 @@ class NetExplorer:
                             "items": [{"label": k, "color": v} for k, v in seen.items()]})
             else:
                 ent.append({"kind": "gradient", "title": "Colour", "col": str(cn),
-                            "stops": list(color),
+                            "stops": list(color_node),
                             "lo": round(float(d["colorValue"].min()), 3),
                             "hi": round(float(d["colorValue"].max()), 3)})
 
