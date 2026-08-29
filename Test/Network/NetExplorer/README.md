@@ -41,7 +41,7 @@ Test/Network/NetExplorer/
 |--------------------------|----------------------------------|-------|
 | `mat.to.edgl(M, sym, erase.diag)` | `NetExplorer.mat_to_edgl` | `M` is a JAX array; directed path reproduces R's column-major `as.vector(M)` unrolling. Returns a `from/to/weight` DataFrame. |
 | `df.col.findId(df, label)` | `NetExplorer._col_id` | accepts a name or a **0-based** index |
-| `colorize(df, col.att, color, new.col.name)` | `NetExplorer._colorize` | `matplotlib.LinearSegmentedColormap` for `grDevices::colorRampPalette`; **does not** re-sort the frame (see deviations) |
+| `colorize(df, col.att, color, new.col.name)` | `NetExplorer._colorize` | `matplotlib.LinearSegmentedColormap` for `grDevices::colorRampPalette`; **does not** re-sort the frame (see deviations). Drives **both** cases: a numeric `col_color` gets a continuous gradient over `color`; a non-numeric one gets that same `color` ramp **sampled at k equidistant stops**, one per group (ascending order). |
 | `shape(vec, char)` | `NetExplorer._shape_codes` | same d3 symbol codes (`circle`→0 … `wye`→6) |
 | `vis.net.format.att(...)` | `NetExplorer.format_att` | returns `(df2, ori)`; `ori` = `[id, size, color, strokeCol, stroke, shape, opacity]` source names |
 | `vis.net(df, m, ...)` | `NetExplorer.vis_net` / `__call__` | `df` optional (see deviations); writes `out/NetExplorer.html`, returns a `NetworkView` |
@@ -61,7 +61,8 @@ networkx / scipy.
 | `directed=True` | arrowheads on links. |
 | `edge_color_col=` | colour links by a `df` column (via the source node). |
 | `weight_posterior=` | `(draws, N, N)` array — posterior **mean** becomes the network, link opacity = P(weight > 0), 90% interval in the tooltip. |
-| `palette="cb"` | Okabe-Ito categorical + viridis sequential (colour-blind safe). Categorical `col_color` is auto-detected (distinct swatches, not a gradient). |
+| `col_color=` | numeric column → continuous gradient over `color`; non-numeric column → the `color` gradient sampled at one equidistant stop per group (legend then shows discrete swatches). `color` defaults to the palette's sequential ramp when not given. |
+| `palette="cb"` | colour-blind-safe ramp: `color`-less gradients then use viridis stops instead of the default grey. |
 | `theme="dark"` | initial dark theme (toggle in the page). |
 | `canvas=True` | render on a `<canvas>` instead of SVG — auto above 1500 nodes. |
 | `axis_x=`, `axis_y=` | pin nodes on an invisible scatter grid by any `df` covariate (numeric → min-max scaled, categorical → evenly banded, larger = higher). Just the initial pick — the page has **X axis** / **Y axis** dropdowns over every usable covariate; `(none)` on both releases the pins. e.g. `axis_x="strength", axis_y="sex"`. |

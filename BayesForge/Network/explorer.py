@@ -716,15 +716,12 @@ class NetExplorer:
         return d
 
     @staticmethod
-    def _colorize_categorical(df: pd.DataFrame, col: str, palette: str, new_col: str) -> pd.DataFrame:
-        """Append a categorical hex column: one distinct palette colour per
-        level of ``col`` (recycled if there are more levels than colours)."""
-        d = df.copy()
-        levels = sorted(pd.unique(d[col]).tolist(), key=str)
-        pal = _vf.palette(palette)["categorical"]
-        ramp = {lv: pal[i % len(pal)] for i, lv in enumerate(levels)}
-        d[new_col] = d[col].map(ramp)
-        return d
+    def _gradient_stops(color: Sequence[str] | None, palette: str) -> list:
+        """Gradient endpoints for ``_colorize``: the caller's ``color`` when it
+        gives at least two stops, else the palette's sequential ramp."""
+        if color is not None and len(color) >= 2:
+            return list(color)
+        return list(_vf.palette(palette)["sequential"])
 
     @staticmethod
     def _shape_codes(vec, chars: Sequence[str]) -> np.ndarray:
@@ -844,16 +841,16 @@ class NetExplorer:
             d["strokeCol"] = np.nan
 
         # --- node colour ----------------------------------------- #
+        # numeric column  -> continuous gradient over `color`
+        # non-numeric     -> `color` gradient sampled at k equidistant stops,
+        #                    one per group (ascending order); legend shows swatches
         self._color_is_categorical = False
         if col_color is not None:
             cc = self._col_id(d, col_color)
             ori_color = cc
-            if pd.api.types.is_numeric_dtype(d[cc]):
-                if color is None or len(color) != 2:
-                    raise ValueError("`color` must be a 2-colour gradient for a numeric column")
-                d = self._colorize(d, cc, color, new_col="color")
-            else:
-                d = self._colorize_categorical(d, cc, palette, new_col="color")
+            stops = self._gradient_stops(color, palette)
+            d = self._colorize(d, cc, stops, new_col="color")
+            if not pd.api.types.is_numeric_dtype(d[cc]):
                 self._color_is_categorical = True
         else:
             ori_color = None
@@ -1078,13 +1075,11 @@ class NetExplorer:
             edgl["ehi"] = edge_hi[si, ti]
             edgl["lOpacity"] = np.clip(edgl["eprob"].to_numpy(), 0.03, 1.0)
 
-        # link colour from an edge attribute (via the source node's row)
+        # link colour from an edge attribute (via the source node's row):
+        # numeric -> gradient, non-numeric -> gradient sampled per group
         if edge_color_col is not None:
             ec = self._col_id(d, edge_color_col)
-            if pd.api.types.is_numeric_dtype(d[ec]):
-                d = self._colorize(d, ec, _vf.palette(palette)["sequential"], "_edgeCol")
-            else:
-                d = self._colorize_categorical(d, ec, palette, "_edgeCol")
+            d = self._colorize(d, ec, _vf.palette(palette)["sequential"], "_edgeCol")
             edgl["colorL"] = edgl["from"].map(dict(zip(d["id"], d["_edgeCol"])))
 
         # per-node centralities + global summary (met only)

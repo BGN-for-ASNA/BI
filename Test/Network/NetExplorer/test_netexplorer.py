@@ -336,6 +336,33 @@ def test_scatter_axes_payload():
     assert '"axisX"] = "(none)"' in h2 and '"axisY"] = "(none)"' in h2
 
 
+def test_colour_numeric_gradient_vs_group_sampling():
+    """Numeric colour column -> full gradient; non-numeric -> the same `color`
+    gradient sampled at k equidistant stops, one per group."""
+    n = 15
+    rng = np.random.default_rng(1)
+    A = (rng.random((n, n)) < 0.2).astype(float)
+    np.fill_diagonal(A, 0)
+    Aj = jnp.asarray(A)
+    df = pd.DataFrame({
+        "id": [f"i{k}" for k in range(n)],
+        "grp": rng.choice(["a", "b", "c"], n),      # 3 groups
+        "val": rng.gamma(2, 1, n).round(2),         # numeric
+    })
+    ne = NetExplorer(ids=df["id"].tolist())
+
+    hc = ne.vis_net(df, Aj, col_id="id", color=("green", "yellow"),
+                    col_color="grp", out_dir=OUT / "cc", browser=False).path.read_text()
+    cols = sorted(set(re.findall(r"'color':'(#[0-9a-fA-F]{6})'", hc)))
+    assert cols == ["#008000", "#80c000", "#ffff00"], cols   # green / mid / yellow
+    assert '"kind": "swatches"' in hc and '"title": "Colour", "col": "grp"' in hc
+
+    hn = ne.vis_net(df, Aj, col_id="id", color=("green", "yellow"),
+                    col_color="val", out_dir=OUT / "cn", browser=False).path.read_text()
+    assert len(set(re.findall(r"'color':'(#[0-9a-fA-F]{6})'", hn))) > 5   # continuous
+    assert '"kind": "gradient", "title": "Colour", "col": "val"' in hn
+
+
 # --------------------------------------------------------------------- #
 # script entry point
 # --------------------------------------------------------------------- #
