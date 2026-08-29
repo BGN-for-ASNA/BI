@@ -271,9 +271,10 @@ def test_feature_layer_payload():
     assert '"kind": "swatches"' in h                    # categorical colour legend
     assert '"kind": "shapes"' in h                      # shape legend
     assert "'cent':{'degree':" in h                     # per-node metrics
-    for ctl in ('id="sizeBy"', 'id="colorBy"', 'id="edgeThresh"',
+    for ctl in ('id="sizeBy"', 'id="colorBy"', 'id="edgeThresh"', 'id="arrowSize"',
                 'id="nodeSearch"', 'id="btnFit"', 'id="btnPNG"', 'id="btnTheme"'):
         assert ctl in h, ctl
+    assert "setArrow(" in h and 'markerUnits' in h   # arrow size slider wired
 
     # posterior edges
     draws = np.abs(rng.normal(0, 1, (30, n, n))) * (rng.random((30, n, n)) < 0.15)

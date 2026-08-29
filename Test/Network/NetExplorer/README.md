@@ -67,9 +67,10 @@ networkx / scipy.
 | `axis_x=`, `axis_y=` | pin nodes on an invisible scatter grid by any `df` covariate (numeric → min-max scaled, categorical → evenly banded, larger = higher). Just the initial pick — the page has **X axis** / **Y axis** dropdowns over every usable covariate; `(none)` on both releases the pins. e.g. `axis_x="strength", axis_y="sex"`. |
 
 In the page, additionally: a **Legend** (colour / shape / size), a **Min edge
-weight** slider, **X axis** / **Y axis** covariate dropdowns (invisible scatter
-layout), **Find node** (centre + flash), **Fit** to view, click a node to
-brighten its neighbours' labels, and **PNG / JSON / CSV** export buttons.
+weight** slider, an **Arrow size** slider (directed graphs only), **X axis** /
+**Y axis** covariate dropdowns (invisible scatter layout), **Find node** (centre
++ flash), **Fit** to view, click a node to brighten its neighbours' labels, and
+**PNG / JSON / CSV** export buttons.
 
 ## Layouts
 

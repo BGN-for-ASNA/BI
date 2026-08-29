@@ -126,6 +126,10 @@ _FEATURES_HTML = """
         <form><div><span>0</span>
           <input id="edgeThresh" type="range" min="0" max="1" step="0.001" value="0"/>
           <span id="edgeThreshV">0</span></div></form></li>
+      <li class="darkerlishadowdown" id="liArrow"><span class="nav-text">Arrow size</span>
+        <form><div><span>4</span>
+          <input id="arrowSize" type="range" min="4" max="28" step="0.5" value="9"/>
+          <span id="arrowSizeV">9</span></div></form></li>
       <li class="darkerlishadow"><span class="nav-text"><b>View</b></span></li>
       <li class="darkerli">
         <button class="tool" id="btnFit" type="button">Fit</button>
@@ -163,14 +167,28 @@ _FEATURES_JS = r"""
     themeLbl();
   };
 
-  /* directed arrowheads --------------------------------------- */
+  /* directed arrowheads + size slider ------------------------ */
   if (G.directed && haveLink) {
-    d3.select(svgEl).append('defs').append('marker')
-      .attr('id', 'arrow').attr('viewBox', '0 -5 10 10')
-      .attr('refX', 15).attr('refY', 0)
-      .attr('markerWidth', 5).attr('markerHeight', 5).attr('orient', 'auto')
-      .append('path').attr('d', 'M0,-5L10,0L0,5').attr('fill', '#666');
+    var mk = d3.select(svgEl).append('defs').append('marker')
+      .attr('id', 'arrow').attr('viewBox', '0 -5 10 10').attr('refY', 0)
+      .attr('markerUnits', 'userSpaceOnUse').attr('orient', 'auto');
+    mk.append('path').attr('d', 'M0,-5L10,0L0,5').attr('fill', '#666');
     link.attr('marker-end', 'url(#arrow)');
+    function setArrow(s) {
+      // refX pulls the tip back off the node as the head grows
+      mk.attr('markerWidth', s).attr('markerHeight', s).attr('refX', 6 + s * 0.5);
+    }
+    var as = document.getElementById('arrowSize'),
+        asv = document.getElementById('arrowSizeV'),
+        a0 = as ? +as.value : 9;
+    setArrow(a0);
+    if (asv) asv.textContent = a0;
+    if (as) as.oninput = function () {
+      var s = +this.value; setArrow(s); if (asv) asv.textContent = s;
+    };
+  } else {
+    var liA = document.getElementById('liArrow');
+    if (liA) liA.style.display = 'none';
   }
 
   /* stats panel ---------------------------------------------- */
