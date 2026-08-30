@@ -86,15 +86,16 @@ model <- function(height, weight){
 
 Leveraging Just-In-Time (JIT) compilation via JAX, bf outperforms traditional engines on standard hardware and unlocks massive scalability on GPU clusters for large datasets.
 
-**Benchmark: Network Size 400 (Lower is Better)**
+**Benchmark: Network Size 800 (Lower is Better)**
 
 | Engine         | Execution Time                 | Relative Performance |
 |:---------------|:-------------------------------|:---------------------|
-| **STAN (CPU)** | `████████████████████████████` | *Baseline*           |
-| **BI (CPU)**   | `████████████`                 | **\~4x Faster**     |
-| **BI (GPU)**   | `██`                           | **\~20X Faster**    |
+| **STAN (CPU)** | `███████████████████████████████████████` | *Baseline*           |
+| **BF (CPU)**   | `██████████`                 | **\~3.7x Faster**     |
+| **BF (GPU)**   | `██`                           | **\~13.5X Faster**    |
 
-*\> Comparison of execution time for a Social Relations Model. Source: [Sosa et al. (2026)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v1).*
+
+*\> Comparison of execution time for a Social Relations Model. Source: [Sosa et al. (2026)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v2).*
 
 ------------------------------------------------------------------------
 
@@ -260,7 +261,7 @@ The package provides wrappers for a comprehensive set of distributions from NumP
 
 ## Documentation
 
-For full documentation and examples visitOfficial website\](https://s-sosa.com/BF)
+For full documentation and examples visit [Official website\](https://s-sosa.com/BF/0.Introduction.html)
 
 ------------------------------------------------------------------------
 
@@ -284,7 +285,8 @@ GPU support available on compatible systems with JAX GPU installation.
 ::: {align="center"}
 **BayesForge**
 
-Based on "The BayesForge library for Python, R, Julia" by [Sosa, McElreath, & Ross (2026)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v1).
+Based on "The BayesForge library for Python, R, Julia" by [Sosa, McElreath, & Ross (2026)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v2).
+
 
 [Official website](https://s-sosa.com/BF) \| [Issues](https://github.com/BGN-for-ASNA/BI/issues) \| [Quick Start](https://s-sosa.com/BF/start/Installation.html)
 
