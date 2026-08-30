@@ -1,0 +1,75 @@
+09:40:08 | INFO    | ======================================================================
+09:40:08 | INFO    | R2D2 PRIOR CORRECTNESS TEST
+09:40:08 | INFO    | host=ECOD052  user=sosa  python=3.10.12
+09:40:08 | INFO    | cwd=/home/sosa/work/BF/Test/R2D2
+09:40:08 | INFO    | log file -> /home/sosa/work/BF/Test/R2D2/logs/r2d2_test_20260828_094008.log
+09:40:10 | INFO    | BayesForge 0.0.48
+09:40:10 | INFO    | jax 0.6.2  devices=[CpuDevice(id=0), CpuDevice(id=1), CpuDevice(id=2), CpuDevice(id=3)]
+09:40:10 | INFO    | config: N=50 V=100 n_strong=5 beta_scale=2.50 seed=20260827
+09:40:10 | INFO    | DGP noise sweep: sigma_true in [11.0]
+09:40:10 | INFO    | variance priors on R^2: Beta(0.333,3), Beta(2,6)
+09:40:10 | INFO    | NUTS: warmup=1200 samples=1200 chains=4 target_accept=0.95 max_tree=12
+09:40:10 | INFO    | ======================================================================
+09:40:10 | INFO    | PRIOR-PREDICTIVE CHECK ON R^2
+09:40:10 | INFO    | Beta(0.333  ,3   ): mean=0.100  q05=0.000 q50=0.034 q95=0.424  P(R2>0.5)=0.03
+09:40:10 | INFO    | Beta(2      ,6   ): mean=0.250  q05=0.055 q50=0.231 q95=0.518  P(R2>0.5)=0.06
+09:40:10 | INFO    | ======================================================================
+09:40:10 | INFO    | INFERENCE  (1 noise levels x 2 priors = 2 fits)
+09:40:10 | INFO    | ======================================================================
+09:40:10 | INFO    | SCENARIO s11 :  DGP noise sigma_true = 11.000
+09:40:10 | INFO    | Var(X beta)=54.436   sigma_true^2=121.000
+09:40:10 | INFO    | model  R^2 = Var(Xb)/(Var(Xb)+sigma^2) = 0.3103
+09:40:10 | INFO    | sample R^2 = 1 - SSres/SStot          = 0.1721
+09:40:10 | INFO    | true strong betas = [2.577, 4.433, -2.318, -3.344, 2.129]
+09:40:10 | INFO    | ----------------------------------------------------------------------
+09:40:10 | INFO    | FIT  R^2 ~ Beta(0.333,3)   (prior mean R^2 = 0.100)
+09:40:18 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  1.08  1.13     -0.68       2.93  ...     0.01   6192.94   3154.77    1.0
+r2     0.44  0.18      0.14       0.72  ...     0.00    881.56    906.31    1.0
+sigma  9.31  1.43      7.12      11.59  ...     0.03    971.39   1392.68    1.0
+
+[3 rows x 9 columns]
+09:40:18 | INFO    | R^2  true(model)=0.310  true(sample)=0.172  ->  post mean=0.438  HDI89=[0.143, 0.719]
+09:40:18 | INFO    | sigma true=11.000  ->  post mean=9.311
+09:40:18 | INFO    | strong beta : RMSE=2.617  bias=-0.750  mean|est|/|true|=0.18  HDI89 coverage=20% (1/5)
+09:40:18 | INFO    | null   beta : mean|est|=0.2160  max|est|=3.565  HDI89 false-pos=0/95
+09:40:18 | INFO    | MCMC : max R-hat=1.006  min ESS=803  divergences=0  (7.3s)
+09:40:18 | INFO    | ----------------------------------------------------------------------
+09:40:18 | INFO    | FIT  R^2 ~ Beta(2,6)   (prior mean R^2 = 0.250)
+09:40:24 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  1.08  1.12     -0.69       2.83  ...     0.01   6580.57   3635.34    1.0
+r2     0.41  0.14      0.19       0.64  ...     0.00   1852.54   2079.01    1.0
+sigma  9.44  1.21      7.45      11.30  ...     0.02   1603.17   2263.67    1.0
+
+[3 rows x 9 columns]
+09:40:24 | INFO    | R^2  true(model)=0.310  true(sample)=0.172  ->  post mean=0.414  HDI89=[0.192, 0.638]
+09:40:24 | INFO    | sigma true=11.000  ->  post mean=9.443
+09:40:24 | INFO    | strong beta : RMSE=2.639  bias=-0.762  mean|est|/|true|=0.17  HDI89 coverage=20% (1/5)
+09:40:24 | INFO    | null   beta : mean|est|=0.2075  max|est|=3.567  HDI89 false-pos=0/95
+09:40:24 | INFO    | MCMC : max R-hat=1.005  min ESS=655  divergences=0  (5.9s)
+09:40:24 | INFO    | ----------------------------------------------------------------------
+09:40:24 | INFO    | PRIOR SENSITIVITY @ sigma_true=11.000 (true model R^2=0.310)
+09:40:24 | INFO    |          prior | E[R2]pri |  R2 post |  sigma |  RMSE_s | shrink |  cov_s |  |b|null |  FP |  Rhat |    ESS |  div
+09:40:24 | INFO    | ------------------------------------------------------------------------------------------------------------------
+09:40:24 | INFO    |  Beta(0.333,3) |    0.100 |    0.438 |  9.311 |   2.617 |   0.18 |    20% |   0.2160 |   0 |  1.01 |    803 |    0
+09:40:24 | INFO    |      Beta(2,6) |    0.250 |    0.414 |  9.443 |   2.639 |   0.17 |    20% |   0.2075 |   0 |  1.01 |    655 |    0
+09:40:24 | INFO    | across converged priors: R^2 post spread=0.025  sigma post spread=0.133  -> robust
+09:40:24 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/beta_recovery_20260828_094008_s11.png
+09:40:24 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/r2_posterior_20260828_094008_s11.png
+09:40:24 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/error_metrics_20260828_094008_s11.png
+09:40:24 | INFO    | ======================================================================
+09:40:24 | INFO    | NOISE SWEEP SUMMARY  (RMSE strong beta  /  sigma_post per sigma_true)
+09:40:24 | INFO    | sigma_true |  R2_true | Beta(0.333,3) |     Beta(2,6)
+09:40:24 | INFO    | -----------------------------------------------------
+09:40:24 | INFO    |     11.000 |    0.310 |    2.62/9.31  |    2.64/9.44 
+09:40:24 | INFO    | cell = RMSE(strong beta) / posterior-mean sigma   ('!' = max R-hat > 1.1)
+09:40:24 | INFO    | ----------------------------------------------------------------------
+09:40:24 | INFO    | does the DGP noise change the R2D2 conclusions?
+09:40:24 | INFO    | Beta(0.333,3)  : RMSE 2.62 -> 2.62 as noise grows ; sigma bias -15% -> -15%
+09:40:24 | INFO    | Beta(2,6)      : RMSE 2.64 -> 2.64 as noise grows ; sigma bias -14% -> -14%
+09:40:24 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/noise_sweep_20260828_094008.png
+09:40:24 | INFO    | results -> /home/sosa/work/BF/Test/R2D2/out/results_20260828_094008.json
+09:40:24 | INFO    | ======================================================================
+09:40:24 | INFO    | DONE

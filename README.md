@@ -5,8 +5,10 @@
 *Run bespoke models on CPU, GPU, or TPU with Julia's native syntax.*
 
 [![Website](https://img.shields.io/badge/Website-s--sosa.com/BF-blue?style=flat&logo=google-chrome&logoColor=white)](https://s-sosa.com/BF/) [![bioRxiv](https://img.shields.io/badge/bioRxiv-10.64898%2F2026.01.19.700318v1-BD271E?style=flat&logo=biorxiv&logoColor=white)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v1) ![Python](https://img.shields.io/badge/Python-3+-3776AB?logo=python&logoColor=white) [![License: GPL (\>= 3)](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-<div align="center">
-------------------------------------------------------------------------
+
+</div>
+
+---
 
 ## One Mental Model. Three Languages.
 
@@ -28,7 +30,7 @@
 <td valign="top">
 
 ```python
-def model(height, weight): 
+def model(height, weight):
     # Priors
     sigma = bf.dist.uniform(0, 50, name='sigma', shape=(1,))
     alpha = bf.dist.normal(178, 20, name='alpha', shape=(1,))
@@ -43,7 +45,8 @@ def model(height, weight):
 <td valign="top">
 
 ```julia
-@BF function model(weight, height)
+
+@BI function model(weight, height)
     # Priors
     sigma = bf.dist.uniform(0, 50, name='sigma', shape=(1,))
     alpha = bf.dist.normal(178, 20, name='alpha', shape=(1,))
@@ -53,6 +56,7 @@ def model(height, weight):
     mu = alpha + beta * weight
     bf.dist.normal(mu, sigma, obs=height)
 end
+
 ```
 
 <td valign="top">
@@ -76,24 +80,19 @@ model <- function(height, weight){
 </tr>
 </table>
 
-
 ---
 
 ## Built for Speed
 
-Leveraging Just-In-Time (JIT) compilation via JAX, BF outperforms traditional engines on standard hardware and unlocks massive scalability on GPU clusters for large datasets.
+Leveraging Just-In-Time (JIT) compilation via JAX, bf outperforms traditional engines on standard hardware and unlocks massive scalability on GPU clusters for large datasets.
 
 **Benchmark: Network Size 400 (Lower is Better)**
 
-+----------------+--------------------------------+----------------------+
 | Engine         | Execution Time                 | Relative Performance |
-+:===============+:===============================+:=====================+
+|:---------------|:-------------------------------|:---------------------|
 | **STAN (CPU)** | `████████████████████████████` | *Baseline*           |
-+----------------+--------------------------------+----------------------+
-| **BF (CPU)**   | `████████████`                 | **\~30x Faster**     |
-+----------------+--------------------------------+----------------------+
-| **BF (GPU)**   | `██`                           | **\~200x Faster**    |
-+----------------+--------------------------------+----------------------+
+| **BI (CPU)**   | `████████████`                 | **\~4x Faster**     |
+| **BI (GPU)**   | `██`                           | **\~20X Faster**    |
 
 *\> Comparison of execution time for a Social Relations Model. Source: [Sosa et al. (2026)](https://www.biorxiv.org/content/10.64898/2026.01.19.700318v1).*
 
@@ -291,3 +290,5 @@ Based on "The BayesForge library for Python, R, Julia" by [Sosa, McElreath, & Ro
 
 © 2026 BayesForge Team. Released under GPL-3.0.
 :::
+::::
+:::::

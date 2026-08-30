@@ -1,0 +1,85 @@
+09:42:26 | INFO    | ======================================================================
+09:42:26 | INFO    | R2D2 PRIOR CORRECTNESS TEST
+09:42:26 | INFO    | host=ECOD052  user=sosa  python=3.10.12
+09:42:26 | INFO    | cwd=/home/sosa/work/BF/Test/R2D2
+09:42:26 | INFO    | log file -> /home/sosa/work/BF/Test/R2D2/logs/r2d2_test_20260828_094226.log
+09:42:28 | INFO    | BayesForge 0.0.48
+09:42:28 | INFO    | jax 0.6.2  devices=[CpuDevice(id=0), CpuDevice(id=1), CpuDevice(id=2), CpuDevice(id=3)]
+09:42:28 | INFO    | config: N=300 V=100 n_strong=5 beta_scale=2.50 seed=20260827
+09:42:28 | INFO    | DGP noise sweep: sigma_true in [11.0]
+09:42:28 | INFO    | variance priors on R^2: Beta(0.333,3), Beta(2,6)
+09:42:28 | INFO    | NUTS: warmup=1200 samples=1200 chains=4 target_accept=0.95 max_tree=12
+09:42:28 | INFO    | ======================================================================
+09:42:28 | INFO    | PRIOR-PREDICTIVE CHECK ON R^2
+09:42:28 | INFO    | Beta(0.333  ,3   ): mean=0.100  q05=0.000 q50=0.034 q95=0.424  P(R2>0.5)=0.03
+09:42:28 | INFO    | Beta(2      ,6   ): mean=0.250  q05=0.055 q50=0.231 q95=0.518  P(R2>0.5)=0.06
+09:42:28 | INFO    | ======================================================================
+09:42:28 | INFO    | INFERENCE  (1 noise levels x 2 priors = 2 fits)
+09:42:28 | INFO    | ======================================================================
+09:42:28 | INFO    | SCENARIO s11 :  DGP noise sigma_true = 11.000
+09:42:28 | INFO    | Var(X beta)=48.891   sigma_true^2=121.000
+09:42:28 | INFO    | model  R^2 = Var(Xb)/(Var(Xb)+sigma^2) = 0.2878
+09:42:28 | INFO    | sample R^2 = 1 - SSres/SStot          = 0.2569
+09:42:28 | INFO    | true strong betas = [-4.294, 0.433, -3.49, -3.981, 2.311]
+09:42:28 | INFO    | ----------------------------------------------------------------------
+09:42:28 | INFO    | FIT  R^2 ~ Beta(0.333,3)   (prior mean R^2 = 0.100)
+09:43:27 | INFO    | BF summary (r2, sigma, alpha):
+        mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha   0.35  0.61     -0.57       1.36  ...     0.01   5314.30   2932.62    1.0
+r2      0.32  0.14      0.11       0.52  ...     0.00   2283.86   2259.77    1.0
+sigma  10.91  0.46     10.17      11.62  ...     0.01   3630.57   2714.98    1.0
+
+[3 rows x 9 columns]
+09:43:27 | INFO    | R^2  true(model)=0.288  true(sample)=0.257  ->  post mean=0.320  HDI89=[0.112, 0.521]
+09:43:27 | INFO    | sigma true=11.000  ->  post mean=10.910
+09:43:27 | INFO    | strong beta : RMSE=0.751  bias=-0.004  mean|est|/|true|=0.63  HDI89 coverage=80% (4/5)
+09:43:27 | INFO    | null   beta : mean|est|=0.0162  max|est|=0.218  HDI89 false-pos=0/95
+09:43:27 | INFO    | MCMC : max R-hat=1.007  min ESS=473  divergences=647  (58.1s)
+09:43:27 | INFO    | ----------------------------------------------------------------------
+09:43:27 | INFO    | FIT  R^2 ~ Beta(2,6)   (prior mean R^2 = 0.250)
+09:45:29 | INFO    | BF summary (r2, sigma, alpha):
+        mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha   0.34  0.60     -0.61       1.30  ...     0.01   4723.92   2745.61    1.0
+r2      0.33  0.12      0.14       0.50  ...     0.00   2505.82   2563.75    1.0
+sigma  10.91  0.47     10.18      11.67  ...     0.01   2815.12   1569.89    1.0
+
+[3 rows x 9 columns]
+09:45:29 | INFO    | R^2  true(model)=0.288  true(sample)=0.257  ->  post mean=0.326  HDI89=[0.139, 0.497]
+09:45:29 | INFO    | sigma true=11.000  ->  post mean=10.914
+09:45:29 | INFO    | strong beta : RMSE=0.731  bias=-0.026  mean|est|/|true|=0.64  HDI89 coverage=80% (4/5)
+09:45:29 | INFO    | null   beta : mean|est|=0.0161  max|est|=0.192  HDI89 false-pos=0/95
+09:45:29 | INFO    | MCMC : max R-hat=1.018  min ESS=156  divergences=602  (122.0s)
+09:45:29 | INFO    | ----------------------------------------------------------------------
+09:45:29 | INFO    | PRIOR SENSITIVITY @ sigma_true=11.000 (true model R^2=0.288)
+09:45:29 | INFO    |          prior | E[R2]pri |  R2 post |  sigma |  RMSE_s | shrink |  cov_s |  |b|null |  FP |  Rhat |    ESS |  div
+09:45:29 | INFO    | ------------------------------------------------------------------------------------------------------------------
+09:45:29 | INFO    |  Beta(0.333,3) |    0.100 |    0.320 | 10.910 |   0.751 |   0.63 |    80% |   0.0162 |   0 |  1.01 |    473 |  647
+09:45:29 | INFO    |      Beta(2,6) |    0.250 |    0.326 | 10.914 |   0.731 |   0.64 |    80% |   0.0161 |   0 |  1.02 |    156 |  602
+09:45:29 | WARNING | NON-CONVERGED @ sigma=11.00: Beta(0.333,3)(Rhat=1.01,div=647), Beta(2,6)(Rhat=1.02,div=602)
+09:45:29 | ERROR   | scenario figure failed: 'yerr' must not contain negative values
+Traceback (most recent call last):
+  File "/home/sosa/work/BF/Test/R2D2/run_r2d2_test.py", line 452, in run_scenario
+    for p in make_figures(sim, results, f"{STAMP}_{tag}"):
+  File "/home/sosa/work/BF/Test/R2D2/run_r2d2_test.py", line 334, in make_figures
+    ax.errorbar(bt[strong], bm[strong],
+  File "/home/sosa/.local/lib/python3.10/site-packages/matplotlib/_api/deprecation.py", line 453, in wrapper
+    return func(*args, **kwargs)
+  File "/home/sosa/.local/lib/python3.10/site-packages/matplotlib/__init__.py", line 1524, in inner
+    return func(
+  File "/home/sosa/.local/lib/python3.10/site-packages/matplotlib/axes/_axes.py", line 3825, in errorbar
+    raise ValueError(
+ValueError: 'yerr' must not contain negative values
+09:45:29 | INFO    | ======================================================================
+09:45:29 | INFO    | NOISE SWEEP SUMMARY  (RMSE strong beta  /  sigma_post per sigma_true)
+09:45:29 | INFO    | sigma_true |  R2_true | Beta(0.333,3) |     Beta(2,6)
+09:45:29 | INFO    | -----------------------------------------------------
+09:45:29 | INFO    |     11.000 |    0.288 |   0.75/10.91  |   0.73/10.91 
+09:45:29 | INFO    | cell = RMSE(strong beta) / posterior-mean sigma   ('!' = max R-hat > 1.1)
+09:45:29 | INFO    | ----------------------------------------------------------------------
+09:45:29 | INFO    | does the DGP noise change the R2D2 conclusions?
+09:45:29 | INFO    | Beta(0.333,3)  : RMSE 0.75 -> 0.75 as noise grows ; sigma bias -1% -> -1%
+09:45:29 | INFO    | Beta(2,6)      : RMSE 0.73 -> 0.73 as noise grows ; sigma bias -1% -> -1%
+09:45:29 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/noise_sweep_20260828_094226.png
+09:45:29 | INFO    | results -> /home/sosa/work/BF/Test/R2D2/out/results_20260828_094226.json
+09:45:29 | INFO    | ======================================================================
+09:45:29 | INFO    | DONE

@@ -1,0 +1,396 @@
+15:39:51 | INFO    | ======================================================================
+15:39:51 | INFO    | R2D2 PRIOR CORRECTNESS TEST
+15:39:51 | INFO    | host=ECOD052  user=sosa  python=3.10.12
+15:39:51 | INFO    | cwd=/home/sosa/work/BF/Test/R2D2
+15:39:51 | INFO    | log file -> /home/sosa/work/BF/Test/R2D2/logs/r2d2_test_20260827_153951.log
+15:39:52 | INFO    | BayesForge 0.0.48
+15:39:52 | INFO    | jax 0.6.2  devices=[CpuDevice(id=0), CpuDevice(id=1), CpuDevice(id=2), CpuDevice(id=3)]
+15:39:52 | INFO    | config: N=50 V=100 n_strong=5 beta_scale=2.50 seed=20260827
+15:39:52 | INFO    | DGP noise sweep: sigma_true in [1.0, 2.0, 4.0, 8.0]
+15:39:52 | INFO    | variance priors on R^2: Beta(0.333,3), Beta(1,1), Beta(3,3), Beta(3,1), Beta(5,1)
+15:39:52 | INFO    | NUTS: warmup=1200 samples=1200 chains=4 target_accept=0.95 max_tree=12
+15:39:52 | INFO    | ======================================================================
+15:39:52 | INFO    | PRIOR-PREDICTIVE CHECK ON R^2
+15:39:52 | INFO    | Beta(0.333  ,3   ): mean=0.100  q05=0.000 q50=0.034 q95=0.424  P(R2>0.5)=0.03
+15:39:52 | INFO    | Beta(1      ,1   ): mean=0.500  q05=0.050 q50=0.497 q95=0.951  P(R2>0.5)=0.50
+15:39:52 | INFO    | Beta(3      ,3   ): mean=0.500  q05=0.191 q50=0.502 q95=0.812  P(R2>0.5)=0.50
+15:39:52 | INFO    | Beta(3      ,1   ): mean=0.750  q05=0.366 q50=0.794 q95=0.983  P(R2>0.5)=0.88
+15:39:52 | INFO    | Beta(5      ,1   ): mean=0.833  q05=0.548 q50=0.871 q95=0.990  P(R2>0.5)=0.97
+15:39:52 | INFO    | ======================================================================
+15:39:52 | INFO    | INFERENCE  (4 noise levels x 5 priors = 20 fits)
+15:39:52 | INFO    | ======================================================================
+15:39:52 | INFO    | SCENARIO s1 :  DGP noise sigma_true = 1.000
+15:39:52 | INFO    | Var(X beta)=54.436   sigma_true^2=1.000
+15:39:52 | INFO    | model  R^2 = Var(Xb)/(Var(Xb)+sigma^2) = 0.9820
+15:39:52 | INFO    | sample R^2 = 1 - SSres/SStot          = 0.9770
+15:39:52 | INFO    | true strong betas = [2.577, 4.433, -2.318, -3.344, 2.129]
+15:39:52 | INFO    | ----------------------------------------------------------------------
+15:39:52 | INFO    | FIT  R^2 ~ Beta(0.333,3)   (prior mean R^2 = 0.100)
+15:40:00 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.14  0.20     -0.16       0.47  ...     0.00   6637.69   2888.41    1.0
+r2     0.91  0.06      0.84       0.99  ...     0.00    610.04    941.39    1.0
+sigma  1.38  0.49      0.63       2.09  ...     0.01    650.72   1049.89    1.0
+
+[3 rows x 9 columns]
+15:40:00 | INFO    | R^2  true(model)=0.982  true(sample)=0.977  ->  post mean=0.912  HDI89=[0.840, 0.986]
+15:40:00 | INFO    | sigma true=1.000  ->  post mean=1.384
+15:40:00 | INFO    | strong beta : RMSE=0.707  bias=-0.171  mean|est|/|true|=0.77  HDI89 coverage=60% (3/5)
+15:40:00 | INFO    | null   beta : mean|est|=0.0924  max|est|=0.361  HDI89 false-pos=0/95
+15:40:00 | INFO    | MCMC : max R-hat=1.003  min ESS=687  divergences=25  (6.9s)
+15:40:00 | INFO    | ----------------------------------------------------------------------
+15:40:00 | INFO    | FIT  R^2 ~ Beta(1,1)   (prior mean R^2 = 0.500)
+15:40:12 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.14  0.12     -0.05       0.33  ...     0.00   3546.50   1714.10   1.00
+r2     0.97  0.03      0.93       1.00  ...     0.00    328.59    625.70   1.00
+sigma  0.82  0.37      0.33       1.35  ...     0.01    336.20    600.26   1.01
+
+[3 rows x 9 columns]
+15:40:12 | INFO    | R^2  true(model)=0.982  true(sample)=0.977  ->  post mean=0.967  HDI89=[0.932, 0.998]
+15:40:12 | INFO    | sigma true=1.000  ->  post mean=0.821
+15:40:12 | INFO    | strong beta : RMSE=0.615  bias=-0.149  mean|est|/|true|=0.81  HDI89 coverage=60% (3/5)
+15:40:12 | INFO    | null   beta : mean|est|=0.0968  max|est|=0.338  HDI89 false-pos=0/95
+15:40:12 | INFO    | MCMC : max R-hat=1.007  min ESS=384  divergences=99  (12.4s)
+15:40:12 | INFO    | ----------------------------------------------------------------------
+15:40:12 | INFO    | FIT  R^2 ~ Beta(3,3)   (prior mean R^2 = 0.500)
+15:40:18 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.14  0.19     -0.16       0.43  ...     0.00   7699.56   3075.99    1.0
+r2     0.92  0.05      0.86       0.99  ...     0.00    604.63    968.35    1.0
+sigma  1.32  0.44      0.60       1.95  ...     0.01    671.19   1050.07    1.0
+
+[3 rows x 9 columns]
+15:40:18 | INFO    | R^2  true(model)=0.982  true(sample)=0.977  ->  post mean=0.920  HDI89=[0.856, 0.988]
+15:40:18 | INFO    | sigma true=1.000  ->  post mean=1.324
+15:40:18 | INFO    | strong beta : RMSE=0.691  bias=-0.164  mean|est|/|true|=0.77  HDI89 coverage=60% (3/5)
+15:40:18 | INFO    | null   beta : mean|est|=0.0925  max|est|=0.349  HDI89 false-pos=0/95
+15:40:18 | INFO    | MCMC : max R-hat=1.001  min ESS=737  divergences=26  (5.3s)
+15:40:18 | INFO    | ----------------------------------------------------------------------
+15:40:18 | INFO    | FIT  R^2 ~ Beta(3,1)   (prior mean R^2 = 0.750)
+15:40:30 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.14  0.12     -0.04       0.32  ...     0.00   5176.96   2048.02   1.00
+r2     0.97  0.03      0.94       1.00  ...     0.00    274.37    592.83   1.01
+sigma  0.78  0.35      0.28       1.25  ...     0.01    296.03    693.25   1.01
+
+[3 rows x 9 columns]
+15:40:30 | INFO    | R^2  true(model)=0.982  true(sample)=0.977  ->  post mean=0.970  HDI89=[0.939, 0.999]
+15:40:30 | INFO    | sigma true=1.000  ->  post mean=0.783
+15:40:30 | INFO    | strong beta : RMSE=0.608  bias=-0.149  mean|est|/|true|=0.81  HDI89 coverage=60% (3/5)
+15:40:30 | INFO    | null   beta : mean|est|=0.0961  max|est|=0.341  HDI89 false-pos=0/95
+15:40:30 | INFO    | MCMC : max R-hat=1.007  min ESS=334  divergences=73  (12.4s)
+15:40:30 | INFO    | ----------------------------------------------------------------------
+15:40:30 | INFO    | FIT  R^2 ~ Beta(5,1)   (prior mean R^2 = 0.833)
+15:40:43 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.14  0.12     -0.03       0.33  ...     0.00   6589.60   2165.92   1.00
+r2     0.97  0.03      0.94       1.00  ...     0.00    229.54    215.00   1.01
+sigma  0.77  0.35      0.22       1.23  ...     0.02    238.04    220.56   1.01
+
+[3 rows x 9 columns]
+15:40:44 | INFO    | R^2  true(model)=0.982  true(sample)=0.977  ->  post mean=0.970  HDI89=[0.939, 0.999]
+15:40:44 | INFO    | sigma true=1.000  ->  post mean=0.768
+15:40:44 | INFO    | strong beta : RMSE=0.601  bias=-0.147  mean|est|/|true|=0.81  HDI89 coverage=60% (3/5)
+15:40:44 | INFO    | null   beta : mean|est|=0.0959  max|est|=0.322  HDI89 false-pos=0/95
+15:40:44 | INFO    | MCMC : max R-hat=1.013  min ESS=286  divergences=87  (13.3s)
+15:40:44 | INFO    | ----------------------------------------------------------------------
+15:40:44 | INFO    | PRIOR SENSITIVITY @ sigma_true=1.000 (true model R^2=0.982)
+15:40:44 | INFO    |          prior | E[R2]pri |  R2 post |  sigma |  RMSE_s | shrink |  cov_s |  |b|null |  FP |  Rhat |    ESS |  div
+15:40:44 | INFO    | ------------------------------------------------------------------------------------------------------------------
+15:40:44 | INFO    |  Beta(0.333,3) |    0.100 |    0.912 |  1.384 |   0.707 |   0.77 |    60% |   0.0924 |   0 |  1.00 |    687 |   25
+15:40:44 | INFO    |      Beta(1,1) |    0.500 |    0.967 |  0.821 |   0.615 |   0.81 |    60% |   0.0968 |   0 |  1.01 |    384 |   99
+15:40:44 | INFO    |      Beta(3,3) |    0.500 |    0.920 |  1.324 |   0.691 |   0.77 |    60% |   0.0925 |   0 |  1.00 |    737 |   26
+15:40:44 | INFO    |      Beta(3,1) |    0.750 |    0.970 |  0.783 |   0.608 |   0.81 |    60% |   0.0961 |   0 |  1.01 |    334 |   73
+15:40:44 | INFO    |      Beta(5,1) |    0.833 |    0.970 |  0.768 |   0.601 |   0.81 |    60% |   0.0959 |   0 |  1.01 |    286 |   87
+15:40:44 | INFO    | across converged priors: R^2 post spread=0.058  sigma post spread=0.616  -> PRIOR-SENSITIVE
+15:40:44 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/beta_recovery_20260827_153951_s1.png
+15:40:44 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/r2_posterior_20260827_153951_s1.png
+15:40:44 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/error_metrics_20260827_153951_s1.png
+15:40:44 | INFO    | ======================================================================
+15:40:44 | INFO    | SCENARIO s2 :  DGP noise sigma_true = 2.000
+15:40:44 | INFO    | Var(X beta)=54.436   sigma_true^2=4.000
+15:40:44 | INFO    | model  R^2 = Var(Xb)/(Var(Xb)+sigma^2) = 0.9315
+15:40:44 | INFO    | sample R^2 = 1 - SSres/SStot          = 0.9108
+15:40:44 | INFO    | true strong betas = [2.577, 4.433, -2.318, -3.344, 2.129]
+15:40:44 | INFO    | ----------------------------------------------------------------------
+15:40:44 | INFO    | FIT  R^2 ~ Beta(0.333,3)   (prior mean R^2 = 0.100)
+15:40:49 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.28  0.29     -0.16       0.74  ...     0.00   5925.78   2454.31    1.0
+r2     0.86  0.08      0.75       0.98  ...     0.00    664.32   1037.14    1.0
+sigma  2.05  0.63      1.03       2.96  ...     0.02    706.16   1094.78    1.0
+
+[3 rows x 9 columns]
+15:40:49 | INFO    | R^2  true(model)=0.932  true(sample)=0.911  ->  post mean=0.856  HDI89=[0.750, 0.976]
+15:40:49 | INFO    | sigma true=2.000  ->  post mean=2.046
+15:40:49 | INFO    | strong beta : RMSE=1.057  bias=-0.294  mean|est|/|true|=0.66  HDI89 coverage=40% (2/5)
+15:40:49 | INFO    | null   beta : mean|est|=0.1335  max|est|=0.441  HDI89 false-pos=0/95
+15:40:49 | INFO    | MCMC : max R-hat=1.003  min ESS=726  divergences=2  (5.0s)
+15:40:49 | INFO    | ----------------------------------------------------------------------
+15:40:49 | INFO    | FIT  R^2 ~ Beta(1,1)   (prior mean R^2 = 0.500)
+15:41:01 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.28  0.18     -0.00       0.56  ...     0.00   5308.63   1448.84   1.00
+r2     0.95  0.04      0.89       1.00  ...     0.00    126.43    177.29   1.03
+sigma  1.19  0.53      0.36       1.89  ...     0.03    130.62    173.53   1.03
+
+[3 rows x 9 columns]
+15:41:01 | INFO    | R^2  true(model)=0.932  true(sample)=0.911  ->  post mean=0.948  HDI89=[0.893, 0.999]
+15:41:01 | INFO    | sigma true=2.000  ->  post mean=1.192
+15:41:01 | INFO    | strong beta : RMSE=0.939  bias=-0.271  mean|est|/|true|=0.72  HDI89 coverage=40% (2/5)
+15:41:01 | INFO    | null   beta : mean|est|=0.1531  max|est|=0.604  HDI89 false-pos=0/95
+15:41:01 | INFO    | MCMC : max R-hat=1.030  min ESS=134  divergences=223  (11.8s)
+15:41:01 | INFO    | ----------------------------------------------------------------------
+15:41:01 | INFO    | FIT  R^2 ~ Beta(3,3)   (prior mean R^2 = 0.500)
+15:41:06 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.28  0.27     -0.13       0.71  ...     0.00   5121.03   3040.03   1.00
+r2     0.88  0.07      0.79       0.98  ...     0.00    584.95    868.46   1.01
+sigma  1.89  0.58      0.99       2.76  ...     0.02    628.72    904.65   1.01
+
+[3 rows x 9 columns]
+15:41:06 | INFO    | R^2  true(model)=0.932  true(sample)=0.911  ->  post mean=0.877  HDI89=[0.786, 0.978]
+15:41:06 | INFO    | sigma true=2.000  ->  post mean=1.893
+15:41:06 | INFO    | strong beta : RMSE=1.020  bias=-0.294  mean|est|/|true|=0.67  HDI89 coverage=40% (2/5)
+15:41:06 | INFO    | null   beta : mean|est|=0.1362  max|est|=0.461  HDI89 false-pos=0/95
+15:41:06 | INFO    | MCMC : max R-hat=1.007  min ESS=671  divergences=3  (5.3s)
+15:41:06 | INFO    | ----------------------------------------------------------------------
+15:41:06 | INFO    | FIT  R^2 ~ Beta(3,1)   (prior mean R^2 = 0.750)
+15:41:19 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.28  0.17      0.01       0.54  ...     0.00   4724.98   2621.18   1.00
+r2     0.95  0.04      0.90       1.00  ...     0.00    223.42    360.33   1.01
+sigma  1.18  0.51      0.42       1.94  ...     0.02    229.79    343.34   1.01
+
+[3 rows x 9 columns]
+15:41:19 | INFO    | R^2  true(model)=0.932  true(sample)=0.911  ->  post mean=0.950  HDI89=[0.896, 0.998]
+15:41:19 | INFO    | sigma true=2.000  ->  post mean=1.177
+15:41:19 | INFO    | strong beta : RMSE=0.930  bias=-0.265  mean|est|/|true|=0.73  HDI89 coverage=40% (2/5)
+15:41:19 | INFO    | null   beta : mean|est|=0.1539  max|est|=0.616  HDI89 false-pos=0/95
+15:41:19 | INFO    | MCMC : max R-hat=1.015  min ESS=258  divergences=40  (12.1s)
+15:41:19 | INFO    | ----------------------------------------------------------------------
+15:41:19 | INFO    | FIT  R^2 ~ Beta(5,1)   (prior mean R^2 = 0.833)
+15:41:30 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.28  0.16      0.01       0.54  ...     0.00   6637.36   2369.26   1.00
+r2     0.96  0.04      0.91       1.00  ...     0.00    276.56    259.48   1.01
+sigma  1.09  0.47      0.37       1.75  ...     0.02    290.82    319.42   1.02
+
+[3 rows x 9 columns]
+15:41:30 | INFO    | R^2  true(model)=0.932  true(sample)=0.911  ->  post mean=0.957  HDI89=[0.912, 0.998]
+15:41:30 | INFO    | sigma true=2.000  ->  post mean=1.088
+15:41:30 | INFO    | strong beta : RMSE=0.934  bias=-0.269  mean|est|/|true|=0.73  HDI89 coverage=40% (2/5)
+15:41:30 | INFO    | null   beta : mean|est|=0.1567  max|est|=0.627  HDI89 false-pos=0/95
+15:41:30 | INFO    | MCMC : max R-hat=1.021  min ESS=330  divergences=61  (11.0s)
+15:41:30 | INFO    | ----------------------------------------------------------------------
+15:41:30 | INFO    | PRIOR SENSITIVITY @ sigma_true=2.000 (true model R^2=0.932)
+15:41:30 | INFO    |          prior | E[R2]pri |  R2 post |  sigma |  RMSE_s | shrink |  cov_s |  |b|null |  FP |  Rhat |    ESS |  div
+15:41:30 | INFO    | ------------------------------------------------------------------------------------------------------------------
+15:41:30 | INFO    |  Beta(0.333,3) |    0.100 |    0.856 |  2.046 |   1.057 |   0.66 |    40% |   0.1335 |   0 |  1.00 |    726 |    2
+15:41:30 | INFO    |      Beta(1,1) |    0.500 |    0.948 |  1.192 |   0.939 |   0.72 |    40% |   0.1531 |   0 |  1.03 |    134 |  223
+15:41:30 | INFO    |      Beta(3,3) |    0.500 |    0.877 |  1.893 |   1.020 |   0.67 |    40% |   0.1362 |   0 |  1.01 |    671 |    3
+15:41:30 | INFO    |      Beta(3,1) |    0.750 |    0.950 |  1.177 |   0.930 |   0.73 |    40% |   0.1539 |   0 |  1.01 |    258 |   40
+15:41:30 | INFO    |      Beta(5,1) |    0.833 |    0.957 |  1.088 |   0.934 |   0.73 |    40% |   0.1567 |   0 |  1.02 |    330 |   61
+15:41:30 | INFO    | across converged priors: R^2 post spread=0.101  sigma post spread=0.958  -> PRIOR-SENSITIVE
+15:41:30 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/beta_recovery_20260827_153951_s2.png
+15:41:30 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/r2_posterior_20260827_153951_s2.png
+15:41:30 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/error_metrics_20260827_153951_s2.png
+15:41:30 | INFO    | ======================================================================
+15:41:30 | INFO    | SCENARIO s4 :  DGP noise sigma_true = 4.000
+15:41:30 | INFO    | Var(X beta)=54.436   sigma_true^2=16.000
+15:41:30 | INFO    | model  R^2 = Var(Xb)/(Var(Xb)+sigma^2) = 0.7728
+15:41:30 | INFO    | sample R^2 = 1 - SSres/SStot          = 0.7014
+15:41:30 | INFO    | true strong betas = [2.577, 4.433, -2.318, -3.344, 2.129]
+15:41:30 | INFO    | ----------------------------------------------------------------------
+15:41:30 | INFO    | FIT  R^2 ~ Beta(0.333,3)   (prior mean R^2 = 0.100)
+15:41:34 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.52  0.48     -0.24       1.27  ...     0.00   6481.84   3086.06   1.00
+r2     0.73  0.13      0.54       0.93  ...     0.00    592.96   1161.42   1.01
+sigma  3.58  0.96      2.08       5.10  ...     0.03    629.23   1161.86   1.01
+
+[3 rows x 9 columns]
+15:41:34 | INFO    | R^2  true(model)=0.773  true(sample)=0.701  ->  post mean=0.732  HDI89=[0.537, 0.927]
+15:41:34 | INFO    | sigma true=4.000  ->  post mean=3.577
+15:41:34 | INFO    | strong beta : RMSE=1.640  bias=-0.483  mean|est|/|true|=0.47  HDI89 coverage=40% (2/5)
+15:41:34 | INFO    | null   beta : mean|est|=0.1941  max|est|=0.869  HDI89 false-pos=0/95
+15:41:34 | INFO    | MCMC : max R-hat=1.008  min ESS=637  divergences=0  (3.8s)
+15:41:34 | INFO    | ----------------------------------------------------------------------
+15:41:34 | INFO    | FIT  R^2 ~ Beta(1,1)   (prior mean R^2 = 0.500)
+15:41:48 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.55  0.33      0.05       1.09  ...     0.00   5315.11   2482.42    1.0
+r2     0.89  0.09      0.77       1.00  ...     0.00    269.04    274.01    1.0
+sigma  2.29  0.91      0.80       3.67  ...     0.04    279.13    287.51    1.0
+
+[3 rows x 9 columns]
+15:41:48 | INFO    | R^2  true(model)=0.773  true(sample)=0.701  ->  post mean=0.887  HDI89=[0.771, 0.999]
+15:41:48 | INFO    | sigma true=4.000  ->  post mean=2.287
+15:41:48 | INFO    | strong beta : RMSE=1.453  bias=-0.448  mean|est|/|true|=0.58  HDI89 coverage=40% (2/5)
+15:41:48 | INFO    | null   beta : mean|est|=0.2465  max|est|=1.001  HDI89 false-pos=0/95
+15:41:48 | INFO    | MCMC : max R-hat=1.005  min ESS=304  divergences=21  (13.5s)
+15:41:48 | INFO    | ----------------------------------------------------------------------
+15:41:48 | INFO    | FIT  R^2 ~ Beta(3,3)   (prior mean R^2 = 0.500)
+15:41:51 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.54  0.45     -0.19       1.23  ...     0.00   5686.46   2910.91   1.00
+r2     0.78  0.11      0.64       0.95  ...     0.00    662.27   1151.82   1.01
+sigma  3.25  0.83      1.90       4.48  ...     0.02    707.06   1148.34   1.01
+
+[3 rows x 9 columns]
+15:41:51 | INFO    | R^2  true(model)=0.773  true(sample)=0.701  ->  post mean=0.781  HDI89=[0.635, 0.950]
+15:41:51 | INFO    | sigma true=4.000  ->  post mean=3.253
+15:41:51 | INFO    | strong beta : RMSE=1.572  bias=-0.465  mean|est|/|true|=0.50  HDI89 coverage=40% (2/5)
+15:41:51 | INFO    | null   beta : mean|est|=0.2060  max|est|=0.912  HDI89 false-pos=0/95
+15:41:51 | INFO    | MCMC : max R-hat=1.007  min ESS=719  divergences=1  (3.8s)
+15:41:51 | INFO    | ----------------------------------------------------------------------
+15:41:51 | INFO    | FIT  R^2 ~ Beta(3,1)   (prior mean R^2 = 0.750)
+15:41:57 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.54  0.32      0.00       1.01  ...     0.00   7025.42   2518.44   1.00
+r2     0.90  0.07      0.80       0.99  ...     0.00    322.75    373.12   1.01
+sigma  2.19  0.81      0.88       3.41  ...     0.03    334.81    363.40   1.02
+
+[3 rows x 9 columns]
+15:41:57 | INFO    | R^2  true(model)=0.773  true(sample)=0.701  ->  post mean=0.899  HDI89=[0.804, 0.995]
+15:41:57 | INFO    | sigma true=4.000  ->  post mean=2.195
+15:41:57 | INFO    | strong beta : RMSE=1.439  bias=-0.437  mean|est|/|true|=0.59  HDI89 coverage=40% (2/5)
+15:41:57 | INFO    | null   beta : mean|est|=0.2500  max|est|=1.030  HDI89 false-pos=0/95
+15:41:57 | INFO    | MCMC : max R-hat=1.016  min ESS=354  divergences=50  (5.7s)
+15:41:57 | INFO    | ----------------------------------------------------------------------
+15:41:57 | INFO    | FIT  R^2 ~ Beta(5,1)   (prior mean R^2 = 0.833)
+15:42:05 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.55  0.29      0.12       1.01  ...     0.00   6323.81   2334.63   1.00
+r2     0.92  0.06      0.83       1.00  ...     0.00    242.45    334.84   1.01
+sigma  2.01  0.78      0.67       3.06  ...     0.03    251.64    365.29   1.01
+
+[3 rows x 9 columns]
+15:42:05 | INFO    | R^2  true(model)=0.773  true(sample)=0.701  ->  post mean=0.916  HDI89=[0.834, 0.996]
+15:42:05 | INFO    | sigma true=4.000  ->  post mean=2.012
+15:42:05 | INFO    | strong beta : RMSE=1.428  bias=-0.432  mean|est|/|true|=0.60  HDI89 coverage=40% (2/5)
+15:42:05 | INFO    | null   beta : mean|est|=0.2584  max|est|=1.117  HDI89 false-pos=0/95
+15:42:05 | INFO    | MCMC : max R-hat=1.013  min ESS=271  divergences=56  (7.4s)
+15:42:05 | INFO    | ----------------------------------------------------------------------
+15:42:05 | INFO    | PRIOR SENSITIVITY @ sigma_true=4.000 (true model R^2=0.773)
+15:42:05 | INFO    |          prior | E[R2]pri |  R2 post |  sigma |  RMSE_s | shrink |  cov_s |  |b|null |  FP |  Rhat |    ESS |  div
+15:42:05 | INFO    | ------------------------------------------------------------------------------------------------------------------
+15:42:05 | INFO    |  Beta(0.333,3) |    0.100 |    0.732 |  3.577 |   1.640 |   0.47 |    40% |   0.1941 |   0 |  1.01 |    637 |    0
+15:42:05 | INFO    |      Beta(1,1) |    0.500 |    0.887 |  2.287 |   1.453 |   0.58 |    40% |   0.2465 |   0 |  1.00 |    304 |   21
+15:42:05 | INFO    |      Beta(3,3) |    0.500 |    0.781 |  3.253 |   1.572 |   0.50 |    40% |   0.2060 |   0 |  1.01 |    719 |    1
+15:42:05 | INFO    |      Beta(3,1) |    0.750 |    0.899 |  2.195 |   1.439 |   0.59 |    40% |   0.2500 |   0 |  1.02 |    354 |   50
+15:42:05 | INFO    |      Beta(5,1) |    0.833 |    0.916 |  2.012 |   1.428 |   0.60 |    40% |   0.2584 |   0 |  1.01 |    271 |   56
+15:42:05 | INFO    | across converged priors: R^2 post spread=0.184  sigma post spread=1.564  -> PRIOR-SENSITIVE
+15:42:05 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/beta_recovery_20260827_153951_s4.png
+15:42:05 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/r2_posterior_20260827_153951_s4.png
+15:42:05 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/error_metrics_20260827_153951_s4.png
+15:42:05 | INFO    | ======================================================================
+15:42:05 | INFO    | SCENARIO s8 :  DGP noise sigma_true = 8.000
+15:42:05 | INFO    | Var(X beta)=54.436   sigma_true^2=64.000
+15:42:05 | INFO    | model  R^2 = Var(Xb)/(Var(Xb)+sigma^2) = 0.4596
+15:42:05 | INFO    | sample R^2 = 1 - SSres/SStot          = 0.3240
+15:42:05 | INFO    | true strong betas = [2.577, 4.433, -2.318, -3.344, 2.129]
+15:42:05 | INFO    | ----------------------------------------------------------------------
+15:42:05 | INFO    | FIT  R^2 ~ Beta(0.333,3)   (prior mean R^2 = 0.100)
+15:42:08 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.91  0.84     -0.38       2.30  ...     0.01   5105.97   3035.17   1.00
+r2     0.56  0.19      0.25       0.85  ...     0.01    385.20    341.46   1.01
+sigma  6.59  1.44      4.22       8.81  ...     0.05    457.69    393.23   1.01
+
+[3 rows x 9 columns]
+15:42:08 | INFO    | R^2  true(model)=0.460  true(sample)=0.324  ->  post mean=0.556  HDI89=[0.248, 0.848]
+15:42:08 | INFO    | sigma true=8.000  ->  post mean=6.590
+15:42:08 | INFO    | strong beta : RMSE=2.347  bias=-0.749  mean|est|/|true|=0.28  HDI89 coverage=20% (1/5)
+15:42:08 | INFO    | null   beta : mean|est|=0.2659  max|est|=1.516  HDI89 false-pos=0/95
+15:42:08 | INFO    | MCMC : max R-hat=1.013  min ESS=372  divergences=0  (3.0s)
+15:42:08 | INFO    | ----------------------------------------------------------------------
+15:42:08 | INFO    | FIT  R^2 ~ Beta(1,1)   (prior mean R^2 = 0.500)
+15:42:13 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  1.00  0.66     -0.03       2.04  ...     0.01   5953.13   3186.27   1.00
+r2     0.77  0.15      0.57       0.99  ...     0.01    333.91    524.11   1.01
+sigma  4.91  1.49      2.52       7.26  ...     0.06    352.16    566.26   1.01
+
+[3 rows x 9 columns]
+15:42:13 | INFO    | R^2  true(model)=0.460  true(sample)=0.324  ->  post mean=0.766  HDI89=[0.572, 0.987]
+15:42:13 | INFO    | sigma true=8.000  ->  post mean=4.908
+15:42:13 | INFO    | strong beta : RMSE=2.164  bias=-0.784  mean|est|/|true|=0.41  HDI89 coverage=40% (2/5)
+15:42:13 | INFO    | null   beta : mean|est|=0.3769  max|est|=1.881  HDI89 false-pos=1/95
+15:42:13 | INFO    | MCMC : max R-hat=1.007  min ESS=358  divergences=2  (4.7s)
+15:42:13 | INFO    | ----------------------------------------------------------------------
+15:42:13 | INFO    | FIT  R^2 ~ Beta(3,3)   (prior mean R^2 = 0.500)
+15:42:16 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  0.95  0.75     -0.22       2.15  ...     0.01   5370.58   3242.17   1.00
+r2     0.68  0.14      0.47       0.90  ...     0.00    657.91    709.02   1.01
+sigma  5.75  1.20      3.82       7.68  ...     0.03    697.70    669.73   1.01
+
+[3 rows x 9 columns]
+15:42:16 | INFO    | R^2  true(model)=0.460  true(sample)=0.324  ->  post mean=0.679  HDI89=[0.474, 0.898]
+15:42:16 | INFO    | sigma true=8.000  ->  post mean=5.751
+15:42:16 | INFO    | strong beta : RMSE=2.222  bias=-0.761  mean|est|/|true|=0.35  HDI89 coverage=20% (1/5)
+15:42:16 | INFO    | null   beta : mean|est|=0.3221  max|est|=1.773  HDI89 false-pos=1/95
+15:42:16 | INFO    | MCMC : max R-hat=1.007  min ESS=697  divergences=0  (3.1s)
+15:42:16 | INFO    | ----------------------------------------------------------------------
+15:42:16 | INFO    | FIT  R^2 ~ Beta(3,1)   (prior mean R^2 = 0.750)
+15:42:22 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  1.02  0.60      0.04       1.95  ...     0.01   4850.14   2896.83   1.00
+r2     0.81  0.12      0.66       0.99  ...     0.00    345.73    366.38   1.01
+sigma  4.47  1.35      2.25       6.56  ...     0.05    363.25    399.15   1.02
+
+[3 rows x 9 columns]
+15:42:22 | INFO    | R^2  true(model)=0.460  true(sample)=0.324  ->  post mean=0.814  HDI89=[0.662, 0.990]
+15:42:22 | INFO    | sigma true=8.000  ->  post mean=4.468
+15:42:22 | INFO    | strong beta : RMSE=2.137  bias=-0.792  mean|est|/|true|=0.44  HDI89 coverage=40% (2/5)
+15:42:22 | INFO    | null   beta : mean|est|=0.4049  max|est|=1.940  HDI89 false-pos=1/95
+15:42:22 | INFO    | MCMC : max R-hat=1.017  min ESS=385  divergences=11  (5.1s)
+15:42:22 | INFO    | ----------------------------------------------------------------------
+15:42:22 | INFO    | FIT  R^2 ~ Beta(5,1)   (prior mean R^2 = 0.833)
+15:42:27 | INFO    | BF summary (r2, sigma, alpha):
+       mean    sd  hdi_5.5%  hdi_94.5%  ...  mcse_sd  ess_bulk  ess_tail  r_hat
+alpha  1.05  0.53      0.19       1.90  ...     0.00   6245.20   2800.50   1.00
+r2     0.86  0.10      0.73       0.99  ...     0.01     41.06     18.32   1.03
+sigma  3.94  1.37      1.75       6.28  ...     0.16     39.66     17.83   1.07
+
+[3 rows x 9 columns]
+15:42:27 | INFO    | R^2  true(model)=0.460  true(sample)=0.324  ->  post mean=0.857  HDI89=[0.730, 0.994]
+15:42:27 | INFO    | sigma true=8.000  ->  post mean=3.938
+15:42:27 | INFO    | strong beta : RMSE=2.118  bias=-0.787  mean|est|/|true|=0.47  HDI89 coverage=40% (2/5)
+15:42:27 | INFO    | null   beta : mean|est|=0.4412  max|est|=1.887  HDI89 false-pos=1/95
+15:42:27 | INFO    | MCMC : max R-hat=1.072  min ESS=35  divergences=179  (5.6s)
+15:42:27 | INFO    | ----------------------------------------------------------------------
+15:42:27 | INFO    | PRIOR SENSITIVITY @ sigma_true=8.000 (true model R^2=0.460)
+15:42:27 | INFO    |          prior | E[R2]pri |  R2 post |  sigma |  RMSE_s | shrink |  cov_s |  |b|null |  FP |  Rhat |    ESS |  div
+15:42:27 | INFO    | ------------------------------------------------------------------------------------------------------------------
+15:42:27 | INFO    |  Beta(0.333,3) |    0.100 |    0.556 |  6.590 |   2.347 |   0.28 |    20% |   0.2659 |   0 |  1.01 |    372 |    0
+15:42:27 | INFO    |      Beta(1,1) |    0.500 |    0.766 |  4.908 |   2.164 |   0.41 |    40% |   0.3769 |   1 |  1.01 |    358 |    2
+15:42:27 | INFO    |      Beta(3,3) |    0.500 |    0.679 |  5.751 |   2.222 |   0.35 |    20% |   0.3221 |   1 |  1.01 |    697 |    0
+15:42:27 | INFO    |      Beta(3,1) |    0.750 |    0.814 |  4.468 |   2.137 |   0.44 |    40% |   0.4049 |   1 |  1.02 |    385 |   11
+15:42:27 | INFO    |      Beta(5,1) |    0.833 |    0.857 |  3.938 |   2.118 |   0.47 |    40% |   0.4412 |   1 |  1.07 |     35 |  179
+15:42:27 | INFO    | across converged priors: R^2 post spread=0.301  sigma post spread=2.652  -> PRIOR-SENSITIVE
+15:42:28 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/beta_recovery_20260827_153951_s8.png
+15:42:28 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/r2_posterior_20260827_153951_s8.png
+15:42:28 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/error_metrics_20260827_153951_s8.png
+15:42:28 | INFO    | ======================================================================
+15:42:28 | INFO    | NOISE SWEEP SUMMARY  (RMSE strong beta  /  sigma_post per sigma_true)
+15:42:28 | INFO    | sigma_true |  R2_true | Beta(0.333,3) |     Beta(1,1) |     Beta(3,3) |     Beta(3,1) |     Beta(5,1)
+15:42:28 | INFO    | -----------------------------------------------------------------------------------------------------
+15:42:28 | INFO    |      1.000 |    0.982 |    0.71/1.38  |    0.62/0.82  |    0.69/1.32  |    0.61/0.78  |    0.60/0.77 
+15:42:28 | INFO    |      2.000 |    0.932 |    1.06/2.05  |    0.94/1.19  |    1.02/1.89  |    0.93/1.18  |    0.93/1.09 
+15:42:28 | INFO    |      4.000 |    0.773 |    1.64/3.58  |    1.45/2.29  |    1.57/3.25  |    1.44/2.19  |    1.43/2.01 
+15:42:28 | INFO    |      8.000 |    0.460 |    2.35/6.59  |    2.16/4.91  |    2.22/5.75  |    2.14/4.47  |    2.12/3.94 
+15:42:28 | INFO    | cell = RMSE(strong beta) / posterior-mean sigma   ('!' = max R-hat > 1.1)
+15:42:28 | INFO    | ----------------------------------------------------------------------
+15:42:28 | INFO    | does the DGP noise change the R2D2 conclusions?
+15:42:28 | INFO    | Beta(0.333,3)  : RMSE 0.71 -> 2.35 as noise grows ; sigma bias +38% -> -18%
+15:42:28 | INFO    | Beta(1,1)      : RMSE 0.62 -> 2.16 as noise grows ; sigma bias -18% -> -39%
+15:42:28 | INFO    | Beta(3,3)      : RMSE 0.69 -> 2.22 as noise grows ; sigma bias +32% -> -28%
+15:42:28 | INFO    | Beta(3,1)      : RMSE 0.61 -> 2.14 as noise grows ; sigma bias -22% -> -44%
+15:42:28 | INFO    | Beta(5,1)      : RMSE 0.60 -> 2.12 as noise grows ; sigma bias -23% -> -51%
+15:42:28 | INFO    | figure -> /home/sosa/work/BF/Test/R2D2/out/noise_sweep_20260827_153951.png
+15:42:28 | INFO    | results -> /home/sosa/work/BF/Test/R2D2/out/results_20260827_153951.json
+15:42:28 | INFO    | ======================================================================
+15:42:28 | INFO    | DONE
