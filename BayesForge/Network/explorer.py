@@ -637,7 +637,9 @@ class NetExplorer:
     # ------------------------------------------------------------------ #
     # matrix -> edge list   (R: mat.to.edgl)
     # ------------------------------------------------------------------ #
-    def mat_to_edgl(self, M, sym: bool = False, erase_diag: bool = True) -> pd.DataFrame:
+    def mat_to_edgl(
+        self, M, sym: bool = False, erase_diag: bool = True, ids: Sequence | None = None
+    ) -> pd.DataFrame:
         """Square adjacency matrix -> ``from`` / ``to`` / ``weight`` DataFrame.
 
         Parameters
@@ -656,10 +658,9 @@ class NetExplorer:
         if M.ndim != 2 or M.shape[0] != M.shape[1]:
             raise ValueError("M must be a square 2D array")
         N = int(M.shape[0])
-        ids = self._resolve_ids(N)
+        ids = self._resolve_ids(N, ids)
 
         if sym:
-            k = 0 if erase_diag else -1  # tril offset: -1 excludes diag, 0 keeps it
             rows, cols = jnp.tril_indices(N, k=-1 if erase_diag else 0)
             weight = np.asarray(M[rows, cols])
             rows, cols = np.asarray(rows), np.asarray(cols)
@@ -703,11 +704,27 @@ class NetExplorer:
         matrix; the ramp is built from a value->hex map so order is irrelevant.
         """
         d = df.copy()
+        cmap = LinearSegmentedColormap.from_list("netexp", list(colors))
+
+        # Numeric column: interpolate by VALUE position across [min, max] so the
+        # fill matches the linear gradient legend. Rank-based stops misplace a
+        # skewed column (e.g. [0, 1, 2, 3, 100] -> value 3 drawn ~75% up the
+        # ramp while the legend scale reads ~3%).
+        if pd.api.types.is_numeric_dtype(d[col]):
+            v = d[col].to_numpy(dtype=float)
+            lo, hi = np.nanmin(v), np.nanmax(v)
+            span = hi - lo
+            frac = np.zeros_like(v) if span == 0 else (v - lo) / span
+            frac = np.clip(np.nan_to_num(frac, nan=0.0), 0.0, 1.0)
+            d[new_col] = [to_hex(cmap(float(f))) for f in frac]
+            return d
+
+        # Categorical column: one ramp stop per distinct value, by ascending
+        # rank (smallest -> colors[0]); legend shows discrete swatches.
         try:
             levels = sorted(pd.unique(d[col]).tolist())
         except TypeError:
             levels = sorted(pd.unique(d[col]).tolist(), key=str)
-        cmap = LinearSegmentedColormap.from_list("netexp", list(colors))
         if len(levels) == 1:
             ramp = {levels[0]: to_hex(cmap(0.0))}
         else:
@@ -773,10 +790,16 @@ class NetExplorer:
         width column.
         """
         d = df.copy()
+        # `color_node` / `color_stroke` are pure colour ramps and never need an
+        # id column — only per-node channels that would otherwise be resolved
+        # positionally do. Guarding on those lets `vis_net(df, adj)` with no
+        # styling args work id-free (the positional id fallback below applies).
         if col_id is None and any(
-            x is not None for x in (color_node, color_stroke, col_shape, node_opacity)
+            x is not None for x in (col_shape, node_opacity)
         ):
-            raise ValueError("col_id cannot be None when other styling arguments are set")
+            raise ValueError(
+                "col_id cannot be None when col_shape / node_opacity is set"
+            )
 
         # --- opacity -------------------------------------------------- #
         if node_opacity is not None:
@@ -1040,12 +1063,14 @@ class NetExplorer:
             palette=palette,
         )
         # node labels: prefer col_id, then ctor ids, then an n1..nN fallback.
-        # Set self.ids so mat_to_edgl below labels edges with the same names.
+        # Kept in a local (not self.ids) and handed to mat_to_edgl below so the
+        # edge labels match — without leaking this call's node table into the
+        # next vis_net / mat_to_edgl call on the same NetExplorer instance.
         if ori[0] is not None:
-            self.ids = d["id"].astype(str).tolist()
+            node_ids = d["id"].astype(str).tolist()
         else:
-            self._resolve_ids(N)
-            d["id"] = list(self.ids)
+            node_ids = self._resolve_ids(N)
+            d["id"] = list(node_ids)
         # ids must be unique for the d3 force graph — a constant/placeholder id
         # column (e.g. df=None -> ones) collapses every node onto one point and
         # hides the links. Fall back to positional labels.
@@ -1057,7 +1082,7 @@ class NetExplorer:
                 stacklevel=2,
             )
             d["id"] = [f"n{i + 1}" for i in range(len(d))]
-            self.ids = list(d["id"])
+            node_ids = list(d["id"])
 
         # layer index per node
         if layers is not None:
@@ -1067,7 +1092,7 @@ class NetExplorer:
             d["layers"] = 1
 
         # edge list from the matrix (JAX), drop zero links
-        edgl = self.mat_to_edgl(m)
+        edgl = self.mat_to_edgl(m, ids=node_ids)
         edgl = edgl[edgl["weight"] != 0].reset_index(drop=True)
 
         # link opacity via min-max on the JAX weight vector
@@ -1241,20 +1266,28 @@ class NetExplorer:
     # ------------------------------------------------------------------ #
     # internals
     # ------------------------------------------------------------------ #
-    def _resolve_ids(self, N: int) -> list[str]:
-        if self.ids is None:
-            self.ids = [f"n{i + 1}" for i in range(N)]
-        elif len(self.ids) != N:
-            raise ValueError(f"ids has length {len(self.ids)} but matrix is {N}x{N}")
-        return self.ids
+    def _resolve_ids(self, N: int, ids: Sequence | None = None) -> list[str]:
+        # Never mutate call state: ``ids`` (this call) wins, else the
+        # ctor-supplied labels, else positional ``n1..nN``. Nothing is cached
+        # onto ``self``, so a later call with a different-sized matrix or a
+        # different node table is unaffected by this one.
+        src = ids if ids is not None else self.ids
+        if src is None:
+            return [f"n{i + 1}" for i in range(N)]
+        src = [str(x) for x in src]
+        if len(src) != N:
+            raise ValueError(f"ids has length {len(src)} but matrix is {N}x{N}")
+        return src
 
     @staticmethod
     def _js_val(v) -> str:
         """Python scalar -> JS literal (numbers bare, NaN -> NaN, else quoted)."""
         if isinstance(v, (int, float, np.integer, np.floating)) and not isinstance(v, bool):
             f = float(v)
-            return "NaN" if np.isnan(f) else repr(int(f)) if f.is_integer() else repr(f)
-        if v is None or (isinstance(v, float) and np.isnan(v)):
+            if not np.isfinite(f):        # NaN / inf / -inf -> JS has no literal
+                return "NaN"
+            return repr(int(f)) if f.is_integer() else repr(f)
+        if v is None or (isinstance(v, float) and not np.isfinite(v)):
             return "NaN"
         return "'" + str(v).replace("'", "\\'") + "'"
 

@@ -60,6 +60,7 @@ os.environ.setdefault(
 )
 
 import argparse
+import hashlib
 import json
 import logging
 import platform as _platform
@@ -219,6 +220,7 @@ def fit_config(m, sim, a, b, args):
     m.data_on_model = {"X": jnp.asarray(sim["X"]), "y": jnp.asarray(sim["y"])}
     model = make_r2d2_model(m, a, b, centered=args.centered, dir_conc=args.dir_conc)
 
+    fit_seed = _cfg_seed(args.seed, sim["sigma_true"], a, b)
     t0 = time.time()
     m.fit(model,
           num_warmup=args.num_warmup,
@@ -227,6 +229,7 @@ def fit_config(m, sim, a, b, args):
           target_accept_prob=args.target_accept,
           max_tree_depth=args.max_tree_depth,
           progress_bar=False,
+          seed=fit_seed,
           extra_fields=("diverging",))
     dt = time.time() - t0
 
@@ -296,7 +299,7 @@ def fit_config(m, sim, a, b, args):
 
     return dict(
         label=label, a=float(a), b=float(b), prior_mean_r2=float(a / (a + b)),
-        runtime_s=dt,
+        mcmc_seed=int(fit_seed), runtime_s=dt,
         r2_true_model=sim["r2_model"], r2_true_sample=sim["r2_sample"],
         r2_post_mean=r2_pm, r2_hdi=[float(r2_lo), float(r2_hi)],
         sigma_true=sim["sigma_true"], sigma_post_mean=sig_pm,
@@ -312,6 +315,19 @@ def fit_config(m, sim, a, b, args):
 
 def _fmt(x):
     return f"{x:.3g}"
+
+
+def _cfg_seed(base: int, sigma_true: float, a: float, b: float) -> int:
+    """Deterministic per-fit MCMC seed.
+
+    The NUTS run must be reproducible from ``--seed`` (the DGP already is), yet
+    each (noise level, Beta prior) fit needs its own independent stream — reusing
+    one key across all fits would couple their divergence counts. Derive a stable
+    32-bit seed from the base seed and the config tuple.
+    """
+    key = f"{base}|{sigma_true:.6g}|{a:.6g}|{b:.6g}"
+    h = int(hashlib.sha256(key.encode()).hexdigest(), 16)
+    return (base + h) & 0x7FFFFFFF
 
 
 # ----------------------------------------------------------------------
@@ -435,11 +451,20 @@ def run_scenario(m, priors, sigma_true, args, tag):
                  f"{r['null_false_pos']:3d} | {r['max_rhat']:5.2f} | "
                  f"{r['min_ess']:6.0f} | {r['divergences']:4d}")
 
-    thr = 0.1 * args.num_samples * args.num_chains
-    ok = [r for r in results if r["max_rhat"] <= 1.1 and r["divergences"] <= thr]
-    bad = [r for r in results if r not in ok]
+    # A clean NUTS fit has ~0 divergences. Flag anything above ~0.5% of the
+    # post-warmup transitions: that is the R2D2 funnel pathology this test
+    # exists to surface ("When R2D2 Fails" in the qmd), and R-hat alone stays
+    # near 1.0 while it happens. The old 10% gate passed fits with hundreds of
+    # divergent transitions.
+    total_draws = args.num_samples * args.num_chains
+    thr = max(1, int(round(0.005 * total_draws)))
+    ok = [r for r in results
+          if r["max_rhat"] <= 1.1 and 0 <= r["divergences"] <= thr]
+    ok_ids = {id(r) for r in ok}                     # dicts hold ndarrays: no `in`
+    bad = [r for r in results if id(r) not in ok_ids]
     if bad:
-        log.warning("NON-CONVERGED @ sigma=%.2f: %s", sigma_true,
+        log.warning("NON-CONVERGED @ sigma=%.2f (divergence gate = %d / %d transitions): %s",
+                    sigma_true, thr, total_draws,
                     ", ".join(f"{r['label']}(Rhat={r['max_rhat']:.2f},div={r['divergences']})"
                               for r in bad))
     if ok:
@@ -465,18 +490,22 @@ def make_sweep_figure(scenarios, stamp):
 
     sig = [s["sim"]["sigma_true"] for s in scenarios]
     r2t = [s["sim"]["r2_model"] for s in scenarios]
-    labels = [r["label"] for r in scenarios[0]["results"]]
+    rmaps = [{r["label"]: r for r in s["results"]} for s in scenarios]
+    # union of labels seen across scenarios, first-seen order
+    labels = list(dict.fromkeys(l for rm in rmaps for l in rm))
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.4))
     for lab in labels:
-        rmse = [next(r["rmse_strong"] for r in s["results"] if r["label"] == lab) for s in scenarios]
-        r2e = [next(r["r2_post_mean"] for r in s["results"] if r["label"] == lab) - t
-               for s, t in zip(scenarios, r2t)]
-        sige = [next(r["sigma_post_mean"] for r in s["results"] if r["label"] == lab) / sg - 1.0
-                for s, sg in zip(scenarios, sig)]
-        axes[0].plot(sig, rmse, "o-", label=lab)
-        axes[1].plot(r2t, r2e, "o-", label=lab)
-        axes[2].plot(r2t, sige, "o-", label=lab)
+        # scenarios where this prior actually produced a fit
+        idx = [i for i, rm in enumerate(rmaps) if lab in rm]
+        if not idx:
+            continue
+        rmse = [rmaps[i][lab]["rmse_strong"] for i in idx]
+        r2e = [rmaps[i][lab]["r2_post_mean"] - r2t[i] for i in idx]
+        sige = [rmaps[i][lab]["sigma_post_mean"] / sig[i] - 1.0 for i in idx]
+        axes[0].plot([sig[i] for i in idx], rmse, "o-", label=lab)
+        axes[1].plot([r2t[i] for i in idx], r2e, "o-", label=lab)
+        axes[2].plot([r2t[i] for i in idx], sige, "o-", label=lab)
     axes[0].set_xlabel("DGP noise sigma_true"); axes[0].set_ylabel("RMSE strong beta")
     axes[0].set_title("coefficient recovery error vs noise")
     axes[1].axhline(0, color="k", lw=.8)
@@ -567,7 +596,8 @@ def main():
                  _fmt(a), _fmt(b), d["prior_mean"], d["q05"], d["q50"],
                  d["q95"], d["p_gt_0_5"])
 
-    m = bf(platform="cpu", cores=args.num_chains, print_devices_found=False)
+    m = bf(platform="cpu", cores=args.num_chains, rand_seed=args.seed,
+           print_devices_found=False)
     log.info("=" * 70)
     log.info("INFERENCE  (%d noise levels x %d priors = %d fits)",
              len(sigma_grid), len(priors), len(sigma_grid) * len(priors))
@@ -579,30 +609,46 @@ def main():
         scenarios.append(dict(sim=sim, results=results, tag=tag))
 
     # cross-noise summary --------------------------------------------
-    log.info("=" * 70)
-    log.info("NOISE SWEEP SUMMARY  (RMSE strong beta  /  sigma_post per sigma_true)")
-    labels = [r["label"] for r in scenarios[0]["results"]]
-    hdr = f"{'sigma_true':>10} | {'R2_true':>8} | " + " | ".join(f"{l:>13}" for l in labels)
-    log.info(hdr)
-    log.info("-" * len(hdr))
-    for s in scenarios:
-        cells = []
-        for l in labels:
-            r = next(rr for rr in s["results"] if rr["label"] == l)
-            flag = "" if (r["max_rhat"] <= 1.1) else "!"
-            cells.append(f"{r['rmse_strong']:.2f}/{r['sigma_post_mean']:.2f}{flag:>1}")
-        log.info(f"{s['sim']['sigma_true']:10.3f} | {s['sim']['r2_model']:8.3f} | "
-                 + " | ".join(f"{c:>13}" for c in cells))
-    log.info("cell = RMSE(strong beta) / posterior-mean sigma   ('!' = max R-hat > 1.1)")
+    # Wrapped: a formatting slip here must never cost us the results JSON below.
+    # `labels` comes from the requested priors, not from scenarios[0] — a failed
+    # fit leaves `results` shorter than the prior list, and every lookup is a
+    # dict .get() so a missing (label, scenario) cell degrades to "n/a".
+    try:
+        log.info("=" * 70)
+        log.info("NOISE SWEEP SUMMARY  (RMSE strong beta  /  sigma_post per sigma_true)")
+        labels = [f"Beta({_fmt(a)},{_fmt(b)})" for a, b in priors]
+        rmaps = [{r["label"]: r for r in s["results"]} for s in scenarios]
+        hdr = f"{'sigma_true':>10} | {'R2_true':>8} | " + " | ".join(f"{l:>13}" for l in labels)
+        log.info(hdr)
+        log.info("-" * len(hdr))
+        for s, rmap in zip(scenarios, rmaps):
+            cells = []
+            for l in labels:
+                r = rmap.get(l)
+                if r is None:
+                    cells.append("n/a")
+                    continue
+                flag = "" if (r["max_rhat"] <= 1.1) else "!"
+                cells.append(f"{r['rmse_strong']:.2f}/{r['sigma_post_mean']:.2f}{flag:>1}")
+            log.info(f"{s['sim']['sigma_true']:10.3f} | {s['sim']['r2_model']:8.3f} | "
+                     + " | ".join(f"{c:>13}" for c in cells))
+        log.info("cell = RMSE(strong beta) / posterior-mean sigma   "
+                 "('!' = max R-hat > 1.1 ; 'n/a' = fit failed)")
 
-    log.info("-" * 70)
-    log.info("does the DGP noise change the R2D2 conclusions?")
-    for l in labels:
-        rmses = [next(r["rmse_strong"] for r in s["results"] if r["label"] == l) for s in scenarios]
-        sbias = [next(r["sigma_post_mean"] for r in s["results"] if r["label"] == l) / s["sim"]["sigma_true"] - 1
-                 for s in scenarios]
-        log.info("%-14s : RMSE %.2f -> %.2f as noise grows ; sigma bias %+.0f%% -> %+.0f%%",
-                 l, rmses[0], rmses[-1], 100 * sbias[0], 100 * sbias[-1])
+        log.info("-" * 70)
+        log.info("does the DGP noise change the R2D2 conclusions?")
+        for l in labels:
+            got = [(rmap.get(l), s) for rmap, s in zip(rmaps, scenarios)]
+            got = [(r, s) for r, s in got if r is not None]
+            if len(got) < 2:
+                log.info("%-14s : too few successful fits (%d) to compare", l, len(got))
+                continue
+            rmses = [r["rmse_strong"] for r, _ in got]
+            sbias = [r["sigma_post_mean"] / s["sim"]["sigma_true"] - 1 for r, s in got]
+            log.info("%-14s : RMSE %.2f -> %.2f as noise grows ; sigma bias %+.0f%% -> %+.0f%%",
+                     l, rmses[0], rmses[-1], 100 * sbias[0], 100 * sbias[-1])
+    except Exception as e:
+        log.exception("noise-sweep summary failed (results JSON still written): %s", e)
 
     # figures + json ------------------------------------------------
     sweep_fig = None
