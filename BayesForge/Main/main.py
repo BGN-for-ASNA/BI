@@ -56,6 +56,7 @@ from BayesForge.Models.GMM import *
 from BayesForge.Models.DPMM import *
 from BayesForge.ML.ml import ml
 from BayesForge.BNN.bnn import bnn
+from BayesForge.Workflow import Workflow
 
 
 class bf(manip):
@@ -156,6 +157,7 @@ class bf(manip):
         self.NBDA = NBDA
 
         self.models = models(self)
+        self.workflow = Workflow(self)
 
         self.model_name = None
         self.run_model_name = None
