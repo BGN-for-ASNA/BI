@@ -1,3 +1,5 @@
+
+#%%
 """Usage demo for BayesForge.Workflow (``m.workflow``).
 
 Not a pytest suite -- a runnable walkthrough of every Workflow method, in the
@@ -11,7 +13,7 @@ Run with: python "Test/Workflow_class/demo_workflow.py"
 from BayesForge import bf
 import jax.numpy as jnp
 
-
+#%%
 # ---------------------------------------------------------------------------
 # 0. Confirm what parallelization is actually available
 # ---------------------------------------------------------------------------
@@ -37,7 +39,7 @@ def dgp(n_obs=200):
     y = m.dist.normal(alpha + beta * x, sigma, sample=True)
     return dict(alpha=alpha, beta=beta, sigma=sigma), dict(x=x, y=y)
 
-
+#%%
 # ---------------------------------------------------------------------------
 # 2. Advice before spending any compute
 # ---------------------------------------------------------------------------
@@ -45,7 +47,7 @@ _, sample_data = dgp()
 for line in m.workflow.advise(data=sample_data, n_params=3, dgp=dgp, model=model):
     print("-", line)
 
-
+#%%
 # ---------------------------------------------------------------------------
 # 3. Parameter recovery (sequential, n_jobs=1)
 # ---------------------------------------------------------------------------
@@ -58,7 +60,54 @@ recovery = m.workflow.recover(
 print(recovery.summary())
 m.workflow.plot_recovery(recovery)  # .show() in an interactive session
 
+#%%
+# ---------------------------------------------------------------------------
+# 3b. seed= and param_grid= -- dgp() above is used completely UNCHANGED
+# ---------------------------------------------------------------------------
+# seed: reproducible sweep. Same seed -> identical sequence of simulated
+# (true_params, data) every run; the RANGE tested for each parameter is
+# whatever variance dgp() already puts on that parameter's prior.
+recovery_reproducible = m.workflow.recover(
+    model=model, dgp=dgp, param_names=["alpha", "beta", "sigma"],
+    n_sim=20, seed=42,
+    fit_kwargs=dict(num_warmup=500, num_samples=500, num_chains=4),
+)
+recovery_reproducible_again = m.workflow.recover(
+    model=model, dgp=dgp, param_names=["alpha", "beta", "sigma"],
+    n_sim=20, seed=42,
+    fit_kwargs=dict(num_warmup=500, num_samples=500, num_chains=4),
+)
+assert (recovery_reproducible.table["beta_true"]
+        == recovery_reproducible_again.table["beta_true"]).all()  # same sweep both times
 
+# param_grid: TARGET exact values (e.g. stress-test near a null effect).
+# `dgp` is passed and called exactly as in section 3/3b above -- no
+# fixed_params argument, no edits. BF's DistProxy already infers `name="beta"`
+# from `beta = m.dist.normal(..., sample=True)`'s own LHS; recover() uses
+# that existing name to swap in the grid value for that one draw only.
+beta_grid = jnp.linspace(-3, 3, 20).tolist()   # exact swept values, length == n_sim
+recovery_grid = m.workflow.recover(
+    model=model, dgp=dgp, param_names=["alpha", "beta", "sigma"],
+    n_sim=20, param_grid={"beta": beta_grid},
+    fit_kwargs=dict(num_warmup=500, num_samples=500, num_chains=4),
+)
+print(recovery_grid.table[["sim", "beta_true", "beta_mean", "beta_covered"]])
+assert recovery_grid.table["beta_true"].tolist() == beta_grid  # exact values used, not random
+
+# param_grid also matches dgp's own ARGUMENTS (checked via inspect.signature),
+# not just internal sample=True draws -- e.g. a sample-size power analysis.
+# dgp(n_obs=200) above already has n_obs as an argument, so this needs no
+# changes either: "n_obs" isn't a m.dist.*(sample=True) draw, so it's routed
+# to a plain dgp(n_obs=...) call instead of the fixed_params() interception.
+n_obs_grid = [25, 50, 100, 200, 400] * 4       # length 20 == n_sim
+recovery_power = m.workflow.recover(
+    model=model, dgp=dgp, param_names=["alpha", "beta", "sigma"],
+    n_sim=20, param_grid={"n_obs": n_obs_grid},
+    fit_kwargs=dict(num_warmup=500, num_samples=500, num_chains=4),
+)
+print(recovery_power.table[["sim", "beta_mean", "beta_covered"]])  # coverage vs. sample size
+
+#%%
 # ---------------------------------------------------------------------------
 # 4. Simulation-based calibration checking
 # ---------------------------------------------------------------------------
@@ -70,7 +119,7 @@ sbc_result = m.workflow.sbc(
 print(sbc_result.summary())
 m.workflow.plot_sbc(sbc_result)
 
-
+#%%
 # ---------------------------------------------------------------------------
 # 5. Fit once on real-shaped data, then use the diagnostics/posterior-arithmetic side
 # ---------------------------------------------------------------------------
@@ -93,7 +142,7 @@ decision = m.workflow.decide(
 )
 print(decision)
 
-
+#%%
 # ---------------------------------------------------------------------------
 # 6. m.dgp: the DGP used above round-trips through m.save()/m.load()
 # ---------------------------------------------------------------------------
@@ -118,7 +167,7 @@ more_recovery = m2.workflow.recover(
     fit_kwargs=dict(num_warmup=200, num_samples=200, num_chains=2),
 )
 print(more_recovery.summary())
-
+#%%
 
 # ---------------------------------------------------------------------------
 # 7. n_jobs>1 path -- requires factories (see Workflow.recover docstring for why)
@@ -150,3 +199,5 @@ if __name__ == "__main__":
         fit_kwargs=dict(num_warmup=500, num_samples=500, num_chains=2),
     )
     print(parallel_recovery.summary())
+
+# %%

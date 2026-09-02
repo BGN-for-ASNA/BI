@@ -24,6 +24,7 @@ from .results import RecoveryResult, SBCResult, ContrastResult
 from .parallel import run_parallel, probe_parallel_capabilities
 from .diagnostics import annotated_summary, advise
 from .visualization import plot_recovery, plot_sbc_rank, plot_annotated_summary, save_figure
+from .param_grid import fixed_params, split_grid_row
 
 
 class Workflow:
@@ -43,6 +44,7 @@ class Workflow:
     # Parameter recovery
     # ------------------------------------------------------------------
     def recover(self, model=None, dgp=None, param_names=None, n_sim=100,
+                seed=None, param_grid=None,
                 model_factory=None, dgp_factory=None, n_jobs=1,
                 platform="cpu", cores=None, fit_kwargs=None, hdi_prob=0.89,
                 results_dir=None, verbose=True):
@@ -74,6 +76,35 @@ class Workflow:
             param_names: Parameter names to track (must match ``name=`` in
                 ``model`` and keys returned by ``dgp``/``true_params``).
             n_sim: Number of simulated datasets.
+            seed: If given, simulation ``i`` calls ``dgp()`` with the central
+                RNG seeded to ``seed + i`` first (via ``self.m.set_seed``),
+                making the whole sweep reproducible run-to-run -- same seed,
+                identical sequence of simulated true_params/data every time.
+                ``dgp()`` needs no changes for this; every ``sample=True``
+                draw already goes through the instance's shared RNG. The
+                *range* of true values a swept parameter takes is whatever
+                its prior's own variance already produces in ``dgp`` --
+                widen/narrow that in ``dgp`` itself to widen/narrow the test
+                range, rather than something ``recover`` controls externally.
+            param_grid: For targeting *exact* values instead of a
+                reproducible random spread: ``dict[name -> sequence of length
+                n_sim]``. Per simulation ``i``, each key in ``param_grid`` is
+                routed automatically (``param_grid.split_grid_row``, via
+                ``inspect.signature(dgp)``) to one of two places, and ``dgp``
+                needs no code changes for either:
+                (1) a name matching one of ``dgp``'s own arguments (e.g.
+                ``def dgp(n_obs=200):`` -- for sweeping sample size / a fixed
+                design setting rather than a sampled parameter) is passed as
+                ``dgp(n_obs=param_grid["n_obs"][i])``;
+                (2) anything else is matched against ``m.dist.*(sample=True)``
+                draws inside ``dgp()`` by name (BF's ``DistProxy`` already
+                infers this from the assignment's LHS variable, e.g.
+                ``beta = m.dist.normal(..., sample=True)`` is implicitly named
+                ``"beta"`` -- see ``Distributions/np_dists.py``) and returns
+                ``param_grid[name][i]`` instead of sampling. A name matching
+                both is treated as case (1). Only swept parameters need a
+                grid entry; every other draw/argument in ``dgp()`` is
+                unaffected. See ``param_grid.py``.
             model_factory, dgp_factory: ``Callable[[bf], model|dgp]`` for the
                 n_jobs>1 path.
             n_jobs: 1 (sequential, default) or >1 (multiprocess).
@@ -107,6 +138,15 @@ class Workflow:
         model = model or getattr(self.m, "model", None)
         dgp = dgp or getattr(self.m, "dgp", None)
 
+        if param_grid:
+            bad = {name: len(vals) for name, vals in param_grid.items()
+                   if len(vals) != n_sim}
+            if bad:
+                raise ValueError(
+                    f"param_grid value lists must have length n_sim={n_sim}; "
+                    f"got {bad}."
+                )
+
         if n_jobs > 1:
             if model_factory is None or dgp_factory is None:
                 raise ValueError(
@@ -120,7 +160,7 @@ class Workflow:
                 n_sim, n_jobs=n_jobs, model_factory=model_factory,
                 dgp_factory=dgp_factory, param_names=param_names,
                 fit_kwargs=fit_kwargs, platform=platform, cores=cores,
-                hdi_prob=hdi_prob, mode="recover",
+                hdi_prob=hdi_prob, mode="recover", seed=seed, param_grid=param_grid,
             )
         else:
             if model is None or dgp is None:
@@ -130,7 +170,13 @@ class Workflow:
             lo_q, hi_q = (1 - hdi_prob) / 2, 1 - (1 - hdi_prob) / 2
             rows = []
             for i in range(n_sim):
-                true_params, data = dgp()
+                if seed is not None:
+                    self.m.set_seed(int(seed) + i)
+                row_i = ({name: vals[i] for name, vals in param_grid.items()}
+                        if param_grid else None)
+                call_kwargs, sample_fixed = split_grid_row(dgp, row_i)
+                with fixed_params(self.m, sample_fixed):
+                    true_params, data = dgp(**call_kwargs)
                 self.m.fit(model, obs=data, **fit_kwargs)
                 row = {"sim": i}
                 for name in param_names:
@@ -164,7 +210,7 @@ class Workflow:
     # Simulation-based calibration checking
     # ------------------------------------------------------------------
     def sbc(self, model=None, dgp=None, param_names=None, n_sbc=200,
-            n_post_draws=1000, model_factory=None, dgp_factory=None,
+            n_post_draws=1000, seed=None, model_factory=None, dgp_factory=None,
             n_jobs=1, platform="cpu", cores=None, fit_kwargs=None,
             results_dir=None, verbose=True):
         """Simulation-based calibration: rank-uniformity check of the fitting
@@ -186,6 +232,12 @@ class Workflow:
                 minimum for a stable rank histogram).
             n_post_draws: Posterior draws per replication (used as
                 ``num_samples`` unless overridden in ``fit_kwargs``).
+            seed: If given, replication ``i`` seeds the central RNG to
+                ``seed + i`` before calling ``dgp()`` (via
+                ``self.m.set_seed``), making the whole SBC run reproducible.
+                No ``param_grid`` here (unlike :meth:`recover`) -- SBC's
+                point is checking calibration against the prior's own draws,
+                not against externally chosen values.
             model_factory, dgp_factory, n_jobs, platform, cores: n_jobs>1
                 path -- see :meth:`recover`.
             fit_kwargs: Extra kwargs forwarded to ``m.fit``. Defaults to
@@ -218,7 +270,7 @@ class Workflow:
                 n_sbc, n_jobs=n_jobs, model_factory=model_factory,
                 dgp_factory=dgp_factory, param_names=param_names,
                 fit_kwargs=fit_kwargs, platform=platform, cores=cores,
-                hdi_prob=0.89, mode="sbc",
+                hdi_prob=0.89, mode="sbc", seed=seed, param_grid=None,
             )
         else:
             if model is None or dgp is None:
@@ -227,6 +279,8 @@ class Workflow:
             self.m.dgp = dgp  # persist -- round-trips via m.save()/m.load()
             rows = []
             for i in range(n_sbc):
+                if seed is not None:
+                    self.m.set_seed(int(seed) + i)
                 true_params, data = dgp()
                 self.m.fit(model, obs=data, **fit_kwargs)
                 row = {"sim": i}

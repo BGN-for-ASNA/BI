@@ -73,20 +73,30 @@ def probe_parallel_capabilities(m=None, verbose=True):
 
 
 def _sim_worker(i, model_factory, dgp_factory, param_names, fit_kwargs,
-                 platform, cores, hdi_prob, mode):
+                 platform, cores, hdi_prob, mode, seed=None, param_grid=None):
     """Runs inside its own process: build a fresh ``bf`` instance, simulate one
     dataset, fit it, and reduce the fit down to plain-Python numbers so the
     result can be pickled back to the parent process.
+
+    ``seed``/``param_grid`` mirror the sequential (n_jobs=1) path in
+    ``core.py`` -- see ``Workflow.recover``'s docstring for what each does.
 
     Not imported/used directly -- dispatched via :func:`run_parallel`.
     """
     from BayesForge import bf
     import jax.numpy as jnp
+    from .param_grid import fixed_params, split_grid_row
 
     m = bf(platform=platform, cores=cores, print_devices_found=False)
     model = model_factory(m)
     dgp = dgp_factory(m)
-    true_params, data = dgp()
+    if seed is not None:
+        m.set_seed(int(seed) + i)
+    row_i = ({name: vals[i] for name, vals in param_grid.items()}
+            if param_grid else None)
+    call_kwargs, sample_fixed = split_grid_row(dgp, row_i)
+    with fixed_params(m, sample_fixed):
+        true_params, data = dgp(**call_kwargs)
     m.fit(model, obs=data, **fit_kwargs)
 
     row = {"sim": i}
@@ -122,7 +132,7 @@ def run_parallel(n_sim, n_jobs=1, **worker_kwargs):
             own ``bf`` instance via ``model_factory``/``dgp_factory``.
         **worker_kwargs: Forwarded to :func:`_sim_worker` (model_factory,
             dgp_factory, param_names, fit_kwargs, platform, cores, hdi_prob,
-            mode).
+            mode, seed, param_grid).
 
     Returns:
         list of per-simulation result dicts, in simulation order.
