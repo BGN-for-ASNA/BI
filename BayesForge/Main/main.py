@@ -1053,7 +1053,18 @@ class bf(manip):
                 cloudpickle.dump(self, f)
             print(f"BF object successfully saved to {path}")
         except Exception as e:
+            # open(path, "wb") already truncated the file to 0 bytes before
+            # dump() failed -- remove that empty/partial file rather than
+            # leaving it behind to fail a later load() with a confusing
+            # unrelated "Ran out of input" (EOFError) on an empty file.
+            import os as _os
+            if _os.path.exists(path):
+                try:
+                    _os.remove(path)
+                except OSError:
+                    pass
             print(f"Error saving BF object: {e}")
+            raise
 
     @staticmethod
     def load(path=None):
@@ -1076,7 +1087,7 @@ class bf(manip):
             return obj
         except Exception as e:
             print(f"Error loading BF object: {e}")
-            return None
+            raise
 
     # ------------------------------------------------------------------
     # Multi-GPU helpers
