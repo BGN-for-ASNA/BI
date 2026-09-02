@@ -95,7 +95,33 @@ print(decision)
 
 
 # ---------------------------------------------------------------------------
-# 6. n_jobs>1 path -- requires factories (see Workflow.recover docstring for why)
+# 6. m.dgp: the DGP used above round-trips through m.save()/m.load()
+# ---------------------------------------------------------------------------
+# workflow.recover()/sbc() already persisted `dgp` onto m.dgp automatically
+# (step 3/4 above). It's a plain attribute, so cloudpickle carries it through
+# save/load exactly like m.model, m.posteriors, m.data_on_model:
+assert m.dgp is dgp
+
+m.save("Results/demo_model.pkl")
+m2 = bf.load("Results/demo_model.pkl")
+true_params_again, data_again = m2.dgp()          # the exact DGP survived the round trip
+print("Reloaded m2.dgp() ->", true_params_again)
+
+# Once m.dgp/m.model are set (directly, via a prior recover()/sbc() call, or
+# a reload), later calls don't need to pass model=/dgp= again -- note we do
+# NOT pass the original `model`/`dgp` variables here: those closures capture
+# the *original* m, whereas m2.model/m2.dgp were correctly rebound to m2 by
+# cloudpickle's self-referential save/load (the same mechanism that already
+# lets self.model round-trip):
+more_recovery = m2.workflow.recover(
+    param_names=["alpha", "beta", "sigma"], n_sim=5,
+    fit_kwargs=dict(num_warmup=200, num_samples=200, num_chains=2),
+)
+print(more_recovery.summary())
+
+
+# ---------------------------------------------------------------------------
+# 7. n_jobs>1 path -- requires factories (see Workflow.recover docstring for why)
 # ---------------------------------------------------------------------------
 def model_factory(m_):
     def _model(x, y):

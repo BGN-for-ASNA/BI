@@ -136,6 +136,12 @@ class bf(manip):
         self.tab_summary = None
         self.posteriors_full = None
         self.posteriors_by_chain_full = None
+        # The data-generative-process function last used with this instance
+        # (e.g. via m.workflow.recover/sbc, or set directly). Plain attribute
+        # on purpose -- it round-trips through m.save()/m.load() (cloudpickle
+        # serializes the whole instance) with no extra machinery, the same
+        # way self.model already does.
+        self.dgp = None
 
         self.nbdaModel = False
         self.obs_args = None

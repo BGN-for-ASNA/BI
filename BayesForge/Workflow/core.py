@@ -61,9 +61,16 @@ class Workflow:
 
         Args:
             model: Model function bound to ``self.m`` (n_jobs=1 path).
+                Defaults to ``self.m.model`` (the model from the last
+                ``m.fit``) when omitted.
             dgp: Callable ``() -> (true_params: dict, data: dict)`` bound to
                 ``self.m`` (n_jobs=1 path). Every stochastic draw inside it
                 should use ``sample=True`` (see ``bf://how-to/python/data-generation``).
+                Defaults to ``self.m.dgp`` when omitted -- and whichever dgp
+                actually ends up used (passed here, or already on ``m``) is
+                (re-)stored on ``self.m.dgp`` afterward, so it round-trips
+                through ``m.save()``/``m.load()`` alongside the model and
+                posteriors.
             param_names: Parameter names to track (must match ``name=`` in
                 ``model`` and keys returned by ``dgp``/``true_params``).
             n_sim: Number of simulated datasets.
@@ -94,6 +101,11 @@ class Workflow:
         if not param_names:
             raise ValueError("recover() requires param_names.")
         fit_kwargs = dict(fit_kwargs or {})
+        # Fall back to whatever DGP/model this instance already carries (set
+        # directly, or persisted by a previous recover()/sbc() call, or
+        # restored via m.load()) before requiring the caller to pass one.
+        model = model or getattr(self.m, "model", None)
+        dgp = dgp or getattr(self.m, "dgp", None)
 
         if n_jobs > 1:
             if model_factory is None or dgp_factory is None:
@@ -112,7 +124,9 @@ class Workflow:
             )
         else:
             if model is None or dgp is None:
-                raise ValueError("recover() requires model and dgp when n_jobs=1.")
+                raise ValueError("recover() requires model and dgp when n_jobs=1 "
+                                 "(and none is already stored on m.model/m.dgp).")
+            self.m.dgp = dgp  # persist -- round-trips via m.save()/m.load()
             lo_q, hi_q = (1 - hdi_prob) / 2, 1 - (1 - hdi_prob) / 2
             rows = []
             for i in range(n_sim):
@@ -191,6 +205,8 @@ class Workflow:
         fit_kwargs = dict(fit_kwargs or {})
         fit_kwargs.setdefault("num_samples", n_post_draws)
         fit_kwargs.setdefault("num_chains", 1)
+        model = model or getattr(self.m, "model", None)
+        dgp = dgp or getattr(self.m, "dgp", None)
 
         if n_jobs > 1:
             if model_factory is None or dgp_factory is None:
@@ -206,7 +222,9 @@ class Workflow:
             )
         else:
             if model is None or dgp is None:
-                raise ValueError("sbc() requires model and dgp when n_jobs=1.")
+                raise ValueError("sbc() requires model and dgp when n_jobs=1 "
+                                 "(and none is already stored on m.model/m.dgp).")
+            self.m.dgp = dgp  # persist -- round-trips via m.save()/m.load()
             rows = []
             for i in range(n_sbc):
                 true_params, data = dgp()
