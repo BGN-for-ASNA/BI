@@ -1037,6 +1037,47 @@ class bf(manip):
         elif self.run_model_name == "pca":
             self.models.pca.plot()
 
+    # ------------------------------------------------------------------
+    # Pickling -- exclude live/device-bound state
+    # ------------------------------------------------------------------
+    # cloudpickle.dump(self, ...) on the raw instance fails on any
+    # multi-device setup: self.mesh / self._data_sharding / self._rep_sharding
+    # (built automatically in __init__ whenever n_devices>1, the common case
+    # on a multi-core CPU) directly wrap jaxlib Device objects, and
+    # self.sampler (the live NumPyro MCMC object post-fit) holds compiled,
+    # device-bound XLA executables -- neither is picklable by cloudpickle or
+    # plain pickle. Both are also the wrong things to persist anyway: they're
+    # live compute state tied to *this process's* JAX devices, not results.
+    # Everything that actually matters for reuse after a reload -- model,
+    # dgp, data_on_model, posteriors, posteriors_by_chain, tab_summary,
+    # model_name, history -- are plain data and round-trip normally.
+    _UNPICKLABLE_ATTRS = ("sampler", "mesh", "_data_sharding", "_rep_sharding")
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        excluded = [a for a in self._UNPICKLABLE_ATTRS if state.get(a) is not None]
+        for attr in excluded:
+            state.pop(attr, None)
+        state["_bf_pickle_excluded"] = excluded
+        return state
+
+    def __setstate__(self, state):
+        excluded = state.pop("_bf_pickle_excluded", [])
+        self.__dict__.update(state)
+        for attr in excluded:
+            self.__dict__.setdefault(attr, None)
+        if excluded:
+            import warnings
+            warnings.warn(
+                "Loaded bf object is missing live, device-bound state that "
+                f"can't be pickled: {excluded}. Fitted results (posteriors, "
+                "summary, data_on_model, model, dgp) are intact, but methods "
+                "that need a live sampler (e.g. m.sample() for fresh "
+                "posterior predictive draws, or resuming an MCMC run) "
+                "require re-fitting on the reloaded object first.",
+                stacklevel=2,
+            )
+
     def save(self, path=None):
         """
         Save the BF object state to a file using cloudpickle.
